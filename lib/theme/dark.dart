@@ -39,6 +39,7 @@ ThemeData DarkTheme = ThemeData(
     cardColor: primary,
     appBarTheme: AppBarTheme(
         color: Color(0xFF03151d), elevation: 0, textTheme: appbarTextTheme),
+    popupMenuTheme: PopupMenuThemeData(color: Color(0xFF032738)),
     sliderTheme: SliderThemeData(
       thumbColor: Colors.white,
       trackHeight: 2.25,
@@ -60,9 +61,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     boxBackground: Color(0xFF032738),
     textDetails: DarkTheme.primaryColor,
     menuIconButton: DarkTheme.accentColor.withAlpha(50),
-    popupMenuButton: Colors.black,
-    popupMenuButtonDetails: Colors.white,
-    searchBox: DarkTheme.accentColor.withAlpha(50),
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
     sentMessageBox: DarkTheme.primaryColor,
@@ -76,5 +74,4 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
-    mentionAutoCompleter: Color(0xFF263238),
-    border: DarkTheme.primaryColor);
+    mentionAutoCompleter: Color(0xFF263238));

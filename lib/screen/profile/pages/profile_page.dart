@@ -431,7 +431,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   PopupMenuButton<String> _buildMenu(BuildContext context) {
     return PopupMenuButton(
-      color: ExtraTheme.of(context).popupMenuButton,
       icon: Icon(Icons.more_vert),
       itemBuilder: (_) => <PopupMenuItem<String>>[
         if (widget.roomUid.isMuc() && _isMucOwner)

@@ -12,26 +12,22 @@ class ShowMentionList extends StatelessWidget {
 
   ShowMentionList({this.query = "", this.onSelected, this.roomUid});
 
-
   final _mucRepo = GetIt.I.get<MucRepo>();
-
-
-
 
   @override
   Widget build(BuildContext context) {
-
-      return FutureBuilder<List<UidIdName>>(future: _mucRepo.getFilteredMember(roomUid,query: query),builder: (c,members){
-        if(members.hasData && members.data.length>0)
-        return     Row(
-          children: [
+    return FutureBuilder<List<UidIdName>>(
+      future: _mucRepo.getFilteredMember(roomUid, query: query),
+      builder: (c, members) {
+        if (members.hasData && members.data.length > 0)
+          return Row(children: [
             Flexible(
                 child: SizedBox(
                     height: members.data.length >= 4
                         ? 180
                         : double.parse((members.data.length * 50).toString()),
                     child: Container(
-                        color: ExtraTheme.of(context).mentionAutoCompleter,
+                        color: ExtraTheme.of(context).boxBackground,
                         child: ListView.builder(
                           itemCount: members.data.length,
                           shrinkWrap: true,
@@ -43,10 +39,7 @@ class ShowMentionList extends StatelessWidget {
                         )))),
           ]);
         return SizedBox.shrink();
-
-      },);
-
-
-
+      },
+    );
   }
 }

@@ -5,21 +5,15 @@ class ExtraThemeData {
   Color boxOuterBackground = Color(0xfde2f8f0);
   Color boxBackground = Color(0xfde2f8f0);
   Color menuIconButton;
-  Color popupMenuButton;
-  Color popupMenuButtonDetails;
   Color chatOrContactItemDetails;
-  Color searchBox;
   Color sentMessageBox;
   Color receivedMessageBox;
+  Color persistentEventMessage;
   Color seenStatus; //green white
   Color messageDetails;
-  Color persistentEventMessage;
   Color circularFileStatus;
   Color fileMessageDetails;
   Color inputBoxBackground;
-
-  // TODO Should be remove
-  Color border;
 
   // TODO should be remove
   Color mentionAutoCompleter;
@@ -36,9 +30,6 @@ class ExtraThemeData {
     this.boxBackground,
     this.textDetails,
     this.menuIconButton,
-    this.popupMenuButton,
-    this.popupMenuButtonDetails,
-    this.searchBox,
     this.username,
     this.chatOrContactItemDetails,
     this.sentMessageBox,
@@ -51,7 +42,6 @@ class ExtraThemeData {
     this.fileMessageDetails,
     this.textField,
     this.inputBoxBackground,
-    this.border,
     this.mentionAutoCompleter,
   });
 }

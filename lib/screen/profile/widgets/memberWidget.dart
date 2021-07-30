@@ -38,9 +38,6 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   @override
   Widget build(BuildContext context) {
     _i18n = I18N.of(context);
-    var style =
-        TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
-
     return StreamBuilder<List<Member>>(
         stream: _mucRepo.watchAllMembers(widget.mucUid.asString()),
         builder: (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
@@ -78,7 +75,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              (snapshot.data ?? "Unknown").trim(),
+                                              (snapshot.data ?? "Unknown")
+                                                  .trim(),
                                               overflow: TextOverflow.fade,
                                               maxLines: 1,
                                               softWrap: false,
@@ -106,42 +104,21 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                         _myRoleInThisRoom == MucRole.OWNER) &&
                                     member.role != MucRole.OWNER)
                                   PopupMenuButton(
-                                    color:
-                                        ExtraTheme.of(context).popupMenuButton,
-                                    icon: Icon(
-                                      Icons.more_vert,
-                                      size: 18,
-                                    ),
+                                    icon: Icon(Icons.more_vert, size: 18),
                                     itemBuilder: (_) => <PopupMenuItem<String>>[
                                       if (_myRoleInThisRoom == MucRole.OWNER)
                                         new PopupMenuItem<String>(
                                             child: member.role == MucRole.MEMBER
-                                                ? Text(
-                                                    _i18n
-                                                        .get(
-                                                            "change_role_to_admin"),
-                                                    style: style,
-                                                  )
-                                                : Text(
-                                                    _i18n
-                                                        .get(
-                                                            "change_role_to_member"),
-                                                    style: style,
-                                                  ),
+                                                ? Text(_i18n.get(
+                                                    "change_role_to_admin"))
+                                                : Text(_i18n.get(
+                                                    "change_role_to_member")),
                                             value: CHANGE_ROLE),
                                       new PopupMenuItem<String>(
-                                          child: Text(
-                                            _i18n
-                                                .get("kick"),
-                                            style: style,
-                                          ),
+                                          child: Text(_i18n.get("kick")),
                                           value: DELETE),
                                       new PopupMenuItem<String>(
-                                          child: Text(
-                                            _i18n
-                                                .get("ban"),
-                                            style: style,
-                                          ),
+                                          child: Text(_i18n.get("ban")),
                                           value: BAN),
                                     ],
                                     onSelected: (key) {

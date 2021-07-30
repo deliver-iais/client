@@ -17,7 +17,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/forward_widget.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
@@ -104,7 +104,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   List<Message> searchResult = [];
   Message currentSearchResultMessage;
   Message _currentMessageForCheckTime;
-  Color _menuColor;
 
   var _pinMessages = SortedList<Message>((a, b) => a.id.compareTo(b.id));
 
@@ -172,19 +171,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _showCustomMenu(Message message) {
-    this
-        .showMenu(
-            context: context,
-            items: <PopupMenuEntry<OperationOnMessage>>[
-              OperationOnMessageEntry(
-                message,
-                hasPermissionInChannel: _hasPermissionInChannel.value,
-                hasPermissionInGroup: _hasPermissionInGroup.value,
-                isPined: _pinMessages.contains(message),
-              )
-            ],
-            color: _menuColor)
-        .then<void>((OperationOnMessage opr) async {
+    this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
+      OperationOnMessageEntry(
+        message,
+        hasPermissionInChannel: _hasPermissionInChannel.value,
+        hasPermissionInGroup: _hasPermissionInGroup.value,
+        isPined: _pinMessages.contains(message),
+      )
+    ]).then<void>((OperationOnMessage opr) async {
       if (opr == null) return;
       switch (opr) {
         case OperationOnMessage.REPLY:
@@ -424,7 +418,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget build(BuildContext context) {
     _i18n = I18N.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
-    _menuColor = ExtraTheme.of(context).popupMenuButton;
     if (isLarge(context)) {
       _maxWidth =
           (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
@@ -560,7 +553,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 stream: _waitingForForwardedMessage.stream,
                 builder: (c, wm) {
                   if (wm.hasData && wm.data) {
-                    return ForwardWidget(
+                    return ForwardPreview(
                       forwardedMessages: widget.forwardedMessages,
                       shareUid: widget.shareUid,
                       onClick: () {
@@ -798,19 +791,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
-                    color: ExtraTheme.of(context).popupMenuButton,
-                    icon: Icon(Icons.more_vert,
-                        color: ExtraTheme.of(context).textField),
+                    icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
-                          child: Text(
-                            _i18n.get("search"),
-                            style: TextStyle(
-                              color:
-                                  ExtraTheme.of(context).popupMenuButtonDetails,
-                            ),
-                          ),
-                          value: "search"),
+                          child: Text(_i18n.get("search")), value: "search"),
                     ],
                     onSelected: (search) {
                       _searchMode.add(true);

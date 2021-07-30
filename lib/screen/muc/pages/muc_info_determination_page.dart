@@ -5,6 +5,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -68,9 +69,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
-        title: Text(widget.isChannel
-            ? _i18n.get("newChannel")
-            : _i18n.get("newGroup")),
+        title: Text(
+            widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup")),
       ),
       body: FluidContainerWidget(
         child: Stack(
@@ -92,7 +92,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             validator: checkMucNameIsSet,
                             textInputAction: TextInputAction.send,
                             controller: controller,
-                            style: TextStyle(color: ExtraTheme.of(context).textField),
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).textField),
                             onChanged: (str) {
                               setState(() {
                                 mucName = str;
@@ -100,11 +101,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             },
                             decoration: buildInputDecoration(
                                 widget.isChannel
-                                    ? _i18n
-                                        .get("enter_channel_name")
-                                    : _i18n
-                                        .get("enter_group_name"),
-                                true, context)),
+                                    ? _i18n.get("enter_channel_name")
+                                    : _i18n.get("enter_group_name"),
+                                true,
+                                context)),
                       ),
                     ),
                   ],
@@ -123,7 +123,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               minLines: 1,
                               maxLines: 1,
                               autofocus: autofocus,
-                              style: TextStyle(color: ExtraTheme.of(context).textField),
+                              style: TextStyle(
+                                  color: ExtraTheme.of(context).textField),
                               textInputAction: TextInputAction.send,
                               controller: idController,
                               validator: validateUsername,
@@ -133,9 +134,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 });
                               },
                               decoration: buildInputDecoration(
-                                  _i18n
-                                      .get("enter_channel_id"),
-                                  true, context),
+                                  _i18n.get("enter_channel_id"), true, context),
                             ),
                           )),
                         ],
@@ -155,7 +154,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           autofocus: autofocus,
                           textInputAction: TextInputAction.newline,
                           controller: infoController,
-                          style: TextStyle(color: ExtraTheme.of(context).textField),
+                          style: TextStyle(
+                              color: ExtraTheme.of(context).textField),
                           validator: validateUsername,
                           onChanged: (str) {
                             setState(() {
@@ -164,11 +164,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           },
                           decoration: buildInputDecoration(
                               widget.isChannel
-                                  ? _i18n
-                                      .get("enter_channel_desc")
-                                  : _i18n
-                                      .get("enter_group_desc"),
-                              false, context)),
+                                  ? _i18n.get("enter_channel_desc")
+                                  : _i18n.get("enter_group_desc"),
+                              false,
+                              context)),
                     )),
                   ],
                 ),
@@ -177,8 +176,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     builder: (c, e) {
                       if (e.hasData && e.data) {
                         return Text(
-                          _i18n
-                              .get("channel_id_is_exist"),
+                          _i18n.get("channel_id_is_exist"),
                           style: TextStyle(color: Colors.red),
                         );
                       } else {
@@ -223,71 +221,71 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
               ],
             ),
             Positioned(
-              bottom: 0,
-              right: 0,
-              child: _showIcon
-                  ? Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      child: IconButton(
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.check, color: Colors.white),
-                        onPressed: () async {
-                          bool res =
-                              mucNameKey?.currentState?.validate() ?? false;
-                          if (res) {
-                            setState(() {
-                              _showIcon = false;
-                            });
-                            List<Uid> memberUidList = [];
-                            Uid micUid;
-                            for (var i = 0;
-                                i < _createMucService.contacts.length;
-                                i++) {
-                              memberUidList
-                                  .add(_createMucService.contacts[i].uid.asUid());
-                            }
-                            if (widget.isChannel) {
-                              bool result =
-                                  _channelIdKey?.currentState?.validate() ??
-                                      false;
-                              if (result) {
-                                if (await checkChannelD(channelId))
-                                  micUid = await _mucRepo.createNewChannel(
-                                      idController.text,
-                                      memberUidList,
-                                      controller.text,
-                                      ChannelType.PUBLIC,
-                                      infoController.text);
-                              }
-                            } else {
-                              micUid = await _mucRepo.createNewGroup(
-                                  memberUidList,
-                                  controller.text,
-                                  infoController.text);
-                            }
-                            if (micUid != null) {
-                              _createMucService.reset();
-                              _routingService.openRoom(micUid.asString());
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: _i18n
-                                      .get("error_occurred"));
+                bottom: 0,
+                right: 0,
+                child: _showIcon
+                    ? Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        child: IconButton(
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.check, color: Colors.white),
+                          onPressed: () async {
+                            bool res =
+                                mucNameKey?.currentState?.validate() ?? false;
+                            if (res) {
                               setState(() {
-                                _showIcon = true;
+                                _showIcon = false;
                               });
+                              List<Uid> memberUidList = [];
+                              Uid micUid;
+                              for (var i = 0;
+                                  i < _createMucService.contacts.length;
+                                  i++) {
+                                memberUidList.add(
+                                    _createMucService.contacts[i].uid.asUid());
+                              }
+                              if (widget.isChannel) {
+                                bool result =
+                                    _channelIdKey?.currentState?.validate() ??
+                                        false;
+                                if (result) {
+                                  if (await checkChannelD(channelId))
+                                    micUid = await _mucRepo.createNewChannel(
+                                        idController.text,
+                                        memberUidList,
+                                        controller.text,
+                                        ChannelType.PUBLIC,
+                                        infoController.text);
+                                }
+                              } else {
+                                micUid = await _mucRepo.createNewGroup(
+                                    memberUidList,
+                                    controller.text,
+                                    infoController.text);
+                              }
+                              if (micUid != null) {
+                                _createMucService.reset();
+                                _routingService.openRoom(micUid.asString());
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: _i18n.get("error_occurred"));
+                                setState(() {
+                                  _showIcon = true;
+                                });
+                              }
                             }
-                          }
-                        },
-                      ),
-                    )
-                  : CircularProgressIndicator(color: Colors.blueAccent,)
-            ),
+                          },
+                        ),
+                      )
+                    : CircularProgressIndicator(
+                        color: Colors.blueAccent,
+                      )),
             Positioned(
               bottom: 0,
               left: 0,
@@ -314,34 +312,25 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     );
   }
 
-  InputDecoration buildInputDecoration(label, bool isOptional, BuildContext context) {
+  InputDecoration buildInputDecoration(
+      label, bool isOptional, BuildContext context) {
     return InputDecoration(
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: ExtraTheme.of(context).border),
-          borderRadius: BorderRadius.circular(10),
-        ),
+            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: ExtraTheme.of(context).border),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
         disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.red,
-          ),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+            borderSide: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
         suffixIcon: isOptional
             ? Padding(
                 padding: const EdgeInsets.only(top: 20, left: 25),
-                child: Text(
-                  "*",
-                  style: TextStyle(color: ExtraTheme.of(context).border),
-                ),
+                child: Text("*"),
               )
             : SizedBox.shrink(),
-        labelText: label,
-        labelStyle: TextStyle(color:  ExtraTheme.of(context).border));
+        labelText: label);
   }
 
   String checkMucNameIsSet(String value) {

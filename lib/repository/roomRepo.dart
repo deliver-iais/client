@@ -135,7 +135,7 @@ class RoomRepo {
       var botInfo = await _botRepo.getBotInfo(uid);
       if (botInfo != null && botInfo.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), botInfo.name);
-        _uidIdNameDao.update(uid.asString(), name: botInfo.name);
+        _uidIdNameDao.update(uid.asString(), name: botInfo.name, id: uid.node);
 
         return botInfo.name;
       }
