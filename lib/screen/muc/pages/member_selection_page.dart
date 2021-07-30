@@ -33,21 +33,14 @@ class MemberSelectionPage extends StatelessWidget {
                     builder:
                         (BuildContext context, AsyncSnapshot<String> snapshot) {
                       if (snapshot.data != null) {
-                        return Text(
-                          snapshot.data,
-                          style: Theme.of(context).textTheme.headline5,
-                        );
+                        return Text(snapshot.data);
                       } else {
-                        return Text(
-                          i18n.get("add_member"),
-                          style: Theme.of(context).textTheme.headline5,
-                        );
+                        return Text(i18n.get("add_member"));
                       }
                     },
                   )
                 : Text(
                     isChannel ? i18n.get("newChannel") : i18n.get("newGroup"),
-                    style: Theme.of(context).textTheme.headline5,
                   ),
             StreamBuilder<int>(
                 stream: _createMucService.selectedLengthStream(),

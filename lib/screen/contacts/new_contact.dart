@@ -38,10 +38,7 @@ class _NewContactState extends State<NewContact> {
     return Scaffold(
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(),
-        title: Text(
-          _i18n.get("add_new_contact"),
-          style: Theme.of(context).textTheme.headline5,
-        ),
+        title: Text(_i18n.get("add_new_contact")),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),

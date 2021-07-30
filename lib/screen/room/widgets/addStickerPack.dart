@@ -26,12 +26,10 @@
 //     _i18n = AppLocalization.of(context);
 //     return Scaffold(
 //         appBar: AppBar(
-//             elevation: 0,
 //             title: Align(
 //               alignment: Alignment.centerLeft,
 //               child: Text(
 //                 _i18n.getTraslateValue("add_sticker_pack"),
-//                 style: Theme.of(context).textTheme.headline5,
 //               ),
 //             ),
 //             leading: _routingService.backButtonLeading()),

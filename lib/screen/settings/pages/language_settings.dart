@@ -27,12 +27,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
           child: FluidContainerWidget(
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
-              // elevation: 0,
               titleSpacing: 8,
-              title: Text(
-                i18n.get("language"),
-                style: Theme.of(context).textTheme.headline5,
-              ),
+              title: Text(i18n.get("language")),
               leading: _routingService.backButtonLeading(),
             ),
           ),

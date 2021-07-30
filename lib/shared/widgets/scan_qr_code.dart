@@ -59,10 +59,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     I18N i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          i18n.get("scan_qr_code"),
-          style: TextStyle(color: ExtraTheme.of(context).textField),
-        ),
+        title: Text(i18n.get("scan_qr_code")),
         leading: _routingServices.backButtonLeading(),
       ),
       body: Container(

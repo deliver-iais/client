@@ -56,8 +56,8 @@ class _AccountSettingsState extends State<AccountSettings> {
   attachFile() async {
     String path;
     if (isDesktop()) {
-      final typeGroup = XTypeGroup(
-          label: 'images', extensions: SUPPORTED_IMAGE_EXTENSIONS);
+      final typeGroup =
+          XTypeGroup(label: 'images', extensions: SUPPORTED_IMAGE_EXTENSIONS);
       final result = await openFile(acceptedTypeGroups: [typeGroup]);
       path = result.path;
     } else {
@@ -113,15 +113,12 @@ class _AccountSettingsState extends State<AccountSettings> {
           child: FluidContainerWidget(
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
-              // elevation: 0,
               titleSpacing: 8,
               title: Column(children: [
-                Text(_i18n.get("account_info"),
-                    style: Theme.of(context).textTheme.headline5),
+                Text(_i18n.get("account_info")),
                 if (widget.forceToSetUsernameAndName)
                   Text(
-                    _i18n
-                        .get("should_set_username_and_name"),
+                    _i18n.get("should_set_username_and_name"),
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -145,208 +142,186 @@ class _AccountSettingsState extends State<AccountSettings> {
               _lastUserName = snapshot.data.userName;
               return ListView(
                 children: [
-                  SettingsSection(
-                      title: _i18n.get("avatar"),
-                      tiles: [
-                        NormalSettingsTitle(
-                          child: Center(
-                            child: Stack(
-                              children: [
-                                _newAvatarPath != null
-                                    ? CircleAvatar(
-                                        radius: 65,
-                                        backgroundImage:
-                                            Image.file(File(_newAvatarPath))
-                                                .image,
-                                        child: Center(
-                                          child: SizedBox(
-                                              height: 50.0,
-                                              width: 50.0,
-                                              child: _uploadNewAvatar
-                                                  ? CircularProgressIndicator(
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation(
-                                                              Colors.blue),
-                                                      strokeWidth: 6.0,
-                                                    )
-                                                  : SizedBox.shrink()),
-                                        ),
-                                      )
-                                    : CircleAvatarWidget(
-                                        _authRepo.currentUserUid,
-                                        65,
-                                        showAsStreamOfAvatar: true,
-                                      ),
-                                // Spacer(),
-                                Container(
-                                  height: 130,
-                                  width: 130,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.grey[500].withOpacity(0.4),
-                                  ),
-                                  child: IconButton(
-                                    color: Colors.white,
-                                    splashRadius: 40,
-                                    iconSize: 40,
-                                    icon: Icon(
-                                      Icons.add_a_photo,
-                                    ),
-                                    onPressed: () => attachFile(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      ]),
-                  SettingsSection(
-                      title: _i18n.get("account_info"),
-                      tiles: [
-                        NormalSettingsTitle(
-                            child: Column(
+                  SettingsSection(title: _i18n.get("avatar"), tiles: [
+                    NormalSettingsTitle(
+                      child: Center(
+                        child: Stack(
                           children: [
-                            Form(
-                                key: _formKey,
-                                child: Column(
-                                  children: [
-                                    Form(
-                                      key: _usernameFormKey,
-                                      child: TextFormField(
-                                          minLines: 1,
-                                          style: TextStyle(
-                                              color: ExtraTheme.of(context)
-                                                  .textField),
-                                          initialValue: snapshot.data.userName,
-                                          textInputAction: TextInputAction.send,
-                                          onChanged: (str) {
-                                            setState(() {
-                                              _newUsername = str;
-                                              _username = str;
-                                              subject.add(str);
-                                            });
-                                          },
-                                          validator: validateUsername,
-                                          decoration: buildInputDecoration(
-                                              _i18n
-                                                  .get("username"),
-                                              true)),
+                            _newAvatarPath != null
+                                ? CircleAvatar(
+                                    radius: 65,
+                                    backgroundImage:
+                                        Image.file(File(_newAvatarPath)).image,
+                                    child: Center(
+                                      child: SizedBox(
+                                          height: 50.0,
+                                          width: 50.0,
+                                          child: _uploadNewAvatar
+                                              ? CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                          Colors.blue),
+                                                  strokeWidth: 6.0,
+                                                )
+                                              : SizedBox.shrink()),
                                     ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    _newUsername.isEmpty
-                                        ? Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  _i18n
-                                                      .get(
-                                                          "username_helper"),
-                                                  textAlign: TextAlign.justify,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 2,
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.blueAccent),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : SizedBox.shrink(),
-                                    !usernameIsAvailable
-                                        ? Row(
-                                            children: [
-                                              Text(
-                                                _i18n
-                                                    .get(
-                                                        "username_already_exist"),
-                                                style: TextStyle(
-                                                    fontSize: 10,
-                                                    color: Colors.red),
-                                              ),
-                                            ],
-                                          )
-                                        : SizedBox.shrink(),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    TextFormField(
-                                      initialValue:
-                                          snapshot.data.firstName ?? "",
+                                  )
+                                : CircleAvatarWidget(
+                                    _authRepo.currentUserUid,
+                                    65,
+                                    showAsStreamOfAvatar: true,
+                                  ),
+                            // Spacer(),
+                            Container(
+                              height: 130,
+                              width: 130,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey[500].withOpacity(0.4),
+                              ),
+                              child: IconButton(
+                                color: Colors.white,
+                                splashRadius: 40,
+                                iconSize: 40,
+                                icon: Icon(
+                                  Icons.add_a_photo,
+                                ),
+                                onPressed: () => attachFile(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ]),
+                  SettingsSection(title: _i18n.get("account_info"), tiles: [
+                    NormalSettingsTitle(
+                        child: Column(
+                      children: [
+                        Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                Form(
+                                  key: _usernameFormKey,
+                                  child: TextFormField(
                                       minLines: 1,
                                       style: TextStyle(
                                           color:
                                               ExtraTheme.of(context).textField),
+                                      initialValue: snapshot.data.userName,
                                       textInputAction: TextInputAction.send,
                                       onChanged: (str) {
                                         setState(() {
-                                          _firstName = str;
+                                          _newUsername = str;
+                                          _username = str;
+                                          subject.add(str);
                                         });
                                       },
-                                      validator: validateFirstName,
+                                      validator: validateUsername,
                                       decoration: buildInputDecoration(
-                                          _i18n
-                                              .get("firstName"),
-                                          true),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    TextFormField(
-                                        initialValue:
-                                            snapshot.data.lastName ?? "",
-                                        minLines: 1,
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField),
-                                        textInputAction: TextInputAction.send,
-                                        onChanged: (str) {
-                                          setState(() {
-                                            _lastName = str;
-                                          });
-                                        },
-                                        decoration: buildInputDecoration(
-                                            _i18n
-                                                .get("lastName"),
-                                            false)),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    TextFormField(
-                                        initialValue: snapshot.data.email ?? "",
-                                        minLines: 1,
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField),
-                                        textInputAction: TextInputAction.send,
-                                        onChanged: (str) {
-                                          setState(() {
-                                            _email = str;
-                                          });
-                                        },
-                                        validator: validateEmail,
-                                        decoration: buildInputDecoration(
-                                            _i18n
-                                                .get("email"),
-                                            false)),
-                                  ],
-                                )),
-                            SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                child: Text(
-                                    _i18n.get("save")),
-                                onPressed: () async {
-                                  checkAndSend();
-                                },
-                              ),
-                            )
-                          ],
-                        ))
-                      ])
+                                          _i18n.get("username"), true)),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                _newUsername.isEmpty
+                                    ? Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              _i18n.get("username_helper"),
+                                              textAlign: TextAlign.justify,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.blueAccent),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                                !usernameIsAvailable
+                                    ? Row(
+                                        children: [
+                                          Text(
+                                            _i18n.get("username_already_exist"),
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.red),
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                TextFormField(
+                                  initialValue: snapshot.data.firstName ?? "",
+                                  minLines: 1,
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField),
+                                  textInputAction: TextInputAction.send,
+                                  onChanged: (str) {
+                                    setState(() {
+                                      _firstName = str;
+                                    });
+                                  },
+                                  validator: validateFirstName,
+                                  decoration: buildInputDecoration(
+                                      _i18n.get("firstName"), true),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                TextFormField(
+                                    initialValue: snapshot.data.lastName ?? "",
+                                    minLines: 1,
+                                    style: TextStyle(
+                                        color:
+                                            ExtraTheme.of(context).textField),
+                                    textInputAction: TextInputAction.send,
+                                    onChanged: (str) {
+                                      setState(() {
+                                        _lastName = str;
+                                      });
+                                    },
+                                    decoration: buildInputDecoration(
+                                        _i18n.get("lastName"), false)),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                TextFormField(
+                                    initialValue: snapshot.data.email ?? "",
+                                    minLines: 1,
+                                    style: TextStyle(
+                                        color:
+                                            ExtraTheme.of(context).textField),
+                                    textInputAction: TextInputAction.send,
+                                    onChanged: (str) {
+                                      setState(() {
+                                        _email = str;
+                                      });
+                                    },
+                                    validator: validateEmail,
+                                    decoration: buildInputDecoration(
+                                        _i18n.get("email"), false)),
+                              ],
+                            )),
+                        SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            child: Text(_i18n.get("save")),
+                            onPressed: () async {
+                              checkAndSend();
+                            },
+                          ),
+                        )
+                      ],
+                    ))
+                  ])
                 ],
               );
             },

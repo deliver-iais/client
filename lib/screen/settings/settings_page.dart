@@ -56,11 +56,8 @@ class _SettingsPageState extends State<SettingsPage> {
           child: FluidContainerWidget(
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
-              // elevation: 0,
               titleSpacing: 8,
-              title: Text(
-                i18n.get("settings"),
-              ),
+              title: Text(i18n.get("settings")),
               leading: _routingService.backButtonLeading(),
             ),
           ),
@@ -111,30 +108,25 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w800,
-                                            color: ExtraTheme.of(context)
-                                                .textField),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline6,
                                       ),
                                       SizedBox(height: 4),
                                       Text(
                                         snapshot.data.userName ?? "",
-                                        style: TextStyle(
-                                            color:
-                                                ExtraTheme.of(context).username,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 14),
+                                        style: Theme.of(context)
+                                            .primaryTextTheme
+                                            .subtitle1,
                                       ),
                                       SizedBox(height: 4),
                                       Text(
                                         buildPhoneNumber(
                                             snapshot.data.countryCode,
                                             snapshot.data.nationalNumber),
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                            fontSize: 12),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1,
                                       )
                                     ],
                                   );
@@ -156,8 +148,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                     title: i18n.get("qr_share"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.qr_code),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
@@ -172,8 +162,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: i18n.get("saved_message"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
@@ -182,8 +170,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: i18n.get("contacts"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
@@ -193,12 +179,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SettingsSection(
                 title: i18n.get("user_experience"),
-                titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
                 tiles: [
                   SettingsTile.switchTile(
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     title: i18n.get("notification"),
                     leading: Icon(Icons.notifications_active),
                     switchValue: _uxService.isAllNotificationDisabled,
@@ -207,8 +189,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: i18n.get("language"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     subtitle: I18N.of(context).locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
@@ -218,8 +198,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: i18n.get("dark_mode"),
                     leading: Icon(Icons.brightness_2),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
                       setState(() {
@@ -230,8 +208,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     onPressed: (c) {
                       _routingService.openDevicesPage();
                     },
@@ -239,8 +215,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (isDesktop())
                     SettingsTile.switchTile(
                       title: i18n.get("send_by_shift_enter"),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
@@ -255,8 +229,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   tiles: [
                     SettingsTile(
                       title: 'Log Level',
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       subtitle: LogLevelHelper.levelToString(
                           GetIt.I.get<DeliverLogFilter>().level),
                       leading: Icon(Icons.bug_report_rounded),
@@ -270,8 +242,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       trailing: FutureBuilder(
                         future: PackageInfo.fromPlatform(),
                         builder: (context, snapshot) {
@@ -282,18 +252,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                     builder: (c, sms) {
                                       return Text(
                                         sms.data ?? snapshot.data.version ?? "",
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                            fontSize: 16),
                                       );
                                     })
                                 : Text(
                                     snapshot.data.version ?? "",
-                                    style: TextStyle(
-                                        color: ExtraTheme.of(context).textField,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
                                   );
                           } else {
                             return SizedBox.shrink();
@@ -311,8 +273,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                   SettingsTile(
                     title: i18n.get("logout"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.exit_to_app),
                     onPressed: (BuildContext context) =>
                         openLogoutAlertDialog(context, i18n),
@@ -333,10 +293,7 @@ class _SettingsPageState extends State<SettingsPage> {
             titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             // backgroundColor: Colors.white,
-            content: Container(
-              child: Text(i18n.get("sure_exit_app"),
-                  style: Theme.of(context).dialogTheme.titleTextStyle),
-            ),
+            content: Container(child: Text(i18n.get("sure_exit_app"))),
             actions: <Widget>[
               TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -345,11 +302,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 width: 15,
               ),
               TextButton(
-                  onPressed: () => _routingService.logout(context),
-                  child: Text(
-                    i18n.get("logout"),
-                    style: TextStyle(fontSize: 16, color: Colors.red),
-                  ))
+                onPressed: () => _routingService.logout(context),
+                child: Text(
+                  i18n.get("logout"),
+                ),
+                style: TextButton.styleFrom(
+                  primary: Colors.red, // This is a custom color variable
+                ),
+              ),
             ],
           );
         });

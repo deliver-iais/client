@@ -87,7 +87,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
               );
             },
             child: AppBar(
-              elevation: 0,
               backgroundColor: Colors.transparent,
               leading: Row(
                 children: [
@@ -114,10 +113,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               titleSpacing: 8.0,
               title: TitleStatus(
                 style: Theme.of(context).textTheme.headline6,
-                normalConditionWidget: Text(
-                  I18N.of(context).get("chats"),
-                  style: Theme.of(context).textTheme.headline5,
-                ),
+                normalConditionWidget: Text(I18N.of(context).get("chats")),
               ),
               actions: [
                 if (!isDesktop())

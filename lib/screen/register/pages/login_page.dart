@@ -117,10 +117,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
-            title: Text(
-              i18n.get("login"),
-              style: Theme.of(context).textTheme.headline5,
-            ),
+            title: Text(i18n.get("login")),
             backgroundColor: Theme.of(context).backgroundColor,
           ),
           body: loginWithQrCode

@@ -29,12 +29,8 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
           child: FluidContainerWidget(
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
-              // elevation: 0,
               titleSpacing: 8,
-              title: Text(
-                "Log Level",
-                style: Theme.of(context).textTheme.headline5,
-              ),
+              title: Text("Log Level"),
               leading: _routingService.backButtonLeading(),
             ),
           ),

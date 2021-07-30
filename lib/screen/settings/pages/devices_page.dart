@@ -34,12 +34,8 @@ class _DevicesPageState extends State<DevicesPage> {
         child: FluidContainerWidget(
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
-            // elevation: 0,
             titleSpacing: 8,
-            title: Text(
-              _i18n.get("devices"),
-              style: Theme.of(context).textTheme.headline5,
-            ),
+            title: Text(_i18n.get("devices")),
             leading: _routingService.backButtonLeading(),
           ),
         ),
