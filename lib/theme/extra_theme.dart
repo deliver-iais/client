@@ -4,7 +4,6 @@ class ExtraThemeData {
   Color centerPageDetails;
   Color boxOuterBackground = Color(0xfde2f8f0);
   Color boxBackground = Color(0xfde2f8f0);
-  Color titleStatus;
   Color menuIconButton;
   Color popupMenuButton;
   Color popupMenuButtonDetails;
@@ -41,7 +40,6 @@ class ExtraThemeData {
     this.popupMenuButtonDetails,
     this.searchBox,
     this.username,
-    this.titleStatus,
     this.chatOrContactItemDetails,
     this.sentMessageBox,
     this.receivedMessageBox,

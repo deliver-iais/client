@@ -76,7 +76,6 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   fileMessageDetails: Color(0xff00a394),
   textField: LightTheme.accentColor,
   username: Colors.blue[900],
-  titleStatus: Colors.blue,
   seenStatus: Colors.blue,
   inputBoxBackground: Colors.white,
   mentionAutoCompleter: Colors.white,
