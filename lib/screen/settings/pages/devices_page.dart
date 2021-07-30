@@ -10,7 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 
 class DevicesPage extends StatefulWidget {
   DevicesPage({Key key}) : super(key: key);

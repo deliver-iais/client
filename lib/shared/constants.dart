@@ -26,6 +26,7 @@ const ONLINE_TIME = 60000;
 
 const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
 
+// Tables ID
 const AVATAR_TRACK_ID = 1;
 const LAST_ACTIVITY_TRACK_ID = 2;
 const CONTACT_TRACK_ID = 3;
@@ -44,3 +45,15 @@ const SENDING_STATUS_TRACK_ID = 15;
 const MEDIA_TRACK_ID = 16;
 const MEDIA_META_DATA_TRACK_ID = 17;
 const MEDIA_TYPE_TRACK_ID = 18;
+
+// Animation
+const ANIMATION_DURATION = const Duration(milliseconds: 100);
+
+// UI
+const MAIN_BORDER_RADIUS = 10.0;
+
+const double FLUID_MAX_WIDTH = 400;
+const double FLUID_MAX_HEIGHT = 540;
+
+const double FLUID_CONTAINER_MAX_WIDTH = 768;
+const double BREAKDOWN_SIZE = 768;

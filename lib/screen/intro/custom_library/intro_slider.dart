@@ -775,9 +775,8 @@ class IntroSliderState extends State<IntroSlider>
     BlendMode backgroundBlendMode,
   ) {
     double animationSize = ANIMATION_SQUARE_SIZE(context);
-    double paddingTop = ANIMATION_TOP_PADDING(context);
     return Container(
-      padding: EdgeInsets.only(top: animationSize + paddingTop),
+      padding: EdgeInsets.only(top: animationSize + 40),
       width: double.infinity,
       height: double.infinity,
       decoration: backgroundImage != null

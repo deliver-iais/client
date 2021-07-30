@@ -44,7 +44,7 @@ class _IntroPageState extends State<IntroPage> {
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
     double animationSize = ANIMATION_SQUARE_SIZE(context);
-    double paddingTop = ANIMATION_TOP_PADDING(context);
+    double paddingTop = 40;
     return FluidWidget(
       child: Stack(
         key: Key("INTRO_ANIMATION_PAGE1"),
