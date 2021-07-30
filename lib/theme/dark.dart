@@ -73,5 +73,4 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textField: Colors.white,
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
-    inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
-    mentionAutoCompleter: Color(0xFF263238));
+    inputBoxBackground: DarkTheme.accentColor.withAlpha(50));

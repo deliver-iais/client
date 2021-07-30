@@ -74,5 +74,4 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     textField: LightTheme.accentColor,
     username: Colors.blue[900],
     seenStatus: Colors.blue,
-    inputBoxBackground: Colors.white,
-    mentionAutoCompleter: Colors.white);
+    inputBoxBackground: Colors.white);

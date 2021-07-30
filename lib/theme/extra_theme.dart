@@ -15,9 +15,6 @@ class ExtraThemeData {
   Color fileMessageDetails;
   Color inputBoxBackground;
 
-  // TODO should be remove
-  Color mentionAutoCompleter;
-
   // TODO refactor all of these
   Color username; // primary
   Color textMessage; // -> normal
@@ -42,7 +39,6 @@ class ExtraThemeData {
     this.fileMessageDetails,
     this.textField,
     this.inputBoxBackground,
-    this.mentionAutoCompleter,
   });
 }
 
