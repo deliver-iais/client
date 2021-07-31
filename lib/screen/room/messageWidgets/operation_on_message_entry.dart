@@ -18,12 +18,12 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
-  final bool isPined;
+  final bool isPinned;
 
   OperationOnMessageEntry(this.message,
       {this.hasPermissionInChannel = true,
       this.hasPermissionInGroup = true,
-      this.isPined = false});
+      this.isPinned = false});
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -126,7 +126,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   widget.hasPermissionInGroup) ||
               (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
                   widget.hasPermissionInChannel))
-            if (!widget.isPined)
+            if (!widget.isPinned)
               Expanded(
                 child: TextButton(
                     onPressed: () {

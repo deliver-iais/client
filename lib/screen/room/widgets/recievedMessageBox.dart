@@ -1,12 +1,12 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/screen/room/widgets/boxContent.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
-  final double maxWidth;
   final bool isGroup;
   final Function scrollToMessage;
   final Function omUsernameClick;
@@ -16,7 +16,6 @@ class ReceivedMessageBox extends StatelessWidget {
   ReceivedMessageBox(
       {Key key,
       this.message,
-      this.maxWidth,
       this.onBotCommandClick,
       this.isGroup,
       this.scrollToMessage,
@@ -31,7 +30,7 @@ class ReceivedMessageBox extends StatelessWidget {
       child: message.type == MessageType.STICKER
           ? BoxContent(
               message: message,
-              maxWidth: maxWidth,
+              maxWidth: maxWidthOfMessage(context),
               isSender: false,
               onBotCommandClick: onBotCommandClick,
               scrollToMessage: scrollToMessage,
@@ -44,7 +43,7 @@ class ReceivedMessageBox extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 child: BoxContent(
                   message: message,
-                  maxWidth: maxWidth,
+                  maxWidth: maxWidthOfMessage(context),
                   onBotCommandClick: onBotCommandClick,
                   isSender: false,
                   scrollToMessage: scrollToMessage,

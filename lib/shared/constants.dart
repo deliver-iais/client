@@ -76,3 +76,9 @@ double animationSquareSize(BuildContext context) => isLarge(context)
     ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
     : min(MediaQuery.of(context).size.width * 0.7,
         MediaQuery.of(context).size.height * 0.7);
+
+double maxWidthOfMessage(BuildContext context) => min(
+    (MediaQuery.of(context).size.width -
+            (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+        0.7,
+    300);

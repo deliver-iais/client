@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 const DarkThemeName = "Dark";
 
 final primary = Color(0xFF2699FB);
-final accent = Color(0x8bc1e0FF);
+final accent = Color(0xFF01000F);
 
 final primaryTextTheme = Typography.whiteCupertino
     .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
@@ -64,7 +64,7 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
     sentMessageBox: DarkTheme.primaryColor,
-    receivedMessageBox: DarkTheme.accentColor.withAlpha(60),
+    receivedMessageBox: DarkTheme.accentColor,
     textMessage: Colors.white,
     messageDetails: Color(0xFF001D39),
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
@@ -73,4 +73,4 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textField: Colors.white,
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
-    inputBoxBackground: DarkTheme.accentColor.withAlpha(50));
+    inputBoxBackground: DarkTheme.accentColor);

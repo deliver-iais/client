@@ -1,12 +1,12 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/screen/room/widgets/boxContent.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
-  final double maxWidth;
   final Function scrollToMessage;
   final bool isSeen;
   final Function omUsernameClick;
@@ -15,7 +15,6 @@ class SentMessageBox extends StatelessWidget {
   const SentMessageBox(
       {Key key,
       this.message,
-      this.maxWidth,
       this.isSeen,
       this.scrollToMessage,
       this.pattern,
@@ -27,7 +26,7 @@ class SentMessageBox extends StatelessWidget {
     return message.type == MessageType.STICKER
         ? BoxContent(
             message: message,
-            maxWidth: maxWidth,
+            maxWidth: maxWidthOfMessage(context),
             isSender: true,
             scrollToMessage: scrollToMessage,
             isSeen: this.isSeen,
@@ -54,7 +53,7 @@ class SentMessageBox extends StatelessWidget {
                   color: ExtraTheme.of(context).sentMessageBox,
                   child: BoxContent(
                     message: message,
-                    maxWidth: maxWidth,
+                    maxWidth: maxWidthOfMessage(context),
                     isSender: true,
                     scrollToMessage: scrollToMessage,
                     isSeen: this.isSeen,
