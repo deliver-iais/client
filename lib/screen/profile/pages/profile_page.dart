@@ -561,28 +561,15 @@ class _ProfilePageState extends State<ProfilePage>
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title: Container(
-              height: 40,
-              color: Colors.blue,
-              child: Icon(
-                Icons.add_link,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
             content: Container(
                 child: Text(
               generateInviteLink(token),
-              style: TextStyle(color: Colors.black),
             )),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
+                  TextButton(
                       onPressed: () {
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
@@ -591,9 +578,8 @@ class _ProfilePageState extends State<ProfilePage>
                       },
                       child: Text(
                         _locale.get("copy"),
-                        style: TextStyle(fontSize: 16),
                       )),
-                  ElevatedButton(
+                  TextButton(
                     onPressed: () {
                       // TODO set name for share uid
                       _routingService.openSelectForwardMessage(
@@ -606,7 +592,6 @@ class _ProfilePageState extends State<ProfilePage>
                     },
                     child: Text(
                       _locale.get("share"),
-                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 ],
@@ -618,41 +603,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   generateInviteLink(String token) {
     return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
-  }
-
-  showQrCode() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title: Container(
-              height: 30,
-              color: Colors.blue,
-              child: Icon(
-                Icons.person_add,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-            content: Container(
-              width: 150,
-              height: 200,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  QrImage(
-                    data: "",
-                    version: QrVersions.auto,
-                    size: MediaQuery.of(context).size.width / 2,
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   void _showDeleteMucDialog() async {
@@ -721,18 +671,15 @@ class _ProfilePageState extends State<ProfilePage>
     return InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.circular(10),
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         disabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Colors.red,
           ),
-          borderRadius: BorderRadius.circular(10.0),
         ),
         labelText: label,
         labelStyle: TextStyle(color: Colors.blue));
@@ -813,26 +760,7 @@ class _ProfilePageState extends State<ProfilePage>
         context: context,
         builder: (context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title: Container(
-              decoration: new BoxDecoration(
-                shape: BoxShape.rectangle,
-                color: Theme.of(context).primaryColor,
-                borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
-              ),
-              height: 35,
-              child: Icon(
-                Icons.settings,
-                color: Colors.white,
-                size: 25,
-              ),
-            ),
             content: Container(
-              height: widget.roomUid.category == Categories.GROUP ? 200 : 300,
               child: SingleChildScrollView(
                   child: Column(
                 children: [
@@ -845,8 +773,6 @@ class _ProfilePageState extends State<ProfilePage>
                           child: Form(
                               key: nameFormKey,
                               child: TextFormField(
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18),
                                 initialValue: name.data,
                                 validator: (s) {
                                   if (s.isEmpty) {
@@ -864,7 +790,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 },
                                 keyboardType: TextInputType.text,
                                 decoration: buildInputDecoration(
-                                  widget.roomUid.category == Categories.GROUP
+                                  widget.roomUid.isGroup()
                                       ? _locale.get("group_name")
                                       : _locale.get("channel_name"),
                                 ),
@@ -875,7 +801,7 @@ class _ProfilePageState extends State<ProfilePage>
                     },
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   if (widget.roomUid.category == Categories.CHANNEL)
                     StreamBuilder<Muc>(
@@ -888,8 +814,6 @@ class _ProfilePageState extends State<ProfilePage>
                                 Form(
                                     key: channelIdFormKey,
                                     child: TextFormField(
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 18),
                                       initialValue: muc.data.id,
                                       minLines: 1,
                                       validator: validateChannelId,
@@ -931,7 +855,6 @@ class _ProfilePageState extends State<ProfilePage>
                       if (muc.hasData && muc.data != null) {
                         mucInfo = muc.data.info;
                         return TextFormField(
-                          style: TextStyle(color: Colors.black, fontSize: 18),
                           initialValue: muc.data.info ?? "",
                           minLines: muc.data.info.isNotEmpty
                               ? muc.data.info.split("\n").length
@@ -954,10 +877,7 @@ class _ProfilePageState extends State<ProfilePage>
                         return SizedBox.shrink();
                       }
                     },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  )
                 ],
               )),
             ),
@@ -966,71 +886,54 @@ class _ProfilePageState extends State<ProfilePage>
                 stream: newChange.stream,
                 builder: (c, change) {
                   if (change.hasData) {
-                    return GestureDetector(
-                      child: Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: change.data
-                                ? () async {
-                                    if (nameFormKey?.currentState != null &&
-                                        nameFormKey.currentState.validate()) {
-                                      if (widget.roomUid.category ==
-                                          Categories.GROUP) {
-                                        _mucRepo.modifyGroup(
-                                            widget.roomUid.asString(),
-                                            mucName ?? _currentName,
-                                            mucInfo);
-                                        _roomRepo.updateRoomName(widget.roomUid,
-                                            mucName ?? _currentName);
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      } else {
-                                        if (channelId == null) {
-                                          _mucRepo.modifyChannel(
-                                              widget.roomUid.asString(),
-                                              mucName ?? _currentName,
-                                              _currentId,
-                                              mucInfo);
-                                          _roomRepo.updateRoomName(
-                                              widget.roomUid,
-                                              mucName ?? _currentName);
-                                          Navigator.pop(context);
-                                        } else if (channelIdFormKey
-                                                    ?.currentState !=
-                                                null &&
-                                            channelIdFormKey.currentState
-                                                .validate()) {
-                                          if (await checkChannelD(channelId)) {
-                                            _mucRepo.modifyChannel(
-                                                widget.roomUid.asString(),
-                                                mucName ?? _currentName,
-                                                channelId,
-                                                mucInfo);
-                                            _roomRepo.updateRoomName(
-                                                widget.roomUid,
-                                                mucName ?? _currentName);
+                    return TextButton(
+                      onPressed: change.data
+                          ? () async {
+                              if (nameFormKey?.currentState != null &&
+                                  nameFormKey.currentState.validate()) {
+                                if (widget.roomUid.category ==
+                                    Categories.GROUP) {
+                                  _mucRepo.modifyGroup(
+                                      widget.roomUid.asString(),
+                                      mucName ?? _currentName,
+                                      mucInfo);
+                                  _roomRepo.updateRoomName(
+                                      widget.roomUid, mucName ?? _currentName);
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                } else {
+                                  if (channelId == null) {
+                                    _mucRepo.modifyChannel(
+                                        widget.roomUid.asString(),
+                                        mucName ?? _currentName,
+                                        _currentId,
+                                        mucInfo);
+                                    _roomRepo.updateRoomName(widget.roomUid,
+                                        mucName ?? _currentName);
+                                    Navigator.pop(context);
+                                  } else if (channelIdFormKey?.currentState !=
+                                          null &&
+                                      channelIdFormKey.currentState
+                                          .validate()) {
+                                    if (await checkChannelD(channelId)) {
+                                      _mucRepo.modifyChannel(
+                                          widget.roomUid.asString(),
+                                          mucName ?? _currentName,
+                                          channelId,
+                                          mucInfo);
+                                      _roomRepo.updateRoomName(widget.roomUid,
+                                          mucName ?? _currentName);
 
-                                            Navigator.pop(context);
-                                          }
-                                        }
-                                        setState(() {});
-                                      }
+                                      Navigator.pop(context);
                                     }
                                   }
-                                : () {},
-                            child: Text(
-                              _locale.get("set"),
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  color: change.data
-                                      ? Colors.black
-                                      : Colors.black38),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 25,
-                          )
-                        ],
+                                  setState(() {});
+                                }
+                              }
+                            }
+                          : () {},
+                      child: Text(
+                        _locale.get("set"),
                       ),
                     );
                   } else
@@ -1086,9 +989,6 @@ class _ProfilePageState extends State<ProfilePage>
         break;
       case "invite_link":
         createInviteLink();
-        break;
-      case "qr_share":
-        showQrCode();
         break;
     }
   }
