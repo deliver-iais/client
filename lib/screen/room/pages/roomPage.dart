@@ -301,11 +301,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _getLastShowMessageId();
     _getLastSeen();
     _itemPositionsListener.itemPositions.addListener(() {
-      List<ItemPosition> positionList =
-          _itemPositionsListener.itemPositions.value.toList();
-      for (var pos in positionList) {
-        _positionSubject.add(pos.index);
-      }
+      _positionSubject
+          .add(_itemPositionsListener.itemPositions.value.last.index);
     });
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
@@ -444,7 +441,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                     if (s.hasData && s.data > 0)
                                       return Center(
                                         child: CircularProgressIndicator(
-                                          color: Colors.blue,
+                                          color: Theme.of(context).primaryColor,
                                         ),
                                       );
                                     else
