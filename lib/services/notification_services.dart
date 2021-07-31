@@ -9,6 +9,7 @@ import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:flutter/material.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
@@ -158,13 +159,12 @@ class AndroidNotifier implements Notifier {
       AndroidFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final channel = const AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
       'All notifications of application.', // description
       importance: Importance.high,
-      groupId: "12345");
+      groupId: "all_group");
 
   AndroidNotifier() {
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
@@ -201,7 +201,9 @@ class AndroidNotifier implements Notifier {
 
     var platformChannelSpecifics = AndroidNotificationDetails(
         channel.id, channel.name, channel.description,
-        groupKey: "12345", largeIcon: largeIcon, setAsGroupSummary: true);
+        groupKey: channel.groupId,
+        largeIcon: largeIcon,
+        setAsGroupSummary: true);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),

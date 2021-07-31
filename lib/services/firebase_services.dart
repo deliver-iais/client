@@ -19,7 +19,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
@@ -31,14 +30,6 @@ class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
-  final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  AndroidNotificationChannel channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    'This channel is used for important notifications.', // description
-    importance: Importance.high,
-  );
 
   FirebaseMessaging _firebaseMessaging;
 
@@ -68,10 +59,6 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() async {
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
     try {
       FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
       _firebaseMessaging.setForegroundNotificationPresentationOptions(
