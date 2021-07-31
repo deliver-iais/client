@@ -105,6 +105,8 @@ class AndroidIOSNotifier implements Notifier {
 class MacOSNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
   final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   MacOSNotifier() {
     var macNotificationSetting = new MacOSInitializationSettings();
@@ -122,13 +124,22 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  notify(MessageBrief message) {
+  notify(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
-    var macOSPlatformChannelSpecifics = MacOSNotificationDetails(attachments: [
-      MacOSNotificationAttachment(
-          'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-    ], badgeNumber: 0);
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+
+    var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+        thumbnailSize: ThumbnailSize.medium);
+
+    List<MacOSNotificationAttachment> attachments = [];
+
+    if (f != null && f.path.isNotEmpty) {
+      attachments.add(MacOSNotificationAttachment(f.path));
+    }
+
+    var macOSPlatformChannelSpecifics =
+        MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
     var platformChannelSpecifics =
         NotificationDetails(macOS: macOSPlatformChannelSpecifics);
 
