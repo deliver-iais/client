@@ -219,8 +219,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                       itemBuilder: (context, index) {
                         var emoji = emojis.elementAt(index);
 
-                        if (emoji.char == "🇮🇱") print(emoji.shortName);
-
                         return GestureDetector(
                           behavior: HitTestBehavior.translucent,
                           onTap: () {
@@ -229,7 +227,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           child: Center(
                             child: Text(
                               emoji.toString(),
-                              style: TextStyle(fontSize: 26),
+                              style: TextStyle(fontSize: 26, fontFamily: "NotoColorEmoji"),
                             ),
                           ),
                         );

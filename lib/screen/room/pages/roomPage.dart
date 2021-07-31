@@ -617,30 +617,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget scrollWidget(int count) {
     return Positioned(
-        right: 7,
-        bottom: 9,
-        child: FloatingActionButton(
-            backgroundColor: Colors.white,
-            mini: true,
-            child: Column(
-              children: [
-                count > 0
-                    ? Text(count.toString())
-                    : SizedBox(
-                        width: 2,
-                        height: 8,
-                      ),
-                Icon(
-                  Icons.arrow_downward_rounded,
-                  color: Colors.black,
-                )
-              ],
-            ),
-            onPressed: () {
-              _scrollToMessage(
-                  position: count > 0 ? _lastShowedMessageId : _itemCount);
-              _unReadMessageScrollSubject.add(0);
-            }));
+        right: 10,
+        bottom: 10,
+        child: Badge(
+          padding: const EdgeInsets.all(6.0),
+          badgeContent: Text(count.toString()),
+          showBadge: count > 0,
+          child: FloatingActionButton(
+              backgroundColor: Colors.white,
+              mini: true,
+              child: Icon(
+                Icons.arrow_downward_rounded,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                _scrollToMessage(
+                    position: count > 0 ? _lastShowedMessageId : _itemCount);
+                _unReadMessageScrollSubject.add(0);
+              }),
+        ));
   }
 
   Widget buildNewMessageInput() {
