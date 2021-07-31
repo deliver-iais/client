@@ -107,7 +107,8 @@ dependencies:
   package_info_plus: 1.0.3
   contacts_service: 0.6.1
   random_string: 2.1.0
-  flutter_local_notifications: 6.0.0
+  flutter_local_notifications: 8.0.0
+  flutter_local_notifications_linux: 0.1.0+1
   uuid: 3.0.4
   flutter_sound: 8.1.4
   record: 2.1.1

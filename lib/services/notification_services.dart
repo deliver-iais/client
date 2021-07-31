@@ -5,17 +5,12 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:desktoasts/desktoasts.dart';
-import 'package:desktop_notifications/desktop_notifications.dart';
-import 'package:flutter/services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -81,14 +76,68 @@ class WindowsNotifier implements Notifier {
 }
 
 class LinuxNotifier implements Notifier {
-  @override
-  notify(MessageBrief message) {}
+  final _logger = GetIt.I.get<Logger>();
+  final _flutterLocalNotificationsPlugin =
+      LinuxFlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+
+  LinuxNotifier() {
+    var notificationSetting =
+        new LinuxInitializationSettings(defaultActionName: "");
+
+    _flutterLocalNotificationsPlugin.initialize(notificationSetting,
+        onSelectNotification: (room) {
+      _logger.wtf(room);
+      if (room != null && room.isNotEmpty) {
+        _logger.wtf(room);
+      }
+      return;
+    });
+  }
 
   @override
-  cancel(int id) {}
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
+    LinuxNotificationIcon icon = AssetsLinuxIcon(
+        'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+
+    if (la != null) {
+      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+          thumbnailSize: ThumbnailSize.medium);
+
+      if (f != null && f.path.isNotEmpty) {
+        icon = AssetsLinuxIcon(f.path);
+      }
+    }
+
+    var platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
+
+    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+        message.roomName, createNotificationTextFromMessageBrief(message),
+        notificationDetails: platformChannelSpecifics);
+  }
 
   @override
-  cancelAll() {}
+  cancel(int id) async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  @override
+  cancelAll() async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 }
 
 class AndroidIOSNotifier implements Notifier {
@@ -104,16 +153,15 @@ class AndroidIOSNotifier implements Notifier {
 
 class MacOSNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
-  final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final _flutterLocalNotificationsPlugin =
+      MacOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
   MacOSNotifier() {
     var macNotificationSetting = new MacOSInitializationSettings();
 
-    var initializationSettings =
-        InitializationSettings(macOS: macNotificationSetting);
-    _flutterLocalNotificationsPlugin.initialize(initializationSettings,
+    _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
         onSelectNotification: (room) {
       _logger.wtf(room);
       if (room != null && room.isNotEmpty) {
@@ -140,14 +188,10 @@ class MacOSNotifier implements Notifier {
 
     var macOSPlatformChannelSpecifics =
         MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
-    var platformChannelSpecifics =
-        NotificationDetails(macOS: macOSPlatformChannelSpecifics);
 
-    _flutterLocalNotificationsPlugin.show(
-        message.roomUid.asString().hashCode,
-        message.roomName,
-        createNotificationTextFromMessageBrief(message),
-        platformChannelSpecifics);
+    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+        message.roomName, createNotificationTextFromMessageBrief(message),
+        notificationDetails: macOSPlatformChannelSpecifics);
   }
 
   @override
