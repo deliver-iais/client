@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/localization/i18n.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -157,12 +158,13 @@ class AndroidNotifier implements Notifier {
       AndroidFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
   final channel = const AndroidNotificationChannel(
-    'notifications', // id
-    'Notifications', // title
-    'All notifications of application.', // description
-    importance: Importance.high,
-  );
+      'notifications', // id
+      'Notifications', // title
+      'All notifications of application.', // description
+      importance: Importance.high,
+      groupId: "12345");
 
   AndroidNotifier() {
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
@@ -184,7 +186,7 @@ class AndroidNotifier implements Notifier {
   notify(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
-    String icon;
+    AndroidBitmap largeIcon;
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
@@ -193,13 +195,13 @@ class AndroidNotifier implements Notifier {
           thumbnailSize: ThumbnailSize.medium);
 
       if (f != null && f.path.isNotEmpty) {
-        icon = f.path;
+        largeIcon = FilePathAndroidBitmap(f.path);
       }
     }
 
     var platformChannelSpecifics = AndroidNotificationDetails(
         channel.id, channel.name, channel.description,
-        icon: icon);
+        groupKey: "12345", largeIcon: largeIcon, setAsGroupSummary: true);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
