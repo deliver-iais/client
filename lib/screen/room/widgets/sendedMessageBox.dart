@@ -24,39 +24,34 @@ class SentMessageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        message.type == MessageType.STICKER
-            ? BoxContent(
-                message: message,
-                maxWidth: maxWidth,
-                isSender: true,
-                scrollToMessage: scrollToMessage,
-                isSeen: this.isSeen,
-                onUsernameClick: this.omUsernameClick,
-                pattern: this.pattern,
-              )
-            : Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, right: 5.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    color: ExtraTheme.of(context).sentMessageBox,
-                    child: BoxContent(
-                      message: message,
-                      maxWidth: maxWidth,
-                      isSender: true,
-                      scrollToMessage: scrollToMessage,
-                      isSeen: this.isSeen,
-                      pattern: pattern,
-                      onUsernameClick: this.omUsernameClick,
-                    ),
-                  ),
+    return message.type == MessageType.STICKER
+        ? BoxContent(
+            message: message,
+            maxWidth: maxWidth,
+            isSender: true,
+            scrollToMessage: scrollToMessage,
+            isSeen: this.isSeen,
+            onUsernameClick: this.omUsernameClick,
+            pattern: this.pattern,
+          )
+        : Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, right: 5.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                color: ExtraTheme.of(context).sentMessageBox,
+                child: BoxContent(
+                  message: message,
+                  maxWidth: maxWidth,
+                  isSender: true,
+                  scrollToMessage: scrollToMessage,
+                  isSeen: this.isSeen,
+                  pattern: pattern,
+                  onUsernameClick: this.omUsernameClick,
                 ),
               ),
-      ],
-    );
+            ),
+          );
   }
 }

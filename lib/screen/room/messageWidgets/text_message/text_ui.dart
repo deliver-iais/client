@@ -260,7 +260,7 @@ Widget _textWidget(
       ParsedText(
         textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
         text: text,
-        style: Theme.of(context).textTheme.bodyText2,
+        style: Theme.of(context).textTheme.bodyText2.copyWith(fontFamily: "NotoColorEmoji", wordSpacing: -14, fontFamilyFallback: ["Vazir"]),
         parse: <MatchText>[
           MatchText(
             type: ParsedType.CUSTOM,
