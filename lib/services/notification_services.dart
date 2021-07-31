@@ -175,15 +175,17 @@ class MacOSNotifier implements Notifier {
   notify(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
-
-    var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
-        thumbnailSize: ThumbnailSize.medium);
-
     List<MacOSNotificationAttachment> attachments = [];
 
-    if (f != null && f.path.isNotEmpty) {
-      attachments.add(MacOSNotificationAttachment(f.path));
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+
+    if (la != null) {
+      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+          thumbnailSize: ThumbnailSize.medium);
+
+      if (f != null && f.path.isNotEmpty) {
+        attachments.add(MacOSNotificationAttachment(f.path));
+      }
     }
 
     var macOSPlatformChannelSpecifics =
