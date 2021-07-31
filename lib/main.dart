@@ -200,8 +200,10 @@ Future<void> setupDI() async {
 
   if (isMacOS()) {
     GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
-  } else if (isAndroid() || isIOS()) {
-    GetIt.I.registerSingleton<Notifier>(AndroidIOSNotifier());
+  } else if (isAndroid()) {
+    GetIt.I.registerSingleton<Notifier>(AndroidNotifier());
+  } else if (isIOS()) {
+    GetIt.I.registerSingleton<Notifier>(IOSNotifier());
   } else if (isLinux()) {
     GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
   } else if (isWindows()) {

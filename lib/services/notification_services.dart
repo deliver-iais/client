@@ -64,6 +64,17 @@ class FakeNotifier implements Notifier {
   cancelAll() {}
 }
 
+class IOSNotifier implements Notifier {
+  @override
+  notify(MessageBrief message) {}
+
+  @override
+  cancel(int id) {}
+
+  @override
+  cancelAll() {}
+}
+
 class WindowsNotifier implements Notifier {
   @override
   notify(MessageBrief message) {}
@@ -140,15 +151,78 @@ class LinuxNotifier implements Notifier {
   }
 }
 
-class AndroidIOSNotifier implements Notifier {
-  @override
-  notify(MessageBrief message) {}
+class AndroidNotifier implements Notifier {
+  final _logger = GetIt.I.get<Logger>();
+  final _flutterLocalNotificationsPlugin =
+      AndroidFlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final channel = const AndroidNotificationChannel(
+    'notifications', // id
+    'Notifications', // title
+    'All notifications of application.', // description
+    importance: Importance.high,
+  );
+
+  AndroidNotifier() {
+    _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
+
+    var notificationSetting =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    _flutterLocalNotificationsPlugin.initialize(notificationSetting,
+        onSelectNotification: (room) {
+      _logger.wtf(room);
+      if (room != null && room.isNotEmpty) {
+        _logger.wtf(room);
+      }
+      return;
+    });
+  }
 
   @override
-  cancel(int id) {}
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
+    String icon;
+
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+
+    if (la != null) {
+      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+          thumbnailSize: ThumbnailSize.medium);
+
+      if (f != null && f.path.isNotEmpty) {
+        icon = f.path;
+      }
+    }
+
+    var platformChannelSpecifics = AndroidNotificationDetails(
+        channel.id, channel.name, channel.description,
+        icon: icon);
+
+    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+        message.roomName, createNotificationTextFromMessageBrief(message),
+        notificationDetails: platformChannelSpecifics);
+  }
 
   @override
-  cancelAll() {}
+  cancel(int id) async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  @override
+  cancelAll() async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 }
 
 class MacOSNotifier implements Notifier {
