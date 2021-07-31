@@ -792,9 +792,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
         if (index == -1) index = 0;
-        // TODO SEEN MIGRATION
-        _roomRepo.saveMySeen(Seen(
-            uid: widget.roomId, messageId: _currentRoom.value.lastMessageId));
         bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
             ? true
             : _itemCount > _currentRoom.value.lastMessageId &&
