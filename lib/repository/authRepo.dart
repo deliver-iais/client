@@ -68,7 +68,6 @@ class AuthRepo {
   }
 
   Future<Pb.Platform> getPlatformDetails() async {
-
     String version;
     try{
      var info =  await PackageInfo.fromPlatform();
@@ -76,9 +75,12 @@ class AuthRepo {
     }catch(e){
       version = VERSION;
     }
-
     Pb.Platform platform = Pb.Platform()..clientVersion = version;
+    return await getPlatForm(platform);
 
+
+  }
+  getPlatForm(Pb.Platform platform) async {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 

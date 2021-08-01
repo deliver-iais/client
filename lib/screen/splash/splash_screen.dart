@@ -28,6 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   tryInitAccountRepo() {
+    _accountRepo.checkUpdatePlatformSessionInformation();
     _authRepo.init().timeout(Duration(seconds: 2), onTimeout: () {
       if (attempts < 3) {
         attempts++;

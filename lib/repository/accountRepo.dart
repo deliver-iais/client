@@ -3,6 +3,8 @@ import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/methods/name.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -143,6 +145,18 @@ class AccountRepo {
   Future<List<Session>> getSessions() async {
     var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
     return res.sessions;
+  }
+
+  checkUpdatePlatformSessionInformation()async{
+    var _previousVersion = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    if(_previousVersion == null){
+      _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
+    }else if(_previousVersion != VERSION){
+      Platform platform = Platform()..clientVersion =  VERSION;
+      platform = await  _authRepo.getPlatForm(platform);
+      _sessionServicesClient.updateSessionPlatformInformation(UpdateSessionPlatformInformationReq()..platform = platform);
+    }
+
   }
 
   Future<bool> verifyQrCodeToken(String token) async {
