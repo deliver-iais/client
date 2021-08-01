@@ -1,9 +1,8 @@
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/language.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/theme/dark.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_flutter/theme/light.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +74,6 @@ class UxService {
 
   final _theme = BehaviorSubject.seeded(LightTheme);
   final _extraTheme = BehaviorSubject.seeded(LightExtraTheme);
-  final _language = BehaviorSubject.seeded(DefaultLanguage);
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop());
 
@@ -98,21 +96,7 @@ class UxService {
         .listen((sbn) => _sendByEnter.add(sbn));
   }
 
-  // TODO ???
-  Map tabIndexMap = new Map<String, int>();
-
-  get localeStream => _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((event) {
-        if (event != null) {
-          var code = event;
-          if (code.contains(Farsi.countryCode)) {
-            _language.add(Farsi);
-          } else if (code.contains(English.countryCode)) {
-            _language.add(English);
-          }
-        }
-      });
-
-  get themeStream => _sharedDao.getStream(SHARED_DAO_THEME).map((event) {
+  Stream get themeStream => _sharedDao.getStream(SHARED_DAO_THEME).map((event) {
         if (event != null) {
           if (event.contains(DarkThemeName)) {
             _theme.add(DarkTheme);
@@ -127,16 +111,13 @@ class UxService {
         }
       });
 
-  bool get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
+
 
   ThemeData get theme => _theme.value;
 
   ExtraThemeData get extraTheme => _extraTheme.value;
 
   bool get sendByEnter => isDesktop() ? _sendByEnter.value : false;
-
-  Locale get locale =>
-      Locale(_language.value.languageCode, _language.value.countryCode);
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
@@ -169,16 +150,14 @@ class UxService {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
   }
 
-  changeLanguage(Language language) {
-    _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
-    _language.add(language);
-  }
+  // TODO ???
+  Map _tabIndexMap = new Map<String, int>();
 
   int getTabIndex(String fileId) {
-    return tabIndexMap[fileId];
+    return _tabIndexMap[fileId];
   }
 
   setTabIndex(String fileId, int index) {
-    tabIndexMap[fileId] = index;
+    _tabIndexMap[fileId] = index;
   }
 }

@@ -28,7 +28,7 @@ class SharedDaoImpl implements SharedDao {
   Stream<String> getStream(String key, {defaultValue: String}) async* {
     var box = await _open();
 
-    yield box.get(key) ?? defaultValue;
+    yield box.get(key, defaultValue: defaultValue);
 
     yield* box.watch(key: key).map((event) => box.get(key) ?? defaultValue);
   }

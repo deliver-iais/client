@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 import 'slide_object.dart';
@@ -190,10 +190,7 @@ class IntroSlider extends StatefulWidget {
         onSkipPress: this.onSkipPress,
         nameSkipBtn: this.nameSkipBtn,
         styleNameSkipBtn: this.styleNameSkipBtn,
-        colorSkipBtn: this.colorSkipBtn,
-        highlightColorSkipBtn: this.highlightColorSkipBtn,
         isShowSkipBtn: this.isShowSkipBtn,
-        borderRadiusSkipBtn: this.borderRadiusSkipBtn,
 
         // Prev
         renderPrevBtn: this.renderPrevBtn,
@@ -201,9 +198,6 @@ class IntroSlider extends StatefulWidget {
         namePrevBtn: this.namePrevBtn,
         isShowPrevBtn: this.isShowPrevBtn,
         styleNamePrevBtn: this.styleNamePrevBtn,
-        colorPrevBtn: this.colorPrevBtn,
-        highlightColorPrevBtn: this.highlightColorPrevBtn,
-        borderRadiusPrevBtn: this.borderRadiusPrevBtn,
 
         // Done
         renderDoneBtn: this.renderDoneBtn,
@@ -211,9 +205,6 @@ class IntroSlider extends StatefulWidget {
         onDonePress: this.onDonePress,
         nameDoneBtn: this.nameDoneBtn,
         styleNameDoneBtn: this.styleNameDoneBtn,
-        colorDoneBtn: this.colorDoneBtn,
-        highlightColorDoneBtn: this.highlightColorDoneBtn,
-        borderRadiusDoneBtn: this.borderRadiusDoneBtn,
         isShowDoneBtn: this.isShowDoneBtn,
 
         // Next
@@ -269,17 +260,8 @@ class IntroSliderState extends State<IntroSlider>
   /// Style for text at SKIP button
   TextStyle styleNameSkipBtn;
 
-  /// Color for SKIP button
-  Color colorSkipBtn;
-
-  /// Color for SKIP button when press
-  Color highlightColorSkipBtn;
-
   /// Show or hide SKIP button
   bool isShowSkipBtn;
-
-  /// Rounded SKIP button
-  double borderRadiusSkipBtn;
 
   // ---------- PREV button ----------
   /// Render your own PREV button
@@ -291,20 +273,11 @@ class IntroSliderState extends State<IntroSlider>
   /// Style for text at PREV button
   TextStyle styleNamePrevBtn;
 
-  /// Color for PREV button
-  Color colorPrevBtn;
-
   /// Width of view wrapper PREV button
   double widthPrevBtn;
 
-  /// Color for PREV button when press
-  Color highlightColorPrevBtn;
-
   /// Show or hide PREV button
   bool isShowPrevBtn;
-
-  /// Rounded PREV button
-  double borderRadiusPrevBtn;
 
   // ---------- DONE button ----------
   /// Render your own DONE button
@@ -321,15 +294,6 @@ class IntroSliderState extends State<IntroSlider>
 
   /// Style for text at DONE button
   TextStyle styleNameDoneBtn;
-
-  /// Color for DONE button
-  Color colorDoneBtn;
-
-  /// Color for DONE button when press
-  Color highlightColorDoneBtn;
-
-  /// Rounded DONE button
-  double borderRadiusDoneBtn;
 
   /// Show or hide DONE button
   bool isShowDoneBtn;
@@ -375,10 +339,7 @@ class IntroSliderState extends State<IntroSlider>
     @required this.onSkipPress,
     @required this.nameSkipBtn,
     @required this.styleNameSkipBtn,
-    @required this.colorSkipBtn,
-    @required this.highlightColorSkipBtn,
     @required this.isShowSkipBtn,
-    @required this.borderRadiusSkipBtn,
 
     // Prev button
     @required this.widthPrevBtn,
@@ -386,9 +347,6 @@ class IntroSliderState extends State<IntroSlider>
     @required this.namePrevBtn,
     @required this.renderPrevBtn,
     @required this.styleNamePrevBtn,
-    @required this.colorPrevBtn,
-    @required this.highlightColorPrevBtn,
-    @required this.borderRadiusPrevBtn,
 
     // Done button
     @required this.renderDoneBtn,
@@ -396,9 +354,6 @@ class IntroSliderState extends State<IntroSlider>
     @required this.onDonePress,
     @required this.nameDoneBtn,
     @required this.styleNameDoneBtn,
-    @required this.colorDoneBtn,
-    @required this.highlightColorDoneBtn,
-    @required this.borderRadiusDoneBtn,
     @required this.isShowDoneBtn,
 
     // Next button
@@ -545,15 +500,6 @@ class IntroSliderState extends State<IntroSlider>
         style: styleNameSkipBtn,
       );
     }
-    if (colorSkipBtn == null) {
-      colorSkipBtn = defaultBtnColor;
-    }
-    if (highlightColorSkipBtn == null) {
-      highlightColorSkipBtn = defaultBtnHighlightColor;
-    }
-    if (borderRadiusSkipBtn == null) {
-      borderRadiusSkipBtn = defaultBtnBorderRadius;
-    }
 
     // Prev button
     if (isShowPrevBtn == null || isShowSkipBtn) {
@@ -570,15 +516,6 @@ class IntroSliderState extends State<IntroSlider>
         namePrevBtn,
         style: styleNamePrevBtn,
       );
-    }
-    if (colorPrevBtn == null) {
-      colorPrevBtn = defaultBtnColor;
-    }
-    if (highlightColorPrevBtn == null) {
-      highlightColorPrevBtn = defaultBtnHighlightColor;
-    }
-    if (borderRadiusPrevBtn == null) {
-      borderRadiusPrevBtn = defaultBtnBorderRadius;
     }
     if (isShowDoneBtn == null) {
       isShowDoneBtn = true;
@@ -603,15 +540,6 @@ class IntroSliderState extends State<IntroSlider>
         nameDoneBtn,
         style: styleNameDoneBtn,
       );
-    }
-    if (colorDoneBtn == null) {
-      colorDoneBtn = defaultBtnColor;
-    }
-    if (highlightColorDoneBtn == null) {
-      highlightColorDoneBtn = defaultBtnHighlightColor;
-    }
-    if (borderRadiusDoneBtn == null) {
-      borderRadiusDoneBtn = defaultBtnBorderRadius;
     }
 
     // Next button
@@ -679,25 +607,17 @@ class IntroSliderState extends State<IntroSlider>
     if (tabController.index + 1 == slides.length) {
       return Container();
     } else {
-      return FlatButton(
+      return TextButton(
         onPressed: onSkipPress,
         child: renderSkipBtn,
-        color: colorSkipBtn,
-        highlightColor: highlightColorSkipBtn,
-        shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(borderRadiusSkipBtn)),
       );
     }
   }
 
   Widget buildDoneButton() {
-    return FlatButton(
+    return TextButton(
       onPressed: onDonePress,
       child: renderDoneBtn,
-      color: colorDoneBtn,
-      highlightColor: highlightColorDoneBtn,
-      shape: new RoundedRectangleBorder(
-          borderRadius: new BorderRadius.circular(borderRadiusDoneBtn)),
     );
   }
 
@@ -705,33 +625,25 @@ class IntroSliderState extends State<IntroSlider>
     if (tabController.index == 0) {
       return Container();
     } else {
-      return FlatButton(
+      return TextButton(
         onPressed: () {
           if (!this.isAnimating(tabController.animation.value)) {
             tabController.animateTo(tabController.index - 1);
           }
         },
         child: renderPrevBtn,
-        color: colorPrevBtn,
-        highlightColor: highlightColorPrevBtn,
-        shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(borderRadiusPrevBtn)),
       );
     }
   }
 
   Widget buildNextButton() {
-    return FlatButton(
+    return TextButton(
       onPressed: () {
         if (!this.isAnimating(tabController.animation.value)) {
           tabController.animateTo(tabController.index + 1);
         }
       },
       child: renderNextBtn,
-      color: colorDoneBtn,
-      highlightColor: highlightColorDoneBtn,
-      shape: new RoundedRectangleBorder(
-          borderRadius: new BorderRadius.circular(borderRadiusDoneBtn)),
     );
   }
 
@@ -862,10 +774,9 @@ class IntroSliderState extends State<IntroSlider>
     Color backgroundOpacityColor,
     BlendMode backgroundBlendMode,
   ) {
-    double animationSize = ANIMATION_SQUARE_SIZE(context);
-    double paddingTop = ANIMATION_TOP_PADDING(context);
+    double animationSize = animationSquareSize(context);
     return Container(
-      padding: EdgeInsets.only(top: animationSize + paddingTop),
+      padding: EdgeInsets.only(top: animationSize + 40),
       width: double.infinity,
       height: double.infinity,
       decoration: backgroundImage != null

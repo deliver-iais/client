@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
-version: 1.3.3
+version: 1.4.0
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -43,71 +43,48 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
   flutter_link_preview: 1.5.6
-
   desktoasts: 0.0.2
-
   carousel_slider: 2.3.1
   dots_indicator: 1.2.0
-
   flare_flutter: 2.0.6 # Animation Viewer Library
   lottie: 1.1.0
   date_time_format: 1.0.0+4
-
   emojis:
   permissions_plugin: 1.1.4 # ANDROID ONLY SUPPORTED
   synchronized: 3.0.0
   ext_storage: 1.0.3
   path_provider: 2.0.2
   path:
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 1.0.0
-
   get_it: # Dependency Injector Library
   rxdart: 0.26.0 # State Management Library & Advanced Streaming Library
   auto_route: 0.6.9 # Routing Library
   flutter_isolate: 2.0.0
-
   url_launcher: 6.0.4
-
   qr_code_scanner: 0.4.0
-
   linkify: 3.0.0
-
   uni_links: 0.5.1
-
   flutter_map: 0.13.1
-
   geolocator: ^5.1.3
-
   file_picker:
-
   logger: 1.0.0
-
   path_provider_ex: ^1.0.1
-
   overlay_support:
-
   flutter_file_manager: ^0.2.0
-
   android_intent: 0.3.7+7
-
   settings_ui: 1.0.0
-
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-
   file_selector: 0.8.2
   file_selector_macos: 0.0.4
   file_selector_linux: 0.0.2
   file_selector_windows: 0.0.2
-
   dio: 4.0.0 # HTTP Invoker Library
   mime_type: 0.3.2 # Get mime type of file path
   jwt_decoder: 1.0.1
@@ -120,35 +97,24 @@ dependencies:
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.3.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
-
   vibration: 1.7.2 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.3.0
-
   image_size_getter: 0.2.1
-
-
-
-  audioplayer: 0.8.1
   audioplayers: 0.19.0
-
+  dart_vlc: 0.0.9
   video_player: 1.0.1
   open_file: 3.2.1 # Open file in OS
   package_info_plus: 1.0.3
-
   contacts_service: 0.6.1
   random_string: 2.1.0
-  flutter_local_notifications: 6.0.0
-
-
+  flutter_local_notifications: 8.0.0
+  flutter_local_notifications_linux: 0.1.0+1
   uuid: 3.0.4
   flutter_sound: 8.1.4
-
   record: 2.1.1
   percent_indicator: 2.1.8
   package_info: 2.0.2
   cached_network_image: 3.0.0
-
-
   sms_autofill: 1.2.6
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
@@ -160,33 +126,21 @@ dependencies:
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
   test:
   badges: 1.1.4
-
   modal_bottom_sheet: 2.0.0
-
   receive_sharing_intent: 1.4.5
-
   flutter_icons: 1.1.0
   desktop_notifications: 0.5.0
-
   qr_flutter: 4.0.0
-
-
-  assets_audio_player: 3.0.3+3
-
   flutter_parsed_text: 1.2.5
   msix: 2.1.3
-
   device_info: 2.0.2
-
   hive: 2.0.4
   hive_flutter: 1.1.0
+  marquee: 2.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-
-  marquee: 2.1.0
   build_runner:
   hive_generator: ^1.1.0
 
@@ -210,13 +164,12 @@ flutter:
     - assets/ic_launcher/web_hi_res_512.png
     - assets/icons/stickerIcon.png
     - assets/icons/emojiIcon.png
-    - assets/audios/r.mp3
-    - assets/audios/ack.mp3
+    - assets/audios/sound_in.wav
+    - assets/audios/sound_out.wav
+    - assets/audios/incoming-msg.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
-    - assets/icons/mention.png
-    - assets/icons/channel_icon.png
-    - assets/bac/a.png
+    - assets/backgrounds/a.png
     - assets/animations/done.json
     - assets/animations/loading.json
     - assets/animations/error.json
@@ -231,6 +184,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
+    - family: NotoColorEmoji
+      fonts:
+        - asset: assets/fonts/NotoColorEmoji.ttf
     - family: Vazir
       fonts:
         - asset: assets/fonts/vazir/Vazir.ttf

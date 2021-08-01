@@ -2,7 +2,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';

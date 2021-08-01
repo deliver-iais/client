@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/shared/fluid.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_flutter/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 
 import 'package:flutter/material.dart';
@@ -74,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     loginToken.close();
     checkTimer.cancel();
+    tokenGeneratorTimer.cancel();
     super.dispose();
   }
 
@@ -116,13 +117,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
-            title: Text(
-              i18n.get("login"),
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            title: Text(i18n.get("login")),
             backgroundColor: Theme.of(context).backgroundColor,
           ),
           body: loginWithQrCode
@@ -139,23 +134,21 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-            stream: loginToken.stream,
-            builder: (context, snapshot) {
-              return Container(
-                width: 200,
-                height: 200,
-                padding: const EdgeInsets.all(8.0),
-                color: Colors.white,
-                child: QrImage(
-                  data:
-                      "https://deliver-co.ir/login?token=${snapshot.data}",
-                  version: QrVersions.auto,
-                  padding: EdgeInsets.zero,
-                  foregroundColor: Colors.black,
-                ),
-              );
-            }
-          ),
+              stream: loginToken.stream,
+              builder: (context, snapshot) {
+                return Container(
+                  width: 200,
+                  height: 200,
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.white,
+                  child: QrImage(
+                    data: "https://deliver-co.ir/login?token=${snapshot.data}",
+                    version: QrVersions.auto,
+                    padding: EdgeInsets.zero,
+                    foregroundColor: Colors.black,
+                  ),
+                );
+              }),
           SizedBox(height: 30),
           Text("1. Open Deliver on your phone"),
           SizedBox(height: 10),
@@ -176,11 +169,6 @@ class _LoginPageState extends State<LoginPage> {
           TextButton(
               child: Text(
                 "Don't you have access to an authenticated phone?",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                  fontSize: 13,
-                ),
               ),
               onPressed: () {
                 setState(() {

@@ -2,7 +2,7 @@ import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CheckPermissionsService {
-  var requestLock = new Lock();
+  var requestLock = Lock();
 
   Future<bool> check(List<Permission> permissions) async {
     try {
@@ -14,6 +14,7 @@ class CheckPermissionsService {
       return false;
     }
   }
+
   Future<bool> request(List<Permission> permission) async {
     return await requestLock.synchronized(() async {
       try {
@@ -66,5 +67,4 @@ extension PermissionsExtension on CheckPermissionsService {
       return true;
     }
   }
-
 }

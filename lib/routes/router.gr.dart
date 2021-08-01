@@ -13,8 +13,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 import '../screen/contacts/new_contact.dart';
-import '../screen/app-room/pages/roomPage.dart';
-import '../screen/app-room/widgets/showImage_Widget.dart';
+import '../screen/room/pages/roomPage.dart';
+import '../screen/room/widgets/showImage_Widget.dart';
 import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';

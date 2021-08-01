@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/shared/fluid.dart';
+import 'package:deliver_flutter/shared/widgets/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -144,7 +144,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               Theme.of(context).accentColor),
                           textStyle: Theme.of(context)
                               .primaryTextTheme
-                              .headline4
+                              .headline5
                               .copyWith(color: Theme.of(context).primaryColor)),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {

@@ -1,84 +1,77 @@
-import 'package:deliver_flutter/shared/functions.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 const LightThemeName = "Light";
 
+final primary = Color(0xFF2699FB);
+final accent = Colors.grey[800];
+
+final primaryTextTheme = Typography.blackCupertino
+    .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
+
+final accentTextTheme = Typography.blackCupertino
+    .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent);
+
+final textTheme = Typography.blackCupertino.apply(
+    fontFamily: "Vazir", displayColor: Colors.black, bodyColor: Colors.black);
+
+final TextTheme appbarTextTheme =
+    textTheme.merge(TextTheme(headline6: TextStyle(fontSize: 24)));
+
 // ignore: non_constant_identifier_names
-ThemeData LightTheme =
-    ThemeData(brightness: Brightness.light, fontFamily: "Vazir").copyWith(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Color(0xFF2699FB),
-        accentColor: Color(0xff002121),
-        scaffoldBackgroundColor: Colors.white,
-        backgroundColor: Color(0xfde2f8f0),
-        buttonColor: Color(0xFF2699FB),
-        dividerTheme: DividerThemeData(
-            space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
-        focusColor: Colors.lightBlue[300].withOpacity(0.6),
-        cardColor: Colors.white,
-        popupMenuTheme: PopupMenuThemeData(
-            textStyle: TextStyle(color: Colors.black, fontSize: 14)),
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.black, fontSize: 40),
-          headline2: TextStyle(color: Colors.black, fontSize: 25),
-          headline3: TextStyle(color: Colors.black, fontSize: 20),
-          headline4: TextStyle(color: Colors.black, fontSize: 18),
-          headline6: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText2: TextStyle(color: Colors.black, fontSize: 15),
-        ),
-        dialogTheme: DialogTheme(
-            titleTextStyle: TextStyle(color: Colors.black, fontSize: 18)),
-        appBarTheme: AppBarTheme(
-            color: Colors.white,
-            elevation: 0,
-            iconTheme: IconThemeData(color: Color(0xff002121))),
-        sliderTheme: SliderThemeData(
-          thumbColor: Color(0xFF2699FB),
-          trackHeight: 2.25,
-          activeTrackColor: Color(0xFF2699FB),
-          inactiveTrackColor: Colors.white,
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
-        ),
-        iconTheme: IconThemeData(color: Color(0xff002121)),
-        tabBarTheme: TabBarTheme(
-          indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.0, color: Color(0xFF2699FB)),
-              insets: EdgeInsets.zero),
-          labelColor: Color(0xFF2699FB),
-          unselectedLabelColor: Color(0xbb002121),
-        ));
+ThemeData LightTheme = ThemeData(
+  brightness: Brightness.light,
+  fontFamily: "Vazir",
+  primaryTextTheme: primaryTextTheme,
+  accentTextTheme: accentTextTheme,
+  textTheme: textTheme,
+).copyWith(
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    primaryColor: primary,
+    accentColor: accent,
+    scaffoldBackgroundColor: Colors.white,
+    backgroundColor: Color(0xfde2f8f0),
+    buttonColor: primary,
+    dividerTheme:
+        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
+    focusColor: Colors.lightBlue[300].withOpacity(0.6),
+    cardColor: Colors.white,
+    appBarTheme: AppBarTheme(
+        color: Colors.white,
+        elevation: 0,
+        textTheme: appbarTextTheme,
+        iconTheme: IconThemeData(color: Colors.black)),
+    sliderTheme: SliderThemeData(
+      thumbColor: primary,
+      trackHeight: 2.25,
+      activeTrackColor: primary,
+      inactiveTrackColor: Colors.white,
+      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
+    ),
+    tabBarTheme: TabBarTheme(
+      indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(width: 2.0, color: primary),
+          insets: EdgeInsets.zero),
+      labelColor: primary,
+      unselectedLabelColor: Color(0xbb002121),
+    ));
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
-  centerPageDetails: Color(0xff0b796c),
-  circleAvatarIcon: Color(0xFF2699FB),
-  boxDetails: Color(0xff15786c),
-  boxOuterBackground: Colors.white,
-  boxBackground: Color(0xFFEFEFF4),
-  activeSwitch: Color(0xff15786c),
-  textDetails: Colors.black,
-  bottomNavigationAppbar: LightTheme.appBarTheme.color,
-  activePageIcon: LightTheme.accentColor,
-  inactivePageIcon: LightTheme.accentColor.withAlpha(100),
-  menuIconButton: LightTheme.accentColor.withAlpha(50),
-  popupMenuButton: Colors.white,
-  popupMenuButtonDetails: LightTheme.accentColor,
-  searchBox: Color(0xFFEEEEEE),
-  chatOrContactItemDetails: Colors.black,
-  sentMessageBox: Color(0xFFDCEDC8),
-  receivedMessageBox: Colors.white,
-  textMessage: LightTheme.accentColor,
-  messageDetails: LightTheme.accentColor.withAlpha(200),
-  persistentEventMessage: LightTheme.backgroundColor,
-  circularFileStatus: LightTheme.backgroundColor,
-  fileMessageDetails: Color(0xff00a394),
-  textField: LightTheme.accentColor,
-  username: Colors.blue[900],
-  titleStatus: Colors.blue,
-  seenStatus: Colors.blue,
-  pinMessageTheme: Colors.white,
-  inputBoxBackground: Colors.white,
-  mentionWidget: Colors.white,
-  border: Color(0xff174b45),
-);
+    centerPageDetails: Color(0xff0b796c),
+    boxOuterBackground: Colors.white,
+    boxBackground: Color(0xFFEFEFF4),
+    textDetails: Colors.black,
+    menuIconButton: LightTheme.accentColor.withAlpha(50),
+    chatOrContactItemDetails: Colors.black,
+    sentMessageBox: Color(0xFFDCEDC8),
+    receivedMessageBox: Colors.white,
+    textMessage: LightTheme.accentColor,
+    messageDetails: LightTheme.accentColor.withAlpha(200),
+    persistentEventMessage: LightTheme.backgroundColor,
+    circularFileStatus: LightTheme.backgroundColor,
+    fileMessageDetails: Color(0xff00a394),
+    textField: LightTheme.accentColor,
+    username: Colors.blue[900],
+    seenStatus: Colors.blue,
+    inputBoxBackground: Colors.white);

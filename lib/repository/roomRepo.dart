@@ -9,13 +9,14 @@ import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -32,6 +33,7 @@ Cache<String, String> roomNameCache =
 
 class RoomRepo {
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _muteDao = GetIt.I.get<MuteDao>();
@@ -48,7 +50,23 @@ class RoomRepo {
 
   insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
 
+  Future<String> getSlangName(Uid uid) async {
+    if (uid == null) return "";
+    if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
+    if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
+      return _i18n.get("you");
+    else {
+      return getName(uid);
+    }
+  }
+
   Future<String> getName(Uid uid) async {
+    if (uid == null) {
+      return "";
+    }
+
+    if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
+
     // Is System Id
     if (uid.category == Categories.SYSTEM) {
       return APPLICATION_NAME;
@@ -117,7 +135,7 @@ class RoomRepo {
       var botInfo = await _botRepo.getBotInfo(uid);
       if (botInfo != null && botInfo.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), botInfo.name);
-        _uidIdNameDao.update(uid.asString(), name: botInfo.name);
+        _uidIdNameDao.update(uid.asString(), name: botInfo.name, id: uid.node);
 
         return botInfo.name;
       }
