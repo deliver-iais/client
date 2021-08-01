@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:hive/hive.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NavigationCenter extends StatefulWidget {
