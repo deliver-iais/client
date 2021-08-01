@@ -230,5 +230,6 @@
   "created": "created",
   "changed_avatar": "changed avatar",
   "changed_name": "changed name",
-  "joined_to_app": "join to"
+  "joined_to_app": "join to",
+  "add_to_group": "Add to Group"
 }

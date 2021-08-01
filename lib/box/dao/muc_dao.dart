@@ -1,5 +1,7 @@
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/muc.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:hive/hive.dart';
 
 abstract class MucDao {
@@ -24,6 +26,8 @@ abstract class MucDao {
   Future<void> deleteMember(Member member);
 
   Future<void> deleteAllMembers(String mucUid);
+
+  Future<List<Muc>>getAllGroups();
 }
 
 class MucDaoImpl implements MucDao {
@@ -38,6 +42,7 @@ class MucDaoImpl implements MucDao {
 
     return box.get(uid);
   }
+
 
   Future<void> save(Muc muc) async {
     var box = await _openMuc();
@@ -106,4 +111,10 @@ class MucDaoImpl implements MucDao {
 
   static Future<Box<Member>> _openMembers(String uid) =>
       Hive.openBox<Member>(_keyMembers(uid));
+
+  @override
+  Future<List<Muc>> getAllGroups() async {
+   var box = await _openMuc();
+   return box.values.where((element) => element.uid.asUid().category == Categories.GROUP).toList();
+  }
 }

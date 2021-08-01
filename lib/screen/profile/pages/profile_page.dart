@@ -484,6 +484,17 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "deleteMuc"),
+        if(widget.roomUid.category == Categories.BOT)
+          PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(Icons.person_add),
+                  SizedBox(width: 8),
+                  Text(_locale.get("add_to_group")),
+                ],
+              ),
+              value: "addBotToGroup"),
+
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: Row(
@@ -990,9 +1001,50 @@ class _ProfilePageState extends State<ProfilePage>
       case "invite_link":
         createInviteLink();
         break;
+      case "addBotToGroup":
+        _showAddBotToGroupDialog();
+        break;
     }
   }
+
+  _showAddBotToGroupDialog(){
+    showDialog(context: context, builder:(context){
+      return AlertDialog(
+        title: Text(_locale.get("add_to_group")),
+        content: FutureBuilder<List<Muc>>(future: _mucRepo.getAllGroups(),builder: (c,mucs){
+          if(mucs.hasData && mucs.data != null && mucs.data.length>0){
+            return Container(
+              height: 300,
+              width: 100,
+              child: ListView.separated(itemBuilder: (c,i){
+              return GestureDetector(
+                child: Text(mucs.data[i].name),
+                onTap: ()async {
+                var res =  await   _mucRepo.sendMembers(mucs.data[i].uid.asUid(), [widget.roomUid]);
+                if(res){
+                  Navigator.pop(context);
+                  _routingService.openRoom(mucs.data[i].uid);
+
+                }
+                },
+              );
+              }, separatorBuilder: (c,i){
+              return Divider();
+              }, itemCount: mucs.data.length),
+            );
+          }
+          return CircularProgressIndicator();
+        },
+
+        ),
+      );
+
+    });
+  }
 }
+
+
+
 
 Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
   //TODO i just implemented and not tested because server problem
