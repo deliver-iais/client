@@ -97,7 +97,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool _isMuc;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
-  bool _scrollToNewMessage = true;
   int _replayMessageId = -1;
   int _lastReceivedMessageId = 0;
   int _currentMessageSearchId = -1;
@@ -130,7 +129,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
-  final _unReadMessageScrollSubject = BehaviorSubject.seeded(0);
 
   @override
   Widget build(BuildContext context) {
@@ -293,14 +291,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _positionSubject
           .add(_itemPositionsListener.itemPositions.value.last.index);
     });
+
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
-        if (_scrollToNewMessage) {
-          _unReadMessageScrollSubject.add(0);
-          // scrollToLast();
-        } else {
-          _unReadMessageScrollSubject
-              .add(_unReadMessageScrollSubject.value + 1);
+        if (_itemCount - (_positionSubject.value ?? 0) < 4) {
+          scrollToLast();
         }
       }
     });
@@ -556,10 +551,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
                 onPressed: () {
                   _scrollToMessage(position: _lastShowedMessageId);
-                  _unReadMessageScrollSubject.add(0);
                 }),
             Positioned(
-              top: 0,
+                top: 0,
                 left: 0,
                 // alignment: Alignment.topLeft,
                 child: UnreadMessageCounterWidget(
