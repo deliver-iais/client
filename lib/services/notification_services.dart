@@ -6,9 +6,11 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:desktoasts/desktoasts.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -78,8 +80,47 @@ class IOSNotifier implements Notifier {
 }
 
 class WindowsNotifier implements Notifier {
+  ToastService _windowsNotificationServices = new ToastService(
+    appName: APPLICATION_NAME,
+    companyName: "deliver.co.ir",
+    productName: "deliver",
+  );
+
   @override
-  notify(MessageBrief message) {}
+  notify(MessageBrief message)async {
+    if(message.ignoreNotification)return;
+    try {
+      var _avatarRepo = GetIt.I.get<AvatarRepo>();
+      var fileRepo = GetIt.I.get<FileRepo>();
+      var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
+      if (lastAvatar != null) {
+        var file = await fileRepo.getFile(
+            lastAvatar.fileId, lastAvatar.fileName,
+            thumbnailSize: ThumbnailSize.medium);
+        Toast toast = new Toast(
+            type: ToastType.imageAndText02,
+            title: message.roomName,
+            subtitle: createNotificationTextFromMessageBrief(message),
+            image: file);
+        _windowsNotificationServices.show(toast);
+
+        toast.dispose();
+      } else {
+        Toast toast = new Toast(
+          type: ToastType.text04,
+          title:message.roomName ,
+          subtitle: createNotificationTextFromMessageBrief(message),
+        );
+        _windowsNotificationServices.show(toast);
+        // _windowsNotificationServices.dispose();
+        toast.dispose();
+      }
+    } catch (e) {
+      // _logger.e(e);
+    }
+
+
+  }
 
   @override
   cancel(int id) {}

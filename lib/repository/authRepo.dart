@@ -34,7 +34,7 @@ class AuthRepo {
   Avatar avatar;
   String _accessToken;
   String _refreshToken;
-  
+
   PhoneNumber _tmpPhoneNumber;
 
   Future<void> init() async {
@@ -68,9 +68,16 @@ class AuthRepo {
   }
 
   Future<Pb.Platform> getPlatformDetails() async {
-    var pInfo = await PackageInfo.fromPlatform();
 
-    Pb.Platform platform = Pb.Platform()..clientVersion = pInfo.version;
+    String version;
+    try{
+     var info =  await PackageInfo.fromPlatform();
+     version = info.version;
+    }catch(e){
+      version = VERSION;
+    }
+
+    Pb.Platform platform = Pb.Platform()..clientVersion = version;
 
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;

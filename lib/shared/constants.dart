@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
+const VERSION = "1.4.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";
