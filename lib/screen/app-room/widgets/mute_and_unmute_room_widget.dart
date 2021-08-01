@@ -18,7 +18,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
     return FutureBuilder<bool>(
         future: _mucRepo.isMucAdminOrOwner(
             _authRepo.currentUserUid.asString(), this.roomId),
@@ -38,7 +38,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                       if (isMuted.data) {
                         return GestureDetector(
                           child: Text(
-                            _appLocalization.getTraslateValue("un_mute"),
+                            _i18n.get("un_mute"),
                             style: TextStyle(color: Colors.white),
                           ),
                           onTap: () {
@@ -48,7 +48,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                       } else {
                         return GestureDetector(
                           child: Text(
-                            _appLocalization.getTraslateValue("mute"),
+                            _i18n.get("mute"),
                             style: TextStyle(color: Colors.white),
                           ),
                           onTap: () {

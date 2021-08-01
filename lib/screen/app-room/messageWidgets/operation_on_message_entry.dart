@@ -103,7 +103,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
 
     return Container(
       height: widget.hasPermissionInChannel ? 150 : 100,
@@ -121,7 +121,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("Reply")),
+                    Text(i18n.get("Reply")),
                   ])),
             ),
           if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
@@ -140,7 +140,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(appLocalization.getTraslateValue("pin")),
+                      Text(i18n.get("pin")),
                     ])),
               )
             else
@@ -155,7 +155,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(appLocalization.getTraslateValue("Unpin")),
+                      Text(i18n.get("unpin")),
                     ])),
               ),
 
@@ -172,7 +172,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("Copy")),
+                    Text(i18n.get("copy")),
                   ])),
             ),
           if (widget.message.type == MessageType.FILE)
@@ -208,14 +208,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             ),
                             SizedBox(width: 8),
                             f.type.contains("image")
-                                ? Text(appLocalization
-                                    .getTraslateValue("save_to_gallery"))
+                                ? Text(i18n
+                                    .get("save_to_gallery"))
                                 : f.type.contains("audio") ||
                                         f.type.contains("mp3")
-                                    ? Text(appLocalization
-                                        .getTraslateValue("save_in_music"))
-                                    : Text(appLocalization
-                                        .getTraslateValue("save_to_downloads")),
+                                    ? Text(i18n
+                                        .get("save_in_music"))
+                                    : Text(i18n
+                                        .get("save_to_downloads")),
                           ])),
                     );
                   } else {
@@ -240,7 +240,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("share")),
+                            Text(i18n.get("share")),
                           ])),
                     );
                   } else
@@ -259,7 +259,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("Forward")),
+                    Text(i18n.get("forward")),
                   ])),
             ),
           if (widget.message.id == null)
@@ -281,7 +281,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("Resend")),
+                            Text(i18n.get("resend")),
                           ])),
                     );
                   } else {
@@ -307,7 +307,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("delete")),
+                            Text(i18n.get("delete")),
                           ])),
                     );
                   } else {
@@ -327,7 +327,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           //                 size: 20,
           //               ),
           //               SizedBox(width: 8),
-          //               Text(appLocalization.getTraslateValue("Edit")),
+          //               Text(i18n.getTraslateValue("edit")),
           //             ])),
           //       )
           //     : Container(),
@@ -342,7 +342,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           //           size: 20,
           //         ),
           //         SizedBox(width: 8),
-          //         Text(appLocalization.getTraslateValue("Delete")),
+          //         Text(i18n.getTraslateValue("delete")),
           //       ])),
           // ),
         ],

@@ -52,6 +52,7 @@ dependencies:
   dots_indicator: 1.2.0
 
   flare_flutter: 2.0.6 # Animation Viewer Library
+  lottie: 1.1.0
   date_time_format: 1.0.0+4
 
   emojis:
@@ -113,7 +114,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.7.0-rc.90
+      ref: tags/v1.8.6-beta.3
   grpc: 3.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -216,6 +217,9 @@ flutter:
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
     - assets/bac/a.png
+    - assets/animations/done.json
+    - assets/animations/loading.json
+    - assets/animations/error.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

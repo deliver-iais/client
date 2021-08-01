@@ -32,7 +32,7 @@ class AccountSettings extends StatefulWidget {
 }
 
 class _AccountSettingsState extends State<AccountSettings> {
-  AppLocalization _appLocalization;
+  I18N _i18n;
   final subject = new BehaviorSubject<String>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -101,7 +101,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (widget.forceToSetUsernameAndName) return false;
@@ -116,12 +116,12 @@ class _AccountSettingsState extends State<AccountSettings> {
               // elevation: 0,
               titleSpacing: 8,
               title: Column(children: [
-                Text(_appLocalization.getTraslateValue("account_info"),
+                Text(_i18n.get("account_info"),
                     style: Theme.of(context).textTheme.headline2),
                 if (widget.forceToSetUsernameAndName)
                   Text(
-                    _appLocalization
-                        .getTraslateValue("should_set_username_and_name"),
+                    _i18n
+                        .get("should_set_username_and_name"),
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -146,7 +146,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               return ListView(
                 children: [
                   SettingsSection(
-                      title: _appLocalization.getTraslateValue("avatar"),
+                      title: _i18n.get("avatar"),
                       tiles: [
                         NormalSettingsTitle(
                           child: Center(
@@ -201,7 +201,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                         )
                       ]),
                   SettingsSection(
-                      title: _appLocalization.getTraslateValue("account_info"),
+                      title: _i18n.get("account_info"),
                       tiles: [
                         NormalSettingsTitle(
                             child: Column(
@@ -228,8 +228,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                           },
                                           validator: validateUsername,
                                           decoration: buildInputDecoration(
-                                              _appLocalization
-                                                  .getTraslateValue("username"),
+                                              _i18n
+                                                  .get("username"),
                                               true)),
                                     ),
                                     SizedBox(
@@ -240,9 +240,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                                             children: [
                                               Expanded(
                                                 child: Text(
-                                                  _appLocalization
-                                                      .getTraslateValue(
-                                                          "usernameHelper"),
+                                                  _i18n
+                                                      .get(
+                                                          "username_helper"),
                                                   textAlign: TextAlign.justify,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -259,9 +259,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                                         ? Row(
                                             children: [
                                               Text(
-                                                _appLocalization
-                                                    .getTraslateValue(
-                                                        "usernameExit"),
+                                                _i18n
+                                                    .get(
+                                                        "username_already_exist"),
                                                 style: TextStyle(
                                                     fontSize: 10,
                                                     color: Colors.red),
@@ -287,8 +287,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       },
                                       validator: validateFirstName,
                                       decoration: buildInputDecoration(
-                                          _appLocalization
-                                              .getTraslateValue("firstName"),
+                                          _i18n
+                                              .get("firstName"),
                                           true),
                                     ),
                                     SizedBox(
@@ -308,8 +308,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                           });
                                         },
                                         decoration: buildInputDecoration(
-                                            _appLocalization
-                                                .getTraslateValue("lastName"),
+                                            _i18n
+                                                .get("lastName"),
                                             false)),
                                     SizedBox(
                                       height: 20,
@@ -328,8 +328,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                         },
                                         validator: validateEmail,
                                         decoration: buildInputDecoration(
-                                            _appLocalization
-                                                .getTraslateValue("email"),
+                                            _i18n
+                                                .get("email"),
                                             false)),
                                   ],
                                 )),
@@ -338,7 +338,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 child: Text(
-                                    _appLocalization.getTraslateValue("save")),
+                                    _i18n.get("save")),
                                 onPressed: () async {
                                   checkAndSend();
                                 },
@@ -388,7 +388,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   String validateFirstName(String value) {
     if (value.isEmpty) {
-      return _appLocalization.getTraslateValue("firstname_not_empty");
+      return _i18n.get("firstname_not_empty");
     } else {
       return null;
     }
@@ -402,13 +402,13 @@ class _AccountSettingsState extends State<AccountSettings> {
         _userNameCorrect = false;
         usernameIsAvailable = true;
       });
-      return _appLocalization.getTraslateValue("username_not_empty");
+      return _i18n.get("username_not_empty");
     } else if (!regex.hasMatch(value)) {
       setState(() {
         _userNameCorrect = false;
         usernameIsAvailable = true;
       });
-      return _appLocalization.getTraslateValue("username_length");
+      return _i18n.get("username_length");
     } else {
       setState(() {
         _userNameCorrect = true;
@@ -424,7 +424,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (value.isEmpty) {
       return null;
     } else if (!regex.hasMatch(value)) {
-      return _appLocalization.getTraslateValue("email_not_valid");
+      return _i18n.get("email_not_valid");
     }
     return null;
   }

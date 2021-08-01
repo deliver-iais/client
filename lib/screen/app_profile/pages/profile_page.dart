@@ -69,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage>
   TabController _tabController;
   int _tabsCount;
 
-  AppLocalization _locale;
+  I18N _locale;
 
   bool _isMucAdminOrOwner = false;
   bool _isMucOwner = false;
@@ -94,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    this._locale = AppLocalization.of(context);
+    this._locale = I18N.of(context);
 
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -168,46 +168,46 @@ class _ProfilePageState extends State<ProfilePage>
                                               Categories.CHANNEL)
                                         Tab(
                                           text: _locale
-                                              .getTraslateValue("members"),
+                                              .get("members"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.imagesCount != 0)
                                         Tab(
                                           text: _locale
-                                              .getTraslateValue("images"),
+                                              .get("images"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.videosCount != 0)
                                         Tab(
                                           text: _locale
-                                              .getTraslateValue("videos"),
+                                              .get("videos"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.filesCount != 0)
                                         Tab(
                                           text:
-                                              _locale.getTraslateValue("file"),
+                                              _locale.get("file"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.linkCount != 0)
                                         Tab(
                                             text: _locale
-                                                .getTraslateValue("links")),
+                                                .get("links")),
                                       if (snapshot.hasData &&
                                           snapshot.data.documentsCount != 0)
                                         Tab(
                                             text: _locale
-                                                .getTraslateValue("documents")),
+                                                .get("documents")),
                                       if (snapshot.hasData &&
                                           snapshot.data.musicsCount != 0)
                                         Tab(
                                             text: _locale
-                                                .getTraslateValue("musics")),
+                                                .get("musics")),
                                       if (snapshot.hasData &&
                                           snapshot.data.audiosCount != 0)
                                         Tab(
                                             text: _locale
-                                                .getTraslateValue("audios")),
+                                                .get("audios")),
                                     ],
                                     controller: _tabController,
                                   ),
@@ -300,7 +300,7 @@ class _ProfilePageState extends State<ProfilePage>
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
-                        title: _locale.getTraslateValue("username"),
+                        title: _locale.get("username"),
                         titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: "${snapshot.data}",
                         leading: Icon(Icons.alternate_email),
@@ -324,7 +324,7 @@ class _ProfilePageState extends State<ProfilePage>
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
-                        title: _locale.getTraslateValue("phone"),
+                        title: _locale.get("phone"),
                         titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: buildPhoneNumber(snapshot.data.countryCode,
                             snapshot.data.nationalNumber),
@@ -343,7 +343,7 @@ class _ProfilePageState extends State<ProfilePage>
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: SettingsTile(
-                  title: _locale.getTraslateValue("sendMessage"),
+                  title: _locale.get("send_message"),
                   titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.message),
                   onPressed: (_) =>
@@ -354,7 +354,7 @@ class _ProfilePageState extends State<ProfilePage>
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
                   return SettingsTile.switchTile(
-                      title: _locale.getTraslateValue("notification"),
+                      title: _locale.get("notification"),
                       titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.notifications_active),
                       switchValue: !snapshot.data,
@@ -380,7 +380,7 @@ class _ProfilePageState extends State<ProfilePage>
                       return Padding(
                         padding: const EdgeInsets.only(top:8.0),
                         child: SettingsTile(
-                            title: _locale.getTraslateValue("description"),
+                            title: _locale.get("description"),
                             titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                             subtitle: muc.data.info,
                             subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username,fontSize: 16),
@@ -394,7 +394,7 @@ class _ProfilePageState extends State<ProfilePage>
               Padding(
                 padding: const EdgeInsets.only(top:8.0),
                 child: SettingsTile(
-                  title: _locale.getTraslateValue("AddMember"),
+                  title: _locale.get("add_member"),
                   titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
@@ -444,7 +444,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Icon(Icons.add_link_outlined),
                   SizedBox(width: 8),
-                  Text(_locale.getTraslateValue("create_invite_link"))
+                  Text(_locale.get("create_invite_link"))
                 ],
               ),
               value: "invite_link"),
@@ -455,8 +455,8 @@ class _ProfilePageState extends State<ProfilePage>
                   Icon(Icons.settings),
                   SizedBox(width: 8),
                   Text(widget.roomUid.category == Categories.GROUP
-                      ? _locale.getTraslateValue("manage_group")
-                      : _locale.getTraslateValue("manage_channel")),
+                      ? _locale.get("manage_group")
+                      : _locale.get("manage_channel")),
                 ],
               ),
               value: "manage"),
@@ -469,8 +469,8 @@ class _ProfilePageState extends State<ProfilePage>
                   SizedBox(width: 8),
                   Text(
                     widget.roomUid.isGroup()
-                        ? _locale.getTraslateValue("leftGroup")
-                        : _locale.getTraslateValue("leftChannel"),
+                        ? _locale.get("left_group")
+                        : _locale.get("left_channel"),
                   ),
                 ],
               ),
@@ -483,8 +483,8 @@ class _ProfilePageState extends State<ProfilePage>
                   Icon(Icons.delete),
                   SizedBox(width: 8),
                   Text(widget.roomUid.isGroup()
-                      ? _locale.getTraslateValue("deleteGroup")
-                      : _locale.getTraslateValue("deleteChannel"))
+                      ? _locale.get("delete_group")
+                      : _locale.get("delete_channel"))
                 ],
               ),
               value: "deleteMuc"),
@@ -494,7 +494,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Icon(Icons.report),
                   SizedBox(width: 8),
-                  Text(_locale.getTraslateValue("report")),
+                  Text(_locale.get("report")),
                 ],
               ),
               value: "report")
@@ -556,7 +556,7 @@ class _ProfilePageState extends State<ProfilePage>
     if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
     } else {
-      Fluttertoast.showToast(msg: _locale.getTraslateValue("occurred_Error"));
+      Fluttertoast.showToast(msg: _locale.get("error_occurred"));
     }
   }
 
@@ -591,11 +591,11 @@ class _ProfilePageState extends State<ProfilePage>
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
                         Fluttertoast.showToast(
-                            msg: _locale.getTraslateValue("Copied"));
+                            msg: _locale.get("copied"));
                         Navigator.pop(context);
                       },
                       child: Text(
-                        _locale.getTraslateValue("Copy"),
+                        _locale.get("copy"),
                         style: TextStyle(fontSize: 16),
                       )),
                   ElevatedButton(
@@ -610,7 +610,7 @@ class _ProfilePageState extends State<ProfilePage>
                       Navigator.pop(context);
                     },
                     child: Text(
-                      _locale.getTraslateValue("share"),
+                      _locale.get("share"),
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
@@ -683,8 +683,8 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Text(
                       widget.roomUid.isGroup()
-                          ? _locale.getTraslateValue("sure_delete_group")
-                          : _locale.getTraslateValue("sure_delete_channel"),
+                          ? _locale.get("sure_delete_group")
+                          : _locale.get("sure_delete_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -695,7 +695,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   GestureDetector(
                     child: Text(
-                      _locale.getTraslateValue("cancel"),
+                      _locale.get("cancel"),
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {
@@ -707,7 +707,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   GestureDetector(
                     child: Text(
-                      _locale.getTraslateValue("ok"),
+                      _locale.get("ok"),
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                     onTap: () => _deleteMuc(),
@@ -766,8 +766,8 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Text(
                       widget.roomUid.isGroup()
-                          ? _locale.getTraslateValue("sure_left_group")
-                          : _locale.getTraslateValue("sure_left_channel"),
+                          ? _locale.get("sure_left_group")
+                          : _locale.get("sure_left_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -778,7 +778,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   GestureDetector(
                     child: Text(
-                      _locale.getTraslateValue("cancel"),
+                      _locale.get("cancel"),
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {
@@ -790,7 +790,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   GestureDetector(
                     child: Text(
-                      _locale.getTraslateValue("ok"),
+                      _locale.get("ok"),
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                     onTap: () => _leftMuc(),
@@ -856,7 +856,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 validator: (s) {
                                   if (s.isEmpty) {
                                     return _locale
-                                        .getTraslateValue("name_not_empty");
+                                        .get("name_not_empty");
                                   } else {
                                     return null;
                                   }
@@ -871,9 +871,9 @@ class _ProfilePageState extends State<ProfilePage>
                                 keyboardType: TextInputType.text,
                                 decoration: buildInputDecoration(
                                   widget.roomUid.category == Categories.GROUP
-                                      ? _locale.getTraslateValue("group_name")
+                                      ? _locale.get("group_name")
                                       : _locale
-                                          .getTraslateValue("channel_name"),
+                                          .get("channel_name"),
                                 ),
                               )),
                         );
@@ -910,15 +910,15 @@ class _ProfilePageState extends State<ProfilePage>
                                       },
                                       keyboardType: TextInputType.text,
                                       decoration: buildInputDecoration(_locale
-                                          .getTraslateValue("channel_Id")),
+                                          .get("channel_id")),
                                     )),
                                 StreamBuilder(
                                     stream: _showChannelIdError.stream,
                                     builder: (c, e) {
                                       if (e.hasData && e.data) {
                                         return Text(
-                                          _locale.getTraslateValue(
-                                              "channel_id_isExist"),
+                                          _locale.get(
+                                              "channel_id_is_exist"),
                                           style: TextStyle(color: Colors.red),
                                         );
                                       } else {
@@ -954,9 +954,9 @@ class _ProfilePageState extends State<ProfilePage>
                           keyboardType: TextInputType.multiline,
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
-                                ? _locale.getTraslateValue("enter-group-desc")
+                                ? _locale.get("enter_group_desc")
                                 : _locale
-                                    .getTraslateValue("enter-channel-desc"),
+                                    .get("enter_channel_desc"),
                           ),
                         );
                       } else {
@@ -1025,7 +1025,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   }
                                 : () {},
                             child: Text(
-                              _locale.getTraslateValue("set"),
+                              _locale.get("set"),
                               style: TextStyle(
                                   fontSize: 25,
                                   color: change.data
@@ -1062,9 +1062,9 @@ class _ProfilePageState extends State<ProfilePage>
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {
-      return _locale.getTraslateValue("channelId_not_empty");
+      return _locale.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
-      return _locale.getTraslateValue("channel_id_length");
+      return _locale.get("channel_id_length");
     } else
       return null;
   }
@@ -1077,7 +1077,7 @@ class _ProfilePageState extends State<ProfilePage>
       case "deleteMuc":
         _showDeleteMucDialog();
         break;
-      case "unBlockRoom":
+      case "unblock_room":
         _roomRepo.unblock(widget.roomUid.asString());
         break;
       case "blockRoom":
@@ -1085,7 +1085,7 @@ class _ProfilePageState extends State<ProfilePage>
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
-        Fluttertoast.showToast(msg: _locale.getTraslateValue("report_result"));
+        Fluttertoast.showToast(msg: _locale.get("report_result"));
         break;
       case "manage":
         showManageDialog();

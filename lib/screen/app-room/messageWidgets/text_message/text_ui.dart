@@ -271,7 +271,7 @@ Widget _textWidget(
             ),
             onTap: (uri) async {
               if (uri.toString().contains("deliver-co")) {
-                handleUri(uri, context);
+                handleJoinUri(context, uri);
               } else
                 await launch(uri);
             },

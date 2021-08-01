@@ -20,6 +20,7 @@ bool isOnline(int time) {
 }
 
 DateTime date(int time) {
+  if (time == null) time = 0;
   return DateTime.fromMillisecondsSinceEpoch(time);
 }
 
@@ -76,9 +77,9 @@ String buildPhoneNumber(String countryCode, String nationalNumber) =>
 
 String buildShareUserUrl(String countryCode, String nationalNumber,
         String firstName, String lastName) =>
-    "$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
+    "https://$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
-Future<void> handleUri(String initialLink, BuildContext context) async {
+Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   var _mucDao = GetIt.I.get<MucDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -115,8 +116,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                     MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(AppLocalization.of(context)
-                            .getTraslateValue("skip"))),
+                        child: Text(I18N.of(context).get("skip"))),
                     MaterialButton(
                       color: Colors.blueAccent,
                       onPressed: () async {
@@ -139,8 +139,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                           }
                         }
                       },
-                      child: Text(
-                          AppLocalization.of(context).getTraslateValue("join")),
+                      child: Text(I18N.of(context).get("join")),
                     ),
                   ],
                 ),

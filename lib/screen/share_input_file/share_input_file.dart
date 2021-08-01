@@ -19,11 +19,11 @@ class ShareInputFile extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization i18n = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     return Scaffold(
 
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(title:Text(i18n.getTraslateValue("send_To"),style: TextStyle(color: ExtraTheme.of(context).textField),) ,leading: _routingServices.backButtonLeading(),),
+      appBar: AppBar(title:Text(i18n.get("send_To"),style: TextStyle(color: ExtraTheme.of(context).textField),) ,leading: _routingServices.backButtonLeading(),),
       body: Column(
         children: <Widget>[
           SearchBox(),

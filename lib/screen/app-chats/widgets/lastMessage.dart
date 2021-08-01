@@ -17,14 +17,20 @@ class LastMessage extends StatelessWidget {
   final Message message;
   final int lastMessageId;
   final bool hasMentioned;
+  final bool showSender;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  LastMessage({Key key, this.message, this.lastMessageId, this.hasMentioned})
+  LastMessage(
+      {Key key,
+      this.message,
+      this.lastMessageId,
+      this.hasMentioned,
+      this.showSender = true})
       : super(key: key);
 
   messageText(BuildContext context) {
-    AppLocalization _appLocalization = AppLocalization.of(context);
+    I18N _i18n = I18N.of(context);
     switch (message.type) {
       case MessageType.TEXT:
         return (message.json.toText().text.trim().split('\n'))[0];
@@ -38,12 +44,12 @@ class LastMessage extends StatelessWidget {
         var file = this.message.json.toFile();
         return file.name;
       case MessageType.LOCATION:
-        return _appLocalization.getTraslateValue("location");
+        return _i18n.get("location");
       case MessageType.SHARE_UID:
         if (message.json.toShareUid().uid.category == Categories.USER)
           return message.json.toShareUid().name;
         else
-          return _appLocalization.getTraslateValue("inviteLink") +
+          return _i18n.get("invite_link") +
               " " +
               message.json.toShareUid().name;
         break;
@@ -54,7 +60,7 @@ class LastMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization _appLocalization = AppLocalization.of(context);
+    I18N _i18n = I18N.of(context);
     String oneLine = messageText(context);
     bool shouldHighlight = message.type != MessageType.TEXT;
 
@@ -63,16 +69,15 @@ class LastMessage extends StatelessWidget {
     return Row(
       // crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!isReceivedMessage)
+        if (!isReceivedMessage && showSender)
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: SeenStatus(message),
           ),
         if (message.roomUid.asUid().category == Categories.GROUP &&
-            message.type != MessageType.PERSISTENT_EVENT)
+            message.type != MessageType.PERSISTENT_EVENT && showSender)
           !isReceivedMessage
-              ? _fromDisplayName(
-                  _appLocalization.getTraslateValue("you"), context)
+              ? _fromDisplayName(_i18n.get("you"), context)
               : FutureBuilder<String>(
                   future: _roomRepo.getName(message.from.asUid()),
                   builder:

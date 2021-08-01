@@ -64,7 +64,7 @@ class PersistentEventMessage extends StatelessWidget {
 
   Future<String> getPersistentMessage(
       BuildContext context, PersistentEvent persistentEventMessage) async {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
 
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
@@ -89,32 +89,32 @@ class PersistentEventMessage extends StatelessWidget {
             .isSameEntity(_authRepo.currentUserUid.asString());
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
           case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-            return "$issuer ${_appLocalization.getTraslateValue("pin_message")}";
+            return "$issuer ${_i18n.get("pin_message")}";
             break;
           case MucSpecificPersistentEvent_Issue.ADD_USER:
-            return " $issuer ${isMe ? _appLocalization.getTraslateValue("you_add_user_to_muc") : _appLocalization.getTraslateValue("add_user_to_muc")} $assignee";
+            return " $issuer ${isMe ? _i18n.get("you_add_user_to_muc") : _i18n.get("add_user_to_muc")} $assignee";
 
           case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
             return message.from.asUid().category == Categories.CHANNEL
-                ? "$issuer } ${_appLocalization.getTraslateValue("change_channel_avatar")}"
-                : "$issuer  ${_appLocalization.getTraslateValue("change_group_avatar")}";
+                ? "$issuer } ${_i18n.get("change_channel_avatar")}"
+                : "$issuer  ${_i18n.get("change_group_avatar")}";
           case MucSpecificPersistentEvent_Issue.JOINED_USER:
-            return "$issuer ${_appLocalization.getTraslateValue("joined_to_group")}";
+            return "$issuer ${_i18n.get("joined_to_group")}";
             break;
 
           case MucSpecificPersistentEvent_Issue.KICK_USER:
-            return "$issuer ،  ${_appLocalization.getTraslateValue("kick_from_muc")} $assignee";
+            return "$issuer ،  ${_i18n.get("kick_from_muc")} $assignee";
             break;
           case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-            return "$issuer ${_appLocalization.getTraslateValue("left_the_group")}";
+            return "$issuer ${_i18n.get("left_the_group")}";
             break;
           case MucSpecificPersistentEvent_Issue.MUC_CREATED:
             return message.from.asUid().category == Categories.CHANNEL
-                ? "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_channel") : _appLocalization.getTraslateValue("create_channel")}"
-                : "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_group") : _appLocalization.getTraslateValue("create_group")}";
+                ? "$issuer  ${isMe ? _i18n.get("you_create_channel") : _i18n.get("create_channel")}"
+                : "$issuer  ${isMe ? _i18n.get("you_create_group") : _i18n.get("create_group")}";
             break;
           case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-            return "$issuer  ${_appLocalization.getTraslateValue("change_muc_name")}";
+            return "$issuer  ${_i18n.get("change_muc_name")}";
             break;
         }
 
@@ -123,7 +123,7 @@ class PersistentEventMessage extends StatelessWidget {
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
         var user = await _roomRepo.getName(message.from.asUid());
-        return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
+        return "$user ${_i18n.get("new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:
         break;
@@ -132,10 +132,10 @@ class PersistentEventMessage extends StatelessWidget {
   }
 
   Future<String> getName(BuildContext context, Uid uid, Uid to) async {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
     if (uid == null) return "";
     if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
-      return _appLocalization.getTraslateValue("you");
+      return _i18n.get("you");
     else {
       return _roomRepo.getName(uid);
     }

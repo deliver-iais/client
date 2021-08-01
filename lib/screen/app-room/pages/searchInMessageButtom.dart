@@ -29,7 +29,7 @@ class SearchInMessageButton extends StatefulWidget {
 class _SearchInMessageButtonState extends State<SearchInMessageButton> {
   @override
   Widget build(BuildContext context) {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
     return StreamBuilder(
       stream: widget.searchMode.stream,
       builder: (c, s) {
@@ -44,7 +44,7 @@ class _SearchInMessageButtonState extends State<SearchInMessageButton> {
               SizedBox(
                 width: 5,
               ),
-              Text(_appLocalization.getTraslateValue("of")),
+              Text(_i18n.get("of")),
               SizedBox(
                 width: 5,
               ),

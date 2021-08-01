@@ -94,7 +94,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   String _searchMessagePattern;
   int _lastSeenMessageId = -1;
   bool _isMuc;
-  AppLocalization _appLocalization;
+  I18N _i18n;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   bool _scrollToNewMessage = true;
@@ -196,8 +196,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           else
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
-          Fluttertoast.showToast(
-              msg: _appLocalization.getTraslateValue("Copied"));
+          Fluttertoast.showToast(msg: _i18n.get("copied"));
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -254,8 +253,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
-            Fluttertoast.showToast(
-                msg: _appLocalization.getTraslateValue("occurred_Error"));
+            Fluttertoast.showToast(msg: _i18n.get("error_occurred"));
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -384,7 +382,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
         List<int> pm = muc.pinMessagesIdList;
-        if (pm != null)
+        _pinMessages.clear();
+        if (pm != null && pm.length > 0)
           pm.forEach((element) async {
             if (element != null) {
               try {
@@ -423,7 +422,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     _menuColor = ExtraTheme.of(context).popupMenuButton;
     if (isLarge(context)) {
@@ -748,14 +747,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           searchMessage(str, checkSearchResult);
                         },
                         decoration: InputDecoration(
-                            hintText:
-                                _appLocalization.getTraslateValue("search"),
+                            hintText: _i18n.get("search"),
                             suffix: StreamBuilder(
                               stream: checkSearchResult.stream,
                               builder: (c, s) {
                                 if (s.hasData && s.data) {
-                                  return Text(_appLocalization
-                                      .getTraslateValue("not_found"));
+                                  return Text(_i18n.get("not_found"));
                                 } else {
                                   return SizedBox.shrink();
                                 }
@@ -806,7 +803,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child: Text(
-                            _appLocalization.getTraslateValue("search"),
+                            _i18n.get("search"),
                             style: TextStyle(
                               color:
                                   ExtraTheme.of(context).popupMenuButtonDetails,
@@ -821,6 +818,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 }
               }),
         ],
+        bottom: PreferredSize(
+          child: Divider(),
+          preferredSize: Size.fromHeight(1),
+        ),
       ),
     );
   }
@@ -935,7 +936,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       Icon(Icons.keyboard_arrow_down,
                           color: Theme.of(context).primaryColor),
                       Text(
-                        _appLocalization.getTraslateValue("UnreadMessages"),
+                        _i18n.get("unread_messages"),
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ],
@@ -1038,7 +1039,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
       if (newTime && !showTimeDown) {
         _upTimeMap[messages[0].packetId] =
-            date(currentSearchResultMessage.time);
+            date(currentSearchResultMessage?.time);
       }
     } catch (e) {
       _logger.e(e);
@@ -1145,7 +1146,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Tooltip(
-          message: _appLocalization.getTraslateValue("cancel"),
+          message: _i18n.get("cancel"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,
@@ -1163,7 +1164,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
         SizedBox(width: 10),
         Tooltip(
-          message: _appLocalization.getTraslateValue("Forward"),
+          message: _i18n.get("forward"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,
@@ -1268,16 +1269,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return PinMessageAppBar(
         lastPinedMessage: _lastPinedMessage,
         pinMessages: _pinMessages,
-        onTap: (int id, Message mes) {
+        onTap: () {
+          setState(() => _replayMessageId = _lastPinedMessage.value);
           _itemScrollController.scrollTo(
-              index: _lastPinedMessage.valueWrapper.value,
+              index: _lastPinedMessage.value,
+              alignment: 0.5,
               duration: Duration(microseconds: 1));
-          setState(() {
-            _replayMessageId = id;
-          });
           if (_pinMessages.length > 1) {
-            _lastPinedMessage
-                .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+            _lastPinedMessage.add(_pinMessages[_pinMessages
+                        .indexWhere((e) => e.id == _lastPinedMessage.value) -
+                    1]
+                .id);
           }
         },
         onCancel: () {

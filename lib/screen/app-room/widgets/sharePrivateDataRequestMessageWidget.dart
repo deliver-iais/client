@@ -17,13 +17,13 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
 
   SharePrivateDataRequestMessageWidget({this.message, this.isSender, this.isSeen});
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
   SharePrivateDataRequest _sharePrivateDataRequest;
 
   @override
   Widget build(BuildContext context) {
     _sharePrivateDataRequest = message.json.toSharePrivateDataReauest();
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Stack(
       children: [
         Column(children: [
@@ -40,7 +40,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               _messageRepo.sendPrivateMessageAccept(
                   message.from.asUid(), _sharePrivateDataRequest.data,_sharePrivateDataRequest.token);
             },
-            child: Text(_appLocalization.getTraslateValue("ok")),
+            child: Text(_i18n.get("ok")),
           ))
         ]),
         TimeAndSeenStatus(message, isSender, false, isSeen)

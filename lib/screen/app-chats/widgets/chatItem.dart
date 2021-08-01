@@ -44,7 +44,7 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
-    AppLocalization _appLocalization = AppLocalization.of(context);
+    I18N _i18n = I18N.of(context);
 
     return FutureBuilder<String>(
         future: _roomRepo.getName(widget.room.uid.asUid()),
@@ -99,7 +99,9 @@ class _ChatItemState extends State<ChatItem> {
                             Expanded(
                                 flex: 50,
                                 child: Padding(
-                                    padding: (widget.room.uid.asUid().category ==
+                                    padding: (widget.room.uid
+                                                    .asUid()
+                                                    .category ==
                                                 Categories.GROUP) ||
                                             (widget.room.uid.asUid().category ==
                                                 Categories.CHANNEL) ||
@@ -107,11 +109,11 @@ class _ChatItemState extends State<ChatItem> {
                                                 Categories.BOT)
                                         ? const EdgeInsets.only(left: 16.0)
                                         : EdgeInsets.zero,
-                                    child: widget.room.uid.asUid().toString().contains(
-                                            _authRepo.currentUserUid.toString())
+                                    child: _authRepo
+                                            .isCurrentUser(widget.room.uid)
                                         ? _showDisplayName(
                                             widget.room.uid.asUid(),
-                                            _appLocalization.getTraslateValue(
+                                            _i18n.get(
                                                 "saved_message"),
                                             context)
                                         : _showDisplayName(

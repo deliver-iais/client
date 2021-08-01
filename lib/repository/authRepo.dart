@@ -5,12 +5,15 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as Pb;
+import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -29,9 +32,10 @@ class AuthRepo {
     ..category = Categories.USER
     ..node = "";
   Avatar avatar;
-  PhoneNumber phoneNumber;
   String _accessToken;
   String _refreshToken;
+  
+  PhoneNumber _tmpPhoneNumber;
 
   Future<void> init() async {
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
@@ -44,16 +48,18 @@ class AuthRepo {
   String platformVersion;
 
   Future getVerificationCode(String countryCode, String nationalNumber) async {
+    Pb.Platform platform = await getPlatformDetails();
+
     try {
       PhoneNumber phone = PhoneNumber()
         ..countryCode = int.parse(countryCode)
         ..nationalNumber = Int64.parseInt(nationalNumber);
-      this.phoneNumber = phone;
-      _savePhoneNumber();
+      this._tmpPhoneNumber = phone;
       var verificationCode =
           await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
             ..phoneNumber = phone
-            ..type = VerificationType.SMS);
+            ..type = VerificationType.SMS
+            ..platform = platform);
       return verificationCode;
     } catch (e) {
       _logger.e(e);
@@ -61,31 +67,109 @@ class AuthRepo {
     }
   }
 
-  Future sendVerificationCode(String code) async {
+  Future<Pb.Platform> getPlatformDetails() async {
+    var pInfo = await PackageInfo.fromPlatform();
+
+    Pb.Platform platform = Pb.Platform()..clientVersion = pInfo.version;
+
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      platform
+        ..platformType = Pb.PlatformsType.ANDROID
+        ..osVersion = androidInfo.version.release;
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+
+      platform
+        ..platformType = Pb.PlatformsType.IOS
+        ..osVersion = iosInfo.systemVersion;
+    } else if (Platform.isLinux) {
+      platform
+        ..platformType = Pb.PlatformsType.LINUX
+        ..osVersion = Platform.operatingSystemVersion;
+    } else if (Platform.isMacOS) {
+      platform
+        ..platformType = Pb.PlatformsType.MAC_OS
+        ..osVersion = Platform.operatingSystemVersion;
+    } else if (Platform.isWindows) {
+      platform
+        ..platformType = Pb.PlatformsType.WINDOWS
+        ..osVersion = Platform.operatingSystemVersion;
+    } else {
+      platform
+        ..platformType = Pb.PlatformsType.ANDROID
+        ..osVersion = Platform.operatingSystemVersion;
+    }
+    return platform;
+  }
+
+  Future<String> getDeviceName() async {
     String device;
 
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      device = "Android/${androidInfo.model}";
+      device = androidInfo.model;
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      device = "iOS/${iosInfo.identifierForVendor}";
+      device = iosInfo.model;
+    } else if (Platform.isLinux) {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (Platform.isMacOS) {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (Platform.isWindows) {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else {
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
+    return device;
+  }
 
-    return await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = this.phoneNumber
+  Future<AccessTokenRes> sendVerificationCode(String code) async {
+    Pb.Platform platform = await getPlatformDetails();
+
+    String device = await getDeviceName();
+
+    var res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
+      ..phoneNumber = this._tmpPhoneNumber
       ..code = code
       ..device = device
+      ..platform = platform
       //  TODO add password mechanism
       ..password = "");
+
+    if (res.status == AccessTokenRes_Status.OK) {
+      _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+    }
+
+    return res;
+  }
+
+  Future<AccessTokenRes> checkQrCodeToken(String token) async {
+    Pb.Platform platform = await getPlatformDetails();
+
+    String device = await getDeviceName();
+
+    var res = await _authServiceClient
+        .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
+          ..token = token
+          ..device = device
+          ..platform = platform
+          //  TODO add password mechanism
+          ..password = "");
+
+    if (res.status == AccessTokenRes_Status.OK) {
+      _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+    }
+
+    return res;
   }
 
   Future _getAccessToken(String refreshToken) async {
     try {
-      return await _authServiceClient
-          .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+      return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
+        ..refreshToken = refreshToken
+        ..platform = await getPlatformDetails());
     } catch (e) {
       _logger.e(e);
     }
@@ -108,10 +192,6 @@ class AuthRepo {
 
   bool _isExpired(accessToken) {
     return JwtDecoder.isExpired(accessToken);
-  }
-
-  void saveTokens(AccessTokenRes res) {
-    _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
   void _saveTokens(RenewAccessTokenRes res) {
@@ -144,14 +224,11 @@ class AuthRepo {
     }
   }
 
-  _savePhoneNumber() {
-    _sharedDao.put(
-        SHARED_DAO_COUNTRY_CODE, this.phoneNumber.countryCode.toString());
-    _sharedDao.put(
-        SHARED_DAO_NATIONAL_NUMBER, this.phoneNumber.nationalNumber.toString());
-  }
-
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
+
+  bool isCurrentSession(Session session) =>
+      currentUserUid.sessionId == session.sessionId &&
+      currentUserUid.node == session.node;
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {

@@ -17,7 +17,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -76,7 +76,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
             children: <Widget>[
               Icon(Icons.chevron_left),
               Text(
-                _appLocalization.getTraslateValue("slideToCancel"),
+                _i18n.get("slideToCancel"),
                 style: TextStyle(
                   fontSize: 12,
                   color: ExtraTheme.of(context).textField,

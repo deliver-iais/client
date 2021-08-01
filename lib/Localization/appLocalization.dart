@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AppLocalization {
+class I18N {
   final Locale locale;
 
-  AppLocalization(this.locale);
+  I18N(this.locale);
 
-  static AppLocalization of(BuildContext context) {
-    return Localizations.of<AppLocalization>(context, AppLocalization);
+  static I18N of(BuildContext context) {
+    return Localizations.of<I18N>(context, I18N);
   }
 
   Map<String, String> _values;
@@ -23,16 +23,16 @@ class AppLocalization {
     _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
 
-  String getTraslateValue(String key) {
+  String get(String key) {
     return _values[key];
   }
 
-  static const LocalizationsDelegate<AppLocalization> delegate = _MyLocalizatioinDalagate();
+  static const LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
 }
 
-class _MyLocalizatioinDalagate extends LocalizationsDelegate<AppLocalization> {
+class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
 
-  const _MyLocalizatioinDalagate();
+  const _MyLocalizationDelegate();
 
   @override
   bool isSupported(Locale locale) {
@@ -40,12 +40,12 @@ class _MyLocalizatioinDalagate extends LocalizationsDelegate<AppLocalization> {
   }
 
   @override
-  Future<AppLocalization> load(Locale locale) async {
-    AppLocalization localization = new AppLocalization(locale);
+  Future<I18N> load(Locale locale) async {
+    I18N localization = new I18N(locale);
     await localization.load();
     return localization;
   }
 
   @override
-  bool shouldReload(_MyLocalizatioinDalagate old) => false;
+  bool shouldReload(_MyLocalizationDelegate old) => false;
 }

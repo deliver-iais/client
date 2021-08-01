@@ -20,19 +20,19 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     var spda = message.json.toSharePrivateDataAcceptance();
 
     return Row(
       children: [
         Text(spda.data == PrivateDataType.PHONE_NUMBER
-            ? appLocalization.getTraslateValue("phone_number_granted") : spda
-            .data == PrivateDataType.NAME ? appLocalization.getTraslateValue(
+            ? i18n.get("phone_number_granted") : spda
+            .data == PrivateDataType.NAME ? i18n.get(
             "name_granted") : spda.data == PrivateDataType.USERNAME
-            ? appLocalization.getTraslateValue("username_granted")
-            : spda.data == PrivateDataType.EMAIL ? appLocalization
-            .getTraslateValue("email_granted") : appLocalization
-            .getTraslateValue("private_data_granted"),style: TextStyle(color: ExtraTheme.of(context).textField),),
+            ? i18n.get("username_granted")
+            : spda.data == PrivateDataType.EMAIL ? i18n
+            .get("email_granted") : i18n
+            .get("private_data_granted"),style: TextStyle(color: ExtraTheme.of(context).textField),),
             Padding(
               padding: const EdgeInsets.only(left: 8.0, top: 5),
               child: MsgTime(

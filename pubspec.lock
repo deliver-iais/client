@@ -299,11 +299,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.7.0-rc.90"
-      resolved-ref: f9f7260029d1c68ec2781273e777900e8e85b98f
+      ref: "tags/v1.8.6-beta.3"
+      resolved-ref: c74fffb4209858376726c6464ff027cd5d8b81a7
       url: "https://gitlab.iais.co/deliver-public/pub-dart-artifactory"
     source: git
-    version: "1.7.0-rc.90"
+    version: "1.8.6-beta.3"
   desktoasts:
     dependency: "direct main"
     description:
@@ -898,6 +898,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  lottie:
+    dependency: "direct main"
+    description:
+      name: lottie
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   marquee:
     dependency: "direct dev"
     description:

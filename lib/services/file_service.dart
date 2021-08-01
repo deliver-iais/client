@@ -87,15 +87,14 @@ class FileService {
     file.writeAsBytesSync(res.data);
     return file;
   }
-  saveFileInDownloadFolder(File file ,String name,String directory)async {
-    var  downloadDir = await ExtStorage.getExternalStoragePublicDirectory(directory);
-    File f = File('${downloadDir}/$name');
-    try{
-      await  f.writeAsBytes(file.readAsBytesSync());
-    }catch(e){
 
-    }
-
+  saveFileInDownloadFolder(File file, String name, String directory) async {
+    var downloadDir =
+        await ExtStorage.getExternalStoragePublicDirectory(directory);
+    File f = File('$downloadDir/$name');
+    try {
+      await f.writeAsBytes(file.readAsBytesSync());
+    } catch (e) {}
   }
 
   Future<File> _getFileThumbnail(

@@ -36,12 +36,12 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   static const String DELETE = "delete";
   static const String BAN = "ban";
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
   MucRole _myRoleInThisRoom;
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     var style =
         TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
 
@@ -121,29 +121,29 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                         new PopupMenuItem<String>(
                                             child: member.role == MucRole.MEMBER
                                                 ? Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
+                                                    _i18n
+                                                        .get(
                                                             "change_role_to_admin"),
                                                     style: style,
                                                   )
                                                 : Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
+                                                    _i18n
+                                                        .get(
                                                             "change_role_to_member"),
                                                     style: style,
                                                   ),
                                             value: CHANGE_ROLE),
                                       new PopupMenuItem<String>(
                                           child: Text(
-                                            _appLocalization
-                                                .getTraslateValue("kick"),
+                                            _i18n
+                                                .get("kick"),
                                             style: style,
                                           ),
                                           value: DELETE),
                                       new PopupMenuItem<String>(
                                           child: Text(
-                                            _appLocalization
-                                                .getTraslateValue("ban"),
+                                            _i18n
+                                                .get("ban"),
                                             style: style,
                                           ),
                                           value: BAN),
@@ -182,11 +182,11 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   Widget showMemberRole(Member member) {
     switch (member.role) {
       case MucRole.OWNER:
-        return Text(_appLocalization.getTraslateValue("owner"));
+        return Text(_i18n.get("owner"));
       case MucRole.ADMIN:
-        return Text(_appLocalization.getTraslateValue("admin"));
+        return Text(_i18n.get("admin"));
       case MucRole.MEMBER:
-        return Text(_appLocalization.getTraslateValue("member"));
+        return Text(_i18n.get("member"));
       default:
         return Text("");
     }
