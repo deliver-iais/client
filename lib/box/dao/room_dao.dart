@@ -25,9 +25,14 @@ class RoomDaoImpl implements RoomDao {
 
   @override
   Future<List<Room>> getAllRooms() async {
-    var box = await _openRoom();
+    try {
+      var box = await _openRoom();
 
-    return sorted(box.values.where((element) => element.lastMessage != null).toList());
+      return sorted(
+          box.values.where((element) => element.lastMessage != null).toList());
+    }catch(e){
+      return [];
+    }
   }
 
   @override
@@ -79,5 +84,14 @@ class RoomDaoImpl implements RoomDao {
 
   static String _keyRoom() => "room";
 
-  static Future<Box<Room>> _openRoom() => Hive.openBox<Room>(_keyRoom());
+  static Future<Box<Room>> _openRoom() async {
+    try{
+     var roomBox =  await  Hive.openBox<Room>(_keyRoom());
+     return roomBox;
+    }catch(e){
+      await Hive.deleteBoxFromDisk(_keyRoom());
+      _openRoom();
+    }
+
+  }
 }
