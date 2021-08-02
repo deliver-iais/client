@@ -396,7 +396,7 @@ class RoutingService {
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
-    Timer(Duration(milliseconds: 100), () => _dbManager.deleteDB());
+    Timer(Duration(milliseconds: 300), () => _dbManager.deleteDB());
   }
 
   Stream<String> get currentRouteStream => _route.stream;
