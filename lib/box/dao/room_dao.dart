@@ -16,7 +16,7 @@ abstract class RoomDao {
 
   Stream<Room> watchRoom(String roomUid);
 
- Future<List<Room>> getAllGroups();
+  Future<List<Room>> getAllGroups();
 }
 
 class RoomDaoImpl implements RoomDao {
@@ -34,7 +34,7 @@ class RoomDaoImpl implements RoomDao {
 
       return sorted(
           box.values.where((element) => element.lastMessage != null).toList());
-    }catch(e){
+    } catch (e) {
       return [];
     }
   }
@@ -43,9 +43,14 @@ class RoomDaoImpl implements RoomDao {
   Stream<List<Room>> watchAllRooms() async* {
     var box = await _openRoom();
 
-    yield sorted(box.values.where((element) => element.lastMessage != null).toList());
+    yield sorted(
+        box.values.where((element) => element.lastMessage != null).toList());
 
-    yield* box.watch().map((event) => sorted(box.values.where((element) => element.lastMessage != null && (element.deleted == null || element.deleted == false )).toList()));
+    yield* box.watch().map((event) => sorted(box.values
+        .where((element) =>
+            element.lastMessage != null &&
+            (element.deleted == null || element.deleted == false))
+        .toList()));
   }
 
   List<Room> sorted(List<Room> list) {
@@ -76,7 +81,6 @@ class RoomDaoImpl implements RoomDao {
     return box.put(room.uid, r.copy(room));
   }
 
-
   @override
   Stream<Room> watchRoom(String roomUid) async* {
     var box = await _openRoom();
@@ -89,19 +93,21 @@ class RoomDaoImpl implements RoomDao {
   static String _keyRoom() => "room";
 
   static Future<Box<Room>> _openRoom() async {
-    try{
-     var roomBox =  await  Hive.openBox<Room>(_keyRoom());
-     return roomBox;
-    }catch(e){
+    try {
+      return await Hive.openBox<Room>(_keyRoom());
+    } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());
-      _openRoom();
+      return await Hive.openBox<Room>(_keyRoom());
     }
-
   }
 
   @override
- Future<List<Room>> getAllGroups()async  {
-   var box =  await _openRoom();
-   return box.values.where((element) => element.uid.asUid().category == Categories.GROUP && (element.deleted == null || element.deleted != true)).toList();
+  Future<List<Room>> getAllGroups() async {
+    var box = await _openRoom();
+    return box.values
+        .where((element) =>
+            element.uid.asUid().category == Categories.GROUP &&
+            (element.deleted == null || element.deleted != true))
+        .toList();
   }
 }
