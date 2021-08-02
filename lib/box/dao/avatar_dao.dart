@@ -106,7 +106,7 @@ class AvatarDaoImpl implements AvatarDao {
   static String _key2() => "last-avatar";
 
   static Future<Box<Avatar>> _open(String uid) =>
-      Hive.openBox<Avatar>(_key(uid));
+      Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-")));
 
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();

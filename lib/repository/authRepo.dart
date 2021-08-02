@@ -34,7 +34,7 @@ class AuthRepo {
   Avatar avatar;
   String _accessToken;
   String _refreshToken;
-  
+
   PhoneNumber _tmpPhoneNumber;
 
   Future<void> init() async {
@@ -68,10 +68,19 @@ class AuthRepo {
   }
 
   Future<Pb.Platform> getPlatformDetails() async {
-    var pInfo = await PackageInfo.fromPlatform();
+    String version;
+    try{
+     var info =  await PackageInfo.fromPlatform();
+     version = info.version;
+    }catch(e){
+      version = VERSION;
+    }
+    Pb.Platform platform = Pb.Platform()..clientVersion = version;
+    return await getPlatForm(platform);
 
-    Pb.Platform platform = Pb.Platform()..clientVersion = pInfo.version;
 
+  }
+  getPlatForm(Pb.Platform platform) async {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -229,6 +238,11 @@ class AuthRepo {
   bool isCurrentSession(Session session) =>
       currentUserUid.sessionId == session.sessionId &&
       currentUserUid.node == session.node;
+
+  Future<void> deleteTokens() async {
+    await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
+    await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
+  }
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {

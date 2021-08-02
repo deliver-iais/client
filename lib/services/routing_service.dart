@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
@@ -35,7 +37,6 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive/hive.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -61,6 +62,7 @@ var _accountRepo = GetIt.I.get<AccountRepo>();
 var _autRepo = GetIt.I.get<AuthRepo>();
 
 class RoutingService {
+  final _dbManager = GetIt.I.get<DBManager>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;
@@ -381,22 +383,20 @@ class RoutingService {
     ]);
   }
 
-  logout(BuildContext context) {
+  logout(BuildContext context) async {
     CoreServices coreServices = GetIt.I.get<CoreServices>();
     _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
     if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
 
-    deleteDb();
+    await _autRepo.deleteTokens();
+
     reset();
 
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
-  }
-
-  Future<void> deleteDb() async {
-    Hive.deleteFromDisk();
+    Timer(Duration(milliseconds: 300), () => _dbManager.deleteDB());
   }
 
   Stream<String> get currentRouteStream => _route.stream;

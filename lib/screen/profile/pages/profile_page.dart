@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/contact.dart';
@@ -6,6 +7,7 @@ import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/box/muc.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -20,6 +22,7 @@ import 'package:deliver_flutter/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver_flutter/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/profile_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/box.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
@@ -483,6 +486,16 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "deleteMuc"),
+        if (widget.roomUid.category == Categories.BOT)
+          PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(Icons.person_add),
+                  SizedBox(width: 8),
+                  Text(_locale.get("add_to_group")),
+                ],
+              ),
+              value: "addBotToGroup"),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: Row(
@@ -989,7 +1002,188 @@ class _ProfilePageState extends State<ProfilePage>
       case "invite_link":
         createInviteLink();
         break;
+      case "addBotToGroup":
+        _showAddBotToGroupDialog();
+        break;
     }
+  }
+
+  _showAddBotToGroupDialog() {
+    Map<String, String> nameOfGroup = Map();
+    BehaviorSubject<List<String>> groups = BehaviorSubject.seeded([]);
+
+    showDialog(
+        context: context,
+        builder: (c1) {
+          return AlertDialog(
+            title: Text(_locale.get("add_bot_to_group")),
+            content: FutureBuilder<List<Room>>(
+              future: _roomRepo.getAllGroups(),
+              builder: (c, mucs) {
+                if (mucs.hasData && mucs.data != null && mucs.data.length > 0) {
+                  List<String> s = [];
+                  mucs.data.forEach((room) {
+                    s.add(room.uid);
+                  });
+                  groups.add(s);
+                  return StreamBuilder<List<String>>(
+                      stream: groups.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data.length > 0)
+                          return Container(
+                            height: min(
+                                MediaQuery.of(context).size.height / 2,
+                                groups.valueWrapper.value.length *
+                                    50.toDouble()),
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Column(
+                              children: [
+                                TextField(
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField),
+                                  onChanged: (str) {
+                                    List<String> searchRes = [];
+                                    nameOfGroup.keys.forEach((uid) {
+                                      if (nameOfGroup[uid].contains(str)) {
+                                        searchRes.add(uid);
+                                      }
+                                    });
+                                    groups.add(searchRes);
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: _locale.get("search"),
+                                    prefixIcon: Icon(Icons.search),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: ListView.separated(
+                                      itemBuilder: (c, i) {
+                                        return GestureDetector(
+                                          child: FutureBuilder<String>(
+                                            future: _roomRepo.getName(
+                                                snapshot.data[i].asUid()),
+                                            builder: (c, name) {
+                                              if (name.hasData &&
+                                                  name.data != null) {
+                                                nameOfGroup[snapshot
+                                                    .data[i]] = name.data;
+                                                return Container(
+                                                    height: 50,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        CircleAvatarWidget(
+                                                            snapshot.data[i]
+                                                                .asUid(),
+                                                            20),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        Expanded(
+                                                            child: Text(
+                                                                name.data))
+                                                      ],
+                                                    ));
+                                              } else
+                                                return SizedBox.shrink();
+                                            },
+                                          ),
+                                          onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: Icon(
+                                                        Icons.person_add),
+                                                    content: FutureBuilder<
+                                                            String>(
+                                                        future: _roomRepo
+                                                            .getName(widget
+                                                                .roomUid),
+                                                        builder: (c, name) {
+                                                          if (name.hasData &&
+                                                              name.data !=
+                                                                  null &&
+                                                              name.data
+                                                                  .isNotEmpty) {
+                                                            return Text(
+                                                                "${_locale.get("add")} ${name.data} ${_locale.get("to")} ${nameOfGroup[snapshot.data[i]]}");
+                                                          } else
+                                                            return SizedBox
+                                                                .shrink();
+                                                        }),
+                                                    actions: [
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: Text(
+                                                                  _locale.get(
+                                                                      "cancel"))),
+                                                          TextButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                var res = await _mucRepo.sendMembers(
+                                                                    snapshot
+                                                                        .data[
+                                                                            i]
+                                                                        .asUid(),
+                                                                    [
+                                                                      widget
+                                                                          .roomUid
+                                                                    ]);
+                                                                if (res) {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  Navigator
+                                                                      .pop(
+                                                                          c1);
+                                                                  _routingService
+                                                                      .openRoom(
+                                                                          snapshot.data[i]);
+                                                                }
+                                                              },
+                                                              child: Text(
+                                                                  _locale.get(
+                                                                      "add"))),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  );
+                                                });
+                                          },
+                                        );
+                                      },
+                                      separatorBuilder: (c, i) {
+                                        return Divider();
+                                      },
+                                      itemCount: snapshot.data.length),
+                                ),
+                              ],
+                            ),
+                          );
+                        else
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                      });
+                }
+                return Center(child: CircularProgressIndicator());
+              },
+            ),
+          );
+        });
   }
 }
 

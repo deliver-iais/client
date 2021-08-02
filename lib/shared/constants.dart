@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
+const VERSION =
+    "1.4.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";
@@ -25,6 +27,7 @@ const SHARED_DAO_FETCH_ALL_ROOM = "SHARED_DAO_FETCH_ALL_ROOM";
 const SHARED_DAO_LOG_LEVEL = "SHARED_DAO_LOG_LEVEL";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
+const SHARED_DAO_APP_VERSION = "SHARED_DAO_APP_VERSION";
 
 const ONLINE_TIME = 60000;
 

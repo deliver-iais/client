@@ -39,6 +39,7 @@ class MucDaoImpl implements MucDao {
     return box.get(uid);
   }
 
+
   Future<void> save(Muc muc) async {
     var box = await _openMuc();
 
@@ -105,5 +106,6 @@ class MucDaoImpl implements MucDao {
   static String _keyMembers(String uid) => "member-$uid";
 
   static Future<Box<Member>> _openMembers(String uid) =>
-      Hive.openBox<Member>(_keyMembers(uid));
+      Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-")));
+
 }

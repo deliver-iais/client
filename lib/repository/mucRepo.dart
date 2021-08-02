@@ -558,4 +558,5 @@ class MucRepo {
       _mucDao
           .update(Muc().copyWith(uid: mucUid.asString(), showPinMessage: true));
   }
+
 }
