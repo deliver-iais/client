@@ -302,16 +302,6 @@ Widget _textWidget(
                 onBotCommandClick(username);
               },
             ),
-          MatchText(
-            type: ParsedType.PHONE,
-            style: TextStyle(
-              color: ExtraTheme.of(context).username,
-              fontSize: 16,
-            ),
-            onTap: (phone) async {
-              await launch("tel:$phone");
-            },
-          ),
         ],
       ),
       if (i == lenght && isLastBlock)

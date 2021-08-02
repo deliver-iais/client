@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -11,7 +10,6 @@ import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:desktoasts/desktoasts.dart';
-import 'package:flutter/material.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
