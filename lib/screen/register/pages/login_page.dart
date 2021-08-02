@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
@@ -13,6 +14,7 @@ import 'package:deliver_flutter/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -145,6 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: QrImage(
                     data: "https://deliver-co.ir/login?token=${snapshot.data}",
                     version: QrVersions.auto,
+                    // embeddedImage: FileImage(File("")),
                     padding: EdgeInsets.zero,
                     foregroundColor: Colors.black,
                   ),
