@@ -113,7 +113,7 @@ class MessageDaoImpl implements MessageDao {
   static String _keyPending() => "pending";
 
   static Future<Box<Message>> _openMessages(String uid) =>
-      Hive.openBox<Message>(_keyMessages(uid));
+      Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
 
   static Future<Box<PendingMessage>> _openPending() =>
       Hive.openBox<PendingMessage>(_keyPending());

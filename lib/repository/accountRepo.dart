@@ -155,7 +155,7 @@ class AccountRepo {
 
     // Migrations
     if (shouldRemoveDB(pv)) {
-      await _dbManager.deleteDB();
+  //  await _dbManager.deleteDB();
     }
 
     if (shouldMigrateDB(pv)) {
