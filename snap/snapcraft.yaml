@@ -13,10 +13,6 @@ slots:
     bus: session
     name: ir.we.deliver # adjust accordingly to your app name and
 
-package-repositories:
-  - type: apt
-    ppa: linuxgndu/sqlitebrowser-testing
-
 apps:
   deliver-co:
     command: deliver
@@ -30,6 +26,9 @@ apps:
 
 parts:
   deliver-co:
+    stage-packages:
+      - vlc
+      - libvlc-dev
     source: .
     plugin: flutter
     flutter-target: lib/main.dart # The main entry-point file of the application
