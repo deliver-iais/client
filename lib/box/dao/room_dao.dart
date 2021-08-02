@@ -1,5 +1,7 @@
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 abstract class RoomDao {
   Future<void> updateRoom(Room room);
@@ -13,6 +15,8 @@ abstract class RoomDao {
   Future<Room> getRoom(String roomUid);
 
   Stream<Room> watchRoom(String roomUid);
+
+ Future<List<Room>> getAllGroups();
 }
 
 class RoomDaoImpl implements RoomDao {
@@ -93,5 +97,11 @@ class RoomDaoImpl implements RoomDao {
       _openRoom();
     }
 
+  }
+
+  @override
+ Future<List<Room>> getAllGroups()async  {
+   var box =  await _openRoom();
+   return box.values.where((element) => element.uid.asUid().category == Categories.GROUP && (element.deleted == null || element.deleted != true)).toList();
   }
 }

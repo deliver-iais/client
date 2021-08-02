@@ -559,7 +559,4 @@ class MucRepo {
           .update(Muc().copyWith(uid: mucUid.asString(), showPinMessage: true));
   }
 
-  Future<List<Muc>>getAllGroups() async {
-    return await  _mucDao.getAllGroups();
-  }
 }

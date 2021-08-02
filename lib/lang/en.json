@@ -231,5 +231,7 @@
   "changed_avatar": "changed avatar",
   "changed_name": "changed name",
   "joined_to_app": "join to",
-  "add_to_group": "Add to Group"
+  "add_to_group": "Add to Group",
+  "add_bot_to_group": "Add Bot To Group",
+  "to": "to"
 }

@@ -296,4 +296,8 @@ class RoomRepo {
   void reportRoom(Uid roomUid) async {
     _queryServiceClient.report(ReportReq()..uid = roomUid);
   }
+
+ Future<List<Room>> getAllGroups() async {
+    return await _roomDao.getAllGroups();
+  }
 }

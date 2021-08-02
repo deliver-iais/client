@@ -240,5 +240,7 @@
   "changed_avatar": "آواتار را کرد",
   "changed_name": "اسم را عوض کرد",
   "joined_to_app": "پیوست به",
-  "add_to_group": "اضافه کردن به گروه"
+  "add_to_group": "اضافه کردن به گروه",
+  "add_bot_to_group": "اضافه کردن بات  به گروه ",
+  "to": "به"
 }
