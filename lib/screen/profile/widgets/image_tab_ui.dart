@@ -32,7 +32,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
     return FutureBuilder<List<Media>>(
         future: _mediaQueryRepo.getMedia(widget.userUid,
             MediaType.IMAGE, widget.imagesCount),
-        builder: (BuildContext c, AsyncSnapshot snaps) {
+        builder: (BuildContext c, AsyncSnapshot<List<Media>> snaps) {
           if (!snaps.hasData &&
               snaps.data == null &&
               snaps.connectionState == ConnectionState.waiting) {
@@ -41,7 +41,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
             return GridView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
-                itemCount: widget.imagesCount,
+                itemCount: snaps.data.length,
                 scrollDirection: Axis.vertical,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
