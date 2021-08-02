@@ -238,6 +238,11 @@ class AuthRepo {
   bool isCurrentSession(Session session) =>
       currentUserUid.sessionId == session.sessionId &&
       currentUserUid.node == session.node;
+
+  Future<void> deleteTokens() async {
+    await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
+    await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
+  }
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' if (dart.library.html) 'src/stub/path.dart'
@@ -9,12 +8,9 @@ import 'package:path/path.dart' if (dart.library.html) 'src/stub/path.dart'
 class DBManager {
   Future<void> deleteDB() async {
     // TODO - read all files in db directory with *.hive pattern and open it, then call delete
-    try{
+    try {
       await Hive.deleteFromDisk();
-       await Hive.close();
-    }catch(e){
-
-    }
+    } catch (e) {}
 
     var documentPath = await getApplicationDocumentsDirectory();
 
@@ -26,16 +22,13 @@ class DBManager {
         .map((path) => path.replaceAll(".hive", ""))
         .map((path) => path_helper.basename(path))
         .forEach((db) async {
-          try{
-            print(db);
-            await Hive.deleteBoxFromDisk(db);
-          }catch(e){
-            print("########"+e.toString());
-
-          }
-
+      try {
+        await Hive.deleteBoxFromDisk(db);
+      } catch (e) {
+        print("########" + e.toString());
+      }
     });
   }
 
-  Future<void> migrate(String previousVersion) {}
+  Future<void> migrate(String previousVersion) async {}
 }
