@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/bot_info.dart';
@@ -127,6 +128,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RoomDao>(RoomDaoImpl());
   GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
+  GetIt.I.registerSingleton<DBManager>(DBManager());
 
   GetIt.I.registerSingleton<I18N>(I18N());
 

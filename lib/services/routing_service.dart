@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
@@ -61,6 +62,7 @@ var _accountRepo = GetIt.I.get<AccountRepo>();
 var _autRepo = GetIt.I.get<AuthRepo>();
 
 class RoutingService {
+  final _dbManager = GetIt.I.get<DBManager>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;
@@ -387,16 +389,12 @@ class RoutingService {
     if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
 
-    deleteDb();
+    _dbManager.deleteDB();
     reset();
 
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
-  }
-
-  Future<void> deleteDb() async {
-    Hive.deleteFromDisk();
   }
 
   Stream<String> get currentRouteStream => _route.stream;

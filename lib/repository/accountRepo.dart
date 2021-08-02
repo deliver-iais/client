@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
@@ -11,6 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 
 import 'package:logger/logger.dart';
 
@@ -21,6 +23,7 @@ class AccountRepo {
   final _profileServiceClient = GetIt.I.get<UserServiceClient>();
   final _sessionServicesClient = GetIt.I.get<SessionServiceClient>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _dbManager = GetIt.I.get<DBManager>();
 
   Future<bool> getProfile({bool retry = false}) async {
     if (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) != null) {
@@ -147,16 +150,39 @@ class AccountRepo {
     return res.sessions;
   }
 
-  checkUpdatePlatformSessionInformation()async{
-    var _previousVersion = await _sharedDao.get(SHARED_DAO_APP_VERSION);
-    if(_previousVersion == null){
-      _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
-    }else if(_previousVersion != VERSION){
-      Platform platform = Platform()..clientVersion =  VERSION;
-      platform = await  _authRepo.getPlatForm(platform);
-      _sessionServicesClient.updateSessionPlatformInformation(UpdateSessionPlatformInformationReq()..platform = platform);
+  Future<void> checkUpdatePlatformSessionInformation() async {
+    var pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+
+    // Migrations
+    if (shouldRemoveDB(pv)) {
+      await _dbManager.deleteDB();
     }
 
+    if (shouldMigrateDB(pv)) {
+      await _dbManager.migrate(pv);
+    }
+
+    if (shouldUpdateSessionPlatformInformation(pv)) {
+      Platform platform = Platform()..clientVersion = VERSION;
+      platform = await _authRepo.getPlatForm(platform);
+      _sessionServicesClient.updateSessionPlatformInformation(
+          UpdateSessionPlatformInformationReq()..platform = platform);
+    }
+
+    // Update version in DB
+    _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
+  }
+
+  shouldRemoveDB(String previousVersion) {
+    return previousVersion == null || previousVersion != VERSION;
+  }
+
+  shouldMigrateDB(String previousVersion) {
+    return false;
+  }
+
+  shouldUpdateSessionPlatformInformation(String previousVersion) {
+    return previousVersion != VERSION;
   }
 
   Future<bool> verifyQrCodeToken(String token) async {
