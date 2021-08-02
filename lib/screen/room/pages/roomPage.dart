@@ -552,12 +552,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _scrollToMessage(position: _lastShowedMessageId);
                 }),
-            Positioned(
-                top: 0,
-                left: 0,
-                // alignment: Alignment.topLeft,
-                child: UnreadMessageCounterWidget(
-                    widget.roomId, _currentRoom.value.lastMessageId)),
+            if (!_authRepo.isCurrentUser(_currentRoom.value.lastMessage.from))
+              Positioned(
+                  top: 0,
+                  left: 0,
+                  // alignment: Alignment.topLeft,
+                  child: UnreadMessageCounterWidget(
+                      widget.roomId, _currentRoom.value.lastMessageId)),
           ],
         ));
   }
