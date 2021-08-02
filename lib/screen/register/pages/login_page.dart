@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   var loginWithQrCode = isDesktop();
-  var loginToken = BehaviorSubject.seeded(randomString(36));
+  var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer checkTimer;
   Timer tokenGeneratorTimer;
   PhoneNumber phoneNumber;
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       });
       tokenGeneratorTimer = Timer.periodic(Duration(seconds: 60), (timer) {
-        loginToken.add(randomString(36));
+        loginToken.add(randomAlphaNumeric(36));
       });
     }
     super.initState();
@@ -136,6 +136,7 @@ class _LoginPageState extends State<LoginPage> {
           StreamBuilder<String>(
               stream: loginToken.stream,
               builder: (context, snapshot) {
+                if(snapshot.hasData && snapshot.data != null && snapshot.data.isNotEmpty)
                 return Container(
                   width: 200,
                   height: 200,
@@ -148,6 +149,8 @@ class _LoginPageState extends State<LoginPage> {
                     foregroundColor: Colors.black,
                   ),
                 );
+                else
+                  return Center(child: CircularProgressIndicator(),);
               }),
           SizedBox(height: 30),
           Text("1. Open Deliver on your phone"),
