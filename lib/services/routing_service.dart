@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
@@ -382,18 +383,20 @@ class RoutingService {
     ]);
   }
 
-  logout(BuildContext context) {
+  logout(BuildContext context) async {
     CoreServices coreServices = GetIt.I.get<CoreServices>();
     _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
     if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
 
-    _dbManager.deleteDB();
+    await _autRepo.deleteTokens();
+
     reset();
 
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
+    Timer(Duration(milliseconds: 100), () => _dbManager.deleteDB());
   }
 
   Stream<String> get currentRouteStream => _route.stream;

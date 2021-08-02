@@ -67,7 +67,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       onTap: () async {
                         var lastAvatar = await _avatarRepo.getLastAvatar(
                             widget.roomUid, false);
-                        if (lastAvatar.createdOn != null) {
+                        if (lastAvatar?.createdOn != null) {
                           _routingService.openShowAllAvatars(
                               uid: widget.roomUid,
                               hasPermissionToDeleteAvatar: widget.canSetAvatar,
