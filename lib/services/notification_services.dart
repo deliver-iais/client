@@ -5,6 +5,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -85,8 +86,8 @@ class WindowsNotifier implements Notifier {
   );
 
   @override
-  notify(MessageBrief message)async {
-    if(message.ignoreNotification)return;
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
     try {
       var _avatarRepo = GetIt.I.get<AvatarRepo>();
       var fileRepo = GetIt.I.get<FileRepo>();
@@ -106,7 +107,7 @@ class WindowsNotifier implements Notifier {
       } else {
         Toast toast = new Toast(
           type: ToastType.text04,
-          title:message.roomName ,
+          title: message.roomName,
           subtitle: createNotificationTextFromMessageBrief(message),
         );
         _windowsNotificationServices.show(toast);
@@ -116,8 +117,6 @@ class WindowsNotifier implements Notifier {
     } catch (e) {
       // _logger.e(e);
     }
-
-
   }
 
   @override
@@ -133,6 +132,7 @@ class LinuxNotifier implements Notifier {
       LinuxFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   LinuxNotifier() {
     var notificationSetting =
@@ -140,9 +140,8 @@ class LinuxNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
-      _logger.wtf(room);
       if (room != null && room.isNotEmpty) {
-        _logger.wtf(room);
+        _routingService.openRoom(room);
       }
       return;
     });
@@ -170,7 +169,8 @@ class LinuxNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
-        notificationDetails: platformChannelSpecifics);
+        notificationDetails: platformChannelSpecifics,
+        payload: message.roomUid.asString());
   }
 
   @override
@@ -198,6 +198,7 @@ class AndroidNotifier implements Notifier {
       AndroidFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final channel = const AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
@@ -213,9 +214,8 @@ class AndroidNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
-      _logger.wtf(room);
       if (room != null && room.isNotEmpty) {
-        _logger.wtf(room);
+        _routingService.openRoom(room);
       }
       return;
     });
@@ -246,7 +246,8 @@ class AndroidNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
-        notificationDetails: platformChannelSpecifics);
+        notificationDetails: platformChannelSpecifics,
+        payload: message.roomUid.asString());
   }
 
   @override
@@ -274,15 +275,15 @@ class MacOSNotifier implements Notifier {
       MacOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   MacOSNotifier() {
     var macNotificationSetting = new MacOSInitializationSettings();
 
     _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
         onSelectNotification: (room) {
-      _logger.wtf(room);
       if (room != null && room.isNotEmpty) {
-        _logger.wtf(room);
+        _routingService.openRoom(room);
       }
       return;
     });
@@ -310,7 +311,8 @@ class MacOSNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
-        notificationDetails: macOSPlatformChannelSpecifics);
+        notificationDetails: macOSPlatformChannelSpecifics,
+        payload: message.roomUid.asString());
   }
 
   @override
