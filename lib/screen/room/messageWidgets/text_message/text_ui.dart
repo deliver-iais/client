@@ -10,6 +10,7 @@ import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TextUi extends StatelessWidget {
@@ -72,11 +73,64 @@ class TextUi extends StatelessWidget {
       }
     } else {
       content = this.message.json.toText().text;
+      print(content);
     }
+    if (content.length == 2) {
+      switch (content) {
+        case "😘":
+          return emojiWidget('assets/emoji/love.json');
+        case "😁":
+          return emojiWidget('assets/emoji/laugh.json');
+        case "😍":
+          return emojiWidget('assets/emoji/crow.json');
+        // case "😍":
+        //   return [emojiWidget('assets/emoji/emoji1.json')];
+        // case "🥰":
+        //   return [emojiWidget('assets/emoji/emoji1.json')];
+        case "😉":
+          return emojiWidget('assets/emoji/bat.json');
+        // case "👏":
+        //   return [emojiWidget('assets/emoji/emoji1.json')];
+        case "😂":
+          return emojiWidget('assets/emoji/cackle.json');
+          defult:
+          List<String> lines = LineSplitter().convert(content);
+          List<Widget> texts = [];
+          texts.add(disjointThenJoin(preProcess(lines, color), context));
+          return texts;
+      }
+    }
+
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
     texts.add(disjointThenJoin(preProcess(lines, color), context));
     return texts;
+  }
+
+  List<Widget> emojiWidget(String path) {
+    return [
+      Container(
+          child: Lottie.asset(
+        path,
+        width: 100,
+        height: 100,
+      )),
+      Padding(
+        padding: const EdgeInsets.only(left: 80),
+        child: Row(
+          children: [
+            MsgTime(
+              time: date(message.time),
+            ),
+            if (isSender)
+              SeenStatus(
+                message,
+                isSeen: isSeen,
+              ),
+          ],
+        ),
+      )
+    ];
   }
 
   disjointThenJoin(List<TextBlock> blocks, BuildContext context) {

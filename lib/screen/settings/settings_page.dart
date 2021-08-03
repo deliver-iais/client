@@ -182,7 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: i18n.get("notification"),
                     leading: Icon(Icons.notifications_active),
-                    switchValue: _uxService.isAllNotificationDisabled,
+                    switchValue: !_uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
                   ),
