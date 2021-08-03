@@ -1036,7 +1036,7 @@ class _ProfilePageState extends State<ProfilePage>
                             height: min(
                                 MediaQuery.of(context).size.height / 2,
                                 groups.valueWrapper.value.length *
-                                    50.toDouble()),
+                                    100.toDouble()),
                             width: MediaQuery.of(context).size.width / 2,
                             child: Column(
                               children: [
@@ -1046,7 +1046,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   onChanged: (str) {
                                     List<String> searchRes = [];
                                     nameOfGroup.keys.forEach((uid) {
-                                      if (nameOfGroup[uid].contains(str)) {
+                                      if (nameOfGroup[uid].contains(str) || nameOfGroup[uid] == str) {
                                         searchRes.add(uid);
                                       }
                                     });
