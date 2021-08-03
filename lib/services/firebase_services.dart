@@ -4,6 +4,7 @@ import 'package:deliver_flutter/box/dao/mute_dao.dart';
 
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/main.dart';
 
 import 'package:deliver_flutter/repository/authRepo.dart';
@@ -109,13 +110,11 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     } else if (msg.from.category == Categories.BOT) {
       roomName = msg.from.node;
     } else if (msg.to.category == Categories.USER) {
-      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+     var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
       if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
     }
 
     _notificationServices.showNotification(msg, roomName: roomName);
 
-    // TODO, this is needed ??!!
-    await Hive.close();
   }
 }
