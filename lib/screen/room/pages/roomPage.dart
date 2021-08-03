@@ -893,7 +893,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
               ));
         } else {
-          return SizedBox(height: 100, width: 100);
+          return  Text("");
         }
       },
     );
