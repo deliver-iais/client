@@ -526,40 +526,29 @@ class MucRepo {
     throw Exception("Not Valid Role! $role");
   }
 
-  String getAsInt(List<Int64> pinMessages) {
-    String pm = "";
-    pinMessages.forEach((element) {
-      pm = "$pm , ${element.toString()} ,";
-    });
-    return pm;
-  }
-
   Future<List<UidIdName>> getFilteredMember(String roomUid,
       {String query}) async {
-    List<UidIdName> _mucMembers = [];
-    List<UidIdName> _filteredMember = [];
-
-    var res = await getAllMembers(roomUid);
-    res.forEach((member) async {
-      if (_authRepo.isCurrentUser(member.memberUid)) {
-        var a = await _accountRepo.getAccount();
-        _mucMembers.add(UidIdName(
-            uid: member.memberUid, id: a.userName, name: a.firstName));
-      } else {
-        var s = await _uidIdNameDao.getByUid(member.memberUid);
-        _mucMembers.add(s);
-      }
-    });
-    if (query.isNotEmpty) {
-      _mucMembers.forEach((element) {
-        if (element.id.contains(query) ||
-            (element.name != null && element.name.contains(query))) {
-          _filteredMember.add(element);
-        }
-      });
-      return _filteredMember;
-    } else
-      return _mucMembers;
+    // TODO add query term in this fetching method
+    return Stream.fromIterable(await getAllMembers(roomUid))
+        .asyncMap((member) async {
+          if (_authRepo.isCurrentUser(member.memberUid)) {
+            var a = await _accountRepo.getAccount();
+            return UidIdName(
+                uid: member.memberUid, id: a.userName, name: a.firstName);
+          } else {
+            var uidIdName = await _uidIdNameDao.getByUid(member.memberUid);
+            if (uidIdName.uid.isBot()) {
+              uidIdName.id = uidIdName.uid.asUid().node;
+            }
+            return uidIdName;
+          }
+        })
+        // TODO better pattern matching maybe be helpful
+        .where((e) =>
+            query.isEmpty ||
+            (e.id != null && e.id.toLowerCase().contains(query)) ||
+            (e.name != null && e.name.toLowerCase().contains(query)))
+        .toList();
   }
 
   _checkShowPin(Uid mucUid, List<Int64> pinMessages, List<int> pm) async {
@@ -569,4 +558,5 @@ class MucRepo {
       _mucDao
           .update(Muc().copyWith(uid: mucUid.asString(), showPinMessage: true));
   }
+
 }

@@ -1,12 +1,11 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart' as p;
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
+// TODO, change accessibility and improve UI
 class NewContact extends StatefulWidget {
   NewContact({Key key}) : super(key: key);
 
@@ -38,10 +38,7 @@ class _NewContactState extends State<NewContact> {
     return Scaffold(
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(),
-        title: Text(
-          _i18n.get("add_new_contact"),
-          style: TextStyle(fontSize: 20),
-        ),
+        title: Text(_i18n.get("add_new_contact")),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
@@ -53,7 +50,8 @@ class _NewContactState extends State<NewContact> {
                     return;
                   }
                   PhoneNumber phoneNumber = PhoneNumber()
-                    ..nationalNumber = Int64.parseInt(_phoneNumber.nationalNumber)
+                    ..nationalNumber =
+                        Int64.parseInt(_phoneNumber.nationalNumber)
                     ..countryCode = int.parse(_phoneNumber.countryCode);
                   await _contactRepo.addContact(Contact()
                     ..phoneNumber = phoneNumber
@@ -77,7 +75,7 @@ class _NewContactState extends State<NewContact> {
                 onChanged: (firstName) {
                   _firstName = firstName;
                 },
-                style: TextStyle(color: ExtraTheme.of(context).textField),
+                style: Theme.of(context).textTheme.bodyText1,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: _i18n.get("firstName")),
@@ -92,7 +90,7 @@ class _NewContactState extends State<NewContact> {
                 onChanged: (lastName) {
                   _lastName = lastName;
                 },
-                style: TextStyle(color: ExtraTheme.of(context).textField),
+                style: Theme.of(context).textTheme.bodyText1,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: _i18n.get("lastName")),
@@ -102,11 +100,11 @@ class _NewContactState extends State<NewContact> {
               height: 10,
             ),
             IntlPhoneField(
-              validator: (value) => value.length != 10 ||
-                      (value.length > 0 && value[0] == '0')
-                  ? _i18n.get("invalid_mobile_number")
-                  : null,
-              style: TextStyle(color: ExtraTheme.of(context).textField),
+              validator: (value) =>
+                  value.length != 10 || (value.length > 0 && value[0] == '0')
+                      ? _i18n.get("invalid_mobile_number")
+                      : null,
+              style: Theme.of(context).textTheme.bodyText1,
               onChanged: (ph) {
                 _phoneNumber = ph;
               },
@@ -125,11 +123,9 @@ class _NewContactState extends State<NewContact> {
     var result = await _contactRepo.contactIsExist(
         _phoneNumber.countryCode, _phoneNumber.nationalNumber);
     if (result) {
-      Fluttertoast.showToast(
-          msg: _i18n.get("contactAdd"));
+      Fluttertoast.showToast(msg: _i18n.get("contactAdd"));
     } else {
-      Fluttertoast.showToast(
-          msg: _i18n.get("contact_not_exist"));
+      Fluttertoast.showToast(msg: _i18n.get("contact_not_exist"));
     }
   }
 }

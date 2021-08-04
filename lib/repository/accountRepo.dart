@@ -1,8 +1,10 @@
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/name.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -19,6 +21,7 @@ class AccountRepo {
   final _profileServiceClient = GetIt.I.get<UserServiceClient>();
   final _sessionServicesClient = GetIt.I.get<SessionServiceClient>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _dbManager = GetIt.I.get<DBManager>();
 
   Future<bool> getProfile({bool retry = false}) async {
     if (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) != null) {
@@ -143,6 +146,41 @@ class AccountRepo {
   Future<List<Session>> getSessions() async {
     var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
     return res.sessions;
+  }
+
+  Future<void> checkUpdatePlatformSessionInformation() async {
+    var pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+
+    // Migrations
+    if (shouldRemoveDB(pv)) {
+  //  await _dbManager.deleteDB();
+    }
+
+    if (shouldMigrateDB(pv)) {
+      await _dbManager.migrate(pv);
+    }
+
+    if (shouldUpdateSessionPlatformInformation(pv)) {
+      Platform platform = Platform()..clientVersion = VERSION;
+      platform = await _authRepo.getPlatForm(platform);
+      _sessionServicesClient.updateSessionPlatformInformation(
+          UpdateSessionPlatformInformationReq()..platform = platform);
+    }
+
+    // Update version in DB
+    _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
+  }
+
+  shouldRemoveDB(String previousVersion) {
+    return previousVersion == null || previousVersion != VERSION;
+  }
+
+  shouldMigrateDB(String previousVersion) {
+    return false;
+  }
+
+  shouldUpdateSessionPlatformInformation(String previousVersion) {
+    return previousVersion != VERSION;
   }
 
   Future<bool> verifyQrCodeToken(String token) async {

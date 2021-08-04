@@ -1,7 +1,7 @@
 library intl_phone_field;
 
-import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -95,8 +95,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                   TextField(
                     decoration: InputDecoration(
                       suffixIcon: Icon(Icons.search),
-                      labelText: i18n
-                          .get("search_by_country_name"),
+                      labelText: i18n.get("search_by_country_name"),
                     ),
                     style: TextStyle(color: ExtraTheme.of(context).textField),
                     onChanged: (value) {
@@ -119,15 +118,21 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                           ListTile(
                             leading: Text(
                               filteredCountries[index]['flag'],
-                              style: TextStyle(fontSize: 30,color: ExtraTheme.of(context).textField),
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  color: ExtraTheme.of(context).textField),
                             ),
                             title: Text(
                               filteredCountries[index]['code'],
-                              style: TextStyle(fontWeight: FontWeight.w700,color: ExtraTheme.of(context).textField),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: ExtraTheme.of(context).textField),
                             ),
                             trailing: Text(
                               filteredCountries[index]['dial_code'],
-                              style: TextStyle(fontWeight: FontWeight.w700,color: ExtraTheme.of(context).textField),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: ExtraTheme.of(context).textField),
                             ),
                             onTap: () {
                               _selectedCountry = filteredCountries[index];
@@ -148,7 +153,9 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     );
     setState(() {});
   }
-I18N i18n;
+
+  I18N i18n;
+
   @override
   Widget build(BuildContext context) {
     i18n = I18N.of(context);
@@ -164,7 +171,6 @@ I18N i18n;
             readOnly: widget.readOnly,
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
-
             onTap: () {
               if (widget.onTap != null) widget.onTap();
             },
@@ -180,18 +186,17 @@ I18N i18n;
                   ),
                 );
             },
-
             decoration: InputDecoration(
               suffixIcon: Icon(
                 Icons.phone,
                 color: ExtraTheme.of(context).textField,
               ),
-              prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: ExtraTheme.of(context).textField),),
-              // fillColor: ExtraTheme.of(context).secondColor,
+              prefix: Text(
+                "${_selectedCountry['dial_code']}  ",
+                style: TextStyle(color: ExtraTheme.of(context).textField),
+              ),
               labelText: i18n.get("phone_number"),
-//                        filled: true,
-              labelStyle: TextStyle(
-                  color: ExtraTheme.of(context).textField),
+              labelStyle: TextStyle(color: ExtraTheme.of(context).textField),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.0),
                 borderSide: BorderSide(
@@ -255,13 +260,16 @@ I18N i18n;
             ],
             Text(
               _selectedCountry['flag'],
-              style: TextStyle(fontSize: 24, color: ExtraTheme.of(context).textField),
+              style: TextStyle(
+                  fontSize: 24, color: ExtraTheme.of(context).textField),
             ),
             SizedBox(width: 8),
             FittedBox(
               child: Text(
                 _selectedCountry['code'],
-                style: TextStyle(fontWeight: FontWeight.w700, color: ExtraTheme.of(context).textField),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: ExtraTheme.of(context).textField),
               ),
             ),
             SizedBox(width: 8),

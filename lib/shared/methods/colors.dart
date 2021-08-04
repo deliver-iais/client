@@ -2,6 +2,44 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+/// Darken a color by [percent] amount (100 = black)
+// ........................................................
+Color darken(Color c, [int percent = 10]) {
+  assert(1 <= percent && percent <= 100);
+  var f = 1 - percent / 100;
+  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
+      (c.blue * f).round());
+}
+
+/// Lighten a color by [percent] amount (100 = white)
+// ........................................................
+Color lighten(Color c, [int percent = 10]) {
+  assert(1 <= percent && percent <= 100);
+  var p = percent / 100;
+  return Color.fromARGB(
+      c.alpha,
+      c.red + ((255 - c.red) * p).round(),
+      c.green + ((255 - c.green) * p).round(),
+      c.blue + ((255 - c.blue) * p).round());
+}
+
+Color changeColor(Color color,
+        {double saturation = 0.5, double lightness = 0.5, alpha = 1.0}) =>
+    HSLColor.fromColor(color)
+        .withSaturation(saturation)
+        .withLightness(lightness)
+        .withAlpha(alpha)
+        .toColor();
+
+Color changeColorHue(Color color, double hue) =>
+    HSLColor.fromColor(color).withHue(hue).toColor();
+
+Color changeColorSaturation(Color color, double saturation) =>
+    HSLColor.fromColor(color).withSaturation(saturation).toColor();
+
+Color changeColorLightness(Color color, double lightness) =>
+    HSLColor.fromColor(color).withLightness(lightness).toColor();
+
 class RandomColor {
   /// Constructor for random generator
   /// [seed] Random seed to use for generating colors
@@ -43,21 +81,22 @@ class RandomColor {
     h = colorHue.returnHue(_random);
     s = colorSaturation.returnSaturation(_random);
     b = colorBrightness.returnBrightness(_random);
-    
+
     return _getColor(h, s, b);
   }
 
   MaterialColor randomMaterialColor(
       {ColorHue colorHue = ColorHue.random,
-        ColorSaturation colorSaturation = ColorSaturation.random,
-        bool debug = false}) {
+      ColorSaturation colorSaturation = ColorSaturation.random,
+      bool debug = false}) {
     int saturation;
     int hue;
     int brightness;
 
     hue = colorHue.returnHue(_random);
     saturation = colorSaturation.returnSaturation(_random);
-    brightness = const ColorBrightness.custom(Range(45, 55)).returnBrightness(_random);
+    brightness =
+        const ColorBrightness.custom(Range(45, 55)).returnBrightness(_random);
 
     /// Middle color
     final Color _baseColor = _getColor(hue, saturation, brightness);
@@ -70,7 +109,8 @@ class RandomColor {
       return _getColor(hue, saturation, brightness - (darkerShade * 5));
     }
 
-    final MaterialColor _finishedColor = MaterialColor(_baseColor.value, <int, Color>{
+    final MaterialColor _finishedColor =
+        MaterialColor(_baseColor.value, <int, Color>{
       50: _getLighterColor(5),
       100: _getLighterColor(4),
       200: _getLighterColor(3),
@@ -100,7 +140,10 @@ class RandomColor {
 
     for (int i = 0; i < count; i++) {
       colors.add(randomColor(
-          colorHue: colorHue, colorSaturation: colorSaturation, colorBrightness: colorBrightness, debug: debug));
+          colorHue: colorHue,
+          colorSaturation: colorSaturation,
+          colorBrightness: colorBrightness,
+          debug: debug));
     }
 
     return colors;
@@ -118,31 +161,37 @@ class RandomColor {
   }
 }
 
-
 class ColorBrightness {
   static const int minBrightness = 16;
   static const int maxBrightness = 84;
 
-  static const ColorBrightness dark = ColorBrightness._(Range(minBrightness, minBrightness + 30), 3);
-  static const ColorBrightness light = ColorBrightness._(Range(
-      ((maxBrightness + minBrightness) ~/ 2), maxBrightness), 1);
+  static const ColorBrightness dark =
+      ColorBrightness._(Range(minBrightness, minBrightness + 30), 3);
+  static const ColorBrightness light = ColorBrightness._(
+      Range(((maxBrightness + minBrightness) ~/ 2), maxBrightness), 1);
 
   static const ColorBrightness primary =
-  ColorBrightness._(Range(minBrightness + 20, maxBrightness - 20), 2);
+      ColorBrightness._(Range(minBrightness + 20, maxBrightness - 20), 2);
   static const ColorBrightness random =
-  ColorBrightness._(Range(minBrightness, maxBrightness), 5);
+      ColorBrightness._(Range(minBrightness, maxBrightness), 5);
 
-  static const List<ColorBrightness> values =
-  <ColorBrightness>[veryLight, light, primary, dark, veryDark, random];
+  static const List<ColorBrightness> values = <ColorBrightness>[
+    veryLight,
+    light,
+    primary,
+    dark,
+    veryDark,
+    random
+  ];
   static const ColorBrightness veryDark =
-  ColorBrightness._(Range(minBrightness ~/ 2, minBrightness + 30), 4);
+      ColorBrightness._(Range(minBrightness ~/ 2, minBrightness + 30), 4);
   static const ColorBrightness veryLight = ColorBrightness._(
-      Range(
-          ((maxBrightness + minBrightness) ~/ 2),
+      Range(((maxBrightness + minBrightness) ~/ 2),
           maxBrightness + (minBrightness ~/ 2)),
       0);
   final Range _brightness;
   final int type;
+
   const ColorBrightness.custom(Range brightnessRange)
       : _brightness = brightnessRange,
         type = -1;
@@ -182,15 +231,13 @@ class ColorBrightness {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ColorBrightness &&
-              runtimeType == other.runtimeType &&
-              _brightness == other._brightness &&
-              type == other.type;
+      other is ColorBrightness &&
+          runtimeType == other.runtimeType &&
+          _brightness == other._brightness &&
+          type == other.type;
 
   @override
-  int get hashCode =>
-      _brightness.hashCode ^
-      type.hashCode;
+  int get hashCode => _brightness.hashCode ^ type.hashCode;
 }
 
 class ColorHue {
@@ -205,14 +252,24 @@ class ColorHue {
 
   static const ColorHue random = ColorHue._(Range(0, 360), 7);
   static const ColorHue red = ColorHue._(Range(-5, 10), 0);
-  static const List<ColorHue> values =
-  <ColorHue>[red, orange, yellow, green, blue, purple, pink, random];
+  static const List<ColorHue> values = <ColorHue>[
+    red,
+    orange,
+    yellow,
+    green,
+    blue,
+    purple,
+    pink,
+    random
+  ];
   static const ColorHue yellow = ColorHue._(Range(40, 60), 2);
   final Range _hue;
   final int type;
+
   const ColorHue.custom(Range hueRange)
       : _hue = hueRange,
         type = -1;
+
   const ColorHue._(this._hue, this.type);
 
   int returnHue(Random random) {
@@ -258,26 +315,24 @@ class ColorHue {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ColorHue &&
-              runtimeType == other.runtimeType &&
-              _hue == other._hue &&
-              type == other.type;
+      other is ColorHue &&
+          runtimeType == other.runtimeType &&
+          _hue == other._hue &&
+          type == other.type;
 
   @override
-  int get hashCode =>
-      _hue.hashCode ^
-      type.hashCode;
+  int get hashCode => _hue.hashCode ^ type.hashCode;
 }
 
 class ColorSaturation {
   static const ColorSaturation highSaturation =
-  ColorSaturation._(Range(80, 100), 2);
+      ColorSaturation._(Range(80, 100), 2);
 
   static const ColorSaturation lowSaturation =
-  ColorSaturation._(Range(0, 40), 0);
+      ColorSaturation._(Range(0, 40), 0);
 
   static const ColorSaturation mediumSaturation =
-  ColorSaturation._(Range(40, 80), 1);
+      ColorSaturation._(Range(40, 80), 1);
   static const ColorSaturation monochrome = ColorSaturation._(Range.zero(), 4);
 
   static const ColorSaturation random = ColorSaturation._(Range(20, 100), 3);
@@ -290,6 +345,7 @@ class ColorSaturation {
   ];
   final Range _saturation;
   final int type;
+
   const ColorSaturation.custom(Range saturationRange)
       : _saturation = saturationRange,
         type = -1;
@@ -317,6 +373,7 @@ class ColorSaturation {
 
     return 'custom';
   }
+
   static ColorSaturation multiple(
       {@required List<ColorSaturation> colorSaturations, Random random}) {
     colorSaturations.shuffle(random);
@@ -326,15 +383,13 @@ class ColorSaturation {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ColorSaturation &&
-              runtimeType == other.runtimeType &&
-              _saturation == other._saturation &&
-              type == other.type;
+      other is ColorSaturation &&
+          runtimeType == other.runtimeType &&
+          _saturation == other._saturation &&
+          type == other.type;
 
   @override
-  int get hashCode =>
-      _saturation.hashCode ^
-      type.hashCode;
+  int get hashCode => _saturation.hashCode ^ type.hashCode;
 }
 
 class Range {
@@ -347,6 +402,7 @@ class Range {
   const Range.staticValue(int value)
       : start = value,
         end = value;
+
   const Range.zero()
       : start = 0,
         end = 0;
@@ -366,13 +422,11 @@ class Range {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is Range &&
-              runtimeType == other.runtimeType &&
-              start == other.start &&
-              end == other.end;
+      other is Range &&
+          runtimeType == other.runtimeType &&
+          start == other.start &&
+          end == other.end;
 
   @override
-  int get hashCode =>
-      start.hashCode ^
-      end.hashCode;
+  int get hashCode => start.hashCode ^ end.hashCode;
 }

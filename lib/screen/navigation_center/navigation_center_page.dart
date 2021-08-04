@@ -1,21 +1,20 @@
 import 'dart:ui';
 
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
-import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
-import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
+import 'package:deliver_flutter/screen/navigation_center/chats/widgets/chatsPage.dart';
+import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_flutter/shared/methods/helper.dart';
-import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
+import 'package:deliver_flutter/shared/widgets/title_status.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,10 +43,10 @@ class NavigationCenter extends StatefulWidget {
 class _NavigationCenterState extends State<NavigationCenter> {
   final void Function(String) tapOnSelectChat;
 
-  var rootingServices = GetIt.I.get<RoutingService>();
-  var contactRepo = GetIt.I.get<ContactRepo>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-  final ScrollController scrollController = ScrollController();
+  final _rootingServices = GetIt.I.get<RoutingService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+  final ScrollController _scrollController = ScrollController();
 
   final Function tapOnCurrentUserAvatar;
 
@@ -75,7 +74,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
-    var _i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
@@ -83,14 +81,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: GestureDetector(
             onTap: () {
-              scrollController.animateTo(
+              _scrollController.animateTo(
                 0.0,
                 curve: Curves.easeOut,
                 duration: const Duration(milliseconds: 300),
               );
             },
             child: AppBar(
-              elevation: 0,
               backgroundColor: Colors.transparent,
               leading: Row(
                 children: [
@@ -115,44 +112,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ],
               ),
               titleSpacing: 8.0,
-              title: StreamBuilder<TitleStatusConditions>(
-                  stream: _messageRepo.updatingStatus.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data == TitleStatusConditions.Normal) {
-                      return buildText(context);
-                    } else if (snapshot.data ==
-                        TitleStatusConditions.Updating) {
-                      return Text(_i18n.get("updating"),
-                          style: TextStyle(
-                              fontSize: 20,
-                              color:
-                                  Theme.of(context).textTheme.headline2.color));
-                    } else if (snapshot.data ==
-                        TitleStatusConditions.Connecting) {
-                      return Text(
-                          _i18n.get("connecting"),
-                          style: TextStyle(
-                              fontSize: 20,
-                              color:
-                                  Theme.of(context).textTheme.headline2.color));
-                    } else if (snapshot.hasData &&
-                        snapshot.data == TitleStatusConditions.Disconnected) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          buildText(context),
-                          SizedBox(
-                            width: 7,
-                          ),
-                          Text(_i18n.get("disconnect"),
-                              style: TextStyle(fontSize: 16, color: Colors.red))
-                        ],
-                      );
-                    } else {
-                      return buildText(context);
-                    }
-                  }),
+              title: TitleStatus(
+                style: Theme.of(context).textTheme.headline6,
+                normalConditionWidget: Text(I18N.of(context).get("chats")),
+              ),
               actions: [
                 if (!isDesktop())
                   Container(
@@ -166,9 +129,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         },
                         icon: Icon(
                           Icons.qr_code,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black,
                         )),
                   ),
                 SizedBox(
@@ -204,19 +164,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
               });
             }),
           ),
-          AudioPlayerAppBar(),
+          if (!isLarge(context)) AudioPlayerAppBar(),
           _searchMode
               ? searchResult(_i18n)
-              : Expanded(child: ChatsPage(scrollController: scrollController)),
+              : Expanded(child: ChatsPage(scrollController: _scrollController)),
         ],
       ),
-    );
-  }
-
-  Text buildText(BuildContext context) {
-    return Text(
-      I18N.of(context).get("chats"),
-      style: Theme.of(context).textTheme.headline2,
     );
   }
 
@@ -228,38 +181,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
           color: ExtraTheme.of(context).menuIconButton,
         ),
         child: PopupMenuButton(
-            color: ExtraTheme.of(context).popupMenuButton,
-            icon: Icon(
-              Icons.create,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
-            ),
+            icon: Icon(Icons.create),
             onSelected: selectChatMenu,
             itemBuilder: (context) => [
                   PopupMenuItem<String>(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.group,
-                            color:
-                                ExtraTheme.of(context).popupMenuButtonDetails,
-                          ),
-                          SizedBox(
-                            width: 15,
-                          ),
-                          Text(
-                            i18n.get("newGroup"),
-                            style: TextStyle(
-                                fontSize: 15,
-                                color: ExtraTheme.of(context)
-                                    .popupMenuButtonDetails),
-                          ),
-                        ],
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.group),
+                        SizedBox(width: 8),
+                        Text(i18n.get("newGroup")),
+                      ],
                     ),
                     value: "newGroup",
                   ),
@@ -267,21 +199,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Image.asset(
-                          "assets/icons/channel_icon.png",
-                          width: 25,
-                          height: 25,
-                          color: ExtraTheme.of(context).popupMenuButtonDetails,
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
+                        Icon(Icons.rss_feed_rounded),
+                        SizedBox(width: 8),
                         Text(
                           i18n.get("newChannel"),
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: ExtraTheme.of(context)
-                                  .popupMenuButtonDetails),
                         )
                       ],
                     ),
@@ -301,10 +222,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
     }
   }
 
-  initialDataBase() {
-    GetIt.I.get<MessageRepo>().sendTextMessage(randomUid(), '0');
-  }
-
   Widget searchResult(I18N _i18n) {
     return Expanded(
       child: Padding(
@@ -312,7 +229,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: [
             FutureBuilder<List<Uid>>(
-                future: contactRepo.searchUser(query),
+                future: _contactRepo.searchUser(query),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.data != null && snaps.data.length > 0) {
                     return Container(
@@ -320,8 +237,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Text(_i18n
-                              .get("global_search")),
+                          Text(_i18n.get("global_search")),
                           //    searchResultWidget(snaps, c),
                           SizedBox(
                             height: 10,
@@ -361,8 +277,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                           _i18n.get("local_search"),
-                          style: TextStyle(
-                              color: ExtraTheme.of(context).textDetails),
+                          style: Theme.of(context).primaryTextTheme.caption,
                         ),
                         Container(
                           height: MediaQuery.of(context).size.height,
@@ -383,11 +298,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
   ListView searchResultWidget(AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
     return ListView.builder(
       itemCount: snaps.data.length,
-      itemBuilder: (BuildContext ctxt, int index) {
+      itemBuilder: (BuildContext ctx, int index) {
         return GestureDetector(
           onTap: () {
             _roomRepo.insertRoom(snaps.data[index].asString());
-            rootingServices.openRoom(snaps.data[index].asString());
+            _rootingServices.openRoom(snaps.data[index].asString());
           },
           child: _contactResultWidget(uid: snaps.data[index], context: c),
         );
@@ -408,23 +323,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
             FutureBuilder(
                 future: _roomRepo.getName(uid),
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                  if (snaps.hasData && snaps.data != null) {
-                    return Text(
-                      snaps.data,
-                      style: TextStyle(
-                        color: ExtraTheme.of(context).chatOrContactItemDetails,
-                        fontSize: 18,
-                      ),
-                    );
-                  } else {
-                    return Text(
-                      "unKnown",
-                      style: TextStyle(
-                        color: ExtraTheme.of(context).chatOrContactItemDetails,
-                        fontSize: 18,
-                      ),
-                    );
-                  }
+                  return Text(
+                    snaps.data ?? "",
+                    style: Theme.of(context).textTheme.subtitle1,
+                  );
                 }),
           ],
         ),

@@ -1,19 +1,21 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
+import 'package:deliver_flutter/screen/room/widgets/showImage_Widget.dart';
 import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/screen/contacts/new_contact.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
-import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
-import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
-import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
-import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
-import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import 'package:deliver_flutter/screen/room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/room/widgets/share_box/map_widget.dart';
+import 'package:deliver_flutter/screen/muc/pages/muc_info_determination_page.dart';
+import 'package:deliver_flutter/screen/muc/pages/member_selection_page.dart';
+import 'package:deliver_flutter/screen/profile/pages/media_details_page.dart';
+import 'package:deliver_flutter/screen/profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
@@ -24,8 +26,9 @@ import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/shared/scanQrCode.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_flutter/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,8 +37,6 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -61,6 +62,7 @@ var _accountRepo = GetIt.I.get<AccountRepo>();
 var _autRepo = GetIt.I.get<AuthRepo>();
 
 class RoutingService {
+  final _dbManager = GetIt.I.get<DBManager>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;
@@ -137,6 +139,7 @@ class RoutingService {
         smallPageMain: widget,
         path: "/language_settings"));
   }
+
   void openDevicesPage() {
     var widget = DevicesPage(key: ValueKey("/devices_page"));
     _push(Page(
@@ -312,7 +315,8 @@ class RoutingService {
         smallPageMain: widget,
         path: "/scan_qr_code"));
   }
-  void openImagePage({Uid roomUid,File file}) {
+
+  void openImagePage({Uid roomUid, File file}) {
     var widget = ShowImagePage(
       roomUid: roomUid,
       imageFile: file,
@@ -365,10 +369,6 @@ class RoutingService {
     }
   }
 
-  Page _top() {
-    return _stack.last;
-  }
-
   reset() {
     if (_stack != null) {
       _stack.clear();
@@ -383,22 +383,20 @@ class RoutingService {
     ]);
   }
 
-  logout(BuildContext context) {
+  logout(BuildContext context) async {
     CoreServices coreServices = GetIt.I.get<CoreServices>();
     _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
     if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
 
-    deleteDb();
+    await _autRepo.deleteTokens();
+
     reset();
 
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
-  }
-
-  Future<void> deleteDb() async {
-    Hive.deleteFromDisk();
+    Timer(Duration(milliseconds: 300), () => _dbManager.deleteDB());
   }
 
   Stream<String> get currentRouteStream => _route.stream;
@@ -426,7 +424,7 @@ class RoutingService {
       children: [
         Container(
             width: isLarge(context)
-                ? navigationPanelSize()
+                ? NAVIGATION_PANEL_SIZE
                 : MediaQuery.of(context).size.width,
             child: isLarge(context)
                 ? _largePageNavigator(context)
@@ -459,7 +457,7 @@ class Empty extends StatelessWidget {
       decoration: BoxDecoration(
         image: Theme.of(context).brightness == Brightness.light
             ? DecorationImage(
-                image: AssetImage("assets/bac/a.png"),
+                image: AssetImage("assets/backgrounds/a.png"),
                 fit: BoxFit.scaleDown,
                 repeat: ImageRepeat.repeat,
               )
@@ -468,12 +466,12 @@ class Empty extends StatelessWidget {
       ),
       child: Center(
         child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
                 color: Theme.of(context).dividerColor.withOpacity(0.1)),
             child: Text("Please select a chat to start messaging",
-                style: Theme.of(context).textTheme.headline6)),
+                style: Theme.of(context).textTheme.subtitle2)),
       ),
     );
   }

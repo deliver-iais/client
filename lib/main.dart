@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/db_manage.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/box/contact.dart';
@@ -41,7 +42,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
-import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
@@ -53,9 +54,9 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 
-import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -82,6 +83,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 
 Future<void> setupDI() async {
   // Setup Logger
@@ -126,6 +128,9 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RoomDao>(RoomDaoImpl());
   GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
+  GetIt.I.registerSingleton<DBManager>(DBManager());
+
+  GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
   GetIt.I.registerSingleton<AuthServiceClient>(
@@ -174,23 +179,47 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<FileService>(FileService());
   GetIt.I.registerSingleton<MucServices>(MucServices());
   GetIt.I.registerSingleton<CreateMucService>(CreateMucService());
-
   GetIt.I.registerSingleton<BotRepo>(BotRepo());
   GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
   GetIt.I.registerSingleton<FileRepo>(FileRepo());
   GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
   GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
-  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
   GetIt.I.registerSingleton<MucRepo>(MucRepo());
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
-  GetIt.I.registerSingleton<CoreServices>(CoreServices());
-  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
-  GetIt.I.registerSingleton<AudioPlayerService>(AudioPlayerService());
-  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
-  GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
+
+  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
+
+  if (isLinux() || isWindows()) {
+    DartVLC.initialize();
+    GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
+  } else {
+    GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+  }
+  GetIt.I.registerSingleton<AudioService>(AudioService());
+
+  if (isMacOS()) {
+    GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
+  } else if (isAndroid()) {
+    GetIt.I.registerSingleton<Notifier>(AndroidNotifier());
+  } else if (isIOS()) {
+    GetIt.I.registerSingleton<Notifier>(IOSNotifier());
+  } else if (isLinux()) {
+    GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
+  } else if (isWindows()) {
+    GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
+  } else {
+    GetIt.I.registerSingleton<Notifier>(FakeNotifier());
+  }
+
+  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+
+  GetIt.I.registerSingleton<CoreServices>(CoreServices());
+  GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
+
+  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
 }
 
 Future setupFlutterNotification() async {
@@ -233,22 +262,25 @@ void main() async {
 _setWindowSize() async {
   var platformWindow = await getWindowInfo();
   setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  // TODO, its better to removed
   setWindowMaxSize(Size(
       platformWindow.screen.frame.width, platformWindow.screen.frame.height));
 }
 
 class MyApp extends StatelessWidget {
+  final _uxService = GetIt.I.get<UxService>();
+  final _i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    var uxService = GetIt.I.get<UxService>();
     return StreamBuilder(
       stream: MergeStream([
-        uxService.themeStream as Stream,
-        uxService.localeStream as Stream,
+        _uxService.themeStream,
+        _i18n.localeStream,
       ]),
       builder: (context, snapshot) {
         return ExtraTheme(
-          extraThemeData: uxService.extraTheme,
+          extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
@@ -259,8 +291,8 @@ class MyApp extends StatelessWidget {
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'Deliver',
-                locale: uxService.locale,
-                theme: uxService.theme,
+                locale: _i18n.locale,
+                theme: _uxService.theme,
                 supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,

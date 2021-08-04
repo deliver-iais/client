@@ -10,7 +10,7 @@ abstract class MessageDao {
   Future<Message> getMessage(String roomUid, int id);
 
   Future<List<Message>> getMessagePage(String roomUid, int page,
-      {int pageSize = 40});
+      {int pageSize = 16});
 
   // Pending Messages
   Future<List<PendingMessage>> getPendingMessages(String roomUid);
@@ -54,7 +54,7 @@ class MessageDaoImpl implements MessageDao {
   }
 
   Future<List<Message>> getMessagePage(String roomUid, int page,
-      {int pageSize = 40}) async {
+      {int pageSize = 16}) async {
     var box = await _openMessages(roomUid);
 
     return Iterable<int>.generate(pageSize)
@@ -113,7 +113,7 @@ class MessageDaoImpl implements MessageDao {
   static String _keyPending() => "pending";
 
   static Future<Box<Message>> _openMessages(String uid) =>
-      Hive.openBox<Message>(_keyMessages(uid));
+      Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
 
   static Future<Box<PendingMessage>> _openPending() =>
       Hive.openBox<PendingMessage>(_keyPending());

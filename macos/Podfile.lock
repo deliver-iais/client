@@ -1,10 +1,4 @@
 PODS:
-  - assets_audio_player (0.0.1):
-    - FlutterMacOS
-  - assets_audio_player_web (0.0.1):
-    - FlutterMacOS
-  - audioplayer (0.0.1):
-    - FlutterMacOS
   - audioplayers (0.0.1):
     - FlutterMacOS
   - file_selector_macos (0.0.1):
@@ -91,9 +85,6 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - assets_audio_player (from `Flutter/ephemeral/.symlinks/plugins/assets_audio_player/macos`)
-  - assets_audio_player_web (from `Flutter/ephemeral/.symlinks/plugins/assets_audio_player_web/macos`)
-  - audioplayer (from `Flutter/ephemeral/.symlinks/plugins/audioplayer/macos`)
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
@@ -121,12 +112,6 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
-  assets_audio_player:
-    :path: Flutter/ephemeral/.symlinks/plugins/assets_audio_player/macos
-  assets_audio_player_web:
-    :path: Flutter/ephemeral/.symlinks/plugins/assets_audio_player_web/macos
-  audioplayer:
-    :path: Flutter/ephemeral/.symlinks/plugins/audioplayer/macos
   audioplayers:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
   file_selector_macos:
@@ -153,9 +138,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
-  assets_audio_player: be2578e6f11dd4d183412e97143673c3c4cb2e8a
-  assets_audio_player_web: 917101123b6db8f73156835c0fa266c11340ff15
-  audioplayer: 55683c51b71f336a8d154b753f21badea911c6b2
   audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
   file_selector_macos: ff6dc948d4ddd34e8602a1f60b7d0b4cc6051a47
   Firebase: 73c3e3b216ec1ecbc54d2ffdd4670c65c749edb1

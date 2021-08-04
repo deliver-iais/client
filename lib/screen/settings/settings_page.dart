@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -8,14 +8,16 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/shared/language.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/phone.dart';
+import 'package:deliver_flutter/shared/methods/url.dart';
 import 'package:deliver_flutter/theme/dark.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -44,8 +46,6 @@ class _SettingsPageState extends State<SettingsPage> {
   bool isDeveloperMode = false || kDebugMode;
   int developerModeCounterCountDown = 10;
 
-  final _routingServices = GetIt.I.get<RoutingService>();
-
   @override
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
@@ -55,12 +55,8 @@ class _SettingsPageState extends State<SettingsPage> {
           child: FluidContainerWidget(
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
-              // elevation: 0,
               titleSpacing: 8,
-              title: Text(
-                i18n.get("settings"),
-                style: Theme.of(context).textTheme.headline2,
-              ),
+              title: Text(i18n.get("settings")),
               leading: _routingService.backButtonLeading(),
             ),
           ),
@@ -82,7 +78,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
                                 if (lastAvatar.createdOn != null) {
-                                  _routingServices.openShowAllAvatars(
+                                  _routingService.openShowAllAvatars(
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
                                       heroTag: "avatar");
@@ -111,30 +107,25 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w800,
-                                            color: ExtraTheme.of(context)
-                                                .textField),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline6,
                                       ),
                                       SizedBox(height: 4),
                                       Text(
                                         snapshot.data.userName ?? "",
-                                        style: TextStyle(
-                                            color:
-                                                ExtraTheme.of(context).username,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 14),
+                                        style: Theme.of(context)
+                                            .primaryTextTheme
+                                            .subtitle1,
                                       ),
                                       SizedBox(height: 4),
                                       Text(
                                         buildPhoneNumber(
                                             snapshot.data.countryCode,
                                             snapshot.data.nationalNumber),
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                            fontSize: 12),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1,
                                       )
                                     ],
                                   );
@@ -156,8 +147,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                     title: i18n.get("qr_share"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.qr_code),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
@@ -172,8 +161,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: i18n.get("saved_message"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
@@ -182,8 +169,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: i18n.get("contacts"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
@@ -193,23 +178,17 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SettingsSection(
                 title: i18n.get("user_experience"),
-                titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
                 tiles: [
                   SettingsTile.switchTile(
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     title: i18n.get("notification"),
                     leading: Icon(Icons.notifications_active),
-                    switchValue: _uxService.isAllNotificationDisabled,
+                    switchValue: !_uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
                   ),
                   SettingsTile(
                     title: i18n.get("language"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
-                    subtitle: _uxService.locale.language().name,
+                    subtitle: I18N.of(context).locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
                       _routingService.openLanguageSettings();
@@ -218,8 +197,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: i18n.get("dark_mode"),
                     leading: Icon(Icons.brightness_2),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
                       setState(() {
@@ -230,18 +207,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
-                    titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
-                    onPressed: (c){
+                    onPressed: (c) {
                       _routingService.openDevicesPage();
                     },
                   ),
                   if (isDesktop())
                     SettingsTile.switchTile(
-                      title: i18n
-                          .get("send_by_shift_enter"),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
+                      title: i18n.get("send_by_shift_enter"),
                       leading: Icon(Icons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
@@ -256,8 +228,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   tiles: [
                     SettingsTile(
                       title: 'Log Level',
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       subtitle: LogLevelHelper.levelToString(
                           GetIt.I.get<DeliverLogFilter>().level),
                       leading: Icon(Icons.bug_report_rounded),
@@ -271,8 +241,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       trailing: FutureBuilder(
                         future: PackageInfo.fromPlatform(),
                         builder: (context, snapshot) {
@@ -282,22 +250,16 @@ class _SettingsPageState extends State<SettingsPage> {
                                     future: SmsAutoFill().getAppSignature,
                                     builder: (c, sms) {
                                       return Text(
-                                        sms.data ?? snapshot.data.version ?? "",
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                            fontSize: 16),
+                                        sms.data ?? snapshot.data.version ?? VERSION,
                                       );
                                     })
                                 : Text(
-                                    snapshot.data.version ?? "",
-                                    style: TextStyle(
-                                        color: ExtraTheme.of(context).textField,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
+                                    snapshot.data.version ?? VERSION,
                                   );
                           } else {
-                            return SizedBox.shrink();
+                            return Text(
+                              VERSION,
+                            );
                           }
                         },
                       ),
@@ -312,8 +274,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                   SettingsTile(
                     title: i18n.get("logout"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.exit_to_app),
                     onPressed: (BuildContext context) =>
                         openLogoutAlertDialog(context, i18n),
@@ -326,8 +286,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ));
   }
 
-  void openLogoutAlertDialog(
-      BuildContext context, I18N i18n) {
+  void openLogoutAlertDialog(BuildContext context, I18N i18n) {
     showDialog(
         context: context,
         builder: (context) {
@@ -335,10 +294,7 @@ class _SettingsPageState extends State<SettingsPage> {
             titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             // backgroundColor: Colors.white,
-            content: Container(
-              child: Text(i18n.get("sure_exit_app"),
-                  style: Theme.of(context).dialogTheme.titleTextStyle),
-            ),
+            content: Container(child: Text(i18n.get("sure_exit_app"))),
             actions: <Widget>[
               TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -347,11 +303,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 width: 15,
               ),
               TextButton(
-                  onPressed: () => _routingService.logout(context),
-                  child: Text(
-                    i18n.get("logout"),
-                    style: TextStyle(fontSize: 16, color: Colors.red),
-                  ))
+                onPressed: () => _routingService.logout(context),
+                child: Text(i18n.get("logout")),
+                style: TextButton.styleFrom(primary: Colors.red),
+              ),
             ],
           );
         });

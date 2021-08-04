@@ -1,124 +1,105 @@
+import 'package:deliver_flutter/localization/i18n.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:desktoasts/desktoasts.dart';
-import 'package:desktop_notifications/desktop_notifications.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:desktoasts/desktoasts.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+abstract class Notifier {
+  notify(MessageBrief message);
+
+  cancel(int id);
+
+  cancelAll();
+}
+
 class NotificationServices {
-  final _logger = GetIt.I.get<Logger>();
-  var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-  NotificationDetails _notificationDetails;
+  final _audioService = GetIt.I.get<AudioService>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _notifier = GetIt.I.get<Notifier>();
 
-  Map<String, List<int>> _notificationMessage = Map();
-  ToastService _windowsNotificationServices;
+  void showNotification(pro.Message message, {String roomName}) async {
+    final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+        .copyWith(roomName: roomName);
 
-  NotificationServices() {
-    if (!isDesktop()) Firebase.initializeApp();
-    if (isWindows()) {
-      try {
-        _windowsNotificationServices = new ToastService(
-          appName: APPLICATION_NAME,
-          companyName: "we",
-          productName: "deliver",
-        );
-      } catch (e) {
-        _logger.e(e);
-      }
-    }
-    var androidNotificationSetting =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
-    var iosNotificationSetting = new IOSInitializationSettings(
-        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
-    var macNotificationSetting = new MacOSInitializationSettings();
-
-    var initializationSettings = InitializationSettings(
-        android: androidNotificationSetting,
-        iOS: iosNotificationSetting,
-        macOS: macNotificationSetting);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {}
-      return;
-    });
+    _notifier.notify(mb);
   }
 
-  Future onDidReceiveLocalNotification(
-      int id, String title, String body, String payload) async {}
-
-  cancelNotification(notificationId) async {
-    try {
-      await flutterLocalNotificationsPlugin.cancel(notificationId);
-    } catch (e) {
-      _logger.e(e);
-    }
+  void cancelRoomNotifications(String roomUid) {
+    _notifier.cancel(roomUid.hashCode);
   }
 
-  cancelAllNotification() async {
-    try {
-      await flutterLocalNotificationsPlugin.cancelAll();
-    } catch (e) {
-      _logger.e(e);
-    }
+  void cancelAllNotifications() {
+    _notifier.cancelAll();
   }
 
-  showTextNotification(int notificationId, String roomId, String roomName,
-      String messageBody) async {
-    if (isWindows()) {
-      showWindowsNotify(roomId, roomName, messageBody);
-    } else if (isLinux()) {
-      try {
-        var client = NotificationsClient();
-        await client.notify('Deliver',
-            body: "$roomName \n  $messageBody", appIcon: "mail-send");
-        SystemSound.play(SystemSoundType.alert);
-      } catch (e) {
-        _logger.e(e);
-      }
-    } else {
-      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-          'channel_id', 'channel_name', 'channel_description',
-          importance: Importance.max, priority: Priority.high);
-      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-      var macOSPlatformChannelSpecifics = MacOSNotificationDetails();
-      var platformChannelSpecifics = NotificationDetails(
-          android: androidPlatformChannelSpecifics,
-          iOS: iOSPlatformChannelSpecifics,
-          macOS: macOSPlatformChannelSpecifics);
-      await flutterLocalNotificationsPlugin.show(
-        notificationId,
-        roomName,
-        messageBody,
-        platformChannelSpecifics,
-        payload: 'Default_Sound',
-      );
-    }
-  }
+  void playSoundIn() async {}
 
-  void showWindowsNotify(
-      String roomUid, String roomName, String messageBody) async {
+  void playIncomingMsg() async {}
+
+  void playSoundOut() {
+    _audioService.playSoundOut();
+  }
+}
+
+class FakeNotifier implements Notifier {
+  @override
+  notify(MessageBrief message) {}
+
+  @override
+  cancel(int id) {}
+
+  @override
+  cancelAll() {}
+}
+
+class IOSNotifier implements Notifier {
+  @override
+  notify(MessageBrief message) {}
+
+  @override
+  cancel(int id) {}
+
+  @override
+  cancelAll() {}
+}
+
+class WindowsNotifier implements Notifier {
+  ToastService _windowsNotificationServices = new ToastService(
+    appName: APPLICATION_NAME,
+    companyName: "deliver.co.ir",
+    productName: "deliver",
+  );
+
+  @override
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
     try {
       var _avatarRepo = GetIt.I.get<AvatarRepo>();
       var fileRepo = GetIt.I.get<FileRepo>();
-      var lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
+      var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
       if (lastAvatar != null) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
         Toast toast = new Toast(
             type: ToastType.imageAndText02,
-            title: roomName,
-            subtitle: messageBody,
+            title: message.roomName,
+            subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
         _windowsNotificationServices.show(toast);
 
@@ -126,155 +107,247 @@ class NotificationServices {
       } else {
         Toast toast = new Toast(
           type: ToastType.text04,
-          title: roomName,
-          subtitle: messageBody,
+          title: message.roomName,
+          subtitle: createNotificationTextFromMessageBrief(message),
         );
         _windowsNotificationServices.show(toast);
         // _windowsNotificationServices.dispose();
         toast.dispose();
       }
     } catch (e) {
+      // _logger.e(e);
+    }
+  }
+
+  @override
+  cancel(int id) {}
+
+  @override
+  cancelAll() {}
+}
+
+class LinuxNotifier implements Notifier {
+  final _logger = GetIt.I.get<Logger>();
+  final _flutterLocalNotificationsPlugin =
+      LinuxFlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+
+  LinuxNotifier() {
+    var notificationSetting =
+        new LinuxInitializationSettings(defaultActionName: "");
+
+    _flutterLocalNotificationsPlugin.initialize(notificationSetting,
+        onSelectNotification: (room) {
+      if (room != null && room.isNotEmpty) {
+        _routingService.openRoom(room);
+      }
+      return;
+    });
+  }
+
+  @override
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
+    LinuxNotificationIcon icon = AssetsLinuxIcon(
+        'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+
+    if (la != null) {
+      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+          thumbnailSize: ThumbnailSize.medium);
+
+      if (f != null && f.path.isNotEmpty) {
+        icon = AssetsLinuxIcon(f.path);
+      }
+    }
+
+    var platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
+
+    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+        message.roomName, createNotificationTextFromMessageBrief(message),
+        notificationDetails: platformChannelSpecifics,
+        payload: message.roomUid.asString());
+  }
+
+  @override
+  cancel(int id) async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+    } catch (e) {
       _logger.e(e);
     }
   }
 
-  showImageNotification(int notificationId, String roomId, String roomName,
-      String caption, String imagePath) async {
-    var bigPictureStyleInformation = BigPictureStyleInformation(
-      FilePathAndroidBitmap(imagePath),
-      contentTitle: roomName,
-      htmlFormatContentTitle: true,
-      summaryText: caption,
-      htmlFormatSummaryText: true,
-    );
-
-    var androidNotificationDetails = new AndroidNotificationDetails(
-        'channel_ID', 'cs', 'desc',
-        styleInformation: bigPictureStyleInformation);
-    var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails = NotificationDetails(
-        android: androidNotificationDetails, iOS: iOSNotificationDetails);
-
-    await flutterLocalNotificationsPlugin.show(
-        notificationId, roomName, imagePath, _notificationDetails,
-        payload: roomId);
-  }
-
-  void showNotification(
-      pro.Message message, String roomUid, String roomName) async {
+  @override
+  cancelAll() async {
     try {
-      if (_notificationMessage[roomUid] == null) {
-        _notificationMessage[roomUid] = [];
+      await _flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+}
+
+class AndroidNotifier implements Notifier {
+  final _logger = GetIt.I.get<Logger>();
+  final _flutterLocalNotificationsPlugin =
+      AndroidFlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final channel = const AndroidNotificationChannel(
+      'notifications', // id
+      'Notifications', // title
+      'All notifications of application.', // description
+      importance: Importance.high,
+      groupId: "all_group");
+
+  AndroidNotifier() {
+    _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
+
+    var notificationSetting =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    _flutterLocalNotificationsPlugin.initialize(notificationSetting,
+        onSelectNotification: (room) {
+      if (room != null && room.isNotEmpty) {
+        _routingService.openRoom(room);
       }
-      _notificationMessage[roomUid].add(message.id.toInt());
-      switch (message.whichType()) {
-        case pro.Message_Type.text:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, message.text.text);
-          break;
-        case pro.Message_Type.file:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "File");
-          break;
-        case pro.Message_Type.sticker:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "sticker");
-          break;
-        case pro.Message_Type.liveLocation:
-        case pro.Message_Type.location:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Location");
-          break;
+      return;
+    });
+  }
 
-        case pro.Message_Type.poll:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "poll");
-          break;
-        case pro.Message_Type.buttons:
-        case pro.Message_Type.form:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
-          break;
-        case pro.Message_Type.shareUid:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, message.shareUid.name);
-          break;
-        case pro.Message_Type.formResult:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
-          break;
-        case pro.Message_Type.sharePrivateDataRequest:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Private");
-          break;
-        case pro.Message_Type.sharePrivateDataAcceptance:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Private");
-          break;
+  @override
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
 
-        case pro.Message_Type.paymentTransaction:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Transaction");
-          break;
-        case pro.Message_Type.persistEvent:
-          String s = "";
-          switch (message.persistEvent.whichType()) {
-            case PersistentEvent_Type.mucSpecificPersistentEvent:
-              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-                case MucSpecificPersistentEvent_Issue.ADD_USER:
-                  s = " عضو اضافه شد.";
-                  break;
+    AndroidBitmap largeIcon;
 
-                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-                  s = "عکس پروفایل عوض شد";
-                  break;
-                case MucSpecificPersistentEvent_Issue.JOINED_USER:
-                  s = "به گروه پیوست.";
-                  break;
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
-                case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  s = "مخاطب از گروه حذف شد.";
-                  break;
-                case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-                  s = "مخاطب  گروه  را ترک کرد.";
-                  break;
-                case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-                  s = " گروه  ساخته شد.";
-                  break;
-                case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-                  s = " نام تغییر پیدا کرد.";
-                  break;
-                case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-                  s = "پیام پین شد.";
-                  break;
-              }
-              break;
-            case PersistentEvent_Type.messageManipulationPersistentEvent:
-              //
-              break;
-            case PersistentEvent_Type.adminSpecificPersistentEvent:
-              s = "به دلیور پیوست";
+    if (la != null) {
+      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+          thumbnailSize: ThumbnailSize.medium);
 
-              break;
-            case PersistentEvent_Type.notSet:
-              // TODO: Handle this case.
-              break;
-          }
-          showTextNotification(message.id.toInt(), roomUid, roomName, s);
-
-          break;
-        default:
-          break;
+      if (f != null && f.path.isNotEmpty) {
+        largeIcon = FilePathAndroidBitmap(f.path);
       }
-    } catch (e) {}
+    }
+
+    var platformChannelSpecifics = AndroidNotificationDetails(
+        channel.id, channel.name, channel.description,
+        groupKey: channel.groupId,
+        largeIcon: largeIcon,
+        setAsGroupSummary: true);
+
+    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+        message.roomName, createNotificationTextFromMessageBrief(message),
+        notificationDetails: platformChannelSpecifics,
+        payload: message.roomUid.asString());
   }
 
-  void reset(String roomId) {
-    if (_notificationMessage[roomId] != null)
-      _notificationMessage[roomId].forEach((element) async {
-        await cancelNotification(element);
-      });
+  @override
+  cancel(int id) async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
-  void playSoundNotification() async {
-    // AssetsAudioPlayer.newPlayer().open(
-    //   Audio("assets/audios/ack.mp3"),
-    // );
+  @override
+  cancelAll() async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      _logger.e(e);
+    }
   }
+}
+
+class MacOSNotifier implements Notifier {
+  final _logger = GetIt.I.get<Logger>();
+  final _flutterLocalNotificationsPlugin =
+      MacOSFlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+
+  MacOSNotifier() {
+    var macNotificationSetting = new MacOSInitializationSettings();
+
+    _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
+        onSelectNotification: (room) {
+      if (room != null && room.isNotEmpty) {
+        _routingService.openRoom(room);
+      }
+      return;
+    });
+  }
+
+  @override
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
+    List<MacOSNotificationAttachment> attachments = [];
+
+    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+
+    if (la != null) {
+      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+          thumbnailSize: ThumbnailSize.medium);
+
+      if (f != null && f.path.isNotEmpty) {
+        attachments.add(MacOSNotificationAttachment(f.path));
+      }
+    }
+
+    var macOSPlatformChannelSpecifics =
+        MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
+
+    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+        message.roomName, createNotificationTextFromMessageBrief(message),
+        notificationDetails: macOSPlatformChannelSpecifics,
+        payload: message.roomUid.asString());
+  }
+
+  @override
+  cancel(int id) async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  @override
+  cancelAll() async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+}
+
+String createNotificationTextFromMessageBrief(MessageBrief mb) {
+  var text = "";
+  if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
+    text += "${mb.sender.trim()}: ";
+  }
+  if (mb.typeDetails.isNotEmpty) {
+    text += mb.typeDetails;
+  }
+  if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty) {
+    text += ", ";
+  }
+  if (mb.text.isNotEmpty) {
+    text += mb.text;
+  }
+
+  return text;
 }

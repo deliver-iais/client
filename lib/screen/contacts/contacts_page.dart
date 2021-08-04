@@ -1,16 +1,16 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_flutter/shared/widgets/contacts_widget.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
-import 'package:deliver_flutter/shared/functions.dart';
-import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
+import 'package:deliver_flutter/shared/methods/url.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -26,15 +26,17 @@ class ContactsPage extends StatelessWidget {
   }
 
   _syncContacts() async {
-    String s = await _sharedDao.get(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (s != null || isDesktop()) {
+    bool isAlreadyContactAccessTipShowed =
+        await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
+    if (!isAlreadyContactAccessTipShowed || isDesktop()) {
       _contactRepo.syncContacts();
     }
   }
 
   _showSyncContactDialog(BuildContext context) async {
-    String s = await _sharedDao.get(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (s == null && !isDesktop()) {
+    bool isAlreadyContactAccessTipShowed =
+        await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
+    if (!isAlreadyContactAccessTipShowed == null && !isDesktop()) {
       showDialog(
           context: context,
           builder: (context) {
@@ -53,23 +55,20 @@ class ContactsPage extends StatelessWidget {
               ),
               content: Container(
                 width: 200,
-                child: Text(
-                    I18N.of(context)
-                        .get("send_contacts_message"),
-                    style: TextStyle(color: Colors.black, fontSize: 18)),
+                child: Text(I18N.of(context).get("send_contacts_message"),
+                    style: Theme.of(context).textTheme.subtitle1),
               ),
               actions: <Widget>[
-                GestureDetector(
-                  child: Text(
-                    I18N.of(context).get("continue"),
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
-                  ),
-                  onTap: () {
-                    _sharedDao.put(SHARED_DAO_SHOW_CONTACT_DIALOG, "true");
-                    Navigator.pop(context);
-                    _syncContacts();
-                  },
-                )
+                TextButton(
+                    onPressed: () {
+                      _sharedDao.putBoolean(
+                          SHARED_DAO_SHOW_CONTACT_DIALOG, true);
+                      Navigator.pop(context);
+                      _syncContacts();
+                    },
+                    child: Text(
+                      I18N.of(context).get("continue"),
+                    ))
               ],
             );
           });
@@ -86,10 +85,7 @@ class ContactsPage extends StatelessWidget {
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
-            title: Text(
-              I18N.of(context).get("contacts"),
-              style: Theme.of(context).textTheme.headline2,
-            ),
+            title: Text(I18N.of(context).get("contacts")),
             leading: _routingService.backButtonLeading(),
           ),
         ),
@@ -160,8 +156,7 @@ class ContactsPage extends StatelessWidget {
                           onPressed: () {
                             _routingService.openCreateNewContactPage();
                           },
-                          label: Text(I18N.of(context)
-                              .get("add_new_contact")),
+                          label: Text(I18N.of(context).get("add_new_contact")),
                         ),
                       ),
                     ],

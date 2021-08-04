@@ -1,7 +1,6 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
@@ -16,7 +15,7 @@ class SearchBox extends StatefulWidget {
 
 class _SearchBoxState extends State<SearchBox> {
   BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
-  TextEditingController _controller =TextEditingController();
+  TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +26,13 @@ class _SearchBoxState extends State<SearchBox> {
         style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
-        controller:_controller ,
+        controller: _controller,
         autofocus: false,
         maxLines: 1,
-        onChanged: (str){
-          if(str.isNotEmpty)
+        onChanged: (str) {
+          if (str.isNotEmpty)
             _hasText.add(true);
-          else{
+          else {
             _hasText.add(false);
           }
           this.widget.onChange(str);
@@ -57,7 +56,6 @@ class _SearchBoxState extends State<SearchBox> {
           contentPadding: const EdgeInsets.all(8),
           filled: true,
           isDense: true,
-          fillColor: ExtraTheme.of(context).searchBox,
           prefixIcon: Icon(
             Icons.search,
             color: ExtraTheme.of(context).centerPageDetails,
