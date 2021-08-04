@@ -73,7 +73,7 @@ class TextUi extends StatelessWidget {
       }
     } else {
       content = this.message.json.toText().text;
-      print(content);
+     // print(content);
     }
     if (content.length == 2) {
       switch (content) {
