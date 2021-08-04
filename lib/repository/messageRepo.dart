@@ -541,8 +541,11 @@ class MessageRepo {
       _logger.e(e);
       if (retry)
         getMessages(roomId, page, pageSize, completer, retry: false);
-      else
+      else{
+        completer.complete([]);
         completer.completeError(e);
+      }
+
     }
   }
 

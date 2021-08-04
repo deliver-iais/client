@@ -223,6 +223,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                         ..phoneNumber = PhoneNumber(
                             countryCode: int.parse(countryCode),
                             nationalNumber: Int64(int.parse(nationalNumber))));
+                      _contactRepo.getContacts();
                       if (res) {
                         Fluttertoast.showToast(
                             msg:

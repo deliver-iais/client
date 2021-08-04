@@ -104,12 +104,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     I18N i18n = I18N.of(context);
 
     return Container(
-      height: widget.hasPermissionInChannel ? 150 : 100,
-      child: Column(
-        children: [
-          if (widget.hasPermissionInChannel && widget.message.id != null)
-            Expanded(
-              child: TextButton(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            if (widget.hasPermissionInChannel && widget.message.id != null)
+              TextButton(
                   onPressed: () {
                     onReply();
                   },
@@ -121,14 +120,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(i18n.get("Reply")),
                   ])),
-            ),
-          if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
-                  widget.hasPermissionInGroup) ||
-              (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
-                  widget.hasPermissionInChannel))
-            if (!widget.isPinned)
-              Expanded(
-                child: TextButton(
+            if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
+                    widget.hasPermissionInGroup) ||
+                (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
+                    widget.hasPermissionInChannel))
+              if (!widget.isPinned)
+                TextButton(
                     onPressed: () {
                       onPinMessage();
                     },
@@ -139,11 +136,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       ),
                       SizedBox(width: 8),
                       Text(i18n.get("pin")),
-                    ])),
-              )
-            else
-              Expanded(
-                child: TextButton(
+                    ]))
+              else
+                TextButton(
                     onPressed: () {
                       onUnPinMessage();
                     },
@@ -155,12 +150,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       SizedBox(width: 8),
                       Text(i18n.get("unpin")),
                     ])),
-              ),
 
-          if (widget.message.type == MessageType.TEXT ||
-              widget.message.type == MessageType.FILE)
-            Expanded(
-              child: TextButton(
+            if (widget.message.type == MessageType.TEXT ||
+                (widget.message.type == MessageType.FILE && widget.message.json.toFile().caption.isNotEmpty))
+              TextButton(
                   onPressed: () {
                     onCopy();
                   },
@@ -172,18 +165,16 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(i18n.get("copy")),
                   ])),
-            ),
-          if (widget.message.type == MessageType.FILE)
-            FutureBuilder(
-                future: _fileRepo.getFileIfExist(
-                    widget.message.json.toFile().uuid,
-                    widget.message.json.toFile().name),
-                builder: (c, fe) {
-                  if (fe.hasData && fe.data != null) {
-                    _fileIsExist.add(true);
-                    model.File f = widget.message.json.toFile();
-                    return Expanded(
-                      child: TextButton(
+            if (widget.message.type == MessageType.FILE)
+              FutureBuilder(
+                  future: _fileRepo.getFileIfExist(
+                      widget.message.json.toFile().uuid,
+                      widget.message.json.toFile().name),
+                  builder: (c, fe) {
+                    if (fe.hasData && fe.data != null) {
+                      _fileIsExist.add(true);
+                      model.File f = widget.message.json.toFile();
+                      return TextButton(
                           onPressed: () {
                             if (f.type.contains("image")) {
                               onSaveTOGallery();
@@ -211,21 +202,19 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                                         f.type.contains("mp3")
                                     ? Text(i18n.get("save_in_music"))
                                     : Text(i18n.get("save_to_downloads")),
-                          ])),
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                }),
+                          ]));
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
 
-          if (widget.message.type == MessageType.FILE && !isDesktop())
-            StreamBuilder<bool>(
-                stream: _fileIsExist.stream,
-                builder: (c, s) {
-                  if (s.hasData && s.data) {
-                    _fileIsExist.add(true);
-                    return Expanded(
-                      child: TextButton(
+            if (widget.message.type == MessageType.FILE && !isDesktop())
+              StreamBuilder<bool>(
+                  stream: _fileIsExist.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data) {
+                      _fileIsExist.add(true);
+                      return TextButton(
                           onPressed: () {
                             onShare();
                           },
@@ -236,15 +225,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             ),
                             SizedBox(width: 8),
                             Text(i18n.get("share")),
-                          ])),
-                    );
-                  } else
-                    return SizedBox.shrink();
-                }),
+                          ]));
+                    } else
+                      return SizedBox.shrink();
+                  }),
 
-          if (widget.message.id != null)
-            Expanded(
-              child: TextButton(
+            if (widget.message.id != null)
+              TextButton(
                   onPressed: () {
                     onForward();
                   },
@@ -256,17 +243,15 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(i18n.get("forward")),
                   ])),
-            ),
-          if (widget.message.id == null)
-            FutureBuilder<PendingMessage>(
-                future: _messageRepo.getPendingMessage(widget.message.packetId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data.failed != null &&
-                      snapshot.data.failed) {
-                    return Expanded(
-                      child: TextButton(
+            if (widget.message.id == null)
+              FutureBuilder<PendingMessage>(
+                  future: _messageRepo.getPendingMessage(widget.message.packetId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data.failed != null &&
+                        snapshot.data.failed) {
+                      return TextButton(
                           onPressed: () {
                             onResend();
                           },
@@ -277,22 +262,20 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             ),
                             SizedBox(width: 8),
                             Text(i18n.get("resend")),
-                          ])),
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                }),
-          if (widget.message.id == null)
-            FutureBuilder<PendingMessage>(
-                future: _messageRepo.getPendingMessage(widget.message.packetId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data.failed != null &&
-                      snapshot.data.failed) {
-                    return Expanded(
-                      child: TextButton(
+                          ]));
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
+            if (widget.message.id == null)
+              FutureBuilder<PendingMessage>(
+                  future: _messageRepo.getPendingMessage(widget.message.packetId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data.failed != null &&
+                        snapshot.data.failed) {
+                      return TextButton(
                           onPressed: () {
                             onDeletePendingMessage();
                           },
@@ -303,44 +286,44 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             ),
                             SizedBox(width: 8),
                             Text(i18n.get("delete")),
-                          ])),
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                }),
+                          ]));
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
 
-          // widget.message.type == MessageType.TEXT
-          //     ? Expanded(
-          //         child: FlatButton(
-          //             onPressed: () {
-          //               onEdit();
-          //             },
-          //             child: Row(children: [
-          //               Icon(
-          //                 Icons.edit,
-          //                 size: 20,
-          //               ),
-          //               SizedBox(width: 8),
-          //               Text(i18n.getTraslateValue("edit")),
-          //             ])),
-          //       )
-          //     : Container(),
-          // Expanded(
-          //   child: FlatButton(
-          //       onPressed: () {
-          //         onDelete();
-          //       },
-          //       child: Row(children: [
-          //         Icon(
-          //           Icons.delete,
-          //           size: 20,
-          //         ),
-          //         SizedBox(width: 8),
-          //         Text(i18n.getTraslateValue("delete")),
-          //       ])),
-          // ),
-        ],
+            // widget.message.type == MessageType.TEXT
+            //     ? Expanded(
+            //         child: FlatButton(
+            //             onPressed: () {
+            //               onEdit();
+            //             },
+            //             child: Row(children: [
+            //               Icon(
+            //                 Icons.edit,
+            //                 size: 20,
+            //               ),
+            //               SizedBox(width: 8),
+            //               Text(i18n.getTraslateValue("edit")),
+            //             ])),
+            //       )
+            //     : Container(),
+            // Expanded(
+            //   child: FlatButton(
+            //       onPressed: () {
+            //         onDelete();
+            //       },
+            //       child: Row(children: [
+            //         Icon(
+            //           Icons.delete,
+            //           size: 20,
+            //         ),
+            //         SizedBox(width: 8),
+            //         Text(i18n.getTraslateValue("delete")),
+            //       ])),
+            // ),
+          ],
+        ),
       ),
     );
   }
