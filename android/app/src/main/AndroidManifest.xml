@@ -22,10 +22,10 @@
         android:label="Deliver"
         android:installLocation="auto"
         android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true"
         android:allowBackup="false"
         android:launchMode="singleTask"
         android:fullBackupOnly="false"
+        tools:node="replace"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
@@ -42,6 +42,10 @@
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
+
+            <meta-data android:name="com.google.android.geo.API_KEY"
+                android:value="AIzaSyAoAOA5ni0ERh9OA7Gg7NrRza9b0Ssyq8s"/>
+
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"

@@ -292,8 +292,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 if (await _checkPermissionsService
                                         .checkLocationPermission() ||
                                     isIOS()) {
-                                  if (!await _geolocator
-                                      .isLocationServiceEnabled()) {
+                                  if (!await Geolocator.isLocationServiceEnabled()) {
                                     final AndroidIntent intent =
                                         new AndroidIntent(
                                       action:
@@ -302,7 +301,7 @@ class _ShareBoxState extends State<ShareBox> {
                                     await intent.launch();
                                   } else {
                                     _locationData =
-                                        await _geolocator.getCurrentPosition();
+                                        await Geolocator.getCurrentPosition();
 
                                     if (_locationData != null) {
                                       Navigator.pop(context);

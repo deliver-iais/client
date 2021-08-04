@@ -101,7 +101,7 @@ dependencies:
   vibration: 1.7.2 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.3.0
   image_size_getter: 0.2.1
-  google_maps_place_picker: 2.0.0-nullsafety.3
+#  google_maps_place_picker: 2.0.0-nullsafety.3
   audioplayers: 0.19.0
   dart_vlc: 0.0.9
   video_player: 1.0.1
@@ -141,6 +141,7 @@ dependencies:
   hive: 2.0.4
   hive_flutter: 1.1.0
   marquee: 2.2.0
+  place_picker: 0.9.19-nullsafety
 
 dev_dependencies:
   flutter_test:
