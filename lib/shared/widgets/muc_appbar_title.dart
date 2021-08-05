@@ -4,7 +4,9 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/title_status.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -36,12 +38,16 @@ class MucAppbarTitle extends StatelessWidget {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              snapshot.data.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: Theme.of(context).textTheme.subtitle1,
+                            GestureDetector(
+                              child: Text(
+                                !kDebugMode ? snapshot.data.name : "${snapshot.data.name} - $mucUid",
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                                style: Theme.of(context).textTheme.subtitle1,
+                              ),
+                              onTap: () => Clipboard.setData(ClipboardData(
+                                  text: mucUid)),
                             ),
                             TitleStatus(
                               style: Theme.of(context).textTheme.caption,

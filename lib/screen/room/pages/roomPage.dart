@@ -61,7 +61,7 @@ import 'package:share/share.dart';
 import 'package:sorted_list/sorted_list.dart';
 import 'package:vibration/vibration.dart';
 
-const int PAGE_SIZE = 15;
+const int PAGE_SIZE = 16;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -492,7 +492,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         List<int> pm = muc.pinMessagesIdList;
         _pinMessages.clear();
         if (pm != null && pm.length > 0)
-          pm.forEach((element) async {
+          pm.reversed.toList().forEach((element) async {
             if (element != null) {
               try {
                 var m = await _getMessage(element, widget.roomId);
@@ -859,7 +859,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
               ));
         } else {
-          return SizedBox(height: 100, width: 100);
+          return  Text("");
         }
       },
     );

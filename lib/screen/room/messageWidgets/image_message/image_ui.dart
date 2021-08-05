@@ -152,7 +152,7 @@ class _ImageUiState extends State<ImageUi> {
           }
       );
     } catch (e) {
-      return Container();
+      return Container(width: width,height: height,);
     }
   }
 

@@ -94,22 +94,23 @@ class UxService {
         .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop())
         .distinct()
         .listen((sbn) => _sendByEnter.add(sbn));
+    _sharedDao.get(SHARED_DAO_THEME).then((event) {
+      if (event != null) {
+        if (event.contains(DarkThemeName)) {
+          _theme.add(DarkTheme);
+          _extraTheme.add(DarkExtraTheme);
+        } else if (event.contains(LightThemeName)) {
+          _theme.add(LightTheme);
+          _extraTheme.add(LightExtraTheme);
+        } else {
+          _theme.add(LightTheme);
+          _extraTheme.add(LightExtraTheme);
+        }
+      }
+    });
   }
 
-  Stream get themeStream => _sharedDao.getStream(SHARED_DAO_THEME).map((event) {
-        if (event != null) {
-          if (event.contains(DarkThemeName)) {
-            _theme.add(DarkTheme);
-            _extraTheme.add(DarkExtraTheme);
-          } else if (event.contains(LightThemeName)) {
-            _theme.add(LightTheme);
-            _extraTheme.add(LightExtraTheme);
-          } else {
-            _theme.add(LightTheme);
-            _extraTheme.add(LightExtraTheme);
-          }
-        }
-      });
+  Stream get themeStream => _theme.stream.distinct().map((event) => event);
 
 
 
