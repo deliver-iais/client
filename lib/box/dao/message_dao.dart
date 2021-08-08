@@ -9,6 +9,8 @@ abstract class MessageDao {
 
   Future<Message> getMessage(String roomUid, int id);
 
+  Stream<Message> watchMessage(String roomUid,String id);
+
   Future<List<Message>> getMessagePage(String roomUid, int page,
       {int pageSize = 16});
 
@@ -117,4 +119,11 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<Box<PendingMessage>> _openPending() =>
       Hive.openBox<PendingMessage>(_keyPending());
+
+  @override
+  Stream<Message> watchMessage(String roomUid,String  id)async* {
+    var box = await _openMessages(roomUid);
+    yield box.get(id);
+
+  }
 }

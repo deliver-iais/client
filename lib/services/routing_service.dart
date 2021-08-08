@@ -107,20 +107,7 @@ class RoutingService {
         path: "/room/$roomId"));
   }
 
-  void openLocation(
-      {Uid roomUid, Position locationData, Function scrollToLast}) {
-    var widget = MapWidget(
-      key: ValueKey("/map-widget"),
-      roomUid: roomUid,
-      locationData: locationData,
-      scrollToLast: scrollToLast,
-    );
-    _push(Page(
-        largePageNavigator: _navigationCenter,
-        largePageMain: widget,
-        smallPageMain: widget,
-        path: "/map-widget"));
-  }
+
 
   void openSettings() {
     var widget = SettingsPage(key: ValueKey("/settings"));

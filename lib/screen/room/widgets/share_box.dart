@@ -12,6 +12,7 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_sound/public/util/log.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -368,8 +369,8 @@ class _ShareBoxState extends State<ShareBox> {
       ScrollController scrollController, I18N i18n, BuildContext context) {
     return FutureBuilder(
         future: Geolocator.getCurrentPosition(),
-        builder: (c, s) {
-          if (s.hasData && s.data != null) {
+        builder: (c, position) {
+          if (position.hasData && position.data != null) {
             return Container(
                 child: ListView(
               children: [
@@ -377,7 +378,7 @@ class _ShareBoxState extends State<ShareBox> {
                   height: MediaQuery.of(context).size.height / 3 - 40,
                   child: FlutterMap(
                     options: new MapOptions(
-                      center: LatLng(s.data.latitude, s.data.longitude),
+                      center: LatLng(position.data.latitude, position.data.longitude),
                       zoom: 14.0,
                     ),
                     layers: [
@@ -390,7 +391,7 @@ class _ShareBoxState extends State<ShareBox> {
                           new Marker(
                             width: 170.0,
                             height: 170.0,
-                            point: LatLng(s.data.latitude, s.data.longitude),
+                            point: LatLng(position.data.latitude, position.data.longitude),
                             builder: (ctx) => Container(
                               child: Icon(
                                 Icons.location_pin,
@@ -427,7 +428,7 @@ class _ShareBoxState extends State<ShareBox> {
                   onTap: () {
                     Navigator.of(context).pop();
                     messageRepo.sendLocationMessage(
-                        s.data, widget.currentRoomId);
+                        position.data, widget.currentRoomId);
                   },
                 ),
                 SizedBox(
@@ -437,7 +438,7 @@ class _ShareBoxState extends State<ShareBox> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () {
-                    liveLocation(i18n, context);
+                    liveLocation(i18n, context,position.data);
                   },
                   child: Row(
                     children: [
@@ -465,7 +466,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   isSelected() => finalSelected.values.length > 0;
 
-  liveLocation(I18N i18n, BuildContext context) {
+  liveLocation(I18N i18n, BuildContext context, Position position) {
     BehaviorSubject<String> time = BehaviorSubject.seeded("10");
     showDialog(
         context: context,
@@ -540,7 +541,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   ),
                                   onTap: () {
                                     Navigator.pop(context);
-                                    messageRepo.sendLiveLocationMessage();
+                                    messageRepo.sendLiveLocationMessage(widget.currentRoomId,int.parse(time.valueWrapper.value),position,);
                                   }),
                             ],
                           ),

@@ -19,6 +19,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -43,6 +44,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
@@ -70,6 +72,7 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _liveLocationClient = GetIt.I.get<LiveLocationServiceClient>();
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -541,11 +544,10 @@ class MessageRepo {
       _logger.e(e);
       if (retry)
         getMessages(roomId, page, pageSize, completer, retry: false);
-      else{
+      else {
         completer.complete([]);
         completer.completeError(e);
       }
-
     }
   }
 
@@ -691,5 +693,51 @@ class MessageRepo {
     }
   }
 
-  void sendLiveLocationMessage() {}
+  void sendLiveLocationMessage(Uid room, int duration, Position position,
+      {int replyId, String forwardedFrom}) async {
+    var res =
+        await _liveLocationClient.createLiveLocation(CreateLiveLocationReq()
+          ..room = room
+          ..duration = duration);
+    protoModel.Location location = protoModel.Location(
+        longitude: position.longitude, latitude: position.latitude);
+    String json = (protoModel.LiveLocation()
+          ..location = location
+          ..from = _authRepo.currentUserUid
+          ..uuid = res.uuid
+          ..to = room
+          ..time = Int64(duration))
+        .writeToJson();
+    Message msg =
+        _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
+            .copyWith(type: MessageType.LIVE_LOCATION, json: json);
+
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+
+    Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
+        .listen((location) {
+      updateLiveLocation(protoModel.Location(
+          latitude: location.latitude, longitude: location.longitude));
+    });
+  }
+
+  void updateLiveLocation(protoModel.Location location) async {
+    _liveLocationClient.updateLocation(UpdateLocationReq()..location);
+  }
+  void getLatUpdateLocation(Message message)async {
+    String uuid =  message.json.toLiveLocation().uuid;
+   var res = await _liveLocationClient.getLastUpdatedLiveLocation(GetLastUpdatedLiveLocationReq()..uuid = uuid);
+   String json =   (protoModel.LiveLocation()
+     ..location = res.liveLocations.last.location
+     ..from = _authRepo.currentUserUid
+     ..uuid = uuid
+     ..to = message.to.asUid()
+     ..time = Int64(message.json.toLiveLocation().time.toInt()))
+       .writeToJson();
+   _messageDao.saveMessage(message.copyWith(json: json));
+  }
+  Stream<Message> watchMessage(String roomUid, String id){
+    return _messageDao.watchMessage(roomUid, id);
+  }
 }
