@@ -69,7 +69,7 @@ dependencies:
   linkify: 3.0.0
   uni_links: 0.5.1
   flutter_map: 0.13.1
-  geolocator: 7.4.0
+  geolocator: 7.0.1
   file_picker:
   logger: 1.0.0
   path_provider_ex: ^1.0.1
@@ -141,7 +141,6 @@ dependencies:
   hive: 2.0.4
   hive_flutter: 1.1.0
   marquee: 2.2.0
-  place_picker: 0.9.19-nullsafety
 
 dev_dependencies:
   flutter_test:

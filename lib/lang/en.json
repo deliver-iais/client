@@ -233,5 +233,8 @@
   "joined_to_app": "join to",
   "add_to_group": "Add to Group",
   "add_bot_to_group": "Add Bot To Group",
-  "to": "to"
+  "to": "to",
+  "send_this_location": "Send this location",
+  "send_live_location": "Send live location",
+  "choose_livelocation_time": "Choose for how long to share your live location"
 }

@@ -63,6 +63,7 @@ import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
@@ -172,6 +173,9 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
       ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<LiveLocationServiceClient>(
+      LiveLocationServiceClient(LiveLocationServiceClientChannel,
+          interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());

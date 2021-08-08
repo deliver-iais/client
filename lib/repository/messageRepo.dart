@@ -690,4 +690,6 @@ class MessageRepo {
       return false;
     }
   }
+
+  void sendLiveLocationMessage() {}
 }
