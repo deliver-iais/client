@@ -86,8 +86,8 @@ class _ShareBoxState extends State<ShareBox> {
               initialChildSize: initialSize.data,
               minChildSize: initialSize.data,
               maxChildSize: 1,
-              expand: false,
-              builder: (context, scrollController) {
+              expand: true,
+              builder: (co, scrollController) {
                 return Container(
                   color: Colors.white,
                   child: Stack(
@@ -160,7 +160,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         )
                                       : currentPage == Page.Location
                                           ? showLocation(
-                                              scrollController, i18n, context)
+                                              scrollController, i18n, co)
                                           : SizedBox.shrink()),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -191,7 +191,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             );
                                           }
 
-                                          Navigator.pop(context);
+                                          Navigator.pop(co);
                                           Timer(Duration(seconds: 2), () {
                                             widget.scrollToLastSentMessage();
                                           });
@@ -202,7 +202,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             selectedFiles.clear();
                                           });
                                         }, Icons.send, "", 50,
-                                            context: context),
+                                            context: co),
                                         decoration: BoxDecoration(
                                           boxShadow: [
                                             new BoxShadow(
@@ -231,7 +231,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           height: 16.0,
                                           decoration: new BoxDecoration(
                                             color:
-                                                Theme.of(context).primaryColor,
+                                                Theme.of(co).primaryColor,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -273,7 +273,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             type: FileType.custom,
                                           );
                                           if (result != null) {
-                                            Navigator.pop(context);
+                                            Navigator.pop(co);
                                             for (var path in result.paths) {
                                               messageRepo.sendFileMessage(
                                                   widget.currentRoomId, path);
@@ -286,7 +286,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           });
                                       }, Icons.insert_drive_file,
                                           i18n.get("gallery"), 40,
-                                          context: context),
+                                          context: co),
                                       circleButton(() async {
                                         FilePickerResult result =
                                             await FilePicker.platform.pickFiles(
@@ -305,7 +305,7 @@ class _ShareBoxState extends State<ShareBox> {
                                               'rar'
                                             ]);
                                         if (result != null) {
-                                          Navigator.pop(context);
+                                          Navigator.pop(co);
                                           for (var path in result.paths) {
                                             messageRepo.sendFileMessage(
                                                 widget.currentRoomId, path);
@@ -313,7 +313,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         }
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
-                                          context: context),
+                                          context: co),
                                       circleButton(() async {
                                         if (await _checkPermissionsService
                                                 .checkLocationPermission() ||
@@ -347,7 +347,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         }
                                       }, Icons.location_on,
                                           i18n.get("location"), 40,
-                                          context: context),
+                                          context: co),
                                       circleButton(() async {
                                         FilePickerResult result =
                                             await FilePicker.platform.pickFiles(
@@ -355,7 +355,7 @@ class _ShareBoxState extends State<ShareBox> {
                                                 type: FileType.custom,
                                                 allowedExtensions: ["mp3"]);
                                         if (result != null) {
-                                          Navigator.pop(context);
+                                          Navigator.pop(co);
                                           for (var path in result.paths) {
                                             messageRepo.sendFileMessage(
                                                 widget.currentRoomId, path);
@@ -363,7 +363,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
-                                          context: context),
+                                          context: co),
                                     ],
                                   ),
                                 ],
@@ -389,10 +389,10 @@ class _ShareBoxState extends State<ShareBox> {
           if (s.hasData && s.data != null) {
             return Container(
                 child: ListView(
-              controller: scrollController,
+
               children: [
                 SizedBox(
-                  height: 250,
+                  height: MediaQuery.of(context).size.height/3-40,
                   child: FlutterMap(
                     options: new MapOptions(
                       center: LatLng(s.data.latitude, s.data.longitude),
