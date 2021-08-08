@@ -57,8 +57,6 @@ class _ShareBoxState extends State<ShareBox> {
 
   final finalSelected = Map<int, String>();
 
-  Geolocator _geolocator = new Geolocator();
-
   CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
 
@@ -68,7 +66,6 @@ class _ShareBoxState extends State<ShareBox> {
 
   var messageRepo = GetIt.I.get<MessageRepo>();
 
-  var _routingServices = GetIt.I.get<RoutingService>();
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
   var currentPage = Page.Gallery;
@@ -201,8 +198,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             selectedImages.clear();
                                             selectedFiles.clear();
                                           });
-                                        }, Icons.send, "", 50,
-                                            context: co),
+                                        }, Icons.send, "", 50, context: co),
                                         decoration: BoxDecoration(
                                           boxShadow: [
                                             new BoxShadow(
@@ -230,8 +226,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           width: 16.0,
                                           height: 16.0,
                                           decoration: new BoxDecoration(
-                                            color:
-                                                Theme.of(co).primaryColor,
+                                            color: Theme.of(co).primaryColor,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -331,18 +326,6 @@ class _ShareBoxState extends State<ShareBox> {
                                               currentPage = Page.Location;
                                               initialChildSize.add(0.5);
                                             });
-
-                                            // _locationData =
-                                            //     await Geolocator.getCurrentPosition();
-                                            //
-                                            // if (_locationData != null) {
-                                            //   Navigator.pop(context);
-                                            //   _routingServices.openLocation(
-                                            //       roomUid: widget.currentRoomId,
-                                            //       locationData: _locationData,
-                                            //       scrollToLast:
-                                            //           widget.scrollToLastSentMessage);
-                                            // }
                                           }
                                         }
                                       }, Icons.location_on,
@@ -389,10 +372,9 @@ class _ShareBoxState extends State<ShareBox> {
           if (s.hasData && s.data != null) {
             return Container(
                 child: ListView(
-
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height/3-40,
+                  height: MediaQuery.of(context).size.height / 3 - 40,
                   child: FlutterMap(
                     options: new MapOptions(
                       center: LatLng(s.data.latitude, s.data.longitude),
@@ -484,111 +466,114 @@ class _ShareBoxState extends State<ShareBox> {
   isSelected() => finalSelected.values.length > 0;
 
   liveLocation(I18N i18n, BuildContext context) {
-    BehaviorSubject<String> time =  BehaviorSubject.seeded("10");
+    BehaviorSubject<String> time = BehaviorSubject.seeded("10");
     showDialog(
         context: context,
         builder: (context) {
           return StreamBuilder<String>(
-            stream: time.stream,
-            builder: (context, snapshot) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 300,left: 30,right: 30),
-                child: Center(
-                  child: ListView(
-                    children: [
-                      Container(
-                        height: 50,
-                        color: Colors.blue,
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.greenAccent,
-                          size: 40,
-                        ),
-                      ),
-                      Container(color:Colors.white,child: Text(i18n.get("choose_livelocation_time"),style: TextStyle(fontSize: 20),)),
-                      Container(color: Colors.white,
-                        child: SizedBox(
-                          height: 200,
-                          child: SettingsList(
-                            backgroundColor: Colors.white,
-                            sections: [
-                              SettingsSection(
-                                tiles: [
-                                  SettingsTile(
-                                    title: '10',
-                                    leading: Icon(Icons.alarm,color: Colors.blueAccent,),
-                                    trailing: snapshot.data == "10" ? Icon(Icons.done,color: Colors.blueAccent,) : SizedBox.shrink(),
-                                    onPressed: (BuildContext context) {
-                                       time.add("10");
-                                    },
-                                  ),
-                                  SettingsTile(
-                                    title: '15',
-                                    leading: Icon(Icons.alarm,color: Colors.blueAccent,),
-                                    trailing: snapshot.data== "15"
-                                        ? Icon(Icons.done,color: Colors.blueAccent,)
-                                        : SizedBox.shrink(),
-                                    onPressed: (BuildContext context) {
-                                        time.add("15");
-
-                                    },
-                                  ),
-                                  SettingsTile(
-                                    title: '30',
-                                    leading: Icon(Icons.alarm,color: Colors.blueAccent,),
-                                    trailing: snapshot.data=="30"
-                                        ? Icon(Icons.done,color: Colors.blueAccent,)
-                                        : SizedBox.shrink(),
-                                    onPressed: (BuildContext context) {
-
-                                       time .add("30");
-
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
+              stream: time.stream,
+              builder: (context, snapshot) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 300, left: 30, right: 30),
+                  child: Center(
+                    child: ListView(
+                      children: [
+                        Container(
+                          height: 50,
+                          color: Colors.blue,
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.greenAccent,
+                            size: 40,
                           ),
                         ),
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-
-                            GestureDetector(
-                              child: Text(
-                                i18n.get("cancel"),
-                                style: TextStyle(fontSize: 20, color: Colors.blue),
-                              ),
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
+                        Container(
+                            color: Colors.white,
+                            child: Text(
+                              i18n.get("choose_livelocation_time"),
+                              style: TextStyle(fontSize: 20),
+                            )),
+                        Container(
+                          color: Colors.white,
+                          child: SizedBox(
+                            height: 200,
+                            child: SettingsList(
+                              backgroundColor: Colors.white,
+                              sections: [
+                                SettingsSection(
+                                  tiles: [
+                                    settingsTile(snapshot.data,"10",(){
+                                      time.add("10");
+                                    }),
+                                    settingsTile(snapshot.data,"15",(){
+                                      time.add("15");
+                                    }),
+                                    settingsTile(snapshot.data,"30",(){
+                                      time.add("30");
+                                    }),
+                                  ],
+                                ),
+                              ],
                             ),
-
-                            GestureDetector(
+                          ),
+                        ),
+                        Container(
+                          color: Colors.white,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              GestureDetector(
                                 child: Text(
-                                  i18n.get("share"),
-                                  style: TextStyle(fontSize: 20, color: Colors.red),
+                                  i18n.get("cancel"),
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.blue),
                                 ),
                                 onTap: () {
                                   Navigator.pop(context);
-                                  messageRepo.sendLiveLocationMessage();
-
-                                }),
-
-                          ],
+                                },
+                              ),
+                              GestureDetector(
+                                  child: Text(
+                                    i18n.get("share"),
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.red),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    messageRepo.sendLiveLocationMessage();
+                                  }),
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 20,)
-                    ],
+                        SizedBox(
+                          height: 20,
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }
-          );
+                );
+              });
         });
+  }
+
+  SettingsTile settingsTile(
+      String data,  String t, Function on) {
+    return SettingsTile(
+      title: t,
+      leading: Icon(
+        Icons.alarm,
+        color: Colors.blueAccent,
+      ),
+      trailing: data == t
+          ? Icon(
+              Icons.done,
+              color: Colors.blueAccent,
+            )
+          : SizedBox.shrink(),
+      onPressed: (BuildContext context) {
+      on();
+      },
+    );
   }
 }
 
