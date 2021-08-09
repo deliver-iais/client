@@ -49,7 +49,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                       ),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      suffixIcon: Padding(
+                      suffixIcon: widget.formField.isOptional?SizedBox.shrink(): Padding(
                         padding: const EdgeInsets.only(top: 20, left: 25),
                         child: Text(
                           "*",

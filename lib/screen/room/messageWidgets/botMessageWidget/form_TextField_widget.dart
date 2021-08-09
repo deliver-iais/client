@@ -101,7 +101,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        suffixIcon: Padding(
+        suffixIcon:widget.formField.isOptional?SizedBox.shrink(): Padding(
           padding: const EdgeInsets.only(top: 20, left: 25),
           child: Text(
             "*",
