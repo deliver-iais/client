@@ -76,7 +76,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                           children: [
                                             Text(
                                               (snapshot.data ?? "Unknown")
-                                                  .trim(),
+                                                  .trim() + member.memberUid,
                                               overflow: TextOverflow.fade,
                                               maxLines: 1,
                                               softWrap: false,

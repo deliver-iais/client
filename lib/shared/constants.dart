@@ -31,6 +31,9 @@ const SHARED_DAO_APP_VERSION = "SHARED_DAO_APP_VERSION";
 
 const ONLINE_TIME = 60000;
 
+const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
+const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
+
 const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
 
 // Tables ID

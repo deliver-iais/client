@@ -120,7 +120,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
   final _selectMultiMessageSubject = BehaviorSubject.seeded(false);
-  final _lastSeenSubject = BehaviorSubject.seeded(-1);
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
@@ -284,8 +283,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _getLastSeen();
     _itemPositionsListener.itemPositions.addListener(() {
       if (_itemPositionsListener.itemPositions.value.length > 0)
-        _positionSubject
-            .add(_itemPositionsListener.itemPositions.value.last.index);
+        _positionSubject.add(_itemPositionsListener.itemPositions.value
+            .map((e) => e.index)
+            .reduce(max));
     });
 
     _itemCountSubject.distinct().listen((event) {
@@ -306,19 +306,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ? widget.forwardedMessages.length > 0
         : widget.shareUid != null);
     sendInputSharedFile();
-    //TODO check
-    _lastSeenSubject
-        .where((event) =>
-            _lastReceivedMessageId < event && event > _lastShowedMessageId)
-        .map((event) {
-          _lastReceivedMessageId = event;
-          return _lastReceivedMessageId;
-        })
+    // TODO Channel is different from groups and private chats !!!
+
+    _positionSubject
+        .map((event) => event + 1)
+        .where(
+            (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
+        .map((event) => _lastReceivedMessageId = event)
         .distinct()
         .debounceTime(Duration(milliseconds: 100))
-        .listen((event) {
-          _messageRepo.sendSeen(event, widget.roomId.asUid());
-        });
+        .listen((event) async {
+      var msg = await _getMessage(event, widget.roomId);
+      if (!_authRepo.isCurrentUser(msg.from))
+        _messageRepo.sendSeen(event, widget.roomId.asUid());
+
+      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
+    });
 
     if (widget.roomId.asUid().category == Categories.CHANNEL ||
         widget.roomId.asUid().category == Categories.GROUP)
@@ -475,8 +478,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _getLastShowMessageId() async {
     var seen = await _roomRepo.getMySeen(widget.roomId);
+
+    var room = await _roomRepo.getRoom(widget.roomId);
+
     if (seen != null) {
       _lastShowedMessageId = seen.messageId ?? 0;
+      if (_authRepo.isCurrentUser(room.lastMessage.from)) {
+        _lastShowedMessageId = -1;
+      }
     }
   }
 
@@ -766,23 +775,33 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           children: [
             if (_currentRoom.value.lastMessageId != null &&
                 _lastShowedMessageId != -1 &&
-                _lastShowedMessageId == index)
-              Container(
-                color: Theme.of(context).backgroundColor,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                padding: const EdgeInsets.all(4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.keyboard_arrow_down,
-                        color: Theme.of(context).primaryColor),
-                    Text(
-                      _i18n.get("unread_messages"),
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
-                  ],
-                ),
-              ),
+                _lastShowedMessageId == index + 1)
+              FutureBuilder<Message>(
+                  future: _messageAt(pendingMessages, index),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData ||
+                        snapshot.data == null ||
+                        _authRepo.isCurrentUser(snapshot.data.from)) {
+                      return SizedBox.shrink();
+                    }
+                    return Container(
+                      color: Theme.of(context).backgroundColor,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.keyboard_arrow_down,
+                              color: Theme.of(context).primaryColor),
+                          Text(
+                            _i18n.get("unread_messages"),
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
             FutureBuilder(
               future: _timeAt(pendingMessages, index),
               builder: (context, snapshot) =>
@@ -832,9 +851,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _currentMessageSearchId = -1;
           }
 
-          if (!(ms.data.from.isSameEntity(_authRepo.currentUserUid))) {
-            _lastSeenSubject.add(ms.data.id);
-          }
+          if (!(ms.data.from.isSameEntity(_authRepo.currentUserUid))) {}
 
           if (index == 0) {
             return Column(
@@ -858,7 +875,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
               ));
         } else {
-          return Text("");
+          return Container(
+              width: 100, height: 100, child: Text(""));
         }
       },
     );
