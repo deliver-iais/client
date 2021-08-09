@@ -6,6 +6,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_sended_form_widget.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/live_location_message.dart';
 
 import 'package:deliver_flutter/screen/room/messageWidgets/locatioin_message.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/message_ui.dart';
@@ -129,8 +130,7 @@ class _BoxContentState extends State<BoxContent> {
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             return GestureDetector(
-              child: Text(
-                  "${_i18n.get("Forwarded_From")} ${snapshot.data}",
+              child: Text("${_i18n.get("Forwarded_From")} ${snapshot.data}",
                   style: TextStyle(
                       color: ExtraTheme.of(context).messageDetails,
                       fontSize: 13)),
@@ -139,8 +139,7 @@ class _BoxContentState extends State<BoxContent> {
               },
             );
           } else {
-            return Text(
-                "${_i18n.get("Forwarded_From")} Unknown",
+            return Text("${_i18n.get("Forwarded_From")} Unknown",
                 style: TextStyle(
                     color: ExtraTheme.of(context).messageDetails,
                     fontSize: 13));
@@ -192,7 +191,8 @@ class _BoxContentState extends State<BoxContent> {
         );
         break;
       case MessageType.LIVE_LOCATION:
-        // TODO: Handle this case.
+        return LiveLocationMessageWidget(
+            widget.message, widget.isSender, widget.isSeen);
         break;
       case MessageType.POLL:
         // TODO: Handle this case.

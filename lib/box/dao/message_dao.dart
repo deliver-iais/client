@@ -9,6 +9,7 @@ abstract class MessageDao {
 
   Future<Message> getMessage(String roomUid, int id);
 
+
   Future<List<Message>> getMessagePage(String roomUid, int page,
       {int pageSize = 16});
 
@@ -117,4 +118,5 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<Box<PendingMessage>> _openPending() =>
       Hive.openBox<PendingMessage>(_keyPending());
+
 }

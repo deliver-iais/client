@@ -41,7 +41,7 @@
   "slideToCancel": "کشیدن برای کنسل کردن",
   "gallery": "عکس ",
   "location": "موقعیت مکانی",
-  "live_location": "موقعیت مکانی برخط",
+  "live_location": "مکان لحظه ای ",
   "poll": "رای‌گیری",
   "actions": "اکشن‌ها",
   "payment_transaction": "پرداخت",
@@ -242,5 +242,9 @@
   "joined_to_app": "پیوست به",
   "add_to_group": "اضافه کردن به گروه",
   "add_bot_to_group": "اضافه کردن بات  به گروه ",
-  "to": "به"
+  "to": "به",
+  "send_this_location": "فرستادن این مکان",
+  "send_live_location": "فرستادن مکان لحظه ای ",
+  "choose_livelocation_time": "مدت زمان اشتراک گذاری مکان لحظه ای خود را انتخاب کنید.",
+  "last_update": "آخرین بروزرسانی "
 }

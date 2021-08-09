@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
@@ -263,7 +264,9 @@ class RoomRepo {
     List<Uid> searchResult = [];
     var res = await _uidIdNameDao.search(text);
     res.forEach((element) {
-      searchResult.add(element.uid.asUid());
+      if (!element.uid.isUser() ||
+          (element.uid.isUser()&& element.name != null && element.name.isNotEmpty ))
+        searchResult.add(element.uid.asUid());
     });
 
     return searchResult;
@@ -297,7 +300,7 @@ class RoomRepo {
     _queryServiceClient.report(ReportReq()..uid = roomUid);
   }
 
- Future<List<Room>> getAllGroups() async {
+  Future<List<Room>> getAllGroups() async {
     return await _roomDao.getAllGroups();
   }
 }
