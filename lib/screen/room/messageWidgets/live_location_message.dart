@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/box/livelocation.dart' as box;
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/liveLocationRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
@@ -13,31 +14,50 @@ import 'package:latlong2/latlong.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class LiveLocationMessageWidget extends StatelessWidget {
+class LiveLocationMessageWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
 
   LiveLocationMessageWidget(this.message, this.isSeen, this.isSender);
 
-  var _messageRepo = GetIt.I.get<MessageRepo>();
+  @override
+  _LiveLocationMessageWidgetState createState() =>
+      _LiveLocationMessageWidgetState();
+}
 
+class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
+  var _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
+
+  LiveLocation liveLocation;
+
+  @override
+  void initState() {
+    liveLocation = widget.message.json.toLiveLocation();
+    _liveLocationRepo.updateLiveLocation(liveLocation);
+  }
 
   @override
   Widget build(BuildContext context) {
     I18N _i18n = I18N.of(context);
-    LiveLocation liveLocation = message.json.toLiveLocation();
-    // return StreamBuilder<Message>(stream: _messageRepo.watchMessage(message.roomUid, message.id.toString()),builder: (c,lm){
-    //   if(lm.hasData && lm.data != null){
-    //     liveLocation = lm.data.json.toLiveLocation();
-    //     return liveLocationMessageWidgetBuilder(liveLocation, _i18n);
-    //   }return
-    //    liveLocationMessageWidgetBuilder(liveLocation, _i18n);
-    // });
 
+    return StreamBuilder<box.LiveLocation>(
+        stream: _liveLocationRepo.watchLiveLocation(liveLocation.uuid),
+        builder: (c, liveLocationsnapshot) {
+          if (liveLocationsnapshot.hasData &&
+              liveLocationsnapshot.data != null) {
+            return liveLocationMessageWidgetBuilder(
+                liveLocationsnapshot.data.locations.last,
+                _i18n,
+                liveLocation.time.toInt());
+          }
+          return liveLocationMessageWidgetBuilder(
+              liveLocation.location, _i18n, liveLocation.time.toInt());
+        });
   }
 
-  Container liveLocationMessageWidgetBuilder(LiveLocation liveLocation, I18N _i18n) {
+  Container liveLocationMessageWidgetBuilder(
+      Location location, I18N _i18n, int duration) {
     return Container(
       child: Stack(
         children: [
@@ -46,25 +66,24 @@ class LiveLocationMessageWidget extends StatelessWidget {
             height: 270,
             child: FlutterMap(
               options: MapOptions(
-                center: LatLng(liveLocation.location.latitude,
-                    liveLocation.location.longitude),
+                center: LatLng(location.latitude, location.longitude),
                 zoom: 15.0,
               ),
               layers: [
                 TileLayerOptions(
                     tileProvider: NetworkTileProvider(),
                     urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c']),
                 MarkerLayerOptions(
                   markers: [
                     Marker(
                       width: 30.0,
                       height: 30.0,
-                      point: LatLng(liveLocation.location.latitude,
-                          liveLocation.location.longitude),
+                      point: LatLng(location.latitude, location.longitude),
                       builder: (ctx) => Container(
-                          child: CircleAvatarWidget(message.from.asUid(), 20)),
+                          child: CircleAvatarWidget(
+                              widget.message.from.asUid(), 20)),
                     ),
                   ],
                 ),
@@ -81,17 +100,17 @@ class LiveLocationMessageWidget extends StatelessWidget {
                   )}")
                 ],
               ),
-
               CircularPercentIndicator(
                 radius: 40.0,
                 lineWidth: 5.0,
                 percent: 1.0,
-                center: new Text(Duration(seconds: liveLocation.time.toInt()).toString()),
+                center: new Text(Duration(milliseconds: duration).toString()),
                 progressColor: Colors.blueAccent,
               )
             ],
           ),
-          TimeAndSeenStatus(message, isSender, true, isSeen),
+          TimeAndSeenStatus(
+              widget.message, widget.isSender, true, widget.isSeen),
         ],
       ),
     );

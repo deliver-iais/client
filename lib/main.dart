@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/box/dao/live_location_dao.dart';
 import 'package:deliver_flutter/box/db_manage.dart';
 import 'package:deliver_flutter/box/livelocation.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
@@ -37,6 +38,7 @@ import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
+import 'package:deliver_flutter/repository/liveLocationRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -133,6 +135,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
   GetIt.I.registerSingleton<DBManager>(DBManager());
+  GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
 
   GetIt.I.registerSingleton<I18N>(I18N());
 
@@ -196,6 +199,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
+  GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
 

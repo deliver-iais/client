@@ -15,6 +15,7 @@ import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/liveLocationRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
@@ -67,12 +68,13 @@ class MessageRepo {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _liveLocationClient = GetIt.I.get<LiveLocationServiceClient>();
+
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -693,48 +695,29 @@ class MessageRepo {
     }
   }
 
-  void sendLiveLocationMessage(Uid room, int duration, Position position,
+  void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
       {int replyId, String forwardedFrom}) async {
-    var res =
-        await _liveLocationClient.createLiveLocation(CreateLiveLocationReq()
-          ..room = room
-          ..duration = duration);
-    protoModel.Location location = protoModel.Location(
-        longitude: position.longitude, latitude: position.latitude);
-    String json = (protoModel.LiveLocation()
-          ..location = location
-          ..from = _authRepo.currentUserUid
-          ..uuid = res.uuid
-          ..to = room
-          ..time = Int64(duration))
-        .writeToJson();
-    Message msg =
-        _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
-            .copyWith(type: MessageType.LIVE_LOCATION, json: json);
+    var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
+    if(res != null){
+      protoModel.Location location = protoModel.Location(
+          longitude: position.longitude, latitude: position.latitude);
+      String json = (protoModel.LiveLocation()
+        ..location = location
+        ..from = _authRepo.currentUserUid
+        ..uuid = res.uuid
+        ..to = roomUid
+        ..time = Int64(duration))
+          .writeToJson();
+      Message msg =
+      _createMessage(roomUid, replyId: replyId, forwardedFrom: forwardedFrom)
+          .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
-    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+      var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+      _saveAndSend(pm);
+    _liveLocationRepo.sendLiveLocationAsStream(res.uuid,duration ,location);
+    }
 
-    Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
-        .listen((location) {
-      updateLiveLocation(protoModel.Location(
-          latitude: location.latitude, longitude: location.longitude));
-    });
   }
 
-  void updateLiveLocation(protoModel.Location location) async {
-    _liveLocationClient.updateLocation(UpdateLocationReq()..location);
-  }
-  void getLatUpdateLocation(Message message)async {
-    String uuid =  message.json.toLiveLocation().uuid;
-   var res = await _liveLocationClient.getLastUpdatedLiveLocation(GetLastUpdatedLiveLocationReq()..uuid = uuid);
-   // String json =   (protoModel.LiveLocation()
-   //   ..location = res.liveLocations.last.lo
-   //   ..from = _authRepo.currentUserUid
-   //   ..uuid = uuid
-   //   ..to = message.to.asUid()
-   //   ..time = Int64(message.json.toLiveLocation().time.toInt()))
-   //     .writeToJson();
-   // _messageDao.saveMessage(message.copyWith(json: json));
-  }
+
 }
