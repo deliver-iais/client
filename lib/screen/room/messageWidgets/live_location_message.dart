@@ -27,13 +27,13 @@ class LiveLocationMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     I18N _i18n = I18N.of(context);
     LiveLocation liveLocation = message.json.toLiveLocation();
-    return StreamBuilder<Message>(stream: _messageRepo.watchMessage(message.roomUid, message.id.toString()),builder: (c,lm){
-      if(lm.hasData && lm.data != null){
-        liveLocation = lm.data.json.toLiveLocation();
-        return liveLocationMessageWidgetBuilder(liveLocation, _i18n);
-      }return
-       liveLocationMessageWidgetBuilder(liveLocation, _i18n);
-    });
+    // return StreamBuilder<Message>(stream: _messageRepo.watchMessage(message.roomUid, message.id.toString()),builder: (c,lm){
+    //   if(lm.hasData && lm.data != null){
+    //     liveLocation = lm.data.json.toLiveLocation();
+    //     return liveLocationMessageWidgetBuilder(liveLocation, _i18n);
+    //   }return
+    //    liveLocationMessageWidgetBuilder(liveLocation, _i18n);
+    // });
 
   }
 

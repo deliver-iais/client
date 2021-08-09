@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/db_manage.dart';
+import 'package:deliver_flutter/box/livelocation.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/bot_info.dart';
@@ -113,6 +114,8 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaAdapter());
   Hive.registerAdapter(MediaMetaDataAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
+  Hive.registerAdapter(LiveLocationAdapter());
+
 
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());

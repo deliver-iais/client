@@ -728,16 +728,13 @@ class MessageRepo {
   void getLatUpdateLocation(Message message)async {
     String uuid =  message.json.toLiveLocation().uuid;
    var res = await _liveLocationClient.getLastUpdatedLiveLocation(GetLastUpdatedLiveLocationReq()..uuid = uuid);
-   String json =   (protoModel.LiveLocation()
-     ..location = res.liveLocations.last.location
-     ..from = _authRepo.currentUserUid
-     ..uuid = uuid
-     ..to = message.to.asUid()
-     ..time = Int64(message.json.toLiveLocation().time.toInt()))
-       .writeToJson();
-   _messageDao.saveMessage(message.copyWith(json: json));
-  }
-  Stream<Message> watchMessage(String roomUid, String id){
-    return _messageDao.watchMessage(roomUid, id);
+   // String json =   (protoModel.LiveLocation()
+   //   ..location = res.liveLocations.last.lo
+   //   ..from = _authRepo.currentUserUid
+   //   ..uuid = uuid
+   //   ..to = message.to.asUid()
+   //   ..time = Int64(message.json.toLiveLocation().time.toInt()))
+   //     .writeToJson();
+   // _messageDao.saveMessage(message.copyWith(json: json));
   }
 }

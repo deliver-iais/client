@@ -388,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage>
                     } else
                       return SizedBox.shrink();
                   }),
-            if (widget.roomUid.isMuc())
+            if (widget.roomUid.isGroup()|| _isMucAdminOrOwner )
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
@@ -524,8 +524,11 @@ class _ProfilePageState extends State<ProfilePage>
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         final mucOwner = await _mucRepo.isMucOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
-        _isMucAdminOrOwner = settingAvatarPermission;
-        _isMucOwner = mucOwner;
+        setState(() {
+          _isMucAdminOrOwner = settingAvatarPermission;
+          _isMucOwner = mucOwner;
+        });
+
       } catch (e) {
         _logger.e(e);
       }
