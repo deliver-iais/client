@@ -11,7 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
   final Message message;
