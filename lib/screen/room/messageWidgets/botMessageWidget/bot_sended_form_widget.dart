@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as formModel;
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class BotSentFormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var formResult = message.json.toFormResult();
 
+
     return FutureBuilder<Message>(
         future: _messageDao.getMessage(message.to, message.replyToId),
         builder: (c, messageByForm) {
@@ -40,26 +42,27 @@ class BotSentFormWidget extends StatelessWidget {
                       ),
                       Container(
                         child: SizedBox(
-                            height: 20 * form.fields.length.toDouble(),
+                            height: 22 * form.fields.length.toDouble(),
                             width: 250,
                             child: ListView.builder(
-                                itemCount: form.fields.length,
+                                itemCount: formResult.values.length,
                                 itemBuilder: (c, index) {
                                   return Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "${form.fields[index].label} : ",
+                                        "${formResult.values.keys.toList()[index]} :  ",
                                         style: TextStyle(
-                                            fontSize: 13, color: Colors.black),
+                                            fontSize: 13,color: ExtraTheme.of(context).textField),
                                       ),
-                                      Text(
-                                        getText(form, index, formResult),
+                                      Text( formResult.values.values.toList()[index],
+                                       // getText(form, index, formResult),
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                            fontSize: 14, color: Colors.white),
-                                      )
+                                            fontSize: 15, color: ExtraTheme.of(context).textField),
+                                      ),
+
                                     ],
                                   );
                                 })),

@@ -8,9 +8,11 @@ import 'package:get_it/get_it.dart';
 class FormListWidget extends StatefulWidget {
   final formModel.Form_Field formField;
   final Function selected;
-  final GlobalKey<FormState> formValidator;
+  final Function setFormKey;
 
-  FormListWidget({this.formField, this.selected, this.formValidator});
+  FormListWidget({this.formField, this.selected,this.setFormKey});
+
+
 
   @override
   _FormListWidgetState createState() => _FormListWidgetState();
@@ -20,9 +22,11 @@ class _FormListWidgetState extends State<FormListWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
   String selectedItem;
+  final _formKey = new GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    widget.setFormKey(_formKey);
     return Padding(
       padding: const EdgeInsets.only(left: 7, right: 7),
       child: Container(
@@ -32,7 +36,7 @@ class _FormListWidgetState extends State<FormListWidget> {
               height: 10,
             ),
             Form(
-              key: widget.formValidator,
+              key: _formKey,
               child: DropdownButtonFormField(
                   decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -56,7 +60,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                       labelStyle: TextStyle(color: Colors.blue)),
                   value: selectedItem,
                   validator: (value) {
-                    if (!widget.formField.isOptional) {
+                    if (widget.formField.isOptional) {
                       return null;
                     } else {
                       if (value == null)
