@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/box/dao/live_location_dao.dart';
 import 'package:deliver_flutter/box/db_manage.dart';
+import 'package:deliver_flutter/box/livelocation.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/bot_info.dart';
@@ -36,6 +38,7 @@ import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
+import 'package:deliver_flutter/repository/liveLocationRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -63,6 +66,7 @@ import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
@@ -112,6 +116,8 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaAdapter());
   Hive.registerAdapter(MediaMetaDataAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
+  Hive.registerAdapter(LiveLocationAdapter());
+
 
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
@@ -129,6 +135,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
   GetIt.I.registerSingleton<DBManager>(DBManager());
+  GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
 
   GetIt.I.registerSingleton<I18N>(I18N());
 
@@ -172,6 +179,9 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
       ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<LiveLocationServiceClient>(
+      LiveLocationServiceClient(LiveLocationServiceClientChannel,
+          interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -189,6 +199,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
+  GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
 

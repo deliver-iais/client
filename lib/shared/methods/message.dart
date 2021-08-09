@@ -278,10 +278,10 @@ PB.Message extractProtocolBufferMessage(Message message) {
       msg.sticker = message.json.toSticker();
       break;
     case MessageType.LOCATION:
-      msg.sticker = message.json.toSticker();
+      msg.location = message.json.toLocation();
       break;
     case MessageType.LIVE_LOCATION:
-      msg.sticker = message.json.toSticker();
+      msg.liveLocation = message.json.toLiveLocation();
       break;
     case MessageType.POLL:
       msg.poll = message.json.toPoll();

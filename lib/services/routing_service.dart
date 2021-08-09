@@ -11,7 +11,6 @@ import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/screen/contacts/new_contact.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/room/pages/roomPage.dart';
-import 'package:deliver_flutter/screen/room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver_flutter/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/profile/pages/media_details_page.dart';
@@ -35,7 +34,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -107,20 +105,7 @@ class RoutingService {
         path: "/room/$roomId"));
   }
 
-  void openLocation(
-      {Uid roomUid, Position locationData, Function scrollToLast}) {
-    var widget = MapWidget(
-      key: ValueKey("/map-widget"),
-      roomUid: roomUid,
-      locationData: locationData,
-      scrollToLast: scrollToLast,
-    );
-    _push(Page(
-        largePageNavigator: _navigationCenter,
-        largePageMain: widget,
-        smallPageMain: widget,
-        path: "/map-widget"));
-  }
+
 
   void openSettings() {
     var widget = SettingsPage(key: ValueKey("/settings"));

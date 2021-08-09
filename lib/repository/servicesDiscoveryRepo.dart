@@ -1,3 +1,4 @@
+import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 
 // ignore: non_constant_identifier_names
@@ -54,6 +55,11 @@ final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",
 
 // ignore: non_constant_identifier_names
 final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
+    port: 443,
+    options: ChannelOptions(
+        credentials: ChannelCredentials.secure(),
+        connectionTimeout: Duration(seconds: 2)));
+final LiveLocationServiceClientChannel = ClientChannel("ms-livelocation.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(),

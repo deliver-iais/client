@@ -11,7 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
   final Message message;
@@ -26,7 +25,6 @@ class BotFormMessage extends StatefulWidget {
 class _BotFormMessageState extends State<BotFormMessage> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final Map<String, String> formResultMap = Map();
-  final _verify = BehaviorSubject.seeded(false);
   final Map<String, GlobalKey<FormState>> formFieldsKey = Map();
 
   protoForm.Form form;
@@ -37,15 +35,10 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _verify.close();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    var height = 85.0 * form.fields.length;
+    var height = 90.0 * form.fields.length;
 
     return Container(
         child: Stack(
@@ -61,7 +54,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
               height: 20,
             ),
             Container(
-              color: Colors.black26,
               child: SizedBox(
                 height: height,
                 width: 230,
@@ -69,17 +61,14 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     shrinkWrap: true,
                     itemCount: form.fields.length,
                     itemBuilder: (c, index) {
-                      var formKey;
-                      if (form.fields[index].whichType() !=
-                          protoForm.Form_Field_Type.checkbox) {
-                        formKey = new GlobalKey<FormState>();
-                        formFieldsKey[form.fields[index].id] = formKey;
-                      }
                       switch (form.fields[index].whichType()) {
                         case protoForm.Form_Field_Type.textField:
                           return FormInputTextFieldWidget(
                             formField: form.fields[index],
-                            formValidator: formKey,
+                            setFormKey: (key){
+                              formFieldsKey[form.fields[index].label] = key;
+                            },
+
                             setResult: (value) {
                               setResult(index, value);
                             },
@@ -88,7 +77,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         case protoForm.Form_Field_Type.numberField:
                           return FormInputTextFieldWidget(
                             formField: form.fields[index],
-                            formValidator: formKey,
+                            setFormKey: (key){
+                              formFieldsKey[form.fields[index].label] = key;
+                            },
                             setResult: (value) {
                               setResult(index, value);
                             },
@@ -97,7 +88,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         case protoForm.Form_Field_Type.dateField:
                           return FormInputTextFieldWidget(
                             formField: form.fields[index],
-                            formValidator: formKey,
+                            setFormKey: (key){
+                              formFieldsKey[form.fields[index].label] = key;
+                            },
                             setResult: (value) {
                               setResult(index, value);
                             },
@@ -106,7 +99,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         case protoForm.Form_Field_Type.timeField:
                           return FormInputTextFieldWidget(
                             formField: form.fields[index],
-                            formValidator: formKey,
+                            setFormKey: (key){
+                              formFieldsKey[form.fields[index].label] = key;
+                            },
                             setResult: (value) {
                               setResult(index, value);
                             },
@@ -123,7 +118,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         case protoForm.Form_Field_Type.list:
                           return FormListWidget(
                             formField: form.fields[index],
-                            formValidator: formFieldsKey[form.fields[index].id],
+                            setFormKey: (key){
+                              formFieldsKey[form.fields[index].label] = key;
+                            },
                             selected: (value) {
                               setResult(index, value);
                             },
@@ -132,7 +129,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         case protoForm.Form_Field_Type.radioButtonList:
                           return FormListWidget(
                             formField: form.fields[index],
-                            formValidator: formKey,
+                            setFormKey: (key){
+                              formFieldsKey[form.fields[index].label] = key;
+                            },
                             selected: (value) {
                               setResult(index, value);
                             },
@@ -167,7 +166,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               },
               child: Text(
                 I18N.of(context).get("submit"),
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.blueAccent),
               ),
             ),
           ],
@@ -178,6 +177,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   void setResult(int index, value) {
-    formResultMap[form.fields[index].id] = value;
+    formResultMap[form.fields[index].label] = value;
   }
 }

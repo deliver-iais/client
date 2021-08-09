@@ -55,6 +55,7 @@ const SENDING_STATUS_TRACK_ID = 15;
 const MEDIA_TRACK_ID = 16;
 const MEDIA_META_DATA_TRACK_ID = 17;
 const MEDIA_TYPE_TRACK_ID = 18;
+const LIVE_LOCATION_TRACK_ID = 19;
 
 // Animation
 const ANIMATION_DURATION = const Duration(milliseconds: 100);

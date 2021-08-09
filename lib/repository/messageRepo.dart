@@ -15,10 +15,12 @@ import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/liveLocationRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -43,6 +45,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
@@ -65,11 +68,13 @@ class MessageRepo {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -541,11 +546,10 @@ class MessageRepo {
       _logger.e(e);
       if (retry)
         getMessages(roomId, page, pageSize, completer, retry: false);
-      else{
+      else {
         completer.complete([]);
         completer.completeError(e);
       }
-
     }
   }
 
@@ -690,4 +694,30 @@ class MessageRepo {
       return false;
     }
   }
+
+  void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
+      {int replyId, String forwardedFrom}) async {
+    var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
+    if(res != null){
+      protoModel.Location location = protoModel.Location(
+          longitude: position.longitude, latitude: position.latitude);
+      String json = (protoModel.LiveLocation()
+        ..location = location
+        ..from = _authRepo.currentUserUid
+        ..uuid = res.uuid
+        ..to = roomUid
+        ..time = Int64(duration))
+          .writeToJson();
+      Message msg =
+      _createMessage(roomUid, replyId: replyId, forwardedFrom: forwardedFrom)
+          .copyWith(type: MessageType.LIVE_LOCATION, json: json);
+
+      var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+      _saveAndSend(pm);
+    _liveLocationRepo.sendLiveLocationAsStream(res.uuid,duration ,location);
+    }
+
+  }
+
+
 }
