@@ -5,7 +5,7 @@ import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_sended_form_widget.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/formResult.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/live_location_message.dart';
 
 import 'package:deliver_flutter/screen/room/messageWidgets/locatioin_message.dart';
@@ -198,7 +198,7 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM_RESULT:
-        return BotSentFormWidget(
+        return FormResultWidget(
             message: widget.message, isSeen: widget.isSeen);
       case MessageType.FORM:
         return BotFormMessage(message: widget.message, isSeen: true);

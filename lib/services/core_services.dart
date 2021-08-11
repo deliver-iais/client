@@ -277,6 +277,7 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
+    print(message.toString());
     Uid roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
