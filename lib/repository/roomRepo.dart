@@ -219,6 +219,8 @@ class RoomRepo {
 
   Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
+  Future<Room> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
+
   Future<void> resetMention(String roomUid) =>
       _roomDao.updateRoom(Room(uid: roomUid, mentioned: false));
 

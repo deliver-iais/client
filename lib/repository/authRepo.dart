@@ -21,11 +21,13 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
+import 'package:synchronized/synchronized.dart';
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authServiceClient = GetIt.I.get<AuthServiceClient>();
+  final requestLock = Lock();
 
   String currentUsername = "";
   Uid currentUserUid = Uid.create()
@@ -69,17 +71,16 @@ class AuthRepo {
 
   Future<Pb.Platform> getPlatformDetails() async {
     String version;
-    try{
-     var info =  await PackageInfo.fromPlatform();
-     version = info.version;
-    }catch(e){
+    try {
+      var info = await PackageInfo.fromPlatform();
+      version = info.version;
+    } catch (e) {
       version = VERSION;
     }
     Pb.Platform platform = Pb.Platform()..clientVersion = version;
     return await getPlatForm(platform);
-
-
   }
+
   getPlatForm(Pb.Platform platform) async {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
@@ -175,13 +176,15 @@ class AuthRepo {
   }
 
   Future _getAccessToken(String refreshToken) async {
-    try {
-      return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
-        ..refreshToken = refreshToken
-        ..platform = await getPlatformDetails());
-    } catch (e) {
-      _logger.e(e);
-    }
+    return await requestLock.synchronized(() async {
+      try {
+        return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
+          ..refreshToken = refreshToken
+          ..platform = await getPlatformDetails());
+      } catch (e) {
+        _logger.e(e);
+      }
+    });
   }
 
   Future<String> getAccessToken() async {

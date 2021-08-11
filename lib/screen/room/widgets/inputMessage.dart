@@ -561,14 +561,6 @@ class _InputMessageWidget extends State<InputMessage> {
         currentRoom.uid.asUid(), result.map((e) => e.path).toList());
   }
 
-  void scrollTolast(int count) {
-    if (count < 3)
-      Timer(Duration(milliseconds: count * 100), () {
-        widget.scrollToLastSentMessage();
-        scrollTolast(count + 1);
-      });
-  }
-
   void setTime() {
     _ticktickTimer = Timer(Duration(milliseconds: 500), () {
       recordSubject.add(DateTime.now());

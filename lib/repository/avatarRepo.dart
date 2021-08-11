@@ -4,6 +4,7 @@ import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
@@ -53,7 +54,9 @@ class AvatarRepo {
 
       _avatarDao.saveAvatars(userUid.asString(), avatars);
     } catch (e) {
-      _logger.e(e);
+      _logger.e("no avatar exist in $userUid",e);
+
+      _avatarDao.saveLastAvatarAsNull(userUid.asString());
     }
   }
 
@@ -68,8 +71,8 @@ class AvatarRepo {
 
     Avatar ac = _avatarCache.get(key);
 
-    if (ac != null && (nowTime - ac.lastUpdate) > 1800000) {
-      _logger.v("exceeded from 24 hours in cache - $nowTime ${ac.lastUpdate}");
+    if (ac != null && (nowTime - ac.lastUpdate) > AVATAR_CACHE_TIME) {
+      _logger.v("exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdate}");
       return true;
     } else if (ac != null) {
       return false;
@@ -80,9 +83,14 @@ class AvatarRepo {
     if (lastAvatar == null) {
       _logger.v("last avatar is null - $userUid");
       return true;
-    } else if ((nowTime - lastAvatar.lastUpdate) > 1800000) {
+    } else if ((lastAvatar.fileId == null || lastAvatar.fileId.isEmpty) &&
+        (nowTime - lastAvatar.lastUpdate) > NULL_AVATAR_CACHE_TIME) {
+      // has no avatar and exceeded from 4 hours
+      _logger.v("exceeded from $NULL_AVATAR_CACHE_TIME DAO, and AVATAR WAS NULL - $userUid");
+      return true;
+    } else if ((nowTime - lastAvatar.lastUpdate) > AVATAR_CACHE_TIME) {
       // 24 hours
-      _logger.v("exceeded from 24 hours - $userUid");
+      _logger.v("exceeded from $AVATAR_CACHE_TIME in DAO - $userUid");
       return true;
     } else {
       _avatarCache.set(key, lastAvatar);
@@ -106,8 +114,16 @@ class AvatarRepo {
       return ac;
     }
 
+    if (ac.fileId == null || ac.fileId.isEmpty) {
+      return null;
+    }
+
     ac = await _avatarDao.getLastAvatar(userUid.asString());
     _avatarCache.set(key, ac);
+
+    if (ac.fileId == null || ac.fileId.isEmpty) {
+      return null;
+    }
     return ac;
   }
 
