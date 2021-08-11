@@ -10,6 +10,8 @@ abstract class AvatarDao {
 
   Future<void> saveAvatars(String uid, List<Avatar> avatars);
 
+  Future<void> saveLastAvatarAsNull(String uid);
+
   Future<void> removeAvatar(Avatar avatar);
 
   Future<void> closeAvatarBox(String uid);
@@ -56,6 +58,18 @@ class AvatarDaoImpl implements AvatarDao {
           lastAvatarOfList.copyWith(
               lastUpdate: DateTime.now().millisecondsSinceEpoch));
     }
+  }
+
+  @override
+  Future<void> saveLastAvatarAsNull(String uid) async {
+    var box2 = await _open2();
+
+    box2.put(
+        uid,
+        Avatar(
+            uid: uid,
+            createdOn: 0,
+            lastUpdate: DateTime.now().millisecondsSinceEpoch));
   }
 
   Future<void> removeAvatar(Avatar avatar) async {
