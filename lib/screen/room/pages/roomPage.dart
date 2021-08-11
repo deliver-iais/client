@@ -110,7 +110,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
-  final _scrollPhysics = AlwaysScrollableScrollPhysics();
+  final _scrollPhysics = ClampingScrollPhysics();
 
   final BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
   final BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
@@ -875,8 +875,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
               ));
         } else {
-          return Container(
-              width: 100, height: 100, child: Text(""));
+          return Container(width: 100, height: 100, child: Text(""));
         }
       },
     );
@@ -1103,7 +1102,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount - 1, duration: Duration(milliseconds: 1000));
+        alignment: 0,
+        curve: Curves.easeOut,
+        opacityAnimationWeights: [20, 20, 60],
+        index: _itemCount - 1,
+        duration: Duration(milliseconds: 1000));
   }
 
   onUsernameClick(String username) async {
