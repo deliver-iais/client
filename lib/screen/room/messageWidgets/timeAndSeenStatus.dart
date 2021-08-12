@@ -9,8 +9,11 @@ class TimeAndSeenStatus extends StatelessWidget {
   final bool isSender;
   final bool needsMorePadding;
   final bool isSeen;
+  final bool needsPositioned;
 
-  TimeAndSeenStatus(this.message, this.isSender, this.needsMorePadding, this.isSeen);
+  TimeAndSeenStatus(
+      this.message, this.isSender, this.needsMorePadding, this.isSeen,
+      {this.needsPositioned = true});
 
   @override
   Widget build(BuildContext context) {
@@ -42,29 +45,32 @@ class TimeAndSeenStatus extends StatelessWidget {
         bottom: 5,
       );
     } else {
-      return Positioned(
-        child: Container(
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: MsgTime(
-                  time: date(message.time),
-                ),
+      final widget = Container(
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: MsgTime(
+                time: date(message.time),
               ),
-              isSender
-                  ? Padding(
-                      padding:
-                          const EdgeInsets.only(left: 3, right: 3.0, top: 5),
-                      child: SeenStatus(message, isSeen: isSeen),
-                    )
-                  : Container(),
-            ],
-          ),
+            ),
+            isSender
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 3, right: 3.0, top: 5),
+                    child: SeenStatus(message, isSeen: isSeen),
+                  )
+                : Container(),
+          ],
         ),
-        right: 0,
-        bottom: 0,
       );
+      if (needsPositioned)
+        return Positioned(
+          child: widget,
+          right: 0,
+          bottom: 0,
+        );
+      else
+        return widget;
     }
   }
 }
