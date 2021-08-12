@@ -17,6 +17,7 @@ class SenderAndContent extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
+  // TODO use Message Brief in here instead of parsing message again
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
   String generateTitle() {
