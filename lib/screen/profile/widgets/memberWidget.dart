@@ -76,7 +76,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                           children: [
                                             Text(
                                               (snapshot.data ?? "Unknown")
-                                                  .trim() + member.memberUid,
+                                                  .trim(),
                                               overflow: TextOverflow.fade,
                                               maxLines: 1,
                                               softWrap: false,
@@ -165,7 +165,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
     }
   }
 
-  onSelected(String key, Member member) {
+  onSelected(String key, Member member) async {
     switch (key) {
       case CHANGE_ROLE:
         Member m;
@@ -188,9 +188,17 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             : _mucRepo.changeChannelMemberRole(m);
         break;
       case DELETE:
-        widget.mucUid.isGroup()
-            ? _mucRepo.kickGroupMembers([member])
-            : _mucRepo.kickChannelMembers([member]);
+        if (widget.mucUid.isGroup()) {
+          var res = await _mucRepo.kickGroupMembers([member]);
+          if (res) {
+            setState(() {});
+          }
+        } else {
+          var res = await _mucRepo.kickChannelMembers([member]);
+          if (res) {
+            setState(() {});
+          }
+        }
         break;
       case BAN:
         widget.mucUid.isGroup()

@@ -434,6 +434,9 @@ class MessageRepo {
         byClient.sharePrivateDataAcceptance =
             SharePrivateDataAcceptance.fromJson(message.json);
         break;
+      case MessageType.FORM:
+        byClient.form = message.json.toForm();
+        break;
       default:
         break;
     }
@@ -564,7 +567,11 @@ class MessageRepo {
                 case MucSpecificPersistentEvent_Issue.DELETED:
                   _roomDao.updateRoom(
                       Room(uid: message.from.asString(), deleted: true));
-                  continue;
+                 continue;
+                  break;
+                case MucSpecificPersistentEvent_Issue.ADD_USER:
+                  _roomDao.updateRoom(
+                      Room(uid: message.from.asString(), deleted: false));
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
                   if (message.persistEvent.mucSpecificPersistentEvent.assignee

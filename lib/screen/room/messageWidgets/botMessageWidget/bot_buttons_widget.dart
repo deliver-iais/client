@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -22,25 +23,23 @@ class BotButtonsWidget extends StatelessWidget {
         SizedBox(
           height: 60 * buttons.buttons.length.toDouble(),
           width: 200,
-          child: ListView.builder(
-              itemCount: buttons.buttons.length,
-              itemBuilder: (c, index) {
-                return Center(
-                  child: Column(
-                    children: [
-                      OutlinedButton(
-                          onPressed: () {
-                            _messageRepo.sendTextMessage(
-                                message.from.asUid(), buttons.buttons[index]);
-                          },
-                          child: Text(buttons.buttons[index])),
-                      SizedBox(
-                        height: 5,
-                      )
-                    ],
-                  ),
-                );
-              }),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: ListView.separated(
+                itemCount: buttons.buttons.length,
+                itemBuilder: (c, index) {
+                  return Center(
+                    child: OutlinedButton(
+                        onPressed: () {
+                          _messageRepo.sendTextMessage(
+                              message.from.asUid(), buttons.buttons[index]);
+                        },
+                        child: Text(buttons.buttons[index],style: TextStyle(color: ExtraTheme.of(context).textField),)),
+                  );
+                }, separatorBuilder: (BuildContext context, int index) {
+                  return SizedBox(height: 5,);
+            },),
+          ),
         ),
         TimeAndSeenStatus(message, false, true, false),
       ],

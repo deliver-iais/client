@@ -39,7 +39,7 @@ class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
               widget.selected(value.toString());
             },
           ),
-          Text(widget.formField.label),
+          Text(widget.formField.id),
         ],
       ),
     );

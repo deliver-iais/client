@@ -237,5 +237,7 @@
   "send_this_location": "Send this location",
   "send_live_location": "Send live location",
   "choose_livelocation_time": "Choose for how long to share your live location",
-  "last_update": "Last Update"
+  "last_update": "Last Update",
+  "enter_numeric_value": "Enter the number",
+  "draft": "draft"
 }

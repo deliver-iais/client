@@ -108,13 +108,20 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
             style: TextStyle(color: Colors.red),
           ),
         ),
-        labelText: widget.formField.label,
+        labelText: widget.formField.id,
         labelStyle: TextStyle(color: Colors.blue));
   }
 
   String validateFormTextField(String value) {
+
     if (value.isEmpty && !widget.formField.isOptional) {
       return _i18n.get("this_filed_not_empty");
+    }
+    if(widget.formField.whichType() ==
+        formModel.Form_Field_Type.numberField){
+      if(!_isNumeric(value)){
+        return _i18n.get("enter_numeric_value");
+      }
     }
     int max =
         widget.formField.whichType() == formModel.Form_Field_Type.textField
@@ -133,5 +140,8 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
     } else {
       return null;
     }
+  }
+  bool _isNumeric(String str) {
+    return double.tryParse(str) != null;
   }
 }
