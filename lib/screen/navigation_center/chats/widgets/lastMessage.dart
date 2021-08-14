@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';

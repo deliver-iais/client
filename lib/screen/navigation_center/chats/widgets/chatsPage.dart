@@ -27,6 +27,7 @@ class ChatsPage extends StatelessWidget {
                 return PageStorage(
                   bucket: PageStorage.of(context),
                   child: Scrollbar(
+                    controller: scrollController,
                     child: ListView.separated(
                       key: PageStorageKey<String>('chats_page'),
                       controller: scrollController,
