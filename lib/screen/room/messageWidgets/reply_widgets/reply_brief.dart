@@ -25,22 +25,22 @@ class ReplyBrief extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
               child: Container(
+                constraints: BoxConstraints(maxWidth: 300),
+                padding: const EdgeInsets.only(left: 8.0),
                 decoration: BoxDecoration(
                     border: Border(
                         left: BorderSide(
                             color: ExtraTheme.of(context).messageDetails,
                             width: 3))),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: SenderAndContent(
-                    messages: List<Message>.filled(1, snapshot.data),
-                    inBox: true,
-                  ),
+                child: SenderAndContent(
+                  messages: [snapshot.data],
                 ),
               ),
             );
           else
-            return SizedBox.shrink();
+            return SizedBox(
+              width: 200,
+            );
         });
   }
 }

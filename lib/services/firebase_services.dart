@@ -4,7 +4,6 @@ import 'package:deliver_flutter/box/dao/mute_dao.dart';
 
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/main.dart';
 
 import 'package:deliver_flutter/repository/authRepo.dart';
@@ -21,7 +20,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 
 import 'notification_services.dart';

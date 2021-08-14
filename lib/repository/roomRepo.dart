@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';

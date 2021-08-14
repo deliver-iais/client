@@ -1,16 +1,17 @@
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ForwardPreview extends StatelessWidget {
+  final _i18n = GetIt.I.get<I18N>();
   final List<Message> forwardedMessages;
   final Function onClick;
   final proto.ShareUid shareUid;
 
-  const ForwardPreview(
-      {Key key, this.forwardedMessages, this.shareUid, this.onClick})
+  ForwardPreview({Key key, this.forwardedMessages, this.shareUid, this.onClick})
       : super(key: key);
 
   @override
@@ -39,10 +40,8 @@ class ForwardPreview extends StatelessWidget {
                         color: ExtraTheme.of(context).textDetails,
                         fontSize: 20),
                   )
-                : SenderAndContent(
-                    messages: forwardedMessages,
-                    inBox: false,
-                  ),
+                : Text(
+                    '${forwardedMessages.length} ${_i18n.get("forwarded_messages")}'),
             Spacer(),
             IconButton(
               padding: EdgeInsets.all(0),

@@ -29,11 +29,14 @@ class ReplyPreview extends StatelessWidget {
               size: 25,
             ),
             SizedBox(width: 10),
-            SenderAndContent(
-              messages: List<Message>.filled(1, message),
-              inBox: false,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: SenderAndContent(
+                  messages: List<Message>.filled(1, message),
+                ),
+              ),
             ),
-            Spacer(),
             IconButton(
               padding: EdgeInsets.all(0),
               alignment: Alignment.center,

@@ -317,6 +317,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) async {
       var msg = await _getMessage(event, widget.roomId);
+
+      if (msg == null) return;
+
       if (!_authRepo.isCurrentUser(msg.from))
         _messageRepo.sendSeen(event, widget.roomId.asUid());
 
@@ -875,8 +878,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
               ));
         } else {
-          return Container(
-              width: 100, height: 100, child: Text(""));
+          return Container(width: 100, height: 100, child: Text(""));
         }
       },
     );

@@ -14,21 +14,24 @@ class LastMessage extends StatelessWidget {
   final int lastMessageId;
   final bool hasMentioned;
   final bool showSender;
+  final bool showSenderInSeparatedLine;
+  final bool showSeenStatus;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   LastMessage(
       {Key key,
       this.message,
       this.lastMessageId,
-      this.hasMentioned,
-      this.showSender = true})
+      this.hasMentioned = false,
+      this.showSender = true,
+      this.showSeenStatus = true,
+      this.showSenderInSeparatedLine = false})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    I18N _i18n = I18N.of(context);
-
     var isReceivedMessage = !_authRepo.isCurrentUser(message.from);
 
     return FutureBuilder<MessageBrief>(
@@ -39,21 +42,22 @@ class LastMessage extends StatelessWidget {
           final mb = snapshot.data;
           return Row(
             children: [
-              if (!isReceivedMessage && showSender)
+              if (showSeenStatus && !isReceivedMessage && showSender)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
                   child: SeenStatus(message),
                 ),
               Expanded(
                 child: RichText(
-                    maxLines: 1,
+                    maxLines: showSenderInSeparatedLine && showSender ? 2 : 1,
                     overflow: TextOverflow.fade,
                     textDirection: TextDirection.ltr,
                     softWrap: false,
                     text: TextSpan(children: [
                       if (mb.senderIsAUserOrBot && showSender)
                         TextSpan(
-                            text: "${mb.sender.trim()}: ",
+                            text: "${mb.sender.trim()}" +
+                                (showSenderInSeparatedLine ? "\n" : ": "),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText2

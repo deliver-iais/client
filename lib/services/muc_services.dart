@@ -36,7 +36,8 @@ class MucServices {
     }
   }
 
-  Future<bool> addGroupMembers(List<Member> members, Uid groupUid,{bool retry = true}) async {
+  Future<bool> addGroupMembers(List<Member> members, Uid groupUid,
+      {bool retry = true}) async {
     GroupServices.AddMembersReq addMemberRequest =
         GroupServices.AddMembersReq();
     for (Member member in members) {
@@ -49,13 +50,13 @@ class MucServices {
 
       return true;
     } catch (e) {
-      if(retry)
-        addGroupMembers(members, groupUid,retry: false);
-      else{
+      if (retry) {
+        addGroupMembers(members, groupUid, retry: false);
+        return true;
+      } else {
         _logger.e(e);
         return false;
       }
-
     }
   }
 

@@ -20,7 +20,6 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -45,7 +44,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';

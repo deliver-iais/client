@@ -73,7 +73,7 @@ class TextUi extends StatelessWidget {
       }
     } else {
       content = this.message.json.toText().text;
-     // print(content);
+      // print(content);
     }
     if (content.length == 2) {
       switch (content) {
@@ -93,7 +93,7 @@ class TextUi extends StatelessWidget {
         //   return [emojiWidget('assets/emoji/emoji1.json')];
         case "😂":
           return emojiWidget('assets/emoji/cackle.json');
-          defult:
+        default:
           List<String> lines = LineSplitter().convert(content);
           List<Widget> texts = [];
           texts.add(disjointThenJoin(preProcess(lines, color), context));

@@ -8,11 +8,9 @@ import 'package:deliver_flutter/screen/room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_sound/public/util/log.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flutter/cupertino.dart';
