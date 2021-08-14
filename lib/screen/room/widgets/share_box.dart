@@ -449,7 +449,7 @@ class _ShareBoxState extends State<ShareBox> {
                 //     children: [
                 //       Container(
                 //           child: l.Lottie.asset(
-                //             'assets/emoji/liveLocation.json',
+                //             'assets/animations/liveLocation.json',
                 //             width: 40,
                 //             height: 40,
                 //           )),

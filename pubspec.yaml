@@ -182,7 +182,7 @@ flutter:
     - assets/emoji/crow.json
     - assets/emoji/love.json
     - assets/emoji/laugh.json
-    - assets/emoji/liveLocation.json
+    - assets/animations/liveLocation.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
