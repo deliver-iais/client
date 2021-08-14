@@ -76,8 +76,8 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   ],
                 ),
               ),
-
-              TimeAndSeenStatus(widget.message, true, true, widget.isSeen),
+              // TODO bug, sender is not false always!!!!!??????
+              TimeAndSeenStatus(widget.message, false, false, widget.isSeen),
             ]);
 
   }

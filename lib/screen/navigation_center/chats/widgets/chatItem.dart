@@ -211,36 +211,27 @@ class _ChatItemState extends State<ChatItem> {
 
   Expanded buildDraftMessageWidget(I18N _i18n, BuildContext context) {
     return Expanded(
-                                      child: Row(
-                                        children: [
-                                          RichText(
-                                              overflow: TextOverflow.fade,
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                      text: "${_i18n.get("draft")} : ",
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyText2
-                                                          .copyWith(
-                                                              color:
-                                                                  ExtraTheme.of(
-                                                                          context)
-                                                                      .textField)),
-                                                  TextSpan(
-                                                      text: widget.room.draft,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyText2
-                                                          .copyWith(
-                                                              color:
-                                                                  ExtraTheme.of(
-                                                                          context)
-                                                                      .username))
-                                                ],
-                                              )),
-                                        ],
-                                      ));
+        child: Row(
+      children: [
+        Expanded(
+          child: RichText(
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+              textDirection: TextDirection.ltr,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                      text: "${_i18n.get("draft")}: ",
+                      style: Theme.of(context).primaryTextTheme.bodyText2),
+                  TextSpan(
+                      text: widget.room.draft,
+                      style: Theme.of(context).textTheme.bodyText2)
+                ],
+              )),
+        ),
+      ],
+    ));
   }
 
   _showDisplayName(Uid uid, String name, BuildContext context) {

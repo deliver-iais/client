@@ -10,6 +10,7 @@ import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as protoForm;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:deliver_flutter/shared/extensions/cap_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -38,7 +39,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   @override
   Widget build(BuildContext context) {
-    var height = 90.0 * form.fields.length;
+    var height = 64.0 * form.fields.length;
 
     return Container(
         child: Stack(
@@ -46,106 +47,110 @@ class _BotFormMessageState extends State<BotFormMessage> {
         Column(
           children: [
             Text(
-              form.title,
-              style: TextStyle(
-                  color: Theme.of(context).primaryColor, fontSize: 20),
+              form.title.titleCase,
+              style:  Theme.of(context).primaryTextTheme.headline6,
             ),
             SizedBox(
-              height: 20,
+              height: 8,
             ),
             Container(
               child: SizedBox(
                 height: height,
-                width: 230,
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: form.fields.length,
-                    itemBuilder: (c, index) {
-                      switch (form.fields[index].whichType()) {
-                        case protoForm.Form_Field_Type.textField:
-                          return FormInputTextFieldWidget(
-                            formField: form.fields[index],
-                            setFormKey: (key) {
-                              formFieldsKey[form.fields[index].id] = key;
-                            },
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.numberField:
-                          return FormInputTextFieldWidget(
-                            formField: form.fields[index],
-                            setFormKey: (key) {
-                              formFieldsKey[form.fields[index].id] = key;
-                            },
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.dateField:
-                          return FormInputTextFieldWidget(
-                            formField: form.fields[index],
-                            setFormKey: (key) {
-                              formFieldsKey[form.fields[index].id] = key;
-                            },
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.timeField:
-                          return FormInputTextFieldWidget(
-                            formField: form.fields[index],
-                            setFormKey: (key) {
-                              formFieldsKey[form.fields[index].id] = key;
-                            },
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.checkbox:
-                          return CheckBoxFormField(
-                            formField: form.fields[index],
-                            selected: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.list:
-                          return FormListWidget(
-                            formField: form.fields[index],
-                            setFormKey: (key) {
-                              formFieldsKey[form.fields[index].id] = key;
-                            },
-                            selected: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.radioButtonList:
-                          return FormListWidget(
-                            formField: form.fields[index],
-                            setFormKey: (key) {
-                              formFieldsKey[form.fields[index].id] = key;
-                            },
-                            selected: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case protoForm.Form_Field_Type.notSet:
-                          return SizedBox.shrink();
-                          break;
-                      }
-                      return SizedBox.shrink();
-                    }),
+                width: 250,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: form.fields.length,
+                  itemBuilder: (c, i) {
+                    var index =  i % form.fields.length;
+                    switch (form.fields[index].whichType()) {
+                      case protoForm.Form_Field_Type.textField:
+                        return FormInputTextFieldWidget(
+                          formField: form.fields[index],
+                          setFormKey: (key) {
+                            formFieldsKey[form.fields[index].id] = key;
+                          },
+                          setResult: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.numberField:
+                        return FormInputTextFieldWidget(
+                          formField: form.fields[index],
+                          setFormKey: (key) {
+                            formFieldsKey[form.fields[index].id] = key;
+                          },
+                          setResult: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.dateField:
+                        return FormInputTextFieldWidget(
+                          formField: form.fields[index],
+                          setFormKey: (key) {
+                            formFieldsKey[form.fields[index].id] = key;
+                          },
+                          setResult: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.timeField:
+                        return FormInputTextFieldWidget(
+                          formField: form.fields[index],
+                          setFormKey: (key) {
+                            formFieldsKey[form.fields[index].id] = key;
+                          },
+                          setResult: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.checkbox:
+                        return CheckBoxFormField(
+                          formField: form.fields[index],
+                          selected: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.list:
+                        return FormListWidget(
+                          formField: form.fields[index],
+                          setFormKey: (key) {
+                            formFieldsKey[form.fields[index].id] = key;
+                          },
+                          selected: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.radioButtonList:
+                        return FormListWidget(
+                          formField: form.fields[index],
+                          setFormKey: (key) {
+                            formFieldsKey[form.fields[index].id] = key;
+                          },
+                          selected: (value) {
+                            setResult(index, value);
+                          },
+                        );
+                        break;
+                      case protoForm.Form_Field_Type.notSet:
+                        return SizedBox.shrink();
+                        break;
+                    }
+                    return SizedBox.shrink();
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(height: 8);
+                  },
+                ),
               ),
             ),
             SizedBox(
-              height: 5,
+              height: 8,
             ),
             if (widget.message.roomUid.isBot())
               TextButton(
@@ -169,9 +174,10 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   style: TextStyle(color: Colors.blueAccent),
                 ),
               ),
+            SizedBox(height: 8),
           ],
         ),
-        TimeAndSeenStatus(widget.message, false, true, widget.isSeen),
+        TimeAndSeenStatus(widget.message, false, false, widget.isSeen),
       ],
     ));
   }
