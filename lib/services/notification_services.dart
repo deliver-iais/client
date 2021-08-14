@@ -87,11 +87,11 @@ class WindowsNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-
     if (message.ignoreNotification) return;
+    var _avatarRepo = GetIt.I.get<AvatarRepo>();
+    var fileRepo = GetIt.I.get<FileRepo>();
+    final _logger = GetIt.I.get<Logger>();
     try {
-      var _avatarRepo = GetIt.I.get<AvatarRepo>();
-      var fileRepo = GetIt.I.get<FileRepo>();
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
       if (lastAvatar != null && lastAvatar.fileId != null) {
         var file = await fileRepo.getFile(
@@ -102,30 +102,23 @@ class WindowsNotifier implements Notifier {
             title: message.roomName,
             subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
-        try{
-          _windowsNotificationServices.show(toast);
-        }catch(e){
-          print('%%%%%%%%%%');
-        }
+        _windowsNotificationServices.show(toast);
+
         //_windowsNotificationServices.dispose();
-   //     toast.dispose();
+        //     toast.dispose();
       } else {
         Toast toast = new Toast(
           type: ToastType.text01,
           title: message.roomName,
           subtitle: createNotificationTextFromMessageBrief(message),
         );
-        try{
-          _windowsNotificationServices.show(toast);
-        }catch(e){
-          print("eeeee");
-        }
+        _windowsNotificationServices.show(toast);
 
         // _windowsNotificationServices.dispose();
         // toast.dispose();
       }
     } catch (e) {
-     print("notification ex "+ e.toString());
+      _logger.e(e);
     }
   }
 
