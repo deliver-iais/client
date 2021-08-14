@@ -305,4 +305,8 @@ class RoomRepo {
   Future<List<Room>> getAllGroups() async {
     return await _roomDao.getAllGroups();
   }
+
+  void updateRoomDraft( String roomUid,String draft) {
+    _roomDao.updateRoom(Room().copyWith(uid: roomUid,draft: draft));
+  }
 }

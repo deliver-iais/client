@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:file_selector/file_selector.dart';
@@ -56,6 +57,7 @@ class InputMessage extends StatefulWidget {
 
 class _InputMessageWidget extends State<InputMessage> {
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _uxService = GetIt.I.get<UxService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
@@ -121,13 +123,17 @@ class _InputMessageWidget extends State<InputMessage> {
     noActivitySubject.listen((event) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
-    controller = TextEditingController();
     currentRoom = widget.currentRoom;
+    controller = TextEditingController(text: currentRoom.draft != null? currentRoom.draft:"");
+    _showSendIcon.add(currentRoom.draft!= null && currentRoom.draft.isNotEmpty);
     controller.addListener(() {
       if (controller.text.isNotEmpty && controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
+
+      _roomRepo.updateRoomDraft(currentRoom.uid,controller.text ??"");
+
     });
     super.initState();
   }
@@ -262,7 +268,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           const EdgeInsets.symmetric(
                                               vertical: 15, horizontal: 5),
                                       border: InputBorder.none,
-                                      hintText: i18n.get("message"),
+                                      hintText:  controller.text.isEmpty?i18n.get("message"):"",
                                     ),
                                   ),
                                 ),
