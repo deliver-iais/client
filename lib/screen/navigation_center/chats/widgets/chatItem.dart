@@ -148,11 +148,16 @@ class _ChatItemState extends State<ChatItem> {
                                   ],
                                 );
                               } else {
-                                return LastMessage(
-                                  message: widget.room.lastMessage,
-                                  lastMessageId: widget.room.lastMessageId,
-                                  hasMentioned: widget.room.mentioned == true,
-                                );
+                                return widget.room.draft != null &&
+                                        widget.room.draft.isNotEmpty
+                                    ? buildDraftMessageWidget(_i18n, context)
+                                    : LastMessage(
+                                        message: widget.room.lastMessage,
+                                        lastMessageId:
+                                            widget.room.lastMessageId,
+                                        hasMentioned:
+                                            widget.room.mentioned == true,
+                                      );
                               }
                             }),
                       ],
@@ -201,6 +206,40 @@ class _ChatItemState extends State<ChatItem> {
               ),
             );
         });
+  }
+
+  Expanded buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+    return Expanded(
+                                      child: Row(
+                                        children: [
+                                          RichText(
+                                              overflow: TextOverflow.fade,
+                                              text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                      text: "${_i18n.get("draft")} : ",
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText2
+                                                          .copyWith(
+                                                              color:
+                                                                  ExtraTheme.of(
+                                                                          context)
+                                                                      .textField)),
+                                                  TextSpan(
+                                                      text: widget.room.draft,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyText2
+                                                          .copyWith(
+                                                              color:
+                                                                  ExtraTheme.of(
+                                                                          context)
+                                                                      .username))
+                                                ],
+                                              )),
+                                        ],
+                                      ));
   }
 
   _showDisplayName(Uid uid, String name, BuildContext context) {
