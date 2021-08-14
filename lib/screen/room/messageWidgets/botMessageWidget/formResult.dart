@@ -13,7 +13,6 @@ import '../timeAndSeenStatus.dart';
 class FormResultWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
-
   FormResultWidget({this.message, this.isSeen});
 
   @override
@@ -21,23 +20,17 @@ class FormResultWidget extends StatefulWidget {
 }
 
 class _FormResultWidgetState extends State<FormResultWidget> {
-  final _messageDao = GetIt.I.get<MessageRepo>();
 
   @override
   Widget build(BuildContext context) {
     var formResult = widget.message.json.toFormResult();
 
-    return FutureBuilder<Message>(
-        future: _messageDao.getMessage(widget.message.to, widget.message.replyToId),
-        builder: (c, messageByForm) {
-          if (messageByForm.hasData && messageByForm.data != null) {
-            formModel.Form form = messageByForm.data.json.toForm();
             return Stack(children: [
               Container(
                 child: Column(
                   children: [
                     Text(
-                      form.title,
+                      formResult.id,
                       style: TextStyle(fontSize: 16, color: ExtraTheme.of(context).textField),
                     ),
                     SizedBox(
@@ -55,7 +48,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "${formResult.values.keys.toList()[index]}  :  ",
+                                    "${formResult.values.keys.toList()[index]??""}  :  ",
                                     overflow: TextOverflow.fade,
                                     style: TextStyle(
                                         fontSize: 13,
@@ -65,7 +58,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                                   Expanded(
                                     child: Text(
                                       formResult.values.values
-                                          .toList()[index],
+                                          .toList()[index]??"",
                                       // getText(form, index, formResult),
                                       overflow: TextOverflow.fade,
                                       style: TextStyle(
@@ -86,10 +79,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
 
               TimeAndSeenStatus(widget.message, true, true, widget.isSeen),
             ]);
-          } else {
-            return SizedBox.shrink();
-          }
-        });
+
   }
 
   String getText(String body) {

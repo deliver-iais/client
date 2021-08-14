@@ -56,7 +56,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                           style: TextStyle(color: Colors.red),
                         ),
                       ),
-                      labelText: widget.formField.label,
+                      labelText: widget.formField.id,
                       labelStyle: TextStyle(color: Colors.blue)),
                   value: selectedItem,
                   validator: (value) {

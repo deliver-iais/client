@@ -436,6 +436,9 @@ class MessageRepo {
         byClient.sharePrivateDataAcceptance =
             SharePrivateDataAcceptance.fromJson(message.json);
         break;
+      case MessageType.FORM:
+        byClient.form = message.json.toForm();
+        break;
       default:
         break;
     }
