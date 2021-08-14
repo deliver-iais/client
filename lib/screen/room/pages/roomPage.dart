@@ -777,7 +777,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 _lastShowedMessageId != -1 &&
                 _lastShowedMessageId == index + 1)
               FutureBuilder<Message>(
-                  future: _messageAt(pendingMessages, index),
+                  future: _messageAt(pendingMessages, index+1),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
