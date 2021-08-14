@@ -439,28 +439,29 @@ class _ShareBoxState extends State<ShareBox> {
                   height: 5,
                 ),
                 Divider(),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    liveLocation(i18n, context,position.data);
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                          child: l.Lottie.asset(
-                            'assets/emoji/liveLocation.json',
-                            width: 40,
-                            height: 40,
-                          )),
-                      Text(
-                        i18n.get(
-                          "send_live_location",
-                        ),
-                        style: TextStyle(fontSize: 18),
-                      )
-                    ],
-                  ),
-                )
+                //todo  liveLocation
+                // GestureDetector(
+                //   behavior: HitTestBehavior.translucent,
+                //   onTap: () {
+                //     liveLocation(i18n, context,position.data);
+                //   },
+                //   child: Row(
+                //     children: [
+                //       Container(
+                //           child: l.Lottie.asset(
+                //             'assets/emoji/liveLocation.json',
+                //             width: 40,
+                //             height: 40,
+                //           )),
+                //       Text(
+                //         i18n.get(
+                //           "send_live_location",
+                //         ),
+                //         style: TextStyle(fontSize: 18),
+                //       )
+                //     ],
+                //   ),
+                // )
               ],
             ));
           } else {
