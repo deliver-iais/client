@@ -45,14 +45,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final ScrollController _scrollController = ScrollController();
-
-  final Function tapOnCurrentUserAvatar;
-
-  var _roomRepo = GetIt.I.get<RoomRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _botRepo = GetIt.I.get<BotRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _botRepo = GetIt.I.get<BotRepo>();
+
+  final ScrollController _scrollController = ScrollController();
+  final Function tapOnCurrentUserAvatar;
   bool _searchMode = false;
 
   String query;
