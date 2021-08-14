@@ -93,7 +93,7 @@ class WindowsNotifier implements Notifier {
       var _avatarRepo = GetIt.I.get<AvatarRepo>();
       var fileRepo = GetIt.I.get<FileRepo>();
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
-      if (lastAvatar != null) {
+      if (lastAvatar != null && lastAvatar.fileId != null) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
@@ -111,7 +111,7 @@ class WindowsNotifier implements Notifier {
    //     toast.dispose();
       } else {
         Toast toast = new Toast(
-          type: ToastType.text04,
+          type: ToastType.text01,
           title: message.roomName,
           subtitle: createNotificationTextFromMessageBrief(message),
         );
@@ -125,7 +125,7 @@ class WindowsNotifier implements Notifier {
         // toast.dispose();
       }
     } catch (e) {
-     print("notification ex");
+     print("notification ex "+ e.toString());
     }
   }
 
