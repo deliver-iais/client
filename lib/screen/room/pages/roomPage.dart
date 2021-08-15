@@ -201,9 +201,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     return ReplyPreview(
                         message: _repliedMessage.value,
                         resetRoomPageDetails: _resetRoomPageDetails);
-                  } else {
-                    return Container();
                   }
+                  return Container();
                 }),
             StreamBuilder(
                 stream: _waitingForForwardedMessage.stream,
@@ -1083,18 +1082,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return SingleChildScrollView(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (widget.roomId.asUid().category == Categories.GROUP)
-            GestureDetector(
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(bottom: 8.0, left: 5.0, right: 3.0),
-                child: CircleAvatarWidget(message.from.asUid(), 18),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
+                  child: CircleAvatarWidget(message.from.asUid(), 18),
+                ),
+                onTap: () {
+                  _routingService.openRoom(message.from);
+                },
               ),
-              onTap: () {
-                _routingService.openRoom(message.from);
-              },
             ),
           messageWidget
         ],

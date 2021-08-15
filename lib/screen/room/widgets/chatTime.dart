@@ -30,7 +30,7 @@ class ChatTime extends StatelessWidget {
                 currentMonth == currentMessageTime.month) {
               outT = ' Yesterday ';
             } else
-              outT = dateTimeFormat(currentMessageTime);
+              outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
             return Text(
               outT,
               style: TextStyle(

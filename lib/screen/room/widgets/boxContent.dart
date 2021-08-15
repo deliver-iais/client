@@ -86,45 +86,48 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget replyToIdBox() {
-    return GestureDetector(
-      onTap: () {
-        widget.scrollToMessage(widget.message.replyToId);
-      },
-      child: ReplyBrief(
-        roomId: widget.message.roomUid,
-        replyToId: widget.message.replyToId,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          widget.scrollToMessage(widget.message.replyToId);
+        },
+        child: ReplyBrief(
+          roomId: widget.message.roomUid,
+          replyToId: widget.message.replyToId,
+        ),
       ),
     );
   }
 
   Widget senderNameBox() {
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0, right: 4.0, left: 4.0),
+      padding: const EdgeInsets.only(right: 4.0, left: 4.0),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             return showName(snapshot.data);
           } else {
-            return Text(
-              " ",
-              style: TextStyle(color: Colors.blue),
-            );
+            return Text("");
           }
         },
       ),
     );
   }
 
-  GestureDetector showName(String name) {
-    return GestureDetector(
-      child: Text(
-        name,
-        style: TextStyle(color: Colors.blue, fontSize: 15),
+  Widget showName(String name) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        child: Text(
+          name.trim(),
+          style: Theme.of(context).primaryTextTheme.bodyText2,
+        ),
+        onTap: () {
+          _routingServices.openRoom(widget.message.from);
+        },
       ),
-      onTap: () {
-        _routingServices.openRoom(widget.message.from);
-      },
     );
   }
 

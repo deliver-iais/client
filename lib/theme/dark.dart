@@ -66,7 +66,7 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     sentMessageBox: DarkTheme.primaryColor,
     receivedMessageBox: DarkTheme.accentColor,
     textMessage: Colors.white,
-    messageDetails: Color(0xFF001D39),
+    messageDetails: Color(0xFF00396C),
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,

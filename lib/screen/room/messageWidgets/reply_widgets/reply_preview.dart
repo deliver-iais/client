@@ -14,7 +14,7 @@ class ReplyPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(100),
+      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,

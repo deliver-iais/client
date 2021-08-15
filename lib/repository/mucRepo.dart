@@ -248,7 +248,6 @@ class MucRepo {
       return Future.value(false);
   }
 
-  // TODO there is bugs in delete member, where is memberUid ?!?!?
   Future<bool> _removeGroup(Uid groupUid) async {
     var result = await _mucServices.removeGroup(groupUid);
     if (result) {
