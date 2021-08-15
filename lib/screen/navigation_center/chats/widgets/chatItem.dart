@@ -209,9 +209,8 @@ class _ChatItemState extends State<ChatItem> {
         });
   }
 
-  Expanded buildDraftMessageWidget(I18N _i18n, BuildContext context) {
-    return Expanded(
-        child: Row(
+  Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+    return Row(
       children: [
         Expanded(
           child: RichText(
@@ -231,7 +230,7 @@ class _ChatItemState extends State<ChatItem> {
               )),
         ),
       ],
-    ));
+    );
   }
 
   _showDisplayName(Uid uid, String name, BuildContext context) {

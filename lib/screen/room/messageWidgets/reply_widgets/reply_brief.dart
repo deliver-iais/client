@@ -23,9 +23,9 @@ class ReplyBrief extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null)
             return Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+              padding: const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
               child: Container(
-                constraints: BoxConstraints(maxWidth: 300),
+                constraints: BoxConstraints.loose(Size.fromWidth(200)),
                 padding: const EdgeInsets.only(left: 8.0),
                 decoration: BoxDecoration(
                     border: Border(

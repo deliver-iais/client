@@ -64,21 +64,24 @@ class _BoxContentState extends State<BoxContent> {
   @override
   Widget build(BuildContext context) {
     _i18n = I18N.of(context);
-    return Column(
-      crossAxisAlignment: last,
-      children: [
-        if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-            !widget.isSender)
-          SizedBox(height: 20, child: senderNameBox()),
-        if (widget.message.to.asUid().category != Categories.BOT &&
-            widget.message.replyToId != null &&
-            widget.message.replyToId > 0)
-          replyToIdBox(),
-        if (widget.message.forwardedFrom != null &&
-            widget.message.forwardedFrom.length > 3)
-          forwardedFromBox(),
-        messageBox()
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Column(
+        crossAxisAlignment: last,
+        children: [
+          if (widget.message.roomUid.asUid().category == Categories.GROUP &&
+              !widget.isSender)
+            senderNameBox(),
+          if (widget.message.to.asUid().category != Categories.BOT &&
+              widget.message.replyToId != null &&
+              widget.message.replyToId > 0)
+            replyToIdBox(),
+          if (widget.message.forwardedFrom != null &&
+              widget.message.forwardedFrom.length > 3)
+            forwardedFromBox(),
+          messageBox()
+        ],
+      ),
     );
   }
 
@@ -95,18 +98,21 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget senderNameBox() {
-    return FutureBuilder<String>(
-      future: _roomRepo.getName(widget.message.from.asUid()),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return showName(snapshot.data);
-        } else {
-          return Text(
-            " ",
-            style: TextStyle(color: Colors.blue),
-          );
-        }
-      },
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0, right: 4.0, left: 4.0),
+      child: FutureBuilder<String>(
+        future: _roomRepo.getName(widget.message.from.asUid()),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return showName(snapshot.data);
+          } else {
+            return Text(
+              " ",
+              style: TextStyle(color: Colors.blue),
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -152,21 +158,17 @@ class _BoxContentState extends State<BoxContent> {
   Widget messageBox() {
     switch (widget.message.type) {
       case MessageType.TEXT:
-        return Padding(
-          padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
-          child: TextUi(
-            pattern: widget.pattern,
-            message: widget.message,
-            maxWidth: widget.maxWidth,
-            isSender: widget.isSender,
-            isCaption: false,
-            isBotMessage:
-                widget.message.from.asUid().category == Categories.BOT,
-            onBotCommandClick: widget.onBotCommandClick,
-            onUsernameClick: widget.onUsernameClick,
-            isSeen: widget.isSeen,
-            color: ExtraTheme.of(context).textMessage,
-          ),
+        return TextUi(
+          pattern: widget.pattern,
+          message: widget.message,
+          maxWidth: widget.maxWidth,
+          isSender: widget.isSender,
+          isCaption: false,
+          isBotMessage: widget.message.from.asUid().category == Categories.BOT,
+          onBotCommandClick: widget.onBotCommandClick,
+          onUsernameClick: widget.onUsernameClick,
+          isSeen: widget.isSeen,
+          color: ExtraTheme.of(context).textMessage,
         );
         break;
       case MessageType.FILE:
@@ -198,8 +200,7 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM_RESULT:
-        return FormResultWidget(
-            message: widget.message, isSeen: widget.isSeen);
+        return FormResultWidget(message: widget.message, isSeen: widget.isSeen);
       case MessageType.FORM:
         return BotFormMessage(message: widget.message, isSeen: true);
       case MessageType.BUTTONS:

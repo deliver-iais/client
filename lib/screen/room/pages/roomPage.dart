@@ -59,6 +59,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:share/share.dart';
 import 'package:sorted_list/sorted_list.dart';
+import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
 
 const int PAGE_SIZE = 16;
@@ -782,7 +783,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 _lastShowedMessageId != -1 &&
                 _lastShowedMessageId == index + 1)
               FutureBuilder<Message>(
-                  future: _messageAt(pendingMessages, index+1),
+                  future: _messageAt(pendingMessages, index + 1),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
@@ -880,7 +881,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
               ));
         } else {
-          return Container(width: 100, height: 100, child: Text(""));
+          return Container(width: 50, height: 50, child: Text(""));
         }
       },
     );
@@ -917,20 +918,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget _createWidget(
       Message message, Room currentRoom, List pendingMessages) {
     var messageWidget;
-    if (message.from.isSameEntity(_authRepo.currentUserUid))
+    if (_authRepo.isCurrentUser(message.from))
       messageWidget = showSentMessage(
           message, currentRoom.lastMessageId, pendingMessages.length);
     else
       messageWidget = showReceivedMessage(
           message, currentRoom.lastMessageId, pendingMessages.length);
-    var dismissibleWidget = Dismissible(
-        movementDuration: Duration(microseconds: 10),
-        confirmDismiss: (direction) async {
+    var dismissibleWidget = SwipeTo(
+        onLeftSwipe: () async {
           _repliedMessage.add(message);
-          Vibration.vibrate(duration: 200);
+          Vibration.vibrate(duration: 150);
           return false;
         },
-        key: Key("${message.packetId}"),
         child: messageWidget);
 
     return GestureDetector(
@@ -1046,6 +1045,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
+  onBotCommandClick(String command) {
+    _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
+  }
+
   Widget showSentMessage(
       Message message, int lastMessageId, int pendingMessagesLength) {
     var messageWidget = SentMessageBox(
@@ -1067,20 +1070,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  onBotCommandClick(String command) {
-    _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
-  }
-
   Widget showReceivedMessage(
       Message message, int lastMessageId, int pendingMessagesLength) {
     var messageWidget = ReceivedMessageBox(
       message: message,
       pattern: _searchMessagePattern,
       onBotCommandClick: onBotCommandClick,
-      isGroup: widget.roomId.asUid().category == Categories.GROUP,
-      scrollToMessage: (int id) {
-        _scrollToMessage(id: id, position: pendingMessagesLength + id);
-      },
+      scrollToMessage: (int id) =>
+          _scrollToMessage(id: id, position: pendingMessagesLength + id),
       omUsernameClick: onUsernameClick,
     );
     return SingleChildScrollView(

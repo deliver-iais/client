@@ -46,7 +46,8 @@ class TextUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.only(left: 8),
+        padding: const EdgeInsets.all(4),
+        // margin: const EdgeInsets.only(left: 8),
         child: Column(children: textMessages(context)));
   }
 
@@ -360,14 +361,14 @@ Widget _textWidget(
       ),
       if (i == lenght && isLastBlock)
         Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 5),
+          padding: const EdgeInsets.only(left: 4, top: 4, right: 4),
           child: MsgTime(
             time: date(message.time),
           ),
         ),
       if (i == lenght && isLastBlock & isSender)
         Padding(
-          padding: const EdgeInsets.only(left: 3.0, top: 5),
+          padding: const EdgeInsets.only(left: 4, top: 4, right: 4),
           child: SeenStatus(
             message,
             isSeen: isSeen,
