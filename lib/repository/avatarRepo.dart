@@ -114,14 +114,14 @@ class AvatarRepo {
       return ac;
     }
 
-    if (ac.fileId == null || ac.fileId?.isEmpty) {
+    if (ac == null || ac.fileId == null || (ac.fileId != null &&  ac.fileId.isEmpty)) {
       return null;
     }
 
     ac = await _avatarDao.getLastAvatar(userUid.asString());
     _avatarCache.set(key, ac);
 
-    if (ac.fileId == null || ac.fileId.isEmpty) {
+    if (ac == null || ac.fileId == null || (ac != null && ac.fileId.isEmpty)) {
       return null;
     }
     return ac;

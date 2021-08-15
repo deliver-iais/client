@@ -99,8 +99,7 @@ class WindowsNotifier implements Notifier {
     final _logger = GetIt.I.get<Logger>();
     try {
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
-      print(lastAvatar.toString());
-      if (lastAvatar != null && lastAvatar.fileId != null) {
+      if (lastAvatar != null && lastAvatar.fileId != null ) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
