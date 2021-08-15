@@ -65,7 +65,12 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
     return maxLength != null && maxLength > 0
         ? TextFormField(
             minLines: 1,
+            controller: TextEditingController(),
             maxLength: maxLength,
+            inputFormatters: [
+              if (keyboardType == TextInputType.number)
+                FilteringTextInputFormatter.digitsOnly
+            ],
             validator: validateFormTextField,
             onChanged: (str) {
               widget.setResult(str);
@@ -75,6 +80,10 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           )
         : TextFormField(
             minLines: 1,
+            inputFormatters: [
+              if (keyboardType == TextInputType.number)
+                FilteringTextInputFormatter.digitsOnly
+            ],
             validator: validateFormTextField,
             onChanged: (str) {
               widget.setResult(str);
@@ -101,25 +110,25 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        suffixIcon:widget.formField.isOptional?SizedBox.shrink(): Padding(
-          padding: const EdgeInsets.only(top: 20, left: 25),
-          child: Text(
-            "*",
-            style: TextStyle(color: Colors.red),
-          ),
-        ),
+        suffixIcon: widget.formField.isOptional
+            ? SizedBox.shrink()
+            : Padding(
+                padding: const EdgeInsets.only(top: 20, left: 25),
+                child: Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
         labelText: widget.formField.id,
         labelStyle: TextStyle(color: Colors.grey));
   }
 
   String validateFormTextField(String value) {
-
     if (value.isEmpty && !widget.formField.isOptional) {
       return _i18n.get("this_filed_not_empty");
     }
-    if(widget.formField.whichType() ==
-        formModel.Form_Field_Type.numberField){
-      if(!_isNumeric(value)){
+    if (widget.formField.whichType() == formModel.Form_Field_Type.numberField) {
+      if (!_isNumeric(value)) {
         return _i18n.get("enter_numeric_value");
       }
     }
@@ -141,6 +150,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
       return null;
     }
   }
+
   bool _isNumeric(String str) {
     return double.tryParse(str) != null;
   }
