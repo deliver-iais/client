@@ -109,7 +109,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           ),
         ),
         labelText: widget.formField.id,
-        labelStyle: TextStyle(color: Colors.blue));
+        labelStyle: TextStyle(color: Colors.grey));
   }
 
   String validateFormTextField(String value) {

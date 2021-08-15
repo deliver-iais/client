@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -11,6 +13,7 @@ import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:desktoasts/desktoasts.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
@@ -88,11 +91,15 @@ class WindowsNotifier implements Notifier {
   @override
   notify(MessageBrief message) async {
     if (message.ignoreNotification) return;
+
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
+    final _fileServices = GetIt.I.get<FileService>();
+
     final _logger = GetIt.I.get<Logger>();
     try {
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
+      print(lastAvatar.toString());
       if (lastAvatar != null && lastAvatar.fileId != null) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
@@ -103,19 +110,17 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
         _windowsNotificationServices.show(toast);
-
-        //_windowsNotificationServices.dispose();
-        //     toast.dispose();
       } else {
-        Toast toast = new Toast(
-          type: ToastType.text01,
-          title: message.roomName,
-          subtitle: createNotificationTextFromMessageBrief(message),
-        );
-        _windowsNotificationServices.show(toast);
-
-        // _windowsNotificationServices.dispose();
-        // toast.dispose();
+        var deliverIcon = await _fileServices.getDeliverIcon();
+        if (deliverIcon != null && deliverIcon.existsSync()) {
+          Toast toast = new Toast(
+            type: ToastType.imageAndText02,
+            title: message.roomName,
+            image: deliverIcon,
+            subtitle: createNotificationTextFromMessageBrief(message),
+          );
+          _windowsNotificationServices.show(toast);
+        }
       }
     } catch (e) {
       _logger.e(e);

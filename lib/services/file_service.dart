@@ -3,6 +3,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -86,6 +87,21 @@ class FileService {
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
+  }
+  Future<File> getDeliverIcon()async {
+    var file =   await localFile("deliver-icon","png");
+    if(file.existsSync()){
+      return file;
+    }else{
+      var res =await rootBundle.load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+      File f = File("${ await _localPath}/deliver-icon.png");
+      try {
+        await f.writeAsBytes(res.buffer.asInt8List());
+        return f;
+      } catch (e) {
+        print(e.toString());
+      }
+    }
   }
 
   saveFileInDownloadFolder(File file, String name, String directory) async {
