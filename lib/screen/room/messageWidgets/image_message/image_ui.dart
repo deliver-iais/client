@@ -8,6 +8,7 @@ import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dar
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:open_file/open_file.dart';
@@ -42,7 +43,7 @@ class _ImageUiState extends State<ImageUi> {
       image = widget.message.json.toFile();
 
       var dimensions =
-      getImageDimensions(image.width.toDouble(), image.height.toDouble());
+          getImageDimensions(image.width.toDouble(), image.height.toDouble());
       width = dimensions.width;
       height = dimensions.height;
 
@@ -64,95 +65,72 @@ class _ImageUiState extends State<ImageUi> {
                       fit: BoxFit.fill,
                     ),
                   ),
-                  image.caption.isEmpty
-                      ? TimeAndSeenStatus(
-                      widget.message, widget.isSender, true, widget.isSeen)
-                      : Container()
+                  if (image.caption.isEmpty)
+                    TimeAndSeenStatus(
+                        widget.message, widget.isSender, widget.isSeen,
+                        needsBackground: true)
                 ],
               );
             } else
               return GestureDetector(
                 onTap: () async {
                   _startDownload.add(true);
-                  await fileRepo.getFile(image.uuid, image.name,);
+                  await fileRepo.getFile(
+                    image.uuid,
+                    image.name,
+                  );
                   _startDownload.add(false);
-                  setState(() {
-
-                  });
+                  setState(() {});
                 },
                 child: Container(
                   width: width,
                   height: height,
                   child: Stack(
                     children: [
-                      FutureBuilder(
-                          future: fileRepo.getFile(image.uuid, image.name,
-                              thumbnailSize: ThumbnailSize.small),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data != null) {
-                              return Image.file(
-                                snapshot.data,
-                                width: width,
-                                height: height,
-                                fit: BoxFit.fill,
-                              );
-                            } else {
-                              return Container(
-                                width: width,
-                                height: height,
-                              );
-                            }
-                          }),
-                      Positioned.fill(
-                        child: ClipRRect(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(
-                              sigmaX: 5,
-                              sigmaY: 5,
-                            ),
-                            child: Container(
-                              color: Colors.black.withOpacity(0),
-                            ),
-                          ),
-                        ),
-                      ),
+                      Container(
+                          width: width,
+                          height: height,
+                          child: BlurHash(hash: image.blurHash)),
                       Center(
-                        child: StreamBuilder(stream: _startDownload.stream,
+                        child: StreamBuilder(
+                          stream: _startDownload.stream,
                           builder: (c, s) {
                             if (s.hasData && s.data) {
-                              return CircularProgressIndicator(strokeWidth: 4,);
+                              return CircularProgressIndicator(
+                                strokeWidth: 4,
+                              );
                             } else
                               return MaterialButton(
-                                  color: Theme
-                                      .of(context)
-                                      .buttonColor,
-                                  onPressed: () async {
-                                    _startDownload.add(true);
-                                    await fileRepo.getFile(
-                                        image.uuid, image.name);
-                                    setState(() {
-                                      _startDownload.add(false);
-                                    });
-                                  },
-                                  shape: CircleBorder(),
-                                  child: Icon(Icons.arrow_downward),
-                                  padding: const EdgeInsets.all(20),);
+                                color: Theme.of(context).buttonColor,
+                                onPressed: () async {
+                                  _startDownload.add(true);
+                                  await fileRepo.getFile(
+                                      image.uuid, image.name);
+                                  setState(() {
+                                    _startDownload.add(false);
+                                  });
+                                },
+                                shape: CircleBorder(),
+                                child: Icon(Icons.arrow_downward),
+                                padding: const EdgeInsets.all(20),
+                              );
                           },
-
                         ),
                       ),
-                      image.caption.isEmpty
-                          ? TimeAndSeenStatus(
-                          widget.message, widget.isSender, true, widget.isSeen)
-                          : Container()
+                      if (image.caption.isEmpty)
+                        TimeAndSeenStatus(
+                            widget.message, widget.isSender, widget.isSeen,
+                            needsBackground: true)
                     ],
                   ),
                 ),
               );
-          }
-      );
+          });
     } catch (e) {
-      return Container(width: width,height: height,);
+      return Container(
+        width: width,
+        height: height,
+      );
     }
   }
 

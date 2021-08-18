@@ -38,7 +38,7 @@ class LastMessage extends StatelessWidget {
         future: extractMessageBrief(
             _i18n, _roomRepo, _authRepo, extractProtocolBufferMessage(message)),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return SizedBox.shrink();
+          if (!snapshot.hasData) return Container(height: Theme.of(context).textTheme.bodyText2.fontSize + 7);
           final mb = snapshot.data;
           return Row(
             children: [
@@ -81,7 +81,7 @@ class LastMessage extends StatelessWidget {
                                     color: ExtraTheme.of(context).username)),
                       if (mb.text.isNotEmpty)
                         TextSpan(
-                            text: mb.text.split("\n").first,
+                            text: buildText(mb),
                             style: Theme.of(context).textTheme.bodyText2),
                     ])),
               ),
@@ -106,5 +106,10 @@ class LastMessage extends StatelessWidget {
             ],
           );
         });
+  }
+
+  String buildText(MessageBrief mb) {
+    return mb.text.split("\n").map((e) => e.trim()).where((e) => e.trim().isNotEmpty).join(" ");
+    // return mb.text.split("\n").first;
   }
 }

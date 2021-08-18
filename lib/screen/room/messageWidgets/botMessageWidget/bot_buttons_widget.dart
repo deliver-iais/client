@@ -41,7 +41,7 @@ class BotButtonsWidget extends StatelessWidget {
             },),
           ),
         ),
-        TimeAndSeenStatus(message, false, true, false),
+        TimeAndSeenStatus(message, false, false, needsBackground: true),
       ],
     ));
   }

@@ -177,7 +177,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             SizedBox(height: 8),
           ],
         ),
-        TimeAndSeenStatus(widget.message, false, false, widget.isSeen),
+        TimeAndSeenStatus(widget.message, false,  widget.isSeen, needsBackground: false),
       ],
     ));
   }

@@ -3,6 +3,7 @@ import 'package:deliver_flutter/box/message.dart';
 
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/formResult.dart';
@@ -101,8 +102,14 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget senderNameBox() {
-    return Padding(
-      padding: const EdgeInsets.only(right: 4.0, left: 4.0),
+    return Container(
+      padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: widget.isSender
+            ? ExtraTheme.of(context).sentMessageBox
+            : ExtraTheme.of(context).receivedMessageBox,
+      ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),
         builder: (context, snapshot) {
@@ -159,6 +166,9 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget messageBox() {
+    if (AnimatedEmoji.isAnimatedEmoji(widget.message))
+      return AnimatedEmoji(message: widget.message, isSeen: widget.isSeen ,);
+
     switch (widget.message.type) {
       case MessageType.TEXT:
         return TextUi(

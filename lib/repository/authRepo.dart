@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -237,6 +238,8 @@ class AuthRepo {
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
+
+  bool isCurrentUserSender(Message msg) => isCurrentUser(msg.from);
 
   bool isCurrentSession(Session session) =>
       currentUserUid.sessionId == session.sessionId &&

@@ -37,7 +37,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
             child: Text(i18n.get("ok")),
           ))
         ]),
-        TimeAndSeenStatus(message, isSender, false, isSeen)
+        TimeAndSeenStatus(message, isSender, isSeen, needsBackground: false)
       ],
     );
   }

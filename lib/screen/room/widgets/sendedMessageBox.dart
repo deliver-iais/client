@@ -1,9 +1,9 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver_flutter/screen/room/widgets/boxContent.dart';
 import 'package:deliver_flutter/screen/room/widgets/message_wrapper.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
@@ -34,8 +34,13 @@ class SentMessageBox extends StatelessWidget {
       onUsernameClick: this.omUsernameClick,
     );
 
-    return message.type == MessageType.STICKER
+    return doNotNeedsWrapper()
         ? boxContent
         : MessageWrapper(child: boxContent, isSent: true);
+  }
+
+  doNotNeedsWrapper() {
+    return message.type == MessageType.STICKER ||
+        AnimatedEmoji.isAnimatedEmoji(message);
   }
 }

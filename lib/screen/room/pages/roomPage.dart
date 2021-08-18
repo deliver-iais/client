@@ -763,6 +763,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       physics: _scrollPhysics,
       reverse: false,
       addSemanticIndexes: false,
+      minCacheExtent: 300,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
@@ -1077,7 +1078,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) =>
           _scrollToMessage(id: id, position: pendingMessagesLength + id),
-      omUsernameClick: onUsernameClick,
+      onUsernameClick: onUsernameClick,
     );
     return SingleChildScrollView(
       child: Row(

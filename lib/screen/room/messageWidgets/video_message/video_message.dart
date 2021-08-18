@@ -47,7 +47,11 @@ class _VideoMessageState extends State<VideoMessage> {
           ? duration.toString().substring(2, 7)
           : duration.toString().substring(3, 7);
     } else {
-      videoLength = duration.toString().split('.').first.padLeft(8, "0");
+      videoLength = duration
+          .toString()
+          .split('.')
+          .first
+          .padLeft(8, "0");
     }
     return Container(
       width: 300,
@@ -116,12 +120,13 @@ class _VideoMessageState extends State<VideoMessage> {
                             size(videoLength, video.size.toInt()),
                             video.caption.isEmpty
                                 ? (!isDesktop()) | (isDesktop() & showTime)
-                                    ? SizedBox.shrink()
-                                    : TimeAndSeenStatus(widget.message,
-                                        widget.isSender, true, widget.isSeen)
+                                ? SizedBox.shrink()
+                                : TimeAndSeenStatus(widget.message,
+                                widget.isSender, widget.isSeen,
+                                needsBackground: true)
                                 : Container(),
                             TimeAndSeenStatus(widget.message, widget.isSender,
-                                true, widget.isSeen)
+                                widget.isSeen, needsBackground: true)
                           ],
                         );
                       } else {
@@ -138,12 +143,12 @@ class _VideoMessageState extends State<VideoMessage> {
                             size(videoLength, video.size.toInt()),
                             video.caption.isEmpty
                                 ? (!isDesktop()) | (isDesktop() & false)
-                                    ? SizedBox.shrink()
-                                    : TimeAndSeenStatus(widget.message,
-                                        widget.isSender, true, widget.isSeen)
+                                ? SizedBox.shrink()
+                                : TimeAndSeenStatus(widget.message,
+                                widget.isSender, widget.isSeen,needsBackground: true)
                                 : Container(),
                             TimeAndSeenStatus(widget.message, widget.isSender,
-                                true, widget.isSeen)
+                                widget.isSeen, needsBackground: true)
                           ],
                         );
                       }
@@ -161,7 +166,7 @@ class _VideoMessageState extends State<VideoMessage> {
       // height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       padding:
-          const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
+      const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: Colors.black87,

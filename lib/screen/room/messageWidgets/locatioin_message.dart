@@ -51,7 +51,7 @@ class LocationMessageWidget extends StatelessWidget {
               ],
             ),
           ),
-          TimeAndSeenStatus(message, isSender, true, isSeen),
+          TimeAndSeenStatus(message, isSender, isSeen, needsBackground: true),
         ],
       ),
     );

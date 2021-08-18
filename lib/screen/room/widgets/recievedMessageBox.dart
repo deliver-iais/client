@@ -1,8 +1,8 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver_flutter/screen/room/widgets/boxContent.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'message_wrapper.dart';
@@ -10,7 +10,7 @@ import 'message_wrapper.dart';
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
   final Function scrollToMessage;
-  final Function omUsernameClick;
+  final Function onUsernameClick;
   final String pattern;
   final Function onBotCommandClick;
 
@@ -19,7 +19,7 @@ class ReceivedMessageBox extends StatelessWidget {
       this.message,
       this.onBotCommandClick,
       this.scrollToMessage,
-      this.omUsernameClick,
+      this.onUsernameClick,
       this.pattern})
       : super(key: key);
 
@@ -32,11 +32,16 @@ class ReceivedMessageBox extends StatelessWidget {
       isSender: false,
       scrollToMessage: scrollToMessage,
       pattern: this.pattern,
-      onUsernameClick: this.omUsernameClick,
+      onUsernameClick: this.onUsernameClick,
     );
 
-    return message.type == MessageType.STICKER
+    return doNotNeedsWrapper()
         ? boxContent
         : MessageWrapper(child: boxContent, isSent: false);
+  }
+
+  doNotNeedsWrapper() {
+    return message.type == MessageType.STICKER ||
+        AnimatedEmoji.isAnimatedEmoji(message);
   }
 }

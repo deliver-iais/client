@@ -111,7 +111,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             ],
           ),
           TimeAndSeenStatus(
-              widget.message, widget.isSender, true, widget.isSeen),
+              widget.message, widget.isSender, widget.isSeen, needsBackground: true),
         ],
       ),
     );

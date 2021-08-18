@@ -85,7 +85,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                     HeaderDetails(file: file),
                     file.caption.isEmpty
                         ? TimeAndSeenStatus(widget.message, widget.isSender,
-                            false, widget.isSeen)
+                            widget.isSeen, needsBackground: true)
                         : Container(),
                   ],
                 ),

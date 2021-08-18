@@ -1,11 +1,6 @@
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
-    as formModel;
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 import '../timeAndSeenStatus.dart';
@@ -77,7 +72,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                 ),
               ),
               // TODO bug, sender is not false always!!!!!??????
-              TimeAndSeenStatus(widget.message, false, false, widget.isSeen),
+              TimeAndSeenStatus(widget.message, false, widget.isSeen, needsBackground: false),
             ]);
 
   }
