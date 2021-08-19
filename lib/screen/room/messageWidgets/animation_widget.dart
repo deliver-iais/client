@@ -104,7 +104,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
     final shortName = Emoji.byChar(content).shortName;
 
-    return 'assets/emoji/$shortName.json';
+    return 'assets/emoji/$shortName.tgs.json.zip';
   }
 }
 
