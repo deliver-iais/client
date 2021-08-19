@@ -6,10 +6,11 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
-import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:deliver_flutter/shared/methods/phone.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/shared/widgets/fluid.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -37,9 +39,14 @@ class _LoginPageState extends State<LoginPage> {
   Timer checkTimer;
   Timer tokenGeneratorTimer;
   PhoneNumber phoneNumber;
+  final TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
+    if (phoneNumber?.nationalNumber != null) {
+      controller.text = phoneNumber?.nationalNumber.toString();
+    }
+
     if (isDesktop()) {
       checkTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
         try {
@@ -58,6 +65,16 @@ class _LoginPageState extends State<LoginPage> {
       tokenGeneratorTimer = Timer.periodic(Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
+    } else if (isAndroid()) {
+      SmsAutoFill().hint.then((value) {
+        final p = getPhoneNumber(value);
+        phoneNumber = p;
+        controller.text = p.nationalNumber.toString();
+        if (p != null) {
+          setState(() {});
+          checkAndGoNext(doNotCheckValidator: true);
+        }
+      });
     }
     super.initState();
   }
@@ -72,19 +89,18 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    loginToken.close();
-    checkTimer.cancel();
-    tokenGeneratorTimer.cancel();
+    loginToken?.close();
+    checkTimer?.cancel();
+    tokenGeneratorTimer?.cancel();
     super.dispose();
   }
 
-  checkAndGoNext() async {
+  checkAndGoNext({bool doNotCheckValidator = false}) async {
     I18N i18n = I18N.of(context);
     var isValidated = _formKey?.currentState?.validate() ?? false;
-    if (isValidated && phoneNumber != null) {
+    if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
       try {
-        var res = await _authRepo.getVerificationCode(
-            phoneNumber.countryCode, phoneNumber.nationalNumber);
+        var res = await _authRepo.getVerificationCode(phoneNumber);
         if (res != null)
           ExtendedNavigator.of(context).push(Routes.verificationPage);
         else
@@ -136,22 +152,27 @@ class _LoginPageState extends State<LoginPage> {
           StreamBuilder<String>(
               stream: loginToken.stream,
               builder: (context, snapshot) {
-                if(snapshot.hasData && snapshot.data != null && snapshot.data.isNotEmpty)
-                return Container(
-                  width: 200,
-                  height: 200,
-                  padding: const EdgeInsets.all(8.0),
-                  color: Colors.white,
-                  child: QrImage(
-                    data: "https://deliver-co.ir/login?token=${snapshot.data}",
-                    version: QrVersions.auto,
-                    // embeddedImage: FileImage(File("")),
-                    padding: EdgeInsets.zero,
-                    foregroundColor: Colors.black,
-                  ),
-                );
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data.isNotEmpty)
+                  return Container(
+                    width: 200,
+                    height: 200,
+                    padding: const EdgeInsets.all(8.0),
+                    color: Colors.white,
+                    child: QrImage(
+                      data:
+                          "https://deliver-co.ir/login?token=${snapshot.data}",
+                      version: QrVersions.auto,
+                      // embeddedImage: FileImage(File("")),
+                      padding: EdgeInsets.zero,
+                      foregroundColor: Colors.black,
+                    ),
+                  );
                 else
-                  return Center(child: CircularProgressIndicator(),);
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
               }),
           SizedBox(height: 30),
           Text("1. Open Deliver on your phone"),
@@ -199,8 +220,9 @@ class _LoginPageState extends State<LoginPage> {
                   height: 5,
                 ),
                 IntlPhoneField(
-                  initialValue:
-                      phoneNumber != null ? phoneNumber.nationalNumber : "",
+                  initialCountryCode:
+                      phoneNumber?.countryCode?.toString() ?? "98",
+                  controller: controller,
                   validator: (value) => value.length != 10 ||
                           (value.length > 0 && value[0] == '0')
                       ? i18n.get("invalid_mobile_number")

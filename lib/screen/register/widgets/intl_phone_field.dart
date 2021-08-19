@@ -2,11 +2,13 @@ library intl_phone_field;
 
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 import './countries.dart';
-import './phone_number.dart';
 
 class IntlPhoneField extends StatefulWidget {
   final bool obscureText;
@@ -59,24 +61,14 @@ class IntlPhoneField extends StatefulWidget {
 }
 
 class _IntlPhoneFieldState extends State<IntlPhoneField> {
+  final _i18n = GetIt.I.get<I18N>();
+
   Map<String, String> _selectedCountry =
       countries.firstWhere((item) => item['code'] == 'IR');
   List<Map<String, String>> filteredCountries = countries;
-  FormFieldValidator<String> validator;
-
-  // final TextInputFormatter formatter =
-  //     TextInputFormatter.withFunction((oldValue, newValue) {
-  //   if (newValue.text.length <= oldValue.text.length) return newValue;
-  //   return newValue.text.length > 10 ? oldValue : newValue;
-  // });
 
   @override
   void initState() {
-    if (widget.initialCountryCode != null) {
-      _selectedCountry = countries
-          .firstWhere((item) => item['code'] == widget.initialCountryCode);
-    }
-    validator = widget.validator;
     super.initState();
   }
 
@@ -154,12 +146,14 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     setState(() {});
   }
 
-  I18N i18n;
-
   @override
   Widget build(BuildContext context) {
-    i18n = I18N.of(context);
-    //  widget.decoration.prefix = _selectedCountry['dial_code'];
+    if (widget.initialCountryCode != null &&
+        widget.initialCountryCode.isNotEmpty) {
+      _selectedCountry = countries.firstWhere(
+          (item) => item['dial_code'] == "+${widget.initialCountryCode}");
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -178,13 +172,9 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             focusNode: widget.focusNode,
             onFieldSubmitted: (s) {
               if (widget.onSubmitted != null)
-                widget.onSubmitted(
-                  PhoneNumber(
-                    countryISOCode: _selectedCountry['code'],
-                    countryCode: _selectedCountry['dial_code'],
-                    nationalNumber: s,
-                  ),
-                );
+                widget.onSubmitted(PhoneNumber()
+                  ..countryCode = int.parse(_selectedCountry['dial_code'])
+                  ..nationalNumber = Int64.parseInt(s));
             },
             decoration: InputDecoration(
               suffixIcon: Icon(
@@ -195,7 +185,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                 "${_selectedCountry['dial_code']}  ",
                 style: TextStyle(color: ExtraTheme.of(context).textField),
               ),
-              labelText: i18n.get("phone_number"),
+              labelText: _i18n.get("phone_number"),
               labelStyle: TextStyle(color: ExtraTheme.of(context).textField),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.0),
@@ -215,25 +205,17 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
               if (widget.onSaved != null)
-                widget.onSaved(
-                  PhoneNumber(
-                    countryISOCode: _selectedCountry['code'],
-                    countryCode: _selectedCountry['dial_code'],
-                    nationalNumber: value,
-                  ),
-                );
+                widget.onSaved(PhoneNumber()
+                  ..countryCode = int.parse(_selectedCountry['dial_code'])
+                  ..nationalNumber = Int64.parseInt(value));
             },
             onChanged: (value) {
               if (widget.onChanged != null)
-                widget.onChanged(
-                  PhoneNumber(
-                    countryISOCode: _selectedCountry['code'],
-                    countryCode: _selectedCountry['dial_code'],
-                    nationalNumber: value,
-                  ),
-                );
+                widget.onChanged(PhoneNumber()
+                  ..countryCode = int.parse(_selectedCountry['dial_code'])
+                  ..nationalNumber = Int64.parseInt(value));
             },
-            validator: validator,
+            validator: widget.validator,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
             enabled: widget.enabled,

@@ -8,6 +8,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/shared/methods/phone.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
@@ -18,7 +19,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
@@ -50,13 +50,7 @@ class ContactRepo {
         for (OsContact.Contact phoneContact in phoneContacts) {
           for (var p in phoneContact.phones) {
             try {
-              String contactPhoneNumber = p.value
-                  .toString()
-                  .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
-                  .replaceAll('+', '')
-                  .replaceAll('(', '')
-                  .replaceAll(')', '')
-                  .replaceAll('-', '');
+              String contactPhoneNumber = p.value.toString();
               PhoneNumber phoneNumber =
                   _getPhoneNumber(contactPhoneNumber, phoneContact.displayName);
               _contactsDisplayName[phoneNumber] = phoneContact.displayName;
@@ -75,23 +69,13 @@ class ContactRepo {
   }
 
   PhoneNumber _getPhoneNumber(String phone, String name) {
-    PhoneNumber phoneNumber = PhoneNumber();
-    switch (phone.length) {
-      case 11:
-        phoneNumber.countryCode = 98;
-        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
-        return phoneNumber;
-        break;
-      case 12:
-        phoneNumber.countryCode = int.parse(phone.substring(0, 2));
-        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));
-        return phoneNumber;
-      case 10:
-        phoneNumber.countryCode = 98;
-        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
-        return phoneNumber;
+    PhoneNumber p = getPhoneNumber(phone);
+
+    if (p == null) {
+      throw Exception("Not Valid Number  $name ***** $phone");
+    } else {
+      return p;
     }
-    throw Exception("Not Valid Number  $name ***** $phone");
   }
 
   Future sendContacts(List<Contact> contacts) async {

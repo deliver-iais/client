@@ -50,17 +50,14 @@ class AuthRepo {
 
   String platformVersion;
 
-  Future getVerificationCode(String countryCode, String nationalNumber) async {
+  Future getVerificationCode(PhoneNumber p) async {
     Pb.Platform platform = await getPlatformDetails();
 
     try {
-      PhoneNumber phone = PhoneNumber()
-        ..countryCode = int.parse(countryCode)
-        ..nationalNumber = Int64.parseInt(nationalNumber);
-      this._tmpPhoneNumber = phone;
+      this._tmpPhoneNumber = p;
       var verificationCode =
           await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
-            ..phoneNumber = phone
+            ..phoneNumber = p
             ..type = VerificationType.SMS
             ..platform = platform);
       return verificationCode;
