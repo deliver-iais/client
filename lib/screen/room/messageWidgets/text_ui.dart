@@ -83,6 +83,7 @@ class TextUI extends StatelessWidget {
   List<Block> extractBlocks(String text, BuildContext context) {
     List<Block> blocks = [Block(text: text)];
     List<Parser> parsers = [
+      EmojiParser(),
       if (searchTerm != null && searchTerm.isNotEmpty)
         SearchTermParser(searchTerm),
       UrlParser(),
@@ -158,6 +159,21 @@ class ItalicTextParser implements Parser {
             .textTheme
             .bodyText2
             .copyWith(fontStyle: FontStyle.italic),
+      );
+}
+
+class EmojiParser implements Parser {
+  final RegExp regex = RegExp(
+      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+');
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        style: Theme.of(context)
+            .textTheme
+            .bodyText2
+            .copyWith(fontSize: 18),
       );
 }
 

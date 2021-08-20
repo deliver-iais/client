@@ -87,17 +87,18 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
           child: Container(
               child: Lottie.asset(getPath(), controller: _controller,
                   onLoaded: (composition) {
-            // Configure the AnimationController with the duration of the
-            // Lottie file and start the animation.
-            _controller
-              ..duration = composition.duration
-              ..forward();
-          }, width: 100, height: 100, repeat: false)),
+                // Configure the AnimationController with the duration of the
+                // Lottie file and start the animation.
+                _controller
+                  ..duration = composition.duration
+                  ..forward();
+              }, width: 120, height: 120, repeat: false),
+              width: 120,
+              height: 120),
         ),
         Container(
-          padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(20),
             color: isSender
                 ? ExtraTheme.of(context).sentMessageBox
                 : ExtraTheme.of(context).receivedMessageBox,

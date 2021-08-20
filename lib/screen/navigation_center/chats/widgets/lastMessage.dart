@@ -3,9 +3,9 @@ import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_flutter/shared/widgets/seen_status.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -38,7 +38,9 @@ class LastMessage extends StatelessWidget {
         future: extractMessageBrief(
             _i18n, _roomRepo, _authRepo, extractProtocolBufferMessage(message)),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return Container(height: Theme.of(context).textTheme.bodyText2.fontSize + 7);
+          if (!snapshot.hasData)
+            return Container(
+                height: Theme.of(context).textTheme.bodyText2.fontSize + 7);
           final mb = snapshot.data;
           return Row(
             children: [
@@ -58,30 +60,21 @@ class LastMessage extends StatelessWidget {
                         TextSpan(
                             text: "${mb.sender.trim()}" +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: ExtraTheme.of(context).username)),
+                            style:
+                                Theme.of(context).primaryTextTheme.bodyText2),
                       if (mb.typeDetails.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: ExtraTheme.of(context).username)),
+                            style:
+                                Theme.of(context).primaryTextTheme.bodyText2),
                       if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
                         TextSpan(
                             text: ", ",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: ExtraTheme.of(context).username)),
+                            style:
+                                Theme.of(context).primaryTextTheme.bodyText2),
                       if (mb.text.isNotEmpty)
                         TextSpan(
-                            text: buildText(mb),
+                            children: buildText(mb, context),
                             style: Theme.of(context).textTheme.bodyText2),
                     ])),
               ),
@@ -108,8 +101,26 @@ class LastMessage extends StatelessWidget {
         });
   }
 
-  String buildText(MessageBrief mb) {
-    return mb.text.split("\n").map((e) => e.trim()).where((e) => e.trim().isNotEmpty).join(" ");
-    // return mb.text.split("\n").first;
+  List<TextSpan> buildText(MessageBrief mb, BuildContext context) =>
+      extractBlocks(
+              mb.text
+                  .split("\n")
+                  .map((e) => e.trim())
+                  .where((e) => e.trim().isNotEmpty)
+                  .join(" "),
+              context)
+          .where((b) => b.text != null && b.text.isNotEmpty)
+          .map((e) => TextSpan(text: e.text, style: e.style))
+          .toList();
+
+  List<Block> extractBlocks(String text, BuildContext context) {
+    List<Block> blocks = [Block(text: text)];
+    List<Parser> parsers = [BoldTextParser(), ItalicTextParser()];
+
+    for (final p in parsers) {
+      blocks = p.parse(blocks, context);
+    }
+
+    return blocks;
   }
 }
