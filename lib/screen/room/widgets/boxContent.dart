@@ -14,6 +14,7 @@ import 'package:deliver_flutter/screen/room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/text_message/text_ui.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver_flutter/screen/room/widgets/sharePrivateDataAcceptMessageWidget.dart';
 import 'package:deliver_flutter/screen/room/widgets/sharePrivateDataRequestMessageWidget.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_uid_message_widget.dart';
@@ -52,13 +53,8 @@ class BoxContent extends StatefulWidget {
 }
 
 class _BoxContentState extends State<BoxContent> {
-  CrossAxisAlignment last = CrossAxisAlignment.start;
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
-
-  void initialLastCross(CrossAxisAlignment c) {
-    last = c;
-  }
 
   I18N _i18n;
 
@@ -68,7 +64,7 @@ class _BoxContentState extends State<BoxContent> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Column(
-        crossAxisAlignment: last,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (widget.message.roomUid.asUid().category == Categories.GROUP &&
               !widget.isSender)
@@ -167,30 +163,29 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget messageBox() {
     if (AnimatedEmoji.isAnimatedEmoji(widget.message))
-      return AnimatedEmoji(message: widget.message, isSeen: widget.isSeen ,);
+      return AnimatedEmoji(
+        message: widget.message,
+        isSeen: widget.isSeen,
+      );
 
     switch (widget.message.type) {
       case MessageType.TEXT:
-        return TextUi(
-          pattern: widget.pattern,
+        return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
           isSender: widget.isSender,
-          isCaption: false,
+          isSeen: widget.isSeen,
+          searchTerm: widget.pattern,
+          onUsernameClick: widget.onUsernameClick,
           isBotMessage: widget.message.from.asUid().category == Categories.BOT,
           onBotCommandClick: widget.onBotCommandClick,
-          onUsernameClick: widget.onUsernameClick,
-          isSeen: widget.isSeen,
-          color: ExtraTheme.of(context).textMessage,
         );
         break;
       case MessageType.FILE:
         return FileMessageUi(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          lastCross: initialLastCross,
           isSender: widget.isSender,
-          last: last,
           isSeen: widget.isSeen,
         );
         break;

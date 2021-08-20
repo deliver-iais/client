@@ -88,4 +88,4 @@ double maxWidthOfMessage(BuildContext context) => min(
     (MediaQuery.of(context).size.width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
         0.7,
-    300);
+    500);

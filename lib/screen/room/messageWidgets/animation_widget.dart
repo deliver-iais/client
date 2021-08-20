@@ -33,6 +33,21 @@ class AnimatedEmoji extends StatefulWidget {
       case "😁":
       case "😉":
       case "😊":
+      case "😢":
+      case "🥰":
+      case "😱":
+      case "😐":
+      case "🤣":
+      case "😳":
+      case "💋":
+      case "🙃":
+      case "😒":
+      case "😞":
+      case "🤓":
+      case "😎":
+      case "😋":
+      case "😛":
+      case "🙂":
         return true;
     }
 

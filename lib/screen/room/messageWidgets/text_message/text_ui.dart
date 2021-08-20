@@ -22,7 +22,6 @@ class TextUi extends StatelessWidget {
   final double imageWidth;
   final String pattern;
   final Function onBotCommandClick;
-  final Color color;
 
   const TextUi(
       {Key key,
@@ -36,8 +35,7 @@ class TextUi extends StatelessWidget {
       this.pattern,
       this.onBotCommandClick,
       this.isBotMessage = false,
-      this.imageWidth,
-      this.color})
+      this.imageWidth})
       : super(key: key);
 
   @override
@@ -76,7 +74,7 @@ class TextUi extends StatelessWidget {
 
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
-    texts.add(disjointThenJoin(preProcess(lines, color), context));
+    texts.add(disjointThenJoin(preProcess(lines), context));
     return texts;
   }
 
@@ -162,18 +160,18 @@ class TextUi extends StatelessWidget {
   }
 }
 
-List<TextBlock> preProcess(List<String> texts, Color color) {
+List<TextBlock> preProcess(List<String> texts) {
   if (texts.length <= 0) {
-    return [TextBlock.withFirstText("", color)];
+    return [TextBlock.withFirstText("")];
   }
   bool currentLang = texts[0].isPersian();
-  List<TextBlock> blocks = [TextBlock.withFirstText(texts[0], color)];
+  List<TextBlock> blocks = [TextBlock.withFirstText(texts[0])];
   for (var i = 1; i < texts.length; i++) {
     if (currentLang == texts[i].isPersian()) {
       blocks.last.add(texts[i]);
     } else {
       currentLang = !currentLang;
-      blocks.add(TextBlock.withFirstText(texts[i], color));
+      blocks.add(TextBlock.withFirstText(texts[i]));
     }
   }
   return blocks;
@@ -183,13 +181,11 @@ class TextBlock {
   bool isRtl = false;
   List<String> texts = [];
   int ml = -1;
-  Color color;
 
-  TextBlock.withFirstText(String text, Color color) {
+  TextBlock.withFirstText(String text) {
     isRtl = text.isPersian();
     texts.add(text);
     ml = text.length;
-    this.color = color;
   }
 
   add(String t) {
@@ -231,7 +227,6 @@ class TextBlock {
                         onUsernameClick,
                         pattern,
                         onBotCommandClick,
-                        this.color,
                         context,
                         isBotMessage: isBotMessage)),
               ],
@@ -251,7 +246,6 @@ Widget _textWidget(
     Function onClick,
     String pattern,
     Function onBotCommandClick,
-    Color color,
     BuildContext context,
     {bool isBotMessage = false}) {
   return Wrap(
@@ -306,7 +300,13 @@ Widget _textWidget(
         ],
       ),
       if (i == lenght && isLastBlock)
-        TimeAndSeenStatus(message, isSender, isSeen, needsBackground: false, needsPositioned: false,)
+        TimeAndSeenStatus(
+          message,
+          isSender,
+          isSeen,
+          needsBackground: false,
+          needsPositioned: false,
+        )
     ],
   );
 }
