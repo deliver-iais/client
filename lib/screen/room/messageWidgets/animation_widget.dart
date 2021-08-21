@@ -7,8 +7,10 @@ import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dar
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+import 'package:archive/archive.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 class AnimatedEmoji extends StatefulWidget {
@@ -61,12 +63,23 @@ class AnimatedEmoji extends StatefulWidget {
 class _AnimatedEmojiState extends State<AnimatedEmoji>
     with TickerProviderStateMixin {
   AnimationController _controller;
+  Future<LottieComposition> _composition;
 
   @override
   void initState() {
     super.initState();
-
+    _composition = _loadComposition();
     _controller = AnimationController(vsync: this);
+  }
+
+  Future<LottieComposition> _loadComposition() async {
+    var assetData = await rootBundle.load(getPath());
+
+    var bytes = assetData.buffer.asUint8List();
+
+    bytes = GZipCodec().decode(bytes);
+
+    return await LottieComposition.fromBytes(bytes);
   }
 
   @override
@@ -82,20 +95,33 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
     return Column(
       children: [
-        GestureDetector(
-          onTap: () => _controller.forward(from: 0),
-          child: Container(
-              child: Lottie.asset(getPath(), controller: _controller,
-                  onLoaded: (composition) {
-                // Configure the AnimationController with the duration of the
-                // Lottie file and start the animation.
+        FutureBuilder<LottieComposition>(
+            future: _composition,
+            builder: (context, snapshot) {
+              var composition = snapshot.data;
+              if (composition != null) {
                 _controller
                   ..duration = composition.duration
                   ..forward();
-              }, width: 120, height: 120, repeat: false),
-              width: 120,
-              height: 120),
-        ),
+                return GestureDetector(
+                  onTap: () => _controller.forward(from: 0),
+                  child: Container(
+                      child: Lottie(
+                          composition: composition,
+                          controller: _controller,
+                          width: 120,
+                          height: 120,
+                          repeat: false),
+                      width: 120,
+                      height: 120),
+                );
+              } else
+                return Container(
+                    width: 120,
+                    height: 120,
+                    color: Colors.red,
+                    child: Text(getAlt(), style: TextStyle(fontSize: 20),));
+            }),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -120,7 +146,15 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
     final shortName = Emoji.byChar(content).shortName;
 
-    return 'assets/emoji/$shortName.tgs.json.zip';
+    return 'assets/emoji/$shortName.tgs';
+  }
+
+  String getAlt() {
+    final content = widget.message.json.toText().text;
+
+    final shortName = Emoji.byChar(content).shortName;
+
+    return 'assets/emoji/$shortName - $content';
   }
 }
 
