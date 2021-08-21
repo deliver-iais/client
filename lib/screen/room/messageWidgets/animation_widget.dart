@@ -50,6 +50,14 @@ class AnimatedEmoji extends StatefulWidget {
       case "😋":
       case "😛":
       case "🙂":
+      case "🤯":
+      case "😡":
+      case "🤬":
+      case "🥵":
+      case "🥶":
+      // case "☹️️":
+      case "🥺":
+      case "😔":
         return true;
     }
 
@@ -120,7 +128,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
                     width: 120,
                     height: 120,
                     color: Colors.red,
-                    child: Text(getAlt(), style: TextStyle(fontSize: 20),));
+                    child: Text(getAlt(), style: TextStyle(fontSize: 10),));
             }),
         Container(
           decoration: BoxDecoration(
