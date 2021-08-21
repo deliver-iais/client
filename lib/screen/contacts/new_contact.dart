@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';

@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';

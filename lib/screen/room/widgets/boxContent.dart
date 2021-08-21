@@ -13,7 +13,6 @@ import 'package:deliver_flutter/screen/room/messageWidgets/locatioin_message.dar
 import 'package:deliver_flutter/screen/room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/stickerMessgeWidget.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/text_message/text_ui.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver_flutter/screen/room/widgets/sharePrivateDataAcceptMessageWidget.dart';
 import 'package:deliver_flutter/screen/room/widgets/sharePrivateDataRequestMessageWidget.dart';

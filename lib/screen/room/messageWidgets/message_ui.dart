@@ -3,10 +3,8 @@ import 'dart:math';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/image_message/image_ui.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/message_header.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/text_message/text_ui.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/video_message/video_message.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 

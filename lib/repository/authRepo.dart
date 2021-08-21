@@ -20,7 +20,6 @@ import 'package:get_it/get_it.dart';
 
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 import 'package:synchronized/synchronized.dart';
 

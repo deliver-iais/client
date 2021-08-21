@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:archive/archive.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 class AnimatedEmoji extends StatefulWidget {
