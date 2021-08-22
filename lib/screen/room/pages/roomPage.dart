@@ -30,6 +30,7 @@ import 'package:deliver_flutter/screen/room/widgets/mute_and_unmute_room_widget.
 import 'package:deliver_flutter/screen/room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/screen/room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/room/widgets/sendedMessageBox.dart';
+import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
@@ -131,126 +132,160 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: buildAppbar(),
       body: Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("assets/backgrounds/a.png"),
-                fit: BoxFit.scaleDown,
-                repeat: ImageRepeat.repeat)),
-        child: Column(
-          children: <Widget>[
-            AudioPlayerAppBar(),
-            Divider(),
-            pinMessageWidget(),
-            Expanded(
-              child: StreamBuilder<List<PendingMessage>>(
-                  stream: _messageRepo.watchPendingMessages(widget.roomId),
-                  builder: (context, pendingMessagesStream) {
-                    List<PendingMessage> pendingMessages =
-                        pendingMessagesStream.data ?? [];
-                    return StreamBuilder<Room>(
-                        stream: _roomRepo.watchRoom(widget.roomId),
-                        builder: (context, currentRoomStream) {
-                          if (currentRoomStream.hasData) {
-                            _currentRoom.add(currentRoomStream.data);
-                            int i = (_currentRoom.value.lastMessageId ?? 0) +
-                                pendingMessages.length;
-                            if (_itemCount != 0 && i != _itemCount)
-                              _itemCountSubject.add(_itemCount);
-                            _itemCount = i;
-                            return Stack(
-                              alignment: AlignmentDirectional.bottomStart,
-                              children: [
-                                buildMessagesListView(pendingMessages),
-                                StreamBuilder<int>(
-                                  stream: _showProgressBar.stream,
-                                  builder: (c, s) {
-                                    if (s.hasData && s.data > 0)
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          color: Theme.of(context).primaryColor,
-                                        ),
-                                      );
-                                    else
-                                      return SizedBox.shrink();
-                                  },
-                                ),
-                                StreamBuilder(
-                                    stream: _positionSubject.stream,
-                                    builder: (c, position) {
-                                      if (_itemCount - (position.data ?? 0) >
-                                          4) {
-                                        return scrollDownButtonWidget();
-                                      } else {
-                                        return SizedBox.shrink();
-                                      }
-                                    }),
-                              ],
-                            );
-                          } else {
-                            return SizedBox(
-                              height: 50,
-                            );
-                          }
-                        });
-                  }),
+        child: Stack(
+          children: [
+            Center(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Theme.of(context).brightness == Brightness.dark ? Alignment.centerLeft : Alignment.centerRight,
+                    end: Theme.of(context).brightness == Brightness.dark ? Alignment.centerRight : Alignment.centerLeft,
+                    colors: [
+                      darken(Theme.of(context).backgroundColor, 5),
+                      lighten(Theme.of(context).backgroundColor, 5)
+                    ],
+                  )
+                ),
+                child: ShaderMask(
+                  child: Image(
+                      image: AssetImage("assets/backgrounds/pattern-24.png"),
+                      fit: BoxFit.scaleDown,
+                      repeat: ImageRepeat.repeat),
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      colors: [
+                        Theme.of(context).brightness == Brightness.light ? darken(Theme.of(context).backgroundColor, 9) : lighten(Theme.of(context).backgroundColor, 5),
+                        Theme.of(context).brightness == Brightness.light ? darken(Theme.of(context).backgroundColor, 15) : lighten(Theme.of(context).backgroundColor, 12)
+                      ],
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.srcATop,
+                ),
+              ),
             ),
-            StreamBuilder(
-                stream: _repliedMessage.stream,
-                builder: (c, rm) {
-                  if (rm.hasData && rm.data != null) {
-                    return ReplyPreview(
-                        message: _repliedMessage.value,
-                        resetRoomPageDetails: _resetRoomPageDetails);
-                  }
-                  return Container();
-                }),
-            StreamBuilder(
-                stream: _waitingForForwardedMessage.stream,
-                builder: (c, wm) {
-                  if (wm.hasData && wm.data) {
-                    return ForwardPreview(
-                      forwardedMessages: widget.forwardedMessages,
-                      shareUid: widget.shareUid,
-                      onClick: () {
-                        _waitingForForwardedMessage.add(false);
-                      },
-                    );
-                  } else {
-                    return Container();
-                  }
-                }),
-            SearchInMessageButton(
-                keyboardWidget: keyboardWidget,
-                searchMode: _searchMode,
-                searchResult: searchResult,
-                currentSearchResultMessage: currentSearchResultMessage,
-                roomId: widget.roomId,
-                scrollDown: () {
-                  if (searchResult.indexOf(currentSearchResultMessage) !=
-                      searchResult.length)
-                    _itemScrollController.scrollTo(
-                        index: searchResult[searchResult
-                                .indexOf(currentSearchResultMessage)]
-                            .id,
-                        duration: Duration(microseconds: 1));
-                  setState(() {
-                    currentSearchResultMessage = searchResult[
-                        searchResult.indexOf(currentSearchResultMessage) + 1];
-                  });
-                },
-                scrollUp: () {
-                  if (searchResult.indexOf(currentSearchResultMessage) != 0)
-                    _itemScrollController.scrollTo(
-                        index: searchResult[searchResult
-                                    .indexOf(currentSearchResultMessage) -
-                                1]
-                            .id,
-                        duration: Duration(microseconds: 1));
-                  setState(() {
-                    currentSearchResultMessage = searchResult[
-                        searchResult.indexOf(currentSearchResultMessage) - 1];
-                  });
-                }),
+            Column(
+              children: <Widget>[
+                AudioPlayerAppBar(),
+                Divider(),
+                pinMessageWidget(),
+                Expanded(
+                  child: StreamBuilder<List<PendingMessage>>(
+                      stream: _messageRepo.watchPendingMessages(widget.roomId),
+                      builder: (context, pendingMessagesStream) {
+                        List<PendingMessage> pendingMessages =
+                            pendingMessagesStream.data ?? [];
+                        return StreamBuilder<Room>(
+                            stream: _roomRepo.watchRoom(widget.roomId),
+                            builder: (context, currentRoomStream) {
+                              if (currentRoomStream.hasData) {
+                                _currentRoom.add(currentRoomStream.data);
+                                int i =
+                                    (_currentRoom.value.lastMessageId ?? 0) +
+                                        pendingMessages.length;
+                                if (_itemCount != 0 && i != _itemCount)
+                                  _itemCountSubject.add(_itemCount);
+                                _itemCount = i;
+                                return Stack(
+                                  alignment: AlignmentDirectional.bottomStart,
+                                  children: [
+                                    buildMessagesListView(pendingMessages),
+                                    StreamBuilder<int>(
+                                      stream: _showProgressBar.stream,
+                                      builder: (c, s) {
+                                        if (s.hasData && s.data > 0)
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                          );
+                                        else
+                                          return SizedBox.shrink();
+                                      },
+                                    ),
+                                    StreamBuilder(
+                                        stream: _positionSubject.stream,
+                                        builder: (c, position) {
+                                          if (_itemCount -
+                                                  (position.data ?? 0) >
+                                              4) {
+                                            return scrollDownButtonWidget();
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        }),
+                                  ],
+                                );
+                              } else {
+                                return SizedBox(
+                                  height: 50,
+                                );
+                              }
+                            });
+                      }),
+                ),
+                StreamBuilder(
+                    stream: _repliedMessage.stream,
+                    builder: (c, rm) {
+                      if (rm.hasData && rm.data != null) {
+                        return ReplyPreview(
+                            message: _repliedMessage.value,
+                            resetRoomPageDetails: _resetRoomPageDetails);
+                      }
+                      return Container();
+                    }),
+                StreamBuilder(
+                    stream: _waitingForForwardedMessage.stream,
+                    builder: (c, wm) {
+                      if (wm.hasData && wm.data) {
+                        return ForwardPreview(
+                          forwardedMessages: widget.forwardedMessages,
+                          shareUid: widget.shareUid,
+                          onClick: () {
+                            _waitingForForwardedMessage.add(false);
+                          },
+                        );
+                      } else {
+                        return Container();
+                      }
+                    }),
+                SearchInMessageButton(
+                    keyboardWidget: keyboardWidget,
+                    searchMode: _searchMode,
+                    searchResult: searchResult,
+                    currentSearchResultMessage: currentSearchResultMessage,
+                    roomId: widget.roomId,
+                    scrollDown: () {
+                      if (searchResult.indexOf(currentSearchResultMessage) !=
+                          searchResult.length)
+                        _itemScrollController.scrollTo(
+                            index: searchResult[searchResult
+                                    .indexOf(currentSearchResultMessage)]
+                                .id,
+                            duration: Duration(microseconds: 1));
+                      setState(() {
+                        currentSearchResultMessage = searchResult[
+                            searchResult.indexOf(currentSearchResultMessage) +
+                                1];
+                      });
+                    },
+                    scrollUp: () {
+                      if (searchResult.indexOf(currentSearchResultMessage) != 0)
+                        _itemScrollController.scrollTo(
+                            index: searchResult[searchResult
+                                        .indexOf(currentSearchResultMessage) -
+                                    1]
+                                .id,
+                            duration: Duration(microseconds: 1));
+                      setState(() {
+                        currentSearchResultMessage = searchResult[
+                            searchResult.indexOf(currentSearchResultMessage) -
+                                1];
+                      });
+                    }),
+              ],
+            ),
           ],
         ),
       ),

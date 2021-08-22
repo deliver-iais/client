@@ -22,25 +22,17 @@ class ReplyBrief extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             return Padding(
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(4),
               child: Container(
                 constraints: BoxConstraints.loose(Size.fromWidth(200)),
                 padding: const EdgeInsets.only(left: 8.0),
+                margin: const EdgeInsets.only(left: 2.0),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment(1, 0.0),
-                    colors: <Color>[
-                      Theme.of(context).dividerColor.withAlpha(45),
-                      Color(0x11ffffff)
-                    ],
-                    tileMode: TileMode.repeated,
-                  ),
-                  border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Color(0x22ffffff)
-                          : Color(0x11000000)),
-                  borderRadius: BorderRadius.circular(10),
+                  border: Border(
+                      left: BorderSide(
+                        width: 3,
+                          color: Theme.of(context).primaryColor)),
+                  // borderRadius: BorderRadius.circular(10),
                 ),
                 child: SenderAndContent(
                   messages: [snapshot.data],

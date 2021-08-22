@@ -68,10 +68,7 @@ class _BoxContentState extends State<BoxContent> {
           if (widget.message.roomUid.asUid().category == Categories.GROUP &&
               !widget.isSender)
             senderNameBox(),
-          if (widget.message.to.asUid().category != Categories.BOT &&
-              widget.message.replyToId != null &&
-              widget.message.replyToId > 0)
-            replyToIdBox(),
+          if (hasReply()) replyToIdBox(),
           if (widget.message.forwardedFrom != null &&
               widget.message.forwardedFrom.length > 3)
             forwardedFromBox(),
@@ -172,6 +169,7 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
+          minWidth: hasReply() ? 200 : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           searchTerm: widget.pattern,
@@ -243,5 +241,11 @@ class _BoxContentState extends State<BoxContent> {
         break;
     }
     return Container();
+  }
+
+  bool hasReply() {
+    return widget.message.to.asUid().category != Categories.BOT &&
+        widget.message.replyToId != null &&
+        widget.message.replyToId > 0;
   }
 }

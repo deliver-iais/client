@@ -442,7 +442,7 @@ class Empty extends StatelessWidget {
       decoration: BoxDecoration(
         image: Theme.of(context).brightness == Brightness.light
             ? DecorationImage(
-                image: AssetImage("assets/backgrounds/a.png"),
+                image: AssetImage("assets/backgrounds/pattern-24.png"),
                 fit: BoxFit.scaleDown,
                 repeat: ImageRepeat.repeat,
               )

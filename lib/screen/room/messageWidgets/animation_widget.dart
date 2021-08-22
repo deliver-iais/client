@@ -123,11 +123,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
                       height: 120),
                 );
               } else
-                return Container(
-                    width: 120,
-                    height: 120,
-                    color: Colors.red,
-                    child: Text(getAlt(), style: TextStyle(fontSize: 10),));
+                return Container(width: 120, height: 120);
             }),
         Container(
           decoration: BoxDecoration(

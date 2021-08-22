@@ -12,6 +12,7 @@ import 'package:deliver_flutter/shared/methods/isPersian.dart';
 class TextUI extends StatelessWidget {
   final Message message;
   final double maxWidth;
+  final double minWidth;
   final bool isSender;
   final bool isSeen;
   final String searchTerm;
@@ -23,6 +24,7 @@ class TextUI extends StatelessWidget {
       {Key key,
       this.message,
       this.maxWidth,
+      this.minWidth = 0,
       this.isSender = false,
       this.isSeen = false,
       this.searchTerm,
@@ -45,11 +47,16 @@ class TextUI extends StatelessWidget {
     }).toList();
 
     return Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
+      constraints: BoxConstraints.loose(Size.fromWidth(maxWidth))
+          .copyWith(minWidth: minWidth),
       padding: const EdgeInsets.all(4),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.end,
-        textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+      child: Column(
+        crossAxisAlignment: isSender
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        textDirection: isSender
+            ? TextDirection.ltr
+            : TextDirection.rtl,
         children: [
           SelectableText.rich(
             TextSpan(
@@ -170,10 +177,7 @@ class EmojiParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
-        style: Theme.of(context)
-            .textTheme
-            .bodyText2
-            .copyWith(fontSize: 18),
+        style: Theme.of(context).textTheme.bodyText2.copyWith(fontSize: 18),
       );
 }
 

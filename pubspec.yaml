@@ -143,6 +143,7 @@ dependencies:
   flutter_blurhash: 0.6.0
   hive_flutter: 1.1.0
   marquee: 2.2.0
+  flutter_svg: 0.22.0
 
 dev_dependencies:
   flutter_test:
@@ -175,7 +176,7 @@ flutter:
     - assets/audios/incoming-msg.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
-    - assets/backgrounds/a.png
+    - assets/backgrounds/
     - assets/animations/done.json
     - assets/animations/loading.json
     - assets/animations/error.json
