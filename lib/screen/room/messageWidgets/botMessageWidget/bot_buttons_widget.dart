@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -18,30 +17,43 @@ class BotButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var buttons = message.json.toButtons();
     return Container(
-        child: Stack(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         SizedBox(
-          height: 60 * buttons.buttons.length.toDouble(),
-          width: 200,
+          height: 40 * buttons.buttons.length.toDouble(),
+          width: 250,
           child: Padding(
             padding: const EdgeInsets.only(top: 5),
             child: ListView.separated(
                 itemCount: buttons.buttons.length,
                 itemBuilder: (c, index) {
-                  return Center(
+                  return Container(
+                    width: 300,
+                    height: 35,
                     child: OutlinedButton(
                         onPressed: () {
                           _messageRepo.sendTextMessage(
                               message.from.asUid(), buttons.buttons[index]);
                         },
-                        child: Text(buttons.buttons[index],style: TextStyle(color: ExtraTheme.of(context).textField),)),
+                        style: OutlinedButton.styleFrom(
+                            primary: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            side: BorderSide(
+                                color: Theme.of(context).primaryColor)),
+                        child: Text(
+                          buttons.buttons[index],
+                          // style: Theme.of(context).primaryTextTheme.bodyText2,
+                        )),
                   );
-                }, separatorBuilder: (BuildContext context, int index) {
-                  return SizedBox(height: 5,);
-            },),
+                },
+                separatorBuilder: (BuildContext context, int index) =>
+                    SizedBox(height: 5)),
           ),
         ),
-        TimeAndSeenStatus(message, false, false, needsBackground: true),
+        TimeAndSeenStatus(message, false, false, needsBackground: false),
       ],
     ));
   }

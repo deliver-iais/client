@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,42 +28,46 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
           Map<String, String> botCommands = botInfo.data.commands;
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(5)),
+              color: ExtraTheme.of(context).boxBackground,
             ),
             child: SizedBox(
-              height: botCommands.keys.length * 35.toDouble(),
+              height: botCommands.keys.length * (26.0 + 16),
               child: Scrollbar(
-                  child: ListView.builder(
-                      itemCount: botCommands.length,
-                      itemBuilder: (c, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          child: GestureDetector(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "/" + botCommands.keys.toList()[index],
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 18),
-                                ),
-                                Text(
-                                  botCommands.values.toList()[index],
-                                  style: TextStyle(
-                                      color: Theme.of(context).primaryColor,
-                                      fontSize: 14),
-                                ),
-                              ],
-                            ),
-                            onTap: () {
-                              widget.onCommandClick(
-                                  botCommands.keys.toList()[index]);
-                            },
+                  child: ListView.separated(
+                itemCount: botCommands.length,
+                itemBuilder: (c, index) {
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: GestureDetector(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "/" + botCommands.keys.toList()[index],
+                            style: Theme.of(context).textTheme.subtitle1,
                           ),
-                        );
-                      })),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Opacity(
+                              opacity: 0.6,
+                              child: Text(
+                                botCommands.values.toList()[index],
+                                style: Theme.of(context).textTheme.bodyText2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        widget.onCommandClick(botCommands.keys.toList()[index]);
+                      },
+                    ),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) =>
+                    Divider(),
+              )),
             ),
           );
         } else {

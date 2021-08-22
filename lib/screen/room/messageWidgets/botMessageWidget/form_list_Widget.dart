@@ -35,14 +35,14 @@ class _FormListWidgetState extends State<FormListWidget> {
             decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15)),
+                    borderRadius: BorderRadius.circular(10)),
                 suffixIcon: widget.formField.isOptional?SizedBox.shrink(): Padding(
                   padding: const EdgeInsets.only(top: 20, left: 25),
                   child: Text(

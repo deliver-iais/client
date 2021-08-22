@@ -115,7 +115,11 @@ class LastMessage extends StatelessWidget {
 
   List<Block> extractBlocks(String text, BuildContext context) {
     List<Block> blocks = [Block(text: text)];
-    List<Parser> parsers = [BoldTextParser(), ItalicTextParser()];
+    List<Parser> parsers = [
+      EmojiParser(fontSize: 16),
+      BoldTextParser(),
+      ItalicTextParser()
+    ];
 
     for (final p in parsers) {
       blocks = p.parse(blocks, context);

@@ -105,8 +105,6 @@ class RoutingService {
         path: "/room/$roomId"));
   }
 
-
-
   void openSettings() {
     var widget = SettingsPage(key: ValueKey("/settings"));
     _push(Page(
@@ -439,16 +437,7 @@ class Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        image: Theme.of(context).brightness == Brightness.light
-            ? DecorationImage(
-                image: AssetImage("assets/backgrounds/pattern-24.png"),
-                fit: BoxFit.scaleDown,
-                repeat: ImageRepeat.repeat,
-              )
-            : null,
-        color: Theme.of(context).backgroundColor,
-      ),
+      color: Theme.of(context).backgroundColor,
       child: Center(
         child: Container(
             padding: const EdgeInsets.all(8),

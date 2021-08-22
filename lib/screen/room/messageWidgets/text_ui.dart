@@ -51,12 +51,9 @@ class TextUI extends StatelessWidget {
           .copyWith(minWidth: minWidth),
       padding: const EdgeInsets.all(4),
       child: Column(
-        crossAxisAlignment: isSender
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
-        textDirection: isSender
-            ? TextDirection.ltr
-            : TextDirection.rtl,
+        crossAxisAlignment:
+            isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
           SelectableText.rich(
             TextSpan(
@@ -170,14 +167,20 @@ class ItalicTextParser implements Parser {
 }
 
 class EmojiParser implements Parser {
+  final double fontSize;
   final RegExp regex = RegExp(
       r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+');
+
+  EmojiParser({this.fontSize = 18});
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
-        style: Theme.of(context).textTheme.bodyText2.copyWith(fontSize: 18),
+        style: Theme.of(context).textTheme.bodyText2.copyWith(
+            fontSize: fontSize,
+            fontFamily: "NotoColorEmoji",
+            fontFamilyFallback: ["NotoColorEmoji"]),
       );
 }
 
