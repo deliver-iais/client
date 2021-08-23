@@ -10,7 +10,7 @@ class ShowMentionList extends StatelessWidget {
   final String roomUid;
   final String query;
 
-  ShowMentionList({this.query = "", this.onSelected, this.roomUid});
+  ShowMentionList({this.query = "-", this.onSelected, this.roomUid});
 
   final _mucRepo = GetIt.I.get<MucRepo>();
 
@@ -25,7 +25,7 @@ class ShowMentionList extends StatelessWidget {
                 child: SizedBox(
                     height: members.data.length >= 4
                         ? 180
-                        : double.parse((members.data.length * 50).toString()),
+                        : (members.data.length * 50.0),
                     child: Container(
                         color: ExtraTheme.of(context).boxBackground,
                         child: ListView.builder(

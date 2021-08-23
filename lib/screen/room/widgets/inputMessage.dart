@@ -78,10 +78,10 @@ class _InputMessageWidget extends State<InputMessage> {
   String mentionQuery;
   Timer recordAudioTimer;
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
-  BehaviorSubject<String> _showBotCommands = BehaviorSubject.seeded("-");
+  BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
+  BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   String path;
-  Timer _ticktickTimer;
+  Timer _tickTimer;
 
   bool startAudioRecorder = false;
 
@@ -146,11 +146,12 @@ class _InputMessageWidget extends State<InputMessage> {
           controller.selection.start == controller.selection.end &&
           controller.selection.start >= 1 &&
           botCommandRegexp.hasMatch(
-              controller.text.substring(1, controller.selection.start) ?? "")) {
-        _showBotCommands
-            .add(controller.text.substring(1, controller.selection.start));
+              controller.text.substring(0 + 1, controller.selection.start) ??
+                  "")) {
+        _botCommandQuery
+            .add(controller.text.substring(0 + 1, controller.selection.start));
       } else {
-        _showBotCommands.add("-");
+        _botCommandQuery.add("-");
       }
 
       if (currentRoom.uid.asUid().category == Categories.GROUP) {
@@ -158,20 +159,19 @@ class _InputMessageWidget extends State<InputMessage> {
         final str = controller.text;
         int start = str.lastIndexOf("@");
         if (start == -1) {
-          _showMentionList.add(false);
+          _mentionQuery.add("-");
         }
 
         if (controller.text.isNotEmpty &&
-            controller.text[start] == "/" &&
+            controller.text[start] == "@" &&
             controller.selection.start == controller.selection.end &&
-            idRegexp.hasMatch(
-                controller.text.substring(start, controller.selection.start) ??
-                    "")) {
-          mentionQuery =
-              controller.text.substring(start, controller.selection.start);
-          _showMentionList.add(true);
+            idRegexp.hasMatch(controller.text
+                    .substring(start + 1, controller.selection.start) ??
+                "")) {
+          _mentionQuery.add(
+              controller.text.substring(start + 1, controller.selection.start));
         } else {
-          _showMentionList.add(false);
+          _mentionQuery.add("-");
         }
       }
     });
@@ -191,24 +191,21 @@ class _InputMessageWidget extends State<InputMessage> {
     return Column(
       children: <Widget>[
         StreamBuilder(
-            stream: _showMentionList.stream,
+            stream: _mentionQuery.stream,
             builder: (c, showMention) {
-              if (showMention.hasData && showMention.data)
-                return ShowMentionList(
-                  query: mentionQuery,
-                  onSelected: (s) {
-                    controller.text = "${controller.text}$s ";
-                    controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: controller.text.length));
-                    _showMentionList.add(false);
-                  },
-                  roomUid: widget.currentRoom.uid,
-                );
-              else
-                return SizedBox.shrink();
+              return ShowMentionList(
+                query: showMention.data ?? "-",
+                onSelected: (s) {
+                  controller.text = "${controller.text}$s ";
+                  controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: controller.text.length));
+                  _mentionQuery.add("-");
+                },
+                roomUid: widget.currentRoom.uid,
+              );
             }),
         StreamBuilder(
-            stream: _showBotCommands.stream,
+            stream: _botCommandQuery.stream,
             builder: (c, show) {
               return BotCommandsWidget(
                 botUid: widget.currentRoom.uid.asUid(),
@@ -217,7 +214,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   controller.text = "/" + command;
                   controller.selection = TextSelection.fromPosition(
                       TextPosition(offset: controller.text.length));
-                  _showBotCommands.add("-");
+                  _botCommandQuery.add("-");
                 },
               );
             }),
@@ -321,8 +318,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           icon: Icon(
                                             Icons.workspaces_outline,
                                           ),
-                                          onPressed: () => _showBotCommands.add(
-                                              _showBotCommands.value == "-"
+                                          onPressed: () => _botCommandQuery.add(
+                                              _botCommandQuery.value == "-"
                                                   ? ""
                                                   : "-"),
                                         );
@@ -404,8 +401,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 } else {
                                   if (started) {
                                     started = false;
-                                    if (_ticktickTimer != null)
-                                      _ticktickTimer.cancel();
+                                    if (_tickTimer != null) _tickTimer.cancel();
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
@@ -444,8 +440,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
-                                if (_ticktickTimer != null)
-                                  _ticktickTimer.cancel();
+                                if (_tickTimer != null) _tickTimer.cancel();
 
                                 await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
@@ -547,7 +542,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
       controller.clear();
 
-      _showMentionList.add(false);
+      _mentionQuery.add("-");
     }
     widget.scrollToLastSentMessage();
   }
@@ -569,7 +564,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void setTime() {
-    _ticktickTimer = Timer(Duration(milliseconds: 500), () {
+    _tickTimer = Timer(Duration(milliseconds: 500), () {
       recordSubject.add(DateTime.now());
       setTime();
     });
