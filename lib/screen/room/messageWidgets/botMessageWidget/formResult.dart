@@ -8,73 +8,59 @@ import '../timeAndSeenStatus.dart';
 class FormResultWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
-  FormResultWidget({this.message, this.isSeen});
+  final bool isSender;
+
+  FormResultWidget({this.message, this.isSeen, this.isSender});
 
   @override
   _FormResultWidgetState createState() => _FormResultWidgetState();
 }
 
 class _FormResultWidgetState extends State<FormResultWidget> {
-
   @override
   Widget build(BuildContext context) {
     var formResult = widget.message.json.toFormResult();
 
-            return Stack(children: [
-              Container(
-                child: Column(
-                  children: [
-                    Text(
-                      formResult.id,
-                      style: TextStyle(fontSize: 16, color: ExtraTheme.of(context).textField),
+    return Container(
+      width: 250,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2, left: 4, right: 4),
+            child: Column(
+              children: [
+                for (final key in formResult.values.keys)
+                  if (key != null && key.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "$key:",
+                          overflow: TextOverflow.fade,
+                          style: Theme.of(context).primaryTextTheme.subtitle1,
+                        ),
+                        // SizedBox(width: 8),
+                        Text(
+                          formResult.values[key] ?? "",
+                          overflow: TextOverflow.fade,
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                      ],
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      child: SizedBox(
-                        width: 250,
-                        child: ListView.builder(
-                            itemCount: formResult.values.length,
-                            shrinkWrap: true,
-                            itemBuilder: (c, index) {
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "${formResult.values.keys.toList()[index]??""}  :  ",
-                                    overflow: TextOverflow.fade,
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color:
-                                            ExtraTheme.of(context).textField),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      formResult.values.values
-                                          .toList()[index]??"",
-                                      // getText(form, index, formResult),
-                                      overflow: TextOverflow.fade,
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          color:
-                                              ExtraTheme.of(context).textField),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }),
-                      ),
-                    ),
-                    SizedBox(height: 20,),
-                  ],
-                ),
-              ),
-              // TODO bug, sender is not false always!!!!!??????
-              TimeAndSeenStatus(widget.message, false, widget.isSeen, needsBackground: false),
-            ]);
-
+              ],
+            ),
+          ),
+          TimeAndSeenStatus(
+            widget.message,
+            widget.isSender,
+            widget.isSeen,
+            needsBackground: false,
+            needsPositioned: false,
+          )
+        ],
+      ),
+    );
   }
 
   String getText(String body) {

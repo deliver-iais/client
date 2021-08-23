@@ -132,7 +132,7 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget forwardedFromBox() {
     return Container(
-      padding: EdgeInsets.only(top: 8, left: 8, right: 8),
+      padding: EdgeInsets.all(4),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom.asUid()),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -205,7 +205,11 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM_RESULT:
-        return FormResultWidget(message: widget.message, isSeen: widget.isSeen);
+        return FormResultWidget(
+          message: widget.message,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
       case MessageType.FORM:
         return BotFormMessage(message: widget.message, isSeen: true);
       case MessageType.BUTTONS:

@@ -45,14 +45,20 @@ class _BotFormMessageState extends State<BotFormMessage> {
         child: Stack(
       children: [
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              form.title.titleCase,
-              style:  Theme.of(context).primaryTextTheme.headline6,
-            ),
-            SizedBox(
-              height: 8,
-            ),
+            if (form.title != null && form.title.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Text(
+                  form.title.titleCase,
+                  style: Theme.of(context).primaryTextTheme.subtitle1,
+                ),
+              ),
+            if (form.title != null && form.title.isNotEmpty)
+              SizedBox(
+                height: 4,
+              ),
             Container(
               child: SizedBox(
                 height: height,
@@ -61,7 +67,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   shrinkWrap: true,
                   itemCount: form.fields.length,
                   itemBuilder: (c, i) {
-                    var index =  i % form.fields.length;
+                    var index = i % form.fields.length;
                     switch (form.fields[index].whichType()) {
                       case protoForm.Form_Field_Type.textField:
                         return FormInputTextFieldWidget(
@@ -177,7 +183,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
             SizedBox(height: 8),
           ],
         ),
-        TimeAndSeenStatus(widget.message, false,  widget.isSeen, needsBackground: false),
+        TimeAndSeenStatus(widget.message, false, widget.isSeen,
+            needsBackground: false),
       ],
     ));
   }
