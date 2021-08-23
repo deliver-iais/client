@@ -34,7 +34,7 @@ ThemeData DarkTheme = ThemeData(
     backgroundColor: Color(0xFF00101A),
     buttonColor: primary,
     dividerTheme:
-        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFF3b3b3b)),
+        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xff313131)),
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
     appBarTheme: AppBarTheme(

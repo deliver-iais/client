@@ -17,43 +17,34 @@ class BotButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var buttons = message.json.toButtons();
     return Container(
+        padding: const EdgeInsets.all(4),
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        SizedBox(
-          height: 40 * buttons.buttons.length.toDouble(),
-          width: 250,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: ListView.separated(
-                itemCount: buttons.buttons.length,
-                itemBuilder: (c, index) {
-                  return Container(
-                    width: 300,
-                    height: 35,
-                    child: OutlinedButton(
-                        onPressed: () {
-                          _messageRepo.sendTextMessage(
-                              message.from.asUid(), buttons.buttons[index]);
-                        },
-                        style: OutlinedButton.styleFrom(
-                            primary: Theme.of(context).primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            side: BorderSide(
-                                color: Theme.of(context).primaryColor)),
-                        child: Text(
-                          buttons.buttons[index],
-                          // style: Theme.of(context).primaryTextTheme.bodyText2,
-                        )),
-                  );
+        for (final btn in buttons.buttons)
+          Container(
+            constraints: BoxConstraints(minHeight: 35),
+            width: 240,
+            margin: const EdgeInsets.only(bottom: 5),
+            child: OutlinedButton(
+                onPressed: () {
+                  _messageRepo.sendTextMessage(message.from.asUid(), btn);
                 },
-                separatorBuilder: (BuildContext context, int index) =>
-                    SizedBox(height: 5)),
+                style: OutlinedButton.styleFrom(
+                    primary: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    side: BorderSide(color: Theme.of(context).primaryColor)),
+                child: Text(btn)),
           ),
+        TimeAndSeenStatus(
+          message,
+          false,
+          false,
+          needsBackground: false,
+          needsPositioned: false,
         ),
-        TimeAndSeenStatus(message, false, false, needsBackground: false),
       ],
     ));
   }

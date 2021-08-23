@@ -75,11 +75,11 @@ class _InputMessageWidget extends State<InputMessage> {
   double dx = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
-  BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
-  String query;
+  String mentionQuery;
   Timer recordAudioTimer;
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
+  BehaviorSubject<String> _showBotCommands = BehaviorSubject.seeded("-");
   String path;
   Timer _ticktickTimer;
 
@@ -124,16 +124,56 @@ class _InputMessageWidget extends State<InputMessage> {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     currentRoom = widget.currentRoom;
-    controller = TextEditingController(text: currentRoom.draft != null? currentRoom.draft:"");
-    _showSendIcon.add(currentRoom.draft!= null && currentRoom.draft.isNotEmpty);
+    controller = TextEditingController(
+        text: currentRoom.draft != null ? currentRoom.draft : "");
+    _showSendIcon
+        .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     controller.addListener(() {
       if (controller.text.isNotEmpty && controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
 
-      _roomRepo.updateRoomDraft(currentRoom.uid,controller.text ??"");
+      _roomRepo.updateRoomDraft(currentRoom.uid, controller.text ?? "");
 
+      var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
+      var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
+
+      if (currentRoom.uid.asUid().category == Categories.BOT &&
+          controller.text != null &&
+          controller.text.isNotEmpty &&
+          controller.text[0] == "/" &&
+          controller.selection.start == controller.selection.end &&
+          controller.selection.start >= 1 &&
+          botCommandRegexp.hasMatch(
+              controller.text.substring(1, controller.selection.start) ?? "")) {
+        _showBotCommands
+            .add(controller.text.substring(1, controller.selection.start));
+      } else {
+        _showBotCommands.add("-");
+      }
+
+      if (currentRoom.uid.asUid().category == Categories.GROUP) {
+        mentionQuery = "-";
+        final str = controller.text;
+        int start = str.lastIndexOf("@");
+        if (start == -1) {
+          _showMentionList.add(false);
+        }
+
+        if (controller.text.isNotEmpty &&
+            controller.text[start] == "/" &&
+            controller.selection.start == controller.selection.end &&
+            idRegexp.hasMatch(
+                controller.text.substring(start, controller.selection.start) ??
+                    "")) {
+          mentionQuery =
+              controller.text.substring(start, controller.selection.start);
+          _showMentionList.add(true);
+        } else {
+          _showMentionList.add(false);
+        }
+      }
     });
     super.initState();
   }
@@ -155,7 +195,7 @@ class _InputMessageWidget extends State<InputMessage> {
             builder: (c, showMention) {
               if (showMention.hasData && showMention.data)
                 return ShowMentionList(
-                  query: query,
+                  query: mentionQuery,
                   onSelected: (s) {
                     controller.text = "${controller.text}$s ";
                     controller.selection = TextSelection.fromPosition(
@@ -170,19 +210,16 @@ class _InputMessageWidget extends State<InputMessage> {
         StreamBuilder(
             stream: _showBotCommands.stream,
             builder: (c, show) {
-              if (show.hasData && show.data) {
-                return BotCommandsWidget(
-                  botUid: widget.currentRoom.uid.asUid(),
-                  onCommandClick: (String command) {
-                    controller.text = "/" + command;
-                    controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: controller.text.length));
-                    _showBotCommands.add(false);
-                  },
-                );
-              } else {
-                return SizedBox.shrink();
-              }
+              return BotCommandsWidget(
+                botUid: widget.currentRoom.uid.asUid(),
+                query: show.data ?? "-",
+                onCommandClick: (String command) {
+                  controller.text = "/" + command;
+                  controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: controller.text.length));
+                  _showBotCommands.add("-");
+                },
+              );
             }),
         Container(
           color: ExtraTheme.of(context).inputBoxBackground,
@@ -261,14 +298,15 @@ class _InputMessageWidget extends State<InputMessage> {
                                       else
                                         noActivitySubject
                                             .add(ActivityType.NO_ACTIVITY);
-                                      onChange(str);
                                     },
                                     decoration: InputDecoration(
                                       contentPadding:
                                           const EdgeInsets.symmetric(
                                               vertical: 15, horizontal: 5),
                                       border: InputBorder.none,
-                                      hintText:  controller.text.isEmpty?i18n.get("message"):"",
+                                      hintText: controller.text.isEmpty
+                                          ? i18n.get("message")
+                                          : "",
                                     ),
                                   ),
                                 ),
@@ -284,8 +322,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                             Icons.workspaces_outline,
                                           ),
                                           onPressed: () => _showBotCommands.add(
-                                              !_showBotCommands
-                                                  .valueWrapper.value),
+                                              _showBotCommands.value == "-"
+                                                  ? ""
+                                                  : "-"),
                                         );
                                       else
                                         return SizedBox.shrink();
@@ -518,44 +557,6 @@ class _InputMessageWidget extends State<InputMessage> {
       isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       sendRecordActivity();
     });
-  }
-
-  void onChange(String str) {
-    if (currentRoom.uid.asUid().category == Categories.BOT) {
-      if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
-        _showBotCommands.add(true);
-        return;
-      }
-    }
-    if (currentRoom.uid.asUid().category == Categories.GROUP) {
-      if (str.isEmpty) {
-        _showMentionList.add(false);
-        return;
-      }
-      try {
-        query = "";
-        int i = str.lastIndexOf("@");
-        if (i == -1) {
-          _showMentionList.add(false);
-        }
-        if ((i != 0 && str[i - 1] != " ") && str[i - 1] != "\n") {
-          return;
-        }
-        if (i != -1 && !str.contains(" ", i)) {
-          query = str.substring(i + 1, str.length);
-          _showMentionList.add(true);
-        } else {
-          _showMentionList.add(false);
-        }
-      } catch (e) {}
-    }
-    if (currentRoom.uid.asUid().category == Categories.BOT) {
-      if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
-        _showBotCommands.add(true);
-      } else {
-        _showBotCommands.add(false);
-      }
-    }
   }
 
   opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
