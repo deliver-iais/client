@@ -44,29 +44,33 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
                 return Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: GestureDetector(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "/" + botCommands.keys.toList()[index],
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Opacity(
-                            opacity: 0.6,
-                            child: Text(
-                              botCommands.values.toList()[index],
-                              style: Theme.of(context).textTheme.bodyText2,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "/" + botCommands.keys.toList()[index],
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Opacity(
+                              opacity: 0.6,
+                              child: Text(
+                                botCommands.values.toList()[index],
+                                style: Theme.of(context).textTheme.bodyText2,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      onTap: () {
+                        widget.onCommandClick(botCommands.keys.toList()[index]);
+                      },
                     ),
-                    onTap: () {
-                      widget.onCommandClick(botCommands.keys.toList()[index]);
-                    },
                   ),
                 );
               },

@@ -44,7 +44,7 @@ class LastMessage extends StatelessWidget {
           final mb = snapshot.data;
           return Row(
             children: [
-              if (showSeenStatus && !isReceivedMessage && showSender)
+              if (showSeenStatus && !isReceivedMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
                   child: SeenStatus(message),

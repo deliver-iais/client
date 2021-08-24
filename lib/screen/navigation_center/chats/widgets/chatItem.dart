@@ -157,7 +157,9 @@ class _ChatItemState extends State<ChatItem> {
                                             widget.room.lastMessageId,
                                         hasMentioned:
                                             widget.room.mentioned == true,
-                                        showSender: widget.room.uid.isMuc(),
+                                        showSender: widget.room.uid.isMuc() ||
+                                            _authRepo.isCurrentUser(
+                                                widget.room.lastMessage.from),
                                       );
                               }
                             }),

@@ -27,6 +27,7 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:rxdart/rxdart.dart';
@@ -272,22 +273,32 @@ class _InputMessageWidget extends State<InputMessage> {
                                   focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    onTap: () {
-                                      backSubject.add(false);
-                                    },
-                                    minLines: 1,
-                                    style: TextStyle(
-                                        fontSize: 19,
-                                        height: 1,
-                                        color:
-                                            ExtraTheme.of(context).textField),
-                                    maxLines: 15,
                                     focusNode: myFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
-                                    textInputAction: TextInputAction.newline,
                                     controller: controller,
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 4, vertical: 8),
+                                      border: InputBorder.none,
+                                      hintText: i18n.get("message"),
+                                    ),
                                     autocorrect: true,
+                                    textInputAction: TextInputAction.newline,
+                                    minLines: 1,
+                                    maxLines: 15,
+                                    textAlign: controller.text.isNotEmpty &&
+                                            controller.text.isPersian()
+                                        ? TextAlign.right
+                                        : TextAlign.left,
+                                    textDirection: controller.text.isNotEmpty &&
+                                            controller.text.isPersian()
+                                        ? TextDirection.rtl
+                                        : TextDirection.ltr,
+                                    style:
+                                        Theme.of(context).textTheme.subtitle1,
+                                    onTap: () => backSubject.add(false),
                                     onChanged: (str) {
                                       if (str != null && str.length > 0)
                                         isTypingActivitySubject
@@ -296,15 +307,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                         noActivitySubject
                                             .add(ActivityType.NO_ACTIVITY);
                                     },
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 15, horizontal: 5),
-                                      border: InputBorder.none,
-                                      hintText: controller.text.isEmpty
-                                          ? i18n.get("message")
-                                          : "",
-                                    ),
                                   ),
                                 ),
                               ),

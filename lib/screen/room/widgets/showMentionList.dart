@@ -5,6 +5,8 @@ import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+const HEIGHT = 52.0;
+
 class ShowMentionList extends StatelessWidget {
   final Function onSelected;
   final String roomUid;
@@ -24,8 +26,8 @@ class ShowMentionList extends StatelessWidget {
             Flexible(
                 child: SizedBox(
                     height: members.data.length >= 4
-                        ? 180
-                        : (members.data.length * 50.0),
+                        ? HEIGHT * 4
+                        : (members.data.length * HEIGHT),
                     child: Container(
                         color: ExtraTheme.of(context).boxBackground,
                         child: ListView.builder(

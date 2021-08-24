@@ -15,7 +15,7 @@ class MucMemberMentionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return member != null
         ? Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             child: buildGestureDetector(
                 username: member.id ?? "",
                 name: member.name ?? "",
@@ -32,9 +32,7 @@ class MucMemberMentionWidget extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatarWidget(member.uid.asUid(), 18),
-          SizedBox(
-            width: 10,
-          ),
+          SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
