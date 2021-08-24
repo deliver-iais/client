@@ -36,6 +36,8 @@ class NotificationServices {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
 
+    if (mb.ignoreNotification) return;
+
     _notifier.notify(mb);
   }
 
@@ -87,7 +89,6 @@ class WindowsNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     final _logger = GetIt.I.get<Logger>();
@@ -152,8 +153,6 @@ class LinuxNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
-
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
@@ -226,8 +225,6 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
-
     AndroidBitmap largeIcon;
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
@@ -294,8 +291,6 @@ class MacOSNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
-
     List<MacOSNotificationAttachment> attachments = [];
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);

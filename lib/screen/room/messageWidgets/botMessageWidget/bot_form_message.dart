@@ -143,11 +143,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                           },
                         );
                         break;
-                      case protoForm.Form_Field_Type.notSet:
+                      default:
                         return SizedBox.shrink();
-                        break;
                     }
-                    return SizedBox.shrink();
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return SizedBox(height: 8);

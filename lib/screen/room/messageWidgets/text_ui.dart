@@ -47,8 +47,7 @@ class TextUI extends StatelessWidget {
     }).toList();
 
     return Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(maxWidth))
-          .copyWith(minWidth: minWidth),
+      constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
       padding: const EdgeInsets.all(4),
       child: Column(
         crossAxisAlignment:
