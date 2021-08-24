@@ -29,7 +29,7 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 Cache<String, String> roomNameCache =
-    LruCache<String, String>(storage: SimpleStorage(size: 100));
+    LruCache<String, String>(storage: InMemoryStorage(100));
 
 class RoomRepo {
   final _logger = GetIt.I.get<Logger>();

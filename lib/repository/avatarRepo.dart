@@ -30,7 +30,7 @@ class AvatarRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
   final Cache<String, Avatar> _avatarCache =
-      LruCache<String, Avatar>(storage: SimpleStorage(size: 40));
+      LruCache<String, Avatar>(storage: InMemoryStorage(40));
 
   Future<void> fetchAvatar(Uid userUid, bool forceToUpdate) async {
     if (forceToUpdate || await needsUpdate(userUid)) {

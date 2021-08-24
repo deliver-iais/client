@@ -71,11 +71,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _routingService = GetIt.I.get<RoutingService>();
   var fileServices = GetIt.I.get<FileService>();
 
-  var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
-  var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
+  var _fileCache = LruCache<String, File>(storage: InMemoryStorage(5));
+  var _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
   var _mediaSenderCache =
-      LruCache<String, String>(storage: SimpleStorage(size: 50));
-  var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
+      LruCache<String, String>(storage: InMemoryStorage(50));
+  var _thumnailChache = LruCache<String, File>(storage: InMemoryStorage(5));
   var isDeleting = false;
   List<Avatar> _allAvatars;
   var swipePosition = 0;

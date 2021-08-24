@@ -107,8 +107,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   var _pinMessages = SortedList<Message>((a, b) => a.id.compareTo(b.id));
   final Map<int, Message> _selectedMessages = Map();
-  final _messageCache =
-      LruCache<int, Message>(storage: SimpleStorage(size: 80));
+  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(80));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -138,15 +137,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Theme.of(context).brightness == Brightness.dark ? Alignment.centerLeft : Alignment.centerRight,
-                    end: Theme.of(context).brightness == Brightness.dark ? Alignment.centerRight : Alignment.centerLeft,
-                    colors: [
-                      darken(Theme.of(context).backgroundColor, 5),
-                      lighten(Theme.of(context).backgroundColor, 5)
-                    ],
-                  )
-                ),
+                    gradient: LinearGradient(
+                  begin: Theme.of(context).brightness == Brightness.dark
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
+                  end: Theme.of(context).brightness == Brightness.dark
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  colors: [
+                    darken(Theme.of(context).backgroundColor, 5),
+                    lighten(Theme.of(context).backgroundColor, 5)
+                  ],
+                )),
                 child: ShaderMask(
                   child: Image(
                       image: AssetImage("assets/backgrounds/pattern-24.png"),
@@ -155,8 +157,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   shaderCallback: (Rect bounds) {
                     return LinearGradient(
                       colors: [
-                        Theme.of(context).brightness == Brightness.light ? darken(Theme.of(context).backgroundColor, 9) : lighten(Theme.of(context).backgroundColor, 5),
-                        Theme.of(context).brightness == Brightness.light ? darken(Theme.of(context).backgroundColor, 15) : lighten(Theme.of(context).backgroundColor, 12)
+                        Theme.of(context).brightness == Brightness.light
+                            ? darken(Theme.of(context).backgroundColor, 9)
+                            : lighten(Theme.of(context).backgroundColor, 5),
+                        Theme.of(context).brightness == Brightness.light
+                            ? darken(Theme.of(context).backgroundColor, 15)
+                            : lighten(Theme.of(context).backgroundColor, 12)
                       ],
                     ).createShader(bounds);
                   },

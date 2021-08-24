@@ -87,19 +87,19 @@ dependencies:
   file_selector_linux: 0.0.2
   file_selector_windows: 0.0.2
   dio: 4.0.0 # HTTP Invoker Library
-  mime_type: 0.3.2 # Get mime type of file path
-  jwt_decoder: 1.0.1
+  mime_type: 1.0.0 # Get mime type of file path
+  jwt_decoder: 1.0.1 # TODO, read documentation and update it
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
       ref: tags/v1.8.6-beta.3
-  grpc: 3.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
+  grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
-  image_cropper: 1.3.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
-  vibration: 1.7.2 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
-  dcache: 0.3.0
+  image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
+  vibration: 1.7.3 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
+  dcache: 0.4.0
   image_size_getter: 0.2.1
   swipe_to: 0.0.1+8
 #  google_maps_place_picker: 2.0.0-nullsafety.3
@@ -107,19 +107,17 @@ dependencies:
   dart_vlc: 0.0.9
   video_player: 1.0.1
   open_file: 3.2.1 # Open file in OS
-
   contacts_service: 0.6.1
-  random_string: 2.1.0
+  random_string: 2.3.1
   flutter_local_notifications: 8.0.0
-  flutter_local_notifications_linux: 0.1.0+1
+  flutter_local_notifications_linux: 0.2.0+1
   uuid: 3.0.4
-  flutter_sound: 8.1.4
-  record: 2.1.1
-  percent_indicator: 2.1.8
+  flutter_sound: 8.1.4 # TODO remove later
+  record: 3.0.0
+  percent_indicator: 3.0.1
   package_info: 2.0.2
   package_info_plus: 1.0.3
   package_info_plus_windows: 1.0.3
-  cached_network_image: 3.0.0
   sms_autofill: 1.2.6
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
@@ -130,11 +128,9 @@ dependencies:
   flutter_swiper: 1.1.6
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
   test:
-  badges: 1.1.4
+  badges: 2.0.1
   modal_bottom_sheet: 2.0.0
   receive_sharing_intent: 1.4.5
-  flutter_icons: 1.1.0
-  desktop_notifications: 0.5.0
   qr_flutter: 4.0.0
   flutter_parsed_text: 1.2.5
   msix: 2.1.3
@@ -143,15 +139,12 @@ dependencies:
   flutter_blurhash: 0.6.0
   hive_flutter: 1.1.0
   marquee: 2.2.0
-  flutter_svg: 0.22.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
   hive_generator: ^1.1.0
-
-
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -169,8 +162,6 @@ flutter:
     - assets/images/a.flr
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
     - assets/ic_launcher/web_hi_res_512.png
-    - assets/icons/stickerIcon.png
-    - assets/icons/emojiIcon.png
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/audios/incoming-msg.mp3
