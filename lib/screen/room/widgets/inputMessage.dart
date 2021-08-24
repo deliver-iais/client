@@ -160,9 +160,6 @@ class _InputMessageWidget extends State<InputMessage> {
         final str = controller.text;
         int start = str.lastIndexOf("@", controller.selection.start);
 
-        print("----------------------------------------------------------");
-        print("$str }} $start }} ${controller.selection.start}");
-
         if (start == -1) {
           _mentionQuery.add("-");
         }
