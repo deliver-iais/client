@@ -545,8 +545,8 @@ class MucRepo {
         // TODO better pattern matching maybe be helpful
         .where((e) =>
             query.isEmpty ||
-            (e.id != null && e.id.toLowerCase().contains(query)) ||
-            (e.name != null && e.name.toLowerCase().contains(query)))
+            (e.id != null && e.id.toLowerCase().contains(query.toLowerCase())) ||
+            (e.name != null && e.name.toLowerCase().contains(query.toLowerCase())))
         .toList();
   }
 

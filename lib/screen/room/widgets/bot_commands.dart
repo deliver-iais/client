@@ -6,18 +6,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class BotCommandsWidget extends StatefulWidget {
+class BotCommands extends StatefulWidget {
   final Uid botUid;
   final String query;
   final Function onCommandClick;
 
-  BotCommandsWidget({this.botUid, this.onCommandClick, this.query});
+  BotCommands({this.botUid, this.onCommandClick, this.query});
 
   @override
-  _BotCommandsWidgetState createState() => _BotCommandsWidgetState();
+  _BotCommandsState createState() => _BotCommandsState();
 }
 
-class _BotCommandsWidgetState extends State<BotCommandsWidget> {
+class _BotCommandsState extends State<BotCommands> {
   var _botRepo = GetIt.I.get<BotRepo>();
 
   @override
@@ -33,9 +33,7 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
           });
           return AnimatedContainer(
             duration: Duration(milliseconds: 100),
-            decoration: BoxDecoration(
-              color: ExtraTheme.of(context).boxBackground,
-            ),
+            color: ExtraTheme.of(context).boxBackground,
             height: botCommands.keys.length * (26.0 + 16),
             child: Scrollbar(
                 child: ListView.separated(
@@ -74,7 +72,8 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
                   ),
                 );
               },
-              separatorBuilder: (BuildContext context, int index) => Divider(),
+              separatorBuilder: (BuildContext context, int index) =>
+                  Divider(color: ExtraTheme.of(context).boxOuterBackground),
             )),
           );
         } else {

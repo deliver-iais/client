@@ -30,7 +30,7 @@ class ShowMentionList extends StatelessWidget {
                         : (members.data.length * HEIGHT),
                     child: Container(
                         color: ExtraTheme.of(context).boxBackground,
-                        child: ListView.builder(
+                        child: ListView.separated(
                           itemCount: members.data.length,
                           shrinkWrap: true,
                           scrollDirection: Axis.vertical,
@@ -38,6 +38,10 @@ class ShowMentionList extends StatelessWidget {
                             return MucMemberMentionWidget(
                                 members.data[i], onSelected);
                           },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              Divider(
+                                  color: ExtraTheme.of(context)
+                                      .boxOuterBackground),
                         )))),
           ]);
         return SizedBox.shrink();

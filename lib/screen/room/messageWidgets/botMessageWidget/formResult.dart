@@ -1,9 +1,7 @@
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';
-
-import '../timeAndSeenStatus.dart';
 
 class FormResultWidget extends StatefulWidget {
   final Message message;

@@ -8,7 +8,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
 import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/screen/room/widgets/bot_commandsWidget.dart';
+import 'package:deliver_flutter/screen/room/widgets/bot_commands.dart';
 import 'package:deliver_flutter/screen/room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/room/widgets/recordAudioAnimation.dart';
 import 'package:deliver_flutter/screen/room/widgets/recordAudioslideWidget.dart';
@@ -158,12 +158,16 @@ class _InputMessageWidget extends State<InputMessage> {
       if (currentRoom.uid.asUid().category == Categories.GROUP) {
         mentionQuery = "-";
         final str = controller.text;
-        int start = str.lastIndexOf("@");
+        int start = str.lastIndexOf("@", controller.selection.start);
+
+        print("----------------------------------------------------------");
+        print("$str }} $start }} ${controller.selection.start}");
+
         if (start == -1) {
           _mentionQuery.add("-");
         }
 
-        if (controller.text.isNotEmpty &&
+        try {if (controller.text.isNotEmpty &&
             controller.text[start] == "@" &&
             controller.selection.start == controller.selection.end &&
             idRegexp.hasMatch(controller.text
@@ -172,6 +176,8 @@ class _InputMessageWidget extends State<InputMessage> {
           _mentionQuery.add(
               controller.text.substring(start + 1, controller.selection.start));
         } else {
+          _mentionQuery.add("-");
+        } } catch (e) {
           _mentionQuery.add("-");
         }
       }
@@ -191,13 +197,14 @@ class _InputMessageWidget extends State<InputMessage> {
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
-        StreamBuilder(
+        StreamBuilder<String>(
             stream: _mentionQuery.stream,
             builder: (c, showMention) {
               return ShowMentionList(
                 query: showMention.data ?? "-",
                 onSelected: (s) {
-                  controller.text = "${controller.text}$s ";
+                  controller.text =
+                      "${controller.text.substring(0, controller.text.lastIndexOf("@", controller.selection.start))}@$s${controller.text.substring(controller.text.lastIndexOf("@", controller.selection.start) + showMention.data.length + 1)}";
                   controller.selection = TextSelection.fromPosition(
                       TextPosition(offset: controller.text.length));
                   _mentionQuery.add("-");
@@ -208,7 +215,7 @@ class _InputMessageWidget extends State<InputMessage> {
         StreamBuilder(
             stream: _botCommandQuery.stream,
             builder: (c, show) {
-              return BotCommandsWidget(
+              return BotCommands(
                 botUid: widget.currentRoom.uid.asUid(),
                 query: show.data ?? "-",
                 onCommandClick: (String command) {
