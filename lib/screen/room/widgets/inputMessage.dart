@@ -155,7 +155,7 @@ class _InputMessageWidget extends State<InputMessage> {
         _botCommandQuery.add("-");
       }
 
-      if (currentRoom.uid.asUid().category == Categories.GROUP) {
+      if (currentRoom.uid.asUid().category == Categories.GROUP && controller.selection.start > 0) {
         mentionQuery = "-";
         final str = controller.text;
         int start = str.lastIndexOf("@", controller.selection.start);
@@ -195,7 +195,7 @@ class _InputMessageWidget extends State<InputMessage> {
     return Column(
       children: <Widget>[
         StreamBuilder<String>(
-            stream: _mentionQuery.stream,
+            stream: _mentionQuery.stream.distinct(),
             builder: (c, showMention) {
               return ShowMentionList(
                 query: showMention.data ?? "-",
@@ -210,7 +210,7 @@ class _InputMessageWidget extends State<InputMessage> {
               );
             }),
         StreamBuilder(
-            stream: _botCommandQuery.stream,
+            stream: _botCommandQuery.stream.distinct(),
             builder: (c, show) {
               return BotCommands(
                 botUid: widget.currentRoom.uid.asUid(),

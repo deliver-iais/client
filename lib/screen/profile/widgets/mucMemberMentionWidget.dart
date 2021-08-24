@@ -25,38 +25,42 @@ class MucMemberMentionWidget extends StatelessWidget {
 
   Widget buildGestureDetector(
       {String username, String name, BuildContext context}) {
-    return GestureDetector(
-      onTap: () {
-        onSelected(username);
-      },
-      child: Row(
-        children: [
-          CircleAvatarWidget(member.uid.asUid(), 18),
-          SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                ((name ?? username).isNotEmpty ? name : username).trim(),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: ExtraTheme.of(context).textField,
-                  fontSize: 16,
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              if (name != null)
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          onSelected(username);
+        },
+        child: Row(
+          children: [
+            CircleAvatarWidget(member.uid.asUid(), 18),
+            SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  "@$username",
+                  ((name ?? username).isNotEmpty ? name : username).trim(),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      fontSize: 12, color: ExtraTheme.of(context).textField),
+                    color: ExtraTheme.of(context).textField,
+                    fontSize: 16,
+                  ),
                 ),
-            ],
-          ),
-        ],
+                SizedBox(
+                  width: 10,
+                ),
+                if (name != null)
+                  Text(
+                    "@$username",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 12, color: ExtraTheme.of(context).textField),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
