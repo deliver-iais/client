@@ -169,8 +169,7 @@ class CircleAvatarWidget extends StatelessWidget {
           maxLines: null,
           style: TextStyle(
               color: textColor,
-              fontSize: (radius * 0.8).toInt().toDouble(),
-              height: name.isPersian() ? 0.6 : 2)),
+              fontSize: (radius * 0.9).toInt().toDouble())),
     );
   }
 }

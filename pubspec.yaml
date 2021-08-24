@@ -198,12 +198,7 @@ flutter:
         - asset: assets/fonts/NotoColorEmoji.ttf
     - family: Vazir
       fonts:
-        - asset: assets/fonts/vazir/Vazir.ttf
-        - asset: assets/fonts/vazir/Vazir-Bold.ttf
-        - asset: assets/fonts/vazir/Vazir-Light.ttf
-        - asset: assets/fonts/vazir/Vazir-Medium.ttf
-        - asset: assets/fonts/vazir/Vazir-Thin.ttf
-          weight: 700
+        - asset: assets/fonts/vazir/Vazir-Variable.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
