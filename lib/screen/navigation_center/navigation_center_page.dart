@@ -4,6 +4,7 @@ import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/navigation_center/chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/shared/constants.dart';
@@ -23,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NavigationCenter extends StatefulWidget {
@@ -49,6 +51,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final ScrollController _scrollController = ScrollController();
   final Function tapOnCurrentUserAvatar;
@@ -110,9 +113,18 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ],
               ),
               titleSpacing: 8.0,
-              title: TitleStatus(
-                style: Theme.of(context).textTheme.headline6,
-                normalConditionWidget: Text(I18N.of(context).get("chats")),
+              title: GestureDetector(
+                onTap: () => _messageRepo.updatingStatus.value ==
+                        TitleStatusConditions.Connecting
+                    ? _messageRepo.updatingStatus
+                        .add(TitleStatusConditions.Normal)
+                    : _messageRepo.updatingStatus
+                        .add(TitleStatusConditions.Connecting),
+                child: TitleStatus(
+                  style: Theme.of(context).textTheme.headline6,
+                  normalConditionWidget: Text(I18N.of(context).get("chats"),
+                      key: ValueKey(randomString(10))),
+                ),
               ),
               actions: [
                 if (!isDesktop())

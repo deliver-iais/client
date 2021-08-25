@@ -74,7 +74,6 @@ class MessageRepo {
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
 
-
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
@@ -568,7 +567,7 @@ class MessageRepo {
                 case MucSpecificPersistentEvent_Issue.DELETED:
                   _roomDao.updateRoom(
                       Room(uid: message.from.asString(), deleted: true));
-                 continue;
+                  continue;
                   break;
                 case MucSpecificPersistentEvent_Issue.ADD_USER:
                   _roomDao.updateRoom(
@@ -704,26 +703,23 @@ class MessageRepo {
   void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
       {int replyId, String forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
-    if(res != null){
+    if (res != null) {
       protoModel.Location location = protoModel.Location(
           longitude: position.longitude, latitude: position.latitude);
       String json = (protoModel.LiveLocation()
-        ..location = location
-        ..from = _authRepo.currentUserUid
-        ..uuid = res.uuid
-        ..to = roomUid
-        ..time = Int64(duration))
+            ..location = location
+            ..from = _authRepo.currentUserUid
+            ..uuid = res.uuid
+            ..to = roomUid
+            ..time = Int64(duration))
           .writeToJson();
-      Message msg =
-      _createMessage(roomUid, replyId: replyId, forwardedFrom: forwardedFrom)
+      Message msg = _createMessage(roomUid,
+              replyId: replyId, forwardedFrom: forwardedFrom)
           .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
       var pm = _createPendingMessage(msg, SendingStatus.PENDING);
       _saveAndSend(pm);
-    _liveLocationRepo.sendLiveLocationAsStream(res.uuid,duration ,location);
+      _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
     }
-
   }
-
-
 }
