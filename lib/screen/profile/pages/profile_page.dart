@@ -36,7 +36,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -1200,27 +1199,24 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             snapshot.connectionState == ConnectionState.waiting) {
           return Container(width: 0.0, height: 0.0);
         } else {
-          return ListView.builder(
+          return ListView.separated(
             itemCount: linksCount,
             itemBuilder: (BuildContext ctx, int index) {
-              return Column(
-                children: [
-                  FlutterLinkPreview(
-                    url: jsonDecode(snapshot.data[index].json)["url"],
-                    bodyStyle: TextStyle(
-                        fontSize: 12.0,
-                        height: 1.4,
-                        color: ExtraTheme.of(context).textField),
-                    useMultithread: true,
-                    titleStyle: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: ExtraTheme.of(context).textField),
-                  ),
-                  Divider(),
-                ],
+              return SizedBox(
+                // child: FlutterLinkPreview(
+                //   url: jsonDecode(snapshot.data[index].json)["url"],
+                //   bodyStyle: TextStyle(
+                //       fontSize: 12.0,
+                //       height: 1.4,
+                //       color: ExtraTheme.of(context).textField),
+                //   useMultithread: true,
+                //   titleStyle: TextStyle(
+                //       fontSize: 18.0,
+                //       fontWeight: FontWeight.bold,
+                //       color: ExtraTheme.of(context).textField),
+                // ),
               );
-            },
+            }, separatorBuilder: (BuildContext context, int index) => Divider(),
           );
         }
       });

@@ -319,6 +319,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void initState() {
+    _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
 
     if (!isDesktop()) _fireBaseServices.sendFireBaseToken();

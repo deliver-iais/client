@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';
@@ -46,6 +49,16 @@ class TextUI extends StatelessWidget {
               : null);
     }).toList();
 
+    String link =
+        blocks.firstWhere((b) => b.type == "url", orElse: () => null)?.text;
+
+    double linkPreviewMaxWidth = min(
+        blocks
+                .map((b) => b.text.length)
+                .reduce((value, element) => value < element ? element : value) *
+            7.3,
+        maxWidth);
+
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
       padding: const EdgeInsets.all(4),
@@ -61,6 +74,7 @@ class TextUI extends StatelessWidget {
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
+          LinkPreview(link: link, maxWidth: linkPreviewMaxWidth),
           TimeAndSeenStatus(
             message,
             isSender,
@@ -114,7 +128,7 @@ class UrlParser implements Parser {
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, onTap: (uri) async {
+      parseBlocks(blocks, regex, "url", onTap: (uri) async {
         if (uri.toString().contains(APPLICATION_DOMAIN)) {
           handleJoinUri(context, uri);
         } else
@@ -130,7 +144,7 @@ class IdParser implements Parser {
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex,
+      parseBlocks(blocks, regex, "id",
           onTap: (id) => onUsernameClick(id),
           style: Theme.of(context).primaryTextTheme.bodyText2);
 }
@@ -142,6 +156,7 @@ class BoldTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
+        "bold",
         transformer: (String m) => m.replaceAll("**", ""),
         style: Theme.of(context)
             .textTheme
@@ -157,6 +172,7 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
+        "italic",
         transformer: (String m) => m.replaceAll("__", ""),
         style: Theme.of(context)
             .textTheme
@@ -176,6 +192,7 @@ class EmojiParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
+        "emoji",
         style: Theme.of(context).textTheme.bodyText2.copyWith(
             fontSize: fontSize,
             fontFamily: "NotoColorEmoji",
@@ -191,7 +208,7 @@ class BotCommandParser implements Parser {
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex,
+      parseBlocks(blocks, regex, "bot",
           onTap: (id) => onBotCommandClick(id),
           style: Theme.of(context).primaryTextTheme.bodyText2);
 }
@@ -203,7 +220,7 @@ class SearchTermParser implements Parser {
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, RegExp(searchTerm),
+      parseBlocks(blocks, RegExp(searchTerm), "search",
           style: Theme.of(context).primaryTextTheme.bodyText2);
 }
 
@@ -212,22 +229,24 @@ class Block {
   final bool locked;
   final Function onTap;
   final TextStyle style;
+  final String type;
 
-  Block({this.text, this.locked = false, this.onTap, this.style});
+  Block({this.text, this.locked = false, this.onTap, this.style, this.type});
 }
 
-List<Block> parseBlocks(List<Block> blocks, RegExp regex,
+List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
         {Function onTap, TextStyle style, Function transformer = same}) =>
     flatten(blocks.map<Iterable<Block>>((b) {
       if (b.locked) {
         return [b];
       } else {
-        return parseText(b.text, regex, onTap, style, transformer: transformer);
+        return parseText(b.text, regex, onTap, style, type,
+            transformer: transformer);
       }
     })).toList();
 
 List<Block> parseText(
-    String text, RegExp regex, Function onTap, TextStyle style,
+    String text, RegExp regex, Function onTap, TextStyle style, String type,
     {Function transformer = same}) {
   var start = 0;
 
@@ -238,7 +257,11 @@ List<Block> parseText(
   for (var match in matches) {
     result.add(Block(text: transformer(text.substring(start, match.start))));
     result.add(Block(
-        text: transformer(match[0]), onTap: onTap, style: style, locked: true));
+        text: transformer(match[0]),
+        onTap: onTap,
+        style: style,
+        type: type,
+        locked: true));
     start = match.end;
   }
 
