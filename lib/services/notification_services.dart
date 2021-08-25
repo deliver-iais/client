@@ -3,6 +3,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -25,6 +26,16 @@ abstract class Notifier {
   cancelAll();
 }
 
+MessageBrief synthesize(MessageBrief mb) {
+  if (mb.text != null && mb.text.isNotEmpty) {
+    return mb.copyWith(
+        text:
+            BoldTextParser.transformer(ItalicTextParser.transformer(mb.text)));
+  }
+
+  return mb;
+}
+
 class NotificationServices {
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
@@ -38,7 +49,8 @@ class NotificationServices {
 
     if (mb.ignoreNotification) return;
 
-    _notifier.notify(mb);
+    // TODO change place of synthesizer if we want more styled texts in android
+    _notifier.notify(synthesize(mb));
   }
 
   void cancelRoomNotifications(String roomUid) {

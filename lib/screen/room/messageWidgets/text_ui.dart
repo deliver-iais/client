@@ -56,7 +56,7 @@ class TextUI extends StatelessWidget {
         blocks
                 .map((b) => b.text.length)
                 .reduce((value, element) => value < element ? element : value) *
-            7.3,
+            6.85,
         maxWidth);
 
     return Container(
@@ -89,9 +89,9 @@ class TextUI extends StatelessWidget {
 
   String extractText(Message msg) {
     if (msg.type == MessageType.TEXT) {
-      return msg.json.toText().text;
+      return msg.json.toText().text.trim();
     } else if (msg.type == MessageType.FILE) {
-      return msg.json.toFile().caption;
+      return msg.json.toFile().caption.trim();
     } else {
       return "";
     }
@@ -152,12 +152,14 @@ class IdParser implements Parser {
 class BoldTextParser implements Parser {
   final RegExp regex = RegExp(r"\*\*(.+)\*\*", dotAll: true);
 
+  static String transformer(String m) => m.replaceAll("**", "");
+
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
         "bold",
-        transformer: (String m) => m.replaceAll("**", ""),
+        transformer: BoldTextParser.transformer,
         style: Theme.of(context)
             .textTheme
             .bodyText2
@@ -168,12 +170,14 @@ class BoldTextParser implements Parser {
 class ItalicTextParser implements Parser {
   final RegExp regex = RegExp(r"__(.+)__", dotAll: true);
 
+  static String transformer(String m) => m.replaceAll("__", "");
+
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
         "italic",
-        transformer: (String m) => m.replaceAll("__", ""),
+        transformer: ItalicTextParser.transformer,
         style: Theme.of(context)
             .textTheme
             .bodyText2

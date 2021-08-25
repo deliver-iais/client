@@ -31,6 +31,7 @@ extension IsPersian on String {
           temp[i] == '~' ||
           temp[i] == ':' ||
           temp[i] == '{' ||
+          temp[i] == ' ' ||
           temp[i] == '}') {
         continue;
       } else {

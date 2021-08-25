@@ -227,8 +227,8 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           child: Center(
                             child: Text(
                               emoji.toString(),
-                              style: TextStyle(fontSize: 26, fontFamily: "Vazir",
-                                  fontFamilyFallback: ["Vazir"]),
+                              style: TextStyle(fontSize: 26, fontFamily: "NotoColorEmoji",
+                                  fontFamilyFallback: ["NotoColorEmoji"]),
                             ),
                           ),
                         );
