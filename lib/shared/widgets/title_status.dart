@@ -54,12 +54,15 @@ class _TitleStatusState extends State<TitleStatus> {
         builder: (context, snapshot) {
           return AnimatedSwitcher(
               layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  children: <Widget>[
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
-                  alignment: Alignment.centerLeft,
+                return Container(
+                  height: widget.style.fontSize * 1.5,
+                  child: Stack(
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                    alignment: Alignment.centerLeft,
+                  ),
                 );
               },
               transitionBuilder: (child, animation) {
@@ -67,8 +70,8 @@ class _TitleStatusState extends State<TitleStatus> {
                     opacity: animation,
                     child: SizeTransition(sizeFactor: animation, child: child));
               },
-              duration: Duration(milliseconds: 400),
-              reverseDuration: Duration(milliseconds: 400),
+              duration: Duration(milliseconds: 150),
+              reverseDuration: Duration(milliseconds: 150),
               child: buildTitle(snapshot));
         });
   }
@@ -141,6 +144,10 @@ class _TitleStatusState extends State<TitleStatus> {
               if (isOnline(userInfo.data.time)) {
                 return Text(
                   i18n.get("online"),
+                  maxLines: 1,
+                  key: ValueKey(randomString(10)),
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
                   style: widget.style
                       .copyWith(color: Theme.of(context).primaryColor),
                 );
@@ -149,6 +156,10 @@ class _TitleStatusState extends State<TitleStatus> {
                     dateTimeFormat(date(userInfo.data.time));
                 return Text(
                     "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
+                    maxLines: 1,
+                    key: ValueKey(randomString(10)),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
                     style: widget.style
                         .copyWith(color: Theme.of(context).primaryColor));
               }

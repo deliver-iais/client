@@ -74,7 +74,7 @@ class UserAppbarTitle extends StatelessWidget {
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .caption)
-                                          : const SizedBox.shrink(),
+                                          : const SizedBox(key: ValueKey("10")),
                                 )
                               ],
                             );

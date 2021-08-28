@@ -15,15 +15,6 @@ class LinkPreview extends StatelessWidget {
 
   const LinkPreview({Key key, this.link, this.maxWidth}) : super(key: key);
 
-  bool _linkHasMetadata(String url) {
-    try {
-      final uri = Uri.parse(url);
-      return uri.origin == APARAT;
-    } catch (e) {
-      return false;
-    }
-  }
-
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
     var response = await http.get(Uri.parse(url));

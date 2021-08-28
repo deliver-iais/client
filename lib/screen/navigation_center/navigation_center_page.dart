@@ -123,6 +123,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 child: TitleStatus(
                   style: Theme.of(context).textTheme.headline6,
                   normalConditionWidget: Text(I18N.of(context).get("chats"),
+                      style: Theme.of(context).textTheme.headline6,
                       key: ValueKey(randomString(10))),
                 ),
               ),
