@@ -67,10 +67,10 @@ class TextUI extends StatelessWidget {
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
-          SelectableText.rich(
+          RichText(
+            text:
             TextSpan(
                 children: spans, style: Theme.of(context).textTheme.bodyText2),
-            style: Theme.of(context).textTheme.bodyText2,
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
