@@ -12,6 +12,7 @@ import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -65,16 +66,18 @@ class _LoginPageState extends State<LoginPage> {
       tokenGeneratorTimer = Timer.periodic(Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
-    } else if (isAndroid()) {
-      SmsAutoFill().hint.then((value) {
-        final p = getPhoneNumber(value);
-        phoneNumber = p;
-        controller.text = p.nationalNumber.toString();
-        if (p != null) {
-          setState(() {});
-          checkAndGoNext(doNotCheckValidator: true);
-        }
-      });
+    } else if (isAndroid() && ! kDebugMode) {
+        SmsAutoFill().hint.then((value) {
+          final p = getPhoneNumber(value);
+          phoneNumber = p;
+          controller.text = p.nationalNumber.toString();
+          if (p != null) {
+            setState(() {});
+            checkAndGoNext(doNotCheckValidator: true);
+          }
+        });
+
+
     }
     super.initState();
   }

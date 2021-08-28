@@ -474,7 +474,9 @@ class MessageRepo {
     _messageDao.savePendingMessage(pm);
   }
 
-  sendSeen(int messageId, Uid to) {
+  sendSeen(int messageId, Uid to) async {
+    var seen = await _seenDao.getMySeen(to.asString());
+    if (seen != null && seen.messageId >= messageId) return;
     _coreServices.sendSeen(ProtocolSeen.SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
