@@ -12,8 +12,9 @@ class LinkPreview extends StatelessWidget {
       LruCache<String, Metadata>(storage: InMemoryStorage(100));
   final String link;
   final double maxWidth;
+  final double maxHeight;
 
-  const LinkPreview({Key key, this.link, this.maxWidth}) : super(key: key);
+  const LinkPreview({Key key, this.link, this.maxWidth, this.maxHeight = double.infinity}) : super(key: key);
 
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
@@ -63,7 +64,7 @@ class LinkPreview extends StatelessWidget {
           return Container(
               margin: const EdgeInsets.only(top: 10),
               constraints:
-                  BoxConstraints(minWidth: maxWidth, maxWidth: maxWidth),
+                  BoxConstraints(minWidth: maxWidth, maxWidth: maxWidth, maxHeight: maxHeight),
               decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor.withAlpha(45),
                   border: Border(
