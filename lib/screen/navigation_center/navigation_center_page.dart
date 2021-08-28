@@ -113,19 +113,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ],
               ),
               titleSpacing: 8.0,
-              title: GestureDetector(
-                onTap: () => _messageRepo.updatingStatus.value ==
-                        TitleStatusConditions.Connecting
-                    ? _messageRepo.updatingStatus
-                        .add(TitleStatusConditions.Normal)
-                    : _messageRepo.updatingStatus
-                        .add(TitleStatusConditions.Connecting),
-                child: TitleStatus(
-                  style: Theme.of(context).textTheme.headline6,
-                  normalConditionWidget: Text(I18N.of(context).get("chats"),
-                      style: Theme.of(context).textTheme.headline6,
-                      key: ValueKey(randomString(10))),
-                ),
+              title: TitleStatus(
+                style: Theme.of(context).textTheme.headline6,
+                normalConditionWidget: Text(I18N.of(context).get("chats"),
+                    style: Theme.of(context).textTheme.headline6,
+                    key: ValueKey(randomString(10))),
               ),
               actions: [
                 if (!isDesktop())
