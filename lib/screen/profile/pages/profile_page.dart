@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
@@ -19,6 +20,7 @@ import 'package:deliver_flutter/screen/profile/widgets/image_tab_ui.dart';
 import 'package:deliver_flutter/screen/profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver_flutter/screen/profile/widgets/video_tab_ui.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
@@ -1202,18 +1204,7 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             itemCount: linksCount,
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
-                // child: FlutterLinkPreview(
-                //   url: jsonDecode(snapshot.data[index].json)["url"],
-                //   bodyStyle: TextStyle(
-                //       fontSize: 12.0,
-                //       height: 1.4,
-                //       color: ExtraTheme.of(context).textField),
-                //   useMultithread: true,
-                //   titleStyle: TextStyle(
-                //       fontSize: 18.0,
-                //       fontWeight: FontWeight.bold,
-                //       color: ExtraTheme.of(context).textField),
-                // ),
+                child: LinkPreview(link:  jsonDecode(snapshot.data[index].json)["url"], maxWidth: 100),
               );
             }, separatorBuilder: (BuildContext context, int index) => Divider(),
           );
