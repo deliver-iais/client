@@ -171,12 +171,13 @@ class MessageRepo {
       if (r.lastMessage.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
-        if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
-          var rm = await _queryServiceClient
-              .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
-          fetchLastSeen(rm.roomMeta);
-        }
+        var rm = await _queryServiceClient
+            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
+        fetchCurrentUserLastSeen(rm.roomMeta);
+      }
+      var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
+      if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
+        fetchOtherSeen(r.uid.asUid());
       }
     });
   }
@@ -210,7 +211,23 @@ class MessageRepo {
     }
   }
 
-  Future<void> fetchLastSeen(RoomMetadata room) async {
+  Future<void> fetchOtherSeen(Uid roomUid) async {
+    try {
+      if (roomUid.category == Categories.USER ||
+          roomUid.category == Categories.GROUP) {
+        var fetchLastOtherUserSeenData =
+            await _queryServiceClient.fetchLastOtherUserSeenData(
+                FetchLastOtherUserSeenDataReq()..roomUid = roomUid);
+        _seenDao.saveOthersSeen(Seen(
+            uid: roomUid.asString(),
+            messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> fetchCurrentUserLastSeen(RoomMetadata room) async {
     try {
       var fetchCurrentUserSeenData =
           await _queryServiceClient.fetchCurrentUserSeenData(
@@ -225,20 +242,6 @@ class MessageRepo {
           uid: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
-    } catch (e) {
-      _logger.e(e);
-    }
-
-    try {
-      if (room.roomUid.category == Categories.USER ||
-          room.roomUid.category == Categories.GROUP) {
-        var fetchLastOtherUserSeenData =
-            await _queryServiceClient.fetchLastOtherUserSeenData(
-                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid);
-        _seenDao.saveOthersSeen(Seen(
-            uid: room.roomUid.asString(),
-            messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
-      }
     } catch (e) {
       _logger.e(e);
     }

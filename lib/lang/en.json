@@ -239,5 +239,6 @@
   "choose_livelocation_time": "Choose for how long to share your live location",
   "last_update": "Last Update",
   "enter_numeric_value": "Enter the number",
-  "draft": "Draft"
+  "draft": "Draft",
+  "text": "Text"
 }
