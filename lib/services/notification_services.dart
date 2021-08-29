@@ -254,7 +254,7 @@ class AndroidNotifier implements Notifier {
         channel.id, channel.name, channel.description,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
-        setAsGroupSummary: true);
+        setAsGroupSummary: false);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
