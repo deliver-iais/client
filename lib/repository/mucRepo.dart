@@ -183,15 +183,10 @@ class MucRepo {
             id: channel.info.id);
 
         _mucDao.save(muc);
-        insertUserInDb(mucUid, [
-          Member(
-              memberUid: _authRepo.currentUserUid.asString(),
-              mucUid: mucUid.asString(),
-              role: getLocalRole(channel.requesterRole))
-        ]);
         if (c != null)
           _checkShowPin(mucUid, channel.pinMessages, c.pinMessagesIdList ?? []);
-        if (channel.requesterRole != MucPro.Role.NONE)
+        // ignore: unrelated_type_equality_checks
+        if (channel.requesterRole != MucPro.Role.NONE && channel.requesterRole != MucPro.Role.MEMBER)
           fetchChannelMembers(mucUid, channel.population.toInt());
         return muc;
       }

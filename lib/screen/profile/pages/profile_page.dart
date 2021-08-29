@@ -130,8 +130,8 @@ class _ProfilePageState extends State<ProfilePage>
               }
 
               _tabController = TabController(
-                  length: (widget.roomUid.category == Categories.GROUP ||
-                          widget.roomUid.category == Categories.CHANNEL)
+                  length: (widget.roomUid.isGroup()|| (
+                          widget.roomUid.isChannel() && _isMucAdminOrOwner))
                       ? _tabsCount + 1
                       : _tabsCount,
                   vsync: this,
@@ -144,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage>
 
               return DefaultTabController(
                   length:
-                      (widget.roomUid.isMuc()) ? _tabsCount + 1 : _tabsCount,
+                      (widget.roomUid.isGroup() ||(widget.roomUid.isChannel() && _isMucAdminOrOwner)) ? _tabsCount + 1 : _tabsCount,
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
@@ -163,10 +163,8 @@ class _ProfilePageState extends State<ProfilePage>
                                           widget.roomUid.asString(), index);
                                     },
                                     tabs: [
-                                      if (widget.roomUid.category ==
-                                              Categories.GROUP ||
-                                          widget.roomUid.category ==
-                                              Categories.CHANNEL)
+                                      if (widget.roomUid.isGroup()||(
+                                          widget.roomUid.isChannel()&& _isMucAdminOrOwner))
                                         Tab(
                                           text: _locale.get("members"),
                                         ),
@@ -209,7 +207,7 @@ class _ProfilePageState extends State<ProfilePage>
                         child: TabBarView(
                           physics: NeverScrollableScrollPhysics(),
                           children: [
-                            if (widget.roomUid.isMuc())
+                            if (widget.roomUid.isGroup() ||(widget.roomUid.isChannel() && _isMucAdminOrOwner))
                               SingleChildScrollView(
                                 child: MucMemberWidget(
                                   mucUid: widget.roomUid,
@@ -333,16 +331,17 @@ class _ProfilePageState extends State<ProfilePage>
                   }
                 },
               ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: SettingsTile(
-                  title: _locale.get("send_message"),
-                  titleTextStyle:
-                      TextStyle(color: ExtraTheme.of(context).textField),
-                  leading: Icon(Icons.message),
-                  onPressed: (_) =>
-                      _routingService.openRoom(widget.roomUid.asString())),
-            ),
+            if (!widget.roomUid.isChannel() || _isMucAdminOrOwner)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SettingsTile(
+                    title: _locale.get("send_message"),
+                    titleTextStyle:
+                        TextStyle(color: ExtraTheme.of(context).textField),
+                    leading: Icon(Icons.message),
+                    onPressed: (_) =>
+                        _routingService.openRoom(widget.roomUid.asString())),
+              ),
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -388,7 +387,7 @@ class _ProfilePageState extends State<ProfilePage>
                     } else
                       return SizedBox.shrink();
                   }),
-            if (widget.roomUid.isGroup()|| _isMucAdminOrOwner )
+            if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
@@ -512,12 +511,6 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _setupRoomSettings() async {
-    try {
-      await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
-    } catch (e) {
-      _logger.e(e);
-    }
-
     if (widget.roomUid.isMuc()) {
       try {
         final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
@@ -528,11 +521,17 @@ class _ProfilePageState extends State<ProfilePage>
           _isMucAdminOrOwner = settingAvatarPermission;
           _isMucOwner = mucOwner;
         });
-
       } catch (e) {
         _logger.e(e);
       }
     }
+    try {
+      await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+    } catch (e) {
+      _logger.e(e);
+    }
+
+
     setState(() {});
   }
 
@@ -1049,7 +1048,8 @@ class _ProfilePageState extends State<ProfilePage>
                                   onChanged: (str) {
                                     List<String> searchRes = [];
                                     nameOfGroup.keys.forEach((uid) {
-                                      if (nameOfGroup[uid].contains(str) || nameOfGroup[uid] == str) {
+                                      if (nameOfGroup[uid].contains(str) ||
+                                          nameOfGroup[uid] == str) {
                                         searchRes.add(uid);
                                       }
                                     });
@@ -1070,8 +1070,8 @@ class _ProfilePageState extends State<ProfilePage>
                                             builder: (c, name) {
                                               if (name.hasData &&
                                                   name.data != null) {
-                                                nameOfGroup[snapshot
-                                                    .data[i]] = name.data;
+                                                nameOfGroup[snapshot.data[i]] =
+                                                    name.data;
                                                 return Container(
                                                     height: 50,
                                                     child: Row(
@@ -1087,8 +1087,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                           width: 10,
                                                         ),
                                                         Expanded(
-                                                            child: Text(
-                                                                name.data))
+                                                            child:
+                                                                Text(name.data))
                                                       ],
                                                     ));
                                               } else
@@ -1100,13 +1100,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                 context: context,
                                                 builder: (context) {
                                                   return AlertDialog(
-                                                    title: Icon(
-                                                        Icons.person_add),
+                                                    title:
+                                                        Icon(Icons.person_add),
                                                     content: FutureBuilder<
                                                             String>(
-                                                        future: _roomRepo
-                                                            .getName(widget
-                                                                .roomUid),
+                                                        future:
+                                                            _roomRepo.getName(
+                                                                widget.roomUid),
                                                         builder: (c, name) {
                                                           if (name.hasData &&
                                                               name.data !=
@@ -1137,24 +1137,24 @@ class _ProfilePageState extends State<ProfilePage>
                                                           TextButton(
                                                               onPressed:
                                                                   () async {
-                                                                var res = await _mucRepo.sendMembers(
-                                                                    snapshot
-                                                                        .data[
-                                                                            i]
-                                                                        .asUid(),
-                                                                    [
+                                                                var res = await _mucRepo
+                                                                    .sendMembers(
+                                                                        snapshot
+                                                                            .data[i]
+                                                                            .asUid(),
+                                                                        [
                                                                       widget
                                                                           .roomUid
                                                                     ]);
                                                                 if (res) {
                                                                   Navigator.pop(
                                                                       context);
-                                                                  Navigator
-                                                                      .pop(
-                                                                          c1);
+                                                                  Navigator.pop(
+                                                                      c1);
                                                                   _routingService
                                                                       .openRoom(
-                                                                          snapshot.data[i]);
+                                                                          snapshot
+                                                                              .data[i]);
                                                                 }
                                                               },
                                                               child: Text(
@@ -1204,9 +1204,12 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             itemCount: linksCount,
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
-                child: LinkPreview(link:  jsonDecode(snapshot.data[index].json)["url"], maxWidth: 100),
+                child: LinkPreview(
+                    link: jsonDecode(snapshot.data[index].json)["url"],
+                    maxWidth: 100),
               );
-            }, separatorBuilder: (BuildContext context, int index) => Divider(),
+            },
+            separatorBuilder: (BuildContext context, int index) => Divider(),
           );
         }
       });
