@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/box/role.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/box/role.dart';
+import 'package:we/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'member.g.dart';

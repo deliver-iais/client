@@ -1,6 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 
-import 'package:deliver_flutter/box/message.dart' as db;
+import 'package:we/box/message.dart' as db;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as ChannelServices;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -14,7 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 // TODO check timeout time again!!!!

@@ -1,12 +1,12 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {

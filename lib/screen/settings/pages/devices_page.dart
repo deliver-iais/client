@@ -1,15 +1,15 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/box.dart';
-import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/box.dart';
+import 'package:we/shared/widgets/fluid_container.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/methods/time.dart';
+import 'package:we/shared/methods/time.dart';
 
 class DevicesPage extends StatefulWidget {
   DevicesPage({Key key}) : super(key: key);

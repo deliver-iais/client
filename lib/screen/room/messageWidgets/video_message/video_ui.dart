@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/services/video_player_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/services/video_player_service.dart';
+import 'package:we/shared/methods/platform.dart';
 
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';

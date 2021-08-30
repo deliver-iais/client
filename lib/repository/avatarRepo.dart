@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/box/dao/avatar_dao.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/box/avatar.dart';
+import 'package:we/box/dao/avatar_dao.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/services/muc_services.dart';
+import 'package:we/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
@@ -14,7 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:get_it/get_it.dart';
 
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 import 'package:dcache/dcache.dart';
 import 'package:fixnum/fixnum.dart';

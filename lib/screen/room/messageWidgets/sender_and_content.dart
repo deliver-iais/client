@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/screen/navigation_center/chats/widgets/lastMessage.dart';
+import 'package:we/box/message.dart';
+import 'package:we/screen/navigation_center/chats/widgets/lastMessage.dart';
 import 'package:flutter/material.dart';
 
 class SenderAndContent extends StatelessWidget {

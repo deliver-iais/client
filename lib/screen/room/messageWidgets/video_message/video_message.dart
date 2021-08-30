@@ -1,14 +1,14 @@
 import 'dart:io' as da;
 
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/video_message/video_ui.dart';
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 

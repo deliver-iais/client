@@ -1,24 +1,24 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/box/room.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/services/ux_service.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/screen/room/widgets/bot_commands.dart';
-import 'package:deliver_flutter/screen/room/widgets/emojiKeybord.dart';
-import 'package:deliver_flutter/screen/room/widgets/recordAudioAnimation.dart';
-import 'package:deliver_flutter/screen/room/widgets/recordAudioslideWidget.dart';
-import 'package:deliver_flutter/screen/room/widgets/share_box.dart';
-import 'package:deliver_flutter/screen/room/widgets/showMentionList.dart';
-import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/screen/room/widgets/bot_commands.dart';
+import 'package:we/screen/room/widgets/emojiKeybord.dart';
+import 'package:we/screen/room/widgets/recordAudioAnimation.dart';
+import 'package:we/screen/room/widgets/recordAudioslideWidget.dart';
+import 'package:we/screen/room/widgets/share_box.dart';
+import 'package:we/screen/room/widgets/showMentionList.dart';
+import 'package:we/services/check_permissions_service.dart';
+import 'package:we/services/routing_service.dart';
 
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,13 +26,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/methods/isPersian.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/methods/isPersian.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:we/repository/messageRepo.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -64,7 +64,7 @@ class _InputMessageWidget extends State<InputMessage> {
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
   Room currentRoom;
-  bool showEmoji = false;
+  bool showemoji = false;
   bool autofocus = false;
   double x = 0.0;
   double size = 1;

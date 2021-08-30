@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
-import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/shared/methods/phone.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/shared/widgets/fluid.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/routes/router.gr.dart';
+import 'package:we/screen/register/widgets/intl_phone_field.dart';
+import 'package:we/services/firebase_services.dart';
+import 'package:we/shared/methods/phone.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:flutter/foundation.dart';

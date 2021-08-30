@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(deliver_flutter LANGUAGES CXX)
+project(we LANGUAGES CXX)
 
 set(BINARY_NAME "deliver")
 

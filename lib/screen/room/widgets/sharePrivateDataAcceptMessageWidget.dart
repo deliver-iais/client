@@ -1,9 +1,9 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 
 class SharePrivateDataAcceptMessageWidget extends StatelessWidget {

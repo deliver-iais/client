@@ -1,16 +1,16 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/checkboxFormField.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/form_TextField_widget.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/form_list_Widget.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/botMessageWidget/checkboxFormField.dart';
+import 'package:we/screen/room/messageWidgets/botMessageWidget/form_TextField_widget.dart';
+import 'package:we/screen/room/messageWidgets/botMessageWidget/form_list_Widget.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as protoForm;
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
-import 'package:deliver_flutter/shared/extensions/cap_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/cap_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

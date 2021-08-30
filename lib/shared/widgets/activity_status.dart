@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/roomRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

@@ -1,8 +1,8 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/animation_widget.dart';
-import 'package:deliver_flutter/screen/room/widgets/boxContent.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/box/message.dart';
+import 'package:we/box/message_type.dart';
+import 'package:we/screen/room/messageWidgets/animation_widget.dart';
+import 'package:we/screen/room/widgets/boxContent.dart';
+import 'package:we/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 import 'message_wrapper.dart';

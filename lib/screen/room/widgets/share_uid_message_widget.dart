@@ -1,20 +1,20 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/mucRepo.dart';
+import 'package:we/services/routing_service.dart';
 
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver_flutter/shared/methods/time.dart';
-import 'package:deliver_flutter/shared/widgets/seen_status.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:we/shared/floating_modal_bottom_sheet.dart';
+import 'package:we/shared/methods/time.dart';
+import 'package:we/shared/widgets/seen_status.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 
 import 'msgTime.dart';

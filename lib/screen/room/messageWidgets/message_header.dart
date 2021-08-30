@@ -1,12 +1,12 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/circular_file_status_indicator.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/header_details.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/screen/room/messageWidgets/circular_file_status_indicator.dart';
+import 'package:we/screen/room/messageWidgets/header_details.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/methods/isPersian.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/methods/isPersian.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 
 class UnknownFileUi extends StatefulWidget {

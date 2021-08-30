@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "Deliver";
+const APPLICATION_NAME = "we";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
     "1.4.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file

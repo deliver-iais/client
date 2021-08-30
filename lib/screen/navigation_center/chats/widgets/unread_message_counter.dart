@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:we/box/seen.dart';
+import 'package:we/repository/roomRepo.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

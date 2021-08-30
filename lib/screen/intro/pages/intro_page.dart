@@ -1,10 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/intro/custom_library/intro_slider.dart';
-import 'package:deliver_flutter/screen/intro/custom_library/slide_object.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/widgets/fluid.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/routes/router.gr.dart';
+import 'package:we/screen/intro/custom_library/intro_slider.dart';
+import 'package:we/screen/intro/custom_library/slide_object.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/widgets/fluid.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -73,7 +73,7 @@ class _IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       Container(
                         child: Text(
-                          'Deliver',
+                          'we',
                           style: Theme.of(context).primaryTextTheme.headline5,
                         ),
                       ),
@@ -108,7 +108,7 @@ class _IntroPageState extends State<IntroPage> {
                         child: Container(
                           width: animationSize,
                           child: Text(
-                            'WeWork delivers messages fastest than any other application.',
+                            'weWork delivers messages fastest than any other application.',
                             style: Theme.of(context).primaryTextTheme.subtitle1,
                             textAlign: TextAlign.center,
                           ),

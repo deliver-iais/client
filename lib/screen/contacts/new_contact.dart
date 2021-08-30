@@ -1,9 +1,9 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/fluid_container.dart';
+import 'package:we/repository/contactRepo.dart';
 
-import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
+import 'package:we/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';

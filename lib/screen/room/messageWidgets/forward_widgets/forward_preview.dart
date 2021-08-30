@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/message.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

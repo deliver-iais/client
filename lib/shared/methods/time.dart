@@ -1,5 +1,5 @@
 import 'package:date_time_format/date_time_format.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/shared/constants.dart';
 
 bool isOnline(int time) {
   return DateTime.now().millisecondsSinceEpoch - time < ONLINE_TIME;

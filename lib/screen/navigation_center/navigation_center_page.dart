@@ -1,20 +1,20 @@
 import 'dart:ui';
 
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/botRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/navigation_center/chats/widgets/chatsPage.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
-import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/shared/widgets/title_status.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/botRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/navigation_center/chats/widgets/chatsPage.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/shared/widgets/audio_player_appbar.dart';
+import 'package:we/screen/navigation_center/widgets/search_box.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:we/shared/widgets/title_status.dart';
+import 'package:we/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,7 +23,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 

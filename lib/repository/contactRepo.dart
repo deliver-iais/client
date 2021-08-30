@@ -1,15 +1,15 @@
-import 'package:deliver_flutter/box/dao/contact_dao.dart';
-import 'package:deliver_flutter/box/contact.dart' as DB;
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:we/box/dao/contact_dao.dart';
+import 'package:we/box/contact.dart' as DB;
+import 'package:we/box/dao/room_dao.dart';
+import 'package:we/box/dao/uid_id_name_dao.dart';
+import 'package:we/box/member.dart';
+import 'package:we/box/room.dart';
+import 'package:we/repository/roomRepo.dart';
 
 import 'package:contacts_service/contacts_service.dart' as OsContact;
-import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/shared/methods/phone.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/services/check_permissions_service.dart';
+import 'package:we/shared/methods/phone.dart';
+import 'package:we/shared/methods/platform.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -19,7 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 class ContactRepo {

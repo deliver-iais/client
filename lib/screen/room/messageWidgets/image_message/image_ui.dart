@@ -2,14 +2,14 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:open_file/open_file.dart';
 import 'package:rxdart/rxdart.dart';
 

@@ -1,11 +1,11 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/navigation_center/chats/widgets/unread_message_counter.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/text_ui.dart';
-import 'package:deliver_flutter/shared/methods/message.dart';
-import 'package:deliver_flutter/shared/widgets/seen_status.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:we/screen/room/messageWidgets/text_ui.dart';
+import 'package:we/shared/methods/message.dart';
+import 'package:we/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

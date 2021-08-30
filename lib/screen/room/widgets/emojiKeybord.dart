@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/shared/constants.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 

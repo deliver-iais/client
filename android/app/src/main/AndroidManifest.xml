@@ -20,7 +20,7 @@
 
     <application
         android:name=".Application"
-        android:label="Deliver"
+        android:label="we"
         android:installLocation="auto"
         android:usesCleartextTraffic="true"
         android:allowBackup="false"

@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

@@ -1,16 +1,16 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/link_preview.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/methods/url.dart';
+import 'package:we/box/message.dart';
+import 'package:we/box/message_type.dart';
+import 'package:we/screen/room/messageWidgets/link_preview.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/methods/url.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
-import 'package:deliver_flutter/shared/methods/isPersian.dart';
+import 'package:we/shared/extensions/json_extension.dart';
+import 'package:we/shared/methods/isPersian.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;

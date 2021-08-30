@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/shared/widgets/fluid.dart';
-import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/routes/router.gr.dart';
+import 'package:we/shared/widgets/fluid.dart';
+import 'package:we/services/firebase_services.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -24,7 +24,7 @@ class _VerificationPageState extends State<VerificationPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _focusNode = FocusNode();
-  bool _showError = false;
+  bool _showerror = false;
   String _verificationCode;
 
   // TODO ???
@@ -32,10 +32,10 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _sendVerificationCode() {
     if ((_verificationCode?.length ?? 0) < 5) {
-      setState(() => _showError = true);
+      setState(() => _showerror = true);
       return;
     }
-    setState(() => _showError = false);
+    setState(() => _showerror = false);
     FocusScope.of(context).requestFocus(FocusNode());
     var result = _authRepo.sendVerificationCode(_verificationCode);
     result.then((accessTokenResponse) {
@@ -66,7 +66,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _setErrorAndResetCode() {
     setState(() {
-      _showError = true;
+      _showerror = true;
       _verificationCode = "";
       FocusScope.of(context).requestFocus(_focusNode);
     });
@@ -161,7 +161,7 @@ class _VerificationPageState extends State<VerificationPage> {
                       },
                     ),
                   ),
-                  _showError
+                  _showerror
                       ? Text(
                           _i18n.get("wrong_code"),
                           style: Theme.of(context)
