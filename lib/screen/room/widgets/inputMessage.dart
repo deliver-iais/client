@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:file_selector/file_selector.dart';
-import 'package:flutter/services.dart';
 
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/room/widgets/recordAudioAnimation.dart';
@@ -16,22 +13,22 @@ import 'package:deliver_flutter/screen/room/widgets/share_box.dart';
 import 'package:deliver_flutter/screen/room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -82,7 +79,7 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
   String path;
   Timer _ticktickTimer;
-
+  TextEditingController caption = TextEditingController();
   bool startAudioRecorder = false;
 
   FocusNode myFocusNode;
@@ -124,16 +121,17 @@ class _InputMessageWidget extends State<InputMessage> {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     currentRoom = widget.currentRoom;
-    controller = TextEditingController(text: currentRoom.draft != null? currentRoom.draft:"");
-    _showSendIcon.add(currentRoom.draft!= null && currentRoom.draft.isNotEmpty);
+    controller = TextEditingController(
+        text: currentRoom.draft != null ? currentRoom.draft : "");
+    _showSendIcon
+        .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     controller.addListener(() {
       if (controller.text.isNotEmpty && controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
 
-      _roomRepo.updateRoomDraft(currentRoom.uid,controller.text ??"");
-
+      _roomRepo.updateRoomDraft(currentRoom.uid, controller.text ?? "");
     });
     super.initState();
   }
@@ -268,7 +266,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                           const EdgeInsets.symmetric(
                                               vertical: 15, horizontal: 5),
                                       border: InputBorder.none,
-                                      hintText:  controller.text.isEmpty?i18n.get("message"):"",
+                                      hintText: controller.text.isEmpty
+                                          ? i18n.get("message")
+                                          : "",
                                     ),
                                   ),
                                 ),
@@ -563,8 +563,7 @@ class _InputMessageWidget extends State<InputMessage> {
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images');
     final result = await openFiles(acceptedTypeGroups: [typeGroup]);
-    messageRepo.sendMultipleFilesMessages(
-        currentRoom.uid.asUid(), result.map((e) => e.path).toList());
+    showMyDialog(result: result, icons: Icons.file_upload);
   }
 
   void setTime() {
@@ -572,5 +571,136 @@ class _InputMessageWidget extends State<InputMessage> {
       recordSubject.add(DateTime.now());
       setTime();
     });
+  }
+
+  showMyDialog({IconData icons, String type, List<XFile> result}) async {
+    String name = await _roomRepo.getName(  currentRoom.uid.asUid());
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Container(
+              child: Dialog(
+
+                backgroundColor: Colors.transparent,
+                child: SingleChildScrollView(
+                  child: Stack(children: <Widget>[
+                    Container(
+                      width: MediaQuery.of(context).size.width*0.3,
+                        height: MediaQuery.of(context).size.height*0.55,
+                        padding: EdgeInsets.only(
+                            left: 20, top: 40, right: 20, bottom: 20),
+                        margin: EdgeInsets.only(top: 45),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Theme.of(context).dialogBackgroundColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "Selected Files ",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                               "send ${ result.map((e) => e.path).toList().length} file to ${name}",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: ExtraTheme.of(context)
+                                      .fileSharingDetails),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              "Add a caption",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                                controller: caption,
+                                maxLines: null,
+                                keyboardType: TextInputType.multiline,
+                                decoration: InputDecoration(
+                                  labelText: 'Caption',
+                                  border: OutlineInputBorder(),
+                                )),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                messageRepo.sendMultipleFilesMessages(
+                                    currentRoom.uid.asUid(),
+                                    result.map((e) => e.path).toList(),
+                                    caption: caption.text.toString());
+                              },
+                              child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                      height: 50,
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                          color: Colors.lightBlueAccent,
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      child: Center(
+                                          child: Text(
+                                        "Send",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 18),
+                                      )))),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: TextButton(
+                                    child: Text("Cancel",
+                                        style: TextStyle(
+                                            color: Colors.blue.shade700,
+                                            fontSize: 18))),
+                              ),
+                            ),
+                          ],
+                        )),
+                    Positioned(
+                      left: 20,
+                      right: 20,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        radius: 45,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                            child: Container(
+                              color: Colors.blue,
+                              width: 60,
+                              height: 60,
+                              child: Icon(
+                                icons,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            )),
+                      ),
+                    ),
+                  ]),
+                ),
+              ));
+        });
   }
 }

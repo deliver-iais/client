@@ -1,20 +1,17 @@
 import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
-
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_sound/public/util/log.dart';
-import 'package:latlong2/latlong.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -22,7 +19,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart' as l;
+import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -65,6 +62,8 @@ class _ShareBoxState extends State<ShareBox> {
   int playAudioIndex;
 
   bool selected = false;
+  TextEditingController caption = TextEditingController();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   var messageRepo = GetIt.I.get<MessageRepo>();
 
@@ -228,7 +227,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           width: 16.0,
                                           height: 16.0,
                                           decoration: new BoxDecoration(
-                                            color: Theme.of(co).primaryColor,
+                                            color: Theme.of(co).dialogBackgroundColor,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -271,10 +270,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           );
                                           if (result != null) {
                                             Navigator.pop(co);
-                                            for (var path in result.paths) {
-                                              messageRepo.sendFileMessage(
-                                                  widget.currentRoomId, path);
-                                            }
+                                            showMyDialog(
+                                                icons: Icons.insert_drive_file,
+                                                type: "image",
+                                                result: result);
                                           }
                                         } else
                                           setState(() {
@@ -303,10 +302,10 @@ class _ShareBoxState extends State<ShareBox> {
                                             ]);
                                         if (result != null) {
                                           Navigator.pop(co);
-                                          for (var path in result.paths) {
-                                            messageRepo.sendFileMessage(
-                                                widget.currentRoomId, path);
-                                          }
+                                          showMyDialog(
+                                              icons: Icons.file_upload,
+                                              type: "file",
+                                              result: result);
                                         }
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
@@ -341,10 +340,10 @@ class _ShareBoxState extends State<ShareBox> {
                                                 allowedExtensions: ["mp3"]);
                                         if (result != null) {
                                           Navigator.pop(co);
-                                          for (var path in result.paths) {
-                                            messageRepo.sendFileMessage(
-                                                widget.currentRoomId, path);
-                                          }
+                                          showMyDialog(
+                                              icons: Icons.music_note,
+                                              type: "music",
+                                              result: result);
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
@@ -379,7 +378,8 @@ class _ShareBoxState extends State<ShareBox> {
                   height: MediaQuery.of(context).size.height / 3 - 40,
                   child: FlutterMap(
                     options: new MapOptions(
-                      center: LatLng(position.data.latitude, position.data.longitude),
+                      center: LatLng(
+                          position.data.latitude, position.data.longitude),
                       zoom: 14.0,
                     ),
                     layers: [
@@ -392,7 +392,8 @@ class _ShareBoxState extends State<ShareBox> {
                           new Marker(
                             width: 170.0,
                             height: 170.0,
-                            point: LatLng(position.data.latitude, position.data.longitude),
+                            point: LatLng(position.data.latitude,
+                                position.data.longitude),
                             builder: (ctx) => Container(
                               child: Icon(
                                 Icons.location_pin,
@@ -509,13 +510,13 @@ class _ShareBoxState extends State<ShareBox> {
                               sections: [
                                 SettingsSection(
                                   tiles: [
-                                    settingsTile(snapshot.data,"10",(){
+                                    settingsTile(snapshot.data, "10", () {
                                       time.add("10");
                                     }),
-                                    settingsTile(snapshot.data,"15",(){
+                                    settingsTile(snapshot.data, "15", () {
                                       time.add("15");
                                     }),
-                                    settingsTile(snapshot.data,"30",(){
+                                    settingsTile(snapshot.data, "30", () {
                                       time.add("30");
                                     }),
                                   ],
@@ -547,7 +548,11 @@ class _ShareBoxState extends State<ShareBox> {
                                   ),
                                   onTap: () {
                                     Navigator.pop(context);
-                                    messageRepo.sendLiveLocationMessage(widget.currentRoomId,int.parse(time.valueWrapper.value),position,);
+                                    messageRepo.sendLiveLocationMessage(
+                                      widget.currentRoomId,
+                                      int.parse(time.valueWrapper.value),
+                                      position,
+                                    );
                                   }),
                             ],
                           ),
@@ -563,8 +568,7 @@ class _ShareBoxState extends State<ShareBox> {
         });
   }
 
-  SettingsTile settingsTile(
-      String data,  String t, Function on) {
+  SettingsTile settingsTile(String data, String t, Function on) {
     return SettingsTile(
       title: t,
       leading: Icon(
@@ -578,9 +582,139 @@ class _ShareBoxState extends State<ShareBox> {
             )
           : SizedBox.shrink(),
       onPressed: (BuildContext context) {
-      on();
+        on();
       },
     );
+  }
+
+  showMyDialog({IconData icons, String type, FilePickerResult result}) async {
+    String name = await _roomRepo.getName(widget.currentRoomId);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Container(
+              child: Dialog(
+                backgroundColor: Colors.transparent,
+                child: SingleChildScrollView(
+                  child: Stack(children: <Widget>[
+                    Container(
+                        padding: EdgeInsets.only(
+                            left: 20, top: 40, right: 20, bottom: 20),
+                        margin: EdgeInsets.only(top: 45),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color:Theme.of(context).dialogBackgroundColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "Selected Files ",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "send ${result.paths.length} ${type} to ${name}",
+                              style: TextStyle(fontSize: 16,color:ExtraTheme.of(context).fileSharingDetails),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              "Add a caption",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                                controller: caption,
+                                maxLines: null,
+                                keyboardType: TextInputType.multiline,
+                                decoration: InputDecoration(
+                                  labelText: 'Caption',
+                                  border: OutlineInputBorder(),
+                                )),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                for (var path in result.paths) {
+                                  if (result.paths.last == path) {
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoomId, path,
+                                        caption: caption.text.toString());
+                                  } else {
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoomId, path);
+                                  }
+                                }
+                              },
+                              child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                      height: 50,
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                          color: Colors.lightBlueAccent,
+                                          borderRadius: BorderRadius.circular(5)),
+                                      child: Center(
+                                          child: Text(
+                                            "Send",
+                                            style: TextStyle(
+                                                color: Colors.white, fontSize: 18),
+                                          )))),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: TextButton(
+                                    child: Text("Cancel",
+                                        style: TextStyle(
+                                            color: Colors.blue.shade700,
+                                            fontSize: 18))),
+                              ),
+                            ),
+                          ],
+                        )),
+                    Positioned(
+                      left: 20,
+                      right: 20,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        radius: 45,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                            child: Container(
+                              color: Colors.blue,
+                              width: 60,
+                              height: 60,
+                              child: Icon(
+                                icons,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            )),
+                      ),
+                    ),
+                  ]),
+                ),
+              ));
+        });
   }
 }
 

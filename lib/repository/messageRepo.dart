@@ -295,8 +295,14 @@ class MessageRepo {
   sendMultipleFilesMessages(Uid room, List<String> filesPath,
       {String caption, int replyToId}) async {
     for (var path in filesPath) {
+      if (filesPath.last == path) {
       await sendFileMessage(room, path, caption: caption, replyToId: replyToId);
     }
+      else{
+        await sendFileMessage(room, path, caption: "", replyToId: replyToId);
+
+      }
+      }
   }
 
   sendFileMessage(Uid room, String path,

@@ -136,7 +136,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
   GetIt.I.registerSingleton<DBManager>(DBManager());
   GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
-
   GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
