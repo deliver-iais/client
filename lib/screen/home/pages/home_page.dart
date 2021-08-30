@@ -55,7 +55,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         List<String> paths = [];
         for (var path in value) {
           paths.add(path.path);
-
         }
         _routingService.openShareFile(path: paths);
       }
