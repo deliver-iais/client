@@ -29,7 +29,7 @@ class I18N {
         })
         .distinct()
         .listen((lang) async {
-          await _loadLanguageResource (lang);
+          await _loadLanguageResource(lang);
           _language.add(lang);
         });
   }
