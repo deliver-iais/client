@@ -4,7 +4,6 @@ import 'package:we/localization/i18n.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/botRepo.dart';
 import 'package:we/repository/contactRepo.dart';
-import 'package:we/repository/messageRepo.dart';
 import 'package:we/repository/roomRepo.dart';
 import 'package:we/screen/navigation_center/chats/widgets/chatsPage.dart';
 import 'package:we/shared/constants.dart';
@@ -51,7 +50,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final ScrollController _scrollController = ScrollController();
   final Function tapOnCurrentUserAvatar;
