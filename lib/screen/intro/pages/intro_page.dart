@@ -73,7 +73,7 @@ class _IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       Container(
                         child: Text(
-                          'we',
+                          'We',
                           style: Theme.of(context).primaryTextTheme.headline5,
                         ),
                       ),
@@ -108,7 +108,7 @@ class _IntroPageState extends State<IntroPage> {
                         child: Container(
                           width: animationSize,
                           child: Text(
-                            'weWork delivers messages fastest than any other application.',
+                            'We delivers messages fastest than any other application.',
                             style: Theme.of(context).primaryTextTheme.subtitle1,
                             textAlign: TextAlign.center,
                           ),

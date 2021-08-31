@@ -89,8 +89,8 @@ dependencies:
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
       ref: tags/v1.8.6-beta.3
-  grpc: 3.0.2 # (weB NOT SUPPORTED BI-Directional Streaming)
-  protobuf: 2.0.0 # (weB NOT SUPPORTED BI-Directional Streaming)
+  grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
+  protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)

@@ -64,7 +64,6 @@ class _InputMessageWidget extends State<InputMessage> {
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
   Room currentRoom;
-  bool showemoji = false;
   bool autofocus = false;
   double x = 0.0;
   double size = 1;

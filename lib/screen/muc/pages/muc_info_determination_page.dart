@@ -34,7 +34,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   String mucName = '';
   String channelId = "";
-  bool showemoji = false;
   bool autofocus = false;
   bool _showIcon = true;
   var _routingService = GetIt.I.get<RoutingService>();

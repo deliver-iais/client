@@ -24,7 +24,7 @@ class _VerificationPageState extends State<VerificationPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _focusNode = FocusNode();
-  bool _showerror = false;
+  bool _showError = false;
   String _verificationCode;
 
   // TODO ???
@@ -32,10 +32,10 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _sendVerificationCode() {
     if ((_verificationCode?.length ?? 0) < 5) {
-      setState(() => _showerror = true);
+      setState(() => _showError = true);
       return;
     }
-    setState(() => _showerror = false);
+    setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
     var result = _authRepo.sendVerificationCode(_verificationCode);
     result.then((accessTokenResponse) {
@@ -66,7 +66,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _setErrorAndResetCode() {
     setState(() {
-      _showerror = true;
+      _showError = true;
       _verificationCode = "";
       FocusScope.of(context).requestFocus(_focusNode);
     });
@@ -161,7 +161,7 @@ class _VerificationPageState extends State<VerificationPage> {
                       },
                     ),
                   ),
-                  _showerror
+                  _showError
                       ? Text(
                           _i18n.get("wrong_code"),
                           style: Theme.of(context)
