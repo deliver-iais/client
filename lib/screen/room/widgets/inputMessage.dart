@@ -11,6 +11,7 @@ import 'package:deliver_flutter/screen/room/widgets/recordAudioAnimation.dart';
 import 'package:deliver_flutter/screen/room/widgets/recordAudioslideWidget.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box.dart';
 import 'package:deliver_flutter/screen/room/widgets/showMentionList.dart';
+import 'package:deliver_flutter/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -79,7 +80,7 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
   String path;
   Timer _ticktickTimer;
-  TextEditingController caption = TextEditingController();
+  TextEditingController captionTextController = TextEditingController();
   bool startAudioRecorder = false;
 
   FocusNode myFocusNode;
@@ -563,7 +564,7 @@ class _InputMessageWidget extends State<InputMessage> {
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images');
     final result = await openFiles(acceptedTypeGroups: [typeGroup]);
-    showMyDialog(result: result, icons: Icons.file_upload);
+    showCaptionDialog(result: result, icons: Icons.file_upload);
   }
 
   void setTime() {
@@ -573,131 +574,21 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  showMyDialog({IconData icons, String type, List<XFile> result}) async {
+  showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
     String name = await _roomRepo.getName(currentRoom.uid.asUid());
+    captionTextController.text = "";
     showDialog(
         context: context,
         builder: (context) {
-          return Container(
-              child: Dialog(
-            backgroundColor: Colors.transparent,
-            child: SingleChildScrollView(
-              child: Stack(children: <Widget>[
-                Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: MediaQuery.of(context).size.height * 0.55,
-                    padding: EdgeInsets.only(
-                        left: 20, top: 40, right: 20, bottom: 20),
-                    margin: EdgeInsets.only(top: 45),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Theme.of(context).dialogBackgroundColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          "Selected Files ",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "send ${result.map((e) => e.path).toList().length} file to ${name}",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: ExtraTheme.of(context).fileSharingDetails),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Add a caption",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                            controller: caption,
-                            maxLines: null,
-                            keyboardType: TextInputType.multiline,
-                            decoration: InputDecoration(
-                              labelText: 'Caption',
-                              border: OutlineInputBorder(),
-                            )),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                            messageRepo.sendMultipleFilesMessages(
-                                currentRoom.uid.asUid(),
-                                result.map((e) => e.path).toList(),
-                                caption: caption.text.toString());
-                          },
-                          child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                  height: 50,
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                      color: Colors.lightBlueAccent,
-                                      borderRadius: BorderRadius.circular(5)),
-                                  child: Center(
-                                      child: Text(
-                                    "Send",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18),
-                                  )))),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: TextButton(
-                                child: Text("Cancel",
-                                    style: TextStyle(
-                                        color: Colors.blue.shade700,
-                                        fontSize: 18))),
-                          ),
-                        ),
-                      ],
-                    )),
-                Positioned(
-                  left: 20,
-                  right: 20,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 45,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(50)),
-                        child: Container(
-                          color: Colors.blue,
-                          width: 60,
-                          height: 60,
-                          child: Icon(
-                            icons,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        )),
-                  ),
-                ),
-              ]),
-            ),
-          ));
+          return ShowCaptionDialog(
+            result: result.map((e) => e.path).toList(),
+            type: "file",
+            name: name,
+            caption: captionTextController,
+            messageRepo: messageRepo,
+            currentRoom: currentRoom.uid.asUid(),
+            icon: icons,
+          );
         });
   }
 }

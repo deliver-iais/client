@@ -7,9 +7,9 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/music.dart';
+import 'package:deliver_flutter/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,7 +62,7 @@ class _ShareBoxState extends State<ShareBox> {
   int playAudioIndex;
 
   bool selected = false;
-  TextEditingController caption = TextEditingController();
+  TextEditingController captionTextController = TextEditingController();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   var messageRepo = GetIt.I.get<MessageRepo>();
@@ -270,7 +270,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           );
                                           if (result != null) {
                                             Navigator.pop(co);
-                                            showMyDialog(
+                                            showCaptionDialog(
                                                 icons: Icons.insert_drive_file,
                                                 type: "image",
                                                 result: result);
@@ -302,7 +302,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             ]);
                                         if (result != null) {
                                           Navigator.pop(co);
-                                          showMyDialog(
+                                          showCaptionDialog(
                                               icons: Icons.file_upload,
                                               type: "file",
                                               result: result);
@@ -340,7 +340,7 @@ class _ShareBoxState extends State<ShareBox> {
                                                 allowedExtensions: ["mp3"]);
                                         if (result != null) {
                                           Navigator.pop(co);
-                                          showMyDialog(
+                                          showCaptionDialog(
                                               icons: Icons.music_note,
                                               type: "music",
                                               result: result);
@@ -587,133 +587,21 @@ class _ShareBoxState extends State<ShareBox> {
     );
   }
 
-  showMyDialog({IconData icons, String type, FilePickerResult result}) async {
+  showCaptionDialog(
+      {IconData icons, String type, FilePickerResult result}) async {
     String name = await _roomRepo.getName(widget.currentRoomId);
     showDialog(
         context: context,
         builder: (context) {
-          return Container(
-              child: Dialog(
-                backgroundColor: Colors.transparent,
-                child: SingleChildScrollView(
-                  child: Stack(children: <Widget>[
-                    Container(
-                        padding: EdgeInsets.only(
-                            left: 20, top: 40, right: 20, bottom: 20),
-                        margin: EdgeInsets.only(top: 45),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color:Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              "Selected Files ",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w600),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              "send ${result.paths.length} ${type} to ${name}",
-                              style: TextStyle(fontSize: 16,color:ExtraTheme.of(context).fileSharingDetails),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Add a caption",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w600),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            TextFormField(
-                                controller: caption,
-                                maxLines: null,
-                                keyboardType: TextInputType.multiline,
-                                decoration: InputDecoration(
-                                  labelText: 'Caption',
-                                  border: OutlineInputBorder(),
-                                )),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                                for (var path in result.paths) {
-                                  if (result.paths.last == path) {
-                                    messageRepo.sendFileMessage(
-                                        widget.currentRoomId, path,
-                                        caption: caption.text.toString());
-                                  } else {
-                                    messageRepo.sendFileMessage(
-                                        widget.currentRoomId, path);
-                                  }
-                                }
-                              },
-                              child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                      height: 50,
-                                      width: MediaQuery.of(context).size.width,
-                                      decoration: BoxDecoration(
-                                          color: Colors.lightBlueAccent,
-                                          borderRadius: BorderRadius.circular(5)),
-                                      child: Center(
-                                          child: Text(
-                                            "Send",
-                                            style: TextStyle(
-                                                color: Colors.white, fontSize: 18),
-                                          )))),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Align(
-                                alignment: Alignment.bottomCenter,
-                                child: TextButton(
-                                    child: Text("Cancel",
-                                        style: TextStyle(
-                                            color: Colors.blue.shade700,
-                                            fontSize: 18))),
-                              ),
-                            ),
-                          ],
-                        )),
-                    Positioned(
-                      left: 20,
-                      right: 20,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        radius: 45,
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                            child: Container(
-                              color: Colors.blue,
-                              width: 60,
-                              height: 60,
-                              child: Icon(
-                                icons,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                            )),
-                      ),
-                    ),
-                  ]),
-                ),
-              ));
+          return ShowCaptionDialog(
+            name: name,
+            icon: icons,
+            type: type,
+            caption: captionTextController,
+            messageRepo: messageRepo,
+            currentRoom: widget.currentRoomId,
+            result: result.paths,
+          );
         });
   }
 }
