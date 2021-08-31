@@ -4,9 +4,11 @@ import 'package:android_intent/android_intent.dart';
 
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/roomRepo.dart';
 import 'package:we/screen/room/widgets/share_box/file.dart';
 import 'package:we/screen/room/widgets/share_box/gallery.dart';
 import 'package:we/screen/room/widgets/share_box/music.dart';
+import 'package:we/screen/room/widgets/show_caption_dialog.dart';
 import 'package:we/services/check_permissions_service.dart';
 import 'package:we/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
