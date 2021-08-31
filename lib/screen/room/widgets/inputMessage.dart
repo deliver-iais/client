@@ -21,15 +21,16 @@ import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform
 import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/isPersian.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:we/repository/messageRepo.dart';
@@ -82,6 +83,7 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   String path;
   Timer _tickTimer;
+  TextEditingController captionTextController = TextEditingController();
 
   bool startAudioRecorder = false;
 
@@ -564,8 +566,7 @@ class _InputMessageWidget extends State<InputMessage> {
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images');
     final result = await openFiles(acceptedTypeGroups: [typeGroup]);
-    messageRepo.sendMultipleFilesMessages(
-        currentRoom.uid.asUid(), result.map((e) => e.path).toList());
+    showCaptionDialog(result: result, icons: Icons.file_upload);
   }
 
   void setTime() {
@@ -573,5 +574,23 @@ class _InputMessageWidget extends State<InputMessage> {
       recordSubject.add(DateTime.now());
       setTime();
     });
+  }
+
+  showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
+    String name = await _roomRepo.getName(currentRoom.uid.asUid());
+    captionTextController.text = "";
+    showDialog(
+        context: context,
+        builder: (context) {
+          return ShowCaptionDialog(
+            result: result.map((e) => e.path).toList(),
+            type: "file",
+            name: name,
+            caption: captionTextController,
+            messageRepo: messageRepo,
+            currentRoom: currentRoom.uid.asUid(),
+            icon: icons,
+          );
+        });
   }
 }

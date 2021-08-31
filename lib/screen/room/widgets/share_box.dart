@@ -62,6 +62,8 @@ class _ShareBoxState extends State<ShareBox> {
   int playAudioIndex;
 
   bool selected = false;
+  TextEditingController captionTextController = TextEditingController();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   var messageRepo = GetIt.I.get<MessageRepo>();
 
@@ -225,7 +227,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           width: 16.0,
                                           height: 16.0,
                                           decoration: new BoxDecoration(
-                                            color: Theme.of(co).primaryColor,
+                                            color: Theme.of(co).dialogBackgroundColor,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -268,10 +270,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           );
                                           if (result != null) {
                                             Navigator.pop(co);
-                                            for (var path in result.paths) {
-                                              messageRepo.sendFileMessage(
-                                                  widget.currentRoomId, path);
-                                            }
+                                            showCaptionDialog(
+                                                icons: Icons.insert_drive_file,
+                                                type: "image",
+                                                result: result);
                                           }
                                         } else
                                           setState(() {
@@ -300,10 +302,10 @@ class _ShareBoxState extends State<ShareBox> {
                                             ]);
                                         if (result != null) {
                                           Navigator.pop(co);
-                                          for (var path in result.paths) {
-                                            messageRepo.sendFileMessage(
-                                                widget.currentRoomId, path);
-                                          }
+                                          showCaptionDialog(
+                                              icons: Icons.file_upload,
+                                              type: "file",
+                                              result: result);
                                         }
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
@@ -338,10 +340,10 @@ class _ShareBoxState extends State<ShareBox> {
                                                 allowedExtensions: ["mp3"]);
                                         if (result != null) {
                                           Navigator.pop(co);
-                                          for (var path in result.paths) {
-                                            messageRepo.sendFileMessage(
-                                                widget.currentRoomId, path);
-                                          }
+                                          showCaptionDialog(
+                                              icons: Icons.music_note,
+                                              type: "music",
+                                              result: result);
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
@@ -376,7 +378,8 @@ class _ShareBoxState extends State<ShareBox> {
                   height: MediaQuery.of(context).size.height / 3 - 40,
                   child: FlutterMap(
                     options: new MapOptions(
-                      center: LatLng(position.data.latitude, position.data.longitude),
+                      center: LatLng(
+                          position.data.latitude, position.data.longitude),
                       zoom: 14.0,
                     ),
                     layers: [
@@ -389,7 +392,8 @@ class _ShareBoxState extends State<ShareBox> {
                           new Marker(
                             width: 170.0,
                             height: 170.0,
-                            point: LatLng(position.data.latitude, position.data.longitude),
+                            point: LatLng(position.data.latitude,
+                                position.data.longitude),
                             builder: (ctx) => Container(
                               child: Icon(
                                 Icons.location_pin,
@@ -506,13 +510,13 @@ class _ShareBoxState extends State<ShareBox> {
                               sections: [
                                 SettingsSection(
                                   tiles: [
-                                    settingsTile(snapshot.data,"10",(){
+                                    settingsTile(snapshot.data, "10", () {
                                       time.add("10");
                                     }),
-                                    settingsTile(snapshot.data,"15",(){
+                                    settingsTile(snapshot.data, "15", () {
                                       time.add("15");
                                     }),
-                                    settingsTile(snapshot.data,"30",(){
+                                    settingsTile(snapshot.data, "30", () {
                                       time.add("30");
                                     }),
                                   ],
@@ -544,7 +548,11 @@ class _ShareBoxState extends State<ShareBox> {
                                   ),
                                   onTap: () {
                                     Navigator.pop(context);
-                                    messageRepo.sendLiveLocationMessage(widget.currentRoomId,int.parse(time.valueWrapper.value),position,);
+                                    messageRepo.sendLiveLocationMessage(
+                                      widget.currentRoomId,
+                                      int.parse(time.valueWrapper.value),
+                                      position,
+                                    );
                                   }),
                             ],
                           ),
@@ -560,8 +568,7 @@ class _ShareBoxState extends State<ShareBox> {
         });
   }
 
-  SettingsTile settingsTile(
-      String data,  String t, Function on) {
+  SettingsTile settingsTile(String data, String t, Function on) {
     return SettingsTile(
       title: t,
       leading: Icon(
@@ -575,9 +582,27 @@ class _ShareBoxState extends State<ShareBox> {
             )
           : SizedBox.shrink(),
       onPressed: (BuildContext context) {
-      on();
+        on();
       },
     );
+  }
+
+  showCaptionDialog(
+      {IconData icons, String type, FilePickerResult result}) async {
+    String name = await _roomRepo.getName(widget.currentRoomId);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return ShowCaptionDialog(
+            name: name,
+            icon: icons,
+            type: type,
+            caption: captionTextController,
+            messageRepo: messageRepo,
+            currentRoom: widget.currentRoomId,
+            result: result.paths,
+          );
+        });
   }
 }
 

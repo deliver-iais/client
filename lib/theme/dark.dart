@@ -73,4 +73,5 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textField: Colors.white,
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
+    fileSharingDetails:Colors.white54,
     inputBoxBackground: DarkTheme.accentColor);
