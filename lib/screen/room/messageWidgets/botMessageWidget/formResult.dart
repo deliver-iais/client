@@ -10,7 +10,6 @@ class FormResultWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
-  final i18n = GetIt.I.get<I18N>();
 
   FormResultWidget({this.message, this.isSeen, this.isSender});
 
@@ -20,9 +19,10 @@ class FormResultWidget extends StatefulWidget {
 
 class _FormResultWidgetState extends State<FormResultWidget> {
   @override
+  final _i18n = GetIt.I.get<I18N>();
+
   Widget build(BuildContext context) {
     var formResult = widget.message.json.toFormResult();
-
 
     return Container(
       width: 250,
@@ -62,7 +62,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(widget.i18n?.get("submitted_on") ?? "",
+              Text(_i18n.get("submitted_on"),
                   style: TextStyle(
                     fontSize: 11,
                     height: 1.6,
