@@ -1,19 +1,18 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/methods/colors.dart';
+import 'package:we/box/avatar.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/avatarRepo.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/methods/isPersian.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
@@ -169,8 +168,7 @@ class CircleAvatarWidget extends StatelessWidget {
           maxLines: null,
           style: TextStyle(
               color: textColor,
-              fontSize: (radius * 0.8).toInt().toDouble(),
-              height: name.isPersian() ? 0.6 : 2)),
+              fontSize: (radius * 0.9).toInt().toDouble())),
     );
   }
 }

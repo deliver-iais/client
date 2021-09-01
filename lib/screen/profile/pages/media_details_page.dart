@@ -1,24 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/box/media.dart';
-import 'package:deliver_flutter/box/media_type.dart';
-import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/video_message/download_video_widget.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/video_message/video_ui.dart';
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/avatar.dart';
+import 'package:we/box/media.dart';
+import 'package:we/box/media_type.dart';
+import 'package:we/repository/avatarRepo.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/mediaQueryRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/messageWidgets/video_message/download_video_widget.dart';
+import 'package:we/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
@@ -71,11 +71,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _routingService = GetIt.I.get<RoutingService>();
   var fileServices = GetIt.I.get<FileService>();
 
-  var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
-  var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
+  var _fileCache = LruCache<String, File>(storage: InMemoryStorage(5));
+  var _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
   var _mediaSenderCache =
-      LruCache<String, String>(storage: SimpleStorage(size: 50));
-  var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
+      LruCache<String, String>(storage: InMemoryStorage(50));
+  var _thumnailChache = LruCache<String, File>(storage: InMemoryStorage(5));
   var isDeleting = false;
   List<Avatar> _allAvatars;
   var swipePosition = 0;

@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/sender_and_content.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/message.dart';
+import 'package:we/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class ReplyPreview extends StatelessWidget {
@@ -14,7 +14,7 @@ class ReplyPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(100),
+      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -29,11 +29,14 @@ class ReplyPreview extends StatelessWidget {
               size: 25,
             ),
             SizedBox(width: 10),
-            SenderAndContent(
-              messages: List<Message>.filled(1, message),
-              inBox: false,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: SenderAndContent(
+                  messages: List<Message>.filled(1, message),
+                ),
+              ),
             ),
-            Spacer(),
             IconButton(
               padding: EdgeInsets.all(0),
               alignment: Alignment.center,

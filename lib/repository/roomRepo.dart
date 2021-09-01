@@ -1,23 +1,22 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/box/dao/block_dao.dart';
-import 'package:deliver_flutter/box/dao/mute_dao.dart';
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/dao/seen_dao.dart';
-import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/botRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/methods/name.dart';
+import 'package:we/box/dao/block_dao.dart';
+import 'package:we/box/dao/mute_dao.dart';
+import 'package:we/box/dao/room_dao.dart';
+import 'package:we/box/dao/seen_dao.dart';
+import 'package:we/box/dao/uid_id_name_dao.dart';
+import 'package:we/box/muc.dart';
+import 'package:we/box/room.dart';
+import 'package:we/box/seen.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/botRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/repository/mucRepo.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -25,12 +24,12 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 Cache<String, String> roomNameCache =
-    LruCache<String, String>(storage: SimpleStorage(size: 100));
+    LruCache<String, String>(storage: InMemoryStorage(100));
 
 class RoomRepo {
   final _logger = GetIt.I.get<Logger>();

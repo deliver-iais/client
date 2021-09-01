@@ -1,12 +1,11 @@
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/navigation_center/chats/widgets/unread_message_counter.dart';
-import 'package:deliver_flutter/shared/methods/message.dart';
-import 'package:deliver_flutter/shared/widgets/seen_status.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:we/screen/room/messageWidgets/text_ui.dart';
+import 'package:we/shared/methods/message.dart';
+import 'package:we/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,70 +14,67 @@ class LastMessage extends StatelessWidget {
   final int lastMessageId;
   final bool hasMentioned;
   final bool showSender;
+  final bool showSenderInSeparatedLine;
+  final bool showSeenStatus;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   LastMessage(
       {Key key,
       this.message,
       this.lastMessageId,
-      this.hasMentioned,
-      this.showSender = true})
+      this.hasMentioned = false,
+      this.showSender = true,
+      this.showSeenStatus = true,
+      this.showSenderInSeparatedLine = false})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    I18N _i18n = I18N.of(context);
-
     var isReceivedMessage = !_authRepo.isCurrentUser(message.from);
 
     return FutureBuilder<MessageBrief>(
         future: extractMessageBrief(
             _i18n, _roomRepo, _authRepo, extractProtocolBufferMessage(message)),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return SizedBox.shrink();
+          if (!snapshot.hasData)
+            return Container(
+                height: Theme.of(context).textTheme.bodyText2.fontSize + 7);
           final mb = snapshot.data;
           return Row(
             children: [
-              if (!isReceivedMessage && showSender)
+              if (showSeenStatus && !isReceivedMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
                   child: SeenStatus(message),
                 ),
               Expanded(
                 child: RichText(
-                    maxLines: 1,
+                    maxLines: showSenderInSeparatedLine && showSender ? 2 : 1,
                     overflow: TextOverflow.fade,
                     textDirection: TextDirection.ltr,
                     softWrap: false,
                     text: TextSpan(children: [
                       if (mb.senderIsAUserOrBot && showSender)
                         TextSpan(
-                            text: "${mb.sender.trim()}: ",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: ExtraTheme.of(context).username)),
+                            text: "${mb.sender.trim()}" +
+                                (showSenderInSeparatedLine ? "\n" : ": "),
+                            style:
+                                Theme.of(context).primaryTextTheme.bodyText2),
                       if (mb.typeDetails.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: ExtraTheme.of(context).username)),
+                            style:
+                                Theme.of(context).primaryTextTheme.bodyText2),
                       if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
                         TextSpan(
                             text: ", ",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: ExtraTheme.of(context).username)),
+                            style:
+                                Theme.of(context).primaryTextTheme.bodyText2),
                       if (mb.text.isNotEmpty)
                         TextSpan(
-                            text: mb.text.split("\n").first,
+                            children: buildText(mb, context),
                             style: Theme.of(context).textTheme.bodyText2),
                     ])),
               ),
@@ -103,5 +99,32 @@ class LastMessage extends StatelessWidget {
             ],
           );
         });
+  }
+
+  List<TextSpan> buildText(MessageBrief mb, BuildContext context) =>
+      extractBlocks(
+              mb.text
+                  .split("\n")
+                  .map((e) => e.trim())
+                  .where((e) => e.trim().isNotEmpty)
+                  .join(" "),
+              context)
+          .where((b) => b.text != null && b.text.isNotEmpty)
+          .map((e) => TextSpan(text: e.text, style: e.style))
+          .toList();
+
+  List<Block> extractBlocks(String text, BuildContext context) {
+    List<Block> blocks = [Block(text: text)];
+    List<Parser> parsers = [
+      EmojiParser(fontSize: 16),
+      BoldTextParser(),
+      ItalicTextParser()
+    ];
+
+    for (final p in parsers) {
+      blocks = p.parse(blocks, context);
+    }
+
+    return blocks;
   }
 }

@@ -1,17 +1,17 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/livelocation.dart' as box;
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/liveLocationRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/livelocation.dart' as box;
+import 'package:we/box/message.dart';
+import 'package:we/repository/liveLocationRepo.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class LiveLocationMessageWidget extends StatefulWidget {
@@ -35,6 +35,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
   void initState() {
     liveLocation = widget.message.json.toLiveLocation();
     _liveLocationRepo.updateLiveLocation(liveLocation);
+    super.initState();
   }
 
   @override
@@ -110,7 +111,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             ],
           ),
           TimeAndSeenStatus(
-              widget.message, widget.isSender, true, widget.isSeen),
+              widget.message, widget.isSender, widget.isSeen, needsBackground: true),
         ],
       ),
     );

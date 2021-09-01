@@ -1,4 +1,4 @@
-name: deliver_flutter
+name: we
 description: Messenger App
 
 # The following line prevents the package from being accidentally published to
@@ -23,13 +23,10 @@ version: 1.4.0    #if change the version , is necessary to change VERSION  in co
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
-dependency_overrides:
-  http: ^0.13.2
-
 msix_config:
-  display_name: deliver
-  publisher_display_name: deliver
-  identity_name: deliver
+  display_name: we
+  publisher_display_name: we
+  identity_name: we
   msix_version: 1.0.0.0
   certificate_path: C:\Deliver\CERTIFICATE.pfx
   certificate_password: 96112049
@@ -44,7 +41,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_link_preview: 1.5.6
   desktoasts: 0.0.2
   carousel_slider: 2.3.1
   dots_indicator: 1.2.0
@@ -87,38 +83,37 @@ dependencies:
   file_selector_linux: 0.0.2
   file_selector_windows: 0.0.2
   dio: 4.0.0 # HTTP Invoker Library
-  mime_type: 0.3.2 # Get mime type of file path
-  jwt_decoder: 1.0.1
+  mime_type: 1.0.0 # Get mime type of file path
+  jwt_decoder: 1.0.1 # TODO, read documentation and update it
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
       ref: tags/v1.8.6-beta.3
-  grpc: 3.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
+  grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
-  image_cropper: 1.3.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
-  vibration: 1.7.2 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
-  dcache: 0.3.0
+  image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
+  vibration: 1.7.3 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
+  dcache: 0.4.0
   image_size_getter: 0.2.1
+  swipe_to: 0.0.1+8
 #  google_maps_place_picker: 2.0.0-nullsafety.3
   audioplayers: 0.19.0
   dart_vlc: 0.0.9
   video_player: 1.0.1
   open_file: 3.2.1 # Open file in OS
-
   contacts_service: 0.6.1
-  random_string: 2.1.0
+  random_string: 2.3.1
   flutter_local_notifications: 8.0.0
-  flutter_local_notifications_linux: 0.1.0+1
+  flutter_local_notifications_linux: 0.2.0+1
   uuid: 3.0.4
-  flutter_sound: 8.1.4
-  record: 2.1.1
-  percent_indicator: 2.1.8
+  flutter_sound: 8.1.4 # TODO remove later
+  record: 3.0.0
+  percent_indicator: 3.0.1
   package_info: 2.0.2
   package_info_plus: 1.0.3
   package_info_plus_windows: 1.0.3
-  cached_network_image: 3.0.0
   sms_autofill: 1.2.6
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
@@ -129,26 +124,24 @@ dependencies:
   flutter_swiper: 1.1.6
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
   test:
-  badges: 1.1.4
+  badges: 2.0.1
   modal_bottom_sheet: 2.0.0
   receive_sharing_intent: 1.4.5
-  flutter_icons: 1.1.0
-  desktop_notifications: 0.5.0
   qr_flutter: 4.0.0
   flutter_parsed_text: 1.2.5
   msix: 2.1.3
   device_info: 2.0.2
   hive: 2.0.4
+  flutter_blurhash: 0.6.0
   hive_flutter: 1.1.0
   marquee: 2.2.0
+  metadata_fetch: 0.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
   hive_generator: ^1.1.0
-
-
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -166,23 +159,16 @@ flutter:
     - assets/images/a.flr
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
     - assets/ic_launcher/web_hi_res_512.png
-    - assets/icons/stickerIcon.png
-    - assets/icons/emojiIcon.png
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/audios/incoming-msg.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
-    - assets/backgrounds/a.png
+    - assets/backgrounds/
     - assets/animations/done.json
     - assets/animations/loading.json
     - assets/animations/error.json
-    - assets/emoji/bat.json
-    - assets/emoji/cackle.json
-    - assets/emoji/crow.json
-    - assets/emoji/love.json
-    - assets/emoji/laugh.json
-    - assets/animations/liveLocation.json
+    - assets/emoji/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -195,17 +181,12 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-#    - family: NotoColorEmoji
-#      fonts:
-#        - asset: assets/fonts/NotoColorEmoji.ttf
+    - family: NotoColorEmoji
+      fonts:
+        - asset: assets/fonts/NotoColorEmoji.ttf
     - family: Vazir
       fonts:
-        - asset: assets/fonts/vazir/Vazir.ttf
-        - asset: assets/fonts/vazir/Vazir-Bold.ttf
-        - asset: assets/fonts/vazir/Vazir-Light.ttf
-        - asset: assets/fonts/vazir/Vazir-Medium.ttf
-        - asset: assets/fonts/vazir/Vazir-Thin.ttf
-          weight: 700
+        - asset: assets/fonts/vazir/Vazir-Variable.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

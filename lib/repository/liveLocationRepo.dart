@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:deliver_flutter/box/dao/live_location_dao.dart';
-import 'package:deliver_flutter/box/livelocation.dart';
+import 'package:we/box/dao/live_location_dao.dart';
+import 'package:we/box/livelocation.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

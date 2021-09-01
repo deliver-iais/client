@@ -1,9 +1,9 @@
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/services/core_services.dart';
-import 'package:deliver_flutter/services/notification_services.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/shared/methods/url.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/services/core_services.dart';
+import 'package:we/services/notification_services.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/shared/methods/url.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';

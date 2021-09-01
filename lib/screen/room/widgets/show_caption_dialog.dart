@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class ShowCaptionDialog extends StatelessWidget {

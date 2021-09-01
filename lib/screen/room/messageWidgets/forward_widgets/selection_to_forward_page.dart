@@ -1,8 +1,8 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/forward_appbar.dart';
-import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
+import 'package:we/screen/room/messageWidgets/forward_widgets/forward_appbar.dart';
+import 'package:we/screen/navigation_center/widgets/search_box.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

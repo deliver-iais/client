@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/box/message_type.dart';
+import 'package:we/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'message.g.dart';

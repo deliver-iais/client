@@ -1,12 +1,12 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/lastActivityRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/shared/widgets/activity_status.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/methods/time.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/room.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/lastActivityRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/shared/widgets/activity_status.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/methods/time.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -157,6 +157,9 @@ class _ChatItemState extends State<ChatItem> {
                                             widget.room.lastMessageId,
                                         hasMentioned:
                                             widget.room.mentioned == true,
+                                        showSender: widget.room.uid.isMuc() ||
+                                            _authRepo.isCurrentUser(
+                                                widget.room.lastMessage.from),
                                       );
                               }
                             }),
@@ -208,38 +211,28 @@ class _ChatItemState extends State<ChatItem> {
         });
   }
 
-  Expanded buildDraftMessageWidget(I18N _i18n, BuildContext context) {
-    return Expanded(
-                                      child: Row(
-                                        children: [
-                                          RichText(
-                                              overflow: TextOverflow.fade,
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                      text: "${_i18n.get("draft")} : ",
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyText2
-                                                          .copyWith(
-                                                              color:
-                                                                  ExtraTheme.of(
-                                                                          context)
-                                                                      .textField)),
-                                                  TextSpan(
-                                                      text: widget.room.draft,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyText2
-                                                          .copyWith(
-                                                              color:
-                                                                  ExtraTheme.of(
-                                                                          context)
-                                                                      .username))
-                                                ],
-                                              )),
-                                        ],
-                                      ));
+  Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: RichText(
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+              textDirection: TextDirection.ltr,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                      text: "${_i18n.get("draft")}: ",
+                      style: Theme.of(context).primaryTextTheme.bodyText2),
+                  TextSpan(
+                      text: widget.room.draft,
+                      style: Theme.of(context).textTheme.bodyText2)
+                ],
+              )),
+        ),
+      ],
+    );
   }
 
   _showDisplayName(Uid uid, String name, BuildContext context) {

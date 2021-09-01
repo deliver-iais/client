@@ -1,18 +1,19 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/last_activity.dart';
-import 'package:deliver_flutter/repository/lastActivityRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/shared/widgets/activity_status.dart';
-import 'package:deliver_flutter/shared/methods/time.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/last_activity.dart';
+import 'package:we/repository/lastActivityRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/shared/widgets/activity_status.dart';
+import 'package:we/shared/methods/time.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/extensions/cap_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/cap_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:random_string/random_string.dart';
 
 class TitleStatus extends StatefulWidget {
   final TextStyle style;
@@ -51,27 +52,52 @@ class _TitleStatusState extends State<TitleStatus> {
     return StreamBuilder<TitleStatusConditions>(
         stream: _messageRepo.updatingStatus.stream,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            switch (snapshot.data) {
-              case TitleStatusConditions.Updating:
-              case TitleStatusConditions.Disconnected:
-              case TitleStatusConditions.Connecting:
-                return Text(title(i18n, snapshot.data),
-                    maxLines: 1,
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                    style: widget.style);
-                break;
-              case TitleStatusConditions.Normal:
-                if (widget.currentRoomUid != null)
-                  return activityWidget();
-                else
-                  return this.widget.normalConditionWidget;
-                break;
-            }
-          }
-          return widget.normalConditionWidget;
+          return AnimatedSwitcher(
+              layoutBuilder: (currentChild, previousChildren) {
+                return Container(
+                  height: widget.style.fontSize * 1.5,
+                  child: Stack(
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                    alignment: Alignment.centerLeft,
+                  ),
+                );
+              },
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                    opacity: animation,
+                    child: SizeTransition(sizeFactor: animation, child: child));
+              },
+              duration: Duration(milliseconds: 150),
+              reverseDuration: Duration(milliseconds: 150),
+              child: buildTitle(snapshot));
         });
+  }
+
+  Widget buildTitle(AsyncSnapshot<TitleStatusConditions> snapshot) {
+    if (snapshot.hasData) {
+      switch (snapshot.data) {
+        case TitleStatusConditions.Updating:
+        case TitleStatusConditions.Disconnected:
+        case TitleStatusConditions.Connecting:
+          return Text(title(i18n, snapshot.data),
+              maxLines: 1,
+              key: ValueKey(randomString(10)),
+              overflow: TextOverflow.fade,
+              softWrap: false,
+              style: widget.style);
+          break;
+        case TitleStatusConditions.Normal:
+          if (widget.currentRoomUid != null)
+            return activityWidget();
+          else
+            return this.widget.normalConditionWidget;
+          break;
+      }
+    }
+    return widget.normalConditionWidget;
   }
 
   title(I18N i18n, TitleStatusConditions statusConditions) {
@@ -89,6 +115,7 @@ class _TitleStatusState extends State<TitleStatus> {
 
   Widget activityWidget() {
     return StreamBuilder<Activity>(
+        key: ValueKey(randomString(10)),
         stream: _roomRepo.activityObject[widget.currentRoomUid.node],
         builder: (c, activity) {
           if (activity.hasData && activity.data != null) {
@@ -117,6 +144,10 @@ class _TitleStatusState extends State<TitleStatus> {
               if (isOnline(userInfo.data.time)) {
                 return Text(
                   i18n.get("online"),
+                  maxLines: 1,
+                  key: ValueKey(randomString(10)),
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
                   style: widget.style
                       .copyWith(color: Theme.of(context).primaryColor),
                 );
@@ -125,6 +156,10 @@ class _TitleStatusState extends State<TitleStatus> {
                     dateTimeFormat(date(userInfo.data.time));
                 return Text(
                     "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
+                    maxLines: 1,
+                    key: ValueKey(randomString(10)),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
                     style: widget.style
                         .copyWith(color: Theme.of(context).primaryColor));
               }

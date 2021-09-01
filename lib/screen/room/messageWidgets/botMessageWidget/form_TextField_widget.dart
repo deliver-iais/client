@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/localization/i18n.dart';
+import 'package:we/localization/i18n.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as formModel;
 import 'package:flutter/cupertino.dart';
@@ -26,37 +26,28 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
-    return Column(
-      children: [
-        SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 7, right: 7),
-          child: Container(
-            child: Form(
-                key: _formKey,
-                child: widget.formField.whichType() ==
-                            formModel.Form_Field_Type.textField ||
-                        widget.formField.whichType() ==
-                            formModel.Form_Field_Type.numberField
-                    ? buildTextFormField(
-                        widget.formField.whichType() ==
-                                formModel.Form_Field_Type.textField
-                            ? TextInputType.text
-                            : TextInputType.number,
-                        maxLength: widget.formField.whichType() ==
-                                formModel.Form_Field_Type.textField
-                            ? widget.formField.textField.max
-                            : widget.formField.numberField.max.toInt(),
-                      )
-                    : widget.formField.whichType() ==
-                            formModel.Form_Field_Type.dateField
-                        ? buildTextFormField(TextInputType.datetime)
-                        : buildTextFormField(TextInputType.number)),
-          ),
-        )
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Form(
+          key: _formKey,
+          child: widget.formField.whichType() ==
+                      formModel.Form_Field_Type.textField ||
+                  widget.formField.whichType() ==
+                      formModel.Form_Field_Type.numberField
+              ? buildTextFormField(
+                  widget.formField.whichType() ==
+                          formModel.Form_Field_Type.textField
+                      ? TextInputType.text
+                      : TextInputType.number,
+                  maxLength: widget.formField.whichType() ==
+                          formModel.Form_Field_Type.textField
+                      ? widget.formField.textField.max
+                      : widget.formField.numberField.max.toInt(),
+                )
+              : widget.formField.whichType() ==
+                      formModel.Form_Field_Type.dateField
+                  ? buildTextFormField(TextInputType.datetime)
+                  : buildTextFormField(TextInputType.number)),
     );
   }
 
@@ -101,25 +92,25 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        suffixIcon:widget.formField.isOptional?SizedBox.shrink(): Padding(
-          padding: const EdgeInsets.only(top: 20, left: 25),
-          child: Text(
-            "*",
-            style: TextStyle(color: Colors.red),
-          ),
-        ),
+        suffixIcon: widget.formField.isOptional
+            ? SizedBox.shrink()
+            : Padding(
+                padding: const EdgeInsets.only(top: 20, left: 25),
+                child: Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
         labelText: widget.formField.id,
         labelStyle: TextStyle(color: Colors.blue));
   }
 
   String validateFormTextField(String value) {
-
     if (value.isEmpty && !widget.formField.isOptional) {
       return _i18n.get("this_filed_not_empty");
     }
-    if(widget.formField.whichType() ==
-        formModel.Form_Field_Type.numberField){
-      if(!_isNumeric(value)){
+    if (widget.formField.whichType() == formModel.Form_Field_Type.numberField) {
+      if (!_isNumeric(value)) {
         return _i18n.get("enter_numeric_value");
       }
     }
@@ -141,6 +132,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
       return null;
     }
   }
+
   bool _isNumeric(String str) {
     return double.tryParse(str) != null;
   }

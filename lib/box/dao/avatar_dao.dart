@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/box/avatar.dart';
+import 'package:we/box/avatar.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {

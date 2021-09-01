@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "Deliver";
+const APPLICATION_NAME = "We";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
     "1.4.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
@@ -88,4 +88,4 @@ double maxWidthOfMessage(BuildContext context) => min(
     (MediaQuery.of(context).size.width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
         0.7,
-    300);
+    400);

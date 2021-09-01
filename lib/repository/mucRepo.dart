@@ -1,15 +1,15 @@
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/box/role.dart';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/services/muc_services.dart';
+import 'package:we/box/dao/muc_dao.dart';
+import 'package:we/box/dao/room_dao.dart';
+import 'package:we/box/dao/uid_id_name_dao.dart';
+import 'package:we/box/member.dart';
+import 'package:we/box/muc.dart';
+import 'package:we/box/role.dart';
+import 'package:we/box/room.dart';
+import 'package:we/box/uid_id_name.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -19,7 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 class MucRepo {
@@ -183,15 +183,10 @@ class MucRepo {
             id: channel.info.id);
 
         _mucDao.save(muc);
-        insertUserInDb(mucUid, [
-          Member(
-              memberUid: _authRepo.currentUserUid.asString(),
-              mucUid: mucUid.asString(),
-              role: getLocalRole(channel.requesterRole))
-        ]);
         if (c != null)
           _checkShowPin(mucUid, channel.pinMessages, c.pinMessagesIdList ?? []);
-        if (channel.requesterRole != MucPro.Role.NONE)
+        // ignore: unrelated_type_equality_checks
+        if (channel.requesterRole != MucPro.Role.NONE && channel.requesterRole != MucPro.Role.MEMBER)
           fetchChannelMembers(mucUid, channel.population.toInt());
         return muc;
       }
@@ -248,7 +243,6 @@ class MucRepo {
       return Future.value(false);
   }
 
-  // TODO there is bugs in delete member, where is memberUid ?!?!?
   Future<bool> _removeGroup(Uid groupUid) async {
     var result = await _mucServices.removeGroup(groupUid);
     if (result) {
@@ -546,8 +540,8 @@ class MucRepo {
         // TODO better pattern matching maybe be helpful
         .where((e) =>
             query.isEmpty ||
-            (e.id != null && e.id.toLowerCase().contains(query)) ||
-            (e.name != null && e.name.toLowerCase().contains(query)))
+            (e.id != null && e.id.toLowerCase().contains(query.toLowerCase())) ||
+            (e.name != null && e.name.toLowerCase().contains(query.toLowerCase())))
         .toList();
   }
 

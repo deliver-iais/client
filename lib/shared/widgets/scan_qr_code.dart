@@ -1,24 +1,24 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver_flutter/shared/methods/name.dart';
-import 'package:deliver_flutter/shared/methods/phone.dart';
-import 'package:deliver_flutter/shared/methods/url.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/floating_modal_bottom_sheet.dart';
+import 'package:we/shared/methods/name.dart';
+import 'package:we/shared/methods/phone.dart';
+import 'package:we/shared/methods/url.dart';
 
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

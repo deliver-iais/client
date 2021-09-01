@@ -1,15 +1,16 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/audio_service.dart';
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/methods/message.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/avatarRepo.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/messageWidgets/text_ui.dart';
+import 'package:we/services/audio_service.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:desktoasts/desktoasts.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -25,6 +26,16 @@ abstract class Notifier {
   cancelAll();
 }
 
+MessageBrief synthesize(MessageBrief mb) {
+  if (mb.text != null && mb.text.isNotEmpty) {
+    return mb.copyWith(
+        text:
+            BoldTextParser.transformer(ItalicTextParser.transformer(mb.text)));
+  }
+
+  return mb;
+}
+
 class NotificationServices {
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
@@ -36,7 +47,10 @@ class NotificationServices {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
 
-    _notifier.notify(mb);
+    if (mb.ignoreNotification) return;
+
+    // TODO change place of synthesizer if we want more styled texts in android
+    _notifier.notify(synthesize(mb));
   }
 
   void cancelRoomNotifications(String roomUid) {
@@ -87,7 +101,6 @@ class WindowsNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     final _logger = GetIt.I.get<Logger>();
@@ -152,8 +165,6 @@ class LinuxNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
-
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
@@ -226,8 +237,6 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
-
     AndroidBitmap largeIcon;
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
@@ -245,7 +254,7 @@ class AndroidNotifier implements Notifier {
         channel.id, channel.name, channel.description,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
-        setAsGroupSummary: true);
+        setAsGroupSummary: false);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
@@ -294,8 +303,6 @@ class MacOSNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
-
     List<MacOSNotificationAttachment> attachments = [];
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);

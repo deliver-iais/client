@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/box/bot_info.dart';
+import 'package:we/box/bot_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class BotDao {

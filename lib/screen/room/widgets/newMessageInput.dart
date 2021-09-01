@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/room/widgets/inputMessage.dart';
+import 'package:we/box/room.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/widgets/inputMessage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

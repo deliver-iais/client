@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

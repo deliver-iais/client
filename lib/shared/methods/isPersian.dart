@@ -31,10 +31,11 @@ extension IsPersian on String {
           temp[i] == '~' ||
           temp[i] == ':' ||
           temp[i] == '{' ||
+          temp[i] == ' ' ||
           temp[i] == '}') {
         continue;
       } else {
-        RegExp eng = RegExp(r'^[a-zA-Z0-9]+$');
+        RegExp eng = RegExp(r'^[a-zA-Z0-9@]+$');
         return !(eng.hasMatch(temp[i]));
       }
     }

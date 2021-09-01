@@ -1,28 +1,28 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/models/account.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/models/account.dart';
 
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/avatarRepo.dart';
 
-import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:we/services/routing_service.dart';
 
-import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:deliver_flutter/shared/language.dart';
-import 'package:deliver_flutter/shared/methods/phone.dart';
-import 'package:deliver_flutter/shared/methods/url.dart';
-import 'package:deliver_flutter/theme/dark.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/services/ux_service.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:we/shared/floating_modal_bottom_sheet.dart';
+import 'package:we/shared/widgets/fluid_container.dart';
+import 'package:we/shared/language.dart';
+import 'package:we/shared/methods/phone.dart';
+import 'package:we/shared/methods/url.dart';
+import 'package:we/theme/dark.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';

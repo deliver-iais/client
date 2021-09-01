@@ -1,11 +1,9 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:fixnum/fixnum.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/fluid_container.dart';
+import 'package:we/repository/contactRepo.dart';
 
-import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
-import 'package:deliver_flutter/screen/register/widgets/phone_number.dart' as p;
+import 'package:we/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,7 +20,7 @@ class NewContact extends StatefulWidget {
 }
 
 class _NewContactState extends State<NewContact> {
-  p.PhoneNumber _phoneNumber;
+  PhoneNumber _phoneNumber;
 
   I18N _i18n;
   var _routingServices = GetIt.I.get<RoutingService>();
@@ -49,12 +47,8 @@ class _NewContactState extends State<NewContact> {
                   if (_phoneNumber == null) {
                     return;
                   }
-                  PhoneNumber phoneNumber = PhoneNumber()
-                    ..nationalNumber =
-                        Int64.parseInt(_phoneNumber.nationalNumber)
-                    ..countryCode = int.parse(_phoneNumber.countryCode);
                   await _contactRepo.addContact(Contact()
-                    ..phoneNumber = phoneNumber
+                    ..phoneNumber = _phoneNumber
                     ..firstName = _firstName
                     ..lastName = _lastName);
                   await showResult();
@@ -121,7 +115,8 @@ class _NewContactState extends State<NewContact> {
 
   Future<void> showResult() async {
     var result = await _contactRepo.contactIsExist(
-        _phoneNumber.countryCode, _phoneNumber.nationalNumber);
+        _phoneNumber.countryCode.toString(),
+        _phoneNumber.nationalNumber.toString());
     if (result) {
       Fluttertoast.showToast(msg: _i18n.get("contactAdd"));
     } else {

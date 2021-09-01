@@ -1,10 +1,10 @@
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 const DarkThemeName = "Dark";
 
 final primary = Color(0xFF2699FB);
-final accent = Color(0xFF01000F);
+final accent = Color(0xFF182731);
 
 final primaryTextTheme = Typography.whiteCupertino
     .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
@@ -31,10 +31,10 @@ ThemeData DarkTheme = ThemeData(
     accentColor: accent,
     scaffoldBackgroundColor: Color(0xFF021a25),
     bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
-    backgroundColor: Color(0xFF032738),
+    backgroundColor: Color(0xFF00101A),
     buttonColor: primary,
     dividerTheme:
-        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFF3b3b3b)),
+        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xff313131)),
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
     appBarTheme: AppBarTheme(
@@ -63,10 +63,10 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     menuIconButton: DarkTheme.accentColor.withAlpha(50),
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
-    sentMessageBox: DarkTheme.primaryColor,
-    receivedMessageBox: DarkTheme.accentColor,
+    sentMessageBox: Color(0xFF0674A1),
+    receivedMessageBox: Color(0xFF182731),
     textMessage: Colors.white,
-    messageDetails: Color(0xFF001D39),
+    messageDetails: Color(0xFF00396C),
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,

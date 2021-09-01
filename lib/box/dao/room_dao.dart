@@ -1,7 +1,7 @@
-import 'package:deliver_flutter/box/room.dart';
+import 'package:we/box/room.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 abstract class RoomDao {
   Future<void> updateRoom(Room room);

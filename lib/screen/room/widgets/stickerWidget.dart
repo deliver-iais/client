@@ -1,11 +1,11 @@
 // import 'dart:io';
 //
-// import 'package:deliver_flutter/db/database.dart';
-// import 'package:deliver_flutter/repository/fileRepo.dart';
+// import 'package:we/db/database.dart';
+// import 'package:we/repository/fileRepo.dart';
 //
-// import 'package:deliver_flutter/repository/stickerRepo.dart';
-// import 'package:deliver_flutter/screen/room/widgets/share_box.dart';
-// import 'package:deliver_flutter/services/routing_service.dart';
+// import 'package:we/repository/stickerRepo.dart';
+// import 'package:we/screen/room/widgets/share_box.dart';
+// import 'package:we/services/routing_service.dart';
 // import 'package:flutter/cupertino.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get_it/get_it.dart';

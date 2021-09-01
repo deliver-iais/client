@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/box/dao/media_dao.dart';
-import 'package:deliver_flutter/box/dao/media_meta_data_dao.dart';
-import 'package:deliver_flutter/box/media_meta_data.dart';
-import 'package:deliver_flutter/box/media.dart';
-import 'package:deliver_flutter/box/media_type.dart';
+import 'package:we/box/dao/media_dao.dart';
+import 'package:we/box/dao/media_meta_data_dao.dart';
+import 'package:we/box/media_meta_data.dart';
+import 'package:we/box/media.dart';
+import 'package:we/box/media_type.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -12,7 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pb.dart' as queryObject;
 import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
     as MediaObject;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 

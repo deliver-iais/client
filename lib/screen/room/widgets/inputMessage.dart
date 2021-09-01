@@ -1,35 +1,37 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:we/box/room.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/widgets/show_caption_dialog.dart';
+import 'package:we/services/ux_service.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/services.dart';
 
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/room/widgets/bot_commandsWidget.dart';
-import 'package:deliver_flutter/screen/room/widgets/emojiKeybord.dart';
-import 'package:deliver_flutter/screen/room/widgets/recordAudioAnimation.dart';
-import 'package:deliver_flutter/screen/room/widgets/recordAudioslideWidget.dart';
-import 'package:deliver_flutter/screen/room/widgets/share_box.dart';
-import 'package:deliver_flutter/screen/room/widgets/showMentionList.dart';
-import 'package:deliver_flutter/screen/room/widgets/show_caption_dialog.dart';
-import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/screen/room/widgets/bot_commands.dart';
+import 'package:we/screen/room/widgets/emojiKeybord.dart';
+import 'package:we/screen/room/widgets/recordAudioAnimation.dart';
+import 'package:we/screen/room/widgets/recordAudioslideWidget.dart';
+import 'package:we/screen/room/widgets/share_box.dart';
+import 'package:we/screen/room/widgets/showMentionList.dart';
+import 'package:we/services/check_permissions_service.dart';
+import 'package:we/services/routing_service.dart';
+
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/methods/isPersian.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
+import 'package:we/repository/messageRepo.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -61,7 +63,6 @@ class _InputMessageWidget extends State<InputMessage> {
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
   Room currentRoom;
-  bool showEmoji = false;
   bool autofocus = false;
   double x = 0.0;
   double size = 1;
@@ -73,14 +74,15 @@ class _InputMessageWidget extends State<InputMessage> {
   double dx = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
-  BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
-  String query;
+  String mentionQuery;
   Timer recordAudioTimer;
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
+  BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
+  BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   String path;
-  Timer _ticktickTimer;
+  Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
+
   bool startAudioRecorder = false;
 
   FocusNode myFocusNode;
@@ -133,6 +135,48 @@ class _InputMessageWidget extends State<InputMessage> {
         _showSendIcon.add(false);
 
       _roomRepo.updateRoomDraft(currentRoom.uid, controller.text ?? "");
+
+      var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
+      var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
+
+      if (currentRoom.uid.asUid().category == Categories.BOT &&
+          controller.text != null &&
+          controller.text.isNotEmpty &&
+          controller.text[0] == "/" &&
+          controller.selection.start == controller.selection.end &&
+          controller.selection.start >= 1 &&
+          botCommandRegexp.hasMatch(
+              controller.text.substring(0 + 1, controller.selection.start) ??
+                  "")) {
+        _botCommandQuery
+            .add(controller.text.substring(0 + 1, controller.selection.start));
+      } else {
+        _botCommandQuery.add("-");
+      }
+
+      if (currentRoom.uid.asUid().category == Categories.GROUP && controller.selection.start > 0) {
+        mentionQuery = "-";
+        final str = controller.text;
+        int start = str.lastIndexOf("@", controller.selection.start);
+
+        if (start == -1) {
+          _mentionQuery.add("-");
+        }
+
+        try {if (controller.text.isNotEmpty &&
+            controller.text[start] == "@" &&
+            controller.selection.start == controller.selection.end &&
+            idRegexp.hasMatch(controller.text
+                    .substring(start + 1, controller.selection.start) ??
+                "")) {
+          _mentionQuery.add(
+              controller.text.substring(start + 1, controller.selection.start));
+        } else {
+          _mentionQuery.add("-");
+        } } catch (e) {
+          _mentionQuery.add("-");
+        }
+      }
     });
     super.initState();
   }
@@ -149,39 +193,34 @@ class _InputMessageWidget extends State<InputMessage> {
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
-        StreamBuilder(
-            stream: _showMentionList.stream,
+        StreamBuilder<String>(
+            stream: _mentionQuery.stream.distinct(),
             builder: (c, showMention) {
-              if (showMention.hasData && showMention.data)
-                return ShowMentionList(
-                  query: query,
-                  onSelected: (s) {
-                    controller.text = "${controller.text}$s ";
-                    controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: controller.text.length));
-                    _showMentionList.add(false);
-                  },
-                  roomUid: widget.currentRoom.uid,
-                );
-              else
-                return SizedBox.shrink();
+              return ShowMentionList(
+                query: showMention.data ?? "-",
+                onSelected: (s) {
+                  controller.text =
+                      "${controller.text.substring(0, controller.text.lastIndexOf("@", controller.selection.start))}@$s${controller.text.substring(controller.text.lastIndexOf("@", controller.selection.start) + showMention.data.length + 1)}";
+                  controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: controller.text.length));
+                  _mentionQuery.add("-");
+                },
+                roomUid: widget.currentRoom.uid,
+              );
             }),
         StreamBuilder(
-            stream: _showBotCommands.stream,
+            stream: _botCommandQuery.stream.distinct(),
             builder: (c, show) {
-              if (show.hasData && show.data) {
-                return BotCommandsWidget(
-                  botUid: widget.currentRoom.uid.asUid(),
-                  onCommandClick: (String command) {
-                    controller.text = "/" + command;
-                    controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: controller.text.length));
-                    _showBotCommands.add(false);
-                  },
-                );
-              } else {
-                return SizedBox.shrink();
-              }
+              return BotCommands(
+                botUid: widget.currentRoom.uid.asUid(),
+                query: show.data ?? "-",
+                onCommandClick: (String command) {
+                  controller.text = "/" + command;
+                  controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: controller.text.length));
+                  _botCommandQuery.add("-");
+                },
+              );
             }),
         Container(
           color: ExtraTheme.of(context).inputBoxBackground,
@@ -237,22 +276,32 @@ class _InputMessageWidget extends State<InputMessage> {
                                   focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    onTap: () {
-                                      backSubject.add(false);
-                                    },
-                                    minLines: 1,
-                                    style: TextStyle(
-                                        fontSize: 19,
-                                        height: 1,
-                                        color:
-                                            ExtraTheme.of(context).textField),
-                                    maxLines: 15,
                                     focusNode: myFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
-                                    textInputAction: TextInputAction.newline,
                                     controller: controller,
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 4, vertical: 8),
+                                      border: InputBorder.none,
+                                      hintText: i18n.get("message"),
+                                    ),
                                     autocorrect: true,
+                                    textInputAction: TextInputAction.newline,
+                                    minLines: 1,
+                                    maxLines: 15,
+                                    textAlign: controller.text.isNotEmpty &&
+                                            controller.text.isPersian()
+                                        ? TextAlign.right
+                                        : TextAlign.left,
+                                    textDirection: controller.text.isNotEmpty &&
+                                            controller.text.isPersian()
+                                        ? TextDirection.rtl
+                                        : TextDirection.ltr,
+                                    style:
+                                        Theme.of(context).textTheme.subtitle1,
+                                    onTap: () => backSubject.add(false),
                                     onChanged: (str) {
                                       if (str != null && str.length > 0)
                                         isTypingActivitySubject
@@ -260,17 +309,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       else
                                         noActivitySubject
                                             .add(ActivityType.NO_ACTIVITY);
-                                      onChange(str);
                                     },
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 15, horizontal: 5),
-                                      border: InputBorder.none,
-                                      hintText: controller.text.isEmpty
-                                          ? i18n.get("message")
-                                          : "",
-                                    ),
                                   ),
                                 ),
                               ),
@@ -284,9 +323,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                           icon: Icon(
                                             Icons.workspaces_outline,
                                           ),
-                                          onPressed: () => _showBotCommands.add(
-                                              !_showBotCommands
-                                                  .valueWrapper.value),
+                                          onPressed: () => _botCommandQuery.add(
+                                              _botCommandQuery.value == "-"
+                                                  ? ""
+                                                  : "-"),
                                         );
                                       else
                                         return SizedBox.shrink();
@@ -366,8 +406,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 } else {
                                   if (started) {
                                     started = false;
-                                    if (_ticktickTimer != null)
-                                      _ticktickTimer.cancel();
+                                    if (_tickTimer != null) _tickTimer.cancel();
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
@@ -406,8 +445,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
-                                if (_ticktickTimer != null)
-                                  _ticktickTimer.cancel();
+                                if (_tickTimer != null) _tickTimer.cancel();
 
                                 await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
@@ -509,7 +547,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
       controller.clear();
 
-      _showMentionList.add(false);
+      _mentionQuery.add("-");
     }
     widget.scrollToLastSentMessage();
   }
@@ -521,44 +559,6 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  void onChange(String str) {
-    if (currentRoom.uid.asUid().category == Categories.BOT) {
-      if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
-        _showBotCommands.add(true);
-        return;
-      }
-    }
-    if (currentRoom.uid.asUid().category == Categories.GROUP) {
-      if (str.isEmpty) {
-        _showMentionList.add(false);
-        return;
-      }
-      try {
-        query = "";
-        int i = str.lastIndexOf("@");
-        if (i == -1) {
-          _showMentionList.add(false);
-        }
-        if ((i != 0 && str[i - 1] != " ") && str[i - 1] != "\n") {
-          return;
-        }
-        if (i != -1 && !str.contains(" ", i)) {
-          query = str.substring(i + 1, str.length);
-          _showMentionList.add(true);
-        } else {
-          _showMentionList.add(false);
-        }
-      } catch (e) {}
-    }
-    if (currentRoom.uid.asUid().category == Categories.BOT) {
-      if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
-        _showBotCommands.add(true);
-      } else {
-        _showBotCommands.add(false);
-      }
-    }
-  }
-
   opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
@@ -568,7 +568,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void setTime() {
-    _ticktickTimer = Timer(Duration(milliseconds: 500), () {
+    _tickTimer = Timer(Duration(milliseconds: 500), () {
       recordSubject.add(DateTime.now());
       setTime();
     });

@@ -1,12 +1,11 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 class BotButtonsWidget extends StatelessWidget {
   final Message message;
@@ -18,30 +17,34 @@ class BotButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var buttons = message.json.toButtons();
     return Container(
-        child: Stack(
+        padding: const EdgeInsets.all(4),
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        SizedBox(
-          height: 60 * buttons.buttons.length.toDouble(),
-          width: 200,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: ListView.separated(
-                itemCount: buttons.buttons.length,
-                itemBuilder: (c, index) {
-                  return Center(
-                    child: OutlinedButton(
-                        onPressed: () {
-                          _messageRepo.sendTextMessage(
-                              message.from.asUid(), buttons.buttons[index]);
-                        },
-                        child: Text(buttons.buttons[index],style: TextStyle(color: ExtraTheme.of(context).textField),)),
-                  );
-                }, separatorBuilder: (BuildContext context, int index) {
-                  return SizedBox(height: 5,);
-            },),
+        for (final btn in buttons.buttons)
+          Container(
+            constraints: BoxConstraints(minHeight: 35),
+            width: 240,
+            margin: const EdgeInsets.only(bottom: 5),
+            child: OutlinedButton(
+                onPressed: () {
+                  _messageRepo.sendTextMessage(message.from.asUid(), btn);
+                },
+                style: OutlinedButton.styleFrom(
+                    primary: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    side: BorderSide(color: Theme.of(context).primaryColor)),
+                child: Text(btn)),
           ),
+        TimeAndSeenStatus(
+          message,
+          false,
+          false,
+          needsBackground: false,
+          needsPositioned: false,
         ),
-        TimeAndSeenStatus(message, false, true, false),
       ],
     ));
   }

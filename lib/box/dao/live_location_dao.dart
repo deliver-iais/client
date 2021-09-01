@@ -1,5 +1,5 @@
 
-import 'package:deliver_flutter/box/livelocation.dart';
+import 'package:we/box/livelocation.dart';
 import 'package:hive/hive.dart';
 
 abstract class LiveLocationDao {

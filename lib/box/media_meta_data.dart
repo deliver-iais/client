@@ -1,5 +1,5 @@
 
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'media_meta_data.g.dart';

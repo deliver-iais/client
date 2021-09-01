@@ -1,9 +1,9 @@
-import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/shared/methods/name.dart';
+import 'package:we/box/contact.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:we/shared/methods/name.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 import '../constants.dart';
 

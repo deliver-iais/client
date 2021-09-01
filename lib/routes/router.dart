@@ -1,16 +1,16 @@
 
 
 import 'package:auto_route/auto_route_annotations.dart';
-import 'package:deliver_flutter/screen/room/pages/roomPage.dart';
-import 'package:deliver_flutter/screen/home/pages/home_page.dart';
-import 'package:deliver_flutter/screen/contacts/new_contact.dart';
-import 'package:deliver_flutter/screen/register/pages/login_page.dart';
-import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
-import 'package:deliver_flutter/screen/room/widgets/showImage_Widget.dart';
-import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
-import 'package:deliver_flutter/screen/settings/account_settings.dart';
-import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
-import 'package:deliver_flutter/screen/splash/splash_screen.dart';
+import 'package:we/screen/room/pages/roomPage.dart';
+import 'package:we/screen/home/pages/home_page.dart';
+import 'package:we/screen/contacts/new_contact.dart';
+import 'package:we/screen/register/pages/login_page.dart';
+import 'package:we/screen/register/pages/verification_page.dart';
+import 'package:we/screen/room/widgets/showImage_Widget.dart';
+import 'package:we/screen/intro/pages/intro_page.dart';
+import 'package:we/screen/settings/account_settings.dart';
+import 'package:we/screen/share_input_file/share_input_file.dart';
+import 'package:we/screen/splash/splash_screen.dart';
 
 @MaterialAutoRouter(
   routes: <AutoRoute>[

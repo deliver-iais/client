@@ -1,7 +1,6 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/sender_and_content.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -21,26 +20,29 @@ class ReplyBrief extends StatelessWidget {
     return FutureBuilder<Message>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null)
+          if (snapshot.hasData && snapshot.data != null) {
             return Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+              padding: const EdgeInsets.all(4),
               child: Container(
+                constraints: BoxConstraints.loose(Size.fromWidth(200)),
+                padding: const EdgeInsets.only(left: 8.0),
+                margin: const EdgeInsets.only(left: 2.0),
                 decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(
-                            color: ExtraTheme.of(context).messageDetails,
-                            width: 3))),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: SenderAndContent(
-                    messages: List<Message>.filled(1, snapshot.data),
-                    inBox: true,
-                  ),
+                  border: Border(
+                      left: BorderSide(
+                        width: 3,
+                          color: Theme.of(context).primaryColor)),
+                  // borderRadius: BorderRadius.circular(10),
+                ),
+                child: SenderAndContent(
+                  messages: [snapshot.data],
                 ),
               ),
             );
-          else
-            return SizedBox.shrink();
+          } else
+            return SizedBox(
+              width: 200,
+            );
         });
   }
 }

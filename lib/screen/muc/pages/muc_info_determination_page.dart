@@ -1,20 +1,20 @@
 import 'dart:ui';
 
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/services/create_muc_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/widgets/box.dart';
-import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/mucRepo.dart';
+import 'package:we/services/create_muc_service.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/widgets/box.dart';
+import 'package:we/shared/widgets/fluid_container.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/widgets/contacts_widget.dart';
+import 'package:we/shared/widgets/contacts_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
@@ -34,7 +34,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   String mucName = '';
   String channelId = "";
-  bool showEmoji = false;
   bool autofocus = false;
   bool _showIcon = true;
   var _routingService = GetIt.I.get<RoutingService>();

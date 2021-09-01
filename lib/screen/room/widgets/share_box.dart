@@ -1,17 +1,20 @@
 import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/room/widgets/share_box/file.dart';
-import 'package:deliver_flutter/screen/room/widgets/share_box/gallery.dart';
-import 'package:deliver_flutter/screen/room/widgets/share_box/music.dart';
-import 'package:deliver_flutter/screen/room/widgets/show_caption_dialog.dart';
-import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/widgets/share_box/file.dart';
+import 'package:we/screen/room/widgets/share_box/gallery.dart';
+import 'package:we/screen/room/widgets/share_box/music.dart';
+import 'package:we/screen/room/widgets/show_caption_dialog.dart';
+import 'package:we/services/check_permissions_service.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:latlong2/latlong.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -19,7 +22,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
