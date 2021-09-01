@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/routes/router.gr.dart';
+import 'package:we/services/firebase_services.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';

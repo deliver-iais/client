@@ -1,24 +1,24 @@
 import 'dart:async';
 
-import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/message.dart' as DB;
-import 'package:deliver_flutter/box/dao/message_dao.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
-import 'package:deliver_flutter/box/dao/seen_dao.dart';
-import 'package:deliver_flutter/box/last_activity.dart';
-import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/notification_services.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/methods/message.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/box/dao/last_activity_dao.dart';
+import 'package:we/box/dao/room_dao.dart';
+import 'package:we/box/message.dart' as DB;
+import 'package:we/box/dao/message_dao.dart';
+import 'package:we/box/dao/muc_dao.dart';
+import 'package:we/box/dao/seen_dao.dart';
+import 'package:we/box/last_activity.dart';
+import 'package:we/box/member.dart';
+import 'package:we/box/room.dart';
+import 'package:we/box/seen.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/services/notification_services.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/services/ux_service.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/methods/message.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -304,7 +304,8 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
                 return;
               }
               break;
@@ -320,7 +321,8 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
                 return;
               }
 
@@ -342,6 +344,9 @@ class CoreServices {
           // TODO: Handle this case.
           break;
       }
+    }
+    if(await _roomRepo.isDeletedRoom(roomUid.asString())){
+      return;
     }
     saveMessage(message, roomUid);
 

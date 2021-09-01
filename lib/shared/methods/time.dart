@@ -1,5 +1,5 @@
 import 'package:date_time_format/date_time_format.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/shared/constants.dart';
 
 bool isOnline(int time) {
   return DateTime.now().millisecondsSinceEpoch - time < ONLINE_TIME;
@@ -17,7 +17,7 @@ String durationTimeFormat(Duration duration) {
   return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
 }
 
-String dateTimeFormat(DateTime time) {
+String dateTimeFormat(DateTime time, {String weekFormat = 'D'}) {
   var now = DateTime.now();
   var difference = now.difference(time);
   if (difference.inMinutes <= 2) {
@@ -25,7 +25,7 @@ String dateTimeFormat(DateTime time) {
   } else if (difference.inDays < 1 && time.day == now.day) {
     return DateTimeFormat.format(time, format: 'H:i');
   } else if (difference.inDays <= 7)
-    return DateTimeFormat.format(time, format: 'D');
+    return DateTimeFormat.format(time, format: weekFormat);
   else
     return DateTimeFormat.format(time, format: 'M j');
 }

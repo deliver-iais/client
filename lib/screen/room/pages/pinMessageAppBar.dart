@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/screen/navigation_center/chats/widgets/lastMessage.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/screen/navigation_center/chats/widgets/lastMessage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -107,6 +107,7 @@ class PinMessageAppBar extends StatelessWidget {
                                 message: mes,
                                 lastMessageId: mes.id,
                                 hasMentioned: false,
+                                showSeenStatus: false,
                                 showSender: false),
                           ],
                         ),

@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/box/message.dart';
+import 'package:we/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'room.g.dart';

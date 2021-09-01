@@ -1,17 +1,17 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/models/operation_on_message.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/message.dart';
+import 'package:we/box/message_type.dart';
+import 'package:we/box/pending_message.dart';
+import 'package:we/models/operation_on_message.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {

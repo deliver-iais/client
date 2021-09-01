@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/box/last_activity.dart';
+import 'package:we/box/last_activity.dart';
 import 'package:hive/hive.dart';
 
 abstract class LastActivityDao {

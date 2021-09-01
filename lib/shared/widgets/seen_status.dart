@@ -1,9 +1,9 @@
-import 'package:deliver_flutter/box/dao/seen_dao.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/box/dao/seen_dao.dart';
+import 'package:we/box/message.dart';
+import 'package:we/box/pending_message.dart';
+import 'package:we/box/seen.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

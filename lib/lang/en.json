@@ -117,7 +117,7 @@
   "contact_not_exist": "Contact not Exist",
   "contact_information": "Contact Information",
   "contactAdd": "Contact Add in Contacts",
-  "new_contact_add": "joined to Deliver",
+  "new_contact_add": "joined to we",
   "add_user_to_muc": "added ",
   "you_add_user_to_muc": "added",
   "change_avatar_muc": "Change Group Avatar",
@@ -228,8 +228,8 @@
   "left": "left",
   "kicked": "kicked",
   "created": "created",
-  "changed_avatar": "changed avatar",
-  "changed_name": "changed name",
+  "changed_avatar": "changed avatar to",
+  "changed_name": "changed name to",
   "joined_to_app": "join to",
   "add_to_group": "Add to Group",
   "add_bot_to_group": "Add Bot To Group",
@@ -239,5 +239,6 @@
   "choose_livelocation_time": "Choose for how long to share your live location",
   "last_update": "Last Update",
   "enter_numeric_value": "Enter the number",
-  "draft": "draft"
+  "draft": "Draft",
+  "text": "Text"
 }

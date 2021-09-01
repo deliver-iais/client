@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 const LightThemeName = "Light";
@@ -30,7 +30,7 @@ ThemeData LightTheme = ThemeData(
     primaryColor: primary,
     accentColor: accent,
     scaffoldBackgroundColor: Colors.white,
-    backgroundColor: Color(0xfde2f8f0),
+    backgroundColor: Color(0xfdf0fff7),
     buttonColor: primary,
     dividerTheme:
         DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
@@ -74,4 +74,6 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     textField: LightTheme.accentColor,
     username: Colors.blue[900],
     seenStatus: Colors.blue,
-    inputBoxBackground: Colors.white);
+    inputBoxBackground: Colors.white,
+    fileSharingDetails:Colors.black54,
+);

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/box/file_info.dart';
+import 'package:we/box/file_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class FileDao {

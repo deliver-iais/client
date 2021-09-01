@@ -14,6 +14,8 @@ class ExtraThemeData {
   Color circularFileStatus;
   Color fileMessageDetails;
   Color inputBoxBackground;
+  Color  fileSharingDetails;
+
 
   // TODO refactor all of these
   Color username; // primary
@@ -39,6 +41,7 @@ class ExtraThemeData {
     this.fileMessageDetails,
     this.textField,
     this.inputBoxBackground,
+    this.fileSharingDetails
   });
 }
 

@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/navigation_center/chats/widgets/contactPic.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/routes/router.gr.dart';
+import 'package:we/screen/navigation_center/chats/widgets/contactPic.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 
 class ChatItemToShareFile extends StatelessWidget {

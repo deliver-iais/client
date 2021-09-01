@@ -1,16 +1,16 @@
-import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/box/role.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/box/member.dart';
+import 'package:we/box/role.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/mucRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 class MucMemberWidget extends StatefulWidget {
   final Uid mucUid;

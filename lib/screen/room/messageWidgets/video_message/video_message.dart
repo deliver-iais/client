@@ -1,14 +1,14 @@
 import 'dart:io' as da;
 
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/video_message/video_ui.dart';
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/box/message.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -47,7 +47,11 @@ class _VideoMessageState extends State<VideoMessage> {
           ? duration.toString().substring(2, 7)
           : duration.toString().substring(3, 7);
     } else {
-      videoLength = duration.toString().split('.').first.padLeft(8, "0");
+      videoLength = duration
+          .toString()
+          .split('.')
+          .first
+          .padLeft(8, "0");
     }
     return Container(
       width: 300,
@@ -116,12 +120,13 @@ class _VideoMessageState extends State<VideoMessage> {
                             size(videoLength, video.size.toInt()),
                             video.caption.isEmpty
                                 ? (!isDesktop()) | (isDesktop() & showTime)
-                                    ? SizedBox.shrink()
-                                    : TimeAndSeenStatus(widget.message,
-                                        widget.isSender, true, widget.isSeen)
+                                ? SizedBox.shrink()
+                                : TimeAndSeenStatus(widget.message,
+                                widget.isSender, widget.isSeen,
+                                needsBackground: true)
                                 : Container(),
                             TimeAndSeenStatus(widget.message, widget.isSender,
-                                true, widget.isSeen)
+                                widget.isSeen, needsBackground: true)
                           ],
                         );
                       } else {
@@ -138,12 +143,12 @@ class _VideoMessageState extends State<VideoMessage> {
                             size(videoLength, video.size.toInt()),
                             video.caption.isEmpty
                                 ? (!isDesktop()) | (isDesktop() & false)
-                                    ? SizedBox.shrink()
-                                    : TimeAndSeenStatus(widget.message,
-                                        widget.isSender, true, widget.isSeen)
+                                ? SizedBox.shrink()
+                                : TimeAndSeenStatus(widget.message,
+                                widget.isSender, widget.isSeen,needsBackground: true)
                                 : Container(),
                             TimeAndSeenStatus(widget.message, widget.isSender,
-                                true, widget.isSeen)
+                                widget.isSeen, needsBackground: true)
                           ],
                         );
                       }
@@ -161,7 +166,7 @@ class _VideoMessageState extends State<VideoMessage> {
       // height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       padding:
-          const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
+      const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: Colors.black87,

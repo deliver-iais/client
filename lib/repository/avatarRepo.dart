@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/box/dao/avatar_dao.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/box/avatar.dart';
+import 'package:we/box/dao/avatar_dao.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/services/muc_services.dart';
+import 'package:we/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
@@ -14,7 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:get_it/get_it.dart';
 
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 
 import 'package:dcache/dcache.dart';
 import 'package:fixnum/fixnum.dart';
@@ -30,7 +30,7 @@ class AvatarRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
   final Cache<String, Avatar> _avatarCache =
-      LruCache<String, Avatar>(storage: SimpleStorage(size: 40));
+      LruCache<String, Avatar>(storage: InMemoryStorage(40));
 
   Future<void> fetchAvatar(Uid userUid, bool forceToUpdate) async {
     if (forceToUpdate || await needsUpdate(userUid)) {
@@ -114,14 +114,14 @@ class AvatarRepo {
       return ac;
     }
 
-    if (ac == null || ac.fileId == null || (ac.fileId != null &&  ac.fileId.isEmpty)) {
+    if (ac != null && ac.fileId == null || ac.fileId.isEmpty) {
       return null;
     }
 
     ac = await _avatarDao.getLastAvatar(userUid.asString());
     _avatarCache.set(key, ac);
 
-    if (ac == null || ac.fileId == null || (ac != null && ac.fileId.isEmpty)) {
+    if (ac.fileId == null || ac.fileId.isEmpty) {
       return null;
     }
     return ac;

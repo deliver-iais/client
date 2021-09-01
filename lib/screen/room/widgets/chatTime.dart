@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/shared/methods/time.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
+import 'package:we/shared/methods/time.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class ChatTime extends StatelessWidget {
@@ -14,7 +14,7 @@ class ChatTime extends StatelessWidget {
       margin: const EdgeInsets.all(4.0),
       padding: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ExtraTheme.of(context).receivedMessageBox,
         borderRadius: BorderRadius.circular(8),
       ),
       child: ValueListenableBuilder<int>(
@@ -30,13 +30,10 @@ class ChatTime extends StatelessWidget {
                 currentMonth == currentMessageTime.month) {
               outT = ' Yesterday ';
             } else
-              outT = dateTimeFormat(currentMessageTime);
+              outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
             return Text(
               outT,
-              style: TextStyle(
-                color: ExtraTheme.of(context).textDetails,
-                fontSize: 13,
-              ),
+              style: Theme.of(context).textTheme.bodyText2,
             );
           }),
     );

@@ -3,24 +3,23 @@ import 'dart:async';
 import 'dart:io' as DartFile;
 import 'dart:math';
 
-import 'package:deliver_flutter/box/dao/message_dao.dart';
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/dao/seen_dao.dart';
-import 'package:deliver_flutter/box/dao/shared_dao.dart';
-import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/box/sending_status.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/liveLocationRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/core_services.dart';
-import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
+import 'package:we/box/dao/message_dao.dart';
+import 'package:we/box/dao/room_dao.dart';
+import 'package:we/box/dao/seen_dao.dart';
+import 'package:we/box/dao/shared_dao.dart';
+import 'package:we/box/message.dart';
+import 'package:we/box/pending_message.dart';
+import 'package:we/box/room.dart';
+import 'package:we/box/seen.dart';
+import 'package:we/box/message_type.dart';
+import 'package:we/box/sending_status.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/liveLocationRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/services/core_services.dart';
+import 'package:we/services/muc_services.dart';
+import 'package:we/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -44,8 +43,8 @@ import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_flutter/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
@@ -74,7 +73,6 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -173,12 +171,13 @@ class MessageRepo {
       if (r.lastMessage.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
-        if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
-          var rm = await _queryServiceClient
-              .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
-          fetchLastSeen(rm.roomMeta);
-        }
+        var rm = await _queryServiceClient
+            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
+        fetchCurrentUserLastSeen(rm.roomMeta);
+      }
+      var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
+      if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
+        fetchOtherSeen(r.uid.asUid());
       }
     });
   }
@@ -212,7 +211,23 @@ class MessageRepo {
     }
   }
 
-  Future<void> fetchLastSeen(RoomMetadata room) async {
+  Future<void> fetchOtherSeen(Uid roomUid) async {
+    try {
+      if (roomUid.category == Categories.USER ||
+          roomUid.category == Categories.GROUP) {
+        var fetchLastOtherUserSeenData =
+            await _queryServiceClient.fetchLastOtherUserSeenData(
+                FetchLastOtherUserSeenDataReq()..roomUid = roomUid);
+        _seenDao.saveOthersSeen(Seen(
+            uid: roomUid.asString(),
+            messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> fetchCurrentUserLastSeen(RoomMetadata room) async {
     try {
       var fetchCurrentUserSeenData =
           await _queryServiceClient.fetchCurrentUserSeenData(
@@ -227,20 +242,6 @@ class MessageRepo {
           uid: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
-    } catch (e) {
-      _logger.e(e);
-    }
-
-    try {
-      if (room.roomUid.category == Categories.USER ||
-          room.roomUid.category == Categories.GROUP) {
-        var fetchLastOtherUserSeenData =
-            await _queryServiceClient.fetchLastOtherUserSeenData(
-                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid);
-        _seenDao.saveOthersSeen(Seen(
-            uid: room.roomUid.asString(),
-            messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
-      }
     } catch (e) {
       _logger.e(e);
     }
@@ -295,7 +296,12 @@ class MessageRepo {
   sendMultipleFilesMessages(Uid room, List<String> filesPath,
       {String caption, int replyToId}) async {
     for (var path in filesPath) {
-      await sendFileMessage(room, path, caption: caption, replyToId: replyToId);
+      if (filesPath.last == path) {
+        await sendFileMessage(room, path,
+            caption: caption, replyToId: replyToId);
+      } else {
+        await sendFileMessage(room, path, caption: "", replyToId: replyToId);
+      }
     }
   }
 
@@ -476,7 +482,9 @@ class MessageRepo {
     _messageDao.savePendingMessage(pm);
   }
 
-  sendSeen(int messageId, Uid to) {
+  sendSeen(int messageId, Uid to) async {
+    var seen = await _seenDao.getMySeen(to.asString());
+    if (seen != null && seen.messageId >= messageId) return;
     _coreServices.sendSeen(ProtocolSeen.SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
@@ -569,7 +577,7 @@ class MessageRepo {
                 case MucSpecificPersistentEvent_Issue.DELETED:
                   _roomDao.updateRoom(
                       Room(uid: message.from.asString(), deleted: true));
-                 continue;
+                  continue;
                   break;
                 case MucSpecificPersistentEvent_Issue.ADD_USER:
                   _roomDao.updateRoom(
@@ -705,26 +713,23 @@ class MessageRepo {
   void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
       {int replyId, String forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
-    if(res != null){
+    if (res != null) {
       protoModel.Location location = protoModel.Location(
           longitude: position.longitude, latitude: position.latitude);
       String json = (protoModel.LiveLocation()
-        ..location = location
-        ..from = _authRepo.currentUserUid
-        ..uuid = res.uuid
-        ..to = roomUid
-        ..time = Int64(duration))
+            ..location = location
+            ..from = _authRepo.currentUserUid
+            ..uuid = res.uuid
+            ..to = roomUid
+            ..time = Int64(duration))
           .writeToJson();
-      Message msg =
-      _createMessage(roomUid, replyId: replyId, forwardedFrom: forwardedFrom)
+      Message msg = _createMessage(roomUid,
+              replyId: replyId, forwardedFrom: forwardedFrom)
           .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
       var pm = _createPendingMessage(msg, SendingStatus.PENDING);
       _saveAndSend(pm);
-    _liveLocationRepo.sendLiveLocationAsStream(res.uuid,duration ,location);
+      _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
     }
-
   }
-
-
 }

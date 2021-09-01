@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:deliver_flutter/box/media.dart';
-import 'package:deliver_flutter/box/media_type.dart';
+import 'package:we/box/media.dart';
+import 'package:we/box/media_type.dart';
 
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/mediaQueryRepo.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

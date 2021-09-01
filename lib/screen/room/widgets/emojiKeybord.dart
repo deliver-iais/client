@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/shared/constants.dart';
+import 'package:we/shared/constants.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +30,9 @@ class _Emojikeybord extends State<EmojiKeyboard> {
 
   @override
   Widget build(BuildContext context) {
+    final style = TextStyle(fontSize: 22, fontFamily: "NotoColorEmoji",
+    fontFamilyFallback: ["NotoColorEmoji"]);
+
     return emojiState
         ? Column(
             children: <Widget>[
@@ -51,7 +54,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("🙂"),
+                            icon: Text("🙂", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 1;
@@ -71,7 +74,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("🖐"),
+                            icon: Text("🖐", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 2;
@@ -92,7 +95,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("🐸"),
+                            icon: Text("🐸", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 3;
@@ -111,7 +114,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("🏁"),
+                            icon: Text("🏁", style: style),
                             onPressed: () {
                               selectedGroupIndex = 4;
                               emojis = Emoji.byGroup(EmojiGroup.flags)
@@ -133,7 +136,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("💎"),
+                            icon: Text("💎", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 5;
@@ -152,7 +155,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("🚑"),
+                            icon: Text("🚑", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 6;
@@ -169,7 +172,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("✅"),
+                            icon: Text("✅", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 7;
@@ -188,7 +191,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
                           child: IconButton(
-                            icon: Text("🍎"),
+                            icon: Text("🍎", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 8;
@@ -227,7 +230,8 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           child: Center(
                             child: Text(
                               emoji.toString(),
-                              style: TextStyle(fontSize: 26, fontFamily: "NotoColorEmoji"),
+                              style: TextStyle(fontSize: 26, fontFamily: "NotoColorEmoji",
+                                  fontFamilyFallback: ["NotoColorEmoji"]),
                             ),
                           ),
                         );

@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver_flutter/shared/methods/platform.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/servicesDiscoveryRepo.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
 
-import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/shared/methods/enum.dart';
+import 'package:we/services/check_permissions_service.dart';
+import 'package:we/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mime_type/mime_type.dart';

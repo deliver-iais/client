@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/sending_file_circular_indicator.dart';
-import 'package:deliver_flutter/services/file_service.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/screen/room/messageWidgets/sending_file_circular_indicator.dart';
+import 'package:we/services/file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
