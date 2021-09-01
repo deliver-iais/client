@@ -1,12 +1,16 @@
+import 'package:get_it/get_it.dart';
+import 'package:we/Localization/i18n.dart';
 import 'package:we/box/message.dart';
 import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:we/shared/extensions/json_extension.dart';
+import 'package:we/theme/extra_theme.dart';
 
 class FormResultWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
+  final i18n = GetIt.I.get<I18N>();
 
   FormResultWidget({this.message, this.isSeen, this.isSender});
 
@@ -19,68 +23,62 @@ class _FormResultWidgetState extends State<FormResultWidget> {
   Widget build(BuildContext context) {
     var formResult = widget.message.json.toFormResult();
 
+
     return Container(
       width: 250,
+      color: Colors.black.withAlpha(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 2, left: 4, right: 4),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final key in formResult.values.keys)
                   if (key != null && key.isNotEmpty)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "$key:",
+                          "$key: ",
                           overflow: TextOverflow.fade,
                           style: Theme.of(context).primaryTextTheme.subtitle1,
                         ),
-                        // SizedBox(width: 8),
-                        Text(
-                          formResult.values[key] ?? "",
-                          overflow: TextOverflow.fade,
-                          style: Theme.of(context).textTheme.subtitle1,
+                        Expanded(
+                          child: Text(
+                            formResult.values[key] ?? "",
+                            overflow: TextOverflow.fade,
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
                         ),
                       ],
                     ),
               ],
             ),
           ),
-          TimeAndSeenStatus(
-            widget.message,
-            widget.isSender,
-            widget.isSeen,
-            needsBackground: false,
-            needsPositioned: false,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(widget.i18n?.get("submitted_on") ?? "",
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.6,
+                    color: ExtraTheme.of(context).textMessage.withAlpha(150),
+                  )),
+              TimeAndSeenStatus(
+                widget.message,
+                widget.isSender,
+                widget.isSeen,
+                needsBackground: false,
+                needsPositioned: false,
+              ),
+            ],
           )
         ],
       ),
     );
-  }
-
-  String getText(String body) {
-    String text = "";
-    if (body == null) {
-      return "";
-    } else {
-      int textLenght = body.length;
-      if (textLenght > 25) {
-        int d = (textLenght / 25).floor();
-        int i = 0;
-        while (i <= d) {
-          if (i < d) {
-            text = text + body.substring(i * 25, (((i + 1) * 25) - 1)) + "\n";
-          } else {
-            text = text + body.substring(i * 25, textLenght);
-          }
-          i++;
-        }
-        return text;
-      } else
-        return body;
-    }
   }
 }

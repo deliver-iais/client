@@ -99,6 +99,7 @@ class FileService {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
       } catch (e) {
+        return null;
       }
     }
   }
