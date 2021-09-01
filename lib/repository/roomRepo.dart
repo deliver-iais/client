@@ -308,4 +308,9 @@ class RoomRepo {
   void updateRoomDraft( String roomUid,String draft) {
     _roomDao.updateRoom(Room().copyWith(uid: roomUid,draft: draft));
   }
+
+  Future<bool> isDeletedRoom(String roomUid) async {
+    var room = await _roomDao.getRoom(roomUid);
+    return room?.deleted ?? false;
+  }
 }
