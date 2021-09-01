@@ -51,7 +51,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                   ),
                 ),
                 labelText: widget.formField.id,
-                labelStyle: TextStyle(color: Colors.blue)),
+                labelStyle: TextStyle(color: Colors.grey)),
             value: selectedItem,
             validator: (value) {
               if (widget.formField.isOptional) {

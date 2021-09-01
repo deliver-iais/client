@@ -56,7 +56,12 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
     return maxLength != null && maxLength > 0
         ? TextFormField(
             minLines: 1,
+            controller: TextEditingController(),
             maxLength: maxLength,
+            inputFormatters: [
+              if (keyboardType == TextInputType.number)
+                FilteringTextInputFormatter.digitsOnly
+            ],
             validator: validateFormTextField,
             onChanged: (str) {
               widget.setResult(str);
@@ -66,6 +71,10 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           )
         : TextFormField(
             minLines: 1,
+            inputFormatters: [
+              if (keyboardType == TextInputType.number)
+                FilteringTextInputFormatter.digitsOnly
+            ],
             validator: validateFormTextField,
             onChanged: (str) {
               widget.setResult(str);
@@ -102,7 +111,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
                 ),
               ),
         labelText: widget.formField.id,
-        labelStyle: TextStyle(color: Colors.blue));
+        labelStyle: TextStyle(color: Colors.grey));
   }
 
   String validateFormTextField(String value) {

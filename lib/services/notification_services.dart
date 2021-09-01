@@ -101,12 +101,15 @@ class WindowsNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
+    final _fileServices = GetIt.I.get<FileService>();
+
     final _logger = GetIt.I.get<Logger>();
     try {
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
-      if (lastAvatar != null && lastAvatar.fileId != null) {
+      if (lastAvatar != null && lastAvatar.fileId != null ) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
@@ -116,19 +119,17 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
         _windowsNotificationServices.show(toast);
-
-        //_windowsNotificationServices.dispose();
-        //     toast.dispose();
       } else {
-        Toast toast = new Toast(
-          type: ToastType.text01,
-          title: message.roomName,
-          subtitle: createNotificationTextFromMessageBrief(message),
-        );
-        _windowsNotificationServices.show(toast);
-
-        // _windowsNotificationServices.dispose();
-        // toast.dispose();
+        var deliverIcon = await _fileServices.getDeliverIcon();
+        if (deliverIcon != null && deliverIcon.existsSync()) {
+          Toast toast = new Toast(
+            type: ToastType.imageAndText02,
+            title: message.roomName,
+            image: deliverIcon,
+            subtitle: createNotificationTextFromMessageBrief(message),
+          );
+          _windowsNotificationServices.show(toast);
+        }
       }
     } catch (e) {
       _logger.e(e);
@@ -165,6 +166,8 @@ class LinuxNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
@@ -237,6 +240,8 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
     AndroidBitmap largeIcon;
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
@@ -303,6 +308,8 @@ class MacOSNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
     List<MacOSNotificationAttachment> attachments = [];
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);

@@ -58,7 +58,7 @@ class ShowCaptionDialog extends StatelessWidget {
                       height: 10,
                     ),
                     Text(
-                      "send ${result.length} ${type} to ${name}",
+                      "send ${result.length} $type to $name",
                       style: TextStyle(
                           fontSize: 16,
                           color: ExtraTheme.of(context).fileSharingDetails),
