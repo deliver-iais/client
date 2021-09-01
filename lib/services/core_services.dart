@@ -304,7 +304,8 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
                 return;
               }
               break;
@@ -320,7 +321,8 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
                 return;
               }
 
@@ -342,6 +344,9 @@ class CoreServices {
           // TODO: Handle this case.
           break;
       }
+    }
+    if(await _roomRepo.isDeletedRoom(roomUid.asString())){
+      return;
     }
     saveMessage(message, roomUid);
 
