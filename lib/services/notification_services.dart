@@ -1,3 +1,9 @@
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:desktoasts/desktoasts.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/avatarRepo.dart';
@@ -8,15 +14,8 @@ import 'package:we/services/audio_service.dart';
 import 'package:we/services/file_service.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/message.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:desktoasts/desktoasts.dart';
-
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
-import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
+import 'package:we/shared/methods/message.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -230,12 +229,23 @@ class AndroidNotifier implements Notifier {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
-        onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {
-        _routingService.openRoom(room);
-      }
-      return;
-    });
+        onSelectNotification: androidOnSelectNotification);
+    AndeoidDidNotificationLaunchApp();
+  }
+
+  AndeoidDidNotificationLaunchApp() async {
+    final notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin
+        .getNotificationAppLaunchDetails();
+    if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+      androidOnSelectNotification(notificationAppLaunchDetails.payload);
+    }
+  }
+
+  Future<dynamic> androidOnSelectNotification(room) async {
+    if (room != null && room.isNotEmpty) {
+      _routingService.openRoom(room);
+    }
+    return;
   }
 
   @override
