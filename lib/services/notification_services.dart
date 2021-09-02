@@ -230,10 +230,10 @@ class AndroidNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: androidOnSelectNotification);
-    AndeoidDidNotificationLaunchApp();
+    androidDidNotificationLaunchApp();
   }
 
-  AndeoidDidNotificationLaunchApp() async {
+  androidDidNotificationLaunchApp() async {
     final notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails();
     if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
