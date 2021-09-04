@@ -58,7 +58,7 @@ ThemeData LightTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
-    centerPageDetails: Color(0xff0b796c),
+    centerPageDetails: Color(0xff6a6a6a),
     boxOuterBackground: Colors.white,
     boxBackground: Color(0xFFEFEFF4),
     textDetails: Colors.black,
