@@ -11,11 +11,11 @@ class ChatTime extends StatelessWidget {
   Widget build(BuildContext context) {
     final ValueNotifier<int> day = ValueNotifier<int>(DateTime.now().day);
     return Container(
-      margin: const EdgeInsets.all(4.0),
-      padding: const EdgeInsets.all(4.0),
+      margin: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-        color: ExtraTheme.of(context).receivedMessageBox,
-        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).dividerColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: ValueListenableBuilder<int>(
           valueListenable: day,
@@ -33,7 +33,7 @@ class ChatTime extends StatelessWidget {
               outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
             return Text(
               outT,
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyText2.copyWith(height: 1),
             );
           }),
     );
