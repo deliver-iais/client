@@ -76,7 +76,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data == true) {
                           return FutureBuilder<File>(
                               future: fileRepo.getFile(fileId, fileName + ".png",
-                                  thumbnailSize: ThumbnailSize.small),
+                                  thumbnailSize: ThumbnailSize.medium),
                               builder: (BuildContext buildContext,
                                   AsyncSnapshot thumbFile) {
                                 if (thumbFile.data != null &&
@@ -103,7 +103,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data == false) {
                           return FutureBuilder<File>(
                             future: fileRepo.getFile(fileId, fileName + ".png",
-                                thumbnailSize: ThumbnailSize.small),
+                                thumbnailSize: ThumbnailSize.medium),
                             builder:
                                 (BuildContext c, AsyncSnapshot thumbnailFile) {
                               if (thumbnailFile.hasData &&

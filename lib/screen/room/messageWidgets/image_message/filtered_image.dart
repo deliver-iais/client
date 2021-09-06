@@ -36,7 +36,7 @@ class _FilteredImageState extends State<FilteredImage> {
     var fileRepo = GetIt.I.get<FileRepo>();
     return FutureBuilder<File>(
         future:
-            fileRepo.getFile(widget.uuid, widget.name, thumbnailSize: ThumbnailSize.small),
+            fileRepo.getFile(widget.uuid, widget.name, thumbnailSize: ThumbnailSize.medium),
         builder: (context, file) {
           if (file.hasData == false && widget.path != null) {
             return Stack(
