@@ -11,7 +11,7 @@ import 'package:we/shared/constants.dart';
 import 'package:we/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:desktoasts/desktoasts.dart';
+// import 'package:desktoasts/desktoasts.dart' if(kIsWeb) "";
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
@@ -93,11 +93,13 @@ class IOSNotifier implements Notifier {
 }
 
 class WindowsNotifier implements Notifier {
-  ToastService _windowsNotificationServices = new ToastService(
-    appName: APPLICATION_NAME,
-    companyName: "deliver.co.ir",
-    productName: "deliver",
-  );
+
+  //todo vlc ???
+  // ToastService _windowsNotificationServices = new ToastService(
+  //   appName: APPLICATION_NAME,
+  //   companyName: "deliver.co.ir",
+  //   productName: "deliver",
+  // );
 
   @override
   notify(MessageBrief message) async {
@@ -110,22 +112,22 @@ class WindowsNotifier implements Notifier {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
-        Toast toast = new Toast(
-            type: ToastType.imageAndText02,
-            title: message.roomName,
-            subtitle: createNotificationTextFromMessageBrief(message),
-            image: file);
-        _windowsNotificationServices.show(toast);
+        // Toast toast = new Toast(
+        //     type: ToastType.imageAndText02,
+        //     title: message.roomName,
+        //     subtitle: createNotificationTextFromMessageBrief(message),
+        //     image: file);
+        // _windowsNotificationServices.show(toast);
 
         //_windowsNotificationServices.dispose();
         //     toast.dispose();
       } else {
-        Toast toast = new Toast(
-          type: ToastType.text01,
-          title: message.roomName,
-          subtitle: createNotificationTextFromMessageBrief(message),
-        );
-        _windowsNotificationServices.show(toast);
+        // Toast toast = new Toast(
+        //   type: ToastType.text01,
+        //   title: message.roomName,
+        //   subtitle: createNotificationTextFromMessageBrief(message),
+        // );
+        // _windowsNotificationServices.show(toast);
 
         // _windowsNotificationServices.dispose();
         // toast.dispose();

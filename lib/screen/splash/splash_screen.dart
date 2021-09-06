@@ -16,7 +16,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+ // final _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   var loggedInStatus;
   int attempts = 0;
@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() async {
-    _fireBaseServices.sendFireBaseToken();
+  //  _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(

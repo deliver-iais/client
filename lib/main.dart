@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bot_toast/bot_toast.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:we/box/dao/live_location_dao.dart';
 import 'package:we/box/db_manage.dart';
 import 'package:we/box/livelocation.dart';
@@ -87,7 +89,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+// import 'package:dart_vlc/dart_vlc.dart';
 
 Future<void> setupDI() async {
   // Setup Logger
@@ -141,7 +143,7 @@ Future<void> setupDI() async {
 
   // Order is important, don't change it!
   GetIt.I.registerSingleton<AuthServiceClient>(
-      AuthServiceClient(ProfileServicesClientChannel));
+      AuthServiceClient(webProfileServicesClientChannel));
   GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
@@ -204,7 +206,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
 
   if (isLinux() || isWindows()) {
-    DartVLC.initialize();
+    //todo vlc???
+    //DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
@@ -244,9 +247,9 @@ void main() async {
 
   if (isDesktop()) {
     try {
-      _setWindowSize();
+   //   _setWindowSize();
 
-      setWindowTitle(APPLICATION_NAME);
+   //   setWindowTitle(APPLICATION_NAME);
     } catch (e) {
       Logger().e(e);
     }
@@ -271,11 +274,11 @@ void main() async {
 }
 
 _setWindowSize() async {
-  var platformWindow = await getWindowInfo();
-  setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
-  // TODO, its better to removed
-  setWindowMaxSize(Size(
-      platformWindow.screen.frame.width, platformWindow.screen.frame.height));
+  // var platformWindow = await getWindowInfo();
+  // setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  // // TODO, its better to removed
+  // setWindowMaxSize(Size(
+  //     platformWindow.screen.frame.width, platformWindow.screen.frame.height));
 }
 
 class MyApp extends StatelessWidget {
@@ -284,6 +287,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BotToastInit();
     return StreamBuilder(
       stream: MergeStream([
         _uxService.themeStream,

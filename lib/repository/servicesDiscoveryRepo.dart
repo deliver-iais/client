@@ -1,4 +1,5 @@
 import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_web.dart';
 
 // ignore: non_constant_identifier_names
 final QueryClientChannel = ClientChannel("query.deliver-co.ir",
@@ -44,6 +45,8 @@ final ProfileServicesClientChannel = ClientChannel("ms-profile.deliver-co.ir",
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(),
         connectionTimeout: Duration(seconds: 2)));
+
+final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(Uri.parse('gwp-ms-profile.deliver-co.ir'));
 
 // ignore: non_constant_identifier_names
 final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",

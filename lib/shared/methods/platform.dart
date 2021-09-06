@@ -1,15 +1,17 @@
-import 'dart:io';
 
-bool isAndroid() => Platform.isAndroid;
 
-bool isIOS() => Platform.isIOS;
+import 'package:flutter/foundation.dart';
 
-bool isWindows() => Platform.isWindows;
+bool isAndroid() => defaultTargetPlatform  == TargetPlatform.android ;
 
-bool isLinux() => Platform.isLinux;
+bool isIOS() => defaultTargetPlatform  == TargetPlatform.iOS;
 
-bool isMacOS() => Platform.isMacOS;
+bool isWindows() =>defaultTargetPlatform  == TargetPlatform.windows;
 
-bool isDesktop() => Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+bool isLinux() => defaultTargetPlatform  == TargetPlatform.linux;
+
+bool isMacOS() => defaultTargetPlatform  == TargetPlatform.macOS;
+
+bool isDesktop() => defaultTargetPlatform  == TargetPlatform.linux || defaultTargetPlatform  == TargetPlatform.windows|| defaultTargetPlatform  == TargetPlatform.macOS;
 
 // TODO, we can specify some sort of functions for exact feature in here, not in code for overall better vision

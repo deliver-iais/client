@@ -1,5 +1,5 @@
-import 'dart:io';
 
+import 'package:grpc/grpc_web.dart';
 import 'package:we/box/avatar.dart';
 import 'package:we/box/dao/shared_dao.dart';
 import 'package:we/box/message.dart';
@@ -16,12 +16,15 @@ import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+
 import 'package:get_it/get_it.dart';
+
 
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:we/shared/methods/platform.dart';
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -52,14 +55,28 @@ class AuthRepo {
   Future getVerificationCode(PhoneNumber p) async {
     Pb.Platform platform = await getPlatformDetails();
 
+    var webProfileServicesClientChannel = GrpcWebClientChannel.xhr(Uri(scheme: "https",host:"gwp-ms-profile.deliver-co.ir"));
+
     try {
       this._tmpPhoneNumber = p;
-      var verificationCode =
-          await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
+      var d= await AuthServiceClient(webProfileServicesClientChannel).getVerificationCode(GetVerificationCodeReq()
+        ..phoneNumber = p
+        ..type = VerificationType.SMS,options:WebCallOptions(metadata: {})).headers;
+      print("%%%%%%%%%%%"+d.keys.toString());
+
+
+      var res = await AuthServiceClient(webProfileServicesClientChannel)
+          .getVerificationCode(GetVerificationCodeReq()
             ..phoneNumber = p
-            ..type = VerificationType.SMS
-            ..platform = platform);
-      return verificationCode;
+            ..type = VerificationType.SMS);
+
+      return res;
+
+      //     await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
+      //       ..phoneNumber = p
+      //       ..type = VerificationType.SMS
+      //       ..platform = platform);
+      // return verificationCode;
     } catch (e) {
       _logger.e(e);
       return null;
@@ -79,34 +96,34 @@ class AuthRepo {
   }
 
   getPlatForm(Pb.Platform platform) async {
-    if (Platform.isAndroid) {
+    if (isAndroid()) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
       platform
         ..platformType = Pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
-    } else if (Platform.isIOS) {
+    } else if (isIOS()) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
       platform
         ..platformType = Pb.PlatformsType.IOS
         ..osVersion = iosInfo.systemVersion;
-    } else if (Platform.isLinux) {
+    } else if (isLinux()) {
       platform
         ..platformType = Pb.PlatformsType.LINUX
-        ..osVersion = Platform.operatingSystemVersion;
-    } else if (Platform.isMacOS) {
+        ..osVersion = "";
+    } else if (isMacOS()) {
       platform
         ..platformType = Pb.PlatformsType.MAC_OS
-        ..osVersion = Platform.operatingSystemVersion;
-    } else if (Platform.isWindows) {
+        ..osVersion = "";
+    } else if (isWindows()) {
       platform
         ..platformType = Pb.PlatformsType.WINDOWS
-        ..osVersion = Platform.operatingSystemVersion;
+        ..osVersion = "";
     } else {
       platform
         ..platformType = Pb.PlatformsType.ANDROID
-        ..osVersion = Platform.operatingSystemVersion;
+        ..osVersion = "";
     }
     return platform;
   }
@@ -114,20 +131,20 @@ class AuthRepo {
   Future<String> getDeviceName() async {
     String device;
 
-    if (Platform.isAndroid) {
+    if (isAndroid()) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.model;
-    } else if (Platform.isIOS) {
+    } else if (isIOS()) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       device = iosInfo.model;
-    } else if (Platform.isLinux) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (Platform.isMacOS) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (Platform.isWindows) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (isLinux()) {
+      // device = "${operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (isMacOS()) {
+      //  device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (isWindows()) {
+//      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+      device = "web Application";
     }
     return device;
   }

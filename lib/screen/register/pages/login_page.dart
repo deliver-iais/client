@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:bot_toast/bot_toast.dart';
+
+
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/contactRepo.dart';
@@ -31,7 +34,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+ // final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
 
@@ -47,13 +50,12 @@ class _LoginPageState extends State<LoginPage> {
     if (phoneNumber?.nationalNumber != null) {
       controller.text = phoneNumber?.nationalNumber.toString();
     }
-
     if (isDesktop()) {
       checkTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
         try {
           var res = await _authRepo.checkQrCodeToken(loginToken.value);
           if (res.status == AccessTokenRes_Status.OK) {
-            _fireBaseServices.sendFireBaseToken();
+          //  _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
             Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
@@ -103,6 +105,7 @@ class _LoginPageState extends State<LoginPage> {
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
       try {
+   //     BotToast.showSimpleNotification(title: "init");
         var res = await _authRepo.getVerificationCode(phoneNumber);
         if (res != null)
           ExtendedNavigator.of(context).push(Routes.verificationPage);

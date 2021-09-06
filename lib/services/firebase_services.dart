@@ -17,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -30,19 +29,20 @@ class FireBaseServices {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
-  FirebaseMessaging _firebaseMessaging;
+//todo firebase_messaging_web
+ // FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
     if (!isDesktop()) {
-      _firebaseMessaging = FirebaseMessaging.instance;
-      _firebaseMessaging.requestPermission();
+      // _firebaseMessaging = FirebaseMessaging.instance;
+      // _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      _sendFireBaseToken(await _firebaseMessaging.getToken());
+    //  _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
   }
 
   deleteToken() {
-    _firebaseMessaging.deleteToken();
+  //  _firebaseMessaging.deleteToken();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
@@ -59,12 +59,12 @@ class FireBaseServices {
 
   _setFirebaseSetting() async {
     try {
-      FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
-      _firebaseMessaging.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      // FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+      // _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      //   alert: true,
+      //   badge: true,
+      //   sound: true,
+      // );
     } catch (e) {
       _logger.e(e);
     }
@@ -77,7 +77,7 @@ M.Message _decodeMessage(String notificationBody) {
   return m;
 }
 
-Future<void> backgroundMessageHandler(RemoteMessage message) async {
+Future<void> backgroundMessageHandler(dynamic message) async {
   try {
     await setupDI();
   } catch (e) {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/accountRepo.dart';
@@ -10,6 +9,7 @@ import 'package:we/shared/constants.dart';
 import 'package:we/shared/floating_modal_bottom_sheet.dart';
 import 'package:we/shared/methods/name.dart';
 import 'package:we/shared/methods/phone.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/methods/url.dart';
 
 import 'package:we/theme/extra_theme.dart';
@@ -48,7 +48,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   @override
   void reassemble() {
     super.reassemble();
-    if (Platform.isAndroid) {
+    if (isAndroid()) {
       controller.pauseCamera();
     }
     controller.resumeCamera();
