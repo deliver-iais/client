@@ -118,7 +118,7 @@ class CircleAvatarWidget extends StatelessWidget {
       return FutureBuilder(
         future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName,
             thumbnailSize: contactUid == _authRepo.currentUserUid
-                ? ThumbnailSize.large
+                ? null
                 : ThumbnailSize.medium),
         builder: (BuildContext c, AsyncSnapshot snaps) {
           if (snaps.hasData) {
