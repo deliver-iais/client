@@ -34,11 +34,12 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     return Container(
       padding: needsPadding
-          ? const EdgeInsets.only(top: 4, bottom: 2, right: 4, left: 4)
+          ? const EdgeInsets.only(top: 2, bottom: 2, right: 4, left: 4)
           : null,
+      margin: const EdgeInsets.all(2),
       decoration: needsBackground
           ? BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
               color: Theme.of(context).backgroundColor.withAlpha(150),
             )
           : null,

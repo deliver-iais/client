@@ -154,7 +154,8 @@ class _InputMessageWidget extends State<InputMessage> {
         _botCommandQuery.add("-");
       }
 
-      if (currentRoom.uid.asUid().category == Categories.GROUP && controller.selection.start > 0) {
+      if (currentRoom.uid.asUid().category == Categories.GROUP &&
+          controller.selection.start > 0) {
         mentionQuery = "-";
         final str = controller.text;
         int start = str.lastIndexOf("@", controller.selection.start);
@@ -163,17 +164,19 @@ class _InputMessageWidget extends State<InputMessage> {
           _mentionQuery.add("-");
         }
 
-        try {if (controller.text.isNotEmpty &&
-            controller.text[start] == "@" &&
-            controller.selection.start == controller.selection.end &&
-            idRegexp.hasMatch(controller.text
-                    .substring(start + 1, controller.selection.start) ??
-                "")) {
-          _mentionQuery.add(
-              controller.text.substring(start + 1, controller.selection.start));
-        } else {
-          _mentionQuery.add("-");
-        } } catch (e) {
+        try {
+          if (controller.text.isNotEmpty &&
+              controller.text[start] == "@" &&
+              controller.selection.start == controller.selection.end &&
+              idRegexp.hasMatch(controller.text
+                      .substring(start + 1, controller.selection.start) ??
+                  "")) {
+            _mentionQuery.add(controller.text
+                .substring(start + 1, controller.selection.start));
+          } else {
+            _mentionQuery.add("-");
+          }
+        } catch (e) {
           _mentionQuery.add("-");
         }
       }
@@ -575,6 +578,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
+    if (result.length <= 0) return;
     String name = await _roomRepo.getName(currentRoom.uid.asUid());
     captionTextController.text = "";
     showDialog(
