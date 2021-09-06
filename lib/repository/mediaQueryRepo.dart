@@ -192,6 +192,7 @@ class MediaQueryRepo {
         "caption": media.file.caption,
         "width": media.file.width,
         "height": media.file.height,
+        "blurHash":media.file.blurHash,
         "duration": media.file.duration
       };
     }
