@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
+
 
 import 'package:audioplayers/audioplayers.dart';
-// import 'package:dart_vlc/dart_vlc.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -77,9 +77,14 @@ class AudioService {
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
-    _playerModule.audioCurrentState.listen((event) => _audioCurrentState.add(event));
-    _playerModule.audioCurrentPosition
-        .listen((event) => _audioCurrentPosition.add(event));
+    try{
+      _playerModule.audioCurrentState.listen((event) => _audioCurrentState.add(event));
+      _playerModule.audioCurrentPosition
+          .listen((event) => _audioCurrentPosition.add(event));
+    }catch(e){
+      print("audioServices ");
+    }
+
   }
 
   void play(String path, String uuid, String name) async {

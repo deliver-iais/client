@@ -1,5 +1,4 @@
-
-import 'package:grpc/grpc_web.dart';
+import 'package:flutter/foundation.dart';
 import 'package:we/box/avatar.dart';
 import 'package:we/box/dao/shared_dao.dart';
 import 'package:we/box/message.dart';
@@ -16,9 +15,7 @@ import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-
 import 'package:get_it/get_it.dart';
-
 
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -55,28 +52,14 @@ class AuthRepo {
   Future getVerificationCode(PhoneNumber p) async {
     Pb.Platform platform = await getPlatformDetails();
 
-    var webProfileServicesClientChannel = GrpcWebClientChannel.xhr(Uri(scheme: "https",host:"gwp-ms-profile.deliver-co.ir"));
-
     try {
       this._tmpPhoneNumber = p;
-      var d= await AuthServiceClient(webProfileServicesClientChannel).getVerificationCode(GetVerificationCodeReq()
-        ..phoneNumber = p
-        ..type = VerificationType.SMS,options:WebCallOptions(metadata: {})).headers;
-      print("%%%%%%%%%%%"+d.keys.toString());
-
-
-      var res = await AuthServiceClient(webProfileServicesClientChannel)
-          .getVerificationCode(GetVerificationCodeReq()
+      var verificationCode =
+          await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
             ..phoneNumber = p
-            ..type = VerificationType.SMS);
-
-      return res;
-
-      //     await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
-      //       ..phoneNumber = p
-      //       ..type = VerificationType.SMS
-      //       ..platform = platform);
-      // return verificationCode;
+            ..type = VerificationType.SMS
+            ..platform = platform);
+      return verificationCode;
     } catch (e) {
       _logger.e(e);
       return null;
@@ -130,8 +113,7 @@ class AuthRepo {
 
   Future<String> getDeviceName() async {
     String device;
-
-    if (isAndroid()) {
+    if (kIsWeb) if (isAndroid()) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.model;
     } else if (isIOS()) {
@@ -141,10 +123,10 @@ class AuthRepo {
       // device = "${operatingSystem}:${Platform.operatingSystemVersion}";
     } else if (isMacOS()) {
       //  device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (kIsWeb) {
+      device = "web";
     } else if (isWindows()) {
-//      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else {
-      device = "web Application";
+      //      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
     return device;
   }
@@ -177,7 +159,7 @@ class AuthRepo {
     var res = await _authServiceClient
         .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
           ..token = token
-          ..device = device
+          ..device = device ?? "i"
           ..platform = platform
           //  TODO add password mechanism
           ..password = "");

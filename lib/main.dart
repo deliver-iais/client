@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bot_toast/bot_toast.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:we/box/dao/live_location_dao.dart';
 import 'package:we/box/db_manage.dart';
 import 'package:we/box/livelocation.dart';
@@ -58,7 +57,6 @@ import 'package:we/services/notification_services.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:we/services/ux_service.dart';
 import 'package:we/services/video_player_service.dart';
-import 'package:we/shared/constants.dart';
 import 'package:we/shared/methods/platform.dart';
 
 import 'package:we/theme/extra_theme.dart';
@@ -149,21 +147,21 @@ Future<void> setupDI() async {
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
   GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
-      ProfileServicesClientChannel,
+      kIsWeb?webProfileServicesClientChannel :ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
-      ProfileServicesClientChannel,
+      kIsWeb?webProfileServicesClientChannel:ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
-      QueryClientChannel,
+      kIsWeb?webQueryClientChannel:QueryClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
-      CoreServicesClientChannel,
+      kIsWeb?webCoreServicesClientChannel:CoreServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
-      StickerClientChannel,
+      kIsWeb?webStickerClientChannel:StickerClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
       MucServicesClientChannel,
