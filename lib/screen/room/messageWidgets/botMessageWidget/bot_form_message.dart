@@ -64,6 +64,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                 height: height,
                 width: 250,
                 child: ListView.separated(
+                  key: PageStorageKey<String>('${widget.message.roomUid}'),
                   shrinkWrap: true,
                   itemCount: form.fields.length,
                   itemBuilder: (c, i) {

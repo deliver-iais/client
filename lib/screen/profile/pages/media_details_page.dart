@@ -139,7 +139,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       var fileName = _allAvatars[i].fileName;
                       var file = _fileCache.get(fileId);
                       if (file != null) {
-                        return buildMeidaCenter(
+                        return buildMediaCenter(
                             context, i, file, fileId, "avatar$i");
                       } else {
                         return buildFutureMediaBuilder(
@@ -203,7 +203,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       buildMediaPropertise(media);
       var mediaFile = _fileCache.get(fileId);
       if (mediaFile != null)
-        return buildMeidaCenter(context, i, mediaFile, fileId, widget.heroTag);
+        return buildMediaCenter(context, i, mediaFile, fileId, widget.heroTag);
       else {
         return buildFutureMediaBuilder(fileId, fileName, context, i);
       }
@@ -220,7 +220,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             snaps.data != null &&
             snaps.connectionState == ConnectionState.done) {
           _fileCache.set(fileId, snaps.data);
-          return buildMeidaCenter(
+          return buildMediaCenter(
               context, i, snaps.data, fileId, widget.heroTag);
         } else {
           return Center(
@@ -233,7 +233,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Center buildMeidaCenter(
+  Center buildMediaCenter(
       BuildContext context, int i, File mediaFile, fileId, Object tag) {
     return Center(
       child: Container(

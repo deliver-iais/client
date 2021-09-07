@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/box/message.dart';
 import 'package:we/box/muc.dart';
@@ -795,72 +796,75 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildMessagesListView(List pendingMessages) {
-    return ScrollablePositionedList.separated(
-      itemCount: _itemCount,
-      initialScrollIndex:
-          (_lastShowedMessageId != null && _lastShowedMessageId != -1)
-              ? _lastShowedMessageId
-              : _itemCount,
-      initialAlignment: 0,
-      physics: _scrollPhysics,
-      reverse: false,
-      addSemanticIndexes: false,
-      minCacheExtent: 300,
-      itemPositionsListener: _itemPositionsListener,
-      itemScrollController: _itemScrollController,
-      itemBuilder: (context, index) {
-        if (index == -1) index = 0;
-        bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
-            ? true
-            : _itemCount > _currentRoom.value.lastMessageId &&
-                _itemCount - index <= pendingMessages.length;
+    return PageStorage(
+        bucket: PageStorage.of(context),
+        key: PageStorageKey<String>('${widget.roomId}'),
+        child: ScrollablePositionedList.separated(
+          itemCount: _itemCount,
+          initialScrollIndex:
+              (_lastShowedMessageId != null && _lastShowedMessageId != -1)
+                  ? _lastShowedMessageId
+                  : _itemCount,
+          initialAlignment: 0,
+          physics: _scrollPhysics,
+          reverse: false,
+          addSemanticIndexes: false,
+          minCacheExtent: 300,
+          itemPositionsListener: _itemPositionsListener,
+          itemScrollController: _itemScrollController,
+          itemBuilder: (context, index) {
+            if (index == -1) index = 0;
+            bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
+                ? true
+                : _itemCount > _currentRoom.value.lastMessageId &&
+                    _itemCount - index <= pendingMessages.length;
 
-        return _buildMessage(
-            isPendingMessage, pendingMessages, index, _currentRoom.value);
-      },
-      separatorBuilder: (context, index) {
-        return Column(
-          children: [
-            if (_currentRoom.value.lastMessageId != null &&
-                _lastShowedMessageId != -1 &&
-                _lastShowedMessageId == index + 1)
-              FutureBuilder<Message>(
-                  future: _messageAt(pendingMessages, index + 1),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData ||
-                        snapshot.data == null ||
-                        _authRepo.isCurrentUser(snapshot.data.from)) {
-                      return SizedBox.shrink();
-                    }
-                    return Container(
-                      color: Theme.of(context).backgroundColor,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.keyboard_arrow_down,
-                              color: Theme.of(context).primaryColor),
-                          Text(
-                            _i18n.get("unread_messages"),
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor),
+            return _buildMessage(
+                isPendingMessage, pendingMessages, index, _currentRoom.value);
+          },
+          separatorBuilder: (context, index) {
+            return Column(
+              children: [
+                if (_currentRoom.value.lastMessageId != null &&
+                    _lastShowedMessageId != -1 &&
+                    _lastShowedMessageId == index + 1)
+                  FutureBuilder<Message>(
+                      future: _messageAt(pendingMessages, index + 1),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData ||
+                            snapshot.data == null ||
+                            _authRepo.isCurrentUser(snapshot.data.from)) {
+                          return SizedBox.shrink();
+                        }
+                        return Container(
+                          color: Theme.of(context).backgroundColor,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.all(4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.keyboard_arrow_down,
+                                  color: Theme.of(context).primaryColor),
+                              Text(
+                                _i18n.get("unread_messages"),
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }),
-            FutureBuilder(
-              future: _timeAt(pendingMessages, index),
-              builder: (context, snapshot) =>
-                  snapshot.hasData && snapshot.data != null
-                      ? ChatTime(currentMessageTime: date(snapshot.data))
-                      : SizedBox.shrink(),
-            ),
-          ],
-        );
-      },
-    );
+                        );
+                      }),
+                FutureBuilder(
+                  future: _timeAt(pendingMessages, index),
+                  builder: (context, snapshot) =>
+                      snapshot.hasData && snapshot.data != null
+                          ? ChatTime(currentMessageTime: date(snapshot.data))
+                          : SizedBox.shrink(),
+                ),
+              ],
+            );
+          },
+        ));
   }
 
   Future<Message> _messageAt(List<PendingMessage> pendingMessages, int index) {
@@ -1103,12 +1107,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       omUsernameClick: onUsernameClick,
     );
 
-    return SingleChildScrollView(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[messageWidget],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[messageWidget],
     );
   }
 
@@ -1122,28 +1124,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _scrollToMessage(id: id, position: pendingMessagesLength + id),
       onUsernameClick: onUsernameClick,
     );
-    return SingleChildScrollView(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          if (widget.roomId.asUid().category == Categories.GROUP)
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
-                  child: CircleAvatarWidget(message.from.asUid(), 18),
-                ),
-                onTap: () {
-                  _routingService.openRoom(message.from);
-                },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (widget.roomId.asUid().category == Categories.GROUP)
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
+                child: CircleAvatarWidget(message.from.asUid(), 18),
               ),
+              onTap: () {
+                _routingService.openRoom(message.from);
+              },
             ),
-          messageWidget
-        ],
-      ),
+          ),
+        messageWidget
+      ],
     );
   }
 

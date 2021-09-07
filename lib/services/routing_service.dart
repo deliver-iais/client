@@ -6,6 +6,7 @@ import 'package:we/box/db_manage.dart';
 import 'package:we/box/message.dart';
 import 'package:we/repository/accountRepo.dart';
 import 'package:we/repository/authRepo.dart';
+import 'package:we/screen/room/widgets/image_swiper.dart';
 import 'package:we/screen/room/widgets/showImage_Widget.dart';
 import 'package:we/screen/contacts/contacts_page.dart';
 import 'package:we/screen/contacts/new_contact.dart';
@@ -178,6 +179,21 @@ class RoutingService {
       largePageMain: widget,
       smallPageMain: widget,
       path: "/media-details",
+    ));
+  }
+
+  void showImageInRoom({Uid uid, int messageId, File file}) {
+    var widget = ImageSwiper(
+      key: ValueKey("/image-swiper"),
+      roomId: uid,
+      messageId: messageId,
+      image: file,
+    );
+    _push(Page(
+      largePageNavigator: _navigationCenter,
+      largePageMain: widget,
+      smallPageMain: widget,
+      path: "/image-swiper",
     ));
   }
 
