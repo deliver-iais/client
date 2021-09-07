@@ -182,11 +182,10 @@ class RoutingService {
     ));
   }
 
-  void showImageInRoom({Uid uid, int messageId, File file}) {
+  void showImageInRoom({Message message, File file}) {
     var widget = ImageSwiper(
       key: ValueKey("/image-swiper"),
-      roomId: uid,
-      messageId: messageId,
+      message: message,
       image: file,
     );
     _push(Page(
