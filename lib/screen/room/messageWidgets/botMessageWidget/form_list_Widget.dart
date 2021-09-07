@@ -76,9 +76,11 @@ class _FormListWidgetState extends State<FormListWidget> {
                     .map<DropdownMenuItem<String>>(
                         (val) => DropdownMenuItem(
                               value: val,
-                              child: Center(
+                              child: SizedBox(
+                                width: 150,
                                 child: Text(
                                   val,
+                                  overflow: TextOverflow.fade,
                                 ),
                               ),
                             ))
