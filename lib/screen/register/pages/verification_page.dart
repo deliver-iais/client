@@ -3,6 +3,7 @@ import 'package:we/localization/i18n.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/contactRepo.dart';
 import 'package:we/routes/router.gr.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/shared/widgets/fluid.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/theme/extra_theme.dart';
@@ -44,10 +45,10 @@ class _VerificationPageState extends State<VerificationPage> {
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
+        ToastDisplay.showToast(toastText: "PASSWORD_PROTECTED",tostContext: context);
         // TODO navigate to password validation page
       } else {
-        Fluttertoast.showToast(msg: _i18n.get("verification_code_not_valid"));
+        ToastDisplay.showToast(toastText: _i18n.get("verification_code_not_valid"),tostContext: context);
         _setErrorAndResetCode();
       }
     }).catchError((e) {

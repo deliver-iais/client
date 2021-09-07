@@ -6,6 +6,7 @@ import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/contactRepo.dart';
 import 'package:we/routes/router.gr.dart';
 import 'package:we/screen/register/widgets/intl_phone_field.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/shared/methods/phone.dart';
 import 'package:we/shared/methods/platform.dart';
@@ -15,7 +16,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -56,7 +56,8 @@ class _LoginPageState extends State<LoginPage> {
             _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-            Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
+            ToastDisplay.showToast(
+                toastText: "PASSWORD_PROTECTED", tostContext: context);
             // TODO navigate to password validation page
           }
         } catch (e) {
@@ -107,22 +108,18 @@ class _LoginPageState extends State<LoginPage> {
         if (res != null)
           ExtendedNavigator.of(context).push(Routes.verificationPage);
         else
-          Fluttertoast.showToast(
+          ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-              msg: i18n.get("error_occurred"),
-              toastLength: Toast.LENGTH_SHORT,
-              backgroundColor: Colors.black,
-              textColor: Colors.white,
-              fontSize: 16.0);
+            toastText: i18n.get("error_occurred"),
+            tostContext: context,
+          );
       } catch (e) {
         _logger.e(e);
-        Fluttertoast.showToast(
+        ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-            msg: i18n.get("error_occurred"),
-            toastLength: Toast.LENGTH_SHORT,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
+          toastText: i18n.get("error_occurred"),
+          tostContext: context,
+        );
       }
     }
   }
