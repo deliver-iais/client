@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/contactRepo.dart';
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
-
+  bool isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer checkTimer;
@@ -73,7 +74,9 @@ class _LoginPageState extends State<LoginPage> {
           phoneNumber = p;
           controller.text = p.nationalNumber.toString();
           if (p != null) {
-            setState(() {});
+            setState(() { setState(() {
+              isLoading = true;
+            });});
             checkAndGoNext(doNotCheckValidator: true);
           }
         });
@@ -103,17 +106,31 @@ class _LoginPageState extends State<LoginPage> {
     I18N i18n = I18N.of(context);
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
+      setState(() {
+        isLoading = true;
+      });
       try {
         var res = await _authRepo.getVerificationCode(phoneNumber);
-        if (res != null)
+        if (res != null){
           ExtendedNavigator.of(context).push(Routes.verificationPage);
-        else
+          setState(() {
+            isLoading = false;
+          });
+        }
+        else{
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
             toastText: i18n.get("error_occurred"),
             tostContext: context,
           );
+          setState(() {
+            isLoading = false;
+          });
+        }
       } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
         _logger.e(e);
         ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
@@ -206,7 +223,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
-    return Padding(
+    return isLoading
+        ? Center(
+      child: SpinKitCircle(
+        color: Colors.lightBlueAccent,
+        size: 40.0,
+      ),
+    )
+        : Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
       ),
@@ -276,7 +300,9 @@ class _LoginPageState extends State<LoginPage> {
                       fontSize: 14.5,
                     ),
                   ),
-                  onPressed: checkAndGoNext),
+                  onPressed: () {
+                    checkAndGoNext();
+                  }),
             ),
           ),
         ],

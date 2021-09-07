@@ -118,6 +118,7 @@ dependencies:
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
   share: 2.0.4
+  flutter_spinkit: ^5.1.0
   fluttertoast: ^8.0.8
   firebase_messaging: 10.0.1
   firebase_core: 1.2.1
