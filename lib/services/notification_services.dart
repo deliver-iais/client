@@ -92,6 +92,7 @@ class IOSNotifier implements Notifier {
 }
 
 class WindowsNotifier implements Notifier {
+  final _routingService = GetIt.I.get<RoutingService>();
   ToastService _windowsNotificationServices = new ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
@@ -118,6 +119,12 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
         _windowsNotificationServices.show(toast);
+        _windowsNotificationServices?.stream.listen((event) {
+          if (event is ToastActivated) {
+            if (lastAvatar.uid != null)
+              _routingService.openRoom(lastAvatar.uid);
+          }
+        });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
@@ -128,6 +135,12 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
+          _windowsNotificationServices?.stream.listen((event) {
+            if (event is ToastActivated) {
+              if (lastAvatar.uid != null)
+                _routingService.openRoom(lastAvatar.uid);
+            }
+          });
         }
       }
     } catch (e) {
