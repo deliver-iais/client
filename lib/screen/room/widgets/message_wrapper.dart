@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:we/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +11,7 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const radius = const Radius.circular(12);
+    const radius = const Radius.circular(14);
     const border = const BorderRadius.all(radius);
     return Container(
       padding: const EdgeInsets.all(4.0),
@@ -21,22 +23,6 @@ class MessageWrapper extends StatelessWidget {
         ]),
         child: Stack(
           children: [
-            Positioned(
-              left: isSent ? null : 0,
-              right: !isSent ? null : 0,
-              top: 0,
-              child: Container(
-                  // color: Colors.white,
-                  width: 20,
-                  height: 20,
-                  child: CustomPaint(
-                    foregroundPainter: OPainter(
-                        isSent
-                            ? ExtraTheme.of(context).sentMessageBox
-                            : ExtraTheme.of(context).receivedMessageBox,
-                        isSent),
-                  )),
-            ),
             ClipRRect(
                 borderRadius: border,
                 child: Container(
@@ -44,6 +30,34 @@ class MessageWrapper extends StatelessWidget {
                         ? ExtraTheme.of(context).sentMessageBox
                         : ExtraTheme.of(context).receivedMessageBox,
                     child: child)),
+            Positioned(
+              left: isSent ? null : 0,
+              right: !isSent ? null : 0,
+              top: 0,
+              child: !isSent
+                  ? Container(
+                      // color: Colors.white,
+                      width: 20,
+                      height: 20,
+                      child: CustomPaint(
+                        foregroundPainter: OPainter(isSent
+                            ? ExtraTheme.of(context).sentMessageBox
+                            : ExtraTheme.of(context).receivedMessageBox),
+                      ))
+                  : Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(pi),
+                      child: Container(
+                          // color: Colors.white,
+                          width: 20,
+                          height: 20,
+                          child: CustomPaint(
+                            foregroundPainter: OPainter(isSent
+                                ? ExtraTheme.of(context).sentMessageBox
+                                : ExtraTheme.of(context).receivedMessageBox),
+                          )),
+                    ),
+            ),
           ],
         ),
       ),
@@ -53,23 +67,32 @@ class MessageWrapper extends StatelessWidget {
 
 class OPainter extends CustomPainter {
   final Color color;
-  final bool isSent;
 
-  OPainter(this.color, this.isSent);
+  OPainter(this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
-    var paint1 = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 2;
-    //draw arc
-    canvas.drawArc(
-        Offset(isSent ? 5 : -12, 3) & Size(size.width * 1.3, size.height * 1.2),
-        isSent ? -3 : -2, //radians
-        isSent ? 2 : 2, //radians
-        true,
-        paint1);
+    var paint = Paint()..color = color;
+
+    var path = Path();
+
+    path.moveTo(10, 5);
+
+    path.arcToPoint(
+      Offset(-4, 0),
+      radius: Radius.circular(20),
+      clockwise: false,
+    );
+
+    path.arcToPoint(
+      Offset(0, 12),
+      radius: Radius.circular(15),
+      clockwise: true,
+    );
+
+    path.lineTo(10, 5);
+
+    canvas.drawPath(path, paint);
   }
 
   @override
