@@ -15,6 +15,7 @@ import 'package:we/box/message.dart';
 import 'package:we/repository/fileRepo.dart';
 import 'package:we/repository/mediaQueryRepo.dart';
 import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/room/messageWidgets/circular_file_status_indicator.dart';
 
 import 'package:we/services/routing_service.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
@@ -92,6 +93,15 @@ class _ImageSwiperState extends State<ImageSwiper> {
                               },
                               index: initIndex,
                               itemBuilder: (c, i) {
+                                double width = double.parse(jsonDecode(
+                                    medias.data[i].json)["width"]
+                                    .toString()) ??
+                                    defWidth;
+                                double height = double.parse(jsonDecode(
+                                    medias.data[i].json)["height"]
+                                    .toString()) ??
+                                    defHeight;
+
                                 return FutureBuilder<File>(
                                   future: _fileRepo.getFile(
                                       jsonDecode(medias.data[i].json)["uuid"],
@@ -99,14 +109,6 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                   builder: (c, fileSnapshot) {
                                     if (fileSnapshot.hasData &&
                                         fileSnapshot.data != null) {
-                                      double width = double.parse(jsonDecode(
-                                                  medias.data[i].json)["width"]
-                                              .toString()) ??
-                                          defWidth;
-                                      double height = double.parse(jsonDecode(
-                                                  medias.data[i].json)["height"]
-                                              .toString()) ??
-                                          defHeight;
                                       return buildImageUi(
                                           context,
                                           fileSnapshot.data,
@@ -114,7 +116,13 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                           min(width, defWidth),
                                           min(height, defHeight));
                                     } else
-                                      return defaultWidget;
+                                      return Container(
+                                        width:width ,
+                                        height:height ,
+                                        child: Center(
+                                          child:CircularProgressIndicator(color: Colors.blue,)
+                                        ),
+                                      );
                                   },
                                 );
                               },
