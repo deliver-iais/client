@@ -913,10 +913,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: PersistentEventMessage(
-                  message: msg,
-                  showLastMessage: false,
-                ),
+                child: PersistentEventMessage(message: msg),
               ),
             ],
           );

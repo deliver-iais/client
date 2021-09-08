@@ -23,6 +23,34 @@ class MessageWrapper extends StatelessWidget {
         ]),
         child: Stack(
           children: [
+            Positioned(
+              left: isSent ? null : 0,
+              right: !isSent ? null : 0,
+              top: 0,
+              child: !isSent
+                  ? Container(
+                // color: Colors.white,
+                  width: 20,
+                  height: 20,
+                  child: CustomPaint(
+                    foregroundPainter: OPainter(isSent
+                        ? ExtraTheme.of(context).sentMessageBox
+                        : ExtraTheme.of(context).receivedMessageBox),
+                  ))
+                  : Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.rotationY(pi),
+                child: Container(
+                  // color: Colors.white,
+                    width: 20,
+                    height: 20,
+                    child: CustomPaint(
+                      foregroundPainter: OPainter(isSent
+                          ? ExtraTheme.of(context).sentMessageBox
+                          : ExtraTheme.of(context).receivedMessageBox),
+                    )),
+              ),
+            ),
             ClipRRect(
                 borderRadius: border,
                 child: Container(
@@ -30,34 +58,6 @@ class MessageWrapper extends StatelessWidget {
                         ? ExtraTheme.of(context).sentMessageBox
                         : ExtraTheme.of(context).receivedMessageBox,
                     child: child)),
-            Positioned(
-              left: isSent ? null : 0,
-              right: !isSent ? null : 0,
-              top: 0,
-              child: !isSent
-                  ? Container(
-                      // color: Colors.white,
-                      width: 20,
-                      height: 20,
-                      child: CustomPaint(
-                        foregroundPainter: OPainter(isSent
-                            ? ExtraTheme.of(context).sentMessageBox
-                            : ExtraTheme.of(context).receivedMessageBox),
-                      ))
-                  : Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.rotationY(pi),
-                      child: Container(
-                          // color: Colors.white,
-                          width: 20,
-                          height: 20,
-                          child: CustomPaint(
-                            foregroundPainter: OPainter(isSent
-                                ? ExtraTheme.of(context).sentMessageBox
-                                : ExtraTheme.of(context).receivedMessageBox),
-                          )),
-                    ),
-            ),
           ],
         ),
       ),
