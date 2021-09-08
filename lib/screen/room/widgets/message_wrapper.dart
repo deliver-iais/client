@@ -65,7 +65,7 @@ class OPainter extends CustomPainter {
       ..strokeWidth = 2;
     //draw arc
     canvas.drawArc(
-        Offset(isSent ? 6 : -12, 4) & Size(size.width * 1.3, size.height * 1.2),
+        Offset(isSent ? 5 : -12, 3) & Size(size.width * 1.3, size.height * 1.2),
         isSent ? -3 : -2, //radians
         isSent ? 2 : 2, //radians
         true,
