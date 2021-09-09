@@ -52,7 +52,10 @@ class ChatsPage extends StatelessWidget {
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {
-                        return Divider();
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 64),
+                          child: Divider(),
+                        );
                       },
                     ),
                   ),

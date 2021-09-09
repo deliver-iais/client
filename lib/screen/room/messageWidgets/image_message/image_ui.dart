@@ -39,6 +39,9 @@ class _ImageUiState extends State<ImageUi> {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
 
+    const radius = const Radius.circular(12);
+    const border = const BorderRadius.all(radius);
+
     try {
       image = widget.message.json.toFile();
 

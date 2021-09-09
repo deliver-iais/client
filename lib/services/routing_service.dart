@@ -28,6 +28,7 @@ import 'package:we/services/core_services.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/shared/constants.dart';
 import 'package:we/shared/methods/platform.dart';
+import 'package:we/shared/widgets/background.dart';
 import 'package:we/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -451,17 +452,19 @@ class Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).backgroundColor,
-      child: Center(
-        child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                color: Theme.of(context).dividerColor.withOpacity(0.1)),
-            child: Text("Please select a chat to start messaging",
-                style: Theme.of(context).textTheme.subtitle2)),
-      ),
+    return Stack(
+      children: [
+        Background(),
+        Center(
+          child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: Theme.of(context).dividerColor.withOpacity(0.1)),
+              child: Text("Please select a chat to start messaging",
+                  style: Theme.of(context).textTheme.bodyText2)),
+        ),
+      ],
     );
   }
 }

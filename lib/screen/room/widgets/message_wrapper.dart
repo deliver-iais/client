@@ -9,7 +9,7 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const radius = const Radius.circular(10);
+    const radius = const Radius.circular(12);
     const border = const BorderRadius.all(radius);
     return Padding(
       padding: const EdgeInsets.all(4.0),

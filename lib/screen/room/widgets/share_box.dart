@@ -229,7 +229,8 @@ class _ShareBoxState extends State<ShareBox> {
                                           width: 16.0,
                                           height: 16.0,
                                           decoration: new BoxDecoration(
-                                            color: Theme.of(co).dialogBackgroundColor,
+                                            color: Theme.of(co)
+                                                .dialogBackgroundColor,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -591,6 +592,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   showCaptionDialog(
       {IconData icons, String type, FilePickerResult result}) async {
+    if (result.paths.length <= 0) return;
     String name = await _roomRepo.getName(widget.currentRoomId);
     showDialog(
         context: context,

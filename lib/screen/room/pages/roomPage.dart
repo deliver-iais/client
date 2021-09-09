@@ -37,6 +37,7 @@ import 'package:we/shared/widgets/audio_player_appbar.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/services/notification_services.dart';
 import 'package:we/services/routing_service.dart';
+import 'package:we/shared/widgets/background.dart';
 import 'package:we/shared/widgets/bot_appbar_title.dart';
 import 'package:we/shared/widgets/circle_avatar.dart';
 import 'package:we/shared/custom_context_menu.dart';
@@ -134,43 +135,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       body: Container(
         child: Stack(
           children: [
-            Center(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                  begin: Theme.of(context).brightness == Brightness.dark
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
-                  end: Theme.of(context).brightness == Brightness.dark
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  colors: [
-                    darken(Theme.of(context).backgroundColor, 5),
-                    lighten(Theme.of(context).backgroundColor, 5)
-                  ],
-                )),
-                child: ShaderMask(
-                  child: Image(
-                      image: AssetImage("assets/backgrounds/pattern-24.png"),
-                      fit: BoxFit.scaleDown,
-                      repeat: ImageRepeat.repeat),
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      colors: [
-                        Theme.of(context).brightness == Brightness.light
-                            ? darken(Theme.of(context).backgroundColor, 9)
-                            : lighten(Theme.of(context).backgroundColor, 5),
-                        Theme.of(context).brightness == Brightness.light
-                            ? darken(Theme.of(context).backgroundColor, 15)
-                            : lighten(Theme.of(context).backgroundColor, 12)
-                      ],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.srcATop,
-                ),
-              ),
-            ),
+            Background(),
             Column(
               children: <Widget>[
                 AudioPlayerAppBar(),

@@ -14,7 +14,7 @@ import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum ThumbnailSize { small, medium, large }
+enum ThumbnailSize { medium }
 
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
