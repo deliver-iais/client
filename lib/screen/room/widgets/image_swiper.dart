@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -25,6 +26,7 @@ import 'package:we/theme/extra_theme.dart';
 class ImageSwiper extends StatefulWidget {
   final File image;
   final Message message;
+
 
   ImageSwiper({Key key, this.message, this.image}) : super(key: key);
 
@@ -78,7 +80,8 @@ class _ImageSwiperState extends State<ImageSwiper> {
                         future: _mediaRepo.getMedia(
                             widget.message.roomUid.asUid(),
                             MediaType.IMAGE,
-                            s.data.imagesCount),
+                            s.data.imagesCount,
+                            messageId: widget.message.id),
                         builder: (c, medias) {
                           if (medias.hasData &&
                               medias.data != null &&
@@ -93,13 +96,13 @@ class _ImageSwiperState extends State<ImageSwiper> {
                               },
                               index: initIndex,
                               itemBuilder: (c, i) {
-                                double width = double.parse(jsonDecode(
-                                    medias.data[i].json)["width"]
-                                    .toString()) ??
+                                double width = double.parse(
+                                        jsonDecode(medias.data[i].json)["width"]
+                                            .toString()) ??
                                     defWidth;
                                 double height = double.parse(jsonDecode(
-                                    medias.data[i].json)["height"]
-                                    .toString()) ??
+                                            medias.data[i].json)["height"]
+                                        .toString()) ??
                                     defHeight;
 
                                 return FutureBuilder<File>(
@@ -116,13 +119,16 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                           min(width, defWidth),
                                           min(height, defHeight));
                                     } else
-                                      return Container(
-                                        width:width ,
-                                        height:height ,
-                                        child: Center(
-                                          child:CircularProgressIndicator(color: Colors.blue,)
-                                        ),
-                                      );
+                                      return BlurHash(
+                                          decodingHeight: height.toInt(),
+                                          decodingWidth: width.toInt(),
+                                          imageFit: BoxFit.contain,
+                                          hash: jsonDecode(
+                                              medias.data[i].json)["blurHash"]);
+
+                                    // Center(
+                                    //   child:CircularProgressIndicator(color: Colors.blue,)
+                                    // ),
                                   },
                                 );
                               },

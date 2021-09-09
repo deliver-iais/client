@@ -24,6 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:we/shared/extensions/json_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
     as ProtocolSeen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

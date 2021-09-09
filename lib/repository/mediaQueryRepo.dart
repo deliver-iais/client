@@ -57,8 +57,8 @@ class MediaQueryRepo {
   }
 
 //TODO correction of performance
-  Future<List<Media>> getMedia(
-      Uid uid, MediaType mediaType, int mediaCount) async {
+  Future<List<Media>> getMedia(Uid uid, MediaType mediaType, int mediaCount,
+      {int messageId = 0}) async {
     List<Media> mediasList = [];
     mediasList = await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType);
     if (mediasList.length == 0) {
@@ -70,13 +70,18 @@ class MediaQueryRepo {
 
       return mediasList;
     } else if (mediasList.length < mediaCount) {
-      int pointer = mediasList.first.createdOn;
+      int lastId = mediasList.last.messageId;
+      int pointer = messageId != 0 && lastId < messageId
+          ? mediasList.last.createdOn
+          : mediasList.first.createdOn;
       var newMediasServerList = await getLastMediasList(
           uid,
           convertType(mediaType),
           pointer,
-          FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
-      mediasList.removeAt(0);
+          messageId != 0 && lastId < messageId
+              ? FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
+              : FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
+      mediasList.removeAt(messageId != 0 && lastId < messageId?mediasList.length:0);
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
       return combinedList.reversed.toList();
     } else {
@@ -192,7 +197,7 @@ class MediaQueryRepo {
         "caption": media.file.caption,
         "width": media.file.width,
         "height": media.file.height,
-        "blurHash":media.file.blurHash,
+        "blurHash": media.file.blurHash,
         "duration": media.file.duration
       };
     }
