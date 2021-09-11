@@ -145,16 +145,24 @@ class MessageRepo {
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-          if (room != null &&
-              room.lastMessage != null &&
-              room.lastMessage.id != null &&
-              room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
-              room.lastMessage.id != 0) {
-            if (fetchAllRoom != null)
-              finished = true; // no more updating needed after this room
-            break;
-          }
-          fetchLastMessages(roomMetadata, room);
+          if (roomMetadata.presenceType == null ||
+              roomMetadata.presenceType == PresenceType.ACTIVE) {
+            if (room != null &&
+                room.lastMessage != null &&
+                room.lastMessage.id != null &&
+                room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
+                room.lastMessage.id != 0) {
+              if (room.deleted)
+                _roomDao.updateRoom(Room(uid: room.uid, deleted: false));
+
+              if (fetchAllRoom != null)
+                finished = true; // no more updating needed after this room
+              break;
+            }
+            fetchLastMessages(roomMetadata, room);
+          } else if (room != null)
+            _roomDao.updateRoom(
+                Room(uid: roomMetadata.roomUid.asString(), deleted: true));
         }
       } catch (e) {
         _logger.e(e);
