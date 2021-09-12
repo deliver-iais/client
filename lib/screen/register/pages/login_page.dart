@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
-  bool isLoading = false;
+  bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer checkTimer;
@@ -74,9 +74,7 @@ class _LoginPageState extends State<LoginPage> {
         controller.text = p.nationalNumber.toString();
         if (p != null) {
           setState(() {
-            setState(() {
-              isLoading = true;
-            });
+            _isLoading = true;
           });
           checkAndGoNext(doNotCheckValidator: true);
         }
@@ -106,14 +104,14 @@ class _LoginPageState extends State<LoginPage> {
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
       setState(() {
-        isLoading = true;
+        _isLoading = true;
       });
       try {
         var res = await _authRepo.getVerificationCode(phoneNumber);
         if (res != null) {
           ExtendedNavigator.of(context).push(Routes.verificationPage);
           setState(() {
-            isLoading = false;
+            _isLoading = false;
           });
         } else {
           ToastDisplay.showToast(
@@ -122,12 +120,12 @@ class _LoginPageState extends State<LoginPage> {
             tostContext: context,
           );
           setState(() {
-            isLoading = false;
+            _isLoading = false;
           });
         }
       } catch (e) {
         setState(() {
-          isLoading = false;
+          _isLoading = false;
         });
         _logger.e(e);
         ToastDisplay.showToast(
@@ -221,10 +219,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
-    return isLoading
+    return _isLoading
         ? Center(
-            child: CircularProgressIndicator(color: Colors.lightBlueAccent),
-          )
+            child: CircularProgressIndicator(color: Colors.lightBlueAccent))
         : Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -295,9 +292,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 14.5,
                           ),
                         ),
-                        onPressed: () {
-                          checkAndGoNext();
-                        }),
+                        onPressed: checkAndGoNext),
                   ),
                 ),
               ],
