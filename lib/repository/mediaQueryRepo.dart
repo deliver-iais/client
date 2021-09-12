@@ -52,6 +52,16 @@ class MediaQueryRepo {
     ));
   }
 
+  Future<int> getImageMediaCount(Uid uid) async {
+    try {
+      var mediaRes = await _queryServiceClient
+          .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
+      return mediaRes.allImagesCount.toInt();
+    } catch (e) {
+      return null;
+    }
+  }
+
   Stream<MediaMetaData> getMediasMetaDataCountFromDB(Uid roomId) {
     return _mediaMetaDataDao.get(roomId.asString());
   }
@@ -81,13 +91,15 @@ class MediaQueryRepo {
           messageId != 0 && lastId < messageId
               ? FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
               : FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
-      mediasList.removeAt(messageId != 0 && lastId < messageId?mediasList.length:0);
+      mediasList.removeAt(
+          messageId != 0 && lastId < messageId ? mediasList.length : 0);
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
       return combinedList.reversed.toList();
     } else {
       return mediasList.reversed.toList();
     }
   }
+
 
   Future<List<Media>> getLastMediasList(
       Uid roomId,

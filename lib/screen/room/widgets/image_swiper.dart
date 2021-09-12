@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -10,13 +9,11 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:we/box/media.dart';
-import 'package:we/box/media_meta_data.dart';
 import 'package:we/box/media_type.dart';
 import 'package:we/box/message.dart';
 import 'package:we/repository/fileRepo.dart';
 import 'package:we/repository/mediaQueryRepo.dart';
 import 'package:we/repository/messageRepo.dart';
-import 'package:we/screen/room/messageWidgets/circular_file_status_indicator.dart';
 
 import 'package:we/services/routing_service.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
@@ -26,7 +23,6 @@ import 'package:we/theme/extra_theme.dart';
 class ImageSwiper extends StatefulWidget {
   final File image;
   final Message message;
-
 
   ImageSwiper({Key key, this.message, this.image}) : super(key: key);
 
@@ -41,16 +37,6 @@ class _ImageSwiperState extends State<ImageSwiper> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   BehaviorSubject<int> _imageIndex = BehaviorSubject.seeded(-1);
   BehaviorSubject<int> imageCount = BehaviorSubject.seeded(1);
-
-  @override
-  void initState() {
-    getMediaCount();
-  }
-
-  Future getMediaCount() async {
-    await _mediaRepo.getMediaMetaDataReq(widget.message.roomUid.asUid());
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,75 +56,78 @@ class _ImageSwiperState extends State<ImageSwiper> {
           title: title(),
         ),
         body: InteractiveViewer(
-            child: StreamBuilder<MediaMetaData>(
-                stream: _mediaRepo.getMediasMetaDataCountFromDB(
-                    widget.message.roomUid.asUid()),
-                builder: (c, s) {
-                  if (s.hasData && s.data != null && s.data.imagesCount > 0) {
-                    imageCount.add(s.data.imagesCount);
-                    return FutureBuilder<List<Media>>(
-                        future: _mediaRepo.getMedia(
-                            widget.message.roomUid.asUid(),
-                            MediaType.IMAGE,
-                            s.data.imagesCount,
-                            messageId: widget.message.id),
-                        builder: (c, medias) {
-                          if (medias.hasData &&
-                              medias.data != null &&
-                              medias.data.length > 0) {
-                            var initIndex = medias.data.indexWhere((element) =>
-                                element.messageId == widget.message.id);
-                            if (initIndex != -1) _imageIndex.add(initIndex);
-                            return Swiper(
-                              itemCount: s.data.imagesCount,
-                              onIndexChanged: (index) {
-                                _imageIndex.add(index);
-                              },
-                              index: initIndex,
-                              itemBuilder: (c, i) {
-                                double width = double.parse(
-                                        jsonDecode(medias.data[i].json)["width"]
-                                            .toString()) ??
-                                    defWidth;
-                                double height = double.parse(jsonDecode(
-                                            medias.data[i].json)["height"]
+            child: FutureBuilder(
+          future: _mediaRepo.getImageMediaCount(widget.message.roomUid.asUid()),
+          builder: (c, imageCountData) {
+            if (imageCountData.hasData &&
+                imageCountData.data != null &&
+                imageCountData.data > 0) {
+              imageCount.add(imageCountData.data);
+              return FutureBuilder<List<Media>>(
+                  future: _mediaRepo.getMedia(widget.message.roomUid.asUid(),
+                      MediaType.IMAGE, imageCountData.data,
+                      messageId: widget.message.id),
+                  builder: (c, medias) {
+                    if (medias.hasData &&
+                        medias.data != null &&
+                        medias.data.length > 0) {
+                      var initIndex = medias.data.indexWhere(
+                          (element) => element.messageId == widget.message.id);
+                      if (initIndex != -1) _imageIndex.add(initIndex);
+                      return Swiper(
+                        itemCount: imageCountData.data,
+                        onIndexChanged: (index) {
+                          _imageIndex.add(index);
+                        },
+                        index: initIndex,
+                        itemBuilder: (c, i) {
+                          if (medias.data[i] != null) {
+                            double width = double.parse(
+                                    jsonDecode(medias.data[i].json)["width"]
                                         .toString()) ??
-                                    defHeight;
+                                defWidth;
+                            double height = double.parse(
+                                    jsonDecode(medias.data[i].json)["height"]
+                                        .toString()) ??
+                                defHeight;
 
-                                return FutureBuilder<File>(
-                                  future: _fileRepo.getFile(
-                                      jsonDecode(medias.data[i].json)["uuid"],
-                                      jsonDecode(medias.data[i].json)["name"]),
-                                  builder: (c, fileSnapshot) {
-                                    if (fileSnapshot.hasData &&
-                                        fileSnapshot.data != null) {
-                                      return buildImageUi(
-                                          context,
-                                          fileSnapshot.data,
-                                          medias.data[i].messageId,
-                                          min(width, defWidth),
-                                          min(height, defHeight));
-                                    } else
-                                      return BlurHash(
-                                          decodingHeight: height.toInt(),
-                                          decodingWidth: width.toInt(),
-                                          imageFit: BoxFit.contain,
-                                          hash: jsonDecode(
-                                              medias.data[i].json)["blurHash"]);
-
-                                    // Center(
-                                    //   child:CircularProgressIndicator(color: Colors.blue,)
-                                    // ),
-                                  },
-                                );
+                            return FutureBuilder<File>(
+                              future: _fileRepo.getFile(
+                                  jsonDecode(medias.data[i].json)["uuid"],
+                                  jsonDecode(medias.data[i].json)["name"]),
+                              builder: (c, fileSnapshot) {
+                                if (fileSnapshot.hasData &&
+                                    fileSnapshot.data != null) {
+                                  return buildImageUi(
+                                      context,
+                                      fileSnapshot.data,
+                                      medias.data[i].messageId,
+                                      min(width, defWidth),
+                                      min(height, defHeight));
+                                } else
+                                  return BlurHash(
+                                      decodingHeight: height.toInt(),
+                                      decodingWidth: width.toInt(),
+                                      imageFit: BoxFit.contain,
+                                      hash: jsonDecode(
+                                          medias.data[i].json)["blurHash"]);
                               },
                             );
-                          } else
-                            return defaultWidget;
-                        });
-                  } else
-                    return defaultWidget;
-                })));
+                          } else {
+                            return Center(
+                                child: CircularProgressIndicator(
+                              color: Colors.blue,
+                            ));
+                          }
+                        },
+                      );
+                    } else
+                      return defaultWidget;
+                  });
+            } else
+              return defaultWidget;
+          },
+        )));
   }
 
   Widget buildImageUi(BuildContext context, File file, int messageId,
