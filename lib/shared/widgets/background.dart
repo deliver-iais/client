@@ -57,8 +57,9 @@ class Background extends StatelessWidget {
     final e = p[(id + 1) % 4];
     final w = p[(id + 2) % 4];
     final b = p[(id + 3) % 4];
-    
-    final duration = Duration(milliseconds: 300);
+
+    final duration = Duration(milliseconds: 500);
+    final curve = Curves.easeOut;
 
     return Center(
       child: Container(
@@ -68,7 +69,7 @@ class Background extends StatelessWidget {
           children: [
             AnimatedContainer(
                 duration: duration,
-                curve: Curves.easeInOut,
+                curve: curve,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -80,7 +81,7 @@ class Background extends StatelessWidget {
                 ))),
             AnimatedContainer(
                 duration: duration,
-                curve: Curves.easeInOut,
+                curve: curve,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -92,7 +93,7 @@ class Background extends StatelessWidget {
                 ))),
             AnimatedContainer(
                 duration: duration,
-                curve: Curves.easeInOut,
+                curve: curve,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -104,7 +105,7 @@ class Background extends StatelessWidget {
                 ))),
             AnimatedContainer(
                 duration: duration,
-                curve: Curves.easeInOut,
+                curve: curve,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -116,7 +117,7 @@ class Background extends StatelessWidget {
                 ))),
             AnimatedContainer(
                 duration: duration,
-                curve: Curves.easeInOut,
+                curve: curve,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
