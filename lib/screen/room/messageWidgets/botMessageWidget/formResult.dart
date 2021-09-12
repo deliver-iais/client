@@ -18,7 +18,6 @@ class FormResultWidget extends StatefulWidget {
 }
 
 class _FormResultWidgetState extends State<FormResultWidget> {
-  @override
   final _i18n = GetIt.I.get<I18N>();
 
   Widget build(BuildContext context) {

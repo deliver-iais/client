@@ -21,6 +21,7 @@ import 'package:we/screen/profile/widgets/memberWidget.dart';
 import 'package:we/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:we/screen/profile/widgets/video_tab_ui.dart';
 import 'package:we/screen/room/messageWidgets/link_preview.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:we/services/ux_service.dart';
 import 'package:we/shared/widgets/circle_avatar.dart';
@@ -37,7 +38,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
@@ -566,7 +566,7 @@ class _ProfilePageState extends State<ProfilePage>
     if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
     } else {
-      Fluttertoast.showToast(msg: _locale.get("error_occurred"));
+      ToastDisplay.showToast(toastText: _locale.get("error_occurred"),tostContext: context);
     }
   }
 
@@ -587,7 +587,7 @@ class _ProfilePageState extends State<ProfilePage>
                       onPressed: () {
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
-                        Fluttertoast.showToast(msg: _locale.get("copied"));
+                        ToastDisplay.showToast(toastText: _locale.get("copied"),tostContext:context);
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -996,7 +996,7 @@ class _ProfilePageState extends State<ProfilePage>
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
-        Fluttertoast.showToast(msg: _locale.get("report_result"));
+        ToastDisplay.showToast(toastText: _locale.get("report_result"),tostContext: context);
         break;
       case "manage":
         showManageDialog();

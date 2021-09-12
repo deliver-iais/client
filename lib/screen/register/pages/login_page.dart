@@ -6,6 +6,7 @@ import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/contactRepo.dart';
 import 'package:we/routes/router.gr.dart';
 import 'package:we/screen/register/widgets/intl_phone_field.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/shared/methods/phone.dart';
 import 'package:we/shared/methods/platform.dart';
@@ -15,7 +16,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
-
+  bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer checkTimer;
@@ -56,7 +56,8 @@ class _LoginPageState extends State<LoginPage> {
             _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-            Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
+            ToastDisplay.showToast(
+                toastText: "PASSWORD_PROTECTED", tostContext: context);
             // TODO navigate to password validation page
           }
         } catch (e) {
@@ -66,18 +67,18 @@ class _LoginPageState extends State<LoginPage> {
       tokenGeneratorTimer = Timer.periodic(Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
-    } else if (isAndroid() && ! kDebugMode) {
-        SmsAutoFill().hint.then((value) {
-          final p = getPhoneNumber(value);
-          phoneNumber = p;
-          controller.text = p.nationalNumber.toString();
-          if (p != null) {
-            setState(() {});
-            checkAndGoNext(doNotCheckValidator: true);
-          }
-        });
-
-
+    } else if (isAndroid() && !kDebugMode) {
+      SmsAutoFill().hint.then((value) {
+        final p = getPhoneNumber(value);
+        phoneNumber = p;
+        controller.text = p.nationalNumber.toString();
+        if (p != null) {
+          setState(() {
+            _isLoading = true;
+          });
+          checkAndGoNext(doNotCheckValidator: true);
+        }
+      });
     }
     super.initState();
   }
@@ -102,27 +103,36 @@ class _LoginPageState extends State<LoginPage> {
     I18N i18n = I18N.of(context);
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
+      setState(() {
+        _isLoading = true;
+      });
       try {
         var res = await _authRepo.getVerificationCode(phoneNumber);
-        if (res != null)
+        if (res != null) {
           ExtendedNavigator.of(context).push(Routes.verificationPage);
-        else
-          Fluttertoast.showToast(
+          setState(() {
+            _isLoading = false;
+          });
+        } else {
+          ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-              msg: i18n.get("error_occurred"),
-              toastLength: Toast.LENGTH_SHORT,
-              backgroundColor: Colors.black,
-              textColor: Colors.white,
-              fontSize: 16.0);
+            toastText: i18n.get("error_occurred"),
+            tostContext: context,
+          );
+          setState(() {
+            _isLoading = false;
+          });
+        }
       } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
         _logger.e(e);
-        Fluttertoast.showToast(
+        ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-            msg: i18n.get("error_occurred"),
-            toastLength: Toast.LENGTH_SHORT,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
+          toastText: i18n.get("error_occurred"),
+          tostContext: context,
+        );
       }
     }
   }
@@ -209,81 +219,83 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
+    return _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                SizedBox(
-                  height: 5,
-                ),
-                IntlPhoneField(
-                  initialCountryCode:
-                      phoneNumber?.countryCode?.toString() ?? "98",
-                  controller: controller,
-                  validator: (value) => value.length != 10 ||
-                          (value.length > 0 && value[0] == '0')
-                      ? i18n.get("invalid_mobile_number")
-                      : null,
-                  onChanged: (p) {
-                    phoneNumber = p;
-                  },
-                  onSubmitted: (p) {
-                    phoneNumber = p;
-                    checkAndGoNext();
-                  },
-                ),
-                SizedBox(height: 15),
-                Text(
-                  i18n.get("insert_phone_and_code"),
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 15,
-                  ),
-                ),
-                if (isDesktop()) SizedBox(height: 40),
-                if (isDesktop())
-                  TextButton(
-                      child: Text(
-                        "Login with QR Code",
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 5,
+                      ),
+                      IntlPhoneField(
+                        initialCountryCode:
+                            phoneNumber?.countryCode?.toString() ?? "98",
+                        controller: controller,
+                        validator: (value) => value.length != 10 ||
+                                (value.length > 0 && value[0] == '0')
+                            ? i18n.get("invalid_mobile_number")
+                            : null,
+                        onChanged: (p) {
+                          phoneNumber = p;
+                        },
+                        onSubmitted: (p) {
+                          phoneNumber = p;
+                          checkAndGoNext();
+                        },
+                      ),
+                      SizedBox(height: 15),
+                      Text(
+                        i18n.get("insert_phone_and_code"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                           color: Theme.of(context).primaryColor,
-                          fontSize: 13,
+                          fontSize: 15,
                         ),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          loginWithQrCode = true;
-                        });
-                      }),
+                      if (isDesktop()) SizedBox(height: 40),
+                      if (isDesktop())
+                        TextButton(
+                            child: Text(
+                              "Login with QR Code",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                loginWithQrCode = true;
+                              });
+                            }),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: TextButton(
+                        child: Text(
+                          i18n.get("next"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        onPressed: checkAndGoNext),
+                  ),
+                ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: TextButton(
-                  child: Text(
-                    i18n.get("next"),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 14.5,
-                    ),
-                  ),
-                  onPressed: checkAndGoNext),
-            ),
-          ),
-        ],
-      ),
-    );
+          );
   }
 }

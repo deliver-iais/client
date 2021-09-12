@@ -1,4 +1,5 @@
 import 'package:we/localization/i18n.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:we/shared/widgets/fluid_container.dart';
 import 'package:we/repository/contactRepo.dart';
@@ -8,7 +9,6 @@ import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
 // TODO, change accessibility and improve UI
@@ -118,9 +118,9 @@ class _NewContactState extends State<NewContact> {
         _phoneNumber.countryCode.toString(),
         _phoneNumber.nationalNumber.toString());
     if (result) {
-      Fluttertoast.showToast(msg: _i18n.get("contactAdd"));
+      ToastDisplay.showToast(toastText: _i18n.get("contactAdd"),tostContext: context);
     } else {
-      Fluttertoast.showToast(msg: _i18n.get("contact_not_exist"));
+      ToastDisplay.showToast(toastText: _i18n.get("contact_not_exist"),tostContext: context);
     }
   }
 }

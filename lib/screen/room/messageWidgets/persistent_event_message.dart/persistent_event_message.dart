@@ -3,7 +3,6 @@ import 'package:we/box/message.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/roomRepo.dart';
 import 'package:we/shared/methods/message.dart';
-import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -12,25 +11,22 @@ import 'package:we/shared/extensions/json_extension.dart';
 
 class PersistentEventMessage extends StatelessWidget {
   final Message message;
-  final bool showLastMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  PersistentEventMessage({Key key, this.message, this.showLastMessage})
-      : super(key: key);
+  PersistentEventMessage({Key key, this.message}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.all(4.0),
+      padding:
+          const EdgeInsets.only(top: 5, left: 8.0, right: 8.0, bottom: 4.0),
       decoration: BoxDecoration(
-        color: showLastMessage
-            ? ExtraTheme.of(context).persistentEventMessage
-            : Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        color: Theme.of(context).dividerColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: FutureBuilder<String>(
         future: getPersistentMessage(context, persistentEventMessage),
@@ -44,11 +40,7 @@ class PersistentEventMessage extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
-                  style: TextStyle(
-                      color: showLastMessage
-                          ? ExtraTheme.of(context).textMessage
-                          : Colors.white,
-                      fontSize: 14),
+                  style: TextStyle(fontSize: 14, height: 1),
                 ));
           } else {
             return SizedBox.shrink();
