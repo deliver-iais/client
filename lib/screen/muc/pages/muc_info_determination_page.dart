@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/mucRepo.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/create_muc_service.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:we/shared/constants.dart';
@@ -285,8 +286,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                     _createMucService.reset();
                                     _routingService.openRoom(micUid.asString());
                                   } else {
-                                    Fluttertoast.showToast(
-                                        msg: _i18n.get("error_occurred"));
+                                    ToastDisplay.showToast(
+                                        toastText: _i18n.get("error_occurred"),tostContext: context);
                                     setState(() {
                                       _showIcon = true;
                                     });

@@ -6,6 +6,7 @@ import 'package:we/repository/contactRepo.dart';
 import 'package:we/repository/mucRepo.dart';
 
 import 'package:we/screen/muc/widgets/selective_contact.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/create_muc_service.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -194,8 +195,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                 // _createMucService.reset();
 
                               } else {
-                                Fluttertoast.showToast(
-                                    msg: i18n.get("error_occurred"));
+                                ToastDisplay.showToast(
+                                    toastText: i18n.get("error_occurred"),tostContext: context);
                                 // _routingService.pop();
                               }
                             })

@@ -5,6 +5,7 @@ import 'package:we/localization/i18n.dart';
 import 'package:we/repository/accountRepo.dart';
 import 'package:we/repository/contactRepo.dart';
 import 'package:we/repository/messageRepo.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/services/routing_service.dart';
 import 'package:we/shared/constants.dart';
 import 'package:we/shared/floating_modal_bottom_sheet.dart';
@@ -175,8 +176,8 @@ class _ScanQrCode extends State<ScanQrCode> {
       BuildContext context}) async {
     var res = await _contactRepo.contactIsExist(countryCode, nationalNumber);
     if (res) {
-      Fluttertoast.showToast(
-          msg: "$firstName $lastName ${I18N.of(context).get("contact_exist")}");
+      ToastDisplay.showToast(
+          toastText: "$firstName $lastName ${I18N.of(context).get("contact_exist")}",tostContext: context);
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -225,9 +226,9 @@ class _ScanQrCode extends State<ScanQrCode> {
                             nationalNumber: Int64(int.parse(nationalNumber))));
                       _contactRepo.getContacts();
                       if (res) {
-                        Fluttertoast.showToast(
-                            msg:
-                                "$firstName$lastName ${I18N.of(context).get("contact_add")}");
+                        ToastDisplay.showToast(
+                            toastText:
+                                "$firstName$lastName ${I18N.of(context).get("contact_add")}",tostContext: context);
                         Navigator.of(context).pop();
                       }
                     },

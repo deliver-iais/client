@@ -30,6 +30,7 @@ import 'package:we/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:we/screen/room/widgets/newMessageInput.dart';
 import 'package:we/screen/room/widgets/recievedMessageBox.dart';
 import 'package:we/screen/room/widgets/sendedMessageBox.dart';
+import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/shared/methods/colors.dart';
 import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/widgets/audio_player_appbar.dart';
@@ -404,7 +405,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           else
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
-          Fluttertoast.showToast(msg: _i18n.get("copied"));
+          ToastDisplay.showToast(toastText: _i18n.get("copied"),tostContext: context);
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -461,7 +462,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
-            Fluttertoast.showToast(msg: _i18n.get("error_occurred"));
+            ToastDisplay.showToast(toastText: _i18n.get("error_occurred"),tostContext: context);
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
