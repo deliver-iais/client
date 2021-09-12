@@ -133,7 +133,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       body: Container(
         child: Stack(
           children: [
-            Background(),
+            StreamBuilder<Room>(
+                stream: _roomRepo.watchRoom(widget.roomId),
+                builder: (context, snapshot) {
+                  return Background(id: snapshot.data?.lastMessageId ?? 0);
+                }),
             Column(
               children: <Widget>[
                 AudioPlayerAppBar(),

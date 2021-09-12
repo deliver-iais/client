@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
+class Position {
+  final Alignment x1;
+  final Alignment x2;
+
+  Position(this.x1, this.x2);
+}
+
 class Background extends StatelessWidget {
-  const Background({Key key}) : super(key: key);
+  final int id;
+
+  const Background({Key key, this.id = 0}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,33 +46,29 @@ class Background extends StatelessWidget {
         ? Color(0x0075ba94)
         : Color(0x00000C11);
 
+    final List<Position> p = [
+      Position(Alignment(-0.9, -1), Alignment(-0.2, -.8)),
+      Position(Alignment(0.2, -.8), Alignment(0.9, -1)),
+      Position(Alignment(0.3, 1), Alignment(0.9, 1)),
+      Position(Alignment(-.8, 1), Alignment(-.3, 1)),
+    ];
+
+    final y = p[id % 4];
+    final e = p[(id + 1) % 4];
+    final w = p[(id + 2) % 4];
+    final b = p[(id + 3) % 4];
+    
+    final duration = Duration(milliseconds: 300);
+
     return Center(
       child: Container(
         color: backgroundColor,
         width: double.infinity,
         child: Stack(
           children: [
-            Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    white,
-                    whiteTransparent,
-                  ],
-                  center: Alignment(0.9, 1),
-                ))),
-            Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    white,
-                    whiteTransparent,
-                  ],
-                  center: Alignment(0.3, 1),
-                ))),
-            Container(
+            AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -71,9 +76,11 @@ class Background extends StatelessWidget {
                     yellow,
                     yellowTransparent,
                   ],
-                  center: Alignment(-0.2, -.8),
+                  center: y.x1,
                 ))),
-            Container(
+            AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -81,9 +88,35 @@ class Background extends StatelessWidget {
                     yellow,
                     yellowTransparent,
                   ],
-                  center: Alignment(-0.9, -1),
+                  center: y.x2,
                 ))),
-            Container(
+            AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                  colors: [
+                    white,
+                    whiteTransparent,
+                  ],
+                  center: w.x1,
+                ))),
+            AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                  colors: [
+                    white,
+                    whiteTransparent,
+                  ],
+                  center: w.x2,
+                ))),
+            AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -91,7 +124,7 @@ class Background extends StatelessWidget {
                     dark,
                     darkTransparent,
                   ],
-                  center: Alignment(-.8, 1),
+                  center: b.x1,
                 ))),
             Container(
               width: double.infinity,
