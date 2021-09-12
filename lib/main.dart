@@ -118,7 +118,6 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaTypeAdapter());
   Hive.registerAdapter(LiveLocationAdapter());
 
-
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -270,12 +269,8 @@ void main() async {
   runApp(MyApp());
 }
 
-_setWindowSize() async {
-  var platformWindow = await getWindowInfo();
+_setWindowSize() {
   setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
-  // TODO, its better to removed
-  setWindowMaxSize(Size(
-      platformWindow.screen.frame.width, platformWindow.screen.frame.height));
 }
 
 class MyApp extends StatelessWidget {
