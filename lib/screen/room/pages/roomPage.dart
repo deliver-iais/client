@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/box/message.dart';
 import 'package:we/box/muc.dart';
