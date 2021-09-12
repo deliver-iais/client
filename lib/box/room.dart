@@ -26,12 +26,16 @@ class Room {
   @HiveField(5)
   String draft;
 
+  @HiveField(6)
+  int lastUpdateTime;
+
   Room(
       {this.uid,
       this.lastMessage,
       this.deleted,
       this.mentioned,
       this.draft,
+      this.lastUpdateTime,
       this.lastMessageId});
 
   Room copy(Room r) => Room(
@@ -39,6 +43,7 @@ class Room {
       lastMessage: r.lastMessage ?? this.lastMessage,
       deleted: r.deleted ?? this.deleted,
       draft: r.draft ?? this.draft,
+      lastUpdateTime: r.lastUpdateTime ?? this.lastUpdateTime,
       mentioned: r.mentioned ?? this.mentioned,
       lastMessageId: r.lastMessageId ?? this.lastMessageId);
 
@@ -48,12 +53,14 @@ class Room {
           int lastMessageId,
           bool deleted,
           String draft,
+          int lastUpdateTime,
           bool mentioned}) =>
       Room(
           uid: uid ?? this.uid,
           lastMessage: lastMessage ?? this.lastMessage,
           deleted: deleted ?? this.deleted,
           draft: draft ?? this.draft,
+          lastUpdateTime: lastUpdateTime ?? this.lastUpdateTime,
           mentioned: mentioned ?? this.mentioned,
           lastMessageId: lastMessageId ?? this.lastMessageId);
 }

@@ -144,6 +144,9 @@ class MessageRepo {
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+          print(roomMetadata.roomUid.asString() +
+              "" +
+              roomMetadata.presenceType.name);
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (roomMetadata.presenceType == null ||
               roomMetadata.presenceType == PresenceType.ACTIVE) {
@@ -151,18 +154,24 @@ class MessageRepo {
                 room.lastMessage != null &&
                 room.lastMessage.id != null &&
                 room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
-                room.lastMessage.id != 0) {
-              if (room.deleted)
-                _roomDao.updateRoom(Room(uid: room.uid, deleted: false));
-
+                room.lastMessage.id != 0 &&
+                room.lastUpdateTime != null &&
+                room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
               if (fetchAllRoom != null)
                 finished = true; // no more updating needed after this room
               break;
             }
+            if (room.deleted)
+              _roomDao.updateRoom(Room(
+                  uid: room.uid,
+                  deleted: false,
+                  lastUpdateTime: roomMetadata.lastUpdate.toInt()));
             fetchLastMessages(roomMetadata, room);
           } else if (room != null)
-            _roomDao.updateRoom(
-                Room(uid: roomMetadata.roomUid.asString(), deleted: true));
+            _roomDao.updateRoom(Room(
+                uid: roomMetadata.roomUid.asString(),
+                deleted: true,
+                lastUpdateTime: roomMetadata.lastUpdate.toInt()));
         }
       } catch (e) {
         _logger.e(e);
