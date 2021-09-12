@@ -220,8 +220,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
     return _isLoading
-        ? Center(
-            child: CircularProgressIndicator()
+        ? Center(child: CircularProgressIndicator())
         : Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16,
