@@ -59,7 +59,7 @@ class _ImageUiState extends State<ImageUi> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      _routingServices. showImageInRoom(message :widget.message,file: s.data);
+                      _routingServices. showImageInRoom(message :widget.message);
 
                     },
                     child: Image.file(

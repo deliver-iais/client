@@ -183,11 +183,11 @@ class RoutingService {
     ));
   }
 
-  void showImageInRoom({Message message, File file}) {
+  void showImageInRoom({Message message}) {
     var widget = ImageSwiper(
       key: ValueKey("/image-swiper"),
       message: message,
-      image: file,
+      // image: file,
     );
     _push(Page(
       largePageNavigator: _navigationCenter,

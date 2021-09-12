@@ -21,10 +21,10 @@ import 'package:we/shared/extensions/json_extension.dart';
 import 'package:we/theme/extra_theme.dart';
 
 class ImageSwiper extends StatefulWidget {
-  final File image;
+  // final File image;
   final Message message;
 
-  ImageSwiper({Key key, this.message, this.image}) : super(key: key);
+  ImageSwiper({Key key, this.message}) : super(key: key);
 
   @override
   _ImageSwiperState createState() => _ImageSwiperState();
@@ -43,7 +43,8 @@ class _ImageSwiperState extends State<ImageSwiper> {
     double defWidth = MediaQuery.of(context).size.width;
     double defHeight = MediaQuery.of(context).size.height;
 
-    Widget defaultWidget = buildImageUi(
+    Widget defaultWidget =
+    buildImageUi(
         context,
         widget.image,
         widget.message.id,
