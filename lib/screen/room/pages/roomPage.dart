@@ -404,7 +404,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           else
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
-          ToastDisplay.showToast(toastText: _i18n.get("copied"),tostContext: context);
+          ToastDisplay.showToast(
+              toastText: _i18n.get("copied"), tostContext: context);
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -461,7 +462,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
-            ToastDisplay.showToast(toastText: _i18n.get("error_occurred"),tostContext: context);
+            ToastDisplay.showToast(
+                toastText: _i18n.get("error_occurred"), tostContext: context);
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -760,75 +762,72 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildMessagesListView(List pendingMessages) {
-    return PageStorage(
-        bucket: PageStorage.of(context),
-        key: PageStorageKey<String>('${widget.roomId}'),
-        child: ScrollablePositionedList.separated(
-          itemCount: _itemCount,
-          initialScrollIndex:
-              (_lastShowedMessageId != null && _lastShowedMessageId != -1)
-                  ? _lastShowedMessageId
-                  : _itemCount,
-          initialAlignment: 0,
-          physics: _scrollPhysics,
-          reverse: false,
-          addSemanticIndexes: false,
-          minCacheExtent: 300,
-          itemPositionsListener: _itemPositionsListener,
-          itemScrollController: _itemScrollController,
-          itemBuilder: (context, index) {
-            if (index == -1) index = 0;
-            bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
-                ? true
-                : _itemCount > _currentRoom.value.lastMessageId &&
-                    _itemCount - index <= pendingMessages.length;
+    return ScrollablePositionedList.separated(
+      itemCount: _itemCount,
+      initialScrollIndex:
+          (_lastShowedMessageId != null && _lastShowedMessageId != -1)
+              ? _lastShowedMessageId
+              : _itemCount,
+      initialAlignment: 0,
+      physics: _scrollPhysics,
+      reverse: false,
+      addSemanticIndexes: false,
+      minCacheExtent: 300,
+      itemPositionsListener: _itemPositionsListener,
+      itemScrollController: _itemScrollController,
+      itemBuilder: (context, index) {
+        if (index == -1) index = 0;
+        bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
+            ? true
+            : _itemCount > _currentRoom.value.lastMessageId &&
+                _itemCount - index <= pendingMessages.length;
 
-            return _buildMessage(
-                isPendingMessage, pendingMessages, index, _currentRoom.value);
-          },
-          separatorBuilder: (context, index) {
-            return Column(
-              children: [
-                if (_currentRoom.value.lastMessageId != null &&
-                    _lastShowedMessageId != -1 &&
-                    _lastShowedMessageId == index + 1)
-                  FutureBuilder<Message>(
-                      future: _messageAt(pendingMessages, index + 1),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData ||
-                            snapshot.data == null ||
-                            _authRepo.isCurrentUser(snapshot.data.from)) {
-                          return SizedBox.shrink();
-                        }
-                        return Container(
-                          color: Theme.of(context).backgroundColor,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          padding: const EdgeInsets.all(4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.keyboard_arrow_down,
-                                  color: Theme.of(context).primaryColor),
-                              Text(
-                                _i18n.get("unread_messages"),
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
-                              ),
-                            ],
+        return _buildMessage(
+            isPendingMessage, pendingMessages, index, _currentRoom.value);
+      },
+      separatorBuilder: (context, index) {
+        return Column(
+          children: [
+            if (_currentRoom.value.lastMessageId != null &&
+                _lastShowedMessageId != -1 &&
+                _lastShowedMessageId == index + 1)
+              FutureBuilder<Message>(
+                  future: _messageAt(pendingMessages, index + 1),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData ||
+                        snapshot.data == null ||
+                        _authRepo.isCurrentUser(snapshot.data.from)) {
+                      return SizedBox.shrink();
+                    }
+                    return Container(
+                      color: Theme.of(context).backgroundColor,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.keyboard_arrow_down,
+                              color: Theme.of(context).primaryColor),
+                          Text(
+                            _i18n.get("unread_messages"),
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor),
                           ),
-                        );
-                      }),
-                FutureBuilder(
-                  future: _timeAt(pendingMessages, index),
-                  builder: (context, snapshot) =>
-                      snapshot.hasData && snapshot.data != null
-                          ? ChatTime(currentMessageTime: date(snapshot.data))
-                          : SizedBox.shrink(),
-                ),
-              ],
-            );
-          },
-        ));
+                        ],
+                      ),
+                    );
+                  }),
+            FutureBuilder(
+              future: _timeAt(pendingMessages, index),
+              builder: (context, snapshot) =>
+                  snapshot.hasData && snapshot.data != null
+                      ? ChatTime(currentMessageTime: date(snapshot.data))
+                      : SizedBox.shrink(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<Message> _messageAt(List<PendingMessage> pendingMessages, int index) {
