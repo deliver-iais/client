@@ -2,6 +2,7 @@ import 'package:we/localization/i18n.dart';
 import 'package:we/box/message.dart';
 import 'package:we/repository/messageRepo.dart';
 import 'package:we/repository/mucRepo.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:we/services/routing_service.dart';
 
 import 'package:we/shared/widgets/circle_avatar.dart';
@@ -37,7 +38,7 @@ class ShareUidMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var _shareUid = message.json.toShareUid();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
       child: StreamBuilder<Object>(
           stream: null,
           builder: (context, snapshot) {
@@ -76,10 +77,11 @@ class ShareUidMessageWidget extends StatelessWidget {
                                     : ""),
                             style: TextStyle(
                               fontSize: 16,
-                              color: ExtraTheme.of(context).username,
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
                         ),
+                        Icon(Icons.chevron_right)
                       ],
                     ),
                   ),
@@ -172,24 +174,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                     }
                   },
                 ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, top: 5),
-                      child: MsgTime(
-                        time: date(message.time),
-                      ),
-                    ),
-                    if (isSender)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 3.0, top: 5),
-                        child: SeenStatus(
-                          message,
-                          isSeen: isSeen,
-                        ),
-                      ),
-                  ],
-                ),
+                TimeAndSeenStatus(message, isSender, isSeen),
               ],
             );
           }),

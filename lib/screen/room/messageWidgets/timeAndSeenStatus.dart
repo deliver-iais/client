@@ -14,7 +14,7 @@ class TimeAndSeenStatus extends StatelessWidget {
 
   TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
       {this.needsPositioned = true,
-      this.needsBackground,
+      this.needsBackground = false,
       this.needsPadding = true});
 
   @override
@@ -47,10 +47,11 @@ class TimeAndSeenStatus extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           MsgTime(time: date(message.time), isSent: isSender),
-          if (isSender) Padding(
-            padding: const EdgeInsets.only(left: 2.0),
-            child: SeenStatus(message, isSeen: isSeen),
-          )
+          if (isSender)
+            Padding(
+              padding: const EdgeInsets.only(left: 2.0),
+              child: SeenStatus(message, isSeen: isSeen),
+            )
         ],
       ),
     );
