@@ -13,7 +13,6 @@ import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:we/shared/widgets/contacts_widget.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';

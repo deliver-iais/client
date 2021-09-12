@@ -3,7 +3,6 @@ import 'package:we/box/message.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/roomRepo.dart';
 import 'package:we/shared/methods/message.dart';
-import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

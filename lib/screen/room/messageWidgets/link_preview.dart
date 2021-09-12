@@ -4,7 +4,6 @@ import 'package:dcache/dcache.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:metadata_fetch/metadata_fetch.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:we/shared/methods/isPersian.dart';
 
 const APARAT = "https://www.aparat.com";
