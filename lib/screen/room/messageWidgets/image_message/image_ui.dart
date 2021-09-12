@@ -9,8 +9,8 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
+import 'package:we/services/routing_service.dart';
 import 'package:we/shared/extensions/json_extension.dart';
-import 'package:open_file/open_file.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ImageUi extends StatefulWidget {
@@ -29,6 +29,7 @@ class ImageUi extends StatefulWidget {
 
 class _ImageUiState extends State<ImageUi> {
   var fileRepo = GetIt.I.get<FileRepo>();
+  var _routingServices = GetIt.I.get<RoutingService>();
   filePb.File image;
   BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
   bool showTime;
@@ -60,7 +61,8 @@ class _ImageUiState extends State<ImageUi> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        OpenFile.open(s.data.path);
+                        _routingServices.showImageInRoom(
+                            message: widget.message, file: s.data);
                       },
                       child: Image.file(
                         s.data,

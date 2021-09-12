@@ -403,7 +403,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           else
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
-          ToastDisplay.showToast(toastText: _i18n.get("copied"),tostContext: context);
+          ToastDisplay.showToast(
+              toastText: _i18n.get("copied"), tostContext: context);
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -460,7 +461,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
-            ToastDisplay.showToast(toastText: _i18n.get("error_occurred"),tostContext: context);
+            ToastDisplay.showToast(
+                toastText: _i18n.get("error_occurred"), tostContext: context);
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -1064,12 +1066,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       omUsernameClick: onUsernameClick,
     );
 
-    return SingleChildScrollView(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[messageWidget],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[messageWidget],
     );
   }
 
@@ -1083,28 +1083,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _scrollToMessage(id: id, position: pendingMessagesLength + id),
       onUsernameClick: onUsernameClick,
     );
-    return SingleChildScrollView(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          if (widget.roomId.asUid().category == Categories.GROUP)
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
-                  child: CircleAvatarWidget(message.from.asUid(), 18),
-                ),
-                onTap: () {
-                  _routingService.openRoom(message.from);
-                },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (widget.roomId.asUid().category == Categories.GROUP)
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
+                child: CircleAvatarWidget(message.from.asUid(), 18),
               ),
+              onTap: () {
+                _routingService.openRoom(message.from);
+              },
             ),
-          messageWidget
-        ],
-      ),
+          ),
+        messageWidget
+      ],
     );
   }
 

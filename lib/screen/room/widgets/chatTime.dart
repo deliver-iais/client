@@ -14,7 +14,7 @@ class ChatTime extends StatelessWidget {
       padding:
           const EdgeInsets.only(top: 5, left: 8.0, right: 8.0, bottom: 4.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).dividerColor.withOpacity(0.1),
+        color: Theme.of(context).dividerColor.withOpacity(0.25),
         borderRadius: BorderRadius.circular(20),
       ),
       child: ValueListenableBuilder<int>(
@@ -33,7 +33,7 @@ class ChatTime extends StatelessWidget {
               outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
             return Text(
               outT,
-              style: Theme.of(context).textTheme.bodyText2.copyWith(height: 1),
+              style: Theme.of(context).textTheme.bodyText2.copyWith(height: 1, color: Colors.white),
             );
           }),
     );

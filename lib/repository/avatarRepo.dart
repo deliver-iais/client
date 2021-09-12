@@ -114,7 +114,7 @@ class AvatarRepo {
       return ac;
     }
 
-    if (ac != null && ac.fileId == null || ac.fileId.isEmpty) {
+    if (ac == null || ac != null && (ac.fileId == null || ac.fileId.isEmpty)) {
       return null;
     }
 

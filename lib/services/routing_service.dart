@@ -6,6 +6,7 @@ import 'package:we/box/db_manage.dart';
 import 'package:we/box/message.dart';
 import 'package:we/repository/accountRepo.dart';
 import 'package:we/repository/authRepo.dart';
+import 'package:we/screen/room/widgets/image_swiper.dart';
 import 'package:we/screen/room/widgets/showImage_Widget.dart';
 import 'package:we/screen/contacts/contacts_page.dart';
 import 'package:we/screen/contacts/new_contact.dart';
@@ -179,6 +180,20 @@ class RoutingService {
       largePageMain: widget,
       smallPageMain: widget,
       path: "/media-details",
+    ));
+  }
+
+  void showImageInRoom({Message message, File file}) {
+    var widget = ImageSwiper(
+      key: ValueKey("/image-swiper"),
+      message: message,
+      image: file,
+    );
+    _push(Page(
+      largePageNavigator: _navigationCenter,
+      largePageMain: widget,
+      smallPageMain: widget,
+      path: "/image-swiper",
     ));
   }
 
@@ -442,12 +457,12 @@ class Empty extends StatelessWidget {
         Background(),
         Center(
           child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.only(left: 8, right: 8, top: 4,bottom: 2),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Theme.of(context).dividerColor.withOpacity(0.1)),
+                  color: Theme.of(context).dividerColor.withOpacity(0.25)),
               child: Text("Please select a chat to start messaging",
-                  style: Theme.of(context).textTheme.bodyText2)),
+                  style: Theme.of(context).textTheme.bodyText2.copyWith(color: Colors.white))),
         ),
       ],
     );

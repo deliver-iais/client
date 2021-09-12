@@ -2,24 +2,17 @@ import 'package:we/localization/i18n.dart';
 import 'package:we/box/message.dart';
 import 'package:we/repository/messageRepo.dart';
 import 'package:we/repository/mucRepo.dart';
+import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:we/services/routing_service.dart';
 
 import 'package:we/shared/widgets/circle_avatar.dart';
 import 'package:we/shared/floating_modal_bottom_sheet.dart';
-import 'package:we/shared/methods/time.dart';
-import 'package:we/shared/widgets/seen_status.dart';
-import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:we/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
-
-
-import 'msgTime.dart';
-
-
 
 class ShareUidMessageWidget extends StatelessWidget {
   final Message message;
@@ -37,7 +30,7 @@ class ShareUidMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var _shareUid = message.json.toShareUid();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
       child: StreamBuilder<Object>(
           stream: null,
           builder: (context, snapshot) {
@@ -76,10 +69,11 @@ class ShareUidMessageWidget extends StatelessWidget {
                                     : ""),
                             style: TextStyle(
                               fontSize: 16,
-                              color: ExtraTheme.of(context).username,
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
                         ),
+                        Icon(Icons.chevron_right)
                       ],
                     ),
                   ),
@@ -172,24 +166,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                     }
                   },
                 ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, top: 5),
-                      child: MsgTime(
-                        time: date(message.time),
-                      ),
-                    ),
-                    if (isSender)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 3.0, top: 5),
-                        child: SeenStatus(
-                          message,
-                          isSeen: isSeen,
-                        ),
-                      ),
-                  ],
-                ),
+                TimeAndSeenStatus(message, isSender, isSeen),
               ],
             );
           }),

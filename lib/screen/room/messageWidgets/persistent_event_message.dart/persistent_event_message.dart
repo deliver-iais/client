@@ -25,7 +25,7 @@ class PersistentEventMessage extends StatelessWidget {
       padding:
           const EdgeInsets.only(top: 5, left: 8.0, right: 8.0, bottom: 4.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).dividerColor.withOpacity(0.1),
+        color: Theme.of(context).dividerColor.withOpacity(0.25),
         borderRadius: BorderRadius.circular(20),
       ),
       child: FutureBuilder<String>(
@@ -40,7 +40,8 @@ class PersistentEventMessage extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
-                  style: TextStyle(fontSize: 14, height: 1),
+                  style:
+                      TextStyle(fontSize: 14, height: 1, color: Colors.white),
                 ));
           } else {
             return SizedBox.shrink();

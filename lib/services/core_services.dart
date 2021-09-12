@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:we/box/dao/last_activity_dao.dart';
 import 'package:we/box/dao/room_dao.dart';
 import 'package:we/box/message.dart' as DB;
@@ -155,6 +156,9 @@ class CoreServices {
             break;
           case ServerPacket_Type.notSet:
             // TODO: Handle this case.
+            break;
+          case ServerPacket_Type.roomPresenceTypeChanged:
+            _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
             break;
         }
       });
@@ -345,7 +349,7 @@ class CoreServices {
           break;
       }
     }
-    if(await _roomRepo.isDeletedRoom(roomUid.asString())){
+    if (await _roomRepo.isDeletedRoom(roomUid.asString())) {
       return;
     }
     saveMessage(message, roomUid);
@@ -389,10 +393,23 @@ class CoreServices {
     }
 
     _roomDao.updateRoom(
-      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention),
+      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention,lastUpdateTime: msg.time),
     );
 
     return roomUid;
+  }
+
+  void _saveRoomPresenceTypeChange(
+      RoomPresenceTypeChanged roomPresenceTypeChanged) {
+    PresenceType type = roomPresenceTypeChanged.presenceType;
+    if (type != null)
+      _roomDao.updateRoom(Room(
+          uid: roomPresenceTypeChanged.uid.asString(),
+          deleted: type == PresenceType.BANNED ||
+              type == PresenceType.DELETED ||
+              type == PresenceType.KICKED ||
+              type == PresenceType.LEFT ||
+              type != PresenceType.ACTIVE));
   }
 }
 

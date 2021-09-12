@@ -36,7 +36,8 @@ class MucServices {
     }
   }
 
-  Future<bool> addGroupMembers(List<Member> members, Uid groupUid,{bool retry = false}) async {
+  Future<bool> addGroupMembers(List<Member> members, Uid groupUid,
+      {bool retry = false}) async {
     GroupServices.AddMembersReq addMemberRequest =
         GroupServices.AddMembersReq();
     for (Member member in members) {

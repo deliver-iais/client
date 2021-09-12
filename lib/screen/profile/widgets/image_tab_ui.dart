@@ -98,8 +98,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                   }
                                 });
                           } else
-                            print(jsonDecode(snaps.data[position].json)[
-                            "blurHash"]);
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllMedia(

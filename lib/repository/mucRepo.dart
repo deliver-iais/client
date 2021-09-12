@@ -186,7 +186,8 @@ class MucRepo {
         if (c != null)
           _checkShowPin(mucUid, channel.pinMessages, c.pinMessagesIdList ?? []);
         // ignore: unrelated_type_equality_checks
-        if (channel.requesterRole != MucPro.Role.NONE && channel.requesterRole != MucPro.Role.MEMBER)
+        if (channel.requesterRole != MucPro.Role.NONE &&
+            channel.requesterRole != MucPro.Role.MEMBER)
           fetchChannelMembers(mucUid, channel.population.toInt());
         return muc;
       }
@@ -354,9 +355,12 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
-    if (await _mucServices.banGroupMember(member, groupMember.mucUid.asUid())) {
-      _mucDao.deleteMember(groupMember);
-      return true;
+    if (await _mucServices
+        .kickGroupMembers([member], groupMember.mucUid.asUid())) {
+      if (await _mucServices.banGroupMember(
+          member, groupMember.mucUid.asUid())) {
+        _mucDao.deleteMember(groupMember);
+      }
     }
   }
 
@@ -364,10 +368,12 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
-    if (await _mucServices.unbanChannelMember(
-        member, channelMember.mucUid.asUid())) {
-      _mucDao.deleteMember(channelMember);
-      return true;
+    if (await _mucServices
+        .kickChannelMembers([member], channelMember.mucUid.asUid())) {
+      if (await _mucServices.banChannelMember(
+          member, channelMember.mucUid.asUid())) {
+        _mucDao.deleteMember(channelMember);
+      }
     }
   }
 
@@ -540,8 +546,10 @@ class MucRepo {
         // TODO better pattern matching maybe be helpful
         .where((e) =>
             query.isEmpty ||
-            (e.id != null && e.id.toLowerCase().contains(query.toLowerCase())) ||
-            (e.name != null && e.name.toLowerCase().contains(query.toLowerCase())))
+            (e.id != null &&
+                e.id.toLowerCase().contains(query.toLowerCase())) ||
+            (e.name != null &&
+                e.name.toLowerCase().contains(query.toLowerCase())))
         .toList();
   }
 
@@ -552,5 +560,4 @@ class MucRepo {
       _mucDao
           .update(Muc().copyWith(uid: mucUid.asString(), showPinMessage: true));
   }
-
 }
