@@ -394,7 +394,7 @@ class CoreServices {
     }
 
     _roomDao.updateRoom(
-      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention),
+      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention,lastUpdateTime: msg.time),
     );
 
     return roomUid;
