@@ -31,7 +31,6 @@ import 'package:we/screen/room/widgets/newMessageInput.dart';
 import 'package:we/screen/room/widgets/recievedMessageBox.dart';
 import 'package:we/screen/room/widgets/sendedMessageBox.dart';
 import 'package:we/screen/toast_management/toast_display.dart';
-import 'package:we/shared/methods/colors.dart';
 import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/widgets/audio_player_appbar.dart';
 import 'package:we/services/firebase_services.dart';
@@ -54,7 +53,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -914,10 +912,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: PersistentEventMessage(
-                  message: msg,
-                  showLastMessage: false,
-                ),
+                child: PersistentEventMessage(message: msg),
               ),
             ],
           );
