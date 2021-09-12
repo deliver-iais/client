@@ -19,7 +19,8 @@ class MsgTime extends StatelessWidget {
       style: TextStyle(
         fontSize: 11,
         height: 1.1,
-        color: ExtraTheme.of(context).textMessage.withAlpha(150),
+        fontStyle: FontStyle.italic,
+        color: ExtraTheme.of(context).textMessage.withAlpha(130),
       ),
     );
   }
