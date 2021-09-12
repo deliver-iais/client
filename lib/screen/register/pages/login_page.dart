@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/contactRepo.dart';
@@ -68,20 +67,20 @@ class _LoginPageState extends State<LoginPage> {
       tokenGeneratorTimer = Timer.periodic(Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
-    } else if (isAndroid() && ! kDebugMode) {
-        SmsAutoFill().hint.then((value) {
-          final p = getPhoneNumber(value);
-          phoneNumber = p;
-          controller.text = p.nationalNumber.toString();
-          if (p != null) {
-            setState(() { setState(() {
+    } else if (isAndroid() && !kDebugMode) {
+      SmsAutoFill().hint.then((value) {
+        final p = getPhoneNumber(value);
+        phoneNumber = p;
+        controller.text = p.nationalNumber.toString();
+        if (p != null) {
+          setState(() {
+            setState(() {
               isLoading = true;
-            });});
-            checkAndGoNext(doNotCheckValidator: true);
-          }
-        });
-
-
+            });
+          });
+          checkAndGoNext(doNotCheckValidator: true);
+        }
+      });
     }
     super.initState();
   }
@@ -111,13 +110,12 @@ class _LoginPageState extends State<LoginPage> {
       });
       try {
         var res = await _authRepo.getVerificationCode(phoneNumber);
-        if (res != null){
+        if (res != null) {
           ExtendedNavigator.of(context).push(Routes.verificationPage);
           setState(() {
             isLoading = false;
           });
-        }
-        else{
+        } else {
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
             toastText: i18n.get("error_occurred"),
@@ -225,88 +223,85 @@ class _LoginPageState extends State<LoginPage> {
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
     return isLoading
         ? Center(
-      child: SpinKitCircle(
-        color: Colors.lightBlueAccent,
-        size: 40.0,
-      ),
-    )
+            child: CircularProgressIndicator(color: Colors.lightBlueAccent),
+          )
         : Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                SizedBox(
-                  height: 5,
-                ),
-                IntlPhoneField(
-                  initialCountryCode:
-                      phoneNumber?.countryCode?.toString() ?? "98",
-                  controller: controller,
-                  validator: (value) => value.length != 10 ||
-                          (value.length > 0 && value[0] == '0')
-                      ? i18n.get("invalid_mobile_number")
-                      : null,
-                  onChanged: (p) {
-                    phoneNumber = p;
-                  },
-                  onSubmitted: (p) {
-                    phoneNumber = p;
-                    checkAndGoNext();
-                  },
-                ),
-                SizedBox(height: 15),
-                Text(
-                  i18n.get("insert_phone_and_code"),
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 15,
-                  ),
-                ),
-                if (isDesktop()) SizedBox(height: 40),
-                if (isDesktop())
-                  TextButton(
-                      child: Text(
-                        "Login with QR Code",
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 5,
+                      ),
+                      IntlPhoneField(
+                        initialCountryCode:
+                            phoneNumber?.countryCode?.toString() ?? "98",
+                        controller: controller,
+                        validator: (value) => value.length != 10 ||
+                                (value.length > 0 && value[0] == '0')
+                            ? i18n.get("invalid_mobile_number")
+                            : null,
+                        onChanged: (p) {
+                          phoneNumber = p;
+                        },
+                        onSubmitted: (p) {
+                          phoneNumber = p;
+                          checkAndGoNext();
+                        },
+                      ),
+                      SizedBox(height: 15),
+                      Text(
+                        i18n.get("insert_phone_and_code"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                           color: Theme.of(context).primaryColor,
-                          fontSize: 13,
+                          fontSize: 15,
                         ),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          loginWithQrCode = true;
-                        });
-                      }),
+                      if (isDesktop()) SizedBox(height: 40),
+                      if (isDesktop())
+                        TextButton(
+                            child: Text(
+                              "Login with QR Code",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                loginWithQrCode = true;
+                              });
+                            }),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: TextButton(
+                        child: Text(
+                          i18n.get("next"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        onPressed: () {
+                          checkAndGoNext();
+                        }),
+                  ),
+                ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: TextButton(
-                  child: Text(
-                    i18n.get("next"),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 14.5,
-                    ),
-                  ),
-                  onPressed: () {
-                    checkAndGoNext();
-                  }),
-            ),
-          ),
-        ],
-      ),
-    );
+          );
   }
 }
