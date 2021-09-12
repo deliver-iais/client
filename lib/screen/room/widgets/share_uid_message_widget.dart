@@ -7,20 +7,12 @@ import 'package:we/services/routing_service.dart';
 
 import 'package:we/shared/widgets/circle_avatar.dart';
 import 'package:we/shared/floating_modal_bottom_sheet.dart';
-import 'package:we/shared/methods/time.dart';
-import 'package:we/shared/widgets/seen_status.dart';
-import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:we/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
-
-
-import 'msgTime.dart';
-
-
 
 class ShareUidMessageWidget extends StatelessWidget {
   final Message message;
