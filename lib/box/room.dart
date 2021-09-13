@@ -29,6 +29,9 @@ class Room {
   @HiveField(6)
   int lastUpdateTime;
 
+  @HiveField(7)
+  int firstMessageId;
+
   Room(
       {this.uid,
       this.lastMessage,
@@ -36,7 +39,8 @@ class Room {
       this.mentioned,
       this.draft,
       this.lastUpdateTime,
-      this.lastMessageId});
+      this.lastMessageId,
+      this.firstMessageId});
 
   Room copy(Room r) => Room(
       uid: r.uid ?? this.uid,
@@ -45,7 +49,8 @@ class Room {
       draft: r.draft ?? this.draft,
       lastUpdateTime: r.lastUpdateTime ?? this.lastUpdateTime,
       mentioned: r.mentioned ?? this.mentioned,
-      lastMessageId: r.lastMessageId ?? this.lastMessageId);
+      lastMessageId: r.lastMessageId ?? this.lastMessageId,
+      firstMessageId: r.firstMessageId ?? this.firstMessageId);
 
   Room copyWith(
           {String uid,
@@ -54,6 +59,7 @@ class Room {
           bool deleted,
           String draft,
           int lastUpdateTime,
+          int firstMessageId,
           bool mentioned}) =>
       Room(
           uid: uid ?? this.uid,
@@ -62,5 +68,6 @@ class Room {
           draft: draft ?? this.draft,
           lastUpdateTime: lastUpdateTime ?? this.lastUpdateTime,
           mentioned: mentioned ?? this.mentioned,
+          firstMessageId: firstMessageId ?? this.firstMessageId,
           lastMessageId: lastMessageId ?? this.lastMessageId);
 }

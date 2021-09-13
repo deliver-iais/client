@@ -349,9 +349,6 @@ class CoreServices {
           break;
       }
     }
-    if (await _roomRepo.isDeletedRoom(roomUid.asString())) {
-      return;
-    }
     saveMessage(message, roomUid);
 
     if (!_authRepo.isCurrentUser(message.from.asString()) &&
@@ -393,7 +390,12 @@ class CoreServices {
     }
 
     _roomDao.updateRoom(
-      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention,lastUpdateTime: msg.time),
+      Room(
+          uid: roomUid.asString(),
+          lastMessage: msg,
+          mentioned: isMention,
+          deleted: false,
+          lastUpdateTime: msg.time),
     );
 
     return roomUid;

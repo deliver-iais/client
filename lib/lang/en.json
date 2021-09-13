@@ -170,14 +170,14 @@
   "not_found": "Not Found",
   "of": "of",
   "sure_exit_app": "Are you sure you want to \n log out?",
-  "sure_delete_group": "Are you sure to delete Group ?",
-  "sure_delete_channel": "Are you sure to delete Channel ?",
+  "sure_delete_group": "Are you sure to delete  ?",
+  "sure_delete_channel": "Are you sure to delete  ?",
   "ok": "Ok",
   "just_now": "Just now",
   "copied": "copied",
   "resend": "resend",
-  "sure_left_group": " Left Group ? ",
-  "sure_left_channel": "Left Channel ?",
+  "sure_left_group": "Are you sure you want to leave ",
+  "sure_left_channel": "Are you sure you want to leave ",
   "bot": "bot",
   "share": "Share",
   "invite_link": "Invite link",
@@ -241,5 +241,7 @@
   "enter_numeric_value": "Enter the number",
   "draft": "Draft",
   "text": "Text",
-  "submitted_on": "Submitted on"
+  "submitted_on": "Submitted on",
+  "sure_delete_room": "Are you sure you want to delete the chat with",
+  "delete_chat": "Delete Chat"
 }

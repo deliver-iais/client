@@ -156,19 +156,23 @@ class MessageRepo {
                 room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
               if (fetchAllRoom != null)
                 finished = true; // no more updating needed after this room
-              break;
+               break;
             }
-            if (room!= null && room.deleted)
+            if (room != null && room.deleted)
               _roomDao.updateRoom(Room(
                   uid: room.uid,
                   deleted: false,
+                  firstMessageId: roomMetadata.firstMessageId.toInt(),
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
             fetchLastMessages(roomMetadata, room);
-          } else if (room != null)
+          } else {
+            print(roomMetadata.roomUid);
             _roomDao.updateRoom(Room(
                 uid: roomMetadata.roomUid.asString(),
                 deleted: true,
+                firstMessageId: roomMetadata.firstMessageId.toInt(),
                 lastUpdateTime: roomMetadata.lastUpdate.toInt()));
+          }
         }
       } catch (e) {
         _logger.e(e);
@@ -212,6 +216,7 @@ class MessageRepo {
       if (messages.isNotEmpty) {
         _roomDao.updateRoom(Room(
           uid: roomMetadata.roomUid.asString(),
+          firstMessageId: roomMetadata.firstMessageId.toInt(),
           lastMessage: messages.last,
         ));
       }

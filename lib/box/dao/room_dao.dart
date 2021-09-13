@@ -73,7 +73,7 @@ class RoomDaoImpl implements RoomDao {
     var box = await _openRoom();
 
     if (room != null && room.lastMessage != null) {
-      room = room.copyWith(lastMessageId: room.lastMessage.id);
+      room = room.copyWith(lastMessageId: room.lastMessage.id,firstMessageId: room.firstMessageId);
     }
 
     var r = box.get(room.uid) ?? room;

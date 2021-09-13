@@ -458,7 +458,7 @@ class MucRepo {
       for (Uid uid in memberUids) {
         members.add(MucPro.Member()
           ..uid = uid
-          ..role = MucPro.Role.MEMBER);
+          ..role = mucUid.isChannel() ? MucPro.Role.NONE : MucPro.Role.MEMBER);
       }
 
       if (mucUid.category == Categories.GROUP) {
