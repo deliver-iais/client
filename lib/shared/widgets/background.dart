@@ -52,8 +52,8 @@ class Background extends StatelessWidget {
 
     final y = pp[(id) % 8];
     final y2 = pp[(id + 1) % 8];
-    final w = pp[(id + 2) % 8];
-    final w2 = pp[(id + 3) % 8];
+    final w = pp[(id + 4) % 8];
+    final w2 = pp[(id + 5) % 8];
     final b = pp[(id + 7) % 8];
 
     final duration = Duration(milliseconds: 500);
@@ -65,6 +65,18 @@ class Background extends StatelessWidget {
         width: double.infinity,
         child: Stack(
           children: [
+            AnimatedContainer(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        dark,
+                        darkTransparent,
+                      ],
+                      center: b,
+                    ))),
             AnimatedContainer(
                 duration: duration,
                 curve: curve,
@@ -112,18 +124,6 @@ class Background extends StatelessWidget {
                     whiteTransparent,
                   ],
                   center: w2,
-                ))),
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    dark,
-                    darkTransparent,
-                  ],
-                  center: b,
                 ))),
             Container(
               width: double.infinity,
