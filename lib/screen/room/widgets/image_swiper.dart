@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -21,10 +20,9 @@ import 'package:we/shared/extensions/json_extension.dart';
 import 'package:we/theme/extra_theme.dart';
 
 class ImageSwiper extends StatefulWidget {
-  final File image;
   final Message message;
 
-  ImageSwiper({Key key, this.message, this.image}) : super(key: key);
+  ImageSwiper({Key key, this.message}) : super(key: key);
 
   @override
   _ImageSwiperState createState() => _ImageSwiperState();
@@ -39,16 +37,20 @@ class _ImageSwiperState extends State<ImageSwiper> {
   BehaviorSubject<int> imageCount = BehaviorSubject.seeded(1);
 
   @override
+  void initState() {
+    getImageCount();
+  }
+
+  getImageCount() async {
+    var res =
+        await _mediaRepo.getImageMediaCount(widget.message.roomUid.asUid());
+    if (res != null) imageCount.add(res);
+  }
+
+  @override
   Widget build(BuildContext context) {
     double defWidth = MediaQuery.of(context).size.width;
     double defHeight = MediaQuery.of(context).size.height;
-
-    Widget defaultWidget = buildImageUi(
-        context,
-        widget.image,
-        widget.message.id,
-        min(widget.message.json.toFile().width.toDouble(), defWidth),
-        min(widget.message.json.toFile().height.toDouble(), defHeight));
 
     return Scaffold(
         appBar: AppBar(
@@ -81,7 +83,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
                         },
                         index: initIndex,
                         itemBuilder: (c, i) {
-                          if (medias.data[i] != null) {
+                          if (medias.data.length>= i && medias.data[i] != null) {
                             double width = double.parse(
                                     jsonDecode(medias.data[i].json)["width"]
                                         .toString()) ??
@@ -105,12 +107,11 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                       min(width, defWidth),
                                       min(height, defHeight));
                                 } else
-                                  return BlurHash(
-                                      decodingHeight: height.toInt(),
-                                      decodingWidth: width.toInt(),
-                                      imageFit: BoxFit.contain,
-                                      hash: jsonDecode(
-                                          medias.data[i].json)["blurHash"]);
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.blue,
+                                    ),
+                                  );
                               },
                             );
                           } else {
@@ -122,12 +123,29 @@ class _ImageSwiperState extends State<ImageSwiper> {
                         },
                       );
                     } else
-                      return defaultWidget;
+                      return defaultWidget();
                   });
             } else
-              return defaultWidget;
+              return defaultWidget();
           },
         )));
+  }
+
+  Widget defaultWidget() {
+    return FutureBuilder<File>(
+        future: _fileRepo.getFile(widget.message.json.toFile().uuid,
+            widget.message.json.toFile().name),
+        builder: (c, file) {
+          if (file.hasData && file.data != null)
+            return buildImageUi(
+                context,
+                file.data,
+                widget.message.id,
+                widget.message.json.toFile().width.toDouble(),
+                widget.message.json.toFile().height.toDouble());
+          else
+            return SizedBox.shrink();
+        });
   }
 
   Widget buildImageUi(BuildContext context, File file, int messageId,
@@ -179,7 +197,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
           if (s.hasData && s.data > -1) {
             return Text("${s.data + 1} of ${imageCount.valueWrapper.value}");
           } else
-            return SizedBox.shrink();
+            return Text("");
         });
   }
 }

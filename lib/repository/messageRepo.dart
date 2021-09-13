@@ -158,7 +158,7 @@ class MessageRepo {
                 finished = true; // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted )
+            if (room!= null && room.deleted)
               _roomDao.updateRoom(Room(
                   uid: room.uid,
                   deleted: false,
