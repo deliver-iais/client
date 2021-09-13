@@ -180,12 +180,12 @@ class AuthRepo {
         return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
           ..refreshToken = refreshToken
           ..platform = await getPlatformDetails());
-      }  on GrpcError catch (e) {
+      } on GrpcError catch (e) {
         _logger.e(e);
-        if(e.message == GrpcError.unauthenticated().message){
+        if (e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
-      }catch(e){
+      } catch (e) {
         _logger.e(e);
       }
     });

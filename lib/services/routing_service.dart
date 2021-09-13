@@ -383,7 +383,7 @@ class RoutingService {
   }
 
   logout() async {
-    if ( _autRepo.isLoggedIn()) {
+    if (_autRepo.isLoggedIn()) {
       CoreServices coreServices = GetIt.I.get<CoreServices>();
       _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
       if (!isDesktop()) fireBaseServices.deleteToken();
