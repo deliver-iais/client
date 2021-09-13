@@ -382,20 +382,21 @@ class RoutingService {
     ]);
   }
 
-  logout(BuildContext context) async {
-    CoreServices coreServices = GetIt.I.get<CoreServices>();
-    _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
-    if (!isDesktop()) fireBaseServices.deleteToken();
-    coreServices.closeConnection();
+  logout() async {
+    if ( _autRepo.isLoggedIn()) {
+      CoreServices coreServices = GetIt.I.get<CoreServices>();
+      _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
+      if (!isDesktop()) fireBaseServices.deleteToken();
+      coreServices.closeConnection();
+      await _autRepo.deleteTokens();
+      _push(Page(
+          largePageNavigator: _empty,
+          smallPageMain: _empty,
+          largePageMain: _empty,
+          path: LOG_OUT));
 
-    await _autRepo.deleteTokens();
-
-    reset();
-
-    Navigator.of(context).pushAndRemoveUntil(
-        new MaterialPageRoute(builder: (context) => IntroPage()),
-        (Route<dynamic> route) => false);
-    Timer(Duration(milliseconds: 300), () => _dbManager.deleteDB());
+      Timer(Duration(milliseconds: 300), () => _dbManager.deleteDB());
+    }
   }
 
   Stream<String> get currentRouteStream => _route.stream;
@@ -457,12 +458,16 @@ class Empty extends StatelessWidget {
         Background(),
         Center(
           child: Container(
-              padding: const EdgeInsets.only(left: 8, right: 8, top: 4,bottom: 2),
+              padding:
+                  const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                   color: Theme.of(context).dividerColor.withOpacity(0.25)),
               child: Text("Please select a chat to start messaging",
-                  style: Theme.of(context).textTheme.bodyText2.copyWith(color: Colors.white))),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      .copyWith(color: Colors.white))),
         ),
       ],
     );

@@ -144,9 +144,6 @@ class MessageRepo {
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-          print(roomMetadata.roomUid.asString() +
-              "" +
-              roomMetadata.presenceType.name);
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (roomMetadata.presenceType == null ||
               roomMetadata.presenceType == PresenceType.ACTIVE) {
@@ -161,7 +158,7 @@ class MessageRepo {
                 finished = true; // no more updating needed after this room
               break;
             }
-            if (room.deleted)
+            if (room != null && room.deleted )
               _roomDao.updateRoom(Room(
                   uid: room.uid,
                   deleted: false,

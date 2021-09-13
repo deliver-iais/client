@@ -141,6 +141,7 @@ Future<void> setupDI() async {
   // Order is important, don't change it!
   GetIt.I.registerSingleton<AuthServiceClient>(
       AuthServiceClient(ProfileServicesClientChannel));
+  GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
@@ -193,7 +194,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<FileRepo>(FileRepo());
   GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
   GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
-  GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<MucRepo>(MucRepo());
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
