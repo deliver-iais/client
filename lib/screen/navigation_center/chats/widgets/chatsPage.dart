@@ -22,8 +22,11 @@ class ChatsPage extends StatelessWidget {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
-              var rooms = snapshot.data;
               if (snapshot.hasData) {
+                var rooms = snapshot.data
+                    .where((element) =>
+                        element.deleted == null || element.deleted == false)
+                    .toList();
                 return PageStorage(
                   bucket: PageStorage.of(context),
                   child: Scrollbar(

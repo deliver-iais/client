@@ -127,6 +127,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
+    _currentRoom.add(Room(uid: widget.roomId,firstMessageId: 0));
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: buildAppbar(),
@@ -159,9 +160,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         pendingMessages.length;
                                 if (_itemCount != 0 &&
                                     i != _itemCount) if (_currentRoom
-                                        .valueWrapper.value.firstMessageId == null) _itemCountSubject.add(_itemCount);
+                                        .valueWrapper.value.firstMessageId ==
+                                    null) _itemCountSubject.add(_itemCount);
                                 _itemCount = i;
-                                if (currentRoomStream.data.firstMessageId != null)
+                                if (currentRoomStream.data.firstMessageId !=
+                                    null)
                                   _itemCount = _itemCount -
                                       currentRoomStream.data.firstMessageId;
 
@@ -326,7 +329,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     // TODO Channel is different from groups and private chats !!!
 
     _positionSubject
-        .map((event) => event + 1)
+        .map((event) =>
+            event + 1 + _currentRoom.valueWrapper.value.firstMessageId ?? 0)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -772,10 +776,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget buildMessagesListView(List pendingMessages) {
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
-      initialScrollIndex:
+      initialScrollIndex:_itemCount>0?
           (_lastShowedMessageId != null && _lastShowedMessageId != -1)
               ? _lastShowedMessageId
-              : _itemCount,
+              : _itemCount:0,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
@@ -799,7 +803,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (_currentRoom.value.firstMessageId != null)
           index = index + _currentRoom.value.firstMessageId;
         if (_currentRoom.value.firstMessageId != null &&
-            index <= _currentRoom.value.firstMessageId) return Container();
+            index < _currentRoom.value.firstMessageId) return Container();
         return Column(
           children: [
             if (_currentRoom.value.lastMessageId != null &&
@@ -873,7 +877,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
       int index, Room currentRoom) {
     if (currentRoom.firstMessageId != null &&
-        index <= currentRoom.firstMessageId) {
+        index < currentRoom.firstMessageId) {
       return Container(
         height: 20,
       );

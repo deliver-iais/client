@@ -290,7 +290,7 @@ class CoreServices {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+              _roomDao.updateRoom(Room(uid: roomUid.asString(),deleted: true));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:

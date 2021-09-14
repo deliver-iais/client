@@ -156,7 +156,7 @@ class MessageRepo {
                 room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
               if (fetchAllRoom != null)
                 finished = true; // no more updating needed after this room
-               break;
+              break;
             }
             if (room != null && room.deleted)
               _roomDao.updateRoom(Room(
@@ -166,10 +166,10 @@ class MessageRepo {
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
             fetchLastMessages(roomMetadata, room);
           } else {
-            print(roomMetadata.roomUid);
             _roomDao.updateRoom(Room(
                 uid: roomMetadata.roomUid.asString(),
                 deleted: true,
+                lastMessageId: roomMetadata.lastMessageId.toInt(),
                 firstMessageId: roomMetadata.firstMessageId.toInt(),
                 lastUpdateTime: roomMetadata.lastUpdate.toInt()));
           }
@@ -217,6 +217,7 @@ class MessageRepo {
         _roomDao.updateRoom(Room(
           uid: roomMetadata.roomUid.asString(),
           firstMessageId: roomMetadata.firstMessageId.toInt(),
+          lastMessageId: roomMetadata.lastMessageId.toInt(),
           lastMessage: messages.last,
         ));
       }
@@ -510,7 +511,8 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(PendingMessage pm) async {
-    await _roomDao.updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg));
+    await _roomDao
+        .updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg, deleted: false));
   }
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {

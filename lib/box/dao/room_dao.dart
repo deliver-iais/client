@@ -47,9 +47,8 @@ class RoomDaoImpl implements RoomDao {
         box.values.where((element) => element.lastMessage != null).toList());
 
     yield* box.watch().map((event) => sorted(box.values
-        .where((element) =>
-            element.lastMessage != null &&
-            (element.deleted == null || element.deleted == false))
+        .where((element) => (element.lastMessage != null &&
+            (element.deleted == null || element.deleted == false)))
         .toList()));
   }
 
@@ -73,7 +72,9 @@ class RoomDaoImpl implements RoomDao {
     var box = await _openRoom();
 
     if (room != null && room.lastMessage != null) {
-      room = room.copyWith(lastMessageId: room.lastMessage.id,firstMessageId: room.firstMessageId);
+      room = room.copyWith(
+          lastMessageId: room.lastMessage.id,
+          firstMessageId: room.firstMessageId);
     }
 
     var r = box.get(room.uid) ?? room;

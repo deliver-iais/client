@@ -164,6 +164,11 @@ class RoomRepo {
     try {
       await _queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
+      var room = await _roomDao.getRoom(roomUid.asString());
+      _roomDao.updateRoom(Room(
+          uid: roomUid.asString(),
+          firstMessageId: room.lastMessageId ?? 0,
+          lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
       return true;
     } catch (e) {
       _logger.e(e);

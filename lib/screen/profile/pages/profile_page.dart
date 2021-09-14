@@ -986,8 +986,8 @@ class _ProfilePageState extends State<ProfilePage>
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
             content: Container(
-              height: 100,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -998,17 +998,24 @@ class _ProfilePageState extends State<ProfilePage>
                           ? _locale.get("delete_chat")
                           : widget.roomUid.isChannel()
                               ? _locale.get("left_channel")
-                              : _locale.get("left_group"))
+                              : _locale.get("left_group"),style: TextStyle(fontWeight: FontWeight.bold),)
                     ],
                   ),
                   SizedBox(height: 5,),
-                  Text(
-                      !widget.roomUid.isMuc()
-                          ?"${ _locale.get("sure_delete_room")} $_roomName ?"
-                          : widget.roomUid.isChannel()
-                              ?"${_locale.get("sure_left_channel")} $_roomName ?"
-                              :"${_locale.get("sure_left_group")} $_roomName ?",
-                      style: TextStyle(color: Colors.black, fontSize: 18)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                            !widget.roomUid.isMuc()
+                                ?"${ _locale.get("sure_delete_room")} $_roomName ?"
+                                : widget.roomUid.isChannel()
+                                ?"${_locale.get("sure_left_channel")} $_roomName ?"
+                                :"${_locale.get("sure_left_group")} $_roomName ?",
+                            style: TextStyle(color: Colors.black, fontSize: 18),overflow: TextOverflow.fade,),
+                      ),
+                    ],
+                  ),
+               
 
                 ],
               ),
