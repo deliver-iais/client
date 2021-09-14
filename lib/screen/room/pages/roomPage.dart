@@ -330,7 +330,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     _positionSubject
         .map((event) =>
-            event + 1 + _currentRoom.valueWrapper.value.firstMessageId ?? 0)
+            event + 1 + (_currentRoom?.value?.firstMessageId ?? 0))
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
