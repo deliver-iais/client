@@ -290,7 +290,7 @@ class CoreServices {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+              _roomDao.updateRoom(Room(uid: roomUid.asString(),deleted: true));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
@@ -349,9 +349,6 @@ class CoreServices {
           break;
       }
     }
-    if (await _roomRepo.isDeletedRoom(roomUid.asString())) {
-      return;
-    }
     saveMessage(message, roomUid);
 
     if (!_authRepo.isCurrentUser(message.from.asString()) &&
@@ -393,7 +390,12 @@ class CoreServices {
     }
 
     _roomDao.updateRoom(
-      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention,lastUpdateTime: msg.time),
+      Room(
+          uid: roomUid.asString(),
+          lastMessage: msg,
+          mentioned: isMention,
+          deleted: false,
+          lastUpdateTime: msg.time),
     );
 
     return roomUid;

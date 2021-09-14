@@ -160,6 +160,22 @@ class RoomRepo {
     }
   }
 
+  Future<bool> deleteRoom(Uid roomUid) async {
+    try {
+      await _queryServiceClient
+          .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
+      var room = await _roomDao.getRoom(roomUid.asString());
+      _roomDao.updateRoom(Room(
+          uid: roomUid.asString(),
+          firstMessageId: room.lastMessageId ?? 0,
+          lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+      return true;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
+
   Future<String> getIdByUid(Uid uid) async {
     try {
       var result =
@@ -266,8 +282,9 @@ class RoomRepo {
     var res = await _uidIdNameDao.search(text);
     res.forEach((element) {
       if (!element.uid.isUser() ||
-          (element.uid.isUser()&& element.name != null && element.name.isNotEmpty ))
-        searchResult.add(element.uid.asUid());
+          (element.uid.isUser() &&
+              element.name != null &&
+              element.name.isNotEmpty)) searchResult.add(element.uid.asUid());
     });
 
     return searchResult;
@@ -305,8 +322,8 @@ class RoomRepo {
     return await _roomDao.getAllGroups();
   }
 
-  void updateRoomDraft( String roomUid,String draft) {
-    _roomDao.updateRoom(Room().copyWith(uid: roomUid,draft: draft));
+  void updateRoomDraft(String roomUid, String draft) {
+    _roomDao.updateRoom(Room().copyWith(uid: roomUid, draft: draft));
   }
 
   Future<bool> isDeletedRoom(String roomUid) async {
