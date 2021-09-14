@@ -88,7 +88,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.8.6-beta.16
+      ref: tags/v1.8.6-beta.18
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -99,7 +99,7 @@ dependencies:
   image_size_getter: 0.2.1
   swipe_to: 0.0.1+8
 #  google_maps_place_picker: 2.0.0-nullsafety.3
-  audioplayers: 0.19.0
+  audioplayers: 0.20.1
   dart_vlc: 0.0.9
   video_player: 1.0.1
   open_file: 3.2.1 # Open file in OS
