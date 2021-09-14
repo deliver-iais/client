@@ -647,34 +647,31 @@ class _ProfilePageState extends State<ProfilePage>
             titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
-            content: Container(
-              height: 150,
-              child:
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatarWidget(widget.roomUid, 25),
-                      SizedBox(width: 5,),
-                      Text( widget.roomUid.isChannel()
-                          ? _locale.get("delete_channel")
-                          : _locale.get("delete_group"))
-                    ],
-                  ),
-                  SizedBox(height: 5,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                          widget.roomUid.isGroup()
-                              ? "${_locale.get("sure_delete_group")} $_roomName ?"
-                              : "${_locale.get("sure_delete_channel")} $_roomName ?",
-                          style: TextStyle(color: Colors.black, fontSize: 18)),
-                    ],
-                  ),
-                ],
-              ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    CircleAvatarWidget(widget.roomUid, 25),
+                    SizedBox(width: 5,),
+                    Text( widget.roomUid.isChannel()
+                        ? _locale.get("delete_channel")
+                        : _locale.get("delete_group"))
+                  ],
+                ),
+                SizedBox(height: 5,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                        widget.roomUid.isGroup()
+                            ? "${_locale.get("sure_delete_group")} $_roomName ?"
+                            : "${_locale.get("sure_delete_channel")} $_roomName ?",
+                        style: TextStyle(color: Colors.black, fontSize: 18)),
+                  ],
+                ),
+              ],
             ),
             actions: <Widget>[
               Row(
