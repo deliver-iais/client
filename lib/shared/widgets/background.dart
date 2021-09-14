@@ -56,9 +56,9 @@ class Background extends StatelessWidget {
 
     final y = pp[(id) % 12];
     final y2 = pp[(id + 1) % 12];
-    final w = pp[(id + 5) % 12];
-    final w2 = pp[(id + 6) % 12];
-    final b = pp[(id + 11) % 12];
+    final w = pp[(id + 6) % 12];
+    final w2 = pp[(id + 7) % 12];
+    final b = pp[(id + 10) % 12];
 
     final duration = Duration(milliseconds: 500);
     final curve = Curves.easeOut;
