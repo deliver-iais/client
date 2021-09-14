@@ -274,9 +274,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           if (result != null) {
                                             Navigator.pop(co);
                                             showCaptionDialog(
-                                                icons: Icons.insert_drive_file,
                                                 type: "image",
-                                                result: result);
+                                                paths: result.paths,
+                                                roomUid: widget.currentRoomId,
+                                                context: context);
                                           }
                                         } else
                                           setState(() {
@@ -306,9 +307,10 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (result != null) {
                                           Navigator.pop(co);
                                           showCaptionDialog(
-                                              icons: Icons.file_upload,
                                               type: "file",
-                                              result: result);
+                                              paths: result.paths,
+                                              roomUid: widget.currentRoomId,
+                                              context: context);
                                         }
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
@@ -344,9 +346,9 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (result != null) {
                                           Navigator.pop(co);
                                           showCaptionDialog(
-                                              icons: Icons.music_note,
                                               type: "music",
-                                              result: result);
+                                              context: context,
+                                              paths: result.paths);
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
@@ -589,25 +591,23 @@ class _ShareBoxState extends State<ShareBox> {
       },
     );
   }
+}
 
-  showCaptionDialog(
-      {IconData icons, String type, FilePickerResult result}) async {
-    if (result.paths.length <= 0) return;
-    String name = await _roomRepo.getName(widget.currentRoomId);
-    showDialog(
-        context: context,
-        builder: (context) {
-          return ShowCaptionDialog(
-            name: name,
-            icon: icons,
-            type: type,
-            caption: captionTextController,
-            messageRepo: messageRepo,
-            currentRoom: widget.currentRoomId,
-            result: result.paths,
-          );
-        });
-  }
+showCaptionDialog(
+    {String type,
+    List<String> paths,
+    Uid roomUid,
+    BuildContext context}) async {
+  if (paths.length <= 0) return;
+  showDialog(
+      context: context,
+      builder: (context) {
+        return ShowCaptionDialog(
+          type: type,
+          currentRoom: roomUid,
+          paths: paths,
+        );
+      });
 }
 
 Widget circleButton(Function onTap, IconData icon, String text, double size,

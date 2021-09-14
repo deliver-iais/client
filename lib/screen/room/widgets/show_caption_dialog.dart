@@ -1,149 +1,124 @@
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'dart:io';
+
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:get_it/get_it.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/messageRepo.dart';
 import 'package:flutter/material.dart';
 
 class ShowCaptionDialog extends StatelessWidget {
-  final List<String> result;
+  final List<String> paths;
   final String type;
-  final String name;
-  final messageRepo;
-  final currentRoom;
-  final caption;
-  final icon;
+  final Uid currentRoom;
 
-  const ShowCaptionDialog(
-      {Key key,
-      this.result,
-      this.type,
-      this.name,
-      this.messageRepo,
-      this.currentRoom,
-      this.caption,
-      this.icon})
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+  final TextEditingController _editingController = TextEditingController();
+
+  ShowCaptionDialog({Key key, this.paths, this.type, this.currentRoom})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double widthPercent;
-    if (isDesktop() || isLinux() || isMacOS()) {
-      widthPercent = 0.33;
-    } else {
-      widthPercent = 0.8;
-    }
     return SingleChildScrollView(
       child: Container(
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: Stack(children: <Widget>[
-            Container(
-                width: MediaQuery.of(context).size.width * widthPercent,
-                padding:
-                    EdgeInsets.only(left: 20, top: 40, right: 20, bottom: 20),
-                margin: EdgeInsets.only(top: 45),
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Theme.of(context).dialogBackgroundColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      "Selected Files ",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "send ${result.length} $type to $name",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: ExtraTheme.of(context).fileSharingDetails),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "Add a caption",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    TextFormField(
-                        controller: caption,
-                        keyboardType: TextInputType.multiline,
-                        minLines: 1,
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                          labelText: 'Caption',
-                          border: OutlineInputBorder(),
-                        )),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        messageRepo.sendMultipleFilesMessages(
-                            currentRoom, result,
-                            caption: caption.text.toString());
-                      },
-                      child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                              height: 50,
-                              width: MediaQuery.of(context).size.width,
-                              decoration: BoxDecoration(
-                                  color: Colors.lightBlueAccent,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Center(
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          content: Stack(children: <Widget>[
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                paths.length <= 1 &&
+                        (type.contains("image") || type.contains("jpg"))
+                    ? Container(
+                        height: MediaQuery.of(context).size.height / 3,
+                        child: Center(child: Image.file(File(paths.first))),
+                      )
+                    : Container(
+                        height: paths.length * 50.toDouble(),
+                        width: 200,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: paths.length,
+                          itemBuilder: (c, i) {
+                            return Row(
+                              children: [
+                                ClipOval(
+                                  child: Material(
+                                      color: Theme.of(context)
+                                          .primaryColor, // button color
+                                      child: InkWell(
+                                          splashColor:
+                                              Colors.blue, // inkwell color
+                                          child: SizedBox(
+                                            width: 30,
+                                            height: 40,
+                                            child: Icon(
+                                              Icons.insert_drive_file,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ))),
+                                ),
+                                SizedBox(
+                                  width: 3,
+                                ),
+                                Expanded(
                                   child: Text(
-                                "Send",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
-                              )))),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
+                                    paths[i].split("/").last,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )
+                              ],
+                            );
                           },
-                          child: Text("Cancel",
-                              style: TextStyle(
-                                  color: Colors.blue.shade700, fontSize: 18))),
-                    ),
-                  ],
-                )),
-            Positioned(
-              left: 20,
-              right: 20,
-              child: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                radius: 45,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(50)),
-                    child: Container(
-                      color: Colors.blue,
-                      width: 60,
-                      height: 60,
-                      child: Icon(
-                        icon,
-                        color: Colors.white,
-                        size: 30,
+                          separatorBuilder: (BuildContext context, int index) {
+                            return SizedBox(
+                              height: 5,
+                            );
+                          },
+                        ),
                       ),
-                    )),
-              ),
+                SizedBox(
+                  height: 10,
+                ),
+                  TextFormField(
+                      controller: _editingController,
+                      keyboardType: TextInputType.multiline,
+                      minLines: 1,
+                      maxLines: 5,
+                      style: TextStyle(fontSize: 15),
+                      decoration: InputDecoration(
+                        labelText: _i18n.get("caption"),
+                      )),
+              ],
             ),
           ]),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                _i18n.get("cancel"),
+                style: TextStyle(color: Colors.blue, fontSize: 18),
+              ),
+            ),
+            GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  _messageRepo.sendMultipleFilesMessages(currentRoom, paths,
+                      caption: _editingController.text.toString());
+                },
+                child: Text(
+                  _i18n.get("send"),
+                  style: TextStyle(color: Colors.blue, fontSize: 18),
+                )),
+            SizedBox(
+              width: 10,
+            )
+          ],
         ),
       ),
     );

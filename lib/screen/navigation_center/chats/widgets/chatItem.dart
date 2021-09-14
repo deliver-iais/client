@@ -1,8 +1,13 @@
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:mime_type/mime_type.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/box/room.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/lastActivityRepo.dart';
+import 'package:we/repository/mucRepo.dart';
 import 'package:we/repository/roomRepo.dart';
+import 'package:we/screen/room/widgets/share_box.dart';
+import 'package:we/services/routing_service.dart';
 import 'package:we/shared/widgets/activity_status.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/time.dart';
@@ -32,6 +37,8 @@ class _ChatItemState extends State<ChatItem> {
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   void initState() {
@@ -49,126 +56,152 @@ class _ChatItemState extends State<ChatItem> {
         future: _roomRepo.getName(widget.room.uid.asUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
-            return Container(
-              padding: const EdgeInsets.all(8),
-              color: widget.isSelected
-                  ? Theme.of(context).focusColor
-                  : Colors.transparent,
-              height: 70,
-              child: Row(
-                children: <Widget>[
-                  ContactPic(widget.room.uid.asUid()),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Row(
-                          children: [
-                            if (widget.room.uid.asUid().category ==
-                                Categories.GROUP)
-                              Flexible(
-                                child: Icon(
-                                  Icons.group_rounded,
-                                  size: 16,
+            return DropTarget(
+                onDragDone: (d) async {
+                  if (!widget.room.uid.asUid().isChannel()) {
+                    showDialog(d, context);
+                  } else {
+                    var res = await _mucRepo.isMucAdminOrOwner(
+                        _authRepo.currentUserUid.asString(), widget.room.uid);
+                    if (res) showDialog(d, context);
+                  }
+                },
+                onDragEntered: (d) {
+                  //   print(d.toString());
+                },
+                onDragExited: (e) {
+                  //  print(e.globalPosition);
+                },
+                onDragUpdated: (f) {
+                  //     print(f.localPosition);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  color: widget.isSelected
+                      ? Theme.of(context).focusColor
+                      : Colors.transparent,
+                  height: 70,
+                  child: Row(
+                    children: <Widget>[
+                      ContactPic(widget.room.uid.asUid()),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Row(
+                              children: [
+                                if (widget.room.uid.asUid().category ==
+                                    Categories.GROUP)
+                                  Flexible(
+                                    child: Icon(
+                                      Icons.group_rounded,
+                                      size: 16,
+                                    ),
+                                  ),
+                                if (widget.room.uid.asUid().category ==
+                                    Categories.CHANNEL)
+                                  Flexible(
+                                    child: Icon(
+                                      Icons.rss_feed_rounded,
+                                      size: 16,
+                                    ),
+                                  ),
+                                if (widget.room.uid.asUid().category ==
+                                    Categories.BOT)
+                                  Flexible(
+                                    child: Icon(
+                                      Icons.smart_toy_rounded,
+                                      size: 16,
+                                    ),
+                                  ),
+                                Expanded(
+                                    flex: 50,
+                                    child: Padding(
+                                        padding: (widget.room.uid
+                                                        .asUid()
+                                                        .category ==
+                                                    Categories.GROUP) ||
+                                                (widget.room.uid
+                                                        .asUid()
+                                                        .category ==
+                                                    Categories.CHANNEL) ||
+                                                (widget.room.uid
+                                                        .asUid()
+                                                        .category ==
+                                                    Categories.BOT)
+                                            ? const EdgeInsets.only(left: 16.0)
+                                            : EdgeInsets.zero,
+                                        child: _authRepo
+                                                .isCurrentUser(widget.room.uid)
+                                            ? _showDisplayName(
+                                                widget.room.uid.asUid(),
+                                                _i18n.get("saved_message"),
+                                                context)
+                                            : _showDisplayName(
+                                                widget.room.uid.asUid(),
+                                                name.data,
+                                                context))),
+                                Text(
+                                  dateTimeFormat(
+                                      date(widget.room.lastMessage.time)),
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    color: ExtraTheme.of(context)
+                                        .centerPageDetails,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                              ),
-                            if (widget.room.uid.asUid().category ==
-                                Categories.CHANNEL)
-                              Flexible(
-                                child: Icon(
-                                  Icons.rss_feed_rounded,
-                                  size: 16,
-                                ),
-                              ),
-                            if (widget.room.uid.asUid().category ==
-                                Categories.BOT)
-                              Flexible(
-                                child: Icon(
-                                  Icons.smart_toy_rounded,
-                                  size: 16,
-                                ),
-                              ),
-                            Expanded(
-                                flex: 50,
-                                child: Padding(
-                                    padding: (widget.room.uid
-                                                    .asUid()
-                                                    .category ==
-                                                Categories.GROUP) ||
-                                            (widget.room.uid.asUid().category ==
-                                                Categories.CHANNEL) ||
-                                            (widget.room.uid.asUid().category ==
-                                                Categories.BOT)
-                                        ? const EdgeInsets.only(left: 16.0)
-                                        : EdgeInsets.zero,
-                                    child: _authRepo
-                                            .isCurrentUser(widget.room.uid)
-                                        ? _showDisplayName(
-                                            widget.room.uid.asUid(),
-                                            _i18n.get("saved_message"),
-                                            context)
-                                        : _showDisplayName(
-                                            widget.room.uid.asUid(),
-                                            name.data,
-                                            context))),
-                            Text(
-                              dateTimeFormat(
-                                  date(widget.room.lastMessage.time)),
-                              maxLines: 1,
-                              style: TextStyle(
-                                color: ExtraTheme.of(context).centerPageDetails,
-                                fontSize: 12,
-                              ),
+                              ],
                             ),
+                            StreamBuilder<Activity>(
+                                stream: _roomRepo.activityObject[
+                                    widget.room.uid.asUid().node],
+                                builder: (c, s) {
+                                  if (s.hasData &&
+                                      s.data != null &&
+                                      s.data.typeOfActivity !=
+                                          ActivityType.NO_ACTIVITY) {
+                                    return Row(
+                                      children: [
+                                        ActivityStatus(
+                                          activity: s.data,
+                                          roomUid: widget.room.uid.asUid(),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: ExtraTheme.of(context)
+                                                .centerPageDetails,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return widget.room.draft != null &&
+                                            widget.room.draft.isNotEmpty
+                                        ? buildDraftMessageWidget(
+                                            _i18n, context)
+                                        : LastMessage(
+                                            message: widget.room.lastMessage,
+                                            lastMessageId:
+                                                widget.room.lastMessageId,
+                                            hasMentioned:
+                                                widget.room.mentioned == true,
+                                            showSender: widget.room.uid
+                                                    .isMuc() ||
+                                                _authRepo.isCurrentUser(widget
+                                                    .room.lastMessage.from),
+                                          );
+                                  }
+                                }),
                           ],
                         ),
-                        StreamBuilder<Activity>(
-                            stream: _roomRepo
-                                .activityObject[widget.room.uid.asUid().node],
-                            builder: (c, s) {
-                              if (s.hasData &&
-                                  s.data != null &&
-                                  s.data.typeOfActivity !=
-                                      ActivityType.NO_ACTIVITY) {
-                                return Row(
-                                  children: [
-                                    ActivityStatus(
-                                      activity: s.data,
-                                      roomUid: widget.room.uid.asUid(),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: ExtraTheme.of(context)
-                                            .centerPageDetails,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return widget.room.draft != null &&
-                                        widget.room.draft.isNotEmpty
-                                    ? buildDraftMessageWidget(_i18n, context)
-                                    : LastMessage(
-                                        message: widget.room.lastMessage,
-                                        lastMessageId:
-                                            widget.room.lastMessageId,
-                                        hasMentioned:
-                                            widget.room.mentioned == true,
-                                        showSender: widget.room.uid.isMuc() ||
-                                            _authRepo.isCurrentUser(
-                                                widget.room.lastMessage.from),
-                                      );
-                              }
-                            }),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
+                ));
           } else
             return Padding(
               padding:
@@ -209,6 +242,15 @@ class _ChatItemState extends State<ChatItem> {
               ),
             );
         });
+  }
+
+  void showDialog(DropDoneDetails d, BuildContext context) {
+    showCaptionDialog(
+        type: mime(d.urls.first.path),
+        context: context,
+        paths: d.urls.toList().map((e) => e.path.substring(1)).toList(),
+        roomUid: widget.room.uid.asUid());
+    _routingServices.openRoom(widget.room.uid);
   }
 
   Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {

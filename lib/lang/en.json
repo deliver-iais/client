@@ -212,7 +212,7 @@
   "delete_session": "Are you sure about deleting this session?",
   "active_sessions": "Active Sessions",
   "terminate_all_other_sessions": "Terminate all other sessions",
-  "send": "send message",
+  "send": "Send",
   "private_data": "Private Data",
   "phone_number_granted": "Access to phone number granted",
   "name_granted": "Access to name granted",
@@ -243,5 +243,8 @@
   "text": "Text",
   "submitted_on": "Submitted on",
   "sure_delete_room": "Are you sure you want to delete the chat with",
-  "delete_chat": "Delete Chat"
+  "delete_chat": "Delete Chat",
+  "selected_file": "Selected Files",
+  "caption": "Caption",
+  "add_caption" : "Add a caption"
 }
