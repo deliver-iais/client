@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-class Position {
-  final Alignment x1;
-  final Alignment x2;
-
-  Position(this.x1, this.x2);
-}
-
 class Background extends StatelessWidget {
   final int id;
 
@@ -46,17 +39,22 @@ class Background extends StatelessWidget {
         ? Color(0x0075ba94)
         : Color(0x00000C11);
 
-    final List<Position> p = [
-      Position(Alignment(-0.9, -1), Alignment(-0.2, -.8)),
-      Position(Alignment(0.2, -.8), Alignment(0.9, -1)),
-      Position(Alignment(0.3, 1), Alignment(0.9, 1)),
-      Position(Alignment(-.8, 1), Alignment(-.3, 1)),
+    final List<Alignment> pp = [
+      Alignment(-0.9, -1),
+      Alignment(-0.2, -.8),
+      Alignment(0.2, -.8),
+      Alignment(0.9, -1),
+      Alignment(0.9, 1),
+      Alignment(0.3, 1),
+      Alignment(-.3, 1),
+      Alignment(-.8, 1),
     ];
 
-    final y = p[id % 4];
-    final e = p[(id + 1) % 4];
-    final w = p[(id + 2) % 4];
-    final b = p[(id + 3) % 4];
+    final y = pp[(id) % 8];
+    final y2 = pp[(id + 1) % 8];
+    final w = pp[(id + 4) % 8];
+    final w2 = pp[(id + 5) % 8];
+    final b = pp[(id + 7) % 8];
 
     final duration = Duration(milliseconds: 500);
     final curve = Curves.easeOut;
@@ -73,11 +71,23 @@ class Background extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
+                      colors: [
+                        dark,
+                        darkTransparent,
+                      ],
+                      center: b,
+                    ))),
+            AnimatedContainer(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: RadialGradient(
                   colors: [
                     yellow,
                     yellowTransparent,
                   ],
-                  center: y.x1,
+                  center: y,
                 ))),
             AnimatedContainer(
                 duration: duration,
@@ -89,7 +99,7 @@ class Background extends StatelessWidget {
                     yellow,
                     yellowTransparent,
                   ],
-                  center: y.x2,
+                  center: y2,
                 ))),
             AnimatedContainer(
                 duration: duration,
@@ -101,7 +111,7 @@ class Background extends StatelessWidget {
                     white,
                     whiteTransparent,
                   ],
-                  center: w.x1,
+                  center: w,
                 ))),
             AnimatedContainer(
                 duration: duration,
@@ -113,19 +123,7 @@ class Background extends StatelessWidget {
                     white,
                     whiteTransparent,
                   ],
-                  center: w.x2,
-                ))),
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    dark,
-                    darkTransparent,
-                  ],
-                  center: b.x1,
+                  center: w2,
                 ))),
             Container(
               width: double.infinity,
