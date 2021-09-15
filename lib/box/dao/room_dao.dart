@@ -44,10 +44,10 @@ class RoomDaoImpl implements RoomDao {
     var box = await _openRoom();
 
     yield sorted(
-        box.values.where((element) => element.lastMessage != null).toList());
+        box.values.where((element) => element.lastMessageId != null).toList());
 
     yield* box.watch().map((event) => sorted(box.values
-        .where((element) => (element.lastMessage != null &&
+        .where((element) => (element.lastMessageId != null &&
             (element.deleted == null || element.deleted == false)))
         .toList()));
   }
@@ -55,7 +55,7 @@ class RoomDaoImpl implements RoomDao {
   List<Room> sorted(List<Room> list) {
     var l = list;
 
-    l.sort((a, b) => (b.lastMessage?.time ?? 0) - (a.lastMessage?.time ?? 0));
+    l.sort((a, b) => (b.lastUpdateTime?? 0) - (a.lastUpdateTime?? 0));
 
     return l;
   }

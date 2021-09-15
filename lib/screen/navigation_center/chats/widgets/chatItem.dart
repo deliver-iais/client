@@ -1,7 +1,9 @@
+import 'package:we/box/message.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/box/room.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/lastActivityRepo.dart';
+import 'package:we/repository/messageRepo.dart';
 import 'package:we/repository/roomRepo.dart';
 import 'package:we/shared/widgets/activity_status.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
@@ -32,6 +34,7 @@ class _ChatItemState extends State<ChatItem> {
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   void initState() {
@@ -116,8 +119,7 @@ class _ChatItemState extends State<ChatItem> {
                                             name.data,
                                             context))),
                             Text(
-                              dateTimeFormat(
-                                  date(widget.room.lastMessage.time)),
+                              dateTimeFormat(date(widget.room.lastUpdateTime)),
                               maxLines: 1,
                               style: TextStyle(
                                 color: ExtraTheme.of(context).centerPageDetails,
@@ -151,16 +153,25 @@ class _ChatItemState extends State<ChatItem> {
                                 return widget.room.draft != null &&
                                         widget.room.draft.isNotEmpty
                                     ? buildDraftMessageWidget(_i18n, context)
-                                    : LastMessage(
-                                        message: widget.room.lastMessage,
-                                        lastMessageId:
-                                            widget.room.lastMessageId,
-                                        hasMentioned:
-                                            widget.room.mentioned == true,
-                                        showSender: widget.room.uid.isMuc() ||
-                                            _authRepo.isCurrentUser(
-                                                widget.room.lastMessage.from),
-                                      );
+                                    : widget.room.lastMessage != null
+                                        ? buildLastMessage(
+                                            widget.room.lastMessage)
+                                        : FutureBuilder<Message>(
+                                            future:
+                                                _messageRepo.fetchLastMessages(
+                                                    widget.room.uid.asUid(),
+                                                    widget.room.lastMessageId,
+                                                    widget.room.firstMessageId,
+                                                    widget.room.lastUpdateTime,
+                                                    widget.room),
+                                            builder: (c, lastMessage) {
+                                              if (lastMessage.hasData &&
+                                                  lastMessage.data != null)
+                                                return buildLastMessage(
+                                                    lastMessage.data);
+                                              else
+                                                return SizedBox.shrink();
+                                            });
                               }
                             }),
                       ],
@@ -209,6 +220,16 @@ class _ChatItemState extends State<ChatItem> {
               ),
             );
         });
+  }
+
+  LastMessage buildLastMessage(Message message) {
+    return LastMessage(
+      message: message,
+      lastMessageId: widget.room.lastMessageId,
+      hasMentioned: widget.room.mentioned == true,
+      showSender:
+          widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
+    );
   }
 
   Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
