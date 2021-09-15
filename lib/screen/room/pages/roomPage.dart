@@ -133,12 +133,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
     return DropTarget(
       onDragDone: (d) {
-        if (!widget.roomId.asUid().isChannel() || _hasPermissionInChannel.value)
+        if (!widget.roomId.asUid().isChannel() ||
+            _hasPermissionInChannel.value) {
+          List<String> p = [];
+          d.urls.forEach((element) {
+            p.add(isWindows() ? element.path.substring(1) : element.path);
+          });
           showCaptionDialog(
               type: mime(d.urls.first.path),
               context: context,
-              paths: d.urls.toList().map((e) => e.path.substring(1)).toList(),
+              paths: p,
               roomUid: widget.roomId.asUid());
+        }
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
@@ -287,26 +293,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    // TODO there is some bugs when we close some of them
-    // _repliedMessage.close();
-    // _currentRoom.close();
-    // _searchMode.close();
-    // _showOtherMessage.close();
-    // _showProgressBar.close();
-    // _lastPinedMessage.close();
-    // _itemCountSubject.close();
-    // _waitingForForwardedMessage.close();
-    // _selectMultiMessageSubject.close();
-    // _lastSeenSubject.close();
-    // _positionSubject.close();
-    // _hasPermissionInChannel.close();
-    // _hasPermissionInGroup.close();
-    // _unReadMessageScrollSubject.close();
-    super.dispose();
   }
 
   void initState() {

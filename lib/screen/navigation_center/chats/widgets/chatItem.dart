@@ -8,6 +8,7 @@ import 'package:we/repository/mucRepo.dart';
 import 'package:we/repository/roomRepo.dart';
 import 'package:we/screen/room/widgets/share_box.dart';
 import 'package:we/services/routing_service.dart';
+import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/widgets/activity_status.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/time.dart';
@@ -245,10 +246,14 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   void showDialog(DropDoneDetails d, BuildContext context) {
+    List<String> p = [];
+    d.urls.forEach((element) {
+      p.add(isWindows() ? element.path.substring(1) : element.path);
+    });
     showCaptionDialog(
         type: mime(d.urls.first.path),
         context: context,
-        paths: d.urls.toList().map((e) => e.path.substring(1)).toList(),
+        paths: d.urls.toList().map((e) => e.path).toList(),
         roomUid: widget.room.uid.asUid());
     _routingServices.openRoom(widget.room.uid);
   }

@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/repository/messageRepo.dart';
 import 'package:flutter/material.dart';
+import 'package:we/shared/methods/platform.dart';
 
 class ShowCaptionDialog extends StatefulWidget {
   final List<String> paths;
@@ -98,9 +99,13 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                                 await getFile(false);
                                             if (result.paths != null &&
                                                 result.paths.length > 0) {
-                                              fileNames[index] = result.paths[0]
-                                                  .split("\\")
-                                                  .last;
+                                              fileNames[index] = isWindows()
+                                                  ? result.paths[0]
+                                                      .split("\\")
+                                                      .last
+                                                  : result.paths[0]
+                                                      .split("/")
+                                                      .last;
                                               widget.paths[index] =
                                                   result.paths[0];
                                               setState(() {});
@@ -154,7 +159,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     var res = await getFile(true);
                     res.paths.forEach((element) {
                       widget.paths.add(element);
-                      fileNames.add(element.split("\\").last);
+                      fileNames.add(isWindows()
+                          ? element.split("\\").last
+                          : element.split("/").last);
                     });
                     setState(() {});
                   },
