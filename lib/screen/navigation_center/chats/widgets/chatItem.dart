@@ -268,7 +268,7 @@ class _ChatItemState extends State<ChatItem> {
     showCaptionDialog(
         type: mime(d.urls.first.path),
         context: context,
-        paths: d.urls.toList().map((e) => e.path).toList(),
+        paths: p,
         roomUid: widget.room.uid.asUid());
     _routingServices.openRoom(widget.room.uid);
   }
