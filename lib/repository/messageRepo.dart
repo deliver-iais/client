@@ -142,6 +142,7 @@ class MessageRepo {
 
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
+        _logger.wtf(getAllUserRoomMetaRes.roomsMeta.toString());
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
@@ -226,6 +227,8 @@ class MessageRepo {
         getMentions(room);
       }
     } catch (e) {
+      _logger.wtf(roomMetadata);
+      _logger.wtf(room);
       _logger.e(e);
       if (retry) fetchLastMessages(roomMetadata, room, retry: false);
     }
