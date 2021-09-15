@@ -40,154 +40,153 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   Widget build(BuildContext context) {
     return widget.paths != null && widget.paths.length > 0
         ? SingleChildScrollView(
-            child: Container(
-                child: AlertDialog(
-              backgroundColor: Colors.white,
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  widget.paths.length <= 1 &&
-                          (widget.type.contains("image") ||
-                              widget.type.contains("jpg"))
-                      ? Container(
-                          height: MediaQuery.of(context).size.height / 3,
-                          child: Stack(
-                            children: [
-                              Center(
-                                  child: Image.file(File(widget.paths.first))),
-                              Positioned(
-                                  right: 5,
-                                  top: 2,
-                                  child: Container(
-                                      color: Colors.black12,
-                                      child: buildManage(index: 0))),
-                            ],
-                          ))
-                      : Container(
-                          height: widget.paths.length * 50.toDouble(),
-                          width: MediaQuery.of(context).size.width / 4,
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: widget.paths.length,
-                            itemBuilder: (c, index) {
-                              return Row(
-                                children: [
-                                  ClipOval(
-                                    child: Material(
-                                        color: Theme.of(context)
-                                            .primaryColor, // button color
-                                        child: InkWell(
-                                            splashColor:
-                                                Colors.blue, // inkwell color
-                                            child: SizedBox(
-                                              width: 30,
-                                              height: 40,
-                                              child: Icon(
-                                                Icons.insert_drive_file,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
-                                            ))),
-                                  ),
-                                  SizedBox(
-                                    width: 3,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      fileNames[index],
-                                      overflow: TextOverflow.ellipsis,
+            child: Center(
+              child: Container(
+                  child: AlertDialog(
+                backgroundColor: Colors.white,
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    widget.paths.length <= 1 &&
+                            (widget.type.contains("image") ||
+                                widget.type.contains("jpg"))
+                        ? Container(
+                            height: MediaQuery.of(context).size.height / 3,
+                            child: Stack(
+                              children: [
+                                Center(
+                                    child:
+                                        Image.file(File(widget.paths.first))),
+                                Positioned(
+                                    right: 5,
+                                    top: 2,
+                                    child: Container(
+                                        color: Colors.black12,
+                                        child: buildManage(index: 0))),
+                              ],
+                            ))
+                        : Container(
+                            height: widget.paths.length * 50.toDouble(),
+                            width: MediaQuery.of(context).size.width / 4,
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: widget.paths.length,
+                              itemBuilder: (c, index) {
+                                return Row(
+                                  children: [
+                                    ClipOval(
+                                      child: Material(
+                                          color: Theme.of(context)
+                                              .primaryColor, // button color
+                                          child: InkWell(
+                                              splashColor:
+                                                  Colors.blue, // inkwell color
+                                              child: SizedBox(
+                                                width: 30,
+                                                height: 40,
+                                                child: Icon(
+                                                  Icons.insert_drive_file,
+                                                  size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                              ))),
                                     ),
-                                  ),
-                                  Align(
-                                      alignment: Alignment.topRight,
-                                      child: buildManage(index: index))
-                                ],
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return SizedBox(
-                                height: 5,
-                              );
-                            },
-                          ),
-                        ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  TextFormField(
-                      controller: _editingController,
-                      keyboardType: TextInputType.multiline,
-                      minLines: 1,
-                      maxLines: 5,
-                      style: TextStyle(fontSize: 15),
-                      decoration: InputDecoration(
-                        labelText: _i18n.get("caption"),
-                      )),
-                ],
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          var res = await getFile(allowMultiple: true);
-                          res.paths.forEach((element) {
-                            widget.paths.add(element);
-                            fileNames.add(isWindows()
-                                ? element.split("\\").last
-                                : element.split("/").last);
-                          });
-                          setState(() {});
-                        },
-                        child: Text(
-                          _i18n.get("add"),
-                          style: TextStyle(fontSize: 16, color: Colors.blue),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              _i18n.get("cancel"),
-                              style:
-                                  TextStyle(color: Colors.blue, fontSize: 15),
+                                     Text(
+                                        fileNames[index],
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+
+                                    // Align(
+                                    //     alignment: Alignment.topRight,
+                                    //     child: buildManage(index: index))
+                                  ],
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return SizedBox(
+                                  height: 5,
+                                );
+                              },
                             ),
                           ),
-                          SizedBox(
-                            width: 16,
+                    SizedBox(
+                      height: 5,
+                    ),
+                    TextFormField(
+                        controller: _editingController,
+                        keyboardType: TextInputType.multiline,
+                        minLines: 1,
+                        maxLines: 5,
+                        style: TextStyle(fontSize: 15),
+                        decoration: InputDecoration(
+                          labelText: _i18n.get("caption"),
+                        )),
+                  ],
+                ),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            var res = await getFile(allowMultiple: true);
+                            res.paths.forEach((element) {
+                              widget.paths.add(element);
+                              fileNames.add(isWindows()
+                                  ? element.split("\\").last
+                                  : element.split("/").last);
+                            });
+                            setState(() {});
+                          },
+                          child: Text(
+                            _i18n.get("add"),
+                            style: TextStyle(fontSize: 16, color: Colors.blue),
                           ),
-                          GestureDetector(
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
-                                _messageRepo.sendMultipleFilesMessages(
-                                    widget.currentRoom, widget.paths,
-                                    caption:
-                                        _editingController.text.toString());
                               },
                               child: Text(
-                                _i18n.get("send"),
+                                _i18n.get("cancel"),
                                 style:
-                                    TextStyle(color: Colors.blue, fontSize: 16),
-                              )),
-                          SizedBox(
-                            width: 10,
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
-            )),
+                                    TextStyle(color: Colors.blue, fontSize: 15),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 16,
+                            ),
+                            GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _messageRepo.sendMultipleFilesMessages(
+                                      widget.currentRoom, widget.paths,
+                                      caption:
+                                          _editingController.text.toString());
+                                },
+                                child: Text(
+                                  _i18n.get("send"),
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 16),
+                                )),
+                            SizedBox(
+                              width: 10,
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              )),
+            ),
           )
         : SizedBox.shrink();
   }
