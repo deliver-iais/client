@@ -3,8 +3,6 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/box/message.dart';
 import 'package:we/box/muc.dart';
@@ -32,7 +30,6 @@ import 'package:we/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:we/screen/room/widgets/newMessageInput.dart';
 import 'package:we/screen/room/widgets/recievedMessageBox.dart';
 import 'package:we/screen/room/widgets/sendedMessageBox.dart';
-import 'package:we/screen/room/widgets/share_box.dart';
 import 'package:we/screen/toast_management/toast_display.dart';
 import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/widgets/audio_player_appbar.dart';
@@ -45,6 +42,7 @@ import 'package:we/shared/widgets/circle_avatar.dart';
 import 'package:we/shared/custom_context_menu.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/time.dart';
+import 'package:we/shared/widgets/drag_dropWidget.dart';
 import 'package:we/shared/widgets/muc_appbar_title.dart';
 import 'package:we/shared/widgets/user_appbar_title.dart';
 import 'package:we/theme/extra_theme.dart';
@@ -131,21 +129,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   @override
   Widget build(BuildContext context) {
     _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
-    return DropTarget(
-      onDragDone: (d) {
-        if (!widget.roomId.asUid().isChannel() ||
-            _hasPermissionInChannel.value) {
-          List<String> p = [];
-          d.urls.forEach((element) {
-            p.add(isWindows() ? element.path.substring(1) : element.path);
-          });
-          showCaptionDialog(
-              type: mime(d.urls.first.path),
-              context: context,
-              paths: p,
-              roomUid: widget.roomId.asUid());
-        }
-      },
+    return DragDropWidget(
+      roomUid: widget.roomId,
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: buildAppbar(),
@@ -330,8 +315,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     // TODO Channel is different from groups and private chats !!!
 
     _positionSubject
-        .map((event) =>
-            event + 1 + (_currentRoom?.value?.firstMessageId ?? 0))
+        .map((event) => event + 1 + (_currentRoom?.value?.firstMessageId ?? 0))
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)

@@ -1,19 +1,14 @@
 import 'package:we/box/message.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:we/localization/i18n.dart';
 import 'package:we/box/room.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/lastActivityRepo.dart';
 import 'package:we/repository/messageRepo.dart';
-import 'package:we/repository/mucRepo.dart';
 import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/room/widgets/share_box.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/widgets/activity_status.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/time.dart';
+import 'package:we/shared/widgets/drag_dropWidget.dart';
 import 'package:we/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -41,8 +36,6 @@ class _ChatItemState extends State<ChatItem> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   void initState() {
@@ -60,16 +53,8 @@ class _ChatItemState extends State<ChatItem> {
         future: _roomRepo.getName(widget.room.uid.asUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
-            return DropTarget(
-                onDragDone: (d) async {
-                  if (!widget.room.uid.asUid().isChannel()) {
-                    showDialog(d, context);
-                  } else {
-                    var res = await _mucRepo.isMucAdminOrOwner(
-                        _authRepo.currentUserUid.asString(), widget.room.uid);
-                    if (res) showDialog(d, context);
-                  }
-                },
+            return DragDropWidget(
+                roomUid: widget.room.uid,
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   color: widget.isSelected
@@ -258,19 +243,6 @@ class _ChatItemState extends State<ChatItem> {
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
     );
-  }
-
-  void showDialog(DropDoneDetails d, BuildContext context) {
-    List<String> p = [];
-    d.urls.forEach((element) {
-      p.add(isWindows() ? element.path.substring(1) : element.path);
-    });
-    showCaptionDialog(
-        type: mime(d.urls.first.path),
-        context: context,
-        paths: p,
-        roomUid: widget.room.uid.asUid());
-    _routingServices.openRoom(widget.room.uid);
   }
 
   Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
