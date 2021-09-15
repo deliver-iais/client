@@ -158,13 +158,18 @@ class MessageRepo {
                 finished = true; // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted)
+            if (room != null && room.deleted != null && room.deleted)
               _roomDao.updateRoom(Room(
                   uid: room.uid,
                   deleted: false,
                   firstMessageId: roomMetadata.firstMessageId.toInt(),
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
-            fetchLastMessages(roomMetadata, room);
+            fetchLastMessages(
+                roomMetadata.roomUid,
+                roomMetadata.lastMessageId.toInt(),
+                roomMetadata.firstMessageId.toInt(),
+                roomMetadata.lastUpdate.toInt(),
+                room);
           } else {
             _roomDao.updateRoom(Room(
                 uid: roomMetadata.roomUid.asString(),
@@ -200,34 +205,42 @@ class MessageRepo {
     });
   }
 
-  Future<void> fetchLastMessages(RoomMetadata roomMetadata, Room room,
+  Future<Message> fetchLastMessages(Uid roomUid, int lastMessageId,
+      int firstMessageId, int lastUpdateTime, Room room,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
-            ..roomUid = roomMetadata.roomUid
-            ..pointer = roomMetadata.lastMessageId
+            ..roomUid = roomUid
+            ..pointer = Int64(lastMessageId)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
           options: CallOptions(timeout: Duration(seconds: 3)));
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
-      if (messages.isNotEmpty) {
-        _roomDao.updateRoom(Room(
-          uid: roomMetadata.roomUid.asString(),
-          firstMessageId: roomMetadata.firstMessageId.toInt(),
-          lastMessageId: roomMetadata.lastMessageId.toInt(),
-          lastMessage: messages.last,
-        ));
-      }
+      _roomDao.updateRoom(Room(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId.toInt(),
+        lastUpdateTime: lastUpdateTime,
+        lastMessageId: lastMessageId.toInt(),
+        lastMessage: messages.last,
+      ));
 
       if (room != null && room.uid.asUid().category == Categories.GROUP) {
         getMentions(room);
       }
+      return messages.last;
     } catch (e) {
+      _roomDao.updateRoom(Room(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId.toInt(),
+        lastUpdateTime: lastUpdateTime,
+        lastMessageId: lastMessageId.toInt(),
+      ));
+      _logger.wtf(roomUid);
+      _logger.wtf(room);
       _logger.e(e);
-      if (retry) fetchLastMessages(roomMetadata, room, retry: false);
     }
   }
 
@@ -511,8 +524,11 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(PendingMessage pm) async {
-    await _roomDao
-        .updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg, deleted: false));
+    await _roomDao.updateRoom(Room(
+        uid: pm.roomUid,
+        lastMessage: pm.msg,
+        deleted: false,
+        lastUpdateTime: pm.msg.time));
   }
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {

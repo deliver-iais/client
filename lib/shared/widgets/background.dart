@@ -41,20 +41,24 @@ class Background extends StatelessWidget {
 
     final List<Alignment> pp = [
       Alignment(-0.9, -1),
-      Alignment(-0.2, -.8),
-      Alignment(0.2, -.8),
+      Alignment(-0.3, -.8),
+      Alignment(0, -.8),
+      Alignment(0.3, -.8),
       Alignment(0.9, -1),
+      Alignment(0.9, 0),
       Alignment(0.9, 1),
       Alignment(0.3, 1),
+      Alignment(0, 1),
       Alignment(-.3, 1),
       Alignment(-.8, 1),
+      Alignment(-.9, 0),
     ];
 
-    final y = pp[(id) % 8];
-    final y2 = pp[(id + 1) % 8];
-    final w = pp[(id + 4) % 8];
-    final w2 = pp[(id + 5) % 8];
-    final b = pp[(id + 7) % 8];
+    final y = pp[(id) % 12];
+    final y2 = pp[(id + 1) % 12];
+    final w = pp[(id + 6) % 12];
+    final w2 = pp[(id + 7) % 12];
+    final b = pp[(id + 10) % 12];
 
     final duration = Duration(milliseconds: 500);
     final curve = Curves.easeOut;
@@ -71,12 +75,12 @@ class Background extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                     gradient: RadialGradient(
-                      colors: [
-                        dark,
-                        darkTransparent,
-                      ],
-                      center: b,
-                    ))),
+                  colors: [
+                    dark,
+                    darkTransparent,
+                  ],
+                  center: b,
+                ))),
             AnimatedContainer(
                 duration: duration,
                 curve: curve,

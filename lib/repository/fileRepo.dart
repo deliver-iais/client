@@ -36,8 +36,8 @@ class FileRepo {
       ..width = json["width"] ?? 0
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0
-      ..blurHash = json["blurHash"]??""
-      ..hash = json["hash"]??"";
+      ..blurHash = json["blurHash"] ?? ""
+      ..hash = json["hash"] ?? "";
 
     _logger.v(uploadedFile);
 
