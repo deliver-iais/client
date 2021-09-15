@@ -30,7 +30,7 @@ class ShareUidMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var _shareUid = message.json.toShareUid();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+      padding: const EdgeInsets.all(4.0),
       child: StreamBuilder<Object>(
           stream: null,
           builder: (context, snapshot) {
@@ -38,8 +38,15 @@ class ShareUidMessageWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      primary: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      side: BorderSide(color: Theme.of(context).primaryColor)),
                   child: Padding(
-                    padding: const EdgeInsets.all(4.0),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
                     child: Row(
                       children: [
                         CircleAvatarWidget(_shareUid.uid, 18,
@@ -105,8 +112,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                     MaterialButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(),
-                                        child: Text(I18N.of(context)
-                                            .get("skip"))),
+                                        child:
+                                            Text(I18N.of(context).get("skip"))),
                                     MaterialButton(
                                         onPressed: () async {
                                           // Navigator.of(context).pop();
@@ -125,7 +132,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                         _shareUid.joinToken);
                                                 if (res != null) {
                                                   _messageRepo.updateNewMuc(
-                                                      _shareUid.uid,res.lastMessageId);
+                                                      _shareUid.uid,
+                                                      res.lastMessageId);
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
                                                   Navigator.of(context).pop();
@@ -135,9 +143,10 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                     await _mucRepo.joinChannel(
                                                         _shareUid.uid,
                                                         _shareUid.joinToken);
-                                                if (res!= null) {
+                                                if (res != null) {
                                                   _messageRepo.updateNewMuc(
-                                                      _shareUid.uid,res.lastMessageId);
+                                                      _shareUid.uid,
+                                                      res.lastMessageId);
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
                                                   Navigator.of(context).pop();
@@ -152,8 +161,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 _shareUid.uid.asString());
                                           }
                                         },
-                                        child: Text(I18N.of(context)
-                                            .get("join")))
+                                        child:
+                                            Text(I18N.of(context).get("join")))
                                   ],
                                 ),
                               ],
@@ -166,7 +175,13 @@ class ShareUidMessageWidget extends StatelessWidget {
                     }
                   },
                 ),
-                TimeAndSeenStatus(message, isSender, isSeen),
+                TimeAndSeenStatus(
+                  message,
+                  isSender,
+                  isSeen,
+                  needsPositioned: false,
+                  needsPadding: false,
+                ),
               ],
             );
           }),
