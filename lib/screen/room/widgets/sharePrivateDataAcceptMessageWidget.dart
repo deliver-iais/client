@@ -22,7 +22,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(4.0),
           child: Row(
             children: [
               Icon(
@@ -39,7 +39,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                             : spda.data == PrivateDataType.EMAIL
                                 ? i18n.get("email_granted")
                                 : i18n.get("private_data_granted"),
-                style: Theme.of(context).primaryTextTheme.bodyText2.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).primaryTextTheme.bodyText2.copyWith(fontWeight: FontWeight.w400),
               ),
             ],
           ),
