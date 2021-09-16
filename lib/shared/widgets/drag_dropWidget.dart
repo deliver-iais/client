@@ -41,7 +41,7 @@ class DragDropWidget extends StatelessWidget {
       p.add(isWindows()? element.path.substring(1) :isMacOS()?element.path.replaceAll("%20"," "): element.path);
     });
     showCaptionDialog(
-        type: mime(d.urls.first.path),
+        type: mime(d.urls.first.path)??d.urls.first.path.split(".").last,
         context: context,
         paths: p,
         roomUid: roomUid.asUid());
