@@ -1,6 +1,6 @@
-import 'package:we/box/bot_info.dart';
-import 'package:we/repository/botRepo.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

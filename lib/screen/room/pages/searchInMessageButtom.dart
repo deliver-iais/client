@@ -1,5 +1,5 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/box/message.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
 

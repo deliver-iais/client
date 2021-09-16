@@ -1,8 +1,8 @@
-import 'package:we/services/routing_service.dart';
+import 'package:deliver/services/routing_service.dart';
 
-import 'package:we/services/ux_service.dart';
-import 'package:we/shared/widgets/fluid_container.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';

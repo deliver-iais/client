@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:we/repository/avatarRepo.dart';
-import 'package:we/screen/room/widgets/share_box/gallery.dart';
-import 'package:we/screen/room/widgets/share_box/helper_classes.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/widgets/circle_avatar.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';

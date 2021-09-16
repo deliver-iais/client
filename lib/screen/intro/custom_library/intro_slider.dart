@@ -1,4 +1,4 @@
-import 'package:we/shared/constants.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 import 'slide_object.dart';

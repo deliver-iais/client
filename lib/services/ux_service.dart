@@ -1,9 +1,9 @@
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/theme/dark.dart';
-import 'package:we/theme/extra_theme.dart';
-import 'package:we/theme/light.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/dark.dart';
+import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/light.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

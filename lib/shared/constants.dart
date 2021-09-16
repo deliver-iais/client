@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "We";
+const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
-    "1.4.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+    "1.4.1"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT ="log_out";
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";

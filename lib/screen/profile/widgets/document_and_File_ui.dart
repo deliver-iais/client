@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:we/box/media.dart';
-import 'package:we/box/media_type.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
 
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/mediaQueryRepo.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/screen/room/messageWidgets/load-file-status.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/load-file-status.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

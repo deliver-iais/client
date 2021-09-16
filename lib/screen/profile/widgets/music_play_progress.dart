@@ -1,6 +1,6 @@
-import 'package:we/screen/room/messageWidgets/audio_message/audio_progress_indicator.dart';
-import 'package:we/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
-import 'package:we/services/audio_service.dart';
+import 'package:deliver/screen/room/messageWidgets/audio_message/audio_progress_indicator.dart';
+import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

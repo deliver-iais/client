@@ -2,12 +2,12 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mime_type/mime_type.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/mucRepo.dart';
-import 'package:we/screen/room/widgets/share_box.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class DragDropWidget extends StatelessWidget {
   final Widget child;

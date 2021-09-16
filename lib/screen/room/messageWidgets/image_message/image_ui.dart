@@ -2,15 +2,15 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:we/box/message.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ImageUi extends StatefulWidget {

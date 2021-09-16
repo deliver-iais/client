@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/language.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/language.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

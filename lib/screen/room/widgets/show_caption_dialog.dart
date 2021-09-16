@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/messageRepo.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:flutter/material.dart';
-import 'package:we/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/platform.dart';
 
 class ShowCaptionDialog extends StatefulWidget {
   final List<String> paths;
@@ -44,11 +44,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ? SingleChildScrollView(
             child: Container(
                 child: AlertDialog(
-              contentPadding: EdgeInsets.only(top: 60),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   widget.paths.length <= 1 &&
                           type != null &&

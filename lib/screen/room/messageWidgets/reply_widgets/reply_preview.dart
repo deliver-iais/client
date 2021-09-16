@@ -1,6 +1,6 @@
-import 'package:we/box/message.dart';
-import 'package:we/screen/room/messageWidgets/sender_and_content.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class ReplyPreview extends StatelessWidget {

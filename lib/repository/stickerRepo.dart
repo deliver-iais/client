@@ -1,4 +1,4 @@
-import 'package:we/models/stickerPacket.dart';
+import 'package:deliver/models/stickerPacket.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart' as proto;
 

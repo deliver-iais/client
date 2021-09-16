@@ -1,9 +1,9 @@
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/box/db_manage.dart';
-import 'package:we/models/account.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/name.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/models/account.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
