@@ -38,7 +38,7 @@ class DragDropWidget extends StatelessWidget {
   void showDialog(DropDoneDetails d, BuildContext context) {
     List<String> p = [];
     d.urls.forEach((element) {
-      String  path = element.path.replaceAll("%20","");
+      String  path = element.path.replaceAll("%20"," ");
       p.add(isWindows()? path.substring(1) :path);
     });
     showCaptionDialog(
