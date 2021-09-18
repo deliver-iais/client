@@ -162,10 +162,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   int i =
                                       (_currentRoom.value.lastMessageId ?? 0) +
                                           pendingMessages.length;
-                                  if (_itemCount != 0 &&
-                                      i != _itemCount) if (_currentRoom
-                                          .valueWrapper.value.firstMessageId ==
-                                      null) _itemCountSubject.add(_itemCount);
+                                  _itemCountSubject.add(i);
                                   _itemCount = i;
                                   if (currentRoomStream.data.firstMessageId !=
                                       null)
@@ -494,6 +491,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     if (seen != null) {
       _lastShowedMessageId = seen.messageId ?? 0;
+      if (room.firstMessageId != null)
+        _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId;
       if (_authRepo.isCurrentUser(room.lastMessage.from)) {
         _lastShowedMessageId = -1;
       }
@@ -566,7 +565,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   color: Colors.black,
                 ),
                 onPressed: () {
-                  _scrollToMessage(position: _lastShowedMessageId);
+                  _scrollToMessage(
+                      position: _lastShowedMessageId > 0
+                          ? _lastShowedMessageId
+                          : _itemCount);
+                  _lastShowedMessageId = -1;
                 }),
             if (!_authRepo.isCurrentUser(_currentRoom.value.lastMessage.from))
               Positioned(
@@ -786,6 +789,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             isPendingMessage, pendingMessages, index, _currentRoom.value);
       },
       separatorBuilder: (context, index) {
+        int firstIndex = index;
+
         if (_currentRoom.value.firstMessageId != null)
           index = index + _currentRoom.value.firstMessageId;
         if (_currentRoom.value.firstMessageId != null &&
@@ -794,7 +799,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           children: [
             if (_currentRoom.value.lastMessageId != null &&
                 _lastShowedMessageId != -1 &&
-                _lastShowedMessageId == index + 1)
+                _lastShowedMessageId == firstIndex + 1)
               FutureBuilder<Message>(
                   future: _messageAt(pendingMessages, index + 1),
                   builder: (context, snapshot) {
