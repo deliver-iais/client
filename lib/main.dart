@@ -1,65 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:we/box/dao/live_location_dao.dart';
-import 'package:we/box/db_manage.dart';
-import 'package:we/box/livelocation.dart';
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/avatar.dart';
-import 'package:we/box/bot_info.dart';
-import 'package:we/box/contact.dart';
-import 'package:we/box/dao/avatar_dao.dart';
-import 'package:we/box/dao/block_dao.dart';
-import 'package:we/box/dao/bot_dao.dart';
-import 'package:we/box/dao/file_dao.dart';
-import 'package:we/box/dao/last_activity_dao.dart';
-import 'package:we/box/dao/mute_dao.dart';
-import 'package:we/box/dao/room_dao.dart';
-import 'package:we/box/dao/seen_dao.dart';
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/box/dao/uid_id_name_dao.dart';
-import 'package:we/box/file_info.dart';
-import 'package:we/box/last_activity.dart';
-import 'package:we/box/media_meta_data.dart';
-import 'package:we/box/media_type.dart';
-import 'package:we/box/member.dart';
-import 'package:we/box/message.dart';
-import 'package:we/box/message_type.dart';
-import 'package:we/box/muc.dart';
-import 'package:we/box/pending_message.dart';
-import 'package:we/box/role.dart';
-import 'package:we/box/room.dart';
-import 'package:we/box/seen.dart';
-import 'package:we/box/sending_status.dart';
-import 'package:we/box/uid_id_name.dart';
-
-import 'package:we/repository/accountRepo.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/avatarRepo.dart';
-import 'package:we/repository/botRepo.dart';
-import 'package:we/repository/contactRepo.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/lastActivityRepo.dart';
-import 'package:we/repository/liveLocationRepo.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/repository/mediaQueryRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/repository/servicesDiscoveryRepo.dart';
-import 'package:we/repository/stickerRepo.dart';
-import 'package:we/routes/router.gr.dart' as R;
-import 'package:we/services/audio_service.dart';
-import 'package:we/services/check_permissions_service.dart';
-import 'package:we/services/core_services.dart';
-import 'package:we/services/create_muc_service.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/services/firebase_services.dart';
-import 'package:we/services/muc_services.dart';
-import 'package:we/services/notification_services.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/services/ux_service.dart';
-import 'package:we/services/video_player_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/platform.dart';
-
-import 'package:we/theme/extra_theme.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -79,7 +19,68 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:we/box/avatar.dart';
+import 'package:we/box/bot_info.dart';
+import 'package:we/box/contact.dart';
+import 'package:we/box/dao/avatar_dao.dart';
+import 'package:we/box/dao/block_dao.dart';
+import 'package:we/box/dao/bot_dao.dart';
+import 'package:we/box/dao/file_dao.dart';
+import 'package:we/box/dao/last_activity_dao.dart';
+import 'package:we/box/dao/live_location_dao.dart';
+import 'package:we/box/dao/mute_dao.dart';
+import 'package:we/box/dao/room_dao.dart';
+import 'package:we/box/dao/seen_dao.dart';
+import 'package:we/box/dao/shared_dao.dart';
+import 'package:we/box/dao/uid_id_name_dao.dart';
+import 'package:we/box/db_manage.dart';
+import 'package:we/box/file_info.dart';
+import 'package:we/box/last_activity.dart';
+import 'package:we/box/livelocation.dart';
+import 'package:we/box/media_meta_data.dart';
+import 'package:we/box/media_type.dart';
+import 'package:we/box/member.dart';
+import 'package:we/box/message.dart';
+import 'package:we/box/message_type.dart';
+import 'package:we/box/muc.dart';
+import 'package:we/box/pending_message.dart';
+import 'package:we/box/role.dart';
+import 'package:we/box/room.dart';
+import 'package:we/box/seen.dart';
+import 'package:we/box/sending_status.dart';
+import 'package:we/box/uid_id_name.dart';
+import 'package:we/localization/i18n.dart';
+import 'package:we/repository/accountRepo.dart';
+import 'package:we/repository/authRepo.dart';
+import 'package:we/repository/avatarRepo.dart';
+import 'package:we/repository/botRepo.dart';
+import 'package:we/repository/contactRepo.dart';
+import 'package:we/repository/fileRepo.dart';
+import 'package:we/repository/lastActivityRepo.dart';
+import 'package:we/repository/liveLocationRepo.dart';
+import 'package:we/repository/mediaQueryRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/roomRepo.dart';
+import 'package:we/repository/servicesDiscoveryRepo.dart';
+import 'package:we/repository/stickerRepo.dart';
+import 'package:we/routes/router.gr.dart' as R;
+import 'package:we/services/audio_service.dart';
+import 'package:we/services/check_permissions_service.dart';
+import 'package:we/services/core_services.dart';
+import 'package:we/services/create_muc_service.dart';
+import 'package:we/services/file_service.dart';
+import 'package:we/services/firebase_services.dart';
+import 'package:we/services/muc_services.dart';
+import 'package:we/services/notification_services.dart';
+import 'package:we/services/raw_keyboard_service.dart';
+import 'package:we/services/routing_service.dart';
+import 'package:we/services/ux_service.dart';
+import 'package:we/services/video_player_service.dart';
+import 'package:we/shared/constants.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/theme/extra_theme.dart';
 import 'package:window_size/window_size.dart';
+
 import 'box/dao/contact_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
@@ -87,7 +88,6 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
-import 'package:dart_vlc/dart_vlc.dart';
 
 Future<void> setupDI() async {
   // Setup Logger
@@ -230,6 +230,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
 
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
+  GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
 }
 
 Future setupFlutterNotification() async {
@@ -276,6 +277,7 @@ _setWindowSize() {
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
   final _i18n = GetIt.I.get<I18N>();
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   @override
   Widget build(BuildContext context) {
@@ -284,12 +286,17 @@ class MyApp extends StatelessWidget {
         _uxService.themeStream,
         _i18n.localeStream,
       ]),
-      builder: (context, snapshot) {
+      builder: (bcontext, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
+                _rawKeyboardService.escapeHandeling(
+                    event: event, replyMessageId: -1);
+                _rawKeyboardService.searchHandeling(event: event);
+                _rawKeyboardService.navigateInRooms(event: event);
+                _rawKeyboardService.scrollInChatPage(event: event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;

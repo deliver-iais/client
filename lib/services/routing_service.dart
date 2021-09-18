@@ -2,22 +2,27 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:we/box/db_manage.dart';
 import 'package:we/box/message.dart';
 import 'package:we/repository/accountRepo.dart';
 import 'package:we/repository/authRepo.dart';
-import 'package:we/screen/room/widgets/image_swiper.dart';
-import 'package:we/screen/room/widgets/showImage_Widget.dart';
 import 'package:we/screen/contacts/contacts_page.dart';
 import 'package:we/screen/contacts/new_contact.dart';
-import 'package:we/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
-import 'package:we/screen/room/pages/roomPage.dart';
-import 'package:we/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:we/screen/muc/pages/member_selection_page.dart';
+import 'package:we/screen/muc/pages/muc_info_determination_page.dart';
+import 'package:we/screen/navigation_center/navigation_center_page.dart';
 import 'package:we/screen/profile/pages/media_details_page.dart';
 import 'package:we/screen/profile/pages/profile_page.dart';
-import 'package:we/screen/intro/pages/intro_page.dart';
-import 'package:we/screen/navigation_center/navigation_center_page.dart';
+import 'package:we/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import 'package:we/screen/room/pages/roomPage.dart';
+import 'package:we/screen/room/widgets/image_swiper.dart';
+import 'package:we/screen/room/widgets/showImage_Widget.dart';
 import 'package:we/screen/settings/account_settings.dart';
 import 'package:we/screen/settings/pages/devices_page.dart';
 import 'package:we/screen/settings/pages/language_settings.dart';
@@ -27,17 +32,10 @@ import 'package:we/screen/share_input_file/share_input_file.dart';
 import 'package:we/services/core_services.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/shared/constants.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/platform.dart';
 import 'package:we/shared/widgets/background.dart';
 import 'package:we/shared/widgets/scan_qr_code.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-
-import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:get_it/get_it.dart';
-import 'package:rxdart/subjects.dart';
 
 class Page {
   final Widget largePageNavigator;
@@ -114,6 +112,13 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  bool isAnyRoomOpen() {
+    if (_stack.length == 1) {
+      return false;
+    }
+    return true;
   }
 
   void openLanguageSettings() {

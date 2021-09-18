@@ -1,37 +1,39 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:we/box/room.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/room/widgets/show_caption_dialog.dart';
-import 'package:we/services/ux_service.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:file_selector/file_selector.dart';
-import 'package:flutter/services.dart';
 
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:get_it/get_it.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:vibration/vibration.dart';
+import 'package:we/box/room.dart';
 import 'package:we/localization/i18n.dart';
+import 'package:we/repository/botRepo.dart';
+import 'package:we/repository/messageRepo.dart';
+import 'package:we/repository/mucRepo.dart';
+import 'package:we/repository/roomRepo.dart';
 import 'package:we/screen/room/widgets/bot_commands.dart';
 import 'package:we/screen/room/widgets/emojiKeybord.dart';
 import 'package:we/screen/room/widgets/recordAudioAnimation.dart';
 import 'package:we/screen/room/widgets/recordAudioslideWidget.dart';
 import 'package:we/screen/room/widgets/share_box.dart';
 import 'package:we/screen/room/widgets/showMentionList.dart';
+import 'package:we/screen/room/widgets/show_caption_dialog.dart';
 import 'package:we/services/check_permissions_service.dart';
+import 'package:we/services/raw_keyboard_service.dart';
 import 'package:we/services/routing_service.dart';
-
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
-import 'package:we/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:get_it/get_it.dart';
+import 'package:we/services/ux_service.dart';
 import 'package:we/shared/extensions/uid_extension.dart';
 import 'package:we/shared/methods/isPersian.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:vibration/vibration.dart';
-import 'package:we/repository/messageRepo.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/theme/extra_theme.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -41,6 +43,7 @@ class InputMessage extends StatefulWidget {
   final Function sendForwardMessage;
   final Function showMentionList;
   final Function scrollToLastSentMessage;
+  static FocusNode myFocusNode;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -59,6 +62,7 @@ class _InputMessageWidget extends State<InputMessage> {
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _uxService = GetIt.I.get<UxService>();
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
@@ -85,11 +89,15 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
-  FocusNode myFocusNode;
   FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
+  String _mentionData;
+  int mentionSelectedIndex = -1;
+  int botCommandSelectedIndex = -1;
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -112,7 +120,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    myFocusNode = FocusNode();
+    InputMessage.myFocusNode = FocusNode();
     keyboardRawFocusNode = FocusNode();
 
     isTypingActivitySubject
@@ -199,16 +207,14 @@ class _InputMessageWidget extends State<InputMessage> {
         StreamBuilder<String>(
             stream: _mentionQuery.stream.distinct(),
             builder: (c, showMention) {
+              _mentionData = showMention.data ?? "-";
               return ShowMentionList(
-                query: showMention.data ?? "-",
+                query: _mentionData,
                 onSelected: (s) {
-                  controller.text =
-                      "${controller.text.substring(0, controller.text.lastIndexOf("@", controller.selection.start))}@$s${controller.text.substring(controller.text.lastIndexOf("@", controller.selection.start) + showMention.data.length + 1)}";
-                  controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: controller.text.length));
-                  _mentionQuery.add("-");
+                  onSelected(s, _mentionData);
                 },
                 roomUid: widget.currentRoom.uid,
+                mentionSelectedIndex: mentionSelectedIndex,
               );
             }),
         StreamBuilder(
@@ -223,6 +229,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       TextPosition(offset: controller.text.length));
                   _botCommandQuery.add("-");
                 },
+                botCommandSelectedIndex: botCommandSelectedIndex,
               );
             }),
         Container(
@@ -279,7 +286,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode: myFocusNode,
+                                    focusNode: InputMessage.myFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
                                     controller: controller,
@@ -512,6 +519,14 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
+  void onSelected(s, String showMention) {
+    controller.text =
+        "${controller.text.substring(0, controller.text.lastIndexOf("@", controller.selection.start))}@$s${controller.text.substring(controller.text.lastIndexOf("@", controller.selection.start) + _mentionData.length + 1)}";
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
+    _mentionQuery.add("-");
+  }
+
   handleKeyPress(event) async {
     if (event is RawKeyUpEvent) {
       if (!_uxService.sendByEnter &&
@@ -526,6 +541,58 @@ class _InputMessageWidget extends State<InputMessage> {
         sendMessage();
       }
     }
+    _rawKeyboardService.escapeHandeling(
+        replyMessageId: widget.replyMessageId,
+        resetRoomPageDetails: widget.resetRoomPageDetails,
+        event: event);
+    setState(() {
+      _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
+          sendMentionByEnter, event, mentionSelectedIndex, scrollUpInMentions);
+    });
+    setState(() {
+      _rawKeyboardService.navigateInBotCommand(
+          event, scrollDownInBotCommand, scrollUpInBotCommand);
+    });
+  }
+
+  scrollUpInBotCommand() {
+    if (botCommandSelectedIndex < 0) {
+      _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
+            botCommandSelectedIndex = value.commands.length - 1,
+          });
+    } else {
+      botCommandSelectedIndex--;
+    }
+  }
+
+  scrollDownInBotCommand() {
+    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
+          if (botCommandSelectedIndex >= value.commands.length)
+            botCommandSelectedIndex = 0
+          else
+            botCommandSelectedIndex++,
+        });
+  }
+
+  scrollUpInMentions() {
+    if (mentionSelectedIndex <= 0) {
+      _mucRepo
+          .getFilteredMember(currentRoom.uid, query: _mentionData)
+          .then((value) => {
+                mentionSelectedIndex = value.length - 1,
+              });
+    } else {
+      mentionSelectedIndex--;
+    }
+  }
+
+  sendMentionByEnter() {
+    _mucRepo
+        .getFilteredMember(widget.currentRoom.uid, query: _mentionData)
+        .then((value) => {
+              onSelected(value[mentionSelectedIndex].id, _mentionData),
+              sendMessage()
+            });
   }
 
   void sendMessage() {
@@ -594,5 +661,16 @@ class _InputMessageWidget extends State<InputMessage> {
             icon: icons,
           );
         });
+  }
+
+  scrollDownInMentions() {
+    _mucRepo
+        .getFilteredMember(currentRoom.uid, query: _mentionData)
+        .then((value) => {
+              if (mentionSelectedIndex >= value.length)
+                {mentionSelectedIndex = 0}
+              else
+                {mentionSelectedIndex++}
+            });
   }
 }

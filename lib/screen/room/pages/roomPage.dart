@@ -3,13 +3,28 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
-import 'package:we/localization/i18n.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:ext_storage/ext_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:share/share.dart';
+import 'package:sorted_list/sorted_list.dart';
+import 'package:swipe_to/swipe_to.dart';
+import 'package:vibration/vibration.dart';
 import 'package:we/box/message.dart';
+import 'package:we/box/message_type.dart';
 import 'package:we/box/muc.dart';
 import 'package:we/box/pending_message.dart';
 import 'package:we/box/room.dart';
 import 'package:we/box/seen.dart';
-import 'package:we/box/message_type.dart';
+import 'package:we/localization/i18n.dart';
 import 'package:we/models/operation_on_message.dart';
 import 'package:we/repository/authRepo.dart';
 import 'package:we/repository/botRepo.dart';
@@ -18,6 +33,7 @@ import 'package:we/repository/messageRepo.dart';
 import 'package:we/repository/mucRepo.dart';
 import 'package:we/repository/roomRepo.dart';
 import 'package:we/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:we/screen/navigation_center/widgets/search_box.dart';
 import 'package:we/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:we/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:we/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
@@ -26,42 +42,28 @@ import 'package:we/screen/room/pages/pinMessageAppBar.dart';
 import 'package:we/screen/room/pages/searchInMessageButtom.dart';
 import 'package:we/screen/room/widgets/bot_start_widget.dart';
 import 'package:we/screen/room/widgets/chatTime.dart';
+import 'package:we/screen/room/widgets/inputMessage.dart';
 import 'package:we/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:we/screen/room/widgets/newMessageInput.dart';
 import 'package:we/screen/room/widgets/recievedMessageBox.dart';
 import 'package:we/screen/room/widgets/sendedMessageBox.dart';
 import 'package:we/screen/toast_management/toast_display.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/widgets/audio_player_appbar.dart';
 import 'package:we/services/firebase_services.dart';
 import 'package:we/services/notification_services.dart';
+import 'package:we/services/raw_keyboard_service.dart';
 import 'package:we/services/routing_service.dart';
+import 'package:we/shared/custom_context_menu.dart';
+import 'package:we/shared/extensions/json_extension.dart';
+import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:we/shared/methods/platform.dart';
+import 'package:we/shared/methods/time.dart';
+import 'package:we/shared/widgets/audio_player_appbar.dart';
 import 'package:we/shared/widgets/background.dart';
 import 'package:we/shared/widgets/bot_appbar_title.dart';
 import 'package:we/shared/widgets/circle_avatar.dart';
-import 'package:we/shared/custom_context_menu.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:we/shared/methods/time.dart';
 import 'package:we/shared/widgets/muc_appbar_title.dart';
 import 'package:we/shared/widgets/user_appbar_title.dart';
 import 'package:we/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:ext_storage/ext_storage.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:we/shared/extensions/json_extension.dart';
-import 'package:share/share.dart';
-import 'package:sorted_list/sorted_list.dart';
-import 'package:swipe_to/swipe_to.dart';
-import 'package:vibration/vibration.dart';
 
 const int PAGE_SIZE = 16;
 
@@ -124,10 +126,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  int messageIndex;
 
   @override
   Widget build(BuildContext context) {
-    _currentRoom.add(Room(uid: widget.roomId,firstMessageId: 0));
+    _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: buildAppbar(),
@@ -329,8 +333,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     // TODO Channel is different from groups and private chats !!!
 
     _positionSubject
-        .map((event) =>
-            event + 1 + (_currentRoom?.value?.firstMessageId ?? 0))
+        .map((event) => event + 1 + (_currentRoom?.value?.firstMessageId ?? 0))
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -559,6 +562,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget keyboardWidget() {
+    _rawKeyboardService.scrollDownInChat = scrollDown;
+    _rawKeyboardService.scrollUpInChat = scrollUp;
+    _rawKeyboardService.openSearchBox = openRoomSearchBox;
+    _rawKeyboardService.currentRoom = widget.roomId.asUid();
+
+    if (widget.roomId.asUid().category == Categories.CHANNEL) {
+      FocusScope.of(context).requestFocus(SearchBox.searchBoxFocusNode);
+      InputMessage.myFocusNode = null;
+    } else {
+      SearchBox.searchBoxFocusNode.unfocus();
+    }
     return widget.roomId.asUid().category != Categories.CHANNEL
         ? buildNewMessageInput()
         : MuteAndUnMuteRoomWidget(
@@ -776,10 +790,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget buildMessagesListView(List pendingMessages) {
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
-      initialScrollIndex:_itemCount>0?
-          (_lastShowedMessageId != null && _lastShowedMessageId != -1)
+      initialScrollIndex: _itemCount > 0
+          ? (_lastShowedMessageId != null && _lastShowedMessageId != -1)
               ? _lastShowedMessageId
-              : _itemCount:0,
+              : _itemCount
+          : 0,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
@@ -791,6 +806,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         if (_currentRoom.value.firstMessageId != null)
           index = index + _currentRoom.value.firstMessageId;
+        if (_itemPositionsListener.itemPositions.value.length > 0)
+          messageIndex = _itemPositionsListener.itemPositions.value.last.index;
         bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
             ? true
             : _itemCount > _currentRoom.value.lastMessageId &&
@@ -1176,5 +1193,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _mucRepo.updateMuc(
               Muc().copyWith(uid: widget.roomId, showPinMessage: false));
         });
+  }
+
+  openRoomSearchBox() {
+    _searchMode.add(true);
+  }
+
+  scrollUp() {
+    messageIndex = messageIndex - 3;
+    if (messageIndex < 0) messageIndex = 0;
+    _itemScrollController.scrollTo(
+        index: messageIndex, duration: Duration(seconds: 1));
+  }
+
+  scrollDown() {
+    messageIndex = messageIndex + 3;
+    _itemScrollController.scrollTo(
+        index: messageIndex, duration: Duration(seconds: 1));
   }
 }
