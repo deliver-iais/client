@@ -1200,7 +1200,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   scrollUp() {
-    messageIndex = messageIndex - 3;
+    if(messageIndex==_itemCount-1){
+    messageIndex = messageIndex - 10;}
+    else
+      messageIndex = messageIndex - 3;
     if (messageIndex < 0) messageIndex = 0;
     _itemScrollController.scrollTo(
         index: messageIndex, duration: Duration(seconds: 1));

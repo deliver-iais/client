@@ -16,7 +16,11 @@ class RawKeyboardService {
   Function _scrollDownInChat;
   Function _scrollUpInChat;
   String _mentionData = "-";
-  bool isScrollInBotCommand;
+  bool _isScrollInBotCommand;
+
+  set isScrollInBotCommand(bool value) {
+    _isScrollInBotCommand = value;
+  }
 
   set scrollUpInChat(Function value) {
     _scrollUpInChat = value;
@@ -41,8 +45,7 @@ class RawKeyboardService {
   }
 
   Future<void> controllCHandle(TextEditingController controller) async {
-    _inputBoxText = controller.text;
-    await Clipboard.setData(ClipboardData(text: controller.text));
+    _inputBoxText = controller.selection.textInside(controller.text);
   }
 
   void controllVHandle(TextEditingController controller) {
@@ -50,9 +53,12 @@ class RawKeyboardService {
   }
 
   Future<void> controllXHandle(TextEditingController controller) async {
-    await Clipboard.setData(ClipboardData(text: controller.text));
-    _inputBoxText = controller.text;
-    controller.clear();
+    _inputBoxText = controller.selection.textInside(controller.text);
+     controller.text = controller.text.substring(0, controller.selection.start) +
+        controller.text.substring(
+            controller.selection.start +
+                controller.selection.textInside(controller.text).length,
+            controller.text.length);
   }
 
   void controllAHandle(TextEditingController controller) {
@@ -216,7 +222,7 @@ class RawKeyboardService {
   }
 
   scrollInChatPage({event}) {
-    if (_mentionData == "-" && !isScrollInBotCommand) {
+    if (_mentionData == "-" && !_isScrollInBotCommand) {
       if (event.logicalKey == LogicalKeyboardKey.arrowUp) scrollUpInChatPage();
       if (event.logicalKey == LogicalKeyboardKey.arrowDown)
         scrollDownInChatPage();

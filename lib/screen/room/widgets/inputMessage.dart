@@ -541,6 +541,7 @@ class _InputMessageWidget extends State<InputMessage> {
         sendMessage();
       }
     }
+    _rawKeyboardService.handleCopyPastKeyPress(controller, event);
     _rawKeyboardService.escapeHandeling(
         replyMessageId: widget.replyMessageId,
         resetRoomPageDetails: widget.resetRoomPageDetails,
