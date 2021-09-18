@@ -296,7 +296,7 @@ class MyApp extends StatelessWidget {
               },
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
-                title: 'We',
+                title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
                 supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
