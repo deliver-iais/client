@@ -947,7 +947,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           Vibration.vibrate(duration: 150);
           return false;
         },
-        child: messageWidget);
+        child: Container(
+            width: double.infinity,
+            color: Colors.transparent,
+            child: messageWidget));
 
     return GestureDetector(
         onTap: () {
