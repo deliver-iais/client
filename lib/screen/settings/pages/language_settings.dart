@@ -1,8 +1,8 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/widgets/fluid_container.dart';
-import 'package:we/shared/language.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/language.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

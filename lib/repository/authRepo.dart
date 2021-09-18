@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:we/box/avatar.dart';
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/box/message.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/avatar.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as Pb;
@@ -13,7 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

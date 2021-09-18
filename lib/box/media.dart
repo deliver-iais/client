@@ -1,6 +1,6 @@
 
-import 'package:we/box/media_type.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/media_type.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 

@@ -7,17 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:we/box/media.dart';
-import 'package:we/box/media_type.dart';
-import 'package:we/box/message.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/mediaQueryRepo.dart';
-import 'package:we/repository/messageRepo.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:we/shared/extensions/json_extension.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/theme/extra_theme.dart';
 
 class ImageSwiper extends StatefulWidget {
   final Message message;

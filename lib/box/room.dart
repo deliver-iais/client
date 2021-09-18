@@ -1,5 +1,5 @@
-import 'package:we/box/message.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'room.g.dart';

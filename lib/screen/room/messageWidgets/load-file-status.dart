@@ -1,9 +1,9 @@
-import 'package:we/box/pending_message.dart';
-import 'package:we/box/sending_status.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/screen/room/messageWidgets/sending_file_circular_indicator.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/sending_file_circular_indicator.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';

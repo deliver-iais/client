@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
-import 'package:we/repository/accountRepo.dart';
-import 'package:we/screen/intro/pages/intro_page.dart';
-import 'package:we/services/core_services.dart';
-import 'package:we/services/notification_services.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/methods/url.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/screen/intro/pages/intro_page.dart';
+import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';

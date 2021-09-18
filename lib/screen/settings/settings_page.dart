@@ -1,28 +1,28 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/models/account.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/account.dart';
 
-import 'package:we/repository/accountRepo.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/avatarRepo.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 
-import 'package:we/services/routing_service.dart';
+import 'package:deliver/services/routing_service.dart';
 
-import 'package:we/services/ux_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/widgets/circle_avatar.dart';
-import 'package:we/shared/floating_modal_bottom_sheet.dart';
-import 'package:we/shared/widgets/fluid_container.dart';
-import 'package:we/shared/language.dart';
-import 'package:we/shared/methods/phone.dart';
-import 'package:we/shared/methods/url.dart';
-import 'package:we/theme/dark.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/language.dart';
+import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/theme/dark.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';

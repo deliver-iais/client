@@ -1,13 +1,13 @@
 import 'dart:math';
 
-import 'package:we/box/avatar.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/avatarRepo.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:we/shared/methods/colors.dart';
+import 'package:deliver/box/avatar.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';

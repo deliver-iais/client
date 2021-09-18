@@ -1,4 +1,4 @@
-import 'package:we/shared/constants.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:hive/hive.dart';
 

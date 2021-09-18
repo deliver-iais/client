@@ -1,29 +1,29 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/box/message.dart';
 
-import 'package:we/box/message_type.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/room/messageWidgets/animation_widget.dart';
-import 'package:we/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
-import 'package:we/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
-import 'package:we/screen/room/messageWidgets/botMessageWidget/formResult.dart';
-import 'package:we/screen/room/messageWidgets/live_location_message.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/formResult.dart';
+import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 
-import 'package:we/screen/room/messageWidgets/locatioin_message.dart';
-import 'package:we/screen/room/messageWidgets/message_ui.dart';
-import 'package:we/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
-import 'package:we/screen/room/messageWidgets/stickerMessgeWidget.dart';
-import 'package:we/screen/room/messageWidgets/text_ui.dart';
-import 'package:we/screen/room/widgets/sharePrivateDataAcceptMessageWidget.dart';
-import 'package:we/screen/room/widgets/sharePrivateDataRequestMessageWidget.dart';
-import 'package:we/screen/room/widgets/share_uid_message_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/locatioin_message.dart';
+import 'package:deliver/screen/room/messageWidgets/message_ui.dart';
+import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
+import 'package:deliver/screen/room/messageWidgets/stickerMessgeWidget.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/screen/room/widgets/sharePrivateDataAcceptMessageWidget.dart';
+import 'package:deliver/screen/room/widgets/sharePrivateDataRequestMessageWidget.dart';
+import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
-import 'package:we/services/routing_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;

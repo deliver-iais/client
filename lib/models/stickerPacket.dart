@@ -1,4 +1,4 @@
-// import 'package:we/db/database.dart';
+// import 'package:deliver/db/database.dart';
 
 class StickerPacket{
   // List<Sticker> stickers;

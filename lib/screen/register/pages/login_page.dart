@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/contactRepo.dart';
-import 'package:we/routes/router.gr.dart';
-import 'package:we/screen/register/widgets/intl_phone_field.dart';
-import 'package:we/screen/toast_management/toast_display.dart';
-import 'package:we/services/firebase_services.dart';
-import 'package:we/shared/methods/phone.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/widgets/fluid.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:flutter/foundation.dart';

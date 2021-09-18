@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
