@@ -38,7 +38,8 @@ class DragDropWidget extends StatelessWidget {
   void showDialog(DropDoneDetails d, BuildContext context) {
     List<String> p = [];
     d.urls.forEach((element) {
-      p.add(isWindows()? element.path.substring(1) :isMacOS()?element.path.replaceAll("%20"," "): element.path);
+      String  path = element.path.replaceAll("%20","");
+      p.add(isWindows()? path.substring(1) :path);
     });
     showCaptionDialog(
         type: mime(d.urls.first.path)??d.urls.first.path.split(".").last,
