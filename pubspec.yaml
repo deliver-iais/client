@@ -48,7 +48,7 @@ dependencies:
   lottie: 1.1.0
   date_time_format: 1.0.0+4
   emojis:
-  permissions_plugin: 1.1.4 # ANDROID ONLY SUPPORTED
+  permission_handler: 8.1.6 # ANDROID ONLY SUPPORTED
   synchronized: 3.0.0
   ext_storage: 1.0.3
   path_provider: 2.0.2
@@ -101,7 +101,7 @@ dependencies:
 #  google_maps_place_picker: 2.0.0-nullsafety.3
   audioplayers: 0.20.1
   dart_vlc: 0.0.9
-  video_player: 1.0.1
+  video_player: 2.2.4
   open_file: 3.2.1 # Open file in OS
   contacts_service: 0.6.1
   random_string: 2.3.1
@@ -114,7 +114,7 @@ dependencies:
   package_info: 2.0.2
   package_info_plus: 1.0.3
   package_info_plus_windows: 1.0.3
-  sms_autofill: 1.2.6
+  sms_autofill: 2.1.2
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
   share: 2.0.4
