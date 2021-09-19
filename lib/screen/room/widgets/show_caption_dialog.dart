@@ -34,8 +34,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   void initState() {
     type = widget.type;
     widget.paths.forEach((element) {
-      if(isWindows() && element.contains("\\"))
-        element = element.replaceAll("\\", "/");
+      element = element.replaceAll("\\", "/");
       fileNames.add(element.split("/").last);
     });
   }
