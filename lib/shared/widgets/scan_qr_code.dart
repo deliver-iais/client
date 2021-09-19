@@ -1,25 +1,25 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/accountRepo.dart';
-import 'package:we/repository/contactRepo.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/screen/toast_management/toast_display.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/floating_modal_bottom_sheet.dart';
-import 'package:we/shared/methods/name.dart';
-import 'package:we/shared/methods/phone.dart';
-import 'package:we/shared/methods/url.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/methods/name.dart';
+import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/url.dart';
 
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

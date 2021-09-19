@@ -1,4 +1,4 @@
-import 'package:we/shared/methods/time.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/material.dart';
 
 class ChatTime extends StatelessWidget {

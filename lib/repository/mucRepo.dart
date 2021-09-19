@@ -1,15 +1,15 @@
-import 'package:we/box/dao/muc_dao.dart';
-import 'package:we/box/dao/room_dao.dart';
-import 'package:we/box/dao/uid_id_name_dao.dart';
-import 'package:we/box/member.dart';
-import 'package:we/box/muc.dart';
-import 'package:we/box/role.dart';
-import 'package:we/box/room.dart';
-import 'package:we/box/uid_id_name.dart';
-import 'package:we/repository/accountRepo.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/contactRepo.dart';
-import 'package:we/services/muc_services.dart';
+import 'package:deliver/box/dao/muc_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/box/member.dart';
+import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/role.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/box/uid_id_name.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -19,7 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 class MucRepo {

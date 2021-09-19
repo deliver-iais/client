@@ -1,14 +1,14 @@
-import 'package:we/box/last_activity.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/lastActivityRepo.dart';
-import 'package:we/shared/widgets/circle_avatar.dart';
-import 'package:we/shared/methods/time.dart';
+import 'package:deliver/box/last_activity.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/lastActivityRepo.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class ContactPic extends StatelessWidget {
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();

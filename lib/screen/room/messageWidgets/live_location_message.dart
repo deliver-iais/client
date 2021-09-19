@@ -1,17 +1,17 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/livelocation.dart' as box;
-import 'package:we/box/message.dart';
-import 'package:we/repository/liveLocationRepo.dart';
-import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:we/shared/widgets/circle_avatar.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/box/livelocation.dart' as box;
+import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/liveLocationRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class LiveLocationMessageWidget extends StatefulWidget {

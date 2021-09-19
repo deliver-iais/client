@@ -1,9 +1,9 @@
-import 'package:we/box/message.dart';
-import 'package:we/box/message_type.dart';
-import 'package:we/screen/room/messageWidgets/animation_widget.dart';
-import 'package:we/screen/room/widgets/boxContent.dart';
-import 'package:we/screen/room/widgets/message_wrapper.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
+import 'package:deliver/screen/room/widgets/boxContent.dart';
+import 'package:deliver/screen/room/widgets/message_wrapper.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {

@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/servicesDiscoveryRepo.dart';
-import 'package:we/shared/methods/platform.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
 
-import 'package:we/services/check_permissions_service.dart';
-import 'package:we/shared/methods/enum.dart';
+import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mime_type/mime_type.dart';
@@ -78,7 +78,7 @@ class FileService {
   // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
-      BehaviorSubject<double> d = BehaviorSubject();
+      BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
@@ -124,7 +124,7 @@ class FileService {
   }
 
   void initUpoadProgrss(String uploadId) {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    BehaviorSubject<double> behaviorSubject = BehaviorSubject.seeded(0);
     filesUploadStatus[uploadId] = behaviorSubject;
   }
 

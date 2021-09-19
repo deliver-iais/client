@@ -1,7 +1,7 @@
-import 'package:we/box/message.dart';
-import 'package:we/screen/room/widgets/msgTime.dart';
-import 'package:we/shared/methods/time.dart';
-import 'package:we/shared/widgets/seen_status.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/widgets/msgTime.dart';
+import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
 
 class TimeAndSeenStatus extends StatelessWidget {

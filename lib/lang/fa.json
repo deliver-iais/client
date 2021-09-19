@@ -251,6 +251,9 @@
   "draft": "پیش نویس",
   "text": "متن",
   "submitted_on": "ثبت شده در",
-  "sure_delete_room" : "آیا  مطمنید از حذف گفتگو با",
-  "delete_chat" : "حذف گفتگو"
+  "sure_delete_room": "آیا  مطمنید از حذف گفتگو با",
+  "delete_chat": "حذف گفتگو",
+  "selected_file": "فایل انتخاب شده",
+  "caption": "متن",
+  "add_caption" : "افزودن متن"
 }

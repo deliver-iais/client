@@ -1,5 +1,10 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -7,6 +12,31 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/bot_commands.dart';
+import 'package:deliver/screen/room/widgets/emojiKeybord.dart';
+import 'package:deliver/screen/room/widgets/recordAudioAnimation.dart';
+import 'package:deliver/screen/room/widgets/recordAudioslideWidget.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/screen/room/widgets/showMentionList.dart';
+import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/services/routing_service.dart';
+
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:get_it/get_it.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:vibration/vibration.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
@@ -647,19 +677,14 @@ class _InputMessageWidget extends State<InputMessage> {
 
   showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
     if (result.length <= 0) return;
-    String name = await _roomRepo.getName(currentRoom.uid.asUid());
     captionTextController.text = "";
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            result: result.map((e) => e.path).toList(),
+            paths: result.map((e) => e.path).toList(),
             type: "file",
-            name: name,
-            caption: captionTextController,
-            messageRepo: messageRepo,
             currentRoom: currentRoom.uid.asUid(),
-            icon: icons,
           );
         });
   }

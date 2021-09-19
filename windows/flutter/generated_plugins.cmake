@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   dart_vlc
   desktoasts
+  desktop_drop
   file_selector_windows
   url_launcher_windows
   window_size

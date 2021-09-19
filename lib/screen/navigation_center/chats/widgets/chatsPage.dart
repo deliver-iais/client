@@ -1,7 +1,7 @@
-import 'package:we/box/room.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/navigation_center/chats/widgets/chatItem.dart';
-import 'package:we/services/routing_service.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/chatItem.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

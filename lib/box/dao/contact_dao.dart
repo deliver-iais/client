@@ -1,4 +1,4 @@
-import 'package:we/box/contact.dart';
+import 'package:deliver/box/contact.dart';
 import 'package:hive/hive.dart';
 
 abstract class ContactDao {

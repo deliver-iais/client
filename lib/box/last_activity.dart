@@ -1,4 +1,4 @@
-import 'package:we/shared/constants.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'last_activity.g.dart';

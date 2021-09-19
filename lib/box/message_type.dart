@@ -1,4 +1,4 @@
-import 'package:we/shared/constants.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'message_type.g.dart';

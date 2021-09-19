@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:we/box/dao/file_dao.dart';
-import 'package:we/box/file_info.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/shared/methods/enum.dart';
+import 'package:deliver/box/dao/file_dao.dart';
+import 'package:deliver/box/file_info.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
@@ -36,8 +36,8 @@ class FileRepo {
       ..width = json["width"] ?? 0
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0
-      ..blurHash = json["blurHash"]
-      ..hash = json["hash"];
+      ..blurHash = json["blurHash"] ?? ""
+      ..hash = json["hash"] ?? "";
 
     _logger.v(uploadedFile);
 

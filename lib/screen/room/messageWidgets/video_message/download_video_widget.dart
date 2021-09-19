@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

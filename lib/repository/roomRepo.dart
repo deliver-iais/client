@@ -1,22 +1,22 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
-import 'package:we/box/dao/block_dao.dart';
-import 'package:we/box/dao/mute_dao.dart';
-import 'package:we/box/dao/room_dao.dart';
-import 'package:we/box/dao/seen_dao.dart';
-import 'package:we/box/dao/uid_id_name_dao.dart';
-import 'package:we/box/muc.dart';
-import 'package:we/box/room.dart';
-import 'package:we/box/seen.dart';
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/accountRepo.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/botRepo.dart';
-import 'package:we/repository/contactRepo.dart';
-import 'package:we/repository/mucRepo.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/name.dart';
+import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/mute_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/seen_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -24,7 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 

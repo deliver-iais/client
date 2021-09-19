@@ -1,9 +1,9 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/message.dart';
-import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 
 class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
@@ -22,7 +22,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(4.0),
           child: Row(
             children: [
               Icon(
@@ -39,7 +39,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                             : spda.data == PrivateDataType.EMAIL
                                 ? i18n.get("email_granted")
                                 : i18n.get("private_data_granted"),
-                style: Theme.of(context).primaryTextTheme.bodyText2.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).primaryTextTheme.bodyText2.copyWith(fontWeight: FontWeight.w400),
               ),
             ],
           ),
