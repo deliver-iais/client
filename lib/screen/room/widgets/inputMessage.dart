@@ -67,7 +67,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
-  TextEditingController controller;
+  TextEditingController _controller;
   Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -87,6 +87,7 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   String path;
   Timer _tickTimer;
+  TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
 
   bool startAudioRecorder = false;
@@ -134,61 +135,63 @@ class _InputMessageWidget extends State<InputMessage> {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     currentRoom = widget.currentRoom;
-    controller = TextEditingController(
+    _controller = TextEditingController(
         text: currentRoom.draft != null ? currentRoom.draft : "");
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
-    controller.addListener(() {
-      if (controller.text.isNotEmpty && controller.text.length > 0)
+    _controller.addListener(() {
+      if (_controller.text.isNotEmpty && _controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
 
-      _roomRepo.updateRoomDraft(currentRoom.uid, controller.text ?? "");
+      _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text ?? "");
 
       var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
       var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
       if (currentRoom.uid.asUid().category == Categories.BOT &&
-          controller.text != null &&
-          controller.text.isNotEmpty &&
-          controller.text[0] == "/" &&
-          controller.selection.start == controller.selection.end &&
-          controller.selection.start >= 1 &&
+          _controller.text != null &&
+          _controller.text.isNotEmpty &&
+          _controller.text[0] == "/" &&
+          _controller.selection.start == _controller.selection.end &&
+          _controller.selection.start >= 1 &&
           botCommandRegexp.hasMatch(
-              controller.text.substring(0 + 1, controller.selection.start) ??
+              _controller.text.substring(0 + 1, _controller.selection.start) ??
                   "")) {
-        _botCommandQuery
-            .add(controller.text.substring(0 + 1, controller.selection.start));
+        _botCommandQuery.add(
+            _controller.text.substring(0 + 1, _controller.selection.start));
       } else {
         _botCommandQuery.add("-");
       }
 
       if (currentRoom.uid.asUid().category == Categories.GROUP &&
-          controller.selection.start > 0) {
+          _controller.selection.start > 0) {
         mentionQuery = "-";
-        final str = controller.text;
-        int start = str.lastIndexOf("@", controller.selection.start);
+        final str = _controller.text;
+        int start = str.lastIndexOf("@", _controller.selection.start);
 
         if (start == -1) {
           _mentionQuery.add("-");
         }
 
         try {
-          if (controller.text.isNotEmpty &&
-              controller.text[start] == "@" &&
-              controller.selection.start == controller.selection.end &&
-              idRegexp.hasMatch(controller.text
-                      .substring(start + 1, controller.selection.start) ??
+          if (_controller.text.isNotEmpty &&
+              _controller.text[start] == "@" &&
+              _controller.selection.start == _controller.selection.end &&
+              idRegexp.hasMatch(_controller.text
+                      .substring(start + 1, _controller.selection.start) ??
                   "")) {
-            _mentionQuery.add(controller.text
-                .substring(start + 1, controller.selection.start));
+            _mentionQuery.add(_controller.text
+                .substring(start + 1, _controller.selection.start));
           } else {
             _mentionQuery.add("-");
           }
         } catch (e) {
           _mentionQuery.add("-");
         }
+      } else if (_controller.text.isEmpty) {
+        _mentionQuery.add("-");
       }
     });
     super.initState();
@@ -196,7 +199,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -210,14 +213,16 @@ class _InputMessageWidget extends State<InputMessage> {
             stream: _mentionQuery.stream.distinct(),
             builder: (c, showMention) {
               _mentionData = showMention.data ?? "-";
-              return ShowMentionList(
-                query: _mentionData,
-                onSelected: (s) {
-                  onSelected(s, _mentionData);
-                },
-                roomUid: widget.currentRoom.uid,
-                mentionSelectedIndex: mentionSelectedIndex,
-              );
+              if (showMention.hasData)
+                return ShowMentionList(
+                  query: _mentionData,
+                  onSelected: (s) {
+                    onSelected(s);
+                  },
+                  roomUid: widget.currentRoom.uid,
+                  mentionSelectedIndex: mentionSelectedIndex,
+                );
+              return SizedBox.shrink();
             }),
         StreamBuilder(
             stream: _botCommandQuery.stream.distinct(),
@@ -226,9 +231,9 @@ class _InputMessageWidget extends State<InputMessage> {
                 botUid: widget.currentRoom.uid.asUid(),
                 query: show.data ?? "-",
                 onCommandClick: (String command) {
-                  controller.text = "/" + command;
-                  controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: controller.text.length));
+                  _controller.text = "/" + command;
+                  _controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _controller.text.length));
                   _botCommandQuery.add("-");
                 },
                 botCommandSelectedIndex: botCommandSelectedIndex,
@@ -291,7 +296,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     focusNode: InputMessage.myFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
-                                    controller: controller,
+                                    controller: _controller,
                                     decoration: InputDecoration(
                                       contentPadding:
                                           const EdgeInsets.symmetric(
@@ -303,18 +308,20 @@ class _InputMessageWidget extends State<InputMessage> {
                                     textInputAction: TextInputAction.newline,
                                     minLines: 1,
                                     maxLines: 15,
-                                    textAlign: controller.text.isNotEmpty &&
-                                            controller.text.isPersian()
+                                    textAlign: _controller.text.isNotEmpty &&
+                                            _controller.text.isPersian()
                                         ? TextAlign.right
                                         : TextAlign.left,
-                                    textDirection: controller.text.isNotEmpty &&
-                                            controller.text.isPersian()
-                                        ? TextDirection.rtl
-                                        : TextDirection.ltr,
+                                    textDirection:
+                                        _controller.text.isNotEmpty &&
+                                                _controller.text.isPersian()
+                                            ? TextDirection.rtl
+                                            : TextDirection.ltr,
                                     style:
                                         Theme.of(context).textTheme.subtitle1,
                                     onTap: () => backSubject.add(false),
                                     onChanged: (str) {
+                                      _textSelection = _controller.selection;
                                       if (str != null && str.length > 0)
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
@@ -373,8 +380,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           Icons.send,
                                           color: Colors.blue,
                                         ),
-                                        onPressed: controller.text != null &&
-                                                controller.text.isEmpty &&
+                                        onPressed: _controller.text != null &&
+                                                _controller.text.isEmpty &&
                                                 (widget.waitingForForward ==
                                                         null ||
                                                     widget.waitingForForward ==
@@ -504,7 +511,7 @@ class _InputMessageWidget extends State<InputMessage> {
                     height: 270.0,
                     child: EmojiKeyboard(
                       onTap: (emoji) {
-                        controller.text = controller.text + emoji.toString();
+                        _controller.text = _controller.text + emoji.toString();
                       },
                       // onStickerTap: (Sticker sticker) {
                       //   messageRepo.sendStickerMessage(
@@ -521,11 +528,13 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onSelected(s, String showMention) {
-    controller.text =
-        "${controller.text.substring(0, controller.text.lastIndexOf("@", controller.selection.start))}@$s${controller.text.substring(controller.text.lastIndexOf("@", controller.selection.start) + _mentionData.length + 1)}";
-    controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: controller.text.length));
+  void onSelected(s) {
+    int start = _textSelection.base.offset;
+    String block_1 = _controller.text.substring(0, start);
+    String block_2 = _controller.text.substring(start, _controller.text.length);
+    _controller.text = block_1 + s + " " + block_2;
+    _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length));
     _mentionQuery.add("-");
   }
 
@@ -543,7 +552,7 @@ class _InputMessageWidget extends State<InputMessage> {
         sendMessage();
       }
     }
-    _rawKeyboardService.handleCopyPastKeyPress(controller, event);
+    _rawKeyboardService.handleCopyPastKeyPress(_controller, event);
     _rawKeyboardService.escapeHandeling(
         replyMessageId: widget.replyMessageId,
         resetRoomPageDetails: widget.resetRoomPageDetails,
@@ -592,10 +601,8 @@ class _InputMessageWidget extends State<InputMessage> {
   sendMentionByEnter() {
     _mucRepo
         .getFilteredMember(widget.currentRoom.uid, query: _mentionData)
-        .then((value) => {
-              onSelected(value[mentionSelectedIndex].id, _mentionData),
-              sendMessage()
-            });
+        .then((value) =>
+            {onSelected(value[mentionSelectedIndex].id), sendMessage()});
   }
 
   void sendMessage() {
@@ -604,7 +611,7 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage();
     }
 
-    var text = controller.text.trim();
+    var text = _controller.text.trim();
 
     if (text.isNotEmpty && text != null) {
       if (text.isNotEmpty) if (widget.replyMessageId != null) {
@@ -618,7 +625,7 @@ class _InputMessageWidget extends State<InputMessage> {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
 
-      controller.clear();
+      _controller.clear();
 
       _mentionQuery.add("-");
     }

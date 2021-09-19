@@ -5,8 +5,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-
-
 const HEIGHT = 52.0;
 
 class ShowMentionList extends StatelessWidget {
