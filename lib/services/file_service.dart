@@ -78,7 +78,7 @@ class FileService {
   // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
-      BehaviorSubject<double> d = BehaviorSubject();
+      BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
@@ -124,7 +124,7 @@ class FileService {
   }
 
   void initUpoadProgrss(String uploadId) {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    BehaviorSubject<double> behaviorSubject = BehaviorSubject.seeded(0);
     filesUploadStatus[uploadId] = behaviorSubject;
   }
 

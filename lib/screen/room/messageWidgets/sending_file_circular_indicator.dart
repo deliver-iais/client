@@ -41,7 +41,7 @@ class _SendingFileCircularIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    if(widget.file != null){
+    if (widget.file != null) {
       return Stack(
         children: [
           StreamBuilder<double>(
@@ -65,7 +65,7 @@ class _SendingFileCircularIndicatorState
             icon: Icon(
               Icons.close,
               color: widget.isMedia
-                  ? Theme.of(context).accentColor//?????TODO
+                  ? Theme.of(context).accentColor //?????TODO
                   : Theme.of(context).primaryColor,
               size: 38,
             ),
@@ -73,10 +73,8 @@ class _SendingFileCircularIndicatorState
           ),
         ],
       );
-    }else{
+    } else {
       return SizedBox.shrink();
     }
-
-
   }
 }
