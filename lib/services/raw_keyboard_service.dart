@@ -169,7 +169,6 @@ class RawKeyboardService {
         mentionData != "-" &&
         mentionSelectedIndex >= 0) {
       sendMention(sendMentionByEnter);
-      return KeyEventResult.handled;
     }
     if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
@@ -222,6 +221,7 @@ class RawKeyboardService {
   }
 
   scrollInChatPage({event}) {
+    if(_isScrollInBotCommand==null) _isScrollInBotCommand=false;
     if (_mentionData == "-" && !_isScrollInBotCommand) {
       if (event.logicalKey == LogicalKeyboardKey.arrowUp) scrollUpInChatPage();
       if (event.logicalKey == LogicalKeyboardKey.arrowDown)
