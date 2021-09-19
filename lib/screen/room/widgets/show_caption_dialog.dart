@@ -55,7 +55,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           (type.contains("image") ||
                               type.contains("jpg") ||
                               type.contains("png") ||
-                              type.contains("jfif"))
+                              type.contains("jfif")||type.contains("jpeg"))
                       ? Container(
                           height: MediaQuery.of(context).size.height / 3,
                           child: Stack(

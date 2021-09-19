@@ -135,7 +135,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     padding:
                         const EdgeInsets.only(left: 30, right: 30, bottom: 30),
                     child: PinFieldAutoFill(
-                      autofocus: true,
+                      autoFocus: true,
                       focusNode: _focusNode,
                       codeLength: 5,
                       decoration: UnderlineDecoration(

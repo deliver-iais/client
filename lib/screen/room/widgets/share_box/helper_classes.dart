@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_file_manager/flutter_file_manager.dart';
-import 'package:path_provider_ex/path_provider_ex.dart';
 import 'package:storage_path/storage_path.dart';
 
 class StorageFile {
@@ -36,16 +35,18 @@ class AudioItem extends FileBasic {
   AudioItem({String path, this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
-    List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-    List<File> files = [];
-    for (var s in storageInfo) {
-      var root =
-          s.rootDir; //storageInfo[1] for SD card, geting the root directory
-      var fm = FileManager(root: Directory(root)); //
-      List<File> f = await fm.filesTree(extensions: ["mp3"]);
-      files.addAll(f);
-    }
-    return files;
+    return[];
+    //Todo read all audio file
+    // List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
+    // List<File> files = [];
+    // for (var s in storageInfo) {
+    //   var root =
+    //       s.rootDir; //storageInfo[1] for SD card, geting the root directory
+    //   var fm = FileManager(root: Directory(root)); //
+    //   List<File> f = await fm.filesTree(extensions: ["mp3"]);
+    //   files.addAll(f);
+    // }
+    // return files;
   }
 }
 

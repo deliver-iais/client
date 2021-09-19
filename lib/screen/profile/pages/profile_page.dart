@@ -423,7 +423,7 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return Text(_roomName);
+                return Text(_roomName,style: TextStyle(color: ExtraTheme.of(context).textField),);
               },
             ),
           ),
