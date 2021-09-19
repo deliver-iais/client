@@ -169,37 +169,43 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                     _itemCount = _itemCount -
                                         currentRoomStream.data.firstMessageId;
 
-                                  return Stack(
-                                    alignment: AlignmentDirectional.bottomStart,
-                                    children: [
-                                      buildMessagesListView(pendingMessages),
-                                      StreamBuilder<int>(
-                                        stream: _showProgressBar.stream,
-                                        builder: (c, s) {
-                                          if (s.hasData && s.data > 0)
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                              ),
-                                            );
-                                          else
-                                            return SizedBox.shrink();
-                                        },
-                                      ),
-                                      StreamBuilder(
-                                          stream: _positionSubject.stream,
-                                          builder: (c, position) {
-                                            if (_itemCount -
-                                                    (position.data ?? 0) >
-                                                4) {
-                                              return scrollDownButtonWidget();
-                                            } else {
-                                              return SizedBox.shrink();
-                                            }
-                                          }),
-                                    ],
-                                  );
+                                  return PageStorage(
+                                      bucket: PageStorage.of(context),
+                                      key: PageStorageKey(widget.roomId),
+                                      child: Stack(
+                                        alignment:
+                                            AlignmentDirectional.bottomStart,
+                                        children: [
+                                          buildMessagesListView(
+                                              pendingMessages),
+                                          StreamBuilder<int>(
+                                            stream: _showProgressBar.stream,
+                                            builder: (c, s) {
+                                              if (s.hasData && s.data > 0)
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  ),
+                                                );
+                                              else
+                                                return SizedBox.shrink();
+                                            },
+                                          ),
+                                          StreamBuilder(
+                                              stream: _positionSubject.stream,
+                                              builder: (c, position) {
+                                                if (_itemCount -
+                                                        (position.data ?? 0) >
+                                                    4) {
+                                                  return scrollDownButtonWidget();
+                                                } else {
+                                                  return SizedBox.shrink();
+                                                }
+                                              }),
+                                        ],
+                                      ));
                                 } else {
                                   return SizedBox(
                                     height: 50,
