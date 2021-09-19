@@ -655,7 +655,7 @@ class _InputMessageWidget extends State<InputMessage> {
         builder: (context) {
           return ShowCaptionDialog(
             paths: result.map((e) => e.path).toList(),
-            type: "file",
+            type: result.first.path.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });
