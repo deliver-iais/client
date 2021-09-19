@@ -161,7 +161,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   "")) {
         _botCommandQuery.add(
             _controller.text.substring(0 + 1, _controller.selection.start));
-      } else {
+      } else if (_controller.text.isEmpty) {
         _botCommandQuery.add("-");
       }
 
