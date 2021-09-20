@@ -65,6 +65,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                 width: 250,
                 child: ListView.separated(
                   shrinkWrap: true,
+                  key: PageStorageKey(widget.message.roomUid),
                   itemCount: form.fields.length,
                   itemBuilder: (c, i) {
                     var index = i % form.fields.length;
