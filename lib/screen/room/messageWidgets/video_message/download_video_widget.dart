@@ -64,7 +64,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                         },
                       )
                     : MaterialButton(
-                  color: Theme.of(context).buttonColor,
+                  color: Theme.of(context).primaryColor,
                   onPressed: () async {
                     widget.download();
                     startDownload = true;

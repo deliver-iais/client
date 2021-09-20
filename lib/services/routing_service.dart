@@ -16,7 +16,6 @@ import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
-import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';

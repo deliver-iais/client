@@ -26,7 +26,7 @@ class ContactWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           color: currentMember
-              ? Theme.of(context).accentColor
+              ? Theme.of(context).colorScheme.secondary
               : isSelected
                   ? Theme.of(context).focusColor
                   : null,

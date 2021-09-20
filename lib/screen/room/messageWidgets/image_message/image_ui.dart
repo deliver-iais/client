@@ -107,7 +107,7 @@ class _ImageUiState extends State<ImageUi> {
                                 );
                               } else
                                 return MaterialButton(
-                                  color: Theme.of(context).buttonColor,
+                                  color: Theme.of(context).primaryColor,
                                   onPressed: () async {
                                     _startDownload.add(true);
                                     await fileRepo.getFile(

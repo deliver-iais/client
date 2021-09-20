@@ -21,7 +21,7 @@ class MucAppbarTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
     return Container(
-        color: Theme.of(context).appBarTheme.color,
+        color: Theme.of(context).appBarTheme.backgroundColor,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(

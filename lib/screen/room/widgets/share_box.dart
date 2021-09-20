@@ -4,7 +4,6 @@ import 'package:android_intent/android_intent.dart';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/music.dart';
@@ -48,6 +47,8 @@ class ShareBox extends StatefulWidget {
 enum Page { Gallery, Files, Location, Music }
 
 class _ShareBoxState extends State<ShareBox> {
+  final messageRepo = GetIt.I.get<MessageRepo>();
+
   final selectedImages = Map<int, bool>();
 
   final selectedAudio = Map<int, bool>();
@@ -65,9 +66,6 @@ class _ShareBoxState extends State<ShareBox> {
 
   bool selected = false;
   TextEditingController captionTextController = TextEditingController();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-
-  var messageRepo = GetIt.I.get<MessageRepo>();
 
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
