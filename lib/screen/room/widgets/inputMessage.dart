@@ -1,40 +1,38 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:deliver/box/room.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
-import 'package:deliver/services/raw_keyboard_service.dart';
-import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
-
-import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:file_selector/file_selector.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emojiKeybord.dart';
 import 'package:deliver/screen/room/widgets/recordAudioAnimation.dart';
 import 'package:deliver/screen/room/widgets/recordAudioslideWidget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/showMentionList.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
-
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
-import 'package:deliver/theme/extra_theme.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:get_it/get_it.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:deliver/repository/messageRepo.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -558,7 +556,7 @@ class _InputMessageWidget extends State<InputMessage> {
         event: event);
     setState(() {
       _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
-          sendMentionByEnter, event, mentionSelectedIndex, scrollUpInMentions);
+          event, mentionSelectedIndex, scrollUpInMentions);
     });
     setState(() {
       _rawKeyboardService.navigateInBotCommand(
@@ -595,13 +593,6 @@ class _InputMessageWidget extends State<InputMessage> {
     } else {
       mentionSelectedIndex--;
     }
-  }
-
-  sendMentionByEnter() {
-    _mucRepo
-        .getFilteredMember(widget.currentRoom.uid, query: _mentionData)
-        .then((value) =>
-            {onSelected(value[mentionSelectedIndex].id), sendMessage()});
   }
 
   void sendMessage() {
