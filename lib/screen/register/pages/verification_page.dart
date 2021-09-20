@@ -80,7 +80,7 @@ class _VerificationPageState extends State<VerificationPage> {
         primary: true,
         backgroundColor: Theme.of(context).backgroundColor,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).buttonColor,
+          backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Theme.of(context).buttonTheme.colorScheme.onPrimary,
           child: Icon(Icons.arrow_forward),
           onPressed: () {
@@ -141,7 +141,7 @@ class _VerificationPageState extends State<VerificationPage> {
                       decoration: UnderlineDecoration(
                           colorBuilder: PinListenColorBuilder(
                               Theme.of(context).primaryColor,
-                              Theme.of(context).accentColor),
+                              Theme.of(context).colorScheme.secondary),
                           textStyle: Theme.of(context)
                               .primaryTextTheme
                               .headline5

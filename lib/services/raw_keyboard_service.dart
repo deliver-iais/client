@@ -73,7 +73,7 @@ class RawKeyboardService {
       if (SearchBox.searchBoxFocusNode.hasFocus)
         SearchBox.searchBoxFocusNode.unfocus();
     } else {
-      if (InputMessage.myFocusNode?.hasFocus) {
+      if (InputMessage.myFocusNode?.hasFocus == true) {
         if (replyMessageId == 0) {
           _routingService.pop();
         }

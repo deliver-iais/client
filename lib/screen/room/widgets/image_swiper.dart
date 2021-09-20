@@ -39,6 +39,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
   @override
   void initState() {
     getImageCount();
+    super.initState();
   }
 
   getImageCount() async {

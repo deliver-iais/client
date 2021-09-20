@@ -65,7 +65,7 @@ class _SendingFileCircularIndicatorState
             icon: Icon(
               Icons.close,
               color: widget.isMedia
-                  ? Theme.of(context).accentColor //?????TODO
+                  ? Theme.of(context).colorScheme.secondary //?????TODO
                   : Theme.of(context).primaryColor,
               size: 38,
             ),

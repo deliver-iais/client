@@ -241,6 +241,7 @@ class MessageRepo {
       _logger.wtf(roomUid);
       _logger.wtf(room);
       _logger.e(e);
+      return null;
     }
   }
 

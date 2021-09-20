@@ -19,7 +19,7 @@ class BotAppbarTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: Theme.of(context).appBarTheme.color,
+        color: Theme.of(context).appBarTheme.backgroundColor,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           child: Row(

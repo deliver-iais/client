@@ -37,6 +37,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       element = element.replaceAll("\\", "/");
       fileNames.add(element.split("/").last);
     });
+    super.initState();
   }
 
   @override
