@@ -49,6 +49,8 @@ class MemberSelectionPage extends StatelessWidget {
                         isChannel
                             ? i18n.get("newChannel")
                             : i18n.get("newGroup"),
+                        style:
+                            TextStyle(color: ExtraTheme.of(context).textField),
                       ),
                 StreamBuilder<int>(
                     stream: _createMucService.selectedLengthStream(),

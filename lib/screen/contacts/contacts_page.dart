@@ -85,7 +85,7 @@ class ContactsPage extends StatelessWidget {
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
-            title: Text(I18N.of(context).get("contacts")),
+            title: Text(I18N.of(context).get("contacts"),style: TextStyle(color: ExtraTheme.of(context).textField),),
             leading: _routingService.backButtonLeading(),
           ),
         ),

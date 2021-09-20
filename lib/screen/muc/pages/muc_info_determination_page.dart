@@ -76,7 +76,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
             leading: _routingService.backButtonLeading(),
             title: Text(widget.isChannel
                 ? _i18n.get("newChannel")
-                : _i18n.get("newGroup")),
+                : _i18n.get("newGroup"),style: TextStyle(color:ExtraTheme.of(context).textField),),
           ),
         ),
       ),
