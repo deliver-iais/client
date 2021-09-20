@@ -74,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   bool _isMucAdminOrOwner = false;
   bool _isMucOwner = false;
-  String _roomName ="";
+  String _roomName = "";
 
   @override
   void initState() {
@@ -423,7 +423,10 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return Text(_roomName,style: TextStyle(color: ExtraTheme.of(context).textField),);
+                return Text(
+                  _roomName,
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
+                );
               },
             ),
           ),
@@ -594,9 +597,28 @@ class _ProfilePageState extends State<ProfilePage>
         builder: (context) {
           return AlertDialog(
             content: Container(
-                child: Text(
-              generateInviteLink(token),
-            )),
+                width: MediaQuery.of(context).size.width / 3,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        CircleAvatarWidget(widget.roomUid, 25),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(_roomName)
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      generateInviteLink(token),
+                    ),
+                  ],
+                )),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -654,13 +676,17 @@ class _ProfilePageState extends State<ProfilePage>
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     CircleAvatarWidget(widget.roomUid, 25),
-                    SizedBox(width: 5,),
-                    Text( widget.roomUid.isChannel()
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(widget.roomUid.isChannel()
                         ? _locale.get("delete_channel")
                         : _locale.get("delete_group"))
                   ],
                 ),
-                SizedBox(height: 5,),
+                SizedBox(
+                  height: 5,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -990,30 +1016,37 @@ class _ProfilePageState extends State<ProfilePage>
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       CircleAvatarWidget(widget.roomUid, 25),
-                      SizedBox(width: 5,),
-                      Text(!widget.roomUid.isMuc()
-                          ? _locale.get("delete_chat")
-                          : widget.roomUid.isChannel()
-                              ? _locale.get("left_channel")
-                              : _locale.get("left_group"),style: TextStyle(fontWeight: FontWeight.bold),)
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        !widget.roomUid.isMuc()
+                            ? _locale.get("delete_chat")
+                            : widget.roomUid.isChannel()
+                                ? _locale.get("left_channel")
+                                : _locale.get("left_group"),
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )
                     ],
                   ),
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
-                            !widget.roomUid.isMuc()
-                                ?"${ _locale.get("sure_delete_room")} $_roomName ?"
-                                : widget.roomUid.isChannel()
-                                ?"${_locale.get("sure_left_channel")} $_roomName ?"
-                                :"${_locale.get("sure_left_group")} $_roomName ?",
-                            style: TextStyle(color: Colors.black, fontSize: 18),overflow: TextOverflow.fade,),
+                          !widget.roomUid.isMuc()
+                              ? "${_locale.get("sure_delete_room")} $_roomName ?"
+                              : widget.roomUid.isChannel()
+                                  ? "${_locale.get("sure_left_channel")} $_roomName ?"
+                                  : "${_locale.get("sure_left_group")} $_roomName ?",
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                          overflow: TextOverflow.fade,
+                        ),
                       ),
                     ],
                   ),
-               
-
                 ],
               ),
             ),
