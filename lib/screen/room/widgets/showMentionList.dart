@@ -11,8 +11,13 @@ class ShowMentionList extends StatelessWidget {
   final Function onSelected;
   final String roomUid;
   final String query;
+  final int mentionSelectedIndex;
 
-  ShowMentionList({this.query = "-", this.onSelected, this.roomUid});
+  ShowMentionList(
+      {this.query = "-",
+      this.onSelected,
+      this.roomUid,
+      this.mentionSelectedIndex});
 
   final _mucRepo = GetIt.I.get<MucRepo>();
 
@@ -35,8 +40,16 @@ class ShowMentionList extends StatelessWidget {
                           shrinkWrap: true,
                           scrollDirection: Axis.vertical,
                           itemBuilder: (c, i) {
-                            return MucMemberMentionWidget(
-                                members.data[i], onSelected);
+                            Color _mucMemberMentionColor = Colors.transparent;
+                            if (mentionSelectedIndex == i &&
+                                mentionSelectedIndex != -1)
+                              _mucMemberMentionColor =
+                                  Theme.of(context).focusColor;
+                            return Container(
+                              color: _mucMemberMentionColor,
+                              child: MucMemberMentionWidget(
+                                  members.data[i], onSelected),
+                            );
                           },
                           separatorBuilder: (BuildContext context, int index) =>
                               Divider(

@@ -11,6 +11,7 @@ import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as ProtocolFile;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query;
 
 import 'package:get_it/get_it.dart';
 
@@ -29,6 +30,7 @@ class AvatarRepo {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
+  final _queryServices = GetIt.I.get<query.QueryServiceClient>();
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: InMemoryStorage(40));
 
@@ -169,13 +171,11 @@ class AvatarRepo {
       ..node = uid.node
       ..fileUuid = fileInfo.uuid
       ..fileName = fileInfo.name;
-    var addAvatarReq = AddAvatarReq()..avatar = avatar;
-    if (token != null) {
-      addAvatarReq..token = token;
-    }
+    var addAvatarReq = query.AddAvatarReq()..avatar = avatar;
 
     try {
-      await _avatarServices.addAvatar(addAvatarReq);
+     await _queryServices.addAvatar(addAvatarReq);
+    //  await _avatarServices.addAvatar(addAvatarReq);
       await _avatarDao.saveAvatars(uid.asString(), [
         Avatar(
             uid: uid.asString(),

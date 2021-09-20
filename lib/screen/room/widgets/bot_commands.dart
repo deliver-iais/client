@@ -1,17 +1,24 @@
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+
 class BotCommands extends StatefulWidget {
   final Uid botUid;
   final String query;
   final Function onCommandClick;
+  final int botCommandSelectedIndex;
 
-  BotCommands({this.botUid, this.onCommandClick, this.query});
+  BotCommands(
+      {this.botUid,
+      this.onCommandClick,
+      this.query,
+      this.botCommandSelectedIndex});
 
   @override
   _BotCommandsState createState() => _BotCommandsState();
@@ -19,9 +26,11 @@ class BotCommands extends StatefulWidget {
 
 class _BotCommandsState extends State<BotCommands> {
   var _botRepo = GetIt.I.get<BotRepo>();
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   @override
   Widget build(BuildContext context) {
+    widget.query=="-" ? _rawKeyboardService.isScrollInBotCommand=false : _rawKeyboardService.isScrollInBotCommand=true;
     return FutureBuilder<BotInfo>(
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
@@ -39,35 +48,43 @@ class _BotCommandsState extends State<BotCommands> {
                 child: ListView.separated(
               itemCount: botCommands.length,
               itemBuilder: (c, index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "/" + botCommands.keys.toList()[index],
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Opacity(
-                              opacity: 0.6,
-                              child: Text(
-                                botCommands.values.toList()[index],
-                                style: Theme.of(context).textTheme.bodyText2,
+                Color _botCommandItemColor = Colors.transparent;
+                if (widget.botCommandSelectedIndex == index &&
+                    widget.botCommandSelectedIndex != -1)
+                  _botCommandItemColor = Theme.of(context).focusColor;
+                return Container(
+                  color: _botCommandItemColor,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "/" + botCommands.keys.toList()[index],
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Opacity(
+                                opacity: 0.6,
+                                child: Text(
+                                  botCommands.values.toList()[index],
+                                  style: Theme.of(context).textTheme.bodyText2,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        onTap: () {
+                          widget
+                              .onCommandClick(botCommands.keys.toList()[index]);
+                        },
                       ),
-                      onTap: () {
-                        widget.onCommandClick(botCommands.keys.toList()[index]);
-                      },
                     ),
                   ),
                 );

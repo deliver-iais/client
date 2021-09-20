@@ -1,11 +1,19 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:deliver/localization/i18n.dart';
@@ -20,10 +28,6 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -41,6 +45,7 @@ class InputMessage extends StatefulWidget {
   final Function sendForwardMessage;
   final Function showMentionList;
   final Function scrollToLastSentMessage;
+  static FocusNode myFocusNode;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -59,9 +64,10 @@ class _InputMessageWidget extends State<InputMessage> {
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _uxService = GetIt.I.get<UxService>();
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
-  TextEditingController controller;
+  TextEditingController _controller;
   Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -81,15 +87,20 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   String path;
   Timer _tickTimer;
+  TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
 
   bool startAudioRecorder = false;
 
-  FocusNode myFocusNode;
   FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
+  String _mentionData;
+  int mentionSelectedIndex = -1;
+  int botCommandSelectedIndex = -1;
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -112,7 +123,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    myFocusNode = FocusNode();
+    InputMessage.myFocusNode = FocusNode();
     keyboardRawFocusNode = FocusNode();
 
     isTypingActivitySubject
@@ -124,61 +135,63 @@ class _InputMessageWidget extends State<InputMessage> {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     currentRoom = widget.currentRoom;
-    controller = TextEditingController(
+    _controller = TextEditingController(
         text: currentRoom.draft != null ? currentRoom.draft : "");
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
-    controller.addListener(() {
-      if (controller.text.isNotEmpty && controller.text.length > 0)
+    _controller.addListener(() {
+      if (_controller.text.isNotEmpty && _controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
 
-      _roomRepo.updateRoomDraft(currentRoom.uid, controller.text ?? "");
+      _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text ?? "");
 
       var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
       var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
       if (currentRoom.uid.asUid().category == Categories.BOT &&
-          controller.text != null &&
-          controller.text.isNotEmpty &&
-          controller.text[0] == "/" &&
-          controller.selection.start == controller.selection.end &&
-          controller.selection.start >= 1 &&
+          _controller.text != null &&
+          _controller.text.isNotEmpty &&
+          _controller.text[0] == "/" &&
+          _controller.selection.start == _controller.selection.end &&
+          _controller.selection.start >= 1 &&
           botCommandRegexp.hasMatch(
-              controller.text.substring(0 + 1, controller.selection.start) ??
+              _controller.text.substring(0 + 1, _controller.selection.start) ??
                   "")) {
-        _botCommandQuery
-            .add(controller.text.substring(0 + 1, controller.selection.start));
-      } else {
+        _botCommandQuery.add(
+            _controller.text.substring(0 + 1, _controller.selection.start));
+      } else if (_controller.text.isEmpty) {
         _botCommandQuery.add("-");
       }
 
       if (currentRoom.uid.asUid().category == Categories.GROUP &&
-          controller.selection.start > 0) {
+          _controller.selection.start > 0) {
         mentionQuery = "-";
-        final str = controller.text;
-        int start = str.lastIndexOf("@", controller.selection.start);
+        final str = _controller.text;
+        int start = str.lastIndexOf("@", _controller.selection.start);
 
         if (start == -1) {
           _mentionQuery.add("-");
         }
 
         try {
-          if (controller.text.isNotEmpty &&
-              controller.text[start] == "@" &&
-              controller.selection.start == controller.selection.end &&
-              idRegexp.hasMatch(controller.text
-                      .substring(start + 1, controller.selection.start) ??
+          if (_controller.text.isNotEmpty &&
+              _controller.text[start] == "@" &&
+              _controller.selection.start == _controller.selection.end &&
+              idRegexp.hasMatch(_controller.text
+                      .substring(start + 1, _controller.selection.start) ??
                   "")) {
-            _mentionQuery.add(controller.text
-                .substring(start + 1, controller.selection.start));
+            _mentionQuery.add(_controller.text
+                .substring(start + 1, _controller.selection.start));
           } else {
             _mentionQuery.add("-");
           }
         } catch (e) {
           _mentionQuery.add("-");
         }
+      } else if (_controller.text.isEmpty) {
+        _mentionQuery.add("-");
       }
     });
     super.initState();
@@ -186,7 +199,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -199,17 +212,17 @@ class _InputMessageWidget extends State<InputMessage> {
         StreamBuilder<String>(
             stream: _mentionQuery.stream.distinct(),
             builder: (c, showMention) {
-              return ShowMentionList(
-                query: showMention.data ?? "-",
-                onSelected: (s) {
-                  controller.text =
-                      "${controller.text.substring(0, controller.text.lastIndexOf("@", controller.selection.start))}@$s${controller.text.substring(controller.text.lastIndexOf("@", controller.selection.start) + showMention.data.length + 1)}";
-                  controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: controller.text.length));
-                  _mentionQuery.add("-");
-                },
-                roomUid: widget.currentRoom.uid,
-              );
+              _mentionData = showMention.data ?? "-";
+              if (showMention.hasData)
+                return ShowMentionList(
+                  query: _mentionData,
+                  onSelected: (s) {
+                    onSelected(s);
+                  },
+                  roomUid: widget.currentRoom.uid,
+                  mentionSelectedIndex: mentionSelectedIndex,
+                );
+              return SizedBox.shrink();
             }),
         StreamBuilder(
             stream: _botCommandQuery.stream.distinct(),
@@ -218,11 +231,12 @@ class _InputMessageWidget extends State<InputMessage> {
                 botUid: widget.currentRoom.uid.asUid(),
                 query: show.data ?? "-",
                 onCommandClick: (String command) {
-                  controller.text = "/" + command;
-                  controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: controller.text.length));
+                  _controller.text = "/" + command;
+                  _controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _controller.text.length));
                   _botCommandQuery.add("-");
                 },
+                botCommandSelectedIndex: botCommandSelectedIndex,
               );
             }),
         Container(
@@ -279,10 +293,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                   focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode: myFocusNode,
+                                    focusNode: InputMessage.myFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
-                                    controller: controller,
+                                    controller: _controller,
                                     decoration: InputDecoration(
                                       contentPadding:
                                           const EdgeInsets.symmetric(
@@ -294,18 +308,20 @@ class _InputMessageWidget extends State<InputMessage> {
                                     textInputAction: TextInputAction.newline,
                                     minLines: 1,
                                     maxLines: 15,
-                                    textAlign: controller.text.isNotEmpty &&
-                                            controller.text.isPersian()
+                                    textAlign: _controller.text.isNotEmpty &&
+                                            _controller.text.isPersian()
                                         ? TextAlign.right
                                         : TextAlign.left,
-                                    textDirection: controller.text.isNotEmpty &&
-                                            controller.text.isPersian()
-                                        ? TextDirection.rtl
-                                        : TextDirection.ltr,
+                                    textDirection:
+                                        _controller.text.isNotEmpty &&
+                                                _controller.text.isPersian()
+                                            ? TextDirection.rtl
+                                            : TextDirection.ltr,
                                     style:
                                         Theme.of(context).textTheme.subtitle1,
                                     onTap: () => backSubject.add(false),
                                     onChanged: (str) {
+                                      _textSelection = _controller.selection;
                                       if (str != null && str.length > 0)
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
@@ -364,8 +380,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           Icons.send,
                                           color: Colors.blue,
                                         ),
-                                        onPressed: controller.text != null &&
-                                                controller.text.isEmpty &&
+                                        onPressed: _controller.text != null &&
+                                                _controller.text.isEmpty &&
                                                 (widget.waitingForForward ==
                                                         null ||
                                                     widget.waitingForForward ==
@@ -495,7 +511,7 @@ class _InputMessageWidget extends State<InputMessage> {
                     height: 270.0,
                     child: EmojiKeyboard(
                       onTap: (emoji) {
-                        controller.text = controller.text + emoji.toString();
+                        _controller.text = _controller.text + emoji.toString();
                       },
                       // onStickerTap: (Sticker sticker) {
                       //   messageRepo.sendStickerMessage(
@@ -512,6 +528,16 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
+  void onSelected(s) {
+    int start = _textSelection.base.offset;
+    String block_1 = _controller.text.substring(0, start);
+    String block_2 = _controller.text.substring(start, _controller.text.length);
+    _controller.text = block_1 + s + " " + block_2;
+    _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length));
+    _mentionQuery.add("-");
+  }
+
   handleKeyPress(event) async {
     if (event is RawKeyUpEvent) {
       if (!_uxService.sendByEnter &&
@@ -526,6 +552,57 @@ class _InputMessageWidget extends State<InputMessage> {
         sendMessage();
       }
     }
+    _rawKeyboardService.handleCopyPastKeyPress(_controller, event);
+    _rawKeyboardService.escapeHandeling(
+        replyMessageId: widget.replyMessageId,
+        resetRoomPageDetails: widget.resetRoomPageDetails,
+        event: event);
+    setState(() {
+      _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
+          sendMentionByEnter, event, mentionSelectedIndex, scrollUpInMentions);
+    });
+    setState(() {
+      _rawKeyboardService.navigateInBotCommand(
+          event, scrollDownInBotCommand, scrollUpInBotCommand);
+    });
+  }
+
+  scrollUpInBotCommand() {
+    if (botCommandSelectedIndex < 0) {
+      _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
+            botCommandSelectedIndex = value.commands.length - 1,
+          });
+    } else {
+      botCommandSelectedIndex--;
+    }
+  }
+
+  scrollDownInBotCommand() {
+    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
+          if (botCommandSelectedIndex >= value.commands.length)
+            botCommandSelectedIndex = 0
+          else
+            botCommandSelectedIndex++,
+        });
+  }
+
+  scrollUpInMentions() {
+    if (mentionSelectedIndex <= 0) {
+      _mucRepo
+          .getFilteredMember(currentRoom.uid, query: _mentionData)
+          .then((value) => {
+                mentionSelectedIndex = value.length - 1,
+              });
+    } else {
+      mentionSelectedIndex--;
+    }
+  }
+
+  sendMentionByEnter() {
+    _mucRepo
+        .getFilteredMember(widget.currentRoom.uid, query: _mentionData)
+        .then((value) =>
+            {onSelected(value[mentionSelectedIndex].id), sendMessage()});
   }
 
   void sendMessage() {
@@ -534,7 +611,7 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage();
     }
 
-    var text = controller.text.trim();
+    var text = _controller.text.trim();
 
     if (text.isNotEmpty && text != null) {
       if (text.isNotEmpty) if (widget.replyMessageId != null) {
@@ -548,7 +625,7 @@ class _InputMessageWidget extends State<InputMessage> {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
 
-      controller.clear();
+      _controller.clear();
 
       _mentionQuery.add("-");
     }
@@ -589,5 +666,16 @@ class _InputMessageWidget extends State<InputMessage> {
             currentRoom: currentRoom.uid.asUid(),
           );
         });
+  }
+
+  scrollDownInMentions() {
+    _mucRepo
+        .getFilteredMember(currentRoom.uid, query: _mentionData)
+        .then((value) => {
+              if (mentionSelectedIndex >= value.length)
+                {mentionSelectedIndex = 0}
+              else
+                {mentionSelectedIndex++}
+            });
   }
 }

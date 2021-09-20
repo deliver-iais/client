@@ -53,6 +53,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/services/video_player_service.dart';
@@ -79,7 +80,9 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:window_size/window_size.dart';
+
 import 'box/dao/contact_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
@@ -87,7 +90,6 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
-import 'package:dart_vlc/dart_vlc.dart';
 
 Future<void> setupDI() async {
   // Setup Logger
@@ -230,6 +232,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
 
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
+  GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
 }
 
 Future setupFlutterNotification() async {
@@ -276,6 +279,7 @@ _setWindowSize() {
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
   final _i18n = GetIt.I.get<I18N>();
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   @override
   Widget build(BuildContext context) {
@@ -284,12 +288,17 @@ class MyApp extends StatelessWidget {
         _uxService.themeStream,
         _i18n.localeStream,
       ]),
-      builder: (context, snapshot) {
+      builder: (bcontext, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
+                _rawKeyboardService.escapeHandeling(
+                    event: event, replyMessageId: -1);
+                _rawKeyboardService.searchHandeling(event: event);
+                _rawKeyboardService.navigateInRooms(event: event);
+                _rawKeyboardService.scrollInChatPage(event: event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;

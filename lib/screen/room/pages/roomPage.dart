@@ -18,6 +18,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
@@ -26,11 +27,13 @@ import 'package:deliver/screen/room/pages/pinMessageAppBar.dart';
 import 'package:deliver/screen/room/pages/searchInMessageButtom.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chatTime.dart';
+import 'package:deliver/screen/room/widgets/inputMessage.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/newMessageInput.dart';
 import 'package:deliver/screen/room/widgets/recievedMessageBox.dart';
 import 'package:deliver/screen/room/widgets/sendedMessageBox.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -125,6 +128,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  int messageIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -549,6 +554,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget keyboardWidget() {
+    _rawKeyboardService.scrollDownInChat = scrollDown;
+    _rawKeyboardService.scrollUpInChat = scrollUp;
+    _rawKeyboardService.openSearchBox = openRoomSearchBox;
+    _rawKeyboardService.currentRoom = widget.roomId.asUid();
+
+    if (widget.roomId.asUid().category == Categories.CHANNEL) {
+      FocusScope.of(context).requestFocus(SearchBox.searchBoxFocusNode);
+      InputMessage.myFocusNode = null;
+    } else {
+      SearchBox.searchBoxFocusNode.unfocus();
+    }
     return widget.roomId.asUid().category != Categories.CHANNEL
         ? buildNewMessageInput()
         : MuteAndUnMuteRoomWidget(
@@ -786,6 +802,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         if (_currentRoom.value.firstMessageId != null)
           index = index + _currentRoom.value.firstMessageId;
+        if (_itemPositionsListener.itemPositions.value.length > 0)
+          messageIndex = _itemPositionsListener.itemPositions.value.last.index;
         bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
             ? true
             : _itemCount > _currentRoom.value.lastMessageId &&
@@ -1176,5 +1194,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _mucRepo.updateMuc(
               Muc().copyWith(uid: widget.roomId, showPinMessage: false));
         });
+  }
+
+  openRoomSearchBox() {
+    _searchMode.add(true);
+  }
+
+  scrollUp() {
+    if(messageIndex==_itemCount-1){
+    messageIndex = messageIndex - 10;}
+    else
+      messageIndex = messageIndex - 3;
+    if (messageIndex < 0) messageIndex = 0;
+    _itemScrollController.scrollTo(
+        index: messageIndex, duration: Duration(seconds: 1));
+  }
+
+  scrollDown() {
+    messageIndex = messageIndex + 3;
+    _itemScrollController.scrollTo(
+        index: messageIndex, duration: Duration(seconds: 1));
   }
 }

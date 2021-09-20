@@ -39,6 +39,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
+
 class Page {
   final Widget largePageNavigator;
   final Widget largePageMain;
@@ -114,6 +115,13 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  bool isAnyRoomOpen() {
+    if (_stack.length == 1) {
+      return false;
+    }
+    return true;
   }
 
   void openLanguageSettings() {

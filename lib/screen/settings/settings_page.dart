@@ -56,7 +56,12 @@ class _SettingsPageState extends State<SettingsPage> {
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
-              title: Text(i18n.get("settings")),
+              title: Text(
+                i18n.get(
+                  "settings",
+                ),
+                style: TextStyle(color: ExtraTheme.of(context).textField),
+              ),
               leading: _routingService.backButtonLeading(),
             ),
           ),
@@ -250,7 +255,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                     future: SmsAutoFill().getAppSignature,
                                     builder: (c, sms) {
                                       return Text(
-                                        sms.data ?? snapshot.data.version ?? VERSION,
+                                        sms.data ??
+                                            snapshot.data.version ??
+                                            VERSION,
                                       );
                                     })
                                 : Text(

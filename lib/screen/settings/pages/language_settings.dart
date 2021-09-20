@@ -28,7 +28,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
-              title: Text(i18n.get("language")),
+              title: Text(i18n.get("language"),style: TextStyle(color: ExtraTheme.of(context).textField),),
               leading: _routingService.backButtonLeading(),
             ),
           ),
