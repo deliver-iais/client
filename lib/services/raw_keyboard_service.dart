@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
-
 class RawKeyboardService {
   String _inputBoxText = "";
   final _routingService = GetIt.I.get<RoutingService>();
@@ -20,6 +19,7 @@ class RawKeyboardService {
   bool _isScrollInBotCommand;
 
   set isScrollInBotCommand(bool value) {
+    if (_isScrollInBotCommand == null) _isScrollInBotCommand = false;
     _isScrollInBotCommand = value;
   }
 
@@ -55,7 +55,7 @@ class RawKeyboardService {
 
   Future<void> controllXHandle(TextEditingController controller) async {
     _inputBoxText = controller.selection.textInside(controller.text);
-     controller.text = controller.text.substring(0, controller.selection.start) +
+    controller.text = controller.text.substring(0, controller.selection.start) +
         controller.text.substring(
             controller.selection.start +
                 controller.selection.textInside(controller.text).length,
@@ -128,10 +128,6 @@ class RawKeyboardService {
             }));
   }
 
-  void sendMention(Function showMention) {
-    showMention();
-  }
-
   void scrollDownInMentions(Function scrollDownInMention) {
     scrollDownInMention();
   }
@@ -159,18 +155,8 @@ class RawKeyboardService {
       escapeHandle(replyMessageId, resetRoomPageDetails);
   }
 
-  navigateInMentions(
-      String mentionData,
-      Function scrollDownInMention,
-      Function sendMentionByEnter,
-      event,
-      int mentionSelectedIndex,
-      Function scrollUpInMention) {
-    if (event.isKeyPressed(LogicalKeyboardKey.enter) &&
-        mentionData != "-" &&
-        mentionSelectedIndex >= 0) {
-      sendMention(sendMentionByEnter);
-    }
+  navigateInMentions(String mentionData, Function scrollDownInMention, event,
+      int mentionSelectedIndex, Function scrollUpInMention) {
     if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -189,10 +175,13 @@ class RawKeyboardService {
 
   navigateInBotCommand(
       event, Function scrollDownInBotCommands, Function scrollUpInBotCommands) {
-    if (event.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
+    if (_isScrollInBotCommand == null) _isScrollInBotCommand = false;
+    if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) &&
+        _isScrollInBotCommand) {
       scrollDownInBotCommand(scrollDownInBotCommands);
       isScrollInBotCommand = true;
-    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
+    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
+        _isScrollInBotCommand) {
       scrollUpInBotCommand(scrollUpInBotCommands);
       isScrollInBotCommand = true;
     }
@@ -222,7 +211,7 @@ class RawKeyboardService {
   }
 
   scrollInChatPage({event}) {
-    if(_isScrollInBotCommand==null) _isScrollInBotCommand=false;
+    if (_isScrollInBotCommand == null) _isScrollInBotCommand = false;
     if (_mentionData == "-" && !_isScrollInBotCommand) {
       if (event.logicalKey == LogicalKeyboardKey.arrowUp) scrollUpInChatPage();
       if (event.logicalKey == LogicalKeyboardKey.arrowDown)
