@@ -1,9 +1,10 @@
+import 'dart:math';
+
 import 'package:dcache/dcache.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:metadata_fetch/metadata_fetch.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:we/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/isPersian.dart';
 
 const APARAT = "https://www.aparat.com";
 
@@ -14,7 +15,9 @@ class LinkPreview extends StatelessWidget {
   final double maxWidth;
   final double maxHeight;
 
-  const LinkPreview({Key key, this.link, this.maxWidth, this.maxHeight = double.infinity}) : super(key: key);
+  const LinkPreview(
+      {Key key, this.link, this.maxWidth, this.maxHeight = double.infinity})
+      : super(key: key);
 
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
@@ -63,41 +66,34 @@ class LinkPreview extends StatelessWidget {
 
           return Container(
               margin: const EdgeInsets.only(top: 10),
-              constraints:
-                  BoxConstraints(minWidth: maxWidth, maxWidth: maxWidth, maxHeight: maxHeight),
+              constraints: BoxConstraints(
+                  minWidth: 300,
+                  maxWidth: max(300, maxWidth),
+                  maxHeight: maxHeight),
               decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withAlpha(45),
                   border: Border(
                       left: BorderSide(
-                          width: 3, color: Theme.of(context).primaryColor))),
+                          width: 2, color: Theme.of(context).primaryColor))),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    color: Theme.of(context).primaryColor.withAlpha(30),
-                    child: TextButton.icon(
-                      icon: Icon(Icons.chevron_left_rounded),
-                      label: Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Text(
-                              snapshot.data.title,
-                              textDirection: snapshot.data.title.isPersian()
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.subtitle2.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                          )),
-                      onPressed: () => launch(link),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                    child: Text(
+                      snapshot.data.title,
+                      textDirection: snapshot.data.title.isPersian()
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context).primaryTextTheme.bodyText2,
                     ),
                   ),
-                  Divider(),
                   if (snapshot.data?.description != null)
                     Padding(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
                       child: Text(
                         snapshot.data.description,
                         textDirection: snapshot.data.description.isPersian()
@@ -106,7 +102,6 @@ class LinkPreview extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyText2,
                       ),
                     ),
-
                 ],
               ));
         });

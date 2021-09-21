@@ -1,5 +1,5 @@
-import 'package:we/shared/constants.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

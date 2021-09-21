@@ -1,11 +1,12 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
   final Function(String) onChange;
   final Function onCancel;
+  static FocusNode searchBoxFocusNode=FocusNode();
 
   SearchBox({this.onChange, this.onCancel});
 
@@ -28,6 +29,7 @@ class _SearchBoxState extends State<SearchBox> {
         textAlign: TextAlign.start,
         controller: _controller,
         autofocus: false,
+        focusNode:SearchBox.searchBoxFocusNode ,
         maxLines: 1,
         onChanged: (str) {
           if (str.isNotEmpty)

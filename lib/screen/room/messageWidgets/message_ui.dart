@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:we/box/message.dart';
-import 'package:we/screen/room/messageWidgets/image_message/image_ui.dart';
-import 'package:we/screen/room/messageWidgets/message_header.dart';
-import 'package:we/screen/room/messageWidgets/text_ui.dart';
-import 'package:we/screen/room/messageWidgets/video_message/video_message.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
+import 'package:deliver/screen/room/messageWidgets/message_header.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
 import 'package:flutter/material.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class FileMessageUi extends StatefulWidget {
   final Message message;

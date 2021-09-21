@@ -1,20 +1,21 @@
 import 'dart:io';
 
-import 'package:we/box/avatar.dart';
-import 'package:we/box/dao/avatar_dao.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/services/muc_services.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/avatar.dart';
+import 'package:deliver/box/dao/avatar_dao.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as ProtocolFile;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query;
 
 import 'package:get_it/get_it.dart';
 
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:dcache/dcache.dart';
 import 'package:fixnum/fixnum.dart';
@@ -29,6 +30,7 @@ class AvatarRepo {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
+  final _queryServices = GetIt.I.get<query.QueryServiceClient>();
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: InMemoryStorage(40));
 
@@ -114,7 +116,7 @@ class AvatarRepo {
       return ac;
     }
 
-    if (ac != null && ac.fileId == null || ac.fileId.isEmpty) {
+    if (ac == null || ac != null && (ac.fileId == null || ac.fileId.isEmpty)) {
       return null;
     }
 
@@ -169,13 +171,11 @@ class AvatarRepo {
       ..node = uid.node
       ..fileUuid = fileInfo.uuid
       ..fileName = fileInfo.name;
-    var addAvatarReq = AddAvatarReq()..avatar = avatar;
-    if (token != null) {
-      addAvatarReq..token = token;
-    }
+    var addAvatarReq = query.AddAvatarReq()..avatar = avatar;
 
     try {
-      await _avatarServices.addAvatar(addAvatarReq);
+     await _queryServices.addAvatar(addAvatarReq);
+    //  await _avatarServices.addAvatar(addAvatarReq);
       await _avatarDao.saveAvatars(uid.asString(), [
         Avatar(
             uid: uid.asString(),

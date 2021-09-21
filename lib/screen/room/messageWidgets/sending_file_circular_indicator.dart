@@ -1,5 +1,5 @@
-import 'package:we/services/file_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -41,7 +41,7 @@ class _SendingFileCircularIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    if(widget.file != null){
+    if (widget.file != null) {
       return Stack(
         children: [
           StreamBuilder<double>(
@@ -65,7 +65,7 @@ class _SendingFileCircularIndicatorState
             icon: Icon(
               Icons.close,
               color: widget.isMedia
-                  ? Theme.of(context).accentColor//?????TODO
+                  ? Theme.of(context).colorScheme.secondary //?????TODO
                   : Theme.of(context).primaryColor,
               size: 38,
             ),
@@ -73,10 +73,8 @@ class _SendingFileCircularIndicatorState
           ),
         ],
       );
-    }else{
+    } else {
       return SizedBox.shrink();
     }
-
-
   }
 }

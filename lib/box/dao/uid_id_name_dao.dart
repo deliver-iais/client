@@ -1,4 +1,4 @@
-import 'package:we/box/uid_id_name.dart';
+import 'package:deliver/box/uid_id_name.dart';
 import 'package:hive/hive.dart';
 
 abstract class UidIdNameDao {

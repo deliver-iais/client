@@ -1,3 +1,10 @@
+import 'dart:io';
+
+import 'package:deliver/box/avatar.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:we/box/avatar.dart';
 import 'package:we/box/dao/shared_dao.dart';
@@ -11,7 +18,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -27,6 +34,7 @@ class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authServiceClient = GetIt.I.get<AuthServiceClient>();
+  var _routingServices = GetIt.I.get<RoutingService>();
   final requestLock = Lock();
 
   String currentUsername = "";
@@ -177,6 +185,11 @@ class AuthRepo {
         return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
           ..refreshToken = refreshToken
           ..platform = await getPlatformDetails());
+      } on GrpcError catch (e) {
+        _logger.e(e);
+        if (e.code == StatusCode.unauthenticated) {
+          _routingServices.logout();
+        }
       } catch (e) {
         _logger.e(e);
       }
@@ -241,6 +254,8 @@ class AuthRepo {
       currentUserUid.node == session.node;
 
   Future<void> deleteTokens() async {
+    _refreshToken = "";
+    _accessToken = "";
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }

@@ -1,10 +1,10 @@
-import 'package:we/box/bot_info.dart';
-import 'package:we/box/dao/bot_dao.dart';
+import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/dao/bot_dao.dart';
 
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 

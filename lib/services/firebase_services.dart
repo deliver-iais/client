@@ -1,17 +1,17 @@
 import 'dart:convert';
 
-import 'package:we/box/dao/mute_dao.dart';
+import 'package:deliver/box/dao/mute_dao.dart';
 
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/box/dao/uid_id_name_dao.dart';
-import 'package:we/main.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/main.dart';
 
-import 'package:we/repository/authRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
 
-import 'package:we/services/ux_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/message.dart';
-import 'package:we/shared/methods/platform.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -22,7 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 import 'notification_services.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();

@@ -1,22 +1,24 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/avatarRepo.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/room/messageWidgets/text_ui.dart';
-import 'package:we/services/audio_service.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:we/shared/extensions/uid_extension.dart';
 // import 'package:desktoasts/desktoasts.dart' if(kIsWeb) "";
 
+import 'package:desktoasts/desktoasts.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/message.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -103,12 +105,15 @@ class WindowsNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
+    final _fileServices = GetIt.I.get<FileService>();
+
     final _logger = GetIt.I.get<Logger>();
     try {
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
-      if (lastAvatar != null && lastAvatar.fileId != null) {
+      if (lastAvatar != null && lastAvatar.fileId != null ) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
@@ -167,6 +172,8 @@ class LinuxNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
@@ -229,16 +236,29 @@ class AndroidNotifier implements Notifier {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
-        onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {
-        _routingService.openRoom(room);
-      }
-      return;
-    });
+        onSelectNotification: androidOnSelectNotification);
+    androidDidNotificationLaunchApp();
+  }
+
+  androidDidNotificationLaunchApp() async {
+    final notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin
+        .getNotificationAppLaunchDetails();
+    if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+      androidOnSelectNotification(notificationAppLaunchDetails.payload);
+    }
+  }
+
+  Future<dynamic> androidOnSelectNotification(room) async {
+    if (room != null && room.isNotEmpty) {
+      _routingService.openRoom(room);
+    }
+    return;
   }
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
     AndroidBitmap largeIcon;
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
@@ -305,6 +325,8 @@ class MacOSNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
     List<MacOSNotificationAttachment> attachments = [];
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);

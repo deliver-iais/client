@@ -1,7 +1,7 @@
-import 'package:we/box/message.dart';
-import 'package:we/screen/room/widgets/msgTime.dart';
-import 'package:we/shared/methods/time.dart';
-import 'package:we/shared/widgets/seen_status.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/widgets/msgTime.dart';
+import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
 
 class TimeAndSeenStatus extends StatelessWidget {
@@ -14,7 +14,7 @@ class TimeAndSeenStatus extends StatelessWidget {
 
   TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
       {this.needsPositioned = true,
-      this.needsBackground,
+      this.needsBackground = false,
       this.needsPadding = true});
 
   @override
@@ -34,11 +34,12 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     return Container(
       padding: needsPadding
-          ? const EdgeInsets.only(top: 4, bottom: 2, right: 4, left: 4)
+          ? const EdgeInsets.only(top: 2, bottom: 2, right: 4, left: 4)
           : null,
+      margin: const EdgeInsets.all(2),
       decoration: needsBackground
           ? BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
               color: Theme.of(context).backgroundColor.withAlpha(150),
             )
           : null,
@@ -46,7 +47,11 @@ class TimeAndSeenStatus extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           MsgTime(time: date(message.time), isSent: isSender),
-          if (isSender) SeenStatus(message, isSeen: isSeen)
+          if (isSender)
+            Padding(
+              padding: const EdgeInsets.only(left: 2.0),
+              child: SeenStatus(message, isSeen: isSeen),
+            )
         ],
       ),
     );

@@ -1,14 +1,14 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/muc.dart';
-import 'package:we/repository/mucRepo.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/widgets/circle_avatar.dart';
-import 'package:we/shared/widgets/title_status.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/box/muc.dart';
+import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class MucAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
@@ -21,7 +21,7 @@ class MucAppbarTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
     return Container(
-        color: Theme.of(context).appBarTheme.color,
+        color: Theme.of(context).appBarTheme.backgroundColor,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(

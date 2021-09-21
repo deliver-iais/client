@@ -1,20 +1,20 @@
 import 'dart:ui';
 
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/mucRepo.dart';
-import 'package:we/services/create_muc_service.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/widgets/box.dart';
-import 'package:we/shared/widgets/fluid_container.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/create_muc_service.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/box.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:we/shared/widgets/contacts_widget.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
@@ -76,7 +76,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
             leading: _routingService.backButtonLeading(),
             title: Text(widget.isChannel
                 ? _i18n.get("newChannel")
-                : _i18n.get("newGroup")),
+                : _i18n.get("newGroup"),style: TextStyle(color:ExtraTheme.of(context).textField),),
           ),
         ),
       ),
@@ -285,8 +285,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                     _createMucService.reset();
                                     _routingService.openRoom(micUid.asString());
                                   } else {
-                                    Fluttertoast.showToast(
-                                        msg: _i18n.get("error_occurred"));
+                                    ToastDisplay.showToast(
+                                        toastText: _i18n.get("error_occurred"),tostContext: context);
                                     setState(() {
                                       _showIcon = true;
                                     });

@@ -1,4 +1,4 @@
-import 'package:we/localization/i18n.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
@@ -51,7 +51,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                   ),
                 ),
                 labelText: widget.formField.id,
-                labelStyle: TextStyle(color: Colors.blue)),
+                labelStyle: TextStyle(color: Colors.grey)),
             value: selectedItem,
             validator: (value) {
               if (widget.formField.isOptional) {
@@ -76,9 +76,11 @@ class _FormListWidgetState extends State<FormListWidget> {
                     .map<DropdownMenuItem<String>>(
                         (val) => DropdownMenuItem(
                               value: val,
-                              child: Center(
+                              child: SizedBox(
+                                width: 150,
                                 child: Text(
                                   val,
+                                  overflow: TextOverflow.fade,
                                 ),
                               ),
                             ))

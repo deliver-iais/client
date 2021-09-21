@@ -1,19 +1,19 @@
 import 'dart:convert';
 
-import 'package:we/box/message.dart';
-import 'package:we/box/message_type.dart';
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as PB;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fixnum/fixnum.dart';
 
-import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class MessageBrief {
   final Uid roomUid;

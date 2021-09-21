@@ -1,6 +1,6 @@
-import 'package:we/box/message.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,7 +25,7 @@ class ReplyBrief extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               child: Container(
                 constraints: BoxConstraints.loose(Size.fromWidth(200)),
-                padding: const EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsets.only(left: 6.0),
                 margin: const EdgeInsets.only(left: 2.0),
                 decoration: BoxDecoration(
                   border: Border(

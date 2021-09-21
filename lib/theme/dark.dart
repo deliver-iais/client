@@ -1,44 +1,38 @@
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 const DarkThemeName = "Dark";
 
 final primary = Color(0xFF2699FB);
-final accent = Color(0xFF182731);
+final secondary = Color(0xFF182731);
 
 final primaryTextTheme = Typography.whiteCupertino
     .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
 
-final accentTextTheme = Typography.whiteCupertino
-    .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent);
-
 final textTheme = Typography.whiteCupertino.apply(
     fontFamily: "Vazir", displayColor: Colors.white, bodyColor: Colors.white);
-
-final TextTheme appbarTextTheme =
-    textTheme.merge(TextTheme(headline6: TextStyle(fontSize: 24)));
 
 // ignore: non_constant_identifier_names
 ThemeData DarkTheme = ThemeData(
   brightness: Brightness.dark,
   fontFamily: "Vazir",
   primaryTextTheme: primaryTextTheme,
-  accentTextTheme: accentTextTheme,
   textTheme: textTheme,
 ).copyWith(
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: primary,
-    accentColor: accent,
     scaffoldBackgroundColor: Color(0xFF021a25),
     bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
     backgroundColor: Color(0xFF00101A),
-    buttonColor: primary,
     dividerTheme:
         DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xff313131)),
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
     appBarTheme: AppBarTheme(
-        color: Color(0xFF03151d), elevation: 0, textTheme: appbarTextTheme),
+        color: Color(0xFF03151d),
+        elevation: 0,
+        titleTextStyle: textTheme.headline5,
+        toolbarTextStyle: textTheme.headline6),
     popupMenuTheme: PopupMenuThemeData(color: Color(0xFF032738)),
     sliderTheme: SliderThemeData(
       thumbColor: Colors.white,
@@ -60,18 +54,18 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     boxOuterBackground: Color(0xFF03151d),
     boxBackground: Color(0xFF032738),
     textDetails: DarkTheme.primaryColor,
-    menuIconButton: DarkTheme.accentColor.withAlpha(50),
+    menuIconButton: secondary.withAlpha(50),
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
     sentMessageBox: Color(0xFF0674A1),
     receivedMessageBox: Color(0xFF182731),
     textMessage: Colors.white,
     messageDetails: Color(0xFF00396C),
-    persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
+    persistentEventMessage: secondary.withAlpha(50),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,
     textField: Colors.white,
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
-    fileSharingDetails:Colors.white54,
-    inputBoxBackground: DarkTheme.accentColor);
+    fileSharingDetails: Colors.white54,
+    inputBoxBackground: secondary);

@@ -1,16 +1,16 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/box/contact.dart';
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/contactRepo.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/methods/platform.dart';
-import 'package:we/shared/widgets/contacts_widget.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/floating_modal_bottom_sheet.dart';
-import 'package:we/shared/widgets/fluid_container.dart';
-import 'package:we/shared/methods/url.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/contacts_widget.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -85,7 +85,7 @@ class ContactsPage extends StatelessWidget {
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
-            title: Text(I18N.of(context).get("contacts")),
+            title: Text(I18N.of(context).get("contacts"),style: TextStyle(color: ExtraTheme.of(context).textField),),
             leading: _routingService.backButtonLeading(),
           ),
         ),

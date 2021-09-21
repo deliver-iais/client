@@ -1,5 +1,5 @@
-import 'package:we/box/member.dart';
-import 'package:we/box/muc.dart';
+import 'package:deliver/box/member.dart';
+import 'package:deliver/box/muc.dart';
 import 'package:hive/hive.dart';
 
 abstract class MucDao {

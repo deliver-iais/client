@@ -1,7 +1,7 @@
-import 'package:we/box/room.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/navigation_center/chats/widgets/chatItem.dart';
-import 'package:we/services/routing_service.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/chatItem.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -22,8 +22,11 @@ class ChatsPage extends StatelessWidget {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
-              var rooms = snapshot.data;
               if (snapshot.hasData) {
+                var rooms = snapshot.data
+                    .where((element) =>
+                        element.deleted == null || element.deleted == false)
+                    .toList();
                 return PageStorage(
                   bucket: PageStorage.of(context),
                   child: Scrollbar(
@@ -52,7 +55,10 @@ class ChatsPage extends StatelessWidget {
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {
-                        return Divider();
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 64),
+                          child: Divider(),
+                        );
                       },
                     ),
                   ),

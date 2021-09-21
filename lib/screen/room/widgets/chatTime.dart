@@ -1,5 +1,4 @@
-import 'package:we/shared/methods/time.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/material.dart';
 
 class ChatTime extends StatelessWidget {
@@ -12,10 +11,11 @@ class ChatTime extends StatelessWidget {
     final ValueNotifier<int> day = ValueNotifier<int>(DateTime.now().day);
     return Container(
       margin: const EdgeInsets.all(4.0),
-      padding: const EdgeInsets.all(4.0),
+      padding:
+          const EdgeInsets.only(top: 5, left: 8.0, right: 8.0, bottom: 4.0),
       decoration: BoxDecoration(
-        color: ExtraTheme.of(context).receivedMessageBox,
-        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).dividerColor.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: ValueListenableBuilder<int>(
           valueListenable: day,
@@ -33,7 +33,7 @@ class ChatTime extends StatelessWidget {
               outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
             return Text(
               outT,
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyText2.copyWith(height: 1, color: Colors.white),
             );
           }),
     );

@@ -1,4 +1,4 @@
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class MsgTime extends StatelessWidget {
@@ -18,8 +18,9 @@ class MsgTime extends StatelessWidget {
       msgHour + ':' + msgMin,
       style: TextStyle(
         fontSize: 11,
-        height: 1.6,
-        color: ExtraTheme.of(context).textMessage.withAlpha(150),
+        height: 1.1,
+        fontStyle: FontStyle.italic,
+        color: ExtraTheme.of(context).textMessage.withAlpha(130),
       ),
     );
   }

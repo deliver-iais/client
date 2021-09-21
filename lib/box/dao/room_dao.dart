@@ -1,7 +1,7 @@
-import 'package:we/box/room.dart';
+import 'package:deliver/box/room.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 abstract class RoomDao {
   Future<void> updateRoom(Room room);
@@ -44,19 +44,18 @@ class RoomDaoImpl implements RoomDao {
     var box = await _openRoom();
 
     yield sorted(
-        box.values.where((element) => element.lastMessage != null).toList());
+        box.values.where((element) => element.lastMessageId != null).toList());
 
     yield* box.watch().map((event) => sorted(box.values
-        .where((element) =>
-            element.lastMessage != null &&
-            (element.deleted == null || element.deleted == false))
+        .where((element) => (element.lastMessageId != null &&
+            (element.deleted == null || element.deleted == false)))
         .toList()));
   }
 
   List<Room> sorted(List<Room> list) {
     var l = list;
 
-    l.sort((a, b) => (b.lastMessage?.time ?? 0) - (a.lastMessage?.time ?? 0));
+    l.sort((a, b) => (b.lastUpdateTime?? 0) - (a.lastUpdateTime?? 0));
 
     return l;
   }
@@ -73,7 +72,9 @@ class RoomDaoImpl implements RoomDao {
     var box = await _openRoom();
 
     if (room != null && room.lastMessage != null) {
-      room = room.copyWith(lastMessageId: room.lastMessage.id);
+      room = room.copyWith(
+          lastMessageId: room.lastMessage.id,
+          firstMessageId: room.firstMessageId);
     }
 
     var r = box.get(room.uid) ?? room;

@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:ui';
 
-import 'package:we/box/media.dart';
-import 'package:we/box/media_type.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
 
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/mediaQueryRepo.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/services/routing_service.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -30,8 +29,8 @@ class _ImageTabUiState extends State<ImageTabUi> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
-        future: _mediaQueryRepo.getMedia(widget.userUid,
-            MediaType.IMAGE, widget.imagesCount),
+        future: _mediaQueryRepo.getMedia(
+            widget.userUid, MediaType.IMAGE, widget.imagesCount),
         builder: (BuildContext c, AsyncSnapshot<List<Media>> snaps) {
           if (!snaps.hasData &&
               snaps.data == null &&
@@ -57,104 +56,67 @@ class _ImageTabUiState extends State<ImageTabUi> {
                       ),
                     ),
                     child: FutureBuilder(
-                      future: _fileRepo.isExist(fileId, fileName,
-                          thumbnailSize: ThumbnailSize.medium),
-                      builder: (BuildContext c, AsyncSnapshot isExist) {
-                        if (isExist.hasData &&
-                            isExist.data != null &&
-                            isExist.connectionState == ConnectionState.done &&
-                            isExist.data == true) {
-                          return FutureBuilder(
-                              future: _fileRepo.getFile(fileId, fileName,
-                                  thumbnailSize: ThumbnailSize.medium),
-                              builder: (BuildContext c, AsyncSnapshot snaps) {
-                                if (snaps.hasData &&
-                                    snaps.data != null &&
-                                    snaps.connectionState ==
-                                        ConnectionState.done) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _routingService.openShowAllMedia(
-                                        uid: widget.userUid,
-                                        hasPermissionToDeletePic: true,
-                                        mediaPosition: position,
-                                        heroTag: "btn$position",
-                                        mediasLength: widget.imagesCount,
-                                      );
-                                    },
-                                    child: Hero(
-                                      tag: "btn$position",
-                                      child: Container(
-                                          decoration: new BoxDecoration(
-                                        image: new DecorationImage(
-                                          image: Image.file(
-                                            snaps.data,
-                                          ).image,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )),
-                                      transitionOnUserGestures: true,
-                                    ),
-                                  );
-                                } else {
-                                  return Container(width: 0.0, height: 0.0);
-                                }
-                              });
-                        } else if (isExist.hasData &&
-                            isExist.data != null &&
-                            isExist.connectionState == ConnectionState.done &&
-                            isExist.data == false) {
-                          return FutureBuilder(
-                              future: _fileRepo.getFile(fileId, fileName,
-                                  thumbnailSize: ThumbnailSize.small),
-                              builder: (BuildContext c, AsyncSnapshot snaps) {
-                                if (snaps.hasData &&
-                                    snaps.data != null &&
-                                    snaps.connectionState ==
-                                        ConnectionState.done) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _routingService.openShowAllMedia(
-                                        uid: widget.userUid,
-                                        hasPermissionToDeletePic: true,
-                                        mediaPosition: position,
-                                        heroTag: "btn$position",
-                                        mediasLength: widget.imagesCount,
-                                      );
-                                    },
-                                    child: Hero(
-                                      tag: "btn$position",
-                                      child: ClipRRect(
-                                        child: ImageFiltered(
-                                          imageFilter: ImageFilter.blur(
-                                              tileMode: TileMode.decal,
-                                              sigmaX: 2,
-                                              sigmaY: 2),
-                                          child: Container(
-                                              decoration: new BoxDecoration(
-                                                  image: new DecorationImage(
+                        future: _fileRepo.isExist(fileId, fileName),
+                        builder: (BuildContext c, AsyncSnapshot isExist) {
+                          if (isExist.hasData &&
+                              isExist.data != null &&
+                              isExist.connectionState == ConnectionState.done &&
+                              isExist.data == true) {
+                            return FutureBuilder(
+                                future: _fileRepo.getFile(fileId, fileName),
+                                builder: (BuildContext c, AsyncSnapshot snaps) {
+                                  if (snaps.hasData &&
+                                      snaps.data != null &&
+                                      snaps.connectionState ==
+                                          ConnectionState.done) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        _routingService.openShowAllMedia(
+                                          uid: widget.userUid,
+                                          hasPermissionToDeletePic: true,
+                                          mediaPosition: position,
+                                          heroTag: "btn$position",
+                                          mediasLength: widget.imagesCount,
+                                        );
+                                      },
+                                      child: Hero(
+                                        tag: "btn$position",
+                                        child: Container(
+                                            decoration: new BoxDecoration(
+                                          image: new DecorationImage(
                                             image: Image.file(
                                               snaps.data,
                                             ).image,
                                             fit: BoxFit.cover,
-                                          ))),
-                                        ),
+                                          ),
+                                        )),
+                                        transitionOnUserGestures: true,
                                       ),
-                                      transitionOnUserGestures: true,
-                                    ),
-                                  );
-                                } else {
-                                  return Container(width: 0.0, height: 0.0);
-                                }
-                              });
-                        } else {
-                          return Container(
-                            width: 0,
-                            height: 0,
-                          );
-                        }
-                      },
-                    ),
+                                    );
+                                  } else {
+                                    return Container(width: 0.0, height: 0.0);
+                                  }
+                                });
+                          } else
+                            return GestureDetector(
+                              onTap: () {
+                                _routingService.openShowAllMedia(
+                                  uid: widget.userUid,
+                                  hasPermissionToDeletePic: true,
+                                  mediaPosition: position,
+                                  heroTag: "btn$position",
+                                  mediasLength: widget.imagesCount,
+                                );
+                              },
+                              child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  child: BlurHash(
+                                      hash:
+                                          jsonDecode(snaps.data[position].json)[
+                                              "blurHash"])),
+                            );
+                        }),
                   );
                 });
           }

@@ -1,9 +1,9 @@
-import 'package:we/box/pending_message.dart';
-import 'package:we/box/sending_status.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/screen/room/messageWidgets/sending_file_circular_indicator.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/sending_file_circular_indicator.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -35,12 +35,14 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   bool _startDownload = false;
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
+  bool isPendingMes = true;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage>(
         stream: _messageRepo.watchPendingMessage(widget.messagePacketId),
         builder: (context, pendingMessage) {
+          isPendingMes = pendingMessage.hasData && pendingMessage.data != null;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -54,8 +56,18 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   return CircularPercentIndicator(
-                                    radius: 55.0,
+                                    radius: 45.0,
                                     lineWidth: 4.0,
+                                    center: IconButton(
+                                      padding: EdgeInsets.all(0),
+                                      icon: Icon(
+                                        Icons.arrow_upward,
+                                        color: ExtraTheme.of(context)
+                                            .fileMessageDetails,
+                                        size: 35,
+                                      ),
+                                      onPressed: () {},
+                                    ),
                                     percent: snapshot.data,
                                     backgroundColor: ExtraTheme.of(context)
                                         .circularFileStatus,
@@ -64,8 +76,18 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                   );
                                 } else {
                                   return CircularPercentIndicator(
-                                    radius: 55.0,
+                                    radius: 45.0,
                                     lineWidth: 4.0,
+                                    center: IconButton(
+                                      padding: EdgeInsets.all(0),
+                                      icon: Icon(
+                                        Icons.arrow_upward,
+                                        color: ExtraTheme.of(context)
+                                            .fileMessageDetails,
+                                        size: 35,
+                                      ),
+                                      onPressed: () {},
+                                    ),
                                     percent: 0.01,
                                     backgroundColor: ExtraTheme.of(context)
                                         .circularFileStatus,
@@ -79,45 +101,45 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                               isMedia: false,
                             )
                       : Container(),
-                  _startDownload
-                      ? Container(
-                          child: StreamBuilder<double>(
-                              stream: _fileService
-                                  .filesDownloadStatus[widget.fileId],
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  return CircularPercentIndicator(
-                                    radius: 45.0,
-                                    lineWidth: 4.0,
-                                    percent: snapshot.data,
-                                    backgroundColor: ExtraTheme.of(context)
-                                        .circularFileStatus,
-                                    center: Icon(Icons.arrow_downward,
-                                        color: ExtraTheme.of(context)
-                                            .fileMessageDetails),
-                                    progressColor: ExtraTheme.of(context)
-                                        .fileMessageDetails,
-                                  );
-                                } else {
-                                  return CircularPercentIndicator(
-                                    radius: 45.0,
-                                    lineWidth: 4.0,
-                                    percent: 0.1,
-                                    center: Icon(
-                                      Icons.arrow_downward,
-                                      color: ExtraTheme.of(context)
+                  if (!isPendingMes)
+                    _startDownload
+                        ? Container(
+                            child: StreamBuilder<double>(
+                                stream: _fileService
+                                    .filesDownloadStatus[widget.fileId],
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData &&
+                                      snapshot.data != null && snapshot.data >0) {
+                                    return CircularPercentIndicator(
+                                      radius: 45.0,
+                                      lineWidth: 4.0,
+                                      percent: snapshot.data,
+                                      backgroundColor: ExtraTheme.of(context)
+                                          .circularFileStatus,
+                                      center: Icon(Icons.arrow_downward,
+                                          color: ExtraTheme.of(context)
+                                              .fileMessageDetails),
+                                      progressColor: ExtraTheme.of(context)
                                           .fileMessageDetails,
-                                    ),
-                                    backgroundColor: ExtraTheme.of(context)
-                                        .circularFileStatus,
-                                    progressColor: ExtraTheme.of(context)
-                                        .fileMessageDetails,
-                                  );
-                                }
-                              }))
-                      : Padding(
-                          padding: EdgeInsets.only(left: 3, top: 4),
-                          child: Container(
+                                    );
+                                  } else {
+                                    return CircularPercentIndicator(
+                                      radius: 45.0,
+                                      lineWidth: 4.0,
+                                      percent: 0.1,
+                                      center: Icon(
+                                        Icons.arrow_downward,
+                                        color: ExtraTheme.of(context)
+                                            .fileMessageDetails,
+                                      ),
+                                      backgroundColor: ExtraTheme.of(context)
+                                          .circularFileStatus,
+                                      progressColor: ExtraTheme.of(context)
+                                          .fileMessageDetails,
+                                    );
+                                  }
+                                }))
+                        : Container(
                             width: 50,
                             height: 50,
                             decoration: BoxDecoration(
@@ -125,16 +147,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                 color:
                                     ExtraTheme.of(context).circularFileStatus),
                             child: pendingMessage.data != null
-                                ? IconButton(
-                                    padding: EdgeInsets.all(0),
-                                    icon: Icon(
-                                      Icons.arrow_upward,
-                                      color: ExtraTheme.of(context)
-                                          .fileMessageDetails,
-                                      size: 33,
-                                    ),
-                                    onPressed: () {},
-                                  )
+                                ? SizedBox.shrink()
                                 : IconButton(
                                     padding: EdgeInsets.all(0),
                                     alignment: Alignment.center,
@@ -152,8 +165,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                           widget.fileId, widget.fileName);
                                     },
                                   ),
-                          ),
-                        )
+                          )
                 ],
               ),
             ],

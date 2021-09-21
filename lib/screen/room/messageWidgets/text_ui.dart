@@ -1,16 +1,16 @@
 import 'dart:math';
 
-import 'package:we/box/message.dart';
-import 'package:we/box/message_type.dart';
-import 'package:we/screen/room/messageWidgets/link_preview.dart';
-import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:we/shared/constants.dart';
-import 'package:we/shared/methods/url.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
+import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:we/shared/extensions/json_extension.dart';
-import 'package:we/shared/methods/isPersian.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/isPersian.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;
@@ -61,15 +61,14 @@ class TextUI extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
-      padding: const EdgeInsets.only(top: 4, right: 4, left: 4),
+      padding: const EdgeInsets.only(top: 4, right: 8, left: 8),
       child: Column(
         crossAxisAlignment:
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
           RichText(
-            text:
-            TextSpan(
+            text: TextSpan(
                 children: spans, style: Theme.of(context).textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
@@ -134,7 +133,9 @@ class UrlParser implements Parser {
           handleJoinUri(context, uri);
         } else
           await launch(uri);
-      }, style: Theme.of(context).primaryTextTheme.bodyText2);
+      },
+          style:
+              TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class IdParser implements Parser {
@@ -144,10 +145,10 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "id",
-          onTap: (id) => onUsernameClick(id),
-          style: Theme.of(context).primaryTextTheme.bodyText2);
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+      blocks, regex, "id",
+      onTap: (id) => onUsernameClick(id),
+      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class BoldTextParser implements Parser {
@@ -161,10 +162,7 @@ class BoldTextParser implements Parser {
         regex,
         "bold",
         transformer: BoldTextParser.transformer,
-        style: Theme.of(context)
-            .textTheme
-            .bodyText2
-            .copyWith(fontWeight: FontWeight.w800),
+        style: TextStyle(inherit: true, fontWeight: FontWeight.w800),
       );
 }
 
@@ -174,16 +172,10 @@ class ItalicTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("__", "");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "italic",
-        transformer: ItalicTextParser.transformer,
-        style: Theme.of(context)
-            .textTheme
-            .bodyText2
-            .copyWith(fontStyle: FontStyle.italic),
-      );
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "italic",
+          transformer: ItalicTextParser.transformer,
+          style: TextStyle(inherit: true, fontStyle: FontStyle.italic));
 }
 
 class EmojiParser implements Parser {
@@ -198,7 +190,8 @@ class EmojiParser implements Parser {
         blocks,
         regex,
         "emoji",
-        style: Theme.of(context).textTheme.bodyText2.copyWith(
+        style: TextStyle(
+            inherit: true,
             fontSize: fontSize,
             fontFamily: "NotoColorEmoji",
             fontFamilyFallback: ["NotoColorEmoji"]),
@@ -215,7 +208,7 @@ class BotCommandParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "bot",
           onTap: (id) => onBotCommandClick(id),
-          style: Theme.of(context).primaryTextTheme.bodyText2);
+          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class SearchTermParser implements Parser {
@@ -226,7 +219,7 @@ class SearchTermParser implements Parser {
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, RegExp(searchTerm), "search",
-          style: Theme.of(context).primaryTextTheme.bodyText2);
+          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class Block {

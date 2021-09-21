@@ -179,8 +179,8 @@
   "of": "از",
   "sure_exit_app": "از خروج خودتان مطمئن هستید؟ ",
   "sure_delete_group": "از حذف گروه مطمئن هستید؟",
-  "sure_left_group": " ترک گروه؟ ",
-  "sure_left_channel": "ترک کانال؟",
+  "sure_left_group": " ایا مطنید از ترک گروه  ",
+  "sure_left_channel": " آیا مطنید از ترک کانال",
   "sure_delete_channel": "از حذف کانال مطمئن هستید؟",
   "ok": "بله",
   "just_now": "الان",
@@ -249,5 +249,11 @@
   "last_update": "آخرین بروزرسانی ",
   "enter_numeric_value": "عدد وارد کیند",
   "draft": "پیش نویس",
-  "text": "متن"
+  "text": "متن",
+  "submitted_on": "ثبت شده در",
+  "sure_delete_room": "آیا  مطمنید از حذف گفتگو با",
+  "delete_chat": "حذف گفتگو",
+  "selected_file": "فایل انتخاب شده",
+  "caption": "متن",
+  "add_caption" : "افزودن متن"
 }

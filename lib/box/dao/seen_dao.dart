@@ -1,4 +1,4 @@
-import 'package:we/box/seen.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:hive/hive.dart';
 
 abstract class SeenDao {

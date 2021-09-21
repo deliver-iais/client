@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

@@ -2,15 +2,14 @@ import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
 
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/messageRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/room/widgets/share_box/file.dart';
-import 'package:we/screen/room/widgets/share_box/gallery.dart';
-import 'package:we/screen/room/widgets/share_box/music.dart';
-import 'package:we/screen/room/widgets/show_caption_dialog.dart';
-import 'package:we/services/check_permissions_service.dart';
-import 'package:we/shared/methods/platform.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/file.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/music.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -48,6 +47,8 @@ class ShareBox extends StatefulWidget {
 enum Page { Gallery, Files, Location, Music }
 
 class _ShareBoxState extends State<ShareBox> {
+  final messageRepo = GetIt.I.get<MessageRepo>();
+
   final selectedImages = Map<int, bool>();
 
   final selectedAudio = Map<int, bool>();
@@ -65,9 +66,6 @@ class _ShareBoxState extends State<ShareBox> {
 
   bool selected = false;
   TextEditingController captionTextController = TextEditingController();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-
-  var messageRepo = GetIt.I.get<MessageRepo>();
 
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
@@ -229,7 +227,8 @@ class _ShareBoxState extends State<ShareBox> {
                                           width: 16.0,
                                           height: 16.0,
                                           decoration: new BoxDecoration(
-                                            color: Theme.of(co).dialogBackgroundColor,
+                                            color: Theme.of(co)
+                                                .dialogBackgroundColor,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -273,9 +272,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           if (result != null) {
                                             Navigator.pop(co);
                                             showCaptionDialog(
-                                                icons: Icons.insert_drive_file,
                                                 type: "image",
-                                                result: result);
+                                                paths: result.paths,
+                                                roomUid: widget.currentRoomId,
+                                                context: context);
                                           }
                                         } else
                                           setState(() {
@@ -305,9 +305,10 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (result != null) {
                                           Navigator.pop(co);
                                           showCaptionDialog(
-                                              icons: Icons.file_upload,
                                               type: "file",
-                                              result: result);
+                                              paths: result.paths,
+                                              roomUid: widget.currentRoomId,
+                                              context: context);
                                         }
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
@@ -343,9 +344,9 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (result != null) {
                                           Navigator.pop(co);
                                           showCaptionDialog(
-                                              icons: Icons.music_note,
                                               type: "music",
-                                              result: result);
+                                              context: context,
+                                              paths: result.paths);
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
@@ -588,24 +589,23 @@ class _ShareBoxState extends State<ShareBox> {
       },
     );
   }
+}
 
-  showCaptionDialog(
-      {IconData icons, String type, FilePickerResult result}) async {
-    String name = await _roomRepo.getName(widget.currentRoomId);
-    showDialog(
-        context: context,
-        builder: (context) {
-          return ShowCaptionDialog(
-            name: name,
-            icon: icons,
-            type: type,
-            caption: captionTextController,
-            messageRepo: messageRepo,
-            currentRoom: widget.currentRoomId,
-            result: result.paths,
-          );
-        });
-  }
+showCaptionDialog(
+    {String type,
+    List<String> paths,
+    Uid roomUid,
+    BuildContext context}) async {
+  if (paths.length <= 0) return;
+  showDialog(
+      context: context,
+      builder: (context) {
+        return ShowCaptionDialog(
+          type: type,
+          currentRoom: roomUid,
+          paths: paths,
+        );
+      });
 }
 
 Widget circleButton(Function onTap, IconData icon, String text, double size,

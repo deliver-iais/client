@@ -3,23 +3,23 @@ import 'dart:async';
 import 'dart:io' as DartFile;
 import 'dart:math';
 
-import 'package:we/box/dao/message_dao.dart';
-import 'package:we/box/dao/room_dao.dart';
-import 'package:we/box/dao/seen_dao.dart';
-import 'package:we/box/dao/shared_dao.dart';
-import 'package:we/box/message.dart';
-import 'package:we/box/pending_message.dart';
-import 'package:we/box/room.dart';
-import 'package:we/box/seen.dart';
-import 'package:we/box/message_type.dart';
-import 'package:we/box/sending_status.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/liveLocationRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/services/core_services.dart';
-import 'package:we/services/muc_services.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/seen_dao.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/liveLocationRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -43,8 +43,8 @@ import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
@@ -145,16 +145,39 @@ class MessageRepo {
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-          if (room != null &&
-              room.lastMessage != null &&
-              room.lastMessage.id != null &&
-              room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
-              room.lastMessage.id != 0) {
-            if (fetchAllRoom != null)
-              finished = true; // no more updating needed after this room
-            break;
+          if (roomMetadata.presenceType == null ||
+              roomMetadata.presenceType == PresenceType.ACTIVE) {
+            if (room != null &&
+                room.lastMessage != null &&
+                room.lastMessage.id != null &&
+                room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
+                room.lastMessage.id != 0 &&
+                room.lastUpdateTime != null &&
+                room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
+              if (fetchAllRoom != null)
+                finished = true; // no more updating needed after this room
+              break;
+            }
+            if (room != null && room.deleted != null && room.deleted)
+              _roomDao.updateRoom(Room(
+                  uid: room.uid,
+                  deleted: false,
+                  firstMessageId: roomMetadata.firstMessageId.toInt(),
+                  lastUpdateTime: roomMetadata.lastUpdate.toInt()));
+            fetchLastMessages(
+                roomMetadata.roomUid,
+                roomMetadata.lastMessageId.toInt(),
+                roomMetadata.firstMessageId.toInt(),
+                roomMetadata.lastUpdate.toInt(),
+                room);
+          } else {
+            _roomDao.updateRoom(Room(
+                uid: roomMetadata.roomUid.asString(),
+                deleted: true,
+                lastMessageId: roomMetadata.lastMessageId.toInt(),
+                firstMessageId: roomMetadata.firstMessageId.toInt(),
+                lastUpdateTime: roomMetadata.lastUpdate.toInt()));
           }
-          fetchLastMessages(roomMetadata, room);
         }
       } catch (e) {
         _logger.e(e);
@@ -182,32 +205,43 @@ class MessageRepo {
     });
   }
 
-  Future<void> fetchLastMessages(RoomMetadata roomMetadata, Room room,
+  Future<Message> fetchLastMessages(Uid roomUid, int lastMessageId,
+      int firstMessageId, int lastUpdateTime, Room room,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
-            ..roomUid = roomMetadata.roomUid
-            ..pointer = roomMetadata.lastMessageId
+            ..roomUid = roomUid
+            ..pointer = Int64(lastMessageId)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
           options: CallOptions(timeout: Duration(seconds: 3)));
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
-      if (messages.isNotEmpty) {
-        _roomDao.updateRoom(Room(
-          uid: roomMetadata.roomUid.asString(),
-          lastMessage: messages.last,
-        ));
-      }
+      _roomDao.updateRoom(Room(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId.toInt(),
+        lastUpdateTime: lastUpdateTime,
+        lastMessageId: lastMessageId.toInt(),
+        lastMessage: messages.last,
+      ));
 
       if (room != null && room.uid.asUid().category == Categories.GROUP) {
         getMentions(room);
       }
+      return messages.last;
     } catch (e) {
+      _roomDao.updateRoom(Room(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId.toInt(),
+        lastUpdateTime: lastUpdateTime,
+        lastMessageId: lastMessageId.toInt(),
+      ));
+      _logger.wtf(roomUid);
+      _logger.wtf(room);
       _logger.e(e);
-      if (retry) fetchLastMessages(roomMetadata, room, retry: false);
+      return null;
     }
   }
 
@@ -491,7 +525,11 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(PendingMessage pm) async {
-    await _roomDao.updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg));
+    await _roomDao.updateRoom(Room(
+        uid: pm.roomUid,
+        lastMessage: pm.msg,
+        deleted: false,
+        lastUpdateTime: pm.msg.time));
   }
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {

@@ -1,11 +1,11 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/muc/widgets/selective_contact_list.dart';
-import 'package:we/services/create_muc_service.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/shared/widgets/box.dart';
-import 'package:we/shared/widgets/fluid_container.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
+import 'package:deliver/services/create_muc_service.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/widgets/box.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -49,6 +49,8 @@ class MemberSelectionPage extends StatelessWidget {
                         isChannel
                             ? i18n.get("newChannel")
                             : i18n.get("newGroup"),
+                        style:
+                            TextStyle(color: ExtraTheme.of(context).textField),
                       ),
                 StreamBuilder<int>(
                     stream: _createMucService.selectedLengthStream(),

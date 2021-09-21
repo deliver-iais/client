@@ -1,6 +1,6 @@
-import 'package:we/box/message.dart';
-import 'package:we/box/sending_status.dart';
-import 'package:we/shared/constants.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'pending_message.g.dart';

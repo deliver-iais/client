@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -28,7 +28,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
       future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
-          thumbnailSize: ThumbnailSize.small),
+          thumbnailSize: ThumbnailSize.medium),
       builder: (c, thumbnail) {
         if (thumbnail.hasData && thumbnail.data != null) {
           return Container(
@@ -64,7 +64,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                         },
                       )
                     : MaterialButton(
-                  color: Theme.of(context).buttonColor,
+                  color: Theme.of(context).primaryColor,
                   onPressed: () async {
                     widget.download();
                     startDownload = true;

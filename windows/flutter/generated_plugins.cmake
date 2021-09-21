@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   url_launcher_windows
+   desktop_drop
   window_size
 )
 

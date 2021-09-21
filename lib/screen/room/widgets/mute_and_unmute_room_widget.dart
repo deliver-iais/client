@@ -1,10 +1,10 @@
-import 'package:we/localization/i18n.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/repository/mucRepo.dart';
-import 'package:we/repository/roomRepo.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class MuteAndUnMuteRoomWidget extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();

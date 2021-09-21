@@ -1,16 +1,16 @@
 import 'dart:io';
 
-import 'package:we/box/message.dart';
-import 'package:we/box/message_type.dart';
-import 'package:we/repository/authRepo.dart';
-import 'package:we/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:we/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class AnimatedEmoji extends StatefulWidget {
   final Message message;

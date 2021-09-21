@@ -1,5 +1,5 @@
 
-import 'package:we/box/livelocation.dart';
+import 'package:deliver/box/livelocation.dart';
 import 'package:hive/hive.dart';
 
 abstract class LiveLocationDao {

@@ -1,24 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dcache/dcache.dart';
-import 'package:we/box/avatar.dart';
-import 'package:we/box/media.dart';
-import 'package:we/box/media_type.dart';
-import 'package:we/repository/avatarRepo.dart';
-import 'package:we/repository/fileRepo.dart';
-import 'package:we/repository/mediaQueryRepo.dart';
-import 'package:we/repository/roomRepo.dart';
-import 'package:we/screen/room/messageWidgets/video_message/download_video_widget.dart';
-import 'package:we/screen/room/messageWidgets/video_message/video_ui.dart';
-import 'package:we/services/file_service.dart';
-import 'package:we/services/routing_service.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/avatar.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
+import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
-import 'package:we/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
@@ -139,7 +139,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       var fileName = _allAvatars[i].fileName;
                       var file = _fileCache.get(fileId);
                       if (file != null) {
-                        return buildMeidaCenter(
+                        return buildMediaCenter(
                             context, i, file, fileId, "avatar$i");
                       } else {
                         return buildFutureMediaBuilder(
@@ -203,7 +203,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       buildMediaPropertise(media);
       var mediaFile = _fileCache.get(fileId);
       if (mediaFile != null)
-        return buildMeidaCenter(context, i, mediaFile, fileId, widget.heroTag);
+        return buildMediaCenter(context, i, mediaFile, fileId, widget.heroTag);
       else {
         return buildFutureMediaBuilder(fileId, fileName, context, i);
       }
@@ -213,14 +213,13 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   FutureBuilder<File> buildFutureMediaBuilder(
       fileId, fileName, BuildContext context, int i) {
     return FutureBuilder<File>(
-      future: _fileRepo.getFile(fileId, fileName,
-          thumbnailSize: ThumbnailSize.large),
+      future: _fileRepo.getFile(fileId, fileName),
       builder: (BuildContext c, AsyncSnapshot snaps) {
         if (snaps.hasData &&
             snaps.data != null &&
             snaps.connectionState == ConnectionState.done) {
           _fileCache.set(fileId, snaps.data);
-          return buildMeidaCenter(
+          return buildMediaCenter(
               context, i, snaps.data, fileId, widget.heroTag);
         } else {
           return Center(
@@ -233,7 +232,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Center buildMeidaCenter(
+  Center buildMediaCenter(
       BuildContext context, int i, File mediaFile, fileId, Object tag) {
     return Center(
       child: Container(
@@ -342,8 +341,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           } else if (snaps.data == null &&
               snaps.connectionState == ConnectionState.done) {
             return FutureBuilder(
-                future: _fileRepo.getFile(fileId, fileName,
-                    thumbnailSize: ThumbnailSize.large),
+                future: _fileRepo.getFile(fileId, fileName),
                 builder: (BuildContext c, AsyncSnapshot snaps) {
                   if (snaps.hasData &&
                       snaps.data != null &&

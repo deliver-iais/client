@@ -1,4 +1,4 @@
-import 'package:we/box/avatar.dart';
+import 'package:deliver/box/avatar.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {

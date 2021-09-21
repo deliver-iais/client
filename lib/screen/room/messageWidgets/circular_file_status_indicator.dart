@@ -1,8 +1,8 @@
-import 'package:we/box/message.dart';
-import 'package:we/screen/room/messageWidgets/audio_message/play_audio_status.dart';
-import 'package:we/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
-import 'package:we/screen/room/messageWidgets/load-file-status.dart';
-import 'package:we/theme/extra_theme.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
+import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
+import 'package:deliver/screen/room/messageWidgets/load-file-status.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +25,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isExist != null) {
-      if (isExist && !isPending) {
+      if (isExist && msg.id != null) {
         return file.type.contains("audio")
             ? PlayAudioStatus(
                 fileId: file.uuid,

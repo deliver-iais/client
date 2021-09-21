@@ -1,5 +1,5 @@
-import 'package:we/box/message.dart';
-import 'package:we/box/pending_message.dart';
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/pending_message.dart';
 import 'package:hive/hive.dart';
 
 abstract class MessageDao {
