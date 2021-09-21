@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -56,7 +59,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           (type.contains("image") ||
                               type.contains("jpg") ||
                               type.contains("png") ||
-                              type.contains("jfif")||type.contains("jpeg"))
+                              type.contains("jfif") ||
+                              type.contains("jpeg"))
                       ? Container(
                           height: MediaQuery.of(context).size.height / 3,
                           child: Stack(
@@ -142,8 +146,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          var res = await getFile(allowMultiple: true);
-                          res.paths.forEach((element) {
+                          List<String> res = await getFile(allowMultiple: true);
+                          res.forEach((element) {
                             widget.paths.add(element);
                             fileNames.add(isWindows()
                                 ? element.split("\\").last
@@ -204,13 +208,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         IconButton(
             onPressed: () async {
-              FilePickerResult result = await getFile(allowMultiple: false);
-              if (result.paths != null && result.paths.length > 0) {
+              var  result = await getFile(allowMultiple: false);
+
+              if (result != null && result.length > 0) {
                 fileNames[index] = isWindows()
-                    ? result.paths[0].split("\\").last
-                    : result.paths[0].split("/").last;
-                widget.paths[index] = result.paths[0];
-                type = result.paths.first.split(".").last;
+                    ? result[0].split("\\").last
+                    : result[0].split("/").last;
+                widget.paths[index] = result[0];
+                type = result.first.split(".").last;
                 setState(() {});
               }
             },
@@ -236,22 +241,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     );
   }
 
-  Future<FilePickerResult> getFile({bool allowMultiple}) async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(
-        allowMultiple: allowMultiple,
-        type: FileType.custom,
-        allowedExtensions: [
-          "pdf",
-          "mp4",
-          "pptx",
-          "docx",
-          "xlsx",
-          'png',
-          'jpg',
-          'jpeg',
-          'gif',
-          'rar'
-        ]);
-    return result;
+  Future<List<XFile>> getFile({bool allowMultiple}) async {
+    try {
+        var result = await openFiles();
+        return result;
+    } catch (e) {
+      return [];
+    }
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:grpc/grpc.dart';
 import 'package:grpc/grpc_web.dart';
 
@@ -8,8 +7,8 @@ final QueryClientChannel = ClientChannel("query.deliver-co.ir",
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(),
         connectionTimeout: Duration(seconds: 2)));
-final webQueryClientChannel = GrpcWebClientChannel.xhr(
-    Uri(scheme: "https", host: "gwp-query.deliver-co.ir"));
+final webQueryClientChannel =
+    GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
 
 // ignore: non_constant_identifier_names
 final BotClientChannel = ClientChannel("ms-bot.deliver-co.ir",

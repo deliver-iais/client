@@ -10,6 +10,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 
 import 'package:deliver/theme/extra_theme.dart';

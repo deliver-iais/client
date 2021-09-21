@@ -25,6 +25,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
@@ -633,7 +634,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images');
-    final result = await openFiles(acceptedTypeGroups: [typeGroup]);
+    final result = await openFiles();
     showCaptionDialog(result: result, icons: Icons.file_upload);
   }
 

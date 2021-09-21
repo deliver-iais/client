@@ -78,6 +78,7 @@ M.Message _decodeMessage(String notificationBody) {
 }
 
 Future<void> backgroundMessageHandler(dynamic message) async {
+  return;
   try {
     await setupDI();
   } catch (e) {

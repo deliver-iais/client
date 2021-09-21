@@ -93,6 +93,8 @@ class MessageRepo {
           _roomRepo.fetchBlockedRoom();
           break;
         case ConnectionStatus.Disconnected:
+          await updatingMessages();
+          // await updatingLastSeen();
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
@@ -132,10 +134,11 @@ class MessageRepo {
     bool finished = false;
     int pointer = 0;
     var fetchAllRoom = await _sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM);
+    var getAllUserRoomMetaRes;
 
     while (!finished && pointer < 10000) {
       try {
-        var getAllUserRoomMetaRes =
+        getAllUserRoomMetaRes =
             await _queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
               ..pointer = pointer
               ..limit = 10);
@@ -357,15 +360,20 @@ class MessageRepo {
     }
 
     // Get type with file name
-    final tempFileSize = file.statSync().size;
+    var tempFileSize;
+    try {
+      tempFileSize = (await file.stat()).size;
+    } catch (e) {
+      _logger.e(e);
+    }
 
     FileProto.File sendingFakeFile = FileProto.File()
       ..uuid = packetId
       ..caption = caption ?? ""
-      ..width = tempDimension.width
-      ..height = tempDimension.height
+      ..width = tempDimension.width ?? 200
+      ..height = tempDimension.height ?? 200
       ..type = tempType
-      ..size = Int64(tempFileSize)
+      ..size = Int64(tempFileSize ?? 20)
       ..name = path.split(".").last
       ..duration = 0;
 
@@ -645,7 +653,7 @@ class MessageRepo {
   }
 
   String _findType(String path) {
-    return mime(path) ?? "application/octet-stream";
+    return mime(path) ?? path.split(".").last ?? "application/octet-stream";
   }
 
   void setCoreSetting() {

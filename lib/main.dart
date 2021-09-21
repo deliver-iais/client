@@ -80,7 +80,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+// import 'package:dart_vlc/dart_vlc.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
@@ -142,8 +142,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.registerSingleton<AuthServiceClient>(
-      AuthServiceClient(webProfileServicesClientChannel));
+  GetIt.I.registerSingleton<AuthServiceClient>(kIsWeb?
+      AuthServiceClient(webProfileServicesClientChannel):
       AuthServiceClient(ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
