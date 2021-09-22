@@ -136,6 +136,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
     return DragDropWidget(
       roomUid: widget.roomId,
+      height: MediaQuery.of(context).size.height,
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: buildAppbar(),

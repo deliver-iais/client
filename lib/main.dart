@@ -80,6 +80,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+
 // import 'package:dart_vlc/dart_vlc.dart';
 import 'package:window_size/window_size.dart';
 
@@ -142,36 +143,36 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.registerSingleton<AuthServiceClient>(kIsWeb?
-      AuthServiceClient(webProfileServicesClientChannel):
-      AuthServiceClient(ProfileServicesClientChannel));
+  GetIt.I.registerSingleton<AuthServiceClient>(kIsWeb
+      ? AuthServiceClient(webProfileServicesClientChannel)
+      : AuthServiceClient(ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
   GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
-      kIsWeb?webProfileServicesClientChannel :ProfileServicesClientChannel,
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
-      kIsWeb?webProfileServicesClientChannel:ProfileServicesClientChannel,
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
-      kIsWeb?webQueryClientChannel:QueryClientChannel,
+      kIsWeb ? webQueryClientChannel : QueryClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
-      kIsWeb?webCoreServicesClientChannel:CoreServicesClientChannel,
+      kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
-      kIsWeb?webStickerClientChannel:StickerClientChannel,
+      kIsWeb ? webStickerClientChannel : StickerClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
-      MucServicesClientChannel,
+      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
-      MucServicesClientChannel,
+      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
       AvatarServicesClientChannel,
@@ -249,9 +250,9 @@ void main() async {
 
   if (isDesktop()) {
     try {
-   //   _setWindowSize();
+      //   _setWindowSize();
 
-   //   setWindowTitle(APPLICATION_NAME);
+      //   setWindowTitle(APPLICATION_NAME);
     } catch (e) {
       Logger().e(e);
     }

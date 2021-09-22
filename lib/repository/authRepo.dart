@@ -18,6 +18,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
@@ -25,8 +26,8 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+import 'package:platform_detect/platform_detect.dart';
 import 'package:synchronized/synchronized.dart';
-
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -85,9 +86,12 @@ class AuthRepo {
   }
 
   getPlatForm(Pb.Platform platform) async {
-    if (isAndroid()) {
+    if (kIsWeb) {
+      platform
+        ..platformType = Pb.PlatformsType.WEB
+        ..osVersion = browser.version.major.toString();
+    } else if (isAndroid()) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
       platform
         ..platformType = Pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
@@ -119,20 +123,20 @@ class AuthRepo {
 
   Future<String> getDeviceName() async {
     String device;
-    if (kIsWeb) if (isAndroid()) {
+    if (kIsWeb) {
+      device = "${browser.name} ${browser.version.canonicalizedVersion}";
+    } else if (isAndroid()) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.model;
     } else if (isIOS()) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       device = iosInfo.model;
     } else if (isLinux()) {
-      // device = "${operatingSystem}:${Platform.operatingSystemVersion}";
+      device = "${operatingSystem}:${Platform.operatingSystemVersion}";
     } else if (isMacOS()) {
-      //  device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (kIsWeb) {
-      device = "web";
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else if (isWindows()) {
-      //      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
     return device;
   }
@@ -165,7 +169,7 @@ class AuthRepo {
     var res = await _authServiceClient
         .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
           ..token = token
-          ..device = device ?? "i"
+          ..device = device
           ..platform = platform
           //  TODO add password mechanism
           ..password = "");
@@ -178,6 +182,8 @@ class AuthRepo {
   }
 
   Future _getAccessToken(String refreshToken) async {
+    if (_refreshToken == null)
+      refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
     return await requestLock.synchronized(() async {
       try {
         return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()

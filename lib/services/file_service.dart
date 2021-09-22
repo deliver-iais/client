@@ -1,10 +1,15 @@
+import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:io';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:async/async.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -63,6 +68,12 @@ class FileService {
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
+      options.headers["Access-Control-Allow-Origin"] = "*";
+      options.headers["Access-Control-Allow-Credentials"] = true;
+      options.headers["Access-Control-Allow-Headers"] =
+          "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
+      options.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+
       return handler.next(options); //continue
     }));
   }
@@ -81,20 +92,66 @@ class FileService {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
-    var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      filesDownloadStatus[uuid].add((i / j));
-    }, options: Options(responseType: ResponseType.bytes));
-    final file = await localFile(uuid, filename.split('.').last);
-    file.writeAsBytesSync(res.data);
-    return file;
+    if (kIsWeb && false) {
+      try {
+        http.Client client = new http.Client();
+        var req = await client
+            .get(Uri.parse("$FileServiceBaseUrl/$uuid/$filename"), headers: {
+          "Authorization": await _authRepo.getAccessToken(),
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Access-Control-Allow-Origin, Accept",
+          "Access-Control-Allow-Credentials": "true",
+          // Required for cookies, authorization headers with HTTPS
+          "Access-Control-Allow-Methods": "POST, OPTIONS,GET,HEAD"
+        });
+        var blob = html.Blob(req.bodyBytes, 'jpg', 'native');
+
+        var anchorElement = html.AnchorElement(
+          href: html.Url.createObjectUrlFromBlob(blob).toString(),
+        )
+          ..setAttribute("download", "data.jpg")
+          ..click();
+        return File(anchorElement.pathname);
+      } catch (e) {
+        print(e.toString());
+        return null;
+      }
+    } else {
+      try {
+        var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
+          filesDownloadStatus[uuid].add((i / j));
+        }, options: Options(responseType: ResponseType.bytes));
+        List l = res.data as List<dynamic>;
+        print(l.length.toString());
+
+        if (kIsWeb) {
+          var blob = html.Blob(res.data, filename.split(".").last,);
+
+          var save = html.AnchorElement(
+            href: html.Url.createObjectUrlFromBlob(blob).toString(),
+          )..setAttribute("download", filename);
+          await save.click();
+          return null;
+          //return File(anchorElement.pathname);
+        } else {
+          final file = await localFile(uuid, filename.split('.').last);
+          file.writeAsBytesSync(res.data);
+          return file;
+        }
+      } catch (e) {
+        print("er");
+      }
+    }
   }
-  Future<File> getDeliverIcon()async {
-    var file =   await localFile("deliver-icon","png");
-    if(file.existsSync()){
+
+  Future<File> getDeliverIcon() async {
+    var file = await localFile("deliver-icon", "png");
+    if (file.existsSync()) {
       return file;
-    }else{
-      var res =await rootBundle.load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      File f = File("${ await _localPath}/deliver-icon.png");
+    } else {
+      var res = await rootBundle
+          .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+      File f = File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -130,28 +187,91 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      options.onSendProgress = (int i, int j) {
-        if (sendActivity != null) sendActivity();
-        if (filesUploadStatus[uploadKey] == null) {
-          BehaviorSubject<double> d = BehaviorSubject();
-          filesUploadStatus[uploadKey] = d;
+    if (kIsWeb) {
+      try {
+        File imageFile = File(filePath);
+        var stream =
+            new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+        // get file length
+        var length;
+        try {
+          length = await imageFile.length();
+        } catch (e) {
+          print(e.toString());
         }
-        filesUploadStatus[uploadKey].add((i / j));
-      };
-      handler.next(options);
-    }));
 
-    var formData = FormData.fromMap({
-      "file": MultipartFile.fromFileSync(filePath,
-          contentType:
-              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-    });
+        // string to uri
+        var uri = Uri.parse(FileServiceBaseUrl);
 
-    return _dio.post(
-      "/upload",
-      data: formData,
-    );
+        // create multipart request
+        var request = new http.MultipartRequest("POST", uri);
+
+        // multipart that takes file
+        var multipartFile = new http.MultipartFile('file', stream, 100,
+            filename: filePath.split(".").last);
+
+        // add file to multipart
+        request.files.add(multipartFile);
+        var token = await _authRepo.getAccessToken();
+        request.fields["Authorization"] = token;
+
+        // send
+        var response;
+        try {
+          response = await request.send();
+          // print(response.statusCode);
+        } catch (e) {
+          print(e.toString());
+        }
+
+        // listen for response
+        response.stream.transform(utf8.decoder).listen((value) {
+          print(value);
+        });
+      } catch (e) {
+        print(e.toString());
+      }
+    } else {
+      _dio.interceptors.add(InterceptorsWrapper(onRequest:
+          (RequestOptions options, RequestInterceptorHandler handler) async {
+        options.onSendProgress = (int i, int j) {
+          if (sendActivity != null) sendActivity();
+          if (filesUploadStatus[uploadKey] == null) {
+            BehaviorSubject<double> d = BehaviorSubject();
+            filesUploadStatus[uploadKey] = d;
+          }
+          filesUploadStatus[uploadKey].add((i / j));
+        };
+        handler.next(options);
+      }));
+      var formData;
+      try {
+        FormData formData = new FormData.fromMap(
+          {
+            "files.image": await MultipartFile.fromFile(filePath,
+                filename: filePath.split('/').last,
+                contentType: MediaType.parse(
+                    mime(filePath) ?? "application/octet-stream")),
+            "data": jsonEncode({
+              "title": "t",
+              "summary": "t",
+              "content": "erer",
+            }),
+          },
+        );
+        formData = FormData.fromMap({
+          "file": MultipartFile.fromFile(filePath,
+              contentType: MediaType.parse(
+                  mime(filePath) ?? "application/octet-stream")),
+        });
+
+        return _dio.post(
+          "/upload",
+          data: formData,
+        );
+      } catch (e) {
+        print(e.toString());
+      }
+    }
   }
 }

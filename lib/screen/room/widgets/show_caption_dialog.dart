@@ -1,20 +1,19 @@
 import 'dart:io';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver/shared/methods/platform.dart';
+
 
 class ShowCaptionDialog extends StatefulWidget {
   final List<String> paths;
   final String type;
   final Uid currentRoom;
+
 
   ShowCaptionDialog({Key key, this.paths, this.type, this.currentRoom})
       : super(key: key);
@@ -146,12 +145,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          List<String> res = await getFile(allowMultiple: true);
+                          var res = await getFile(allowMultiple: true);
                           res.forEach((element) {
-                            widget.paths.add(element);
-                            fileNames.add(isWindows()
-                                ? element.split("\\").last
-                                : element.split("/").last);
+                            widget.paths.add(element.path);
+                            fileNames.add(element.name);
                           });
                           setState(() {});
                         },
@@ -208,14 +205,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         IconButton(
             onPressed: () async {
-              var  result = await getFile(allowMultiple: false);
-
-              if (result != null && result.length > 0) {
-                fileNames[index] = isWindows()
-                    ? result[0].split("\\").last
-                    : result[0].split("/").last;
-                widget.paths[index] = result[0];
-                type = result.first.split(".").last;
+              var result = await getFile(allowMultiple: false);
+              if (result.length > 0) {
+                fileNames[index] = result.first.name;
+                widget.paths[index] = result.first.path;
+                type = result.first.name.split(".").last;
                 setState(() {});
               }
             },
@@ -243,8 +237,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   Future<List<XFile>> getFile({bool allowMultiple}) async {
     try {
-        var result = await openFiles();
-        return result;
+      var result = await openFiles();
+      return result;
     } catch (e) {
       return [];
     }
