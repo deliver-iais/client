@@ -15,6 +15,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -24,6 +25,7 @@ enum ThumbnailSize { medium }
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _logger = GetIt.I.get<Logger>();
 
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
@@ -92,55 +94,30 @@ class FileService {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
-    if (kIsWeb && false) {
-      try {
-        http.Client client = new http.Client();
-        var req = await client
-            .get(Uri.parse("$FileServiceBaseUrl/$uuid/$filename"), headers: {
-          "Authorization": await _authRepo.getAccessToken(),
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Access-Control-Allow-Origin, Accept",
-          "Access-Control-Allow-Credentials": "true",
-          // Required for cookies, authorization headers with HTTPS
-          "Access-Control-Allow-Methods": "POST, OPTIONS,GET,HEAD"
-        });
-        var blob = html.Blob(req.bodyBytes, 'jpg', 'native');
-
-        var anchorElement = html.AnchorElement(
+    try {
+      var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
+        filesDownloadStatus[uuid].add((i / j));
+      }, options: Options(responseType: ResponseType.bytes));
+      if (kIsWeb) {
+        var blob = html.Blob(
+          <Object>[res.data],
+          filename.split(".").last,
+        );
+        var s = html.AnchorElement(
           href: html.Url.createObjectUrlFromBlob(blob).toString(),
         )
-          ..setAttribute("download", "data.jpg")
+          ..setAttribute("download", filename)
           ..click();
-        return File(anchorElement.pathname);
-      } catch (e) {
-        print(e.toString());
-        return null;
+        var f = File(s.baseUri);
+        return f;
+      } else {
+        final file = await localFile(uuid, filename.split('.').last);
+        file.writeAsBytesSync(res.data);
+        return file;
       }
-    } else {
-      try {
-        var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-          filesDownloadStatus[uuid].add((i / j));
-        }, options: Options(responseType: ResponseType.bytes));
-        List l = res.data as List<dynamic>;
-        print(l.length.toString());
-
-        if (kIsWeb) {
-          var blob = html.Blob(res.data, filename.split(".").last,);
-
-          var save = html.AnchorElement(
-            href: html.Url.createObjectUrlFromBlob(blob).toString(),
-          )..setAttribute("download", filename);
-          await save.click();
-          return null;
-          //return File(anchorElement.pathname);
-        } else {
-          final file = await localFile(uuid, filename.split('.').last);
-          file.writeAsBytesSync(res.data);
-          return file;
-        }
-      } catch (e) {
-        print("er");
-      }
+    } catch (e) {
+      _logger.e(e);
+      return null;
     }
   }
 
