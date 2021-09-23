@@ -1,9 +1,3 @@
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:desktoasts/desktoasts.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
-import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -16,6 +10,12 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:desktoasts/desktoasts.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -228,7 +228,9 @@ class AndroidNotifier implements Notifier {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final channel = const AndroidNotificationChannel(
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+
+  AndroidNotificationChannel channel = AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
       'All notifications of application.', // description
@@ -263,6 +265,10 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
+    String selectedNotificationSound = "that_was_quick";
+    _roomRepo
+        .getRoomCustomNotification(message.roomUid.asString())
+        .then((value) => {if (value != "-") selectedNotificationSound = value});
     if (message.ignoreNotification) return;
 
     AndroidBitmap largeIcon;
@@ -278,10 +284,19 @@ class AndroidNotifier implements Notifier {
       }
     }
 
+    AndroidNotificationChannel channel = AndroidNotificationChannel(
+        selectedNotificationSound, // id
+        'Notifications', // title
+        'All notifications of application.', // description
+        importance: Importance.high,
+        groupId: "all_group");
+
     var platformChannelSpecifics = AndroidNotificationDetails(
         channel.id, channel.name, channel.description,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
         setAsGroupSummary: false);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
