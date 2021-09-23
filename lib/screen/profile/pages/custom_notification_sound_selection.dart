@@ -49,7 +49,7 @@ class _CustomNotificationSoundSelectionState
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             child: ElevatedButton(
                 onPressed: () {
                   var index = 0;
