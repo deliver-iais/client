@@ -209,7 +209,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     value: "newChannel",
                   )
-                ]));
+                ])
+    );
   }
 
   selectChatMenu(String key) {

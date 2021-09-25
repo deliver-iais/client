@@ -255,5 +255,6 @@
   "delete_chat": "حذف گفتگو",
   "selected_file": "فایل انتخاب شده",
   "caption": "متن",
-  "add_caption" : "افزودن متن"
+  "add_caption" : "افزودن متن",
+  "save_in_downloads" : "ذخیره در دانلود ها"
 }

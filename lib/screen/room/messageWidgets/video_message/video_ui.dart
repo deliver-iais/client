@@ -9,11 +9,11 @@ import 'package:rxdart/rxdart.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
-  final File video;
+  final String videoPath;
   final double duration;
   final bool showSlider;
 
-  VideoUi({Key key, this.video, this.duration, this.showSlider})
+  VideoUi({Key key, this.videoPath, this.duration, this.showSlider})
       : super(key: key);
 
   @override
@@ -35,7 +35,7 @@ class _VideoUiState extends State<VideoUi> {
   @override
   void initState() {
     _currentPositionSubject = BehaviorSubject.seeded(0.0);
-    videoPlayerService.videoControllerInitialization(widget.video);
+    videoPlayerService.videoControllerInitialization(File(widget.videoPath));
     videoPlayerService.videoPlayerController.addListener(() async {
       _currentPositionSubject.add(
           (await videoPlayerService.videoPlayerController.position)
@@ -114,7 +114,7 @@ class _VideoUiState extends State<VideoUi> {
                           icon: Icon(Icons.play_arrow),
                           onPressed: () async {
                             if(isDesktop()){
-                              OpenFile.open(widget.video.path);
+                              OpenFile.open(widget.videoPath);
                             }else{
                               setState(() {
                                 isPlaying = true;

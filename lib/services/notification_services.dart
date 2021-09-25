@@ -180,11 +180,11 @@ class LinuxNotifier implements Notifier {
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+      var path = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
           thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        icon = AssetsLinuxIcon(f.path);
+      if (path != null && path.isNotEmpty) {
+        icon = AssetsLinuxIcon(path);
       }
     }
 
@@ -264,11 +264,11 @@ class AndroidNotifier implements Notifier {
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+      var path = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
           thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        largeIcon = FilePathAndroidBitmap(f.path);
+      if (path != null && path.isNotEmpty) {
+        largeIcon = FilePathAndroidBitmap(path);
       }
     }
 
@@ -332,11 +332,11 @@ class MacOSNotifier implements Notifier {
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+      var path = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
           thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        attachments.add(MacOSNotificationAttachment(f.path));
+      if (path != null && path.isNotEmpty) {
+        attachments.add(MacOSNotificationAttachment(path));
       }
     }
 

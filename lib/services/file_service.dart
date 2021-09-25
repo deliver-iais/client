@@ -19,6 +19,7 @@ import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum ThumbnailSize { medium }
 
@@ -80,7 +81,7 @@ class FileService {
     }));
   }
 
-  Future<File> getFile(String uuid, String filename,
+  Future<String> getFile(String uuid, String filename,
       {ThumbnailSize size}) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
@@ -89,7 +90,7 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  Future<File> _getFile(String uuid, String filename) async {
+  Future<String> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
@@ -103,22 +104,24 @@ class FileService {
           <Object>[res.data],
           filename.split(".").last,
         );
-        var s = html.AnchorElement(
-          href: html.Url.createObjectUrlFromBlob(blob).toString(),
-        )
-          ..setAttribute("download", filename)
-          ..click();
-        var f = File(s.baseUri);
-        return f;
+        var url = html.Url.createObjectUrlFromBlob(blob);
+        return url;
       } else {
         final file = await localFile(uuid, filename.split('.').last);
         file.writeAsBytesSync(res.data);
-        return file;
+        return file.path;
       }
     } catch (e) {
       _logger.e(e);
       return null;
     }
+  }
+  saveDownloadedFile(String url , String filename){
+    html.AnchorElement(
+      href: url,
+    )
+      ..setAttribute("download", filename)
+      ..click();
   }
 
   Future<File> getDeliverIcon() async {
@@ -147,14 +150,14 @@ class FileService {
     } catch (e) {}
   }
 
-  Future<File> _getFileThumbnail(
+  Future<String> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
     var res = await _dio.get(
         "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
         options: Options(responseType: ResponseType.bytes));
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
-    return file;
+    return file.path;
   }
 
   void initUpoadProgrss(String uploadId) {

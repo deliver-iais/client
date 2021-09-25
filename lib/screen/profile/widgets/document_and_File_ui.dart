@@ -59,7 +59,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                           var fileName =
                               jsonDecode(media.data[index].json)["name"];
                           var messageId = media.data[index].messageId;
-                          return FutureBuilder<File>(
+                          return FutureBuilder<String>(
                               future: fileRepo.getFileIfExist(fileId, fileName),
                               builder: (context, file) {
                                 if (file.hasData && file.data != null) {
@@ -68,7 +68,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                       ListTile(
                                         title: GestureDetector(
                                           onTap: () {
-                                            OpenFile.open(file.data.path);
+                                            OpenFile.open(file.data);
                                           },
                                           child: Row(children: <Widget>[
                                             Padding(

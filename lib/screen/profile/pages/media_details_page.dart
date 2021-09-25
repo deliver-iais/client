@@ -71,7 +71,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _routingService = GetIt.I.get<RoutingService>();
   var fileServices = GetIt.I.get<FileService>();
 
-  var _fileCache = LruCache<String, File>(storage: InMemoryStorage(5));
+  var _fileCache = LruCache<String, String>(storage: InMemoryStorage(5));
   var _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
   var _mediaSenderCache =
       LruCache<String, String>(storage: InMemoryStorage(50));
@@ -210,9 +210,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     }
   }
 
-  FutureBuilder<File> buildFutureMediaBuilder(
-      fileId, fileName, BuildContext context, int i) {
-    return FutureBuilder<File>(
+  buildFutureMediaBuilder(fileId, fileName, BuildContext context, int i) {
+    return FutureBuilder<String>(
       future: _fileRepo.getFile(fileId, fileName),
       builder: (BuildContext c, AsyncSnapshot snaps) {
         if (snaps.hasData &&
@@ -233,7 +232,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Center buildMediaCenter(
-      BuildContext context, int i, File mediaFile, fileId, Object tag) {
+      BuildContext context, int i, String path, fileId, Object tag) {
     return Center(
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -244,7 +243,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             Hero(
               tag: tag,
               child: Image.file(
-                mediaFile,
+                File(path),
               ),
               transitionOnUserGestures: true,
             ),
@@ -322,10 +321,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     duration = jsonDecode(media.json)["duration"];
   }
 
-  FutureBuilder<File> buildFutureBuilder(BuildContext context, int i) {
-    return FutureBuilder<File>(
+  buildFutureBuilder(BuildContext context, int i) {
+    return FutureBuilder<String>(
         future: _fileRepo.getFileIfExist(fileId, fileName),
-        builder: (BuildContext c, AsyncSnapshot snaps) {
+        builder: (BuildContext c, AsyncSnapshot<String> snaps) {
           if (snaps.hasData &&
               snaps.data != null &&
               snaps.connectionState == ConnectionState.done) {
@@ -422,7 +421,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Stack buildVeidoWidget(int i, File snaps, double duration, Uid mediaSender,
+  Stack buildVeidoWidget(int i, String path, double duration, Uid mediaSender,
       DateTime createdOn, String senderName, var fileId) {
     return Stack(
       alignment: Alignment.centerLeft,
@@ -430,7 +429,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         //buildAppBar(i, widget.mediasLength),
         VideoUi(
           duration: duration,
-          video: snaps,
+          videoPath: path,
           showSlider: true,
         ),
         buildBottomAppBar(mediaSender, createdOn, senderName, fileId),

@@ -26,7 +26,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File>(
+    return FutureBuilder<String>(
       future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
           thumbnailSize: ThumbnailSize.medium),
       builder: (c, thumbnail) {
@@ -34,7 +34,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           return Container(
               decoration: BoxDecoration(
                 image: new DecorationImage(
-                  image: Image.file(thumbnail.data).image,
+                  image: Image.file(File(thumbnail.data)).image,
                   fit: BoxFit.cover,
                 ),
                 color: Colors.black.withOpacity(0.5),//TODO check

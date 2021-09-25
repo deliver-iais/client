@@ -34,7 +34,7 @@ class _FilteredImageState extends State<FilteredImage> {
   @override
   Widget build(BuildContext context) {
     var fileRepo = GetIt.I.get<FileRepo>();
-    return FutureBuilder<File>(
+    return FutureBuilder<String>(
         future:
             fileRepo.getFile(widget.uuid, widget.name, thumbnailSize: ThumbnailSize.medium),
         builder: (context, file) {
@@ -59,7 +59,7 @@ class _FilteredImageState extends State<FilteredImage> {
               alignment: Alignment.center,
               children: [
                 Image.file(
-                  file.data,
+                  File(file.data),
                   width: widget.width,
                   height: widget.height,
                   fit: BoxFit.fill,

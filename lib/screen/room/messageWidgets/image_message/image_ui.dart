@@ -3,9 +3,12 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
@@ -28,11 +31,12 @@ class ImageUi extends StatefulWidget {
 }
 
 class _ImageUiState extends State<ImageUi> {
-  var fileRepo = GetIt.I.get<FileRepo>();
+  var _fileRepo = GetIt.I.get<FileRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
-  filePb.File image;
+  var _i18n = GetIt.I.get<I18N>();
+  filePb.File _image;
   BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
-  bool showTime;
+  String _path = "";
 
   @override
   Widget build(BuildContext context) {
@@ -43,19 +47,20 @@ class _ImageUiState extends State<ImageUi> {
     const border = const BorderRadius.all(radius);
 
     try {
-      image = widget.message.json.toFile();
+      _image = widget.message.json.toFile();
 
       var dimensions =
-          getImageDimensions(image.width.toDouble(), image.height.toDouble());
+          getImageDimensions(_image.width.toDouble(), _image.height.toDouble());
       width = dimensions.width;
       height = dimensions.height;
 
       return ClipRRect(
         borderRadius: border,
-        child: FutureBuilder<File>(
-            future: fileRepo.getFileIfExist(image.uuid, image.name),
+        child: FutureBuilder<String>(
+            future: _fileRepo.getFileIfExist(_image.uuid, _image.name),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
+                _path = s.data;
                 return Stack(
                   alignment: Alignment.center,
                   children: [
@@ -64,26 +69,67 @@ class _ImageUiState extends State<ImageUi> {
                         _routingServices.showImageInRoom(
                             message: widget.message);
                       },
-                      child: Image.file(
-                        s.data,
-                        width: width,
-                        height: height,
-                        fit: BoxFit.fill,
-                      ),
+                      child: kIsWeb
+                          ? Image.network(
+                              s.data,
+                              width: width,
+                              height: height,
+                            )
+                          : Image.file(
+                              File(s.data),
+                              width: width,
+                              height: height,
+                              fit: BoxFit.fill,
+                            ),
                     ),
-                    if (image.caption.isEmpty)
+                    if (_image.caption.isEmpty)
                       TimeAndSeenStatus(
                           widget.message, widget.isSender, widget.isSeen,
-                          needsBackground: true)
+                          needsBackground: true),
+                    if (kIsWeb)
+                      Positioned(
+                          right: 5,
+                          top: 2,
+                          child: Container(
+                              child: PopupMenuButton(
+                                  icon: Icon(
+                                    Icons.more_vert,
+                                    color: Colors.black,
+                                    size: 20,
+                                  ),
+                                  onSelected: selectItem,
+                                  itemBuilder: (context) => [
+                                        PopupMenuItem<String>(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Icon(
+                                                Icons.download_rounded,
+                                                size: 16,
+                                              ),
+                                              SizedBox(width: 2),
+                                              Text(
+                                                _i18n.get("save_in_downloads"),
+                                                style: TextStyle(
+                                                    color:
+                                                        ExtraTheme.of(context)
+                                                            .textField,fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
+                                          value: "download",
+                                        ),
+                                      ])))
                   ],
                 );
               } else
                 return GestureDetector(
                   onTap: () async {
                     _startDownload.add(true);
-                    await fileRepo.getFile(
-                      image.uuid,
-                      image.name,
+                    await _fileRepo.getFile(
+                      _image.uuid,
+                      _image.name,
                     );
                     _startDownload.add(false);
                     setState(() {});
@@ -96,7 +142,7 @@ class _ImageUiState extends State<ImageUi> {
                         Container(
                             width: width,
                             height: height,
-                            child: BlurHash(hash: image.blurHash)),
+                            child: BlurHash(hash: _image.blurHash)),
                         Center(
                           child: StreamBuilder(
                             stream: _startDownload.stream,
@@ -110,8 +156,8 @@ class _ImageUiState extends State<ImageUi> {
                                   color: Theme.of(context).primaryColor,
                                   onPressed: () async {
                                     _startDownload.add(true);
-                                    await fileRepo.getFile(
-                                        image.uuid, image.name);
+                                    await _fileRepo.getFile(
+                                        _image.uuid, _image.name);
                                     setState(() {
                                       _startDownload.add(false);
                                     });
@@ -123,7 +169,7 @@ class _ImageUiState extends State<ImageUi> {
                             },
                           ),
                         ),
-                        if (image.caption.isEmpty)
+                        if (_image.caption.isEmpty)
                           TimeAndSeenStatus(
                               widget.message, widget.isSender, widget.isSeen,
                               needsBackground: true)
@@ -138,6 +184,13 @@ class _ImageUiState extends State<ImageUi> {
         width: width,
         height: height,
       );
+    }
+  }
+
+  selectItem(String str) {
+    switch (str) {
+      case "download":
+        _fileRepo.saveDownloadedFile(_path, widget.message.json.toFile().name);
     }
   }
 

@@ -74,18 +74,19 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == true) {
-                          return FutureBuilder<File>(
-                              future: fileRepo.getFile(fileId, fileName + ".png",
+                          return FutureBuilder<String>(
+                              future: fileRepo.getFile(
+                                  fileId, fileName + ".png",
                                   thumbnailSize: ThumbnailSize.medium),
                               builder: (BuildContext buildContext,
-                                  AsyncSnapshot thumbFile) {
+                                  AsyncSnapshot<String> thumbFile) {
                                 if (thumbFile.data != null &&
                                     thumbFile.hasData &&
                                     thumbFile.connectionState ==
                                         ConnectionState.done) {
                                   return VideoThumbnail(
                                     userUid: widget.userUid,
-                                    thumbnail: thumbFile.data,
+                                    thumbnail: File(thumbFile.data),
                                     videoCount: widget.videoCount,
                                     isExist: true,
                                     mediaPosition: position,
@@ -101,11 +102,11 @@ class _VideoTabUiState extends State<VideoTabUi> {
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
-                          return FutureBuilder<File>(
+                          return FutureBuilder<String>(
                             future: fileRepo.getFile(fileId, fileName + ".png",
                                 thumbnailSize: ThumbnailSize.medium),
-                            builder:
-                                (BuildContext c, AsyncSnapshot thumbnailFile) {
+                            builder: (BuildContext c,
+                                AsyncSnapshot<String> thumbnailFile) {
                               if (thumbnailFile.hasData &&
                                   thumbnailFile.data != null &&
                                   thumbnailFile.connectionState ==
@@ -113,7 +114,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                 _logger.d("FilevideoooooooPosition$position");
                                 return VideoThumbnail(
                                   userUid: widget.userUid,
-                                  thumbnail: thumbnailFile.data,
+                                  thumbnail: File(thumbnailFile.data),
                                   videoCount: widget.videoCount,
                                   isExist: false,
                                   mediaPosition: position,

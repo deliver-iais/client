@@ -429,8 +429,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             try {
               var result = await _fileRepo.getFileIfExist(
                   message.json.toFile().uuid, message.json.toFile().name);
-              if (result.path.isNotEmpty)
-                Share.shareFiles(['${result.path}'],
+              if (result.isNotEmpty)
+                Share.shareFiles(['${result}'],
                     text: message.json.toFile().caption.isNotEmpty
                         ? message.json.toFile().caption.isNotEmpty
                         : 'Deliver');

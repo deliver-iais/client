@@ -22,7 +22,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File>(
+    return FutureBuilder<String>(
         future: fileRepo.getFileIfExist(widget.fileId, widget.fileName),
         builder: (context, audio) {
           return Padding(
@@ -58,10 +58,10 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                                 },
                               );
                             else
-                              return buildPlay(context, audio);
+                              return buildPlay(context, audio.data);
                           });
                     } else {
-                      return buildPlay(context, audio);
+                      return buildPlay(context, audio.data);
                     }
                   }),
             ),
@@ -69,7 +69,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         });
   }
 
-  IconButton buildPlay(BuildContext context, AsyncSnapshot<File> audio) {
+  IconButton buildPlay(BuildContext context, String  audioPath) {
     return IconButton(
         padding: EdgeInsets.all(0),
         alignment: Alignment.center,
@@ -80,7 +80,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         ),
         onPressed: () {
           audioPlayerService.play(
-            audio.data.path,
+            audioPath,
             widget.fileId,
             widget.fileName,
           );

@@ -8,6 +8,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -18,7 +19,7 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
-    await _saveFileInfo(uploadKey, file, name, "real");
+    await _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,
@@ -56,25 +57,32 @@ class FileRepo {
     return false;
   }
 
-  Future<File> getFileIfExist(String uuid, String filename,
+  saveDownloadedFile(String url, String filename) =>
+      _fileService.saveDownloadedFile(url, filename);
+
+  Future<String> getFileIfExist(String uuid, String filename,
       {ThumbnailSize thumbnailSize}) async {
     FileInfo fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = new File(fileInfo.path);
-      if (await file.exists()) {
-        return file;
+      if (kIsWeb) {
+        return fileInfo.path;
+      } else {
+        File file = new File(fileInfo.path);
+        if (await file.exists()) {
+          return file.path;
+        }
       }
     }
     return null;
   }
 
-  Future<File> getFile(String uuid, String filename,
+  Future<String> getFile(String uuid, String filename,
       {ThumbnailSize thumbnailSize}) async {
-    File file =
+    String path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
-    if (file != null) {
-      return file;
+    if (path != null) {
+      return path;
     }
 
     var downloadedFile =
@@ -84,21 +92,12 @@ class FileRepo {
     return downloadedFile;
   }
 
-  Future<File> downloadFile(String uuid, String fileName,
-      {ThumbnailSize thumbnailSize}) async {
-    var downloadedFile =
-        await _fileService.getFile(uuid, fileName, size: thumbnailSize);
-    await _saveFileInfo(uuid, downloadedFile, fileName,
-        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
-    return downloadedFile;
-  }
-
   Future<FileInfo> _saveFileInfo(
-      String fileId, File file, String name, String sizeType) async {
+      String fileId, String filePath, String name, String sizeType) async {
     FileInfo fileInfo = FileInfo(
       uuid: fileId,
       name: name,
-      path: file.path,
+      path: filePath,
       sizeType: sizeType,
     );
     await _fileDao.save(fileInfo);
@@ -131,55 +130,7 @@ class FileRepo {
   }
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
-    var file = await getFileIfExist(uuid, name);
-    _fileService.saveFileInDownloadFolder(file, name, dir);
+    var path = await getFileIfExist(uuid, name);
+    _fileService.saveFileInDownloadFolder(File(path), name, dir);
   }
 }
-
-// void decodeIsolate(Map<dynamic, dynamic> param) async {
-//   Image largeThumbnail;
-//   Image mediumThumbnail;
-//   Image smallThumbnail;
-//   Directory directory;
-//   Map fileMap = Map<dynamic, dynamic>();
-//
-//   directory = await getApplicationDocumentsDirectory();
-//   if (!await Directory('${directory.path}/Deliver').exists())
-//     await Directory('${directory.path}//Deliver').create(recursive: true);
-//
-//   final realLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey']}.${param['name']}');
-//
-//   final largeLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
-//
-//
-//   final mediumLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');
-//
-//   final smallLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-small"}.${param['name']}');
-//   Image image = decodeImage(File(param['file']).readAsBytesSync());
-//   if (image.width > image.height) {
-//     largeThumbnail = copyResize(image, width: 500);
-//     mediumThumbnail = copyResize(image, width: 300);
-//     smallThumbnail = copyResize(image, width: 64);
-//   } else {
-//     largeThumbnail = copyResize(image, height: 500);
-//     mediumThumbnail = copyResize(image, height: 300);
-//     smallThumbnail = copyResize(image, height: 64);
-//   }
-//
-//   realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
-//   largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
-//   mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
-//   smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
-//   fileMap['real'] = realLocalFile.path;
-//   fileMap['large'] = largeLocalFile.path;
-//   fileMap['medium'] = mediumLocalFile.path;
-//   fileMap['small'] = smallLocalFile.path;
-//
-//   SendPort sendport = param['sendPort'];
-//
-//   sendport.send(fileMap);
-// }

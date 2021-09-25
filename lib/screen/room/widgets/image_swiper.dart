@@ -84,7 +84,8 @@ class _ImageSwiperState extends State<ImageSwiper> {
                         },
                         index: initIndex,
                         itemBuilder: (c, i) {
-                          if (medias.data.length>= i && medias.data[i] != null) {
+                          if (medias.data.length >= i &&
+                              medias.data[i] != null) {
                             double width = double.parse(
                                     jsonDecode(medias.data[i].json)["width"]
                                         .toString()) ??
@@ -94,7 +95,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                         .toString()) ??
                                 defHeight;
 
-                            return FutureBuilder<File>(
+                            return FutureBuilder<String>(
                               future: _fileRepo.getFile(
                                   jsonDecode(medias.data[i].json)["uuid"],
                                   jsonDecode(medias.data[i].json)["name"]),
@@ -103,7 +104,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                     fileSnapshot.data != null) {
                                   return buildImageUi(
                                       context,
-                                      fileSnapshot.data,
+                                      File(fileSnapshot.data),
                                       medias.data[i].messageId,
                                       min(width, defWidth),
                                       min(height, defHeight));
@@ -133,14 +134,14 @@ class _ImageSwiperState extends State<ImageSwiper> {
   }
 
   Widget defaultWidget() {
-    return FutureBuilder<File>(
+    return FutureBuilder<String>(
         future: _fileRepo.getFile(widget.message.json.toFile().uuid,
             widget.message.json.toFile().name),
         builder: (c, file) {
           if (file.hasData && file.data != null)
             return buildImageUi(
                 context,
-                file.data,
+                File(file.data),
                 widget.message.id,
                 widget.message.json.toFile().width.toDouble(),
                 widget.message.json.toFile().height.toDouble());

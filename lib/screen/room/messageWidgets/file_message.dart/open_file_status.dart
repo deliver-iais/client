@@ -23,7 +23,7 @@ class OpenFileStatus extends StatelessWidget {
         shape: BoxShape.circle,
         color: ExtraTheme.of(context).circularFileStatus,
       ),
-      child: FutureBuilder<File>(
+      child: FutureBuilder<String>(
           future: fileRepo.getFile(file.uuid, file.name),
           builder: (context, snapshot) {
             return IconButton(
@@ -36,7 +36,7 @@ class OpenFileStatus extends StatelessWidget {
               ),
               onPressed: () {
                 if (snapshot.hasData) {
-                  OpenFile.open(snapshot.data.path);
+                  OpenFile.open(snapshot.data);
                 }
               },
             );
