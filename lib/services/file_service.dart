@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'dart:html' as html;
 
 import 'dart:io';
@@ -9,7 +9,6 @@ import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:deliver/services/check_permissions_service.dart';
@@ -169,57 +168,40 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
+  uploadFile(String filePath, String filename,
+      {String uploadKey, Function sendActivity}) async {
     try {
-      if (kIsWeb) {
-        http.Response response = await http.get(
-          Uri.parse(filePath),
-        );
-        final request = http.MultipartRequest(
-          "POST",
-          Uri.parse(FileServiceBaseUrl),
-        );
+      http.Response response = await http.get(
+        Uri.parse(filePath),
+      );
+      _dio.interceptors.add(InterceptorsWrapper(onRequest:
+          (RequestOptions options, RequestInterceptorHandler handler) async {
+        options.onSendProgress = (int i, int j) {
+          if (sendActivity != null) sendActivity();
+          if (filesUploadStatus[uploadKey] == null) {
+            BehaviorSubject<double> d = BehaviorSubject();
+            filesUploadStatus[uploadKey] = d;
+          }
+          filesUploadStatus[uploadKey].add((i / j));
+        };
+        handler.next(options);
+      }));
 
-        request.fields["Authorization"] = await _authRepo.getAccessToken();
+      var formData = FormData.fromMap({
+        "file": kIsWeb
+            ? MultipartFile.fromBytes(response.bodyBytes,
+                filename: filename,
+                contentType: MediaType.parse(
+                    mime(filePath) ?? "application/octet-stream"))
+            : MultipartFile.fromFileSync(filePath,
+                contentType: MediaType.parse(
+                    mime(filePath) ?? "application/octet-stream")),
+      });
 
-        request.files.add(
-            new http.MultipartFile.fromBytes("file",response.bodyBytes.toList()));
-
-        var resp = await request.send();
-
-
-        resp.stream.listen((value) {
-          print(value.toString());
-        });
-        return resp;
-
-        //-------Your response
-      //  print(result);
-      } else {
-        _dio.interceptors.add(InterceptorsWrapper(onRequest:
-            (RequestOptions options, RequestInterceptorHandler handler) async {
-          options.onSendProgress = (int i, int j) {
-            if (sendActivity != null) sendActivity();
-            if (filesUploadStatus[uploadKey] == null) {
-              BehaviorSubject<double> d = BehaviorSubject();
-              filesUploadStatus[uploadKey] = d;
-            }
-            filesUploadStatus[uploadKey].add((i / j));
-          };
-          handler.next(options);
-        }));
-
-        var formData = FormData.fromMap({
-          "file": MultipartFile.fromFileSync(filePath,
-              contentType: MediaType.parse(
-                  mime(filePath) ?? "application/octet-stream")),
-        });
-
-        return _dio.post(
-          "/upload",
-          data: formData,
-        );
-      }
+      return _dio.post(
+        "/upload",
+        data: formData,
+      );
     } catch (e) {
       _logger.e(e);
     }
