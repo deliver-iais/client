@@ -19,7 +19,6 @@ import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 enum ThumbnailSize { medium }
 
@@ -203,7 +202,6 @@ class FileService {
         } catch (e) {
           print(e.toString());
         }
-
         // listen for response
         response.stream.transform(utf8.decoder).listen((value) {
           print(value);

@@ -51,6 +51,7 @@ class FileRepo {
     FileInfo fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
+      if (kIsWeb) return fileInfo.path != null;
       File file = new File(fileInfo.path);
       return await file.exists();
     }

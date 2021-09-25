@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
@@ -104,7 +105,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
                                     fileSnapshot.data != null) {
                                   return buildImageUi(
                                       context,
-                                      File(fileSnapshot.data),
+                                      fileSnapshot.data,
                                       medias.data[i].messageId,
                                       min(width, defWidth),
                                       min(height, defHeight));
@@ -137,11 +138,11 @@ class _ImageSwiperState extends State<ImageSwiper> {
     return FutureBuilder<String>(
         future: _fileRepo.getFile(widget.message.json.toFile().uuid,
             widget.message.json.toFile().name),
-        builder: (c, file) {
-          if (file.hasData && file.data != null)
+        builder: (c, path) {
+          if (path.hasData && path.data != null)
             return buildImageUi(
                 context,
-                File(file.data),
+                path.data,
                 widget.message.id,
                 widget.message.json.toFile().width.toDouble(),
                 widget.message.json.toFile().height.toDouble());
@@ -150,7 +151,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
         });
   }
 
-  Widget buildImageUi(BuildContext context, File file, int messageId,
+  Widget buildImageUi(BuildContext context, String path, int messageId,
       double width, double height) {
     return Stack(
       children: [
@@ -159,9 +160,15 @@ class _ImageSwiperState extends State<ImageSwiper> {
             child: Container(
               width: width,
               height: height,
-              child: Image.file(
-                file,
-              ),
+              child: kIsWeb
+                  ? Image.network(
+                      path,
+                      width: width,
+                      height: height,
+                    )
+                  : Image.file(
+                      File(path),
+                    ),
             ),
           ),
           bottom: 50,

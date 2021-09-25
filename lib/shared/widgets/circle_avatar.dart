@@ -11,6 +11,7 @@ import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -115,7 +116,7 @@ class CircleAvatarWidget extends StatelessWidget {
         snapshot.data != null &&
         snapshot.data.fileId != null &&
         snapshot.data.fileName != null) {
-      return FutureBuilder(
+      return FutureBuilder<String>(
         future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName,
             thumbnailSize: contactUid == _authRepo.currentUserUid
                 ? null
@@ -124,7 +125,7 @@ class CircleAvatarWidget extends StatelessWidget {
           if (snaps.hasData) {
             return CircleAvatar(
               radius: radius,
-              backgroundImage: Image.file(
+              backgroundImage:kIsWeb? Image.network(snaps.data):Image.file(
                 snaps.data,
               ).image,
             );
