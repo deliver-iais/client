@@ -132,6 +132,6 @@ class FileRepo {
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
     var path = await getFileIfExist(uuid, name);
-    _fileService.saveFileInDownloadFolder(File(path), name, dir);
+    _fileService.saveFileInDownloadFolder(path, name, dir);
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:io';
 
 import 'package:deliver/repository/fileRepo.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class OpenFileStatus extends StatelessWidget {
   final filePb.File file;
@@ -39,7 +39,7 @@ class OpenFileStatus extends StatelessWidget {
               onPressed: () {
                 if (snapshot.hasData) {
                   if (kIsWeb)
-                    launch(snapshot.data);
+                    window.open(snapshot.data,"_");
                   else
                     OpenFile.open(snapshot.data);
                 }
