@@ -174,7 +174,7 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick,
-          isBotMessage: widget.message.from.asUid().category == Categories.BOT,
+          isBotMessage: true,
           onBotCommandClick: widget.onBotCommandClick,
         );
         break;

@@ -37,7 +37,7 @@ class BotButtonsWidget extends StatelessWidget {
                         ),
                         side:
                             BorderSide(color: Theme.of(context).primaryColor)),
-                    child: Text(btn)),
+                    child: Text(btn, textAlign: TextAlign.center)),
               ),
             TimeAndSeenStatus(
               message,
