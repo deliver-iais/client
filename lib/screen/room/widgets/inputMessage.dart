@@ -476,7 +476,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(), path);
+                                        widget.currentRoom.uid.asUid(),
+                                        path,
+                                        path.split(".").last);
                                   } catch (e) {}
                                 }
                               },
@@ -633,7 +635,6 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
-    final typeGroup = XTypeGroup(label: 'images');
     final result = await openFiles();
     showCaptionDialog(result: result, icons: Icons.file_upload);
   }
@@ -648,11 +649,16 @@ class _InputMessageWidget extends State<InputMessage> {
   showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
     if (result.length <= 0) return;
     captionTextController.text = "";
+    Map<String, String> res = Map();
+    result.forEach((element) {
+      res[element.name] = element.path;
+    });
+
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            paths: result.map((e) => e.path).toList(),
+            paths: res,
             type: result.first.path.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );

@@ -330,19 +330,19 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendMultipleFilesMessages(Uid room, List<String> filesPath,
+  sendMultipleFilesMessages(Uid room, Map<String,String> filesPath,
       {String caption, int replyToId}) async {
-    for (var path in filesPath) {
-      if (filesPath.last == path) {
-        await sendFileMessage(room, path,
+    for (var key in filesPath.keys) {
+      if (filesPath.values.last == key) {
+        await sendFileMessage(room, filesPath[key],key,
             caption: caption, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, path, caption: "", replyToId: replyToId);
+        await sendFileMessage(room, filesPath[key],key, caption: "", replyToId: replyToId);
       }
     }
   }
 
-  sendFileMessage(Uid room, String path,
+  sendFileMessage(Uid room, String path,String name,
       {String caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
     _fileRepo.initUploadProgress(packetId);
@@ -374,7 +374,7 @@ class MessageRepo {
       ..height = tempDimension.height ?? 200
       ..type = tempType
       ..size = Int64(tempFileSize ?? 20)
-      ..name = path.split(".").last
+      ..name = name
       ..duration = 0;
 
     Message msg = _createMessage(room, replyId: replyToId).copyWith(

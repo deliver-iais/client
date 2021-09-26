@@ -38,11 +38,11 @@ class _ImageWidget extends State<ShowImagePage> {
             color: Colors.white,
           ),
           onPressed: () {
-            _messageRepo.sendMultipleFilesMessages(
-                widget.roomUid, [widget.imageFile.path],
+            _messageRepo.sendMultipleFilesMessages(widget.roomUid,
+                {widget.imageFile.path.split(".").last: widget.imageFile.path},
                 caption: _controller.value.text);
-           _routingServices.pop();
-           },
+            _routingServices.pop();
+          },
           splashColor: Colors.blue,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -84,12 +84,13 @@ class _ImageWidget extends State<ShowImagePage> {
                     maxLines: 15,
                     textInputAction: TextInputAction.newline,
                     controller: _controller,
-                    decoration: InputDecoration(
-                        hintText:
-                            i18n.get("typeSomeThing")),
+                    decoration:
+                        InputDecoration(hintText: i18n.get("typeSomeThing")),
                   ),
                 ),
-                SizedBox(height: 40,)
+                SizedBox(
+                  height: 40,
+                )
               ],
             )));
   }

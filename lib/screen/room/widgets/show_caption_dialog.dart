@@ -8,12 +8,10 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:flutter/material.dart';
 
-
 class ShowCaptionDialog extends StatefulWidget {
-  final List<String> paths;
+  final Map<String, String> paths;
   final String type;
   final Uid currentRoom;
-
 
   ShowCaptionDialog({Key key, this.paths, this.type, this.currentRoom})
       : super(key: key);
@@ -35,7 +33,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   void initState() {
     type = widget.type;
-    widget.paths.forEach((element) {
+    widget.paths.keys.forEach((element) {
       element = element.replaceAll("\\", "/");
       fileNames.add(element.split("/").last);
     });
@@ -65,7 +63,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           child: Stack(
                             children: [
                               Center(
-                                  child: Image.file(File(widget.paths.first))),
+                                  child: Image.file(
+                                      File(widget.paths.values.first))),
                               Positioned(
                                   right: 5,
                                   top: 2,
@@ -147,7 +146,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                         onTap: () async {
                           var res = await getFile(allowMultiple: true);
                           res.forEach((element) {
-                            widget.paths.add(element.path);
+                            widget.paths[element.name] = element.path;
                             fileNames.add(element.name);
                           });
                           setState(() {});
@@ -208,7 +207,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
               var result = await getFile(allowMultiple: false);
               if (result.length > 0) {
                 fileNames[index] = result.first.name;
-                widget.paths[index] = result.first.path;
+                widget.paths.remove(widget.paths.keys.toList()[index]);
+                widget.paths[result.first.name] = result.first.path;
                 type = result.first.name.split(".").last;
                 setState(() {});
               }
@@ -220,7 +220,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             )),
         IconButton(
             onPressed: () {
-              widget.paths.removeAt(index);
+              widget.paths.remove(widget.paths.keys.toList()[index]);
               fileNames.removeAt(index);
               if (widget.paths == null || widget.paths.length == 0)
                 Navigator.pop(context);

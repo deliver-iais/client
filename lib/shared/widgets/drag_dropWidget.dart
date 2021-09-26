@@ -1,4 +1,3 @@
-
 import 'dart:html';
 
 import 'package:desktop_drop/desktop_drop.dart';
@@ -20,7 +19,7 @@ class DragDropWidget extends StatelessWidget {
   final String roomUid;
   final double height;
 
-  DragDropWidget({this.child, this.roomUid,this.height});
+  DragDropWidget({this.child, this.roomUid, this.height});
 
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
@@ -30,33 +29,24 @@ class DragDropWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return kIsWeb
-        ? Container(
-            child: Stack(children: [
-              Container(
-                height:this.height,
-                child: DropzoneView(
-                  operation: DragOperation.copy,
-                  cursor: CursorType.grab,
-                  onCreated: (DropzoneViewController ctrl) => {},
-                  onHover: () => print('Zone hovered'),
-                  onDrop: (file) {
-                    try{
-
-
-                    }catch(e){
-                      _logger.e(e);
-
-                    }
-
-                  },
-
-                  onLeave: () => print('Zone left'),
-                ),
+        ? Stack(children: [
+            Container(
+              height: this.height,
+              child: DropzoneView(
+                operation: DragOperation.copy,
+                cursor: CursorType.grab,
+                onCreated: (DropzoneViewController ctrl) => {},
+                onHover: () => print('Zone hovered'),
+                onDrop: (file) {
+                  try {} catch (e) {
+                    _logger.e(e);
+                  }
+                },
+                onLeave: () => print('Zone left'),
               ),
-             child,
-
-            ]),
-          )
+            ),
+            child,
+          ])
         : DropTarget(
             child: child,
             onDragDone: (d) async {
@@ -72,10 +62,10 @@ class DragDropWidget extends StatelessWidget {
   }
 
   void showDialogInDesktop(DropDoneDetails d, BuildContext context) {
-    List<String> p = [];
+    Map<String, String> p = Map();
     d.urls.forEach((element) {
       String path = element.path.replaceAll("%20", " ");
-      p.add(isWindows() ? path.substring(1) : path);
+      p[path.split(".").last] = isWindows() ? path.substring(1) : path;
     });
     showCaptionDialog(
         type: mime(d.urls.first.path) ?? d.urls.first.path.split(".").last,

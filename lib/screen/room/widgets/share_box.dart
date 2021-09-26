@@ -173,19 +173,23 @@ class _ShareBoxState extends State<ShareBox> {
                                     children: <Widget>[
                                       Container(
                                         child: circleButton(() {
+                                          Map<String, String> res = Map();
+                                          finalSelected.values
+                                              .forEach((element) {
+                                            res[element.split(".").last] =
+                                                element;
+                                          });
                                           if (widget.replyMessageId != null) {
                                             messageRepo
                                                 .sendMultipleFilesMessages(
-                                                    widget.currentRoomId,
-                                                    finalSelected.values
-                                                        .toList(),
+                                                    widget.currentRoomId, res,
                                                     replyToId:
                                                         widget.replyMessageId);
                                           } else {
                                             messageRepo
                                                 .sendMultipleFilesMessages(
                                               widget.currentRoomId,
-                                              finalSelected.values.toList(),
+                                              res,
                                             );
                                           }
 
@@ -270,10 +274,14 @@ class _ShareBoxState extends State<ShareBox> {
                                             type: FileType.custom,
                                           );
                                           if (result != null) {
+                                            Map<String, String> res = Map();
+                                            result.files.forEach((element) {
+                                              res[element.name] = element.path;
+                                            });
                                             Navigator.pop(co);
                                             showCaptionDialog(
                                                 type: "image",
-                                                paths: result.paths,
+                                                paths: res,
                                                 roomUid: widget.currentRoomId,
                                                 context: context);
                                           }
@@ -303,10 +311,14 @@ class _ShareBoxState extends State<ShareBox> {
                                               'rar'
                                             ]);
                                         if (result != null) {
+                                          Map<String, String> res = Map();
+                                          result.files.forEach((element) {
+                                            res[element.name] = element.path;
+                                          });
                                           Navigator.pop(co);
                                           showCaptionDialog(
                                               type: "file",
-                                              paths: result.paths,
+                                              paths: res,
                                               roomUid: widget.currentRoomId,
                                               context: context);
                                         }
@@ -342,11 +354,15 @@ class _ShareBoxState extends State<ShareBox> {
                                                 type: FileType.custom,
                                                 allowedExtensions: ["mp3"]);
                                         if (result != null) {
+                                          Map<String, String> res = Map();
+                                          result.files.forEach((element) {
+                                            res[element.name] = element.path;
+                                          });
                                           Navigator.pop(co);
                                           showCaptionDialog(
                                               type: "music",
                                               context: context,
-                                              paths: result.paths);
+                                              paths: res);
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
@@ -593,7 +609,7 @@ class _ShareBoxState extends State<ShareBox> {
 
 showCaptionDialog(
     {String type,
-    List<String> paths,
+    Map<String, String> paths,
     Uid roomUid,
     BuildContext context}) async {
   if (paths.length <= 0) return;

@@ -1029,7 +1029,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath) {
-        _messageRepo.sendFileMessage(widget.roomId.asUid(), path);
+        _messageRepo.sendFileMessage(widget.roomId.asUid(), path,path.split(".").last);
       }
     }
   }
