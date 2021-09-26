@@ -1,10 +1,15 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
+  AudioCache _player =
+      AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
 
   CustomNotificationSoundSelection({Key key, this.roomUid}) : super(key: key);
 
@@ -15,7 +20,6 @@ class CustomNotificationSoundSelection extends StatefulWidget {
 
 class _CustomNotificationSoundSelectionState
     extends State<CustomNotificationSoundSelection> {
-  bool isSelectionMode = false;
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   List<String> staticData = [
@@ -34,11 +38,12 @@ class _CustomNotificationSoundSelectionState
 
   @override
   Widget build(BuildContext context) {
+    I18N i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Center(
             child: Text(
-          'Choose a song',
+          i18n.get("choose_a_song"),
           style: TextStyle(fontWeight: FontWeight.w600),
         )),
         leading: InkWell(
@@ -62,7 +67,9 @@ class _CustomNotificationSoundSelectionState
                   }
                   _routingService.pop();
                 },
-                child: Text("Ok")),
+                child: Text(
+                  i18n.get("ok"),
+                )),
           )
         ],
       ),
@@ -79,7 +86,7 @@ class _CustomNotificationSoundSelectionState
                   onLongPress: () => onLongPress(isSelected, index),
                   onTap: () => onTap(isSelected, index),
                   title: Text("${data}"),
-                  leading: _buildSelectIcon(isSelected, data),
+                  trailing: _buildSelectIcon(isSelected, data),
                 );
               },
               itemCount: staticData.length,
@@ -96,28 +103,41 @@ class _CustomNotificationSoundSelectionState
     setState(() {
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
-      isSelectionMode = selectedFlag.containsValue(true);
     });
+    widget._player.fixedPlayer.stop();
+    widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
   }
 
   void onLongPress(bool isSelected, int index) {
     setState(() {
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
-      isSelectionMode = selectedFlag.containsValue(true);
     });
   }
 
   Widget _buildSelectIcon(bool isSelected, String data) {
-    if (isSelectionMode) {
-      return Icon(
-        isSelected ? Icons.check_box : Icons.check_box_outline_blank,
-        color: Theme.of(context).primaryColor,
-      );
-    } else {
-      return CircleAvatar(
-        child: Text('${data.substring(0, 1)}'),
-      );
-    }
+    return StreamBuilder<Object>(
+        stream: widget._player.fixedPlayer.onPlayerStateChanged,
+        builder: (context, snapshot) {
+          return Container(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (isSelected && snapshot.data == PlayerState.PLAYING)
+                    Lottie.asset('assets/animations/audio_wave.json',
+                        width: 40, height: 40),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Icon(
+                      isSelected
+                          ? Icons.radio_button_checked_outlined
+                          : Icons.radio_button_off,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  )
+                ],
+              ));
+        });
   }
 }

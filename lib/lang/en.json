@@ -246,5 +246,7 @@
   "delete_chat": "Delete Chat",
   "selected_file": "Selected Files",
   "caption": "Caption",
-  "add_caption" : "Add a caption"
+  "add_caption": "Add a caption",
+  "custom_notofications": "Custom notofications",
+  "choose_a_song" : "Choose a song"
 }

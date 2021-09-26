@@ -119,6 +119,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaTypeAdapter());
   Hive.registerAdapter(LiveLocationAdapter());
 
+  GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -232,7 +233,6 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
-  GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
 }
 
 Future setupFlutterNotification() async {
