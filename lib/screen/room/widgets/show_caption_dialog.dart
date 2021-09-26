@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_sound/public/util/log.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -42,6 +43,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    print("####"+widget.paths.values.first);
     return widget.paths != null && widget.paths.length > 0
         ? SingleChildScrollView(
             child: Container(
@@ -63,8 +65,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           child: Stack(
                             children: [
                               Center(
-                                  child: Image.file(
-                                      File(widget.paths.values.first))),
+                                  child: kIsWeb
+                                      ? Image.network(widget.paths.values.first)
+                                      : Image.file(
+                                          File(widget.paths.values.first))),
                               Positioned(
                                   right: 5,
                                   top: 2,

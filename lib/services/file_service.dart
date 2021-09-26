@@ -1,5 +1,5 @@
-
 import 'dart:html' as html;
+import 'dart:js' as js;
 
 import 'dart:io';
 import 'package:deliver/repository/authRepo.dart';
@@ -101,8 +101,17 @@ class FileService {
       if (kIsWeb) {
         var blob = html.Blob(
             <Object>[res.data], "application/${filename.split(".").last}");
-        var url = html.Url.createObjectUrlFromBlob(blob);
-        return url;
+        var result = html.Url.createObjectUrlFromBlob(blob);
+        var anchorElement = html.AnchorElement(
+          href: result,
+        )
+          ..download = result
+          ..slot = blob.toString()
+          ..title = uuid
+          ..setAttribute("download", filename);
+        html.document.body.children.add(anchorElement);
+        html.window.indexedDB
+        return result;
       } else {
         final file = await localFile(uuid, filename.split('.').last);
         file.writeAsBytesSync(res.data);
@@ -114,10 +123,11 @@ class FileService {
     }
   }
 
-  saveDownloadedFile(String url, String filename) {
+  saveDownloadedFile(String url, String filename) async {
     html.AnchorElement(
       href: url,
     )
+      ..download = url
       ..setAttribute("download", filename)
       ..click();
   }

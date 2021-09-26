@@ -43,11 +43,11 @@ class DragDropWidget extends StatelessWidget {
                       var url = html.Url.createObjectUrlFromBlob(file.slice());
                       var m = {file.name: url};
                       if (!roomUid.asUid().isChannel()) {
-                        showDialogInDesktop(m, context);
+                        showDialogInDesktop(m, context,file.type);
                       } else {
                         var res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
-                        if (res) showDialogInDesktop(m, context);
+                        if (res) showDialogInDesktop(m, context,file.type);
                       }
                     } catch (e) {
                       _logger.e(e);
@@ -67,19 +67,19 @@ class DragDropWidget extends StatelessWidget {
                     isWindows() ? path.substring(1) : path;
               });
               if (!roomUid.asUid().isChannel()) {
-                showDialogInDesktop(files, context);
+                showDialogInDesktop(files, context,mime(files.values.first) ?? files.values.first.split(".").last);
               } else {
                 var res = await _mucRepo.isMucAdminOrOwner(
                     _authRepo.currentUserUid.asString(), roomUid);
-                if (res) showDialogInDesktop(files, context);
+                if (res) showDialogInDesktop(files, context,mime(files.values.first) ?? files.values.first.split(".").last);
               }
             },
           );
   }
 
-  void showDialogInDesktop(Map<String, String> files, BuildContext context) {
+  void showDialogInDesktop(Map<String, String> files, BuildContext context,String type) {
     showCaptionDialog(
-        type: mime(files.values.first) ?? files.values.first.split(".").last,
+        type: type,
         context: context,
         paths: files,
         roomUid: roomUid.asUid());

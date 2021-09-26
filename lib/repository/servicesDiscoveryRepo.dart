@@ -36,7 +36,8 @@ final MucServicesClientChannel = ClientChannel("query.deliver-co.ir",
         credentials: ChannelCredentials.secure(),
         connectionTimeout: Duration(seconds: 2)));
 
-final webMucServicesClientChannel =  GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
+final webMucServicesClientChannel =
+    GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
 
 // ignore: non_constant_identifier_names
 final CoreServicesClientChannel = ClientChannel("core.deliver-co.ir",
@@ -78,6 +79,9 @@ final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(),
         connectionTimeout: Duration(seconds: 2)));
+
+final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
+    Uri(scheme: "https", host: "gwp-ms-firebase.deliver-co.ir"));
 
 final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
     Uri(scheme: "https", host: "gwp-ms-firebase.deliver-co.ir"));

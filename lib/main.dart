@@ -163,7 +163,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
       kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
+  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(
+      kIsWeb ? webBotClientChannel : BotClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
       kIsWeb ? webStickerClientChannel : StickerClientChannel,
@@ -175,17 +176,19 @@ Future<void> setupDI() async {
       kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
-      AvatarServicesClientChannel,
+      kIsWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
-      FirebaseServicesClientChannel,
+      kIsWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
-      ProfileServicesClientChannel,
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<LiveLocationServiceClient>(
-      LiveLocationServiceClient(LiveLocationServiceClientChannel,
+      LiveLocationServiceClient(
+          kIsWeb
+              ? webLiveLocationClientChannel
+              : LiveLocationServiceClientChannel,
           interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
