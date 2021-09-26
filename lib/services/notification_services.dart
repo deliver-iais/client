@@ -45,7 +45,7 @@ class NotificationServices {
   void showNotification(pro.Message message, {String roomName}) async {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
-
+    print(roomName);
     if (mb.ignoreNotification) return;
 
     // TODO change place of synthesizer if we want more styled texts in android
@@ -109,7 +109,7 @@ class WindowsNotifier implements Notifier {
     final _logger = GetIt.I.get<Logger>();
     try {
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
-      if (lastAvatar != null && lastAvatar.fileId != null ) {
+      if (lastAvatar != null && lastAvatar.fileId != null) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
@@ -284,15 +284,8 @@ class AndroidNotifier implements Notifier {
       }
     }
 
-    AndroidNotificationChannel channel = AndroidNotificationChannel(
-        selectedNotificationSound, // id
-        'Notifications', // title
-        'All notifications of application.', // description
-        importance: Importance.high,
-        groupId: "all_group");
-
     var platformChannelSpecifics = AndroidNotificationDetails(
-        channel.id, channel.name, channel.description,
+        selectedNotificationSound, channel.name, channel.description,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
         playSound: true,
