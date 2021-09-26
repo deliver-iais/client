@@ -383,7 +383,7 @@ class MessageRepo {
         json: sendingFakeFile.writeToJson());
 
     await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, path.split('.').last);
+        file, packetId, name);
 
     var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 

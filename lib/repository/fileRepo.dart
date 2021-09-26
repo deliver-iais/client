@@ -25,8 +25,11 @@ class FileRepo {
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,
       {Function sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    var value = await _fileService.uploadFile(clonedFilePath.path,clonedFilePath.name??clonedFilePath.path.split(".").last,
+    var value = await _fileService.uploadFile(clonedFilePath.path,
+        clonedFilePath.name ?? clonedFilePath.path.split(".").last,
         uploadKey: uploadKey, sendActivity: sendActivity);
+
+    print(value.toString());
 
     var json = jsonDecode(value.toString());
     var uploadedFile = FileProto.File()

@@ -1,4 +1,4 @@
-import 'dart:html';
+import 'dart:html' as html;
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/foundation.dart';
@@ -33,44 +33,55 @@ class DragDropWidget extends StatelessWidget {
             Container(
               height: this.height,
               child: DropzoneView(
-                operation: DragOperation.copy,
-                cursor: CursorType.grab,
-                onCreated: (DropzoneViewController ctrl) => {},
-                onHover: () => print('Zone hovered'),
-                onDrop: (file) {
-                  try {} catch (e) {
-                    _logger.e(e);
-                  }
-                },
-                onLeave: () => print('Zone left'),
-              ),
+                  operation: DragOperation.copy,
+                  cursor: CursorType.grab,
+                  onCreated: (DropzoneViewController ctrl) => {},
+                  onHover: () {},
+                  onDrop: (blob) async {
+                    try {
+                      html.File file = blob as html.File;
+                      var url = html.Url.createObjectUrlFromBlob(file.slice());
+                      var m = {file.name: url};
+                      if (!roomUid.asUid().isChannel()) {
+                        showDialogInDesktop(m, context);
+                      } else {
+                        var res = await _mucRepo.isMucAdminOrOwner(
+                            _authRepo.currentUserUid.asString(), roomUid);
+                        if (res) showDialogInDesktop(m, context);
+                      }
+                    } catch (e) {
+                      _logger.e(e);
+                    }
+                  },
+                  onLeave: () {}),
             ),
             child,
           ])
         : DropTarget(
             child: child,
             onDragDone: (d) async {
+              Map<String, String> files = Map();
+              d.urls.forEach((element) {
+                String path = element.path.replaceAll("%20", " ");
+                files[path.split(".").last] =
+                    isWindows() ? path.substring(1) : path;
+              });
               if (!roomUid.asUid().isChannel()) {
-                showDialogInDesktop(d, context);
+                showDialogInDesktop(files, context);
               } else {
                 var res = await _mucRepo.isMucAdminOrOwner(
                     _authRepo.currentUserUid.asString(), roomUid);
-                if (res) showDialogInDesktop(d, context);
+                if (res) showDialogInDesktop(files, context);
               }
             },
           );
   }
 
-  void showDialogInDesktop(DropDoneDetails d, BuildContext context) {
-    Map<String, String> p = Map();
-    d.urls.forEach((element) {
-      String path = element.path.replaceAll("%20", " ");
-      p[path.split(".").last] = isWindows() ? path.substring(1) : path;
-    });
+  void showDialogInDesktop(Map<String, String> files, BuildContext context) {
     showCaptionDialog(
-        type: mime(d.urls.first.path) ?? d.urls.first.path.split(".").last,
+        type: mime(files.values.first) ?? files.values.first.split(".").last,
         context: context,
-        paths: p,
+        paths: files,
         roomUid: roomUid.asUid());
     _routingServices.openRoom(roomUid);
   }
