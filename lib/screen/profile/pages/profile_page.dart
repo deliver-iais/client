@@ -26,6 +26,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -35,7 +36,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -348,30 +348,33 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: (_) =>
                         _routingService.openRoom(widget.roomUid.asString())),
               ),
-            FutureBuilder(
-                future: _roomRepo
-                    .getRoomCustomNotification(widget.roomUid.asString()),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: SettingsTile(
-                          title: _locale.get("custom_notofications"),
-                          titleTextStyle: TextStyle(
-                              color: ExtraTheme.of(context).textField),
-                          leading: Icon(Icons.music_note_sharp),
-                          subtitle:snapshot.data,
-                          subtitleTextStyle: TextStyle(
-                              color: ExtraTheme.of(context).username,
-                              fontSize: 16),
-                          onPressed: (_) async {
-                            print(widget.roomUid.asString());
-                               _routingService.openCustomNotificationSoundSelection(widget.roomUid.asString());
-                          },
-                        ));
-                  } else
-                    return SizedBox.shrink();
-                }),
+            if (isAndroid())
+              FutureBuilder(
+                  future: _roomRepo
+                      .getRoomCustomNotification(widget.roomUid.asString()),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: SettingsTile(
+                            title: _locale.get("custom_notofications"),
+                            titleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).textField),
+                            leading: Icon(Icons.music_note_sharp),
+                            subtitle: snapshot.data,
+                            subtitleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 16),
+                            onPressed: (_) async {
+                              print(widget.roomUid.asString());
+                              _routingService
+                                  .openCustomNotificationSoundSelection(
+                                      widget.roomUid.asString());
+                            },
+                          ));
+                    } else
+                      return SizedBox.shrink();
+                  }),
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {

@@ -45,7 +45,6 @@ class NotificationServices {
   void showNotification(pro.Message message, {String roomName}) async {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
-    print(roomName);
     if (mb.ignoreNotification) return;
 
     // TODO change place of synthesizer if we want more styled texts in android
@@ -265,16 +264,13 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    String selectedNotificationSound = "that_was_quick";
-    _roomRepo
-        .getRoomCustomNotification(message.roomUid.asString())
-        .then((value) => {if (value != "-") selectedNotificationSound = value});
     if (message.ignoreNotification) return;
 
     AndroidBitmap largeIcon;
-
+    String selectedNotificationSound = "that_was_quick";
+    var selectedSound =
+        await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
-
     if (la != null) {
       var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
           thumbnailSize: ThumbnailSize.medium);
@@ -283,7 +279,11 @@ class AndroidNotifier implements Notifier {
         largeIcon = FilePathAndroidBitmap(f.path);
       }
     }
-
+    if (selectedSound != null) {
+      if (selectedSound != "-") {
+        selectedNotificationSound = selectedSound;
+      }
+    }
     var platformChannelSpecifics = AndroidNotificationDetails(
         selectedNotificationSound, channel.name, channel.description,
         groupKey: channel.groupId,
