@@ -142,6 +142,10 @@ dependencies:
   hive_flutter: 1.1.0
   marquee: 2.2.0
   metadata_fetch: 0.4.1
+  service_worker: 0.2.4
+  flutter_mmkv: ^1.0.0
+  meta: 1.7.0
+  simple_cache: 0.0.3
 
 dev_dependencies:
   flutter_test:

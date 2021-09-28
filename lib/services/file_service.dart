@@ -1,7 +1,8 @@
-import 'dart:html' as html;
-import 'dart:js' as js;
 
+import 'dart:html' as html;
+import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:deliver/network_cache/file_resource.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -9,7 +10,7 @@ import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:http/http.dart' as http;
+
 
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -101,17 +102,8 @@ class FileService {
       if (kIsWeb) {
         var blob = html.Blob(
             <Object>[res.data], "application/${filename.split(".").last}");
-        var result = html.Url.createObjectUrlFromBlob(blob);
-        var anchorElement = html.AnchorElement(
-          href: result,
-        )
-          ..download = result
-          ..slot = blob.toString()
-          ..title = uuid
-          ..setAttribute("download", filename);
-        html.document.body.children.add(anchorElement);
-        html.window.indexedDB
-        return result;
+        var url = html.Url.createObjectUrlFromBlob(blob);
+        return url;
       } else {
         final file = await localFile(uuid, filename.split('.').last);
         file.writeAsBytesSync(res.data);

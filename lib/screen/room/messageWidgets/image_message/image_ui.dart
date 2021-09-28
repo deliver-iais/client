@@ -61,7 +61,6 @@ class _ImageUiState extends State<ImageUi> {
             future: _fileRepo.getFileIfExist(_image.uuid, _image.name),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
-                getImage(_image.uuid);
                 _path = s.data;
                 return Stack(
                   alignment: Alignment.center,
@@ -215,17 +214,5 @@ class _ImageUiState extends State<ImageUi> {
     }
 
     return Size(w, h);
-  }
-
-  void getImage(String uuid) async {
-    print(html.document.body.children.length);
-
-    var res = html.document.body.children
-        .toList()
-        .where((element) => element.title == uuid);
-  //  var result = html.Url.createObjectUrlFromBlob(res.first.slot as html.Blob);
-  //  print(result.toString());
-    print(res.first.slot.length);
-
   }
 }
