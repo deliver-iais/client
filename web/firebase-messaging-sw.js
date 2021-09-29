@@ -28,5 +28,11 @@ const firebaseConfig = {
     self.registration.showNotification(notificationTitle,
       notificationOptions);
   });
+//   messaging.onMessage((Map messagePayload) {
+//    console.log('Received background message ', "dfd");
+//               // do something with message data
+//             });
+
+
 
 
