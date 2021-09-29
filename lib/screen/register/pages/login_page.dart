@@ -31,7 +31,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
- // final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+ final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
         try {
           var res = await _authRepo.checkQrCodeToken(loginToken.value);
           if (res.status == AccessTokenRes_Status.OK) {
-          //  _fireBaseServices.sendFireBaseToken();
+           _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
             ToastDisplay.showToast(

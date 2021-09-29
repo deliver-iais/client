@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js');
+importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js');
 
    /*Update with yours config*/
 const firebaseConfig = {
@@ -28,3 +28,5 @@ const firebaseConfig = {
     self.registration.showNotification(notificationTitle,
       notificationOptions);
   });
+
+
