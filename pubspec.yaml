@@ -123,7 +123,7 @@ dependencies:
   share: 2.0.4
 
   fluttertoast: ^8.0.8
-  #  firebase_messaging_web:
+  firebase_messaging:
   firebase_core: 1.2.1
   flutter_swiper: 1.1.6
   flutter_dropzone: 3.0.0  #drag-and-drop in web
