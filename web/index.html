@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html>
 <head>
     <title>Deliver</title>
@@ -11,7 +11,9 @@
 <script>
   if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/firebase-messaging-sw.js");
+       navigator.serviceWorker.register('/service-worker.js').then(registration => {
+  firebase.messaging().useServiceWorker(registration)
+});
       });
     }
     </script>
@@ -22,20 +24,21 @@
 
 
 <script>
-          var firebaseConfig = {
-    apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4",
-    authDomain: "deliver-d705a.firebaseapp.com",
-    databaseURL: "https://deliver-d705a.firebaseio.com",
-    projectId: "deliver-d705a",
-    storageBucket: "deliver-d705a.appspot.com",
-    messagingSenderId: "192675293547",
-    appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
-    measurementId: "G-VGC5KM84G6"
+         const firebaseConfig = {
+          apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4",
+          authDomain: "deliver-d705a.firebaseapp.com",
+          databaseURL: "https://deliver-d705a.firebaseio.com",
+          projectId: "deliver-d705a",
+          storageBucket: "deliver-d705a.appspot.com",
+           messagingSenderId: "192675293547",
+           appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
+           measurementId: "G-VGC5KM84G6"
+
   };
         firebase.initializeApp(firebaseConfig);
 
 </script>
-<script src="main.dart.js" type="application/javascript"></script>
+<script src="main.dart.js"></script>
 
 </body>
 </html>

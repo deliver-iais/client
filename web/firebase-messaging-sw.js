@@ -18,15 +18,15 @@ const firebaseConfig = {
   /*messaging.onMessage((payload) => {
   console.log('Message received. ', payload);*/
   messaging.onBackgroundMessage(function(payload) {
-//    //console.log('Received background message ', payload);
-//
-//    const notificationTitle = payload.notification.title;
-//    const notificationOptions = {
-//      body: payload.notification.body,
-//    };
+    console.log('Received background message ', payload);
 
-//    self.registration.showNotification(notificationTitle,
-//      "test notification........");
+    const notificationTitle = payload.notification.title;
+    const notificationOptions = {
+      body: payload.notification.body,
+    };
+
+    return self.registration.showNotification(notificationTitle,
+      "test notification........");
   });
 
    

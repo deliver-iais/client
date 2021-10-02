@@ -17,7 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
@@ -38,20 +38,25 @@ class FireBaseServices {
 
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
-      _firebaseMessaging = FirebaseMessaging.instance;
-    var res = await   _firebaseMessaging.getToken();
-    print("TOKEN:"+res);
-      _firebaseMessaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
-      );
-      await _setFirebaseSetting();
-   //   _sendFireBaseToken(await _firebaseMessaging.getToken());
+      try {
+        await FirebaseCoreWeb().initializeApp();
+        _firebaseMessaging = FirebaseMessaging.instance;
+        var res = await _firebaseMessaging.getToken();
+        print("TOKEN:" + res);
+        _firebaseMessaging.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
+        );
+        await _setFirebaseSetting();
+      } catch (e) {
+        print("@@@@@@@" + e.toString());
+      }
+      //   _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
   }
 
@@ -72,9 +77,6 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() async {
-
-    await  Firebase.initializeApp(options: FirebaseOptions(apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4", appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
-        messagingSenderId: "192675293547", projectId: "deliver-d705a"));
     try {
       print("*********************");
       FirebaseMessaging.onMessage.listen((event) {
@@ -87,11 +89,11 @@ class FireBaseServices {
       //   print("%%%%%%%%%%%%");
       // });
       //  FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
-      _firebaseMessaging.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      // _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      //   alert: true,
+      //   badge: true,
+      //   sound: true,
+      // );
     } catch (e) {
       _logger.e(e);
     }
