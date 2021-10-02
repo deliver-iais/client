@@ -1,57 +1,41 @@
-<!DOCTYPE html>
+
 <html>
 <head>
-    <base href="$FLUTTER_BASE_HREF">
-    <meta charset="UTF-8">
     <title>Deliver</title>
+    <meta charset="UTF-8">
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js"></script>
-
-    <meta charset="UTF-8">
-    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-    <meta name="description" content="Deliver">
-
-    <!-- iOS meta tags & icons -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="deliver">
-    <link rel="apple-touch-icon" href="icons/web_hi_res_512">
-
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
-<!-- This script installs service_worker.js to provide PWA functionality to
-     application. For more information, see:
-     https://developers.google.com/web/fundamentals/primers/service-workers -->
+
 <script>
-    if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-    navigator.serviceWorker.register("/firebase-messaging-sw.js");
-    });
+  if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      });
     }
-</script>
+    </script>
+
+
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
-<script src="/__/firebase/8.6.1/firebase-analytics.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js"></script>
+
+
 <script>
-        const firebaseConfig = {
-        apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4",
-        authDomain: "deliver-d705a.firebaseapp.com",
-        databaseURL: "https://deliver-d705a.firebaseio.com",
-        projectId: "deliver-d705a",
-        storageBucket: "deliver-d705a.appspot.com",
-        messagingSenderId: "192675293547",
-        appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
-        measurementId: "G-VGC5KM84G6"
-        };
+          var firebaseConfig = {
+    apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4",
+    authDomain: "deliver-d705a.firebaseapp.com",
+    databaseURL: "https://deliver-d705a.firebaseio.com",
+    projectId: "deliver-d705a",
+    storageBucket: "deliver-d705a.appspot.com",
+    messagingSenderId: "192675293547",
+    appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
+    measurementId: "G-VGC5KM84G6"
+  };
         firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
 
 </script>
 <script src="main.dart.js" type="application/javascript"></script>
 
-<script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>

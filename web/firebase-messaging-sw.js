@@ -11,22 +11,22 @@ const firebaseConfig = {
   messagingSenderId: "192675293547",
   appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
   measurementId: "G-VGC5KM84G6"
-}
+};
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
   /*messaging.onMessage((payload) => {
   console.log('Message received. ', payload);*/
   messaging.onBackgroundMessage(function(payload) {
-    console.log('Received background message ', payload);
+//    //console.log('Received background message ', payload);
+//
+//    const notificationTitle = payload.notification.title;
+//    const notificationOptions = {
+//      body: payload.notification.body,
+//    };
 
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-      body: payload.notification.body,
-    };
-
-    self.registration.showNotification(notificationTitle,
-      "test notification........");
+//    self.registration.showNotification(notificationTitle,
+//      "test notification........");
   });
 
    

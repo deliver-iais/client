@@ -38,9 +38,19 @@ class FireBaseServices {
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
-      _firebaseMessaging.requestPermission();
+    var res = await   _firebaseMessaging.getToken();
+    print("TOKEN:"+res);
+      _firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
       await _setFirebaseSetting();
-      _sendFireBaseToken(await _firebaseMessaging.getToken());
+   //   _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
   }
 
@@ -66,9 +76,12 @@ class FireBaseServices {
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
       });
       FirebaseMessaging.onMessageOpenedApp.listen((event) {
-        print("%%%%%%%%%%%%");
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
       });
-      FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+      // FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      //   print("%%%%%%%%%%%%");
+      // });
+      //  FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
       _firebaseMessaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,

@@ -1,5 +1,3 @@
-
-
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/db_manage.dart';
@@ -244,7 +242,11 @@ Future<void> setupDI() async {
 }
 
 Future setupFirebaseSetting() async {
-  await Firebase.initializeApp();
+  try {
+   await  Firebase.initializeApp();
+  } catch (e) {
+    print("%%%%%%%%%%%%%%%%%%"+e.toString());
+  }
 }
 
 void main() async {
