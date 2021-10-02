@@ -26,12 +26,10 @@ const firebaseConfig = {
     };
 
     self.registration.showNotification(notificationTitle,
-      notificationOptions);
+      "test notification........");
   });
- messaging.onMessageOpenedApp.listen((event) {
-//      print('onMessageOpenedApp occured. Message is: ');
-//      print(event.notification.title);
-    });
+
+   
 
 
 

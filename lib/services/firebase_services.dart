@@ -18,6 +18,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
@@ -87,6 +88,7 @@ M.Message _decodeMessage(String notificationBody) {
 
 Future<void> backgroundMessageHandler(dynamic message) async {
   try {
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     await setupDI();
   } catch (e) {
     Logger().e(e);

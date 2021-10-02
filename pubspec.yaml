@@ -123,10 +123,12 @@ dependencies:
   share: 2.0.4
 
   fluttertoast: ^8.0.8
-  firebase_messaging:
-  firebase_core: 1.2.1
+  firebase_messaging: 10.0.8
+  firebase_messaging_web: ^2.0.6
+  firebase_core: 1.7.0
   flutter_swiper: 1.1.6
-  flutter_dropzone: 3.0.0  #drag-and-drop in web
+  flutter_dropzone: 3.0.0
+  #drag-and-drop in web
   desktop_drop: 0.1.0  #drag-and-drop in desktop (windows- linux- mac)
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
   test:
