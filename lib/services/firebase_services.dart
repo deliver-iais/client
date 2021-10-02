@@ -17,6 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
@@ -71,7 +72,11 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() async {
+
+    await  Firebase.initializeApp(options: FirebaseOptions(apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4", appId: "1:192675293547:web:0f605a2d72acf1fedb042e",
+        messagingSenderId: "192675293547", projectId: "deliver-d705a"));
     try {
+      print("*********************");
       FirebaseMessaging.onMessage.listen((event) {
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
       });

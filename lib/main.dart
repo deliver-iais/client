@@ -242,11 +242,11 @@ Future<void> setupDI() async {
 }
 
 Future setupFirebaseSetting() async {
-  try {
-   await  Firebase.initializeApp();
-  } catch (e) {
-    print("%%%%%%%%%%%%%%%%%%"+e.toString());
-  }
+  // try {
+  //  await  Firebase.initializeApp();
+  // } catch (e) {
+  //   print("%%%%%%%%%%%%%%%%%%"+e.toString());
+  // }
 }
 
 void main() async {
