@@ -11,9 +11,7 @@
 <script>
   if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-       navigator.serviceWorker.register('/service-worker.js').then(registration => {
-  firebase.messaging().useServiceWorker(registration)
-});
+        navigator.serviceWorker.register("/firebase-messaging-sw.js");
       });
     }
     </script>
