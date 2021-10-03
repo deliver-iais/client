@@ -119,6 +119,7 @@ class MessageRepo {
       if (messages.isNotEmpty) {
         _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
+          lastUpdateTime: messages.last.time,
           lastMessage: messages.last,
         ));
       }
