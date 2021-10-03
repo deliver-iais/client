@@ -17,6 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -39,10 +40,10 @@ class FireBaseServices {
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
       try {
-        await FirebaseCoreWeb().initializeApp();
+        await Firebase.initializeApp();
+
         _firebaseMessaging = FirebaseMessaging.instance;
-        var res = await _firebaseMessaging.getToken();
-        print("TOKEN:" + res);
+
         _firebaseMessaging.requestPermission(
           alert: true,
           announcement: false,
@@ -52,6 +53,8 @@ class FireBaseServices {
           provisional: false,
           sound: true,
         );
+        var res = await  _firebaseMessaging.getToken();
+        print("TOKEN:" + res);
         await _setFirebaseSetting();
       } catch (e) {
         print("@@@@@@@" + e.toString());
@@ -80,14 +83,11 @@ class FireBaseServices {
     try {
       print("*********************");
       FirebaseMessaging.onMessage.listen((event) {
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% reqwewqeqweqwe");
       });
       FirebaseMessaging.onMessageOpenedApp.listen((event) {
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%wqeqweqweqwe");
       });
-      // FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      //   print("%%%%%%%%%%%%");
-      // });
       //  FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
       // _firebaseMessaging.setForegroundNotificationPresentationOptions(
       //   alert: true,
@@ -95,6 +95,7 @@ class FireBaseServices {
       //   sound: true,
       // );
     } catch (e) {
+      print("ERORRRRRRRRRRRRRRRRRRRRRRRRR");
       _logger.e(e);
     }
   }
