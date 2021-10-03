@@ -106,23 +106,11 @@ class MessageRepo {
 
   updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
-      var fetchMessagesRes =
-          await _queryServiceClient.fetchMessages(FetchMessagesReq()
-            ..roomUid = roomUid
-            ..pointer = Int64(lastMessageId)
-            ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-            ..limit = 2);
-      List<Message> messages =
-          await _saveFetchMessages(fetchMessagesRes.messages);
-
-      // TODO if there is Pending Message this line has a bug!!
-      if (messages.isNotEmpty) {
-        _roomDao.updateRoom(Room(
-          uid: roomUid.asString(),
-          lastUpdateTime: messages.last.time,
-          lastMessage: messages.last,
-        ));
-      }
+      _roomDao.updateRoom(Room(
+        uid: roomUid.asString(),
+        lastMessageId: lastMessageId,
+        lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+      ));
     } catch (e) {
       _logger.e(e);
     }
@@ -560,7 +548,8 @@ class MessageRepo {
     return "${DateTime.now().microsecondsSinceEpoch.toString()}-${randomString(5)}";
   }
 
-  Future<List<Message>> getPage(int page, String roomId, int containsId,
+  Future<List<Message>> getPage(
+      int page, String roomId, int containsId, int lastMessageId,
       {int pageSize = 16}) async {
     var completer = _completerMap["$roomId-$page"];
 
@@ -574,15 +563,15 @@ class MessageRepo {
       if (messages.any((element) => element.id == containsId)) {
         completer.complete(messages);
       } else {
-        await getMessages(roomId, page, pageSize, completer);
+        await getMessages(roomId, page, pageSize, completer, lastMessageId);
       }
     });
 
     return completer.future;
   }
 
-  Future<void> getMessages(
-      String roomId, int page, int pageSize, Completer<List<Message>> completer,
+  Future<void> getMessages(String roomId, int page, int pageSize,
+      Completer<List<Message>> completer, int lastMessageId,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes =
@@ -591,11 +580,15 @@ class MessageRepo {
             ..pointer = Int64(page * pageSize)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = pageSize);
-      completer.complete(await _saveFetchMessages(fetchMessagesRes.messages));
+      var res = await _saveFetchMessages(fetchMessagesRes.messages);
+      if (res.last.id == lastMessageId)
+        _roomDao.updateRoom(Room(lastMessage: res.last, uid: roomId));
+      completer.complete(res);
     } catch (e) {
       _logger.e(e);
       if (retry)
-        getMessages(roomId, page, pageSize, completer, retry: false);
+        getMessages(roomId, page, pageSize, completer, lastMessageId,
+            retry: false);
       else {
         completer.complete([]);
         completer.completeError(e);

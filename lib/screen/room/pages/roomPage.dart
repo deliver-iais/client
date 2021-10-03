@@ -330,7 +330,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .distinct()
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) async {
-      var msg = await _getMessage(event, widget.roomId);
+      var msg = await _getMessage(
+          event, widget.roomId, _currentRoom.valueWrapper.value.lastMessageId);
 
       if (msg == null) return;
 
@@ -358,14 +359,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     super.initState();
   }
 
-  Future<Message> _getMessage(int id, String roomId) async {
+  Future<Message> _getMessage(int id, String roomId, int lastMessageId) async {
     var msg = _messageCache.get(id);
     if (msg != null) {
       return msg;
     }
     int page = (id / PAGE_SIZE).floor();
-    List<Message> messages =
-        await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
+    List<Message> messages = await _messageRepo
+        .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
       _messageCache.set(messages[i].id, messages[i]);
     }
@@ -521,7 +522,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           pm.reversed.toList().forEach((element) async {
             if (element != null) {
               try {
-                var m = await _getMessage(element, widget.roomId);
+                var m = await _getMessage(
+                    element, widget.roomId, muc.lastMessageId);
                 _pinMessages.add(m);
                 _lastPinedMessage.add(_pinMessages.last.id);
               } catch (e) {
@@ -593,7 +595,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           : _itemCount);
                   _lastShowedMessageId = -1;
                 }),
-            if (!_authRepo.isCurrentUser(_currentRoom.value.lastMessage.from))
+            if (_currentRoom.value.lastMessage != null &&
+                !_authRepo.isCurrentUser(_currentRoom.value.lastMessage.from))
               Positioned(
                   top: 0,
                   left: 0,
@@ -869,7 +872,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _itemCount - index <= pendingMessages.length;
     return isPendingMessage
         ? Future.value(pendingMessages[_itemCount - index - 1].msg)
-        : _getMessage(index + 1, widget.roomId);
+        : _getMessage(index + 1, widget.roomId,
+            _currentRoom.valueWrapper.value.lastMessageId);
   }
 
   Future<int> _timeAt(List<PendingMessage> pendingMessages, int index) async {
@@ -1201,9 +1205,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   scrollUp() {
-    if(messageIndex==_itemCount-1){
-    messageIndex = messageIndex - 10;}
-    else
+    if (messageIndex == _itemCount - 1) {
+      messageIndex = messageIndex - 10;
+    } else
       messageIndex = messageIndex - 3;
     if (messageIndex < 0) messageIndex = 0;
     _itemScrollController.scrollTo(
