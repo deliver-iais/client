@@ -74,7 +74,7 @@ class FileService {
       options.headers["Access-Control-Allow-Credentials"] = true;
       options.headers["Access-Control-Allow-Headers"] =
           "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
-      options.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+      options.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, HEAD";
 
       return handler.next(options); //continue
     }));
@@ -110,7 +110,7 @@ class FileService {
           ..title = uuid
           ..setAttribute("download", filename);
         html.document.body.children.add(anchorElement);
-        html.window.indexedDB
+       // html.window.indexedDB
         return result;
       } else {
         final file = await localFile(uuid, filename.split('.').last);
