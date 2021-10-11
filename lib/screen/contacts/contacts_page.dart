@@ -113,7 +113,8 @@ class _ContactsPageState extends State<ContactsPage> {
                           child: Scrollbar(
                         child: ListView.separated(
                           separatorBuilder: (BuildContext context, int index) {
-                            if (_authRepo.isCurrentUser(contacts[index].uid))
+                            if (_authRepo.isCurrentUser(contacts[index].uid) ||
+                                searchHasResult(contacts[index]))
                               return SizedBox.shrink();
                             else
                               return Divider();
@@ -121,16 +122,7 @@ class _ContactsPageState extends State<ContactsPage> {
                           itemCount: snapshot.data.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (_searchMode) {
-                              if (!c.firstName
-                                      .toLowerCase()
-                                      .contains(_query.toLowerCase()) &&
-                                  !c.lastName
-                                      .toLowerCase()
-                                      .contains(_query.toLowerCase())) {
-                                return SizedBox.shrink();
-                              }
-                            }
+                            if (searchHasResult(c)) return SizedBox.shrink();
                             return _authRepo.isCurrentUser(c.uid)
                                 ? SizedBox.shrink()
                                 : GestureDetector(
@@ -218,5 +210,11 @@ class _ContactsPageState extends State<ContactsPage> {
             );
           });
     }
+  }
+
+  bool searchHasResult(Contact contact) {
+    var name = contact.firstName + contact.lastName;
+    print(name);
+    return _searchMode && !name.toLowerCase().contains(_query.toLowerCase());
   }
 }
