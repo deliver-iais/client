@@ -182,7 +182,7 @@ class AuthRepo {
           ..platform = await getPlatformDetails());
       } on GrpcError catch (e) {
         _logger.e(e);
-        if (e.code == StatusCode.unauthenticated) {
+        if (_refreshToken != null && _refreshToken .isNotEmpty && e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
       } catch (e) {

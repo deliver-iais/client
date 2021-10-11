@@ -376,9 +376,9 @@ class RoutingService {
   }
 
   reset() {
+    _route.add("/");
     if (_stack != null) {
       _stack.clear();
-      _route.add("/");
     }
     _stack = ListQueue.from([
       Page(
