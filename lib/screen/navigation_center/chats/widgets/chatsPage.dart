@@ -1,10 +1,10 @@
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chatItem.dart';
 import 'package:deliver/screen/room/widgets/operation_on_room_entry.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -26,6 +26,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
+  I18N _i18n;
 
   void _showCustomMenu(BuildContext context, Room room, bool canPin) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
@@ -53,13 +54,25 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     if (canPin)
       _roomDao.updateRoom(Room(uid: room.uid, pinned: true));
     else
-      ToastDisplay.showToast(
-          toastText: "Sorry, you can only pin 5 chats to the top",
-          tostContext: context);
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text(_i18n.get("pin_more_than_5")),
+              actions: [
+                TextButton(
+                    child: Text(_i18n.get("ok")),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
+              ],
+            );
+          });
   }
 
   @override
   Widget build(BuildContext context) {
+    _i18n = I18N.of(context);
     return StreamBuilder<List<Room>>(
         stream: _roomRepo.watchAllRooms(),
         builder: (context, snapshot) {

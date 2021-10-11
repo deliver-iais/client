@@ -44,7 +44,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(i18n.get("pin")),
+                    Text(i18n.get("pin_room")),
                   ]))
             else
               TextButton(
@@ -57,7 +57,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(i18n.get("unpin")),
+                    Text(i18n.get("unpin_room")),
                   ])),
           ],
         ),
