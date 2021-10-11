@@ -32,6 +32,9 @@ class Room {
   @HiveField(7)
   int firstMessageId;
 
+  @HiveField(8)
+  bool pinned;
+
   Room(
       {this.uid,
       this.lastMessage,
@@ -40,7 +43,8 @@ class Room {
       this.draft,
       this.lastUpdateTime,
       this.lastMessageId,
-      this.firstMessageId});
+      this.firstMessageId,
+      this.pinned});
 
   Room copy(Room r) => Room(
       uid: r.uid ?? this.uid,
@@ -50,7 +54,8 @@ class Room {
       lastUpdateTime: r.lastUpdateTime ?? this.lastUpdateTime,
       mentioned: r.mentioned ?? this.mentioned,
       lastMessageId: r.lastMessageId ?? this.lastMessageId,
-      firstMessageId: r.firstMessageId ?? this.firstMessageId);
+      firstMessageId: r.firstMessageId ?? this.firstMessageId,
+      pinned: r.pinned ?? this.pinned);
 
   Room copyWith(
           {String uid,
@@ -60,7 +65,8 @@ class Room {
           String draft,
           int lastUpdateTime,
           int firstMessageId,
-          bool mentioned}) =>
+          bool mentioned,
+          bool pinned}) =>
       Room(
           uid: uid ?? this.uid,
           lastMessage: lastMessage ?? this.lastMessage,
@@ -69,5 +75,6 @@ class Room {
           lastUpdateTime: lastUpdateTime ?? this.lastUpdateTime,
           mentioned: mentioned ?? this.mentioned,
           firstMessageId: firstMessageId ?? this.firstMessageId,
-          lastMessageId: lastMessageId ?? this.lastMessageId);
+          lastMessageId: lastMessageId ?? this.lastMessageId,
+          pinned: pinned ?? this.pinned);
 }
