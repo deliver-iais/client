@@ -122,8 +122,12 @@ class _ContactsPageState extends State<ContactsPage> {
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
                             if (_searchMode) {
-                              if (!c.firstName.contains(_query) &&
-                                  !c.lastName.contains(_query)) {
+                              if (!c.firstName
+                                      .toLowerCase()
+                                      .contains(_query.toLowerCase()) &&
+                                  !c.lastName
+                                      .toLowerCase()
+                                      .contains(_query.toLowerCase())) {
                                 return SizedBox.shrink();
                               }
                             }
