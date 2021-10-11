@@ -231,7 +231,6 @@ class AndroidNotifier implements Notifier {
   final channel = const AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
-      'All notifications of application.', // description
       importance: Importance.high,
       groupId: "all_group");
 
@@ -279,7 +278,7 @@ class AndroidNotifier implements Notifier {
     }
 
     var platformChannelSpecifics = AndroidNotificationDetails(
-        channel.id, channel.name, channel.description,
+        channel.id, channel.name,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
         setAsGroupSummary: false);

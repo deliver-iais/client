@@ -175,7 +175,6 @@ class AvatarRepo {
 
     try {
      await _queryServices.addAvatar(addAvatarReq);
-    //  await _avatarServices.addAvatar(addAvatarReq);
       await _avatarDao.saveAvatars(uid.asString(), [
         Avatar(
             uid: uid.asString(),
