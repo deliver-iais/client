@@ -71,7 +71,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                     .where((element) =>
                         element.deleted == null || element.deleted == false)
                     .toList();
-                rearrangeList(rooms);
+                rearangChatItem(rooms);
                 return PageStorage(
                   bucket: PageStorage.of(context),
                   child: Scrollbar(
@@ -133,7 +133,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         : false;
   }
 
-  void rearrangeList(List<Room> rooms) {
+  void rearangChatItem(List<Room> rooms) {
     for (var room in rooms) {
       if (room.pinned == true) {
         rooms.remove(room);
