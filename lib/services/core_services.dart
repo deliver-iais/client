@@ -28,6 +28,7 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
     as ProtocolSeen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:flutter/cupertino.dart';
 
@@ -58,6 +59,7 @@ class CoreServices {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
+  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
@@ -290,7 +292,7 @@ class CoreServices {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Room(uid: roomUid.asString(),deleted: true));
+              _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
@@ -339,7 +341,23 @@ class CoreServices {
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-          // TODO: Handle this case.
+          switch (
+              message.persistEvent.messageManipulationPersistentEvent.action) {
+            case MessageManipulationPersistentEvent_Action.EDITED:
+              getEditedMsg(
+                  roomUid,
+                  message.persistEvent.messageManipulationPersistentEvent
+                      .messageId.toInt());
+              break;
+            case MessageManipulationPersistentEvent_Action.DELETED:
+              var mes = await _messageDao.getMessage(
+                  roomUid.asString(),
+                  message
+                      .persistEvent.messageManipulationPersistentEvent.messageId
+                      .toInt());
+              _messageDao.saveMessage(mes..json = "{}");
+              break;
+          }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
           // TODO: Handle this case.
@@ -359,6 +377,17 @@ class CoreServices {
     if (message.from.category == Categories.USER)
       updateLastActivityTime(
           _lastActivityDao, message.from, message.time.toInt());
+  }
+
+  getEditedMsg(Uid roomUid, int id) async {
+    var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
+      ..roomUid = roomUid
+      ..limit = 1
+      ..pointer = Int64(id)
+      ..type = FetchMessagesReq_Type.FORWARD_FETCH);
+    res.messages.forEach((msg) {
+      saveMessageInMessagesDB(_authRepo, _messageDao,msg);
+    });
   }
 
   Future showNotification(Uid roomUid, Message message) async {

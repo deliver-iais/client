@@ -20,6 +20,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -625,6 +626,28 @@ class MessageRepo {
                   break;
               }
               break;
+            case PersistentEvent_Type.messageManipulationPersistentEvent:
+              Uid roomUid = getRoomUid(_authRepo, message);
+              switch (message
+                  .persistEvent.messageManipulationPersistentEvent.action) {
+                case MessageManipulationPersistentEvent_Action.EDITED:
+                  getEditedMsg(
+                      roomUid,
+                      message.persistEvent.messageManipulationPersistentEvent
+                          .messageId
+                          .toInt());
+                  break;
+                case MessageManipulationPersistentEvent_Action.DELETED:
+                  var mes = await _messageDao.getMessage(
+                      roomUid.asString(),
+                      message.persistEvent.messageManipulationPersistentEvent
+                          .messageId
+                          .toInt());
+                  _messageDao.saveMessage(mes..json = "{}");
+                  break;
+              }
+              break;
+
             default:
               break;
           }
@@ -636,6 +659,17 @@ class MessageRepo {
           .add(await saveMessageInMessagesDB(_authRepo, _messageDao, message));
     }
     return msgList;
+  }
+
+  getEditedMsg(Uid roomUid, int id) async {
+    var res = await _queryServiceClient.fetchMessages(FetchMessagesReq()
+      ..roomUid = roomUid
+      ..limit = 1
+      ..pointer = Int64(id)
+      ..type = FetchMessagesReq_Type.FORWARD_FETCH);
+    res.messages.forEach((msg) {
+      saveMessageInMessagesDB(_authRepo, _messageDao, msg);
+    });
   }
 
   String _findType(String path) {
@@ -764,18 +798,40 @@ class MessageRepo {
       _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
     }
   }
-  _deleteMessage(Message message){
 
-
+  _deleteMessage(Message message) async {
+    try {
+      var res = await _queryServiceClient.deleteMessage(DeleteMessageReq()
+        ..messageId = Int64(message.id)
+        ..roomUid = message.roomUid.asUid());
+      message.json = "{}";
+      _messageDao.saveMessage(message);
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   deleteMessage(List<Message> messages) {
     messages.forEach((msg) {
-      if(msg.id == null)
+      if (msg.id == null)
         deletePendingMessage(msg);
-      else if(_authRepo.isCurrentUserSender(msg))
-        _deleteMessage(msg);
+      else if (_authRepo.isCurrentUserSender(msg)) _deleteMessage(msg);
     });
+  }
 
+  void editMessage(Uid asUid, Message editableMessage, String text) async {
+    try {
+      var updatedMessage = MessageProto.MessageByClient()
+        ..to = editableMessage.to.asUid()
+        ..replyToId = Int64(editableMessage.replyToId)
+        ..text = MessageProto.Text(text: text);
+      await _queryServiceClient.updateMessage(UpdateMessageReq()
+        ..message = updatedMessage
+        ..messageId = Int64(editableMessage.id));
+      editableMessage.json = (MessageProto.Text()..text = text).writeToJson();
+      _messageDao.saveMessage(editableMessage);
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 }

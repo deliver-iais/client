@@ -299,6 +299,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         }
                       }),
             if (widget.message.id != null &&
+                (widget.message.type == MessageType.TEXT ||
+                    widget.message.type == MessageType.FILE) &&
                 _autRepo.isCurrentUserSender(widget.message) &&
                 checkMessageTime(widget.message))
               TextButton(

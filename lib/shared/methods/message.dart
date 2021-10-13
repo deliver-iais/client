@@ -363,6 +363,18 @@ String messageBodyToJson(PB.Message message) {
       return message.form.writeToJson();
       break;
     case MessageType.PERSISTENT_EVENT:
+      switch (message.persistEvent.whichType()) {
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+          return message.persistEvent.writeToJson();
+          break;
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+          return "{}";
+          break;
+        case PersistentEvent_Type.notSet:
+          return "{}";
+          break;
+      }
       return message.persistEvent.writeToJson();
       break;
     case MessageType.BUTTONS:

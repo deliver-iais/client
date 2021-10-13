@@ -20,6 +20,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
+import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
@@ -118,7 +119,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _scrollPhysics = ClampingScrollPhysics();
 
   final BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
-  final BehaviorSubject<Message> _editMessage = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Message> _editableMessage =
+      BehaviorSubject.seeded(null);
   final BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _showProgressBar = BehaviorSubject.seeded(0);
@@ -231,16 +233,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         return Container();
                       }),
                   StreamBuilder(
-                      stream: _editMessage.stream,
+                      stream: _editableMessage.stream,
                       builder: (c, em) {
                         if (em.hasData && em.data != null) {
-                          return ReplyPreview(
-                              message: _editMessage.value,
+                          return onEditMessageWidget(
+                              message: _editableMessage.value,
                               resetRoomPageDetails: _resetRoomPageDetails);
                         }
                         return Container();
                       }),
-
                   StreamBuilder(
                       stream: _waitingForForwardedMessage.stream,
                       builder: (c, wm) {
@@ -386,7 +387,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-    _editMessage.add(null);
+    _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
   }
@@ -435,7 +436,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-
+          _editableMessage.add(message);
           break;
         case OperationOnMessage.SHARE:
           {
@@ -643,12 +644,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           });
     } else
       return StreamBuilder(
-          stream:MergeStream([_repliedMessage.stream,_repliedMessage.stream]) ,
+          stream:
+              MergeStream([_repliedMessage.stream, _editableMessage.stream]),
           builder: (c, data) {
             return NewMessageInput(
               currentRoomId: widget.roomId,
-              replyMessageId: _repliedMessage.value.id,
-              editableMessage:_editMessage.value,
+              replyMessageId:
+                  _repliedMessage.value != null ? _repliedMessage.value.id : 0,
+              editableMessage: _editableMessage.value,
               resetRoomPageDetails: _resetRoomPageDetails,
               waitingForForward: _waitingForForwardedMessage.value,
               sendForwardMessage: _sendForwardMessage,

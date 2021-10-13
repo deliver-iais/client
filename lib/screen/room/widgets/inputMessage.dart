@@ -29,12 +29,15 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -73,6 +76,7 @@ class _InputMessageWidget extends State<InputMessage> {
   bool autofocus = false;
   double x = 0.0;
   double size = 1;
+  int _currentEditMessageId = 0;
   bool started = false;
   DateTime time = DateTime.now();
   BehaviorSubject<DateTime> recordSubject =
@@ -138,10 +142,6 @@ class _InputMessageWidget extends State<InputMessage> {
     currentRoom = widget.currentRoom;
     _controller = TextEditingController(
         text: currentRoom.draft != null ? currentRoom.draft : "");
-    if (widget.editableMessage != null &&
-        widget.editableMessage.type == MessageType.TEXT) {
-      _controller = TextEditingController(text: "edit mes");
-    }
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     _controller.addListener(() {
@@ -210,6 +210,13 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.editableMessage != null &&
+        (_currentEditMessageId == 0 ||
+            _currentEditMessageId != widget.editableMessage.id)) {
+      _currentEditMessageId = widget.editableMessage.id;
+      _controller.text = getEditableMessageContent();
+    }
+
     I18N i18n = I18N.of(context);
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -619,6 +626,8 @@ class _InputMessageWidget extends State<InputMessage> {
           replyId: widget.replyMessageId,
         );
         if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
+      } else if (widget.editableMessage != null) {
+        messageRepo.editMessage(currentRoom.uid.asUid(),widget.editableMessage,_controller.text);
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
@@ -675,5 +684,18 @@ class _InputMessageWidget extends State<InputMessage> {
               else
                 {mentionSelectedIndex++}
             });
+  }
+
+  String getEditableMessageContent() {
+    String text = "";
+    // ignore: missing_enum_constant_in_switch
+    switch (widget.editableMessage.type) {
+      case MessageType.TEXT:
+        text = widget.editableMessage.json.toText().text;
+        break;
+      case MessageType.FILE:
+        text = widget.editableMessage.json.toFile().caption;
+    }
+    return text + " ";
   }
 }
