@@ -255,5 +255,7 @@
   "delete_chat": "حذف گفتگو",
   "selected_file": "فایل انتخاب شده",
   "caption": "متن",
-  "add_caption" : "افزودن متن"
+  "add_caption" : "افزودن متن",
+  "sure_delete_message": "آیا از حذف پیام مطمنید؟",
+  "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟"
 }

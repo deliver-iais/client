@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -43,6 +45,7 @@ class InputMessage extends StatefulWidget {
   final Function showMentionList;
   final Function scrollToLastSentMessage;
   static FocusNode myFocusNode;
+  final Message editableMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -53,6 +56,7 @@ class InputMessage extends StatefulWidget {
       this.resetRoomPageDetails,
       this.waitingForForward = false,
       this.sendForwardMessage,
+      this.editableMessage,
       this.showMentionList,
       this.scrollToLastSentMessage});
 }
@@ -134,6 +138,10 @@ class _InputMessageWidget extends State<InputMessage> {
     currentRoom = widget.currentRoom;
     _controller = TextEditingController(
         text: currentRoom.draft != null ? currentRoom.draft : "");
+    if (widget.editableMessage != null &&
+        widget.editableMessage.type == MessageType.TEXT) {
+      _controller = TextEditingController(text: "edit mes");
+    }
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     _controller.addListener(() {

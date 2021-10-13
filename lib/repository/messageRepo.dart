@@ -764,4 +764,18 @@ class MessageRepo {
       _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
     }
   }
+  _deleteMessage(Message message){
+
+
+  }
+
+  deleteMessage(List<Message> messages) {
+    messages.forEach((msg) {
+      if(msg.id == null)
+        deletePendingMessage(msg);
+      else if(_authRepo.isCurrentUserSender(msg))
+        _deleteMessage(msg);
+    });
+
+  }
 }

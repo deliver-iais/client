@@ -20,7 +20,6 @@ apps:
     plugs:
       - home
       - network
-      - system-packages-doc
     slots:
       - dbus-deliver-co
 

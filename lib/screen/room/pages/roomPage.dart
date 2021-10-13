@@ -118,6 +118,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _scrollPhysics = ClampingScrollPhysics();
 
   final BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Message> _editMessage = BehaviorSubject.seeded(null);
   final BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _showProgressBar = BehaviorSubject.seeded(0);
@@ -229,6 +230,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         }
                         return Container();
                       }),
+                  StreamBuilder(
+                      stream: _editMessage.stream,
+                      builder: (c, em) {
+                        if (em.hasData && em.data != null) {
+                          return ReplyPreview(
+                              message: _editMessage.value,
+                              resetRoomPageDetails: _resetRoomPageDetails);
+                        }
+                        return Container();
+                      }),
+
                   StreamBuilder(
                       stream: _waitingForForwardedMessage.stream,
                       builder: (c, wm) {
@@ -374,6 +386,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
+    _editMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
   }
@@ -419,10 +432,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               .openSelectForwardMessage(forwardedMessages: [message]);
           break;
         case OperationOnMessage.DELETE:
-          // TODO: Handle this case.
+          _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          // TODO: Handle this case.
+
           break;
         case OperationOnMessage.SHARE:
           {
@@ -630,11 +643,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           });
     } else
       return StreamBuilder(
-          stream: _repliedMessage.stream,
-          builder: (c, rm) {
+          stream:MergeStream([_repliedMessage.stream,_repliedMessage.stream]) ,
+          builder: (c, data) {
             return NewMessageInput(
               currentRoomId: widget.roomId,
-              replyMessageId: rm.data?.id ?? 0,
+              replyMessageId: _repliedMessage.value.id,
+              editableMessage:_editMessage.value,
               resetRoomPageDetails: _resetRoomPageDetails,
               waitingForForward: _waitingForForwardedMessage.value,
               sendForwardMessage: _sendForwardMessage,
@@ -999,7 +1013,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
         onLongPress: () {
-          _selectMultiMessageSubject.add(true);
+          if (!_selectMultiMessageSubject.stream.value)
+            _selectMultiMessageSubject.add(true);
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
@@ -1090,6 +1105,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _routingService.openSelectForwardMessage(
                       forwardedMessages: _selectedMessages.values.toList());
+                  _selectedMessages.clear();
+                }),
+          ),
+        ),
+        Tooltip(
+          message: _i18n.get("delete"),
+          child: Badge(
+            animationType: BadgeAnimationType.fade,
+            badgeColor: Theme.of(context).primaryColor,
+            badgeContent: Text(_selectedMessages.length.toString()),
+            animationDuration: Duration(milliseconds: 125),
+            child: IconButton(
+                color: Theme.of(context).primaryColor,
+                icon: Icon(
+                  Icons.delete,
+                  size: 30,
+                ),
+                onPressed: () {
+                  _showDeleteMsgDialog(_selectedMessages.values.toList());
                   _selectedMessages.clear();
                 }),
           ),
@@ -1218,5 +1252,35 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     messageIndex = messageIndex + 3;
     _itemScrollController.scrollTo(
         index: messageIndex, duration: Duration(seconds: 1));
+  }
+
+  void _showDeleteMsgDialog(List<Message> messages) {
+    showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+              title: Text(
+                "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+              ),
+              content: Text(messages.length > 1
+                  ? _i18n.get("sure_delete_messages")
+                  : _i18n.get("sure_delete_message")),
+              actions: [
+                GestureDetector(
+                  child: Text(
+                    _i18n.get("cancel"),
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  onTap: () => Navigator.pop(context),
+                ),
+                GestureDetector(
+                  child: Text(
+                    _i18n.get("delete"),
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () => _messageRepo.deleteMessage(messages),
+                )
+              ],
+            ));
   }
 }

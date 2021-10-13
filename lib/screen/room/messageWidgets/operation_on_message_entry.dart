@@ -3,6 +3,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/models/operation_on_message.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -39,6 +40,8 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
 class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _autRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   onReply() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPLY);
@@ -52,7 +55,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.FORWARD);
   }
 
-  onEdit() {
+  onEditMessage() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.EDIT);
   }
 
@@ -92,17 +95,28 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         context, OperationOnMessage.SAVE_TO_MUSIC);
   }
 
+  onDeleteMessage() {
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE);
+  }
+
   onDeletePendingMessage() {
     Navigator.pop<OperationOnMessage>(
         context, OperationOnMessage.DELETE_PENDING_MESSAGE);
   }
 
   BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
+  bool _hasPermissionToDeleteMsg = false;
+
+  @override
+  void initState() {
+    _hasPermissionToDeleteMsg = widget.message.id == null ||
+        _autRepo.isCurrentUserSender(widget.message) ||
+        (widget.message.roomUid.isChannel() && widget.hasPermissionInChannel) ||
+        (widget.message.roomUid.isGroup() && widget.hasPermissionInGroup);
+  }
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
-
     return Container(
       child: SingleChildScrollView(
         child: Column(
@@ -118,11 +132,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(i18n.get("Reply")),
+                    Text(_i18n.get("Reply")),
                   ])),
             if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
                     widget.hasPermissionInGroup) ||
-                (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
+                (widget.message.roomUid.asUid().category ==
+                        Categories.CHANNEL &&
                     widget.hasPermissionInChannel))
               if (!widget.isPinned)
                 TextButton(
@@ -135,7 +150,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(i18n.get("pin")),
+                      Text(_i18n.get("pin")),
                     ]))
               else
                 TextButton(
@@ -148,11 +163,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(i18n.get("unpin")),
+                      Text(_i18n.get("unpin")),
                     ])),
-
             if (widget.message.type == MessageType.TEXT ||
-                (widget.message.type == MessageType.FILE && widget.message.json.toFile().caption.isNotEmpty))
+                (widget.message.type == MessageType.FILE &&
+                    widget.message.json.toFile().caption.isNotEmpty))
               TextButton(
                   onPressed: () {
                     onCopy();
@@ -163,7 +178,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(i18n.get("copy")),
+                    Text(_i18n.get("copy")),
                   ])),
             if (widget.message.type == MessageType.FILE)
               FutureBuilder(
@@ -179,7 +194,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             if (f.type.contains("image")) {
                               onSaveTOGallery();
                             } else if (f.type.contains("audio") ||
-                                f.type.contains("mp3")) { // TODO ?????
+                                f.type.contains("mp3")) {
+                              // TODO ?????
                               onSaveToMusic();
                             } else {
                               onSaveTODownloads();
@@ -197,17 +213,16 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             ),
                             SizedBox(width: 8),
                             f.type.contains("image")
-                                ? Text(i18n.get("save_to_gallery"))
+                                ? Text(_i18n.get("save_to_gallery"))
                                 : f.type.contains("audio") ||
                                         f.type.contains("mp3")
-                                    ? Text(i18n.get("save_in_music"))
-                                    : Text(i18n.get("save_to_downloads")),
+                                    ? Text(_i18n.get("save_in_music"))
+                                    : Text(_i18n.get("save_to_downloads")),
                           ]));
                     } else {
                       return SizedBox.shrink();
                     }
                   }),
-
             if (widget.message.type == MessageType.FILE && !isDesktop())
               StreamBuilder<bool>(
                   stream: _fileIsExist.stream,
@@ -224,12 +239,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(i18n.get("share")),
+                            Text(_i18n.get("share")),
                           ]));
                     } else
                       return SizedBox.shrink();
                   }),
-
             if (widget.message.id != null)
               TextButton(
                   onPressed: () {
@@ -241,11 +255,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(i18n.get("forward")),
+                    Text(_i18n.get("forward")),
                   ])),
             if (widget.message.id == null)
               FutureBuilder<PendingMessage>(
-                  future: _messageRepo.getPendingMessage(widget.message.packetId),
+                  future:
+                      _messageRepo.getPendingMessage(widget.message.packetId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&
@@ -261,70 +276,68 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(i18n.get("resend")),
+                            Text(_i18n.get("resend")),
                           ]));
                     } else {
                       return SizedBox.shrink();
                     }
                   }),
-            if (widget.message.id == null)
-              FutureBuilder<PendingMessage>(
-                  future: _messageRepo.getPendingMessage(widget.message.packetId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data.failed != null &&
-                        snapshot.data.failed) {
-                      return TextButton(
-                          onPressed: () {
-                            onDeletePendingMessage();
-                          },
-                          child: Row(children: [
-                            Icon(
-                              Icons.delete,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(i18n.get("delete")),
-                          ]));
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  }),
-
-            // widget.message.type == MessageType.TEXT
-            //     ? Expanded(
-            //         child: FlatButton(
-            //             onPressed: () {
-            //               onEdit();
-            //             },
-            //             child: Row(children: [
-            //               Icon(
-            //                 Icons.edit,
-            //                 size: 20,
-            //               ),
-            //               SizedBox(width: 8),
-            //               Text(i18n.getTraslateValue("edit")),
-            //             ])),
-            //       )
-            //     : Container(),
-            // Expanded(
-            //   child: FlatButton(
-            //       onPressed: () {
-            //         onDelete();
-            //       },
-            //       child: Row(children: [
-            //         Icon(
-            //           Icons.delete,
-            //           size: 20,
-            //         ),
-            //         SizedBox(width: 8),
-            //         Text(i18n.getTraslateValue("delete")),
-            //       ])),
-            // ),
+            if (_hasPermissionToDeleteMsg)
+              widget.message.id != null
+                  ? deleteMenuWidget()
+                  : FutureBuilder<PendingMessage>(
+                      future: _messageRepo
+                          .getPendingMessage(widget.message.packetId),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data.failed != null &&
+                            snapshot.data.failed) {
+                          return deleteMenuWidget();
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      }),
+            if (widget.message.id != null &&
+                _autRepo.isCurrentUserSender(widget.message) &&
+                checkMessageTime(widget.message))
+              TextButton(
+                  onPressed: () {
+                    onEditMessage();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.edit,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(_i18n.get("edit")),
+                  ])),
           ],
         ),
       ),
     );
+  }
+
+  TextButton deleteMenuWidget() {
+    return TextButton(
+        onPressed: () {
+          widget.message.id != null
+              ? onDeleteMessage()
+              : onDeletePendingMessage();
+        },
+        child: Row(children: [
+          Icon(
+            Icons.delete,
+            size: 20,
+          ),
+          SizedBox(width: 8),
+          Text(_i18n.get("delete")),
+        ]));
+  }
+
+  bool checkMessageTime(Message message) {
+    return DateTime.now().millisecondsSinceEpoch - message.time <=
+        3 * 24 * 60 * 60 * 1000;
   }
 }
