@@ -1270,12 +1270,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   : _i18n.get("sure_delete_message")),
               actions: [
                 GestureDetector(
-                  child: Text(
-                    _i18n.get("cancel"),
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                  onTap: () => Navigator.pop(context),
-                ),
+                    child: Text(
+                      _i18n.get("cancel"),
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectMultiMessageSubject.add(false);
+                        _selectedMessages.clear();
+                      });
+
+                      Navigator.pop(context);
+                    }),
                 GestureDetector(
                   child: Text(
                     _i18n.get("delete"),
