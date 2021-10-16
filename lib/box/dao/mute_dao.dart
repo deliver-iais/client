@@ -12,13 +12,9 @@ abstract class MuteDao {
 
 class MuteDaoImpl implements MuteDao {
   Future<bool> isMuted(String uid) async {
-    try{
       var box = await _open();
 
       return box.get(uid) ?? false;
-    }catch(e){
-      return false;
-    }
 
   }
 

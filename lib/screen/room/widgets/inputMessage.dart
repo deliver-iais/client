@@ -29,7 +29,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
@@ -619,15 +618,18 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = _controller.text.trim();
 
     if (text.isNotEmpty && text != null) {
-      if (text.isNotEmpty) if (widget.replyMessageId != null) {
+      if (text.isNotEmpty) if (widget.replyMessageId>0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
           replyId: widget.replyMessageId,
         );
-        if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
+        widget.resetRoomPageDetails();
       } else if (widget.editableMessage != null) {
-        messageRepo.editMessage(currentRoom.uid.asUid(),widget.editableMessage,_controller.text);
+        messageRepo.editMessage(
+            currentRoom.uid.asUid(), widget.editableMessage, _controller.text);
+        _currentEditMessageId = 0;
+        widget.resetRoomPageDetails();
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
@@ -663,7 +665,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
     if (result.length <= 0) return;
-    captionTextController.text = "";
     showDialog(
         context: context,
         builder: (context) {

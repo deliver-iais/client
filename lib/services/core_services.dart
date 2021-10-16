@@ -275,7 +275,7 @@ class CoreServices {
 
     _messageDao.deletePendingMessage(packetId);
     _messageDao.saveMessage(msg);
-    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg));
+    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg,lastMessageId: msg.id));
 
     if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
       _notificationServices.playSoundOut();
@@ -369,9 +369,9 @@ class CoreServices {
     }
     saveMessage(message, roomUid);
 
-    if (!_authRepo.isCurrentUser(message.from.asString()) &&
+    if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
-        (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
+        (!await _roomRepo.isRoomMuted(roomUid.asString()))  ) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -422,6 +422,7 @@ class CoreServices {
       Room(
           uid: roomUid.asString(),
           lastMessage: msg,
+          lastMessageId: msg.id,
           mentioned: isMention,
           deleted: false,
           lastUpdateTime: msg.time),
@@ -443,6 +444,25 @@ class CoreServices {
               type != PresenceType.ACTIVE));
   }
 }
+ bool showNotifyForThisMessage(Message message ,AuthRepo authRepo) {
+   bool showNotify = true;
+   showNotify = !authRepo.isCurrentUser(message.from.asString());
+   if (message.whichType() == Message_Type.persistEvent) {
+     // ignore: missing_enum_constant_in_switch
+     switch (message.persistEvent.whichType()) {
+       case PersistentEvent_Type.mucSpecificPersistentEvent:
+         showNotify = !authRepo.isCurrentUser(
+             message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
+         return showNotify;
+         break;
+       case PersistentEvent_Type.messageManipulationPersistentEvent:
+         showNotify = false;
+         return showNotify;
+         break;
+     }
+   }
+   return showNotify;
+ }
 
 // TODO, refactor this!!!, we don't need this be functional
 Future<DB.Message> saveMessageInMessagesDB(

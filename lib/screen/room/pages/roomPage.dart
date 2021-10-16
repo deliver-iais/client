@@ -123,7 +123,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       BehaviorSubject.seeded(null);
   final BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
-  final _showProgressBar = BehaviorSubject.seeded(0);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
@@ -186,21 +185,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         children: [
                                           buildMessagesListView(
                                               pendingMessages),
-                                          StreamBuilder<int>(
-                                            stream: _showProgressBar.stream,
-                                            builder: (c, s) {
-                                              if (s.hasData && s.data > 0)
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                  ),
-                                                );
-                                              else
-                                                return SizedBox.shrink();
-                                            },
-                                          ),
                                           StreamBuilder(
                                               stream: _positionSubject.stream,
                                               builder: (c, position) {
@@ -984,6 +968,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget _createWidget(
       Message message, Room currentRoom, List pendingMessages) {
+    if (message.json == "{}") return SizedBox.shrink();
     var messageWidget;
     if (_authRepo.isCurrentUser(message.from))
       messageWidget = showSentMessage(
@@ -1286,9 +1271,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   child: Text(
                     _i18n.get("delete"),
                     style: TextStyle(color: Colors.red),
-                  ),
-                  onTap: () => _messageRepo.deleteMessage(messages),
-                )
+                  ),onTap: (){
+                    _messageRepo.deleteMessage(messages,_currentRoom.value.lastMessageId);
+                    Navigator.pop(context);
+                },
+                ),
               ],
             ));
   }
