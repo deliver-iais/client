@@ -429,6 +429,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               editMessageInput.add(message.json.toFile().caption);
           }
           _editableMessage.add(message);
+
           break;
         case OperationOnMessage.SHARE:
           {
