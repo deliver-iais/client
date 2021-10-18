@@ -70,12 +70,11 @@ class _InputMessageWidget extends State<InputMessage> {
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
-  TextEditingController _controller;
+  TextEditingController _controller = TextEditingController();
   Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
   double size = 1;
-  int _currentEditMessageId = 0;
   bool started = false;
   DateTime time = DateTime.now();
   BehaviorSubject<DateTime> recordSubject =
@@ -127,6 +126,12 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
+    editMessageInput = BehaviorSubject.seeded("");
+    currentRoom = widget.currentRoom;
+    _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
+    editMessageInput.stream.listen((event) {
+      _controller.text = event;
+    });
     InputMessage.myFocusNode = FocusNode();
     keyboardRawFocusNode = FocusNode();
 
@@ -138,9 +143,7 @@ class _InputMessageWidget extends State<InputMessage> {
     noActivitySubject.listen((event) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
-    currentRoom = widget.currentRoom;
-    _controller = TextEditingController(
-        text: currentRoom.draft != null ? currentRoom.draft : "");
+
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     _controller.addListener(() {
@@ -203,19 +206,13 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
+    editMessageInput.close();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.editableMessage != null &&
-        (_currentEditMessageId == 0 ||
-            _currentEditMessageId != widget.editableMessage.id)) {
-      _currentEditMessageId = widget.editableMessage.id;
-      _controller.text = getEditableMessageContent();
-    }
-
     I18N i18n = I18N.of(context);
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -618,7 +615,7 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = _controller.text.trim();
 
     if (text.isNotEmpty && text != null) {
-      if (text.isNotEmpty) if (widget.replyMessageId>0) {
+      if (text.isNotEmpty) if (widget.replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
@@ -626,9 +623,8 @@ class _InputMessageWidget extends State<InputMessage> {
         );
         widget.resetRoomPageDetails();
       } else if (widget.editableMessage != null) {
-        messageRepo.editMessage(
-            currentRoom.uid.asUid(), widget.editableMessage, _controller.text);
-        _currentEditMessageId = 0;
+        messageRepo.editMessage(currentRoom.uid.asUid(), widget.editableMessage,
+            _controller.text, currentRoom.lastMessageId);
         widget.resetRoomPageDetails();
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
@@ -700,3 +696,5 @@ class _InputMessageWidget extends State<InputMessage> {
     return text + " ";
   }
 }
+
+BehaviorSubject<String> editMessageInput = BehaviorSubject.seeded("");

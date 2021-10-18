@@ -371,6 +371,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
+     editMessageInput.add("");
     _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
@@ -420,6 +421,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
+          switch (message.type) { // ignore: missing_enum_constant_in_switch
+            case MessageType.TEXT:
+              editMessageInput.add(message.json.toText().text);
+              break;
+            case MessageType.FILE:
+              editMessageInput.add(message.json.toFile().caption);
+          }
           _editableMessage.add(message);
           break;
         case OperationOnMessage.SHARE:
@@ -1271,10 +1279,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   child: Text(
                     _i18n.get("delete"),
                     style: TextStyle(color: Colors.red),
-                  ),onTap: (){
-                    _messageRepo.deleteMessage(messages,_currentRoom.value.lastMessageId);
+                  ),
+                  onTap: () {
+                    _messageRepo.deleteMessage(
+                        messages, _currentRoom.value.lastMessageId);
                     Navigator.pop(context);
-                },
+                  },
                 ),
               ],
             ));

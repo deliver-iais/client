@@ -819,7 +819,6 @@ class MessageRepo {
       await _queryServiceClient.deleteMessage(DeleteMessageReq()
         ..messageId = Int64(message.id)
         ..roomUid = message.roomUid.asUid());
-
     } catch (e) {
       _logger.e(e);
     }
@@ -847,17 +846,21 @@ class MessageRepo {
     });
   }
 
-  void editMessage(Uid asUid, Message editableMessage, String text) async {
+  void editMessage(Uid roomUid, Message editableMessage, String text,
+      roomLastMessageId) async {
     try {
       var updatedMessage = MessageProto.MessageByClient()
         ..to = editableMessage.to.asUid()
-        ..replyToId = Int64(editableMessage.replyToId??0)
+        ..replyToId = Int64(editableMessage.replyToId ?? 0)
         ..text = MessageProto.Text(text: text);
-      // await _queryServiceClient.updateMessage(UpdateMessageReq()
-      //   ..message = updatedMessage
-      //   ..messageId = Int64(editableMessage.id));
+      await _queryServiceClient.updateMessage(UpdateMessageReq()
+        ..message = updatedMessage
+        ..messageId = Int64(editableMessage.id));
       editableMessage.json = (MessageProto.Text()..text = text).writeToJson();
       _messageDao.saveMessage(editableMessage);
+      if (editableMessage.id == roomLastMessageId)
+        _roomDao.updateRoom(
+            Room(uid: roomUid.asString(), lastMessage: editableMessage));
     } catch (e) {
       _logger.e(e);
     }
