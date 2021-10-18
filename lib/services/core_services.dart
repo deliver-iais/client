@@ -270,15 +270,16 @@ class CoreServices {
         DateTime.now().millisecondsSinceEpoch;
 
     var pm = await _messageDao.getPendingMessage(packetId);
+    if(pm != null) {
+      var msg = pm.msg.copyWith(id: id, time: time);
+      _messageDao.deletePendingMessage(packetId);
+      _messageDao.saveMessage(msg);
+      _roomDao.updateRoom(
+          Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id));
 
-    var msg = pm.msg.copyWith(id: id, time: time);
-
-    _messageDao.deletePendingMessage(packetId);
-    _messageDao.saveMessage(msg);
-    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg,lastMessageId: msg.id));
-
-    if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
-      _notificationServices.playSoundOut();
+      if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
+        _notificationServices.playSoundOut();
+      }
     }
   }
 

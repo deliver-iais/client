@@ -967,7 +967,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                padding: EdgeInsets.symmetric(vertical: msg.json =="{}"?0.0: 4.0),
                 child: PersistentEventMessage(message: msg),
               ),
             ],
