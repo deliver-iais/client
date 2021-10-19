@@ -39,6 +39,7 @@ import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,8 +161,13 @@ class MessageRepo {
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
               room,
+              type: FetchMessagesReq_Type.FORWARD_FETCH,
+              limit: 2,
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
+            if (room != null && room.uid.asUid().category == Categories.GROUP) {
+              getMentions(room);
+            }
           } else {
             _roomDao.updateRoom(Room(
                 uid: roomMetadata.roomUid.asString(),
@@ -199,41 +205,48 @@ class MessageRepo {
 
   Future<Message> fetchLastMessages(
       Uid roomUid, int lastMessageId, int firstMessageId, Room room,
-      {bool retry = true, int lastUpdateTime}) async {
+      {bool retry = true,
+      int lastUpdateTime,
+      FetchMessagesReq_Type type,
+      int limit}) async {
+    bool lastMessageIsSet = false;
+    int pointer = lastMessageId;
+    Message lastMessage;
     try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), lastMessageId);
-      if (msg != null) {
-        _roomDao.updateRoom(Room(
-          uid: roomUid.asString(),
-          firstMessageId: firstMessageId.toInt(),
-          lastUpdateTime: msg.time,
-          lastMessageId: lastMessageId.toInt(),
-          lastMessage: msg,
-        ));
-      } else {
-        var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-            FetchMessagesReq()
-              ..roomUid = roomUid
-              ..pointer = Int64(lastMessageId)
-              ..type = FetchMessagesReq_Type.FORWARD_FETCH
-              ..limit = 1,
-            options: CallOptions(timeout: Duration(seconds: 3)));
-        List<Message> messages =
-            await _saveFetchMessages(fetchMessagesRes.messages);
-
-        _roomDao.updateRoom(Room(
-          uid: roomUid.asString(),
-          firstMessageId: firstMessageId.toInt(),
-          lastUpdateTime: lastUpdateTime ?? messages.last.time,
-          lastMessageId: lastMessageId.toInt(),
-          lastMessage: messages.last,
-        ));
-
-        if (room != null && room.uid.asUid().category == Categories.GROUP) {
-          getMentions(room);
+      var msg = await _messageDao.getMessage(roomUid.asString(), pointer--);
+      while (!lastMessageIsSet) {
+        try {
+          if (msg != null) {
+            if (!msg.json.isDeletedMessage()) {
+              lastMessageIsSet = true;
+              lastMessage = msg;
+              break;
+            } else if (msg.id == 1) {
+              lastMessage = msg.copyWith(json: "{DELETED}");
+              lastMessageIsSet = true;
+              break;
+            } else {
+              pointer--;
+              msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+            }
+          } else {
+            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
+                lastMessageId, type, limit, firstMessageId, lastUpdateTime);
+            lastMessageIsSet = true;
+          }
+        } catch (e) {
+          lastMessageIsSet = true;
+          break;
         }
-        return messages.last;
       }
+      _roomDao.updateRoom(Room(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId.toInt(),
+        lastUpdateTime: lastMessage.time,
+        lastMessageId: lastMessage.id,
+        lastMessage: lastMessage,
+      ));
+      return lastMessage;
     } catch (e) {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
@@ -246,6 +259,45 @@ class MessageRepo {
       _logger.e(e);
       return null;
     }
+  }
+
+  Future<Message> getLastMessageFromServer(
+      Uid roomUid,
+      int lastMessageId,
+      int pointer,
+      FetchMessagesReq_Type type,
+      int limit,
+      int firstMessageId,
+      int lastUpdateTime) async {
+    Message lastMessage;
+    var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+        FetchMessagesReq()
+          ..roomUid = roomUid
+          ..pointer = Int64(pointer)
+          ..type = type
+          ..limit = limit,
+        options: CallOptions(timeout: Duration(seconds: 3)));
+    List<Message> messages =
+        await _saveFetchMessages(fetchMessagesRes.messages);
+    for (var element in messages) {
+      if (!element.json.isDeletedMessage()) {
+        lastMessage = element;
+        break;
+      } else if (element.id == 1) {
+        lastMessage = element.copyWith(json: "{DELETED}");
+      }
+    }
+    if (lastMessage != null)
+      return lastMessage;
+    else
+      return getLastMessageFromServer(
+          roomUid,
+          lastMessageId,
+          pointer > 5 ? pointer - 5 : pointer,
+          type,
+          limit,
+          firstMessageId,
+          lastUpdateTime);
   }
 
   Future<void> fetchOtherSeen(Uid roomUid) async {
