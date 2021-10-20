@@ -86,8 +86,8 @@ dependencies:
   jwt_decoder: 1.0.1 # TODO, read documentation and update it
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
-      url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.8.6-beta.20
+      url: https://github.com/deliver-iais/pub-dart-artifactory
+      ref: tags/v1.9.0
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
