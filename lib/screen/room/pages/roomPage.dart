@@ -147,6 +147,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder<Room>(
                   stream: _roomRepo.watchRoom(widget.roomId),
                   builder: (context, snapshot) {
+                    print(snapshot.data?.lastMessageId ??0);
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
               Column(
@@ -328,7 +329,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) async {
       var msg = await _getMessage(
-          event, widget.roomId, _currentRoom.valueWrapper.value.lastMessageId);
+          event, widget.roomId, _currentRoom.valueWrapper.value.lastMessageId,
+          lastUpdatedMessageId:
+              _currentRoom.valueWrapper.value.lastUpdatedMessageId);
 
       if (msg == null) return;
 
@@ -356,9 +359,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     super.initState();
   }
 
-  Future<Message> _getMessage(int id, String roomId, int lastMessageId) async {
+  Future<Message> _getMessage(int id, String roomId, int lastMessageId,
+      {int lastUpdatedMessageId}) async {
     var msg = _messageCache.get(id);
-    if (msg != null) {
+    if (msg != null && id != lastUpdatedMessageId) {
       return msg;
     }
     int page = (id / PAGE_SIZE).floor();
@@ -371,7 +375,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-     editMessageInput.add("");
+    editMessageInput.add("");
     _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
@@ -421,7 +425,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) { // ignore: missing_enum_constant_in_switch
+          switch (message.type) {
+            // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
               break;
@@ -530,7 +535,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             if (element != null) {
               try {
                 var m = await _getMessage(
-                    element, widget.roomId, muc.lastMessageId);
+                    element, widget.roomId, muc.lastMessageId,
+                    lastUpdatedMessageId:
+                        _currentRoom.value.lastUpdatedMessageId);
                 _pinMessages.add(m);
                 _lastPinedMessage.add(_pinMessages.last.id);
               } catch (e) {
@@ -883,7 +890,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return isPendingMessage
         ? Future.value(pendingMessages[_itemCount - index - 1].msg)
         : _getMessage(index + 1, widget.roomId,
-            _currentRoom.valueWrapper.value.lastMessageId);
+            _currentRoom.valueWrapper.value.lastMessageId,
+            lastUpdatedMessageId:
+                _currentRoom.valueWrapper.value.lastUpdatedMessageId);
   }
 
   Future<int> _timeAt(List<PendingMessage> pendingMessages, int index) async {
@@ -968,7 +977,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(vertical: msg.json =="{}"?0.0: 4.0),
+                padding: EdgeInsets.symmetric(
+                    vertical: msg.json == "{}" ? 0.0 : 4.0),
                 child: PersistentEventMessage(message: msg),
               ),
             ],

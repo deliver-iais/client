@@ -270,7 +270,7 @@ class CoreServices {
         DateTime.now().millisecondsSinceEpoch;
 
     var pm = await _messageDao.getPendingMessage(packetId);
-    if(pm != null) {
+    if (pm != null) {
       var msg = pm.msg.copyWith(id: id, time: time);
       _messageDao.deletePendingMessage(packetId);
       _messageDao.saveMessage(msg);
@@ -347,8 +347,9 @@ class CoreServices {
             case MessageManipulationPersistentEvent_Action.EDITED:
               getEditedMsg(
                   roomUid,
-                  message.persistEvent.messageManipulationPersistentEvent
-                      .messageId.toInt());
+                  message
+                      .persistEvent.messageManipulationPersistentEvent.messageId
+                      .toInt());
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
               var mes = await _messageDao.getMessage(
@@ -357,6 +358,8 @@ class CoreServices {
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
               _messageDao.saveMessage(mes..json = "{}");
+              _roomDao.updateRoom(
+                  Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
               break;
           }
           break;
@@ -372,7 +375,7 @@ class CoreServices {
 
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
-        (!await _roomRepo.isRoomMuted(roomUid.asString()))  ) {
+        (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -386,9 +389,13 @@ class CoreServices {
       ..limit = 1
       ..pointer = Int64(id)
       ..type = FetchMessagesReq_Type.FORWARD_FETCH);
-    res.messages.forEach((msg) {
-      saveMessageInMessagesDB(_authRepo, _messageDao,msg);
-    });
+    var msg = await saveMessageInMessagesDB(
+        _authRepo, _messageDao, res.messages.first);
+    var room = await _roomDao.getRoom(roomUid.asString());
+   await _roomDao.updateRoom(
+        room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
+    if (room.lastMessageId == id)
+      _roomDao.updateRoom(room.copyWith(lastMessage: msg));
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -418,16 +425,16 @@ class CoreServices {
         isMention = true;
       }
     }
-
-    _roomDao.updateRoom(
-      Room(
-          uid: roomUid.asString(),
-          lastMessage: msg,
-          lastMessageId: msg.id,
-          mentioned: isMention,
-          deleted: false,
-          lastUpdateTime: msg.time),
-    );
+    if (msg.json != "{}")
+      _roomDao.updateRoom(
+        Room(
+            uid: roomUid.asString(),
+            lastMessage: msg,
+            lastMessageId: msg.id,
+            mentioned: isMention,
+            deleted: false,
+            lastUpdateTime: msg.time),
+      );
 
     return roomUid;
   }
@@ -445,30 +452,35 @@ class CoreServices {
               type != PresenceType.ACTIVE));
   }
 }
- bool showNotifyForThisMessage(Message message ,AuthRepo authRepo) {
-   bool showNotify = true;
-   showNotify = !authRepo.isCurrentUser(message.from.asString());
-   if (message.whichType() == Message_Type.persistEvent) {
-     // ignore: missing_enum_constant_in_switch
-     switch (message.persistEvent.whichType()) {
-       case PersistentEvent_Type.mucSpecificPersistentEvent:
-         showNotify = !authRepo.isCurrentUser(
-             message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
-         return showNotify;
-         break;
-       case PersistentEvent_Type.messageManipulationPersistentEvent:
-         showNotify = false;
-         return showNotify;
-         break;
-     }
-   }
-   return showNotify;
- }
+
+bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
+  bool showNotify = true;
+  showNotify = !authRepo.isCurrentUser(message.from.asString());
+  if (message.whichType() == Message_Type.persistEvent) {
+    // ignore: missing_enum_constant_in_switch
+    switch (message.persistEvent.whichType()) {
+      case PersistentEvent_Type.mucSpecificPersistentEvent:
+        showNotify = !authRepo.isCurrentUser(
+            message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
+        return showNotify;
+        break;
+      case PersistentEvent_Type.messageManipulationPersistentEvent:
+        showNotify = false;
+        return showNotify;
+        break;
+    }
+  }
+  return showNotify;
+}
 
 // TODO, refactor this!!!, we don't need this be functional
 Future<DB.Message> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
-  final msg = extractMessage(authRepo, message);
-  await messageDao.saveMessage(msg);
-  return msg;
+  try {
+    final msg = extractMessage(authRepo, message);
+    await messageDao.saveMessage(msg);
+    return msg;
+  } catch (e) {
+    print(e.toString());
+  }
 }

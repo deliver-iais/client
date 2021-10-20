@@ -133,8 +133,8 @@ class MessageRepo {
 
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
-
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (roomMetadata.presenceType == null ||
               roomMetadata.presenceType == PresenceType.ACTIVE) {
@@ -161,7 +161,7 @@ class MessageRepo {
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
               room,
-              type: FetchMessagesReq_Type.FORWARD_FETCH,
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
@@ -233,6 +233,7 @@ class MessageRepo {
             lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
                 lastMessageId, type, limit, firstMessageId, lastUpdateTime);
             lastMessageIsSet = true;
+            break;
           }
         } catch (e) {
           lastMessageIsSet = true;
@@ -293,7 +294,7 @@ class MessageRepo {
       return getLastMessageFromServer(
           roomUid,
           lastMessageId,
-          pointer > 5 ? pointer - 5 : pointer,
+          pointer > limit ? pointer - limit : pointer,
           type,
           limit,
           firstMessageId,
@@ -711,6 +712,8 @@ class MessageRepo {
                           .messageId
                           .toInt());
                   _messageDao.saveMessage(mes..json = "{}");
+                  _roomDao.updateRoom(Room(
+                      uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
                   break;
               }
               break;
@@ -734,9 +737,12 @@ class MessageRepo {
       ..limit = 1
       ..pointer = Int64(id)
       ..type = FetchMessagesReq_Type.FORWARD_FETCH);
-    res.messages.forEach((msg) {
-      saveMessageInMessagesDB(_authRepo, _messageDao, msg);
-    });
+    var msg = await saveMessageInMessagesDB(
+        _authRepo, _messageDao, res.messages.first);
+    var room = await _roomDao.getRoom(roomUid.asString());
+    await _roomDao.updateRoom(room.copyWith(lastUpdatedMessageId: id));
+    if (room.lastMessageId == id)
+      _roomDao.updateRoom(room.copyWith(lastMessage: msg));
   }
 
   String _findType(String path) {
@@ -894,6 +900,8 @@ class MessageRepo {
           }
         msg.json = "{}";
         _messageDao.saveMessage(msg);
+        _roomDao
+            .updateRoom(Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id));
       }
     });
   }
@@ -910,6 +918,8 @@ class MessageRepo {
         ..messageId = Int64(editableMessage.id));
       editableMessage.json = (MessageProto.Text()..text = text).writeToJson();
       _messageDao.saveMessage(editableMessage);
+      _roomDao.updateRoom(Room(
+          uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
       if (editableMessage.id == roomLastMessageId)
         _roomDao.updateRoom(
             Room(uid: roomUid.asString(), lastMessage: editableMessage));
