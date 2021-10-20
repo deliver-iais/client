@@ -246,5 +246,8 @@
   "delete_chat": "Delete Chat",
   "selected_file": "Selected Files",
   "caption": "Caption",
-  "add_caption" : "Add a caption"
+  "add_caption": "Add a caption",
+  "pin_room": "Pin to top",
+  "unpin_room": "Unpin from top",
+  "pin_more_than_5": "Sorry, you can only pin 5 chats to the top"
 }

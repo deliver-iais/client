@@ -1,16 +1,18 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LastMessage extends StatelessWidget {
   final Message message;
+  final bool pinned;
   final int lastMessageId;
   final bool hasMentioned;
   final bool showSender;
@@ -27,7 +29,8 @@ class LastMessage extends StatelessWidget {
       this.hasMentioned = false,
       this.showSender = true,
       this.showSeenStatus = true,
-      this.showSenderInSeparatedLine = false})
+      this.showSenderInSeparatedLine = false,
+      this.pinned = false})
       : super(key: key);
 
   @override
@@ -95,7 +98,19 @@ class LastMessage extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 4.0),
                   child: UnreadMessageCounterWidget(
                       message.roomUid, lastMessageId),
-                )
+                ),
+              if (pinned)
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                      color: Colors.transparent, shape: BoxShape.circle),
+                  child: Icon(
+                    Icons.push_pin,
+                    size: 15,
+                    color: ExtraTheme.of(context).fileSharingDetails,
+                  ),
+                ),
             ],
           );
         });
