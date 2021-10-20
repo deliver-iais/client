@@ -1,6 +1,5 @@
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/widgets/inputMessage.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,28 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class RawKeyboardService {
-  String _inputBoxText = "";
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   Function _openSearchBox;
-  Function _scrollDownInChat;
-  Function _scrollUpInChat;
-  String _mentionData = "-";
-  bool _isScrollInBotCommand;
-
-  set isScrollInBotCommand(bool value) {
-    if (_isScrollInBotCommand == null) _isScrollInBotCommand = false;
-    _isScrollInBotCommand = value;
-  }
-
-  set scrollUpInChat(Function value) {
-    _scrollUpInChat = value;
-  }
-
-  set scrollDownInChat(Function value) {
-    _scrollDownInChat = value;
-  }
 
   var _currentRoom;
 
@@ -45,21 +26,19 @@ class RawKeyboardService {
     if (_openSearchBox != null) _openSearchBox();
   }
 
-  Future<void> controllCHandle(TextEditingController controller) async {
-    _inputBoxText = controller.selection.textInside(controller.text);
+  Future<void> controllCHandle(TextEditingController controller) {
+    Clipboard.setData(
+        ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  void controllVHandle(TextEditingController controller) {
-    controller.text = controller.text + _inputBoxText;
+  Future<void> controllVHandle(TextEditingController controller) async {
+    ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
+    controller.text = data.text;
   }
 
-  Future<void> controllXHandle(TextEditingController controller) async {
-    _inputBoxText = controller.selection.textInside(controller.text);
-    controller.text = controller.text.substring(0, controller.selection.start) +
-        controller.text.substring(
-            controller.selection.start +
-                controller.selection.textInside(controller.text).length,
-            controller.text.length);
+  Future<void> controllXHandle(TextEditingController controller) {
+    Clipboard.setData(
+        ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
   void controllAHandle(TextEditingController controller) {
@@ -68,22 +47,16 @@ class RawKeyboardService {
   }
 
   void escapeHandle(int replyMessageId, Function resetRoomPageDetails) {
-    if (InputMessage.myFocusNode == null) {
+    if (InputMessage.inputMessegeFocusNode == null) {
       if (_routingService.isAnyRoomOpen()) _routingService.pop();
-      if (SearchBox.searchBoxFocusNode.hasFocus)
-        SearchBox.searchBoxFocusNode.unfocus();
     } else {
-      if (InputMessage.myFocusNode?.hasFocus == true) {
+      if (InputMessage.inputMessegeFocusNode?.hasFocus == true) {
         if (replyMessageId == 0) {
           _routingService.pop();
         }
         if (replyMessageId > 0) {
           resetRoomPageDetails();
         }
-      } else if (SearchBox.searchBoxFocusNode.hasFocus) {
-        if (_routingService.isAnyRoomOpen())
-          FocusScope.of(InputMessage.myFocusNode.context)
-              .requestFocus(InputMessage.myFocusNode);
       } else {
         _routingService.pop();
       }
@@ -103,14 +76,6 @@ class RawKeyboardService {
                       _routingService.openRoom(room[index - 1].uid)
                 }
             }));
-  }
-
-  void scrollUpInChatPage() {
-    if (_scrollUpInChat != null) _scrollUpInChat();
-  }
-
-  void scrollDownInChatPage() {
-    if (_scrollUpInChat != null) _scrollDownInChat();
   }
 
   void scrollDownInRoom() {
@@ -136,8 +101,16 @@ class RawKeyboardService {
     scrollUpInMention();
   }
 
+  void sendMention(Function showMention) {
+    showMention();
+  }
+
   void scrollUpInBotCommand(Function scrollUpInBotCommands) {
     scrollUpInBotCommands();
+  }
+
+  sendBotCommandsByEnter(Function sendBotCommentByEnter) {
+    sendBotCommentByEnter();
   }
 
   void scrollDownInBotCommand(Function scrollDownInBotCommands) {
@@ -155,35 +128,43 @@ class RawKeyboardService {
       escapeHandle(replyMessageId, resetRoomPageDetails);
   }
 
-  navigateInMentions(String mentionData, Function scrollDownInMention, event,
-      int mentionSelectedIndex, Function scrollUpInMention) {
+  navigateInMentions(
+      String mentionData,
+      Function scrollDownInMention,
+      event,
+      int mentionSelectedIndex,
+      Function scrollUpInMention,
+      Function sendMentionByEnter) {
     if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
-      _mentionData = mentionData;
       scrollUpInMentions(scrollUpInMention);
     }
     if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) &&
         !event.isAltPressed &&
         mentionData != "-") {
-      _mentionData = mentionData;
       scrollDownInMentions(scrollDownInMention);
-    } else if (mentionData == "-") {
-      _mentionData = "-";
+    }
+    if (event.isKeyPressed(LogicalKeyboardKey.enter) &&
+        mentionData != "-" &&
+        mentionSelectedIndex >= 0) {
+      sendMention(sendMentionByEnter);
     }
   }
 
   navigateInBotCommand(
-      event, Function scrollDownInBotCommands, Function scrollUpInBotCommands) {
-    if (_isScrollInBotCommand == null) _isScrollInBotCommand = false;
-    if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) &&
-        _isScrollInBotCommand) {
+      event,
+      Function scrollDownInBotCommands,
+      Function scrollUpInBotCommands,
+      Function sendBotCommandByEnter,
+      String botCommandData) {
+    if (event.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
       scrollDownInBotCommand(scrollDownInBotCommands);
-      isScrollInBotCommand = true;
-    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
-        _isScrollInBotCommand) {
+    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
       scrollUpInBotCommand(scrollUpInBotCommands);
-      isScrollInBotCommand = true;
+    } else if (event.isKeyPressed(LogicalKeyboardKey.enter) &&
+        botCommandData != "-") {
+      sendBotCommandsByEnter(sendBotCommandByEnter);
     }
   }
 
@@ -207,15 +188,6 @@ class RawKeyboardService {
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
         scrollDownInRoom();
       }
-    }
-  }
-
-  scrollInChatPage({event}) {
-    if (_isScrollInBotCommand == null) _isScrollInBotCommand = false;
-    if (_mentionData == "-" && !_isScrollInBotCommand) {
-      if (event.logicalKey == LogicalKeyboardKey.arrowUp) scrollUpInChatPage();
-      if (event.logicalKey == LogicalKeyboardKey.arrowDown)
-        scrollDownInChatPage();
     }
   }
 }
