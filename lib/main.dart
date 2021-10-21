@@ -298,7 +298,6 @@ class MyApp extends StatelessWidget {
                     event: event, replyMessageId: -1);
                 _rawKeyboardService.searchHandeling(event: event);
                 _rawKeyboardService.navigateInRooms(event: event);
-                _rawKeyboardService.scrollInChatPage(event: event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
