@@ -258,5 +258,7 @@
   "add_caption" : "افزودن متن",
   "pin_room": "سنجاق کردن",
   "unpin_room": "برداشتن سنجاق",
-  "pin_more_than_5": "متاسفانه شما فقط میتوانید پنج گفتگو را سنجاق کنید"
+  "pin_more_than_5": "متاسفانه شما فقط میتوانید پنج گفتگو را سنجاق کنید",
+  "custom_notofications": "Custom notofications",
+  "choose_a_song" : "Choose a song"
 }

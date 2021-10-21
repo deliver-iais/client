@@ -82,6 +82,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
+import 'box/dao/custom_notication_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
@@ -118,6 +119,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaTypeAdapter());
   Hive.registerAdapter(LiveLocationAdapter());
 
+  GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
