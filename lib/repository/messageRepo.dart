@@ -134,7 +134,6 @@ class MessageRepo {
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (roomMetadata.presenceType == null ||
               roomMetadata.presenceType == PresenceType.ACTIVE) {
@@ -213,7 +212,7 @@ class MessageRepo {
     int pointer = lastMessageId;
     Message lastMessage;
     try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), pointer--);
+      var msg = await _messageDao.getMessage(roomUid.asString(), pointer - 1);
       while (!lastMessageIsSet) {
         try {
           if (msg != null) {
@@ -226,7 +225,7 @@ class MessageRepo {
               lastMessageIsSet = true;
               break;
             } else {
-              pointer--;
+              pointer = pointer - 1;
               msg = await _messageDao.getMessage(roomUid.asString(), pointer);
             }
           } else {
@@ -242,7 +241,7 @@ class MessageRepo {
       }
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId.toInt(),
+        firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
         lastUpdateTime: lastMessage.time,
         lastMessageId: lastMessage.id,
         lastMessage: lastMessage,
@@ -917,6 +916,7 @@ class MessageRepo {
         ..message = updatedMessage
         ..messageId = Int64(editableMessage.id));
       editableMessage.json = (MessageProto.Text()..text = text).writeToJson();
+      editableMessage.edited = true;
       _messageDao.saveMessage(editableMessage);
       _roomDao.updateRoom(Room(
           uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));

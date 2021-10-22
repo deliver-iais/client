@@ -345,11 +345,12 @@ class CoreServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              getEditedMsg(
+              await getEditedMsg(
                   roomUid,
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
+              return;
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
               var mes = await _messageDao.getMessage(
@@ -371,7 +372,7 @@ class CoreServices {
           break;
       }
     }
-    saveMessage(message, roomUid);
+      saveMessage(message, roomUid);
 
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
@@ -392,10 +393,14 @@ class CoreServices {
     var msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
-   await _roomDao.updateRoom(
-        room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
-    if (room.lastMessageId == id)
-      _roomDao.updateRoom(room.copyWith(lastMessage: msg));
+    if (room.lastMessageId != id)
+      _roomDao.updateRoom(
+          room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
+    else
+      _roomDao.updateRoom(room.copyWith(
+        lastMessage: msg,
+        lastUpdatedMessageId: res.messages.first.id.toInt(),
+      ));
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -425,16 +430,15 @@ class CoreServices {
         isMention = true;
       }
     }
-    if (msg.json != "{}")
-      _roomDao.updateRoom(
-        Room(
-            uid: roomUid.asString(),
-            lastMessage: msg,
-            lastMessageId: msg.id,
-            mentioned: isMention,
-            deleted: false,
-            lastUpdateTime: msg.time),
-      );
+    _roomDao.updateRoom(
+      Room(
+          uid: roomUid.asString(),
+          lastMessage: msg,
+          lastMessageId: msg.id,
+          mentioned: isMention,
+          deleted: false,
+          lastUpdateTime: msg.time),
+    );
 
     return roomUid;
   }
