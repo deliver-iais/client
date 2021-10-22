@@ -212,7 +212,7 @@ class MessageRepo {
     int pointer = lastMessageId;
     Message lastMessage;
     try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), pointer - 1);
+      var msg = await _messageDao.getMessage(roomUid.asString(), pointer);
       while (!lastMessageIsSet) {
         try {
           if (msg != null) {

@@ -284,7 +284,7 @@ class AndroidNotifier implements Notifier {
       }
     }
     var platformChannelSpecifics = AndroidNotificationDetails(
-        selectedNotificationSound, channel.name, channel.description,
+        selectedNotificationSound, channel.name,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
         playSound: true,
