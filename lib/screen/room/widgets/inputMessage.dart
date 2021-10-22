@@ -48,6 +48,7 @@ class InputMessage extends StatefulWidget {
   final Function scrollToLastSentMessage;
   static FocusNode myFocusNode;
   final Message editableMessage;
+  static FocusNode inputMessegeFocusNode;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -92,6 +93,7 @@ class _InputMessageWidget extends State<InputMessage> {
   Timer _tickTimer;
   TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
+  bool isMentionSelected = false;
 
   bool startAudioRecorder = false;
 
@@ -100,8 +102,9 @@ class _InputMessageWidget extends State<InputMessage> {
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
   String _mentionData;
-  int mentionSelectedIndex = -1;
-  int botCommandSelectedIndex = -1;
+  String _botCommandData;
+  int mentionSelectedIndex = 0;
+  int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
 
@@ -126,6 +129,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
+    InputMessage.inputMessegeFocusNode = FocusNode();
     editMessageInput = BehaviorSubject.seeded("");
     currentRoom = widget.currentRoom;
     _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
@@ -225,7 +229,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return ShowMentionList(
                   query: _mentionData,
                   onSelected: (s) {
-                    onSelected(s);
+                    onMentionSelected(s);
                   },
                   roomUid: widget.currentRoom.uid,
                   mentionSelectedIndex: mentionSelectedIndex,
@@ -235,14 +239,12 @@ class _InputMessageWidget extends State<InputMessage> {
         StreamBuilder(
             stream: _botCommandQuery.stream.distinct(),
             builder: (c, show) {
+              _botCommandData = show.data ?? "-";
               return BotCommands(
                 botUid: widget.currentRoom.uid.asUid(),
-                query: show.data ?? "-",
+                query: _botCommandData,
                 onCommandClick: (String command) {
-                  _controller.text = "/" + command;
-                  _controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: _controller.text.length));
-                  _botCommandQuery.add("-");
+                  onCommandClick(command);
                 },
                 botCommandSelectedIndex: botCommandSelectedIndex,
               );
@@ -301,7 +303,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                   focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode: InputMessage.myFocusNode,
+                                    focusNode:
+                                        InputMessage.inputMessegeFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
                                     controller: _controller,
@@ -536,7 +539,7 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onSelected(s) {
+  void onMentionSelected(s) {
     int start = _textSelection.base.offset;
     String block_1 = _controller.text.substring(0, start);
     String block_2 = _controller.text.substring(start, _controller.text.length);
@@ -544,6 +547,14 @@ class _InputMessageWidget extends State<InputMessage> {
     _controller.selection = TextSelection.fromPosition(
         TextPosition(offset: _controller.text.length));
     _mentionQuery.add("-");
+    isMentionSelected = true;
+  }
+
+  onCommandClick(String command) {
+    _controller.text = "/" + command;
+    _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length));
+    _botCommandQuery.add("-");
   }
 
   handleKeyPress(event) async {
@@ -567,27 +578,50 @@ class _InputMessageWidget extends State<InputMessage> {
         event: event);
     setState(() {
       _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
-          event, mentionSelectedIndex, scrollUpInMentions);
+          event, mentionSelectedIndex, scrollUpInMentions, sendMentionByEnter);
     });
     setState(() {
-      _rawKeyboardService.navigateInBotCommand(
-          event, scrollDownInBotCommand, scrollUpInBotCommand);
+      _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
+          scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
     });
   }
 
   scrollUpInBotCommand() {
-    if (botCommandSelectedIndex < 0) {
+    int length = 0;
+    if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-            botCommandSelectedIndex = value.commands.length - 1,
+            value.commands.forEach((key, value) {
+              if (key.contains(_botCommandData)) length++;
+            }),
+            botCommandSelectedIndex = length - 1,
           });
     } else {
       botCommandSelectedIndex--;
     }
   }
 
-  scrollDownInBotCommand() {
+  sendBotCommandByEnter() async {
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-          if (botCommandSelectedIndex >= value.commands.length)
+          onCommandClick(value.commands.keys.toList()[botCommandSelectedIndex])
+        });
+  }
+
+  sendMentionByEnter() async {
+    var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
+        query: _mentionData);
+    if (value != null && value.length > 0) {
+      onMentionSelected(value[mentionSelectedIndex].id);
+      sendMessage();
+    }
+  }
+
+  scrollDownInBotCommand() {
+    int length = 0;
+    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
+          value.commands.forEach((key, value) {
+            if (key.contains(_botCommandData)) length++;
+          }),
+          if (botCommandSelectedIndex >= length)
             botCommandSelectedIndex = 0
           else
             botCommandSelectedIndex++,
@@ -607,7 +641,13 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void sendMessage() {
-    noActivitySubject.add(ActivityType.NO_ACTIVITY);
+    if (_controller.text.contains("\n") &&
+        _controller.text.contains("@") &&
+        isMentionSelected) {
+      _controller.clear();
+      isMentionSelected = false;
+    } else
+      noActivitySubject.add(ActivityType.NO_ACTIVITY);
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage();
     }

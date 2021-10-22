@@ -3,15 +3,15 @@ import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
@@ -24,11 +24,13 @@ import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/profile_avatar.dart';
-import 'package:deliver/shared/widgets/box.dart';
-import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/box.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/profile_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -39,11 +41,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -348,6 +348,33 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: (_) =>
                         _routingService.openRoom(widget.roomUid.asString())),
               ),
+            if (isAndroid())
+              FutureBuilder(
+                  future: _roomRepo
+                      .getRoomCustomNotification(widget.roomUid.asString()),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: SettingsTile(
+                            title: _locale.get("custom_notofications"),
+                            titleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).textField),
+                            leading: Icon(Icons.music_note_sharp),
+                            subtitle: snapshot.data,
+                            subtitleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 16),
+                            onPressed: (_) async {
+                              print(widget.roomUid.asString());
+                              _routingService
+                                  .openCustomNotificationSoundSelection(
+                                      widget.roomUid.asString());
+                            },
+                          ));
+                    } else
+                      return SizedBox.shrink();
+                  }),
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {

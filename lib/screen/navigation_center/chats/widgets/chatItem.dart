@@ -1,13 +1,13 @@
 import 'package:deliver/box/message.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver/shared/widgets/drag_dropWidget.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -250,6 +250,7 @@ class _ChatItemState extends State<ChatItem> {
       hasMentioned: widget.room.mentioned == true,
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
+      pinned: widget.room.pinned ?? false,
     );
   }
 

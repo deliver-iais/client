@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
@@ -26,7 +25,6 @@ import 'authRepo.dart';
 class AvatarRepo {
   final _logger = GetIt.I.get<Logger>();
   final _avatarDao = GetIt.I.get<AvatarDao>();
-  final _mucServices = GetIt.I.get<MucServices>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
@@ -56,7 +54,7 @@ class AvatarRepo {
 
       _avatarDao.saveAvatars(userUid.asString(), avatars);
     } catch (e) {
-      _logger.e("no avatar exist in $userUid",e);
+      _logger.e("no avatar exist in $userUid", e);
 
       _avatarDao.saveLastAvatarAsNull(userUid.asString());
     }
@@ -74,7 +72,8 @@ class AvatarRepo {
     Avatar ac = _avatarCache.get(key);
 
     if (ac != null && (nowTime - ac.lastUpdate) > AVATAR_CACHE_TIME) {
-      _logger.v("exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdate}");
+      _logger.v(
+          "exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdate}");
       return true;
     } else if (ac != null) {
       return false;
@@ -88,7 +87,8 @@ class AvatarRepo {
     } else if ((lastAvatar.fileId == null || lastAvatar.fileId.isEmpty) &&
         (nowTime - lastAvatar.lastUpdate) > NULL_AVATAR_CACHE_TIME) {
       // has no avatar and exceeded from 4 hours
-      _logger.v("exceeded from $NULL_AVATAR_CACHE_TIME DAO, and AVATAR WAS NULL - $userUid");
+      _logger.v(
+          "exceeded from $NULL_AVATAR_CACHE_TIME DAO, and AVATAR WAS NULL - $userUid");
       return true;
     } else if ((nowTime - lastAvatar.lastUpdate) > AVATAR_CACHE_TIME) {
       // 24 hours
@@ -130,8 +130,7 @@ class AvatarRepo {
   }
 
   Future<Avatar> setMucAvatar(Uid uid, File file) async {
-    var token = await _mucServices.getPermissionToken(uid);
-    return uploadAvatar(file, uid, token: token);
+    return uploadAvatar(file, uid);
   }
 
   Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
@@ -144,14 +143,14 @@ class AvatarRepo {
     });
   }
 
-  Future<Avatar> uploadAvatar(File file, Uid uid, {String token}) async {
+  Future<Avatar> uploadAvatar(File file, Uid uid) async {
     await _fileRepo.cloneFileInLocalDirectory(
         file, uid.node, file.path.split('/').last);
     var fileInfo =
         await _fileRepo.uploadClonedFile(uid.node, file.path.split('/').last);
     if (fileInfo != null) {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
-      _setAvatarAtServer(fileInfo, createdOn, uid, token: token);
+      _setAvatarAtServer(fileInfo, createdOn, uid);
       Avatar avatar = Avatar(
           uid: uid.asString(),
           createdOn: createdOn,
@@ -163,8 +162,7 @@ class AvatarRepo {
     }
   }
 
-  _setAvatarAtServer(ProtocolFile.File fileInfo, int createOn, Uid uid,
-      {String token}) async {
+  _setAvatarAtServer(ProtocolFile.File fileInfo, int createOn, Uid uid) async {
     var avatar = ProtocolAvatar.Avatar()
       ..createdOn = Int64.parseInt(createOn.toString())
       ..category = uid.category
@@ -174,7 +172,7 @@ class AvatarRepo {
     var addAvatarReq = query.AddAvatarReq()..avatar = avatar;
 
     try {
-     await _queryServices.addAvatar(addAvatarReq);
+      await _queryServices.addAvatar(addAvatarReq);
       await _avatarDao.saveAvatars(uid.asString(), [
         Avatar(
             uid: uid.asString(),
@@ -195,8 +193,8 @@ class AvatarRepo {
     deleteAvatar
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
     deleteAvatar..category = _authRepo.currentUserUid.category;
-    var removeAvatarReq = RemoveAvatarReq()..avatar = deleteAvatar;
-    await _avatarServices.removeAvatar(removeAvatarReq);
+    var removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
+    await _queryServices.removeAvatar(removeAvatarReq);
     await _avatarDao.removeAvatar(avatar);
   }
 }

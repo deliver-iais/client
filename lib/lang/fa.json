@@ -256,6 +256,11 @@
   "selected_file": "فایل انتخاب شده",
   "caption": "متن",
   "add_caption" : "افزودن متن",
+  "pin_room": "سنجاق کردن",
+  "unpin_room": "برداشتن سنجاق",
+  "pin_more_than_5": "متاسفانه شما فقط میتوانید پنج گفتگو را سنجاق کنید",
+  "custom_notofications": "Custom notofications",
+  "choose_a_song" : "Choose a song",
   "sure_delete_message": "آیا از حذف پیام مطمنید؟",
   "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
   "edited": "ویرایش شده"

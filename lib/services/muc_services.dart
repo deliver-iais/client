@@ -145,21 +145,6 @@ class MucServices {
     }
   }
 
-  Future<String> getPermissionToken(Uid uid) async {
-    if (uid.category == Categories.GROUP) {
-      var res =
-          await groupServices.getPermission(GroupServices.GetPermissionReq()
-            ..group = uid
-            ..accessField = AccessField.CHANGE_AVATAR);
-      return res.token;
-    } else {
-      var res = await channelServices.getPermission(GetPermissionReq()
-        ..channel = uid
-        ..accessField = AccessField.CHANGE_AVATAR);
-      return res.token;
-    }
-  }
-
   Future<bool> joinGroup(Uid groupUid, String token) async {
     try {
       await groupServices.joinGroup(
