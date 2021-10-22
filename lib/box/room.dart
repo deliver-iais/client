@@ -71,7 +71,6 @@ class Room {
           int lastUpdateTime,
           int firstMessageId,
           int lastUpdatedMessageId,
-          bool mentioned}) =>
           bool mentioned,
           bool pinned}) =>
       Room(
@@ -83,7 +82,6 @@ class Room {
           mentioned: mentioned ?? this.mentioned,
           firstMessageId: firstMessageId ?? this.firstMessageId,
           lastMessageId: lastMessageId ?? this.lastMessageId,
-          pinned: pinned ?? this.pinned);
-          lastUpdatedMessageId: lastUpdatedMessageId ?? this.lastUpdatedMessageId,
-          lastMessageId: lastMessageId ?? this.lastMessageId);
+          pinned: pinned ?? this.pinned,
+          lastUpdatedMessageId: lastUpdatedMessageId ?? this.lastUpdatedMessageId);
 }
