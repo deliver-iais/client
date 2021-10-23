@@ -17,9 +17,9 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_web/firebase_core_web.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core_web/firebase_core_web.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -35,26 +35,26 @@ class FireBaseServices {
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
 //todo firebase_messaging_web
-  FirebaseMessaging _firebaseMessaging;
+ // FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
       try {
-        await Firebase.initializeApp();
+    //    await Firebase.initializeApp();
 
-        _firebaseMessaging = FirebaseMessaging.instance;
+    //    _firebaseMessaging = FirebaseMessaging.instance;
 
-        _firebaseMessaging.requestPermission(
-          alert: true,
-          announcement: false,
-          badge: true,
-          carPlay: false,
-          criticalAlert: false,
-          provisional: false,
-          sound: true,
-        );
-        var res = await  _firebaseMessaging.getToken();
-        print("TOKEN:" + res);
+        // _firebaseMessaging.requestPermission(
+        //   alert: true,
+        //   announcement: false,
+        //   badge: true,
+        //   carPlay: false,
+        //   criticalAlert: false,
+        //   provisional: false,
+        //   sound: true,
+        // );
+      //  var res = await  _firebaseMessaging.getToken();
+       // print("TOKEN:" + res);
         await _setFirebaseSetting();
       } catch (e) {
         print("@@@@@@@" + e.toString());
@@ -64,7 +64,7 @@ class FireBaseServices {
   }
 
   deleteToken() {
-    _firebaseMessaging.deleteToken();
+   // _firebaseMessaging.deleteToken();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
@@ -82,12 +82,12 @@ class FireBaseServices {
   _setFirebaseSetting() async {
     try {
       print("*********************");
-      FirebaseMessaging.onMessage.listen((event) {
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% reqwewqeqweqwe");
-      });
-      FirebaseMessaging.onMessageOpenedApp.listen((event) {
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%wqeqweqweqwe");
-      });
+      // FirebaseMessaging.onMessage.listen((event) {
+      //   print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% reqwewqeqweqwe");
+      // });
+      // FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      //   print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%wqeqweqweqwe");
+      // });
       //  FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
       // _firebaseMessaging.setForegroundNotificationPresentationOptions(
       //   alert: true,

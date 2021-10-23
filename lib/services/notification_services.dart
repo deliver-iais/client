@@ -16,9 +16,9 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
+import "dart:js" as js;
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -95,7 +95,6 @@ class IOSNotifier implements Notifier {
 }
 
 class WindowsNotifier implements Notifier {
-
   //todo vlc ???
   // ToastService _windowsNotificationServices = new ToastService(
   //   appName: APPLICATION_NAME,
@@ -113,7 +112,7 @@ class WindowsNotifier implements Notifier {
     final _logger = GetIt.I.get<Logger>();
     try {
       var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
-      if (lastAvatar != null && lastAvatar.fileId != null ) {
+      if (lastAvatar != null && lastAvatar.fileId != null) {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
@@ -147,6 +146,26 @@ class WindowsNotifier implements Notifier {
 
   @override
   cancelAll() {}
+}
+
+class WebNotifier implements Notifier {
+  @override
+  cancel(int id) {
+    // TODO: implement cancel
+    throw UnimplementedError();
+  }
+
+  @override
+  cancelAll() {
+    // TODO: implement cancelAll
+    throw UnimplementedError();
+  }
+
+  @override
+  notify(MessageBrief message) {
+    js.context.callMethod("showNotification",
+        [message.roomName, createNotificationTextFromMessageBrief(message)]);
+  }
 }
 
 class LinuxNotifier implements Notifier {
@@ -225,7 +244,6 @@ class AndroidNotifier implements Notifier {
   final channel = const AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
-      'All notifications of application.', // description
       importance: Importance.high,
       groupId: "all_group");
 
@@ -273,7 +291,7 @@ class AndroidNotifier implements Notifier {
     }
 
     var platformChannelSpecifics = AndroidNotificationDetails(
-        channel.id, channel.name, channel.description,
+        channel.id, channel.name,
         groupKey: channel.groupId,
         largeIcon: largeIcon,
         setAsGroupSummary: false);
