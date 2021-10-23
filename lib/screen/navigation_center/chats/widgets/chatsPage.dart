@@ -31,6 +31,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   void _showCustomMenu(BuildContext context, Room room, bool canPin) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
       OperationOnRoomEntry(
+        room: room,
         isPinned: room.pinned ?? false,
       )
     ]).then<void>((OperationOnRoom opr) async {
@@ -110,7 +111,9 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                               );
                             },
                             onLongPress: () {
-                              //ToDo
+                              //ToDo new design for android
+                              _showCustomMenu(
+                                  context, rooms[index], canPin(rooms));
                             },
                             onTapDown: storePosition,
                             onSecondaryTapDown: storePosition,

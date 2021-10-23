@@ -19,6 +19,7 @@ import 'package:deliver/screen/profile/widgets/document_and_File_ui.dart';
 import 'package:deliver/screen/profile/widgets/image_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/memberWidget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
+import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -26,7 +27,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/phone.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -348,33 +348,6 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: (_) =>
                         _routingService.openRoom(widget.roomUid.asString())),
               ),
-            if (isAndroid())
-              FutureBuilder(
-                  future: _roomRepo
-                      .getRoomCustomNotification(widget.roomUid.asString()),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: SettingsTile(
-                            title: _locale.get("custom_notofications"),
-                            titleTextStyle: TextStyle(
-                                color: ExtraTheme.of(context).textField),
-                            leading: Icon(Icons.music_note_sharp),
-                            subtitle: snapshot.data,
-                            subtitleTextStyle: TextStyle(
-                                color: ExtraTheme.of(context).username,
-                                fontSize: 16),
-                            onPressed: (_) async {
-                              print(widget.roomUid.asString());
-                              _routingService
-                                  .openCustomNotificationSoundSelection(
-                                      widget.roomUid.asString());
-                            },
-                          ));
-                    } else
-                      return SizedBox.shrink();
-                  }),
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -582,24 +555,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  _leftMuc() async {
-    var result = await _mucRepo.leaveMuc(widget.roomUid);
-    if (result) _navigateHomePage();
-  }
-
-  _deleteRoom() async {
-    var res = await _roomRepo.deleteRoom(widget.roomUid);
-    if (res) _navigateHomePage();
-  }
-
-  _deleteMuc() async {
-    var result = await _mucRepo.removeMuc(widget.roomUid);
-    if (result) {
-      _navigateHomePage();
-      Navigator.pop(context);
-    }
-  }
-
   createInviteLink() async {
     var muc = await _mucRepo.getMuc(widget.roomUid.asString());
     String token = muc.token;
@@ -686,77 +641,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   generateInviteLink(String token) {
     return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
-  }
-
-  void _showDeleteMucDialog() async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    CircleAvatarWidget(widget.roomUid, 25),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(widget.roomUid.isChannel()
-                        ? _locale.get("delete_channel")
-                        : _locale.get("delete_group"))
-                  ],
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                        widget.roomUid.isGroup()
-                            ? "${_locale.get("sure_delete_group")} $_roomName ?"
-                            : "${_locale.get("sure_delete_channel")} $_roomName ?",
-                        style: TextStyle(color: Colors.black, fontSize: 18)),
-                  ],
-                ),
-              ],
-            ),
-            actions: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    child: Text(
-                      _locale.get("cancel"),
-                      style: TextStyle(fontSize: 16, color: Colors.blue),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  GestureDetector(
-                    child: Text(
-                      _locale.get("ok"),
-                      style: TextStyle(fontSize: 16, color: Colors.red),
-                    ),
-                    onTap: () => _deleteMuc(),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  )
-                ],
-              ),
-            ],
-          );
-        });
   }
 
   InputDecoration buildInputDecoration(String label) {
@@ -999,10 +883,26 @@ class _ProfilePageState extends State<ProfilePage>
   onSelected(String selected) {
     switch (selected) {
       case "delete_room":
-        showLeftMucOrDeleteRoomDialog();
+        showDialog(
+            context: context,
+            builder: (context) {
+              return OnDeletePopupDialog(
+                roomUid: widget.roomUid,
+                selected: selected,
+                roomName: _roomName,
+              );
+            });
         break;
       case "deleteMuc":
-        _showDeleteMucDialog();
+        showDialog(
+            context: context,
+            builder: (context) {
+              return OnDeletePopupDialog(
+                roomUid: widget.roomUid,
+                selected: selected,
+                roomName: _roomName,
+              );
+            });
         break;
       case "unblock_room":
         _roomRepo.unblock(widget.roomUid.asString());
@@ -1025,87 +925,6 @@ class _ProfilePageState extends State<ProfilePage>
         _showAddBotToGroupDialog();
         break;
     }
-  }
-
-  void showLeftMucOrDeleteRoomDialog() async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            content: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatarWidget(widget.roomUid, 25),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        !widget.roomUid.isMuc()
-                            ? _locale.get("delete_chat")
-                            : widget.roomUid.isChannel()
-                                ? _locale.get("left_channel")
-                                : _locale.get("left_group"),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          !widget.roomUid.isMuc()
-                              ? "${_locale.get("sure_delete_room")} $_roomName ?"
-                              : widget.roomUid.isChannel()
-                                  ? "${_locale.get("sure_left_channel")} $_roomName ?"
-                                  : "${_locale.get("sure_left_group")} $_roomName ?",
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                          overflow: TextOverflow.fade,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                      child: Text(
-                        _locale.get("cancel"),
-                        style: TextStyle(fontSize: 16, color: Colors.blue),
-                      ),
-                      onTap: () => Navigator.pop(context)),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  GestureDetector(
-                      child: Text(
-                        _locale.get("ok"),
-                        style: TextStyle(fontSize: 16, color: Colors.red),
-                      ),
-                      onTap: () {
-                        widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
-                      }),
-                  SizedBox(
-                    width: 10,
-                  )
-                ],
-              ),
-            ],
-          );
-        });
   }
 
   _showAddBotToGroupDialog() {
