@@ -57,7 +57,6 @@ import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/services/video_player_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 
 import 'package:deliver/theme/extra_theme.dart';
@@ -242,8 +241,12 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
 }
 
-Future setupFlutterNotification() async {
-  await Firebase.initializeApp();
+Future setupFirebaseSetting() async {
+  // try {
+  //  await  Firebase.initializeApp();
+  // } catch (e) {
+  //   print("%%%%%%%%%%%%%%%%%%"+e.toString());
+  // }
 }
 
 void main() async {
@@ -262,8 +265,8 @@ void main() async {
   }
 
   // TODO add IOS and MacOS too
-  if (isAndroid()) {
-    await setupFlutterNotification();
+  if (isAndroid() || kIsWeb) {
+    await setupFirebaseSetting();
   }
 
   Logger().i("OS based setups done.");

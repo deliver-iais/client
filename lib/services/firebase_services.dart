@@ -17,6 +17,11 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core_web/firebase_core_web.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -30,19 +35,36 @@ class FireBaseServices {
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
 //todo firebase_messaging_web
- // FirebaseMessaging _firebaseMessaging;
+  FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
-    if (!isDesktop()) {
-      // _firebaseMessaging = FirebaseMessaging.instance;
-      // _firebaseMessaging.requestPermission();
-      await _setFirebaseSetting();
-    //  _sendFireBaseToken(await _firebaseMessaging.getToken());
+    if (!isDesktop() || kIsWeb) {
+      try {
+        await Firebase.initializeApp();
+
+        _firebaseMessaging = FirebaseMessaging.instance;
+
+        _firebaseMessaging.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
+        );
+        var res = await  _firebaseMessaging.getToken();
+        print("TOKEN:" + res);
+        await _setFirebaseSetting();
+      } catch (e) {
+        print("@@@@@@@" + e.toString());
+      }
+      //   _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
   }
 
   deleteToken() {
-  //  _firebaseMessaging.deleteToken();
+    _firebaseMessaging.deleteToken();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
@@ -59,13 +81,21 @@ class FireBaseServices {
 
   _setFirebaseSetting() async {
     try {
-      // FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+      print("*********************");
+      FirebaseMessaging.onMessage.listen((event) {
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% reqwewqeqweqwe");
+      });
+      FirebaseMessaging.onMessageOpenedApp.listen((event) {
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%wqeqweqweqwe");
+      });
+      //  FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
       // _firebaseMessaging.setForegroundNotificationPresentationOptions(
       //   alert: true,
       //   badge: true,
       //   sound: true,
       // );
     } catch (e) {
+      print("ERORRRRRRRRRRRRRRRRRRRRRRRRR");
       _logger.e(e);
     }
   }
@@ -78,8 +108,8 @@ M.Message _decodeMessage(String notificationBody) {
 }
 
 Future<void> backgroundMessageHandler(dynamic message) async {
-  return;
   try {
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     await setupDI();
   } catch (e) {
     Logger().e(e);
@@ -109,11 +139,10 @@ Future<void> backgroundMessageHandler(dynamic message) async {
     } else if (msg.from.category == Categories.BOT) {
       roomName = msg.from.node;
     } else if (msg.to.category == Categories.USER) {
-     var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
       if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
     }
 
     _notificationServices.showNotification(msg, roomName: roomName);
-
   }
 }
