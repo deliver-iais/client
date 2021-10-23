@@ -1,12 +1,13 @@
 import 'dart:io';
 
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:flutter/material.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 class ShowCaptionDialog extends StatefulWidget {
   final List<String> paths;
@@ -29,6 +30,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   List<String> fileNames = [];
   String type = "";
+  FocusNode captionFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -123,15 +125,24 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   SizedBox(
                     height: 5,
                   ),
-                  TextFormField(
-                      controller: _editingController,
-                      keyboardType: TextInputType.multiline,
-                      minLines: 1,
-                      maxLines: 5,
-                      style: TextStyle(fontSize: 15),
-                      decoration: InputDecoration(
-                        labelText: _i18n.get("caption"),
-                      )),
+                  RawKeyboardListener(
+                    focusNode: captionFocusNode,
+                    onKey: (event) {
+                      if (event.logicalKey == LogicalKeyboardKey.enter) {
+                        sendMessages(context);
+                      }
+                    },
+                    child: TextFormField(
+                        controller: _editingController,
+                        keyboardType: TextInputType.multiline,
+                        minLines: 1,
+                        maxLines: 5,
+                       autofocus: true,
+                        style: TextStyle(fontSize: 15),
+                        decoration: InputDecoration(
+                          labelText: _i18n.get("caption"),
+                        )),
+                  ),
                 ],
               ),
               actions: [
@@ -174,11 +185,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           ),
                           GestureDetector(
                               onTap: () {
-                                Navigator.pop(context);
-                                _messageRepo.sendMultipleFilesMessages(
-                                    widget.currentRoom, widget.paths,
-                                    caption:
-                                        _editingController.text.toString());
+                                sendMessages(context);
                               },
                               child: Text(
                                 _i18n.get("send"),
@@ -197,6 +204,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             )),
           )
         : SizedBox.shrink();
+  }
+
+  void sendMessages(BuildContext context) {
+     Navigator.pop(context);
+    _messageRepo.sendMultipleFilesMessages(
+        widget.currentRoom, widget.paths,
+        caption:
+            _editingController.text.toString());
   }
 
   Widget buildManage({int index}) {
