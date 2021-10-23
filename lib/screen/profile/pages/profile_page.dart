@@ -27,6 +27,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -348,6 +349,32 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: (_) =>
                         _routingService.openRoom(widget.roomUid.asString())),
               ),
+            if (isAndroid())
+              FutureBuilder(
+                  future: _roomRepo
+                      .getRoomCustomNotification(widget.roomUid.asString()),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: SettingsTile(
+                            title: _locale.get("custom_notofications"),
+                            titleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).textField),
+                            leading: Icon(Icons.music_note_sharp),
+                            subtitle: snapshot.data,
+                            subtitleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 16),
+                            onPressed: (_) async {
+                              _routingService
+                                  .openCustomNotificationSoundSelection(
+                                      widget.roomUid.asString());
+                            },
+                          ));
+                    } else
+                      return SizedBox.shrink();
+                  }),
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
