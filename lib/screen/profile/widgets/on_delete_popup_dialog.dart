@@ -65,10 +65,10 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                           Expanded(
                             child: Text(
                               !widget.roomUid.isMuc()
-                                  ? "${_i18n.get("sure_delete_room")} $widget.roomName ?"
+                                  ? "${_i18n.get("sure_delete_room")} ${widget.roomName} ?"
                                   : widget.roomUid.isChannel()
-                                      ? "${_i18n.get("sure_left_channel")} $widget.roomName ?"
-                                      : "${_i18n.get("sure_left_group")} $widget.roomName ?",
+                                      ? "${_i18n.get("sure_left_channel")} ${widget.roomName} ?"
+                                      : "${_i18n.get("sure_left_group")} ${widget.roomName} ?",
                               style:
                                   TextStyle(color: Colors.black, fontSize: 18),
                               overflow: TextOverflow.fade,
