@@ -214,7 +214,6 @@ class _ContactsPageState extends State<ContactsPage> {
 
   bool searchHasResult(Contact contact) {
     var name = contact.firstName + contact.lastName;
-    print(name);
     return _searchMode && !name.toLowerCase().contains(_query.toLowerCase());
   }
 }
