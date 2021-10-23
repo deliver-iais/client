@@ -297,6 +297,7 @@ class AndroidNotifier implements Notifier {
             styleInformation: inboxStyleInformation,
             groupKey: channel.groupId,
             playSound: true,
+            sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
             setAsGroupSummary: true);
     await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
         notificationDetails: androidNotificationDetails);
@@ -310,7 +311,6 @@ class AndroidNotifier implements Notifier {
       playSound: true,
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
-    Room room = await _roomRepo.getRoom(message.roomUid.asString());
     _flutterLocalNotificationsPlugin.show(
         message.roomUid.asString().hashCode + message.text.toString().hashCode,
         message.roomName,
