@@ -216,6 +216,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
+        js.context.callMethod("showNotification");
         showAddHomePageDialog(context);
      //  _routingService.openMemberSelection(isChannel: false);
         break;
