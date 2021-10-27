@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
@@ -14,6 +16,9 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
+import 'dart:js' as js;
+import "package:universal_html/js.dart" as ujs;
+
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -51,8 +56,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (isAndroid() || isIOS()) {
       initUniLinks(context);
     }
+    if(kIsWeb){
+      js.context.callMethod("getNotificationPermission");
+    }
     checkLogOutApp();
+   checkAddToHomeInWeb(context);
     super.initState();
+  }
+  checkAddToHomeInWeb(BuildContext context)async {
+    Timer(Duration(seconds: 3),(){
+      try{
+        final bool isDeferredNotNull =
+        ujs.context.callMethod("isDeferredNotNull") as bool;
+        if(isDeferredNotNull){
+          //   ujs.context.callMethod("presentAddToHome");
+          return true;
+
+        }
+
+      }catch(e){
+        _logger.e(e);
+      }
+    });
+
+
   }
 
   checkLogOutApp() {

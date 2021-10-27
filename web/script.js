@@ -10,7 +10,7 @@ function showNotification(roomName,message) {
     // If it's okay let's create a notification
     var notification = new Notification(roomName, {
       body: message,
-      icon: "icons/web_hi_res_512.png"
+      icon: "icons/ic_launcher.png"
     });
   }
 
@@ -21,7 +21,7 @@ function showNotification(roomName,message) {
       if (permission === "granted") {
          var notification = new Notification(roomName, {
               body: message,
-              icon: "icons/web_hi_res_512.png"
+              icon: "icons/ic_launcher.png"
             });
       }
     });
@@ -30,12 +30,11 @@ function showNotification(roomName,message) {
   // At last, if the user has denied notifications, and you
   // want to be respectful there is no need to bother them any more.
 }
-
-
-
-
-
-
+function getNotificationPermission(){
+if (Notification.permission !== "denied") {
+    Notification.requestPermission();
+}
+}
 let deferredPrompt;
 
 // add to homescreen
@@ -44,14 +43,12 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   // Stash the event so it can be triggered later.
   deferredPrompt = e;
+
 });
 
 function isDeferredNotNull() {
   return deferredPrompt != null;
 }
-
-
-
 function presentAddToHome() {
   if (deferredPrompt != null) {
     // Update UI to notify the user they can add to home screen

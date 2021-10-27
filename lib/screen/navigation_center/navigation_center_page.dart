@@ -13,7 +13,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import "package:universal_html/js.dart" as js;
+import 'dart:js' as js;
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,6 +61,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
+
     subject.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
       setState(() {
         query = text;
@@ -216,9 +217,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-        js.context.callMethod("showNotification");
-        showAddHomePageDialog(context);
-     //  _routingService.openMemberSelection(isChannel: false);
+       _routingService.openMemberSelection(isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(isChannel: true);
@@ -341,59 +340,48 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  Future<bool> showAddHomePageDialog(BuildContext context) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                    child: Icon(
-                      Icons.add_circle,
-                      size: 70,
-                      color: Theme.of(context).primaryColor,
-                    )),
-                SizedBox(height: 20.0),
-                Text(
-                  'Add to Homepage',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-                ),
-                SizedBox(height: 20.0),
-                Text(
-                  'Want to add this application to home screen?',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 20.0),
-                ElevatedButton(
-                    onPressed: () async{
-                      WidgetsBinding.instance.addPostFrameCallback((_) async {
-                        final _isWebDialogShownKey = "is-web-dialog-shown";
-                      //  final _isWebDialogShown = _prefs.getBool(_isWebDialogShownKey) ?? false;
-                        if (true) {
-                          final bool isDeferredNotNull =
-                          js.context.callMethod("isDeferredNotNull") as bool;
+  showAddHomePageDialog(BuildContext context)  {
+    js.context.callMethod("presentAddToHome");
 
-                          if (isDeferredNotNull) {
-                            debugPrint(">>> Add to HomeScreen prompt is ready.");
-                            await showAddHomePageDialog(context);
-                           // _prefs.setBool(_isWebDialogShownKey, true);
-                          } else {
-                            debugPrint(">>> Add to HomeScreen prompt is not ready yet.");
-                          }
-                        }
-                      });
-                    },
-                    child: Text("Yes!"))
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    //Navigator.pop(context, false);
+    // return showDialog<bool>(
+    //   context: context,
+    //   builder: (context) {
+    //     return Dialog(
+    //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    //       child: Padding(
+    //         padding: const EdgeInsets.all(24.0),
+    //         child: Column(
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: [
+    //             Center(
+    //                 child: Icon(
+    //                   Icons.add_circle,
+    //                   size: 70,
+    //                   color: Theme.of(context).primaryColor,
+    //                 )),
+    //             SizedBox(height: 20.0),
+    //             Text(
+    //               'Add to Homepage',
+    //               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+    //             ),
+    //             SizedBox(height: 20.0),
+    //             Text(
+    //               'Want to add this application to home screen?',
+    //               style: TextStyle(fontSize: 16),
+    //             ),
+    //             SizedBox(height: 20.0),
+    //             ElevatedButton(
+    //                 onPressed: () async{
+    //                   js.context.callMethod("presentAddToHome");
+    //                   Navigator.pop(context, false);
+    //                 },
+    //                 child: Text("Yes!"))
+    //           ],
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
   }
 }

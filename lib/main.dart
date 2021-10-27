@@ -227,7 +227,9 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
   } else if (isWindows()) {
     GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
-  } else {
+  } else if(kIsWeb) {
+    GetIt.I.registerSingleton<Notifier>(WebNotifier());
+  } else{
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
   }
 
