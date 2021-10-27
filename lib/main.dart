@@ -70,6 +70,7 @@ import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -243,11 +244,11 @@ Future<void> setupDI() async {
 }
 
 Future setupFirebaseSetting() async {
-  // try {
-  //  await  Firebase.initializeApp();
-  // } catch (e) {
-  //   print("%%%%%%%%%%%%%%%%%%"+e.toString());
-  // }
+  try {
+   await  Firebase.initializeApp();
+  } catch (e) {
+    print("%%%%%%%%%%%%%%%%%%"+e.toString());
+  }
 }
 
 void main() async {

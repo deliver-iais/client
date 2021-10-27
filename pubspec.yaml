@@ -91,8 +91,7 @@ dependencies:
   jwt_decoder: 1.0.1 # TODO, read documentation and update it
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
-      url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.8.6-beta.20
+      url: git://github.com/EsmaeilDansi/deliver_public_protocol.git
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -124,10 +123,10 @@ dependencies:
   share: 2.0.4
 
   fluttertoast: ^8.0.8
-  firebase_messaging: 10.0.8
-#  firebase_messaging_web: ^2.0.6
-  firebase_core: 1.7.0
-#  firebase_core_web: ^1.1.0
+  firebase_messaging: 10.0.9
+  firebase_messaging_web: ^2.0.7
+  firebase_core: 1.8.0
+  firebase_core_web: ^1.1.0
   flutter_swiper: 1.1.6
   flutter_dropzone: 3.0.0
   universal_html: ^2.0.8
