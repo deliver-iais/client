@@ -191,9 +191,12 @@ class _DevicesPageState extends State<DevicesPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(sessions.length > 1
-                      ? _i18n.get("terminate_all_other_sessions")
-                      : _i18n.get("delete_session"),style: TextStyle(color: ExtraTheme.of(context).textField),),
+                  Text(
+                    sessions.length > 1
+                        ? _i18n.get("terminate_all_other_sessions")
+                        : _i18n.get("delete_session"),
+                    style: TextStyle(color: ExtraTheme.of(context).textField),
+                  ),
                 ],
               ),
             ),
