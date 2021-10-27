@@ -136,6 +136,8 @@ dependencies:
   hive_flutter: 1.1.0
   marquee: 2.2.0
   metadata_fetch: 0.4.1
+  flutter_webrtc: ^0.7.0+hotfix.2
+  sdp_transform: ^0.3.2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:deliver/services/videoCall_service.dart';
+import 'package:deliver/services/webRtcKeys.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -58,6 +60,7 @@ class CoreServices {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
+  final _videoCallService = GetIt.I.get<VideoCallService>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
@@ -281,84 +284,102 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid = getRoomUid(_authRepo, message);
-    if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
-      return;
-    }
-    if (message.whichType() == Message_Type.persistEvent) {
-      switch (message.persistEvent.whichType()) {
-        case PersistentEvent_Type.mucSpecificPersistentEvent:
-          switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-            case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Room(uid: roomUid.asString(),deleted: true));
-              return;
-              break;
-            case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-              {
-                var muc = await _mucDao.get(roomUid.asString());
-                var pinMessages = muc.pinMessagesIdList;
-                pinMessages.add(message
-                    .persistEvent.mucSpecificPersistentEvent.messageId
-                    .toInt());
-                _mucDao.update(muc.copyWith(
-                    pinMessagesIdList: pinMessages, showPinMessage: true));
-                break;
-              }
-
-            case MucSpecificPersistentEvent_Issue.KICK_USER:
-              if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
-                return;
-              }
-              break;
-            case MucSpecificPersistentEvent_Issue.JOINED_USER:
-            case MucSpecificPersistentEvent_Issue.ADD_USER:
-              if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: false));
-              }
-              break;
-
-            case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-              if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
-                return;
-              }
-
-              _mucDao.deleteMember(Member(
-                memberUid: message
-                    .persistEvent.mucSpecificPersistentEvent.issuer
-                    .asString(),
-                mucUid: roomUid.asString(),
-              ));
-          }
-          break;
-        case PersistentEvent_Type.messageManipulationPersistentEvent:
-          // TODO: Handle this case.
-          break;
-        case PersistentEvent_Type.adminSpecificPersistentEvent:
-          // TODO: Handle this case.
-          break;
-        case PersistentEvent_Type.notSet:
-          // TODO: Handle this case.
-          break;
+    String text = message.text.text;
+    if (text.startsWith(webRtcDetection)) {
+      if (text.startsWith(webRtcDetectionAnswer)) {
+        _videoCallService.receivedCallAnswer(text);
+      } else if (text.startsWith(webRtcDetectionOffer)) {
+        _videoCallService.incomingCall(text, message.from);
+      } else if (text.startsWith(webRtcDetectionCandidate)) {
+        _videoCallService.receivedCallCandidate(text);
+      } else if (text.startsWith(webRtcCallDeclined)) {
+        _videoCallService.receivedEndCall();
+      } else if (text.startsWith(webRtcCallBusied)) {
+        _videoCallService.receivedBusyCall();
+      } else if (text.startsWith(webRtcCallEnded)) {
+        _videoCallService.receivedEndCall();
       }
-    }
-    saveMessage(message, roomUid);
+    } else {
+      Uid roomUid = getRoomUid(_authRepo, message);
+      if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
+        return;
+      }
+      if (message.whichType() == Message_Type.persistEvent) {
+        switch (message.persistEvent.whichType()) {
+          case PersistentEvent_Type.mucSpecificPersistentEvent:
+            switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+              case MucSpecificPersistentEvent_Issue.DELETED:
+                _roomDao.updateRoom(
+                    Room(uid: roomUid.asString(), deleted: true));
+                return;
+                break;
+              case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+                {
+                  var muc = await _mucDao.get(roomUid.asString());
+                  var pinMessages = muc.pinMessagesIdList;
+                  pinMessages.add(message
+                      .persistEvent.mucSpecificPersistentEvent.messageId
+                      .toInt());
+                  _mucDao.update(muc.copyWith(
+                      pinMessagesIdList: pinMessages, showPinMessage: true));
+                  break;
+                }
 
-    if (!_authRepo.isCurrentUser(message.from.asString()) &&
-        !_uxService.isAllNotificationDisabled &&
-        (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
-      showNotification(roomUid, message);
+              case MucSpecificPersistentEvent_Issue.KICK_USER:
+                if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                    .isSameEntity(_authRepo.currentUserUid.asString())) {
+                  _roomDao.updateRoom(
+                      Room(uid: message.from.asString(), deleted: true));
+                  return;
+                }
+                break;
+              case MucSpecificPersistentEvent_Issue.JOINED_USER:
+              case MucSpecificPersistentEvent_Issue.ADD_USER:
+                if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                    .isSameEntity(_authRepo.currentUserUid.asString())) {
+                  _roomDao.updateRoom(
+                      Room(uid: message.from.asString(), deleted: false));
+                }
+                break;
+
+              case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+                if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                    .isSameEntity(_authRepo.currentUserUid.asString())) {
+                  _roomDao.updateRoom(
+                      Room(uid: message.from.asString(), deleted: true));
+                  return;
+                }
+
+                _mucDao.deleteMember(Member(
+                  memberUid: message
+                      .persistEvent.mucSpecificPersistentEvent.issuer
+                      .asString(),
+                  mucUid: roomUid.asString(),
+                ));
+            }
+            break;
+          case PersistentEvent_Type.messageManipulationPersistentEvent:
+          // TODO: Handle this case.
+            break;
+          case PersistentEvent_Type.adminSpecificPersistentEvent:
+          // TODO: Handle this case.
+            break;
+          case PersistentEvent_Type.notSet:
+          // TODO: Handle this case.
+            break;
+        }
+      }
+      saveMessage(message, roomUid);
+
+      if (!_authRepo.isCurrentUser(message.from.asString()) &&
+          !_uxService.isAllNotificationDisabled &&
+          (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
+        showNotification(roomUid, message);
+      }
+      if (message.from.category == Categories.USER)
+        updateLastActivityTime(
+            _lastActivityDao, message.from, message.time.toInt());
     }
-    if (message.from.category == Categories.USER)
-      updateLastActivityTime(
-          _lastActivityDao, message.from, message.time.toInt());
   }
 
   Future showNotification(Uid roomUid, Message message) async {
