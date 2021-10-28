@@ -52,11 +52,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         });
   }
 
-  OnMuteRoom() {
-    Navigator.pop<OperationOnRoom>(context, OperationOnRoom.DELETE_ROOM);
-  }
-
-  onUnMuteRoom() {
+  onMuteOrUnMuteRoom() {
     Navigator.pop<OperationOnRoom>(context, OperationOnRoom.Un_MUTE_ROOM);
   }
 
@@ -100,7 +96,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                   return snapshot.data
                       ? TextButton(
                           onPressed: () {
-                            onUnMuteRoom();
+                            onMuteOrUnMuteRoom();
                             _roomRepo.unmute(widget.room.uid);
                           },
                           child: Row(children: [
@@ -113,7 +109,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                           ]))
                       : TextButton(
                           onPressed: () {
-                            onUnMuteRoom();
+                            onMuteOrUnMuteRoom();
                             _roomRepo.mute(widget.room.uid);
                           },
                           child: Row(children: [
