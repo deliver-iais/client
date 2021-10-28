@@ -358,7 +358,7 @@ class _ProfilePageState extends State<ProfilePage>
                       return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: SettingsTile(
-                            title: _locale.get("custom_notofications"),
+                            title: _locale.get("custom_notifications"),
                             titleTextStyle: TextStyle(
                                 color: ExtraTheme.of(context).textField),
                             leading: Icon(Icons.music_note_sharp),
