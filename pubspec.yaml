@@ -97,7 +97,6 @@ dependencies:
   dcache: 0.4.0
   image_size_getter: 0.2.1
   swipe_to: 0.0.1+8
-#  google_maps_place_picker: 2.0.0-nullsafety.3
   audioplayers: 0.20.1
   dart_vlc: 0.0.9
   video_player: 2.2.4
@@ -136,6 +135,7 @@ dependencies:
   hive_flutter: 1.1.0
   marquee: 2.2.0
   metadata_fetch: 0.4.1
+  process_run: ^0.12.2+1
 
 dev_dependencies:
   flutter_test:
