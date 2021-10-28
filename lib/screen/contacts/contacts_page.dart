@@ -87,27 +87,28 @@ class _ContactsPageState extends State<ContactsPage> {
                 } else {
                   return Column(
                     children: [
-                      SearchBox(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10)),
-                        onChange: (str) {
-                          if (str.isNotEmpty) {
-                            setState(() {
-                              _searchMode = true;
-                              _query = str;
-                            });
-                          } else {
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SearchBox(
+                          borderRadius: BorderRadius.circular(8),
+                          onChange: (str) {
+                            if (str.isNotEmpty) {
+                              setState(() {
+                                _searchMode = true;
+                                _query = str;
+                              });
+                            } else {
+                              setState(() {
+                                _searchMode = false;
+                              });
+                            }
+                          },
+                          onCancel: () {
                             setState(() {
                               _searchMode = false;
                             });
-                          }
-                        },
-                        onCancel: () {
-                          setState(() {
-                            _searchMode = false;
-                          });
-                        },
+                          },
+                        ),
                       ),
                       Expanded(
                           child: Scrollbar(
