@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:deliver/services/videoCall_service.dart';
+import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/services/webRtcKeys.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -286,10 +286,8 @@ class CoreServices {
   _saveIncomingMessage(Message message) async {
     var _videoCallService = GetIt.I.get<VideoCallService>();
     String text = message.text.text;
-    _logger.i(text);
 
     if (text.startsWith(webRtcDetection)) {
-      _logger.i("I'm Here WEBRtcccc");
       if (text.startsWith(webRtcDetectionAnswer)) {
         _videoCallService.receivedCallAnswer(text);
       } else if (text.startsWith(webRtcDetectionOffer)) {

@@ -2,7 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/call_bottom_row.dart';
-import 'package:deliver/services/videoCall_service.dart';
+import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/material.dart';

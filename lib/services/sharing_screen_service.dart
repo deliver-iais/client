@@ -9,13 +9,12 @@ import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 import 'package:logger/logger.dart';
 
-class VideoCallService {
+class SharingScreenService {
 
   var messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
 
   MediaStream _localStream;
-  bool sharingScreen;
   Uid _roomUid ;
   String _offerSdp;
   RTCPeerConnection _peerConnection;
@@ -30,7 +29,7 @@ class VideoCallService {
   /*
   * initial Variable for Render Call Between 2 Client
   * */
-  _initCall()async{
+  _initSharingScreen()async{
     await _createPeerConnection().then((pc) {
       _peerConnection = pc;
     });
@@ -51,7 +50,7 @@ class VideoCallService {
       "optional": [],
     };
 
-    _localStream = await _getUserMedia(sharingScreen);
+    _localStream = await _getUserMediaDisplay();
 
     RTCPeerConnection pc =
     await createPeerConnection(configuration, offerSdpConstraints);
@@ -89,26 +88,13 @@ class VideoCallService {
   /*
   * get Access from User for Camera and Microphone
   * */
-  _getUserMedia(bool screenSharing) async {
+  _getUserMediaDisplay() async {
     final Map<String, dynamic> mediaConstraints = {
-      'audio': screenSharing ? false : true,
-      'video': screenSharing
-          ? true
-          : {
-        'mandatory': {
-          'minWidth':
-          '640', // Provide your own width, height and frame rate here
-          'minHeight': '480',
-          'minFrameRate': '30',
-        },
-        'facingMode': 'user',
-        'optional': [],
-      }
+      'audio': false ,
+      'video': true
     };
 
-    var stream = screenSharing
-        ? await navigator.mediaDevices.getDisplayMedia(mediaConstraints)
-        : await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    var stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
 
     onLocalStream?.call(stream);
 
@@ -126,52 +112,26 @@ class VideoCallService {
   }
 
   /*
-  * For Close Camera
+  * For Close DisplayScreen
   * */
-  void muteCamera() {
+  void muteDisplayScreen() {
     if (_localStream != null) {
       bool enabled = _localStream.getVideoTracks()[0].enabled;
       _localStream.getVideoTracks()[0].enabled = !enabled;
     }
   }
 
-
-  void incomingCall(String offerSdp, Uid roomId){
-    statusCall.add("incomingCall");
-    if(!hasCall.hasValue) {
-      _roomUid = roomId;
-      _offerSdp = offerSdp;
-      hasCall.add(roomId);
-    }else{
-      messageRepo.sendTextMessage(_roomUid, webRtcCallBusied);
-      _dispose();
-    }
-  }
-
   void startShareScreen(Uid roomId){
-    statusCall.add("startSharScreen");
-    sharingScreen = true;
+    sharingStatus.add("startSharScreen");
     _roomUid = roomId;
-    _initCall();
+    _initSharingScreen();
     var offer = _createOffer();
     //Send offer as message to Receiver
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
   }
 
-  void startCall(Uid roomId) async{
-    statusCall.add("startCall");
-    //Set Timer 44 sec for end call
-    sharingScreen = false;
-    _roomUid = roomId;
-    hasCall.add(roomId);
-    await _initCall();
-    var offer = _createOffer();
-    //Send offer as message to Receiver
-    messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer.toString());
-  }
-
-  void acceptCall(){
-    statusCall.add("acceptCall");
+  void receivedSharingScreen(){
+    sharingStatus.add("receivedSharingScreen");
     var offerWithoutDetector = _offerSdp.split(webRtcDetectionOffer)[1];
     _setRemoteDescriptionOffer(offerWithoutDetector);
     var answer = _createAnswer();
@@ -179,18 +139,12 @@ class VideoCallService {
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionAnswer + answer);
   }
 
-  void declineCall(){
-    statusCall.add("declinedCall");
-    messageRepo.sendTextMessage(_roomUid, webRtcCallDeclined);
-    _dispose();
-  }
-
-  void receivedCallAnswer(String answerSdp){
+  void receivedSharingAnswer(String answerSdp){
     var answerWithoutDetector = answerSdp.split(webRtcDetectionAnswer)[1];
     _setRemoteDescriptionAnswer(answerWithoutDetector);
   }
 
-  void receivedCallCandidate(String answerCandidate){
+  void receivedSharingCandidate(String answerCandidate){
     var candidateWithoutDetector = answerCandidate.split(webRtcDetectionCandidate)[1];
     List<RTCIceCandidate> candidates = (json.decode(candidateWithoutDetector) as List)
         .map((data) => data)
@@ -198,22 +152,12 @@ class VideoCallService {
     _setCandidate(candidates);
   }
 
-  void receivedBusyCall(){
-    statusCall.add("busy");
+  void receivedEndSharing(){
+    sharingStatus.add("end");
     _dispose();
   }
 
-  void receivedDeclinedCall(){
-    statusCall.add("declined");
-    _dispose();
-  }
-
-  void receivedEndCall(){
-    statusCall.add("end");
-    _dispose();
-  }
-
-  void endCall(){
+  void endSharing(){
     messageRepo.sendTextMessage(_roomUid, webRtcCallEnded);
     _dispose();
   }
@@ -282,8 +226,8 @@ class VideoCallService {
 
     _candidate = [];
     _roomUid.clear();
-    hasCall.add(null);
-    statusCall.add(null);
+    hasSharing.add(null);
+    sharingStatus.add(null);
     _offerSdp = null;
   }
 
@@ -293,10 +237,10 @@ class VideoCallService {
         await element.stop();
       });
       await _localStream.dispose();
-    _localStream = null;
+      _localStream = null;
     }
   }
 
-  BehaviorSubject<Uid> hasCall = BehaviorSubject.seeded(null);
-  BehaviorSubject<String> statusCall = BehaviorSubject.seeded(null);
+  BehaviorSubject<Uid> hasSharing = BehaviorSubject.seeded(null);
+  BehaviorSubject<String> sharingStatus = BehaviorSubject.seeded(null);
 }
