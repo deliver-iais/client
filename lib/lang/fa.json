@@ -259,7 +259,8 @@
   "pin_room": "سنجاق کردن",
   "unpin_room": "برداشتن سنجاق",
   "pin_more_than_5": "متاسفانه شما فقط میتوانید پنج گفتگو را سنجاق کنید",
-  "custom_notofications": "اعلان های اختصاصی",
+  "custom_notifications": "اعلان های اختصاصی",
   "choose_a_song" : "یک آهنگ انتخاب کنید",
-  "show_in_folder" : "نمایش در پوشه"
+  "disable_notifications" : "غیرفعال کردن اعلان ها",
+  "enable_notifications" : "فعال کردن اعلان ها"
 }

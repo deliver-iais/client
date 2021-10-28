@@ -250,7 +250,8 @@
   "pin_room": "Pin to top",
   "unpin_room": "Unpin from top",
   "pin_more_than_5": "Sorry, you can only pin 5 chats to the top",
-  "custom_notofications": "Custom notofications",
+  "custom_notifications": "Custom notifications",
   "choose_a_song" : "Choose a song",
-  "show_in_folder" : "show in folder"
+  "disable_notifications" : "Disable notifications",
+  "enable_notifications" : "Enable notifications"
 }
