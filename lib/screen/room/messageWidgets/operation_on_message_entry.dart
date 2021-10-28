@@ -16,7 +16,6 @@ import 'package:get_it/get_it.dart';
 import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
   final bool hasPermissionInChannel;
@@ -348,7 +347,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(i18n.get("show_in_folder")),
+                            Text(_i18n.get("show_in_folder")),
                           ]));
                     } else {
                       return SizedBox.shrink();
