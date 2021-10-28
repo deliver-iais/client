@@ -255,5 +255,11 @@
   "delete_chat": "حذف گفتگو",
   "selected_file": "فایل انتخاب شده",
   "caption": "متن",
-  "add_caption" : "افزودن متن"
+  "add_caption" : "افزودن متن",
+  "pin_room": "سنجاق کردن",
+  "unpin_room": "برداشتن سنجاق",
+  "pin_more_than_5": "متاسفانه شما فقط میتوانید پنج گفتگو را سنجاق کنید",
+  "custom_notofications": "اعلان های اختصاصی",
+  "choose_a_song" : "یک آهنگ انتخاب کنید",
+  "show_in_folder" : "نمایش در پوشه"
 }

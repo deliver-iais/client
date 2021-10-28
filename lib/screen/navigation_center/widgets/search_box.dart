@@ -6,8 +6,8 @@ import 'package:rxdart/rxdart.dart';
 class SearchBox extends StatefulWidget {
   final Function(String) onChange;
   final Function onCancel;
-  BorderRadius borderRadius;
-  static FocusNode searchBoxFocusNode=FocusNode();
+
+  final BorderRadius borderRadius;
 
   SearchBox({this.onChange, this.onCancel,this.borderRadius});
 
@@ -30,7 +30,6 @@ class _SearchBoxState extends State<SearchBox> {
         textAlign: TextAlign.start,
         controller: _controller,
         autofocus: false,
-        focusNode:SearchBox.searchBoxFocusNode ,
         maxLines: 1,
         onChanged: (str) {
           if (str.isNotEmpty)
