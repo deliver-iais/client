@@ -4,8 +4,10 @@ import 'dart:io';
 
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/call/video_call_page.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
@@ -113,6 +115,18 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  void openVideoCallPage(Room room) {
+    var widget = VideoCallPage(
+      key: ValueKey("/videocall"),
+      room: room,
+    );
+    _popAllAndPush(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/videocall"));
   }
 
   bool isAnyRoomOpen() {

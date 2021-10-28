@@ -47,6 +47,7 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
+
   final _logger = GetIt.I.get<Logger>();
   final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -60,7 +61,6 @@ class CoreServices {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
-  final _videoCallService = GetIt.I.get<VideoCallService>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
@@ -284,6 +284,7 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
+    var _videoCallService = GetIt.I.get<VideoCallService>();
     String text = message.text.text;
     if (text.startsWith(webRtcDetection)) {
       if (text.startsWith(webRtcDetectionAnswer)) {

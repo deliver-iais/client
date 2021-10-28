@@ -720,6 +720,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           },
         ),
         actions: [
+          IconButton(
+              onPressed: () {
+                _routingService.openVideoCallPage(_currentRoom.value);
+              },
+              icon: Icon(Icons.videocam)),
+          SizedBox(
+            width: 10,
+          ),
           StreamBuilder(
               stream: _searchMode.stream,
               builder: (c, s) {

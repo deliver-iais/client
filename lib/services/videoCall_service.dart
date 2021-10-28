@@ -27,9 +27,9 @@ class VideoCallService {
   /*
   * initial Variable for Render Call Between 2 Client
   * */
-  _initCall(){
+  _initCall()async{
     _initRenderer();
-    _createPeerConnection().then((pc) {
+    await _createPeerConnection().then((pc) {
       _peerConnection = pc;
     });
   }
@@ -157,16 +157,16 @@ class VideoCallService {
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
   }
 
-  void startCall(Uid roomId){
+  void startCall(Uid roomId) async{
     statusCall.add("startCall");
     //Set Timer 44 sec for end call
     sharingScreen = false;
     _roomUid = roomId;
     hasCall.add(roomId);
-    _initCall();
+    await _initCall();
     var offer = _createOffer();
     //Send offer as message to Receiver
-    messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
+    messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer.toString());
   }
 
   void acceptCall(){
