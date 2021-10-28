@@ -286,7 +286,10 @@ class CoreServices {
   _saveIncomingMessage(Message message) async {
     var _videoCallService = GetIt.I.get<VideoCallService>();
     String text = message.text.text;
+    _logger.i(text);
+
     if (text.startsWith(webRtcDetection)) {
+      _logger.i("I'm Here WEBRtcccc");
       if (text.startsWith(webRtcDetectionAnswer)) {
         _videoCallService.receivedCallAnswer(text);
       } else if (text.startsWith(webRtcDetectionOffer)) {

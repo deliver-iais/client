@@ -23,21 +23,49 @@ class _VideoCallPageState extends State<VideoCallPage> {
   final _videoCallService = GetIt.I.get<VideoCallService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
+  RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
+  RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
+
+
   @override
   void initState() {
+    _initRenderer();
     startCall();
     super.initState();
   }
 
+
+  _initRenderer() async {
+    await _localRenderer.initialize();
+    await _remoteRenderer.initialize();
+  }
+
   void startCall() async {
+
+    _videoCallService?.onLocalStream = ((stream) {
+      _localRenderer.srcObject = stream;
+    });
+
+    _videoCallService?.onAddRemoteStream = ((stream) {
+      _remoteRenderer.srcObject = stream;
+    });
+
+    _videoCallService?.onRemoveRemoteStream = ((stream) {
+      _remoteRenderer.srcObject = null;
+    });
+
     await _videoCallService.startCall(widget.room.uid.asUid());
+
     setState(() {});
   }
+
 @override
   void dispose() {
   _player.fixedPlayer.stop();
   _videoCallService.endCall();
-    super.dispose();
+  _localRenderer.dispose();
+  _remoteRenderer.dispose();
+  super.dispose();
   }
 
   @override
@@ -47,7 +75,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
     return Scaffold(
         body: Stack(children: [
       RTCVideoView(
-        _videoCallService.getLocalRenderer(),
+        _localRenderer,
         objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
         mirror: true,
       ),

@@ -19,24 +19,21 @@ class VideoCallService {
   Uid _roomUid ;
   String _offerSdp;
   RTCPeerConnection _peerConnection;
-  RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
-  RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
   final String _stunServerURL = "stun:stun.l.google.com:19302";
-  List<String> _candidate = [];
+  List<RTCIceCandidate> _candidate = [];
+
+  Function(MediaStream stream) onLocalStream;
+  Function(MediaStream stream) onAddRemoteStream;
+  Function(MediaStream stream) onRemoveRemoteStream;
+
 
   /*
   * initial Variable for Render Call Between 2 Client
   * */
   _initCall()async{
-    _initRenderer();
     await _createPeerConnection().then((pc) {
       _peerConnection = pc;
     });
-  }
-
-  _initRenderer() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
   }
 
   _createPeerConnection() async {
@@ -67,7 +64,7 @@ class VideoCallService {
 
     pc.onIceCandidate = (e) {
       if (e.candidate != null) {
-        _candidate.add(e.toString());
+        _candidate.add(e);
       }
     };
 
@@ -79,7 +76,11 @@ class VideoCallService {
 
     pc.onAddStream = (stream) {
       _logger.i('addStream: ' + stream.id);
-      _remoteRenderer.srcObject = stream;
+      onAddRemoteStream?.call(stream);
+    };
+
+    pc.onRemoveStream = (stream) {
+      onRemoveRemoteStream?.call(stream);
     };
 
     return pc;
@@ -109,7 +110,7 @@ class VideoCallService {
         ? await navigator.mediaDevices.getDisplayMedia(mediaConstraints)
         : await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
-    _localRenderer.srcObject = stream;
+    onLocalStream?.call(stream);
 
     return stream;
   }
@@ -191,7 +192,7 @@ class VideoCallService {
 
   void receivedCallCandidate(String answerCandidate){
     var candidateWithoutDetector = answerCandidate.split(webRtcDetectionCandidate)[1];
-    List<String> candidates = (json.decode(candidateWithoutDetector) as List)
+    List<RTCIceCandidate> candidates = (json.decode(candidateWithoutDetector) as List)
         .map((data) => data)
         .toList();
     _setCandidate(candidates);
@@ -269,34 +270,31 @@ class VideoCallService {
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionCandidate + jsonCandidates);
   }
 
-  _setCandidate(List<String> candidates) async {
-    candidates.forEach((element) async {
-      dynamic session = await jsonDecode(element);
-      print(session['candidate']);
-      dynamic candidate = RTCIceCandidate(
-          session['candidate'], session['sdpMid'], session['sdpMlineIndex']);
+  _setCandidate(List<RTCIceCandidate> candidates) async {
+    candidates.forEach((candidate) async {
       await _peerConnection.addCandidate(candidate);
     });
   }
 
-  _dispose() {
-    _localRenderer.dispose();
-    _remoteRenderer.dispose();
-    _peerConnection.dispose();
+  _dispose() async{
+    await _cleanLocalStream();
+    await _peerConnection.dispose();
+
     _candidate = [];
-    _localStream.dispose();
     _roomUid.clear();
     hasCall.add(null);
     statusCall.add(null);
     _offerSdp = null;
   }
 
-  RTCVideoRenderer getLocalRenderer(){
-    return _localRenderer;
-  }
-
-  RTCVideoRenderer getRemoteRenderer(){
-    return _remoteRenderer;
+  _cleanLocalStream() async{
+    if (_localStream != null) {
+      _localStream.getTracks().forEach((element) async {
+        await element.stop();
+      });
+      await _localStream.dispose();
+    _localStream = null;
+    }
   }
 
   BehaviorSubject<Uid> hasCall = BehaviorSubject.seeded(null);
