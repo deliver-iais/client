@@ -104,8 +104,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     if (isWindows()) {
       await shell.run('start "" "${snapshot.data.parent.path}"');
     } else if (isLinux()) {
-      //pls test
-      await shell.run('xdg-open ${snapshot.data.parent.path}');
+      await shell.run('nautilus ${snapshot.data.path}');
     } else if (isMacOS()) {
       //pls test
       await shell.run('open ${snapshot.data.parent.path}');
