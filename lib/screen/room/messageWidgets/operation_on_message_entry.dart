@@ -106,7 +106,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     } else if (isLinux()) {
       await shell.run('nautilus ${snapshot.data.path}');
     } else if (isMacOS()) {
-      //pls test
       await shell.run('open ${snapshot.data.parent.path}');
     }
     Navigator.pop<OperationOnMessage>(
