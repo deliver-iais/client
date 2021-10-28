@@ -1,19 +1,21 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
+
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
@@ -102,6 +104,20 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onDeletePendingMessage() {
     Navigator.pop<OperationOnMessage>(
         context, OperationOnMessage.DELETE_PENDING_MESSAGE);
+  }
+
+  Future<void> onShowInFolder(
+      AsyncSnapshot<dynamic> snapshot, BuildContext context) async {
+    var shell = Shell();
+    if (isWindows()) {
+      await shell.run('start "" "${snapshot.data.parent.path}"');
+    } else if (isLinux()) {
+      await shell.run('nautilus ${snapshot.data.path}');
+    } else if (isMacOS()) {
+      await shell.run('open ${snapshot.data.parent.path}');
+    }
+    Navigator.pop<OperationOnMessage>(
+        context, OperationOnMessage.SHOW_IN_FOLDER);
   }
 
   BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
@@ -315,6 +331,29 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(_i18n.get("edit")),
                   ])),
+            if (isDesktop() && widget.message.type == MessageType.FILE)
+              FutureBuilder(
+                  future: _fileRepo.getFileIfExist(
+                      widget.message.json.toFile().uuid,
+                      widget.message.json.toFile().name),
+                  builder: (c, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return TextButton(
+                          onPressed: () async {
+                            await onShowInFolder(snapshot, context);
+                          },
+                          child: Row(children: [
+                            Icon(
+                              Icons.folder_open_rounded,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(i18n.get("show_in_folder")),
+                          ]));
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
           ],
         ),
       ),

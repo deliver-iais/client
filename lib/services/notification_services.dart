@@ -1,3 +1,4 @@
+import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -20,7 +21,7 @@ import 'package:logger/logger.dart';
 abstract class Notifier {
   notify(MessageBrief message);
 
-  cancel(int id);
+  cancel(int id, String roomId);
 
   cancelAll();
 }
@@ -52,7 +53,7 @@ class NotificationServices {
   }
 
   void cancelRoomNotifications(String roomUid) {
-    _notifier.cancel(roomUid.hashCode);
+    _notifier.cancel(roomUid.hashCode, roomUid);
   }
 
   void cancelAllNotifications() {
@@ -73,7 +74,7 @@ class FakeNotifier implements Notifier {
   notify(MessageBrief message) {}
 
   @override
-  cancel(int id) {}
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}
@@ -84,7 +85,7 @@ class IOSNotifier implements Notifier {
   notify(MessageBrief message) {}
 
   @override
-  cancel(int id) {}
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}
@@ -148,7 +149,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancel(int id) {}
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}
@@ -202,7 +203,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  cancel(int id) async {
+  cancel(int id, String roomId) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {
@@ -232,6 +233,7 @@ class AndroidNotifier implements Notifier {
   AndroidNotificationChannel channel = AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
+      'All notifications of application.', // description
       importance: Importance.high,
       groupId: "all_group");
 
@@ -283,24 +285,49 @@ class AndroidNotifier implements Notifier {
         selectedNotificationSound = selectedSound;
       }
     }
-    var platformChannelSpecifics = AndroidNotificationDetails(
-        selectedNotificationSound, channel.name,
-        groupKey: channel.groupId,
-        largeIcon: largeIcon,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-        setAsGroupSummary: false);
 
-    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
-        message.roomName, createNotificationTextFromMessageBrief(message),
+    InboxStyleInformation inboxStyleInformation =
+        InboxStyleInformation([], contentTitle: 'new messages');
+
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+            selectedNotificationSound + message.roomUid.asString(),
+            channel.name,
+            channel.description,
+            styleInformation: inboxStyleInformation,
+            groupKey: channel.groupId,
+            playSound: true,
+            sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+            setAsGroupSummary: true);
+    await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
+        notificationDetails: androidNotificationDetails);
+    var platformChannelSpecifics = AndroidNotificationDetails(
+      selectedNotificationSound + message.roomUid.asString(),
+      channel.name,
+      channel.description,
+      groupKey: channel.groupId,
+      largeIcon: largeIcon,
+      styleInformation: BigTextStyleInformation(''),
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+    );
+    _flutterLocalNotificationsPlugin.show(
+        message.roomUid.asString().hashCode + message.text.toString().hashCode,
+        message.roomName,
+        createNotificationTextFromMessageBrief(message),
         notificationDetails: platformChannelSpecifics,
         payload: message.roomUid.asString());
   }
 
   @override
-  cancel(int id) async {
+  cancel(int id, String roomId) async {
     try {
-      await _flutterLocalNotificationsPlugin.cancel(id);
+      List<ActiveNotification> activeNotification =
+          await _flutterLocalNotificationsPlugin.getActiveNotifications();
+      for (var element in activeNotification) {
+        if (element.channelId.contains(roomId) && element.id != 0)
+          await _flutterLocalNotificationsPlugin.cancel(element.id);
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -363,7 +390,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  cancel(int id) async {
+  cancel(int id, String roomId) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {
