@@ -17,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
@@ -33,27 +32,14 @@ class FireBaseServices {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
-
- FirebaseMessaging _firebaseMessaging;
+  FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
       try {
-       await Firebase.initializeApp();
-
-       _firebaseMessaging = FirebaseMessaging.instance;
-
-        _firebaseMessaging.requestPermission(
-          alert: true,
-          announcement: false,
-          badge: true,
-          carPlay: false,
-          criticalAlert: false,
-          provisional: false,
-          sound: true,
-        );
-       var res = await  _firebaseMessaging.getToken();
-       print("TOKEN:" + res);
+        _firebaseMessaging = FirebaseMessaging.instance;
+        var res = await _firebaseMessaging.getToken();
+        print("TOKEN:" + res);
         await _setFirebaseSetting();
       } catch (e) {
         print("@@@@@@@" + e.toString());
@@ -63,7 +49,7 @@ class FireBaseServices {
   }
 
   deleteToken() {
-   // _firebaseMessaging.deleteToken();
+     _firebaseMessaging.deleteToken();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
@@ -80,21 +66,14 @@ class FireBaseServices {
 
   _setFirebaseSetting() async {
     try {
-      print("*********************");
-      FirebaseMessaging.onMessage.listen((event) {
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% reqwewqeqweqwe");
-      });
-      FirebaseMessaging.onMessageOpenedApp.listen((event) {
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%wqeqweqweqwe");
-      });
-       FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+      if (!kIsWeb)
+        FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
       _firebaseMessaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
       );
     } catch (e) {
-      print("ERORRRRRRRRRRRRRRRRRRRRRRRRR");
       _logger.e(e);
     }
   }
@@ -108,7 +87,6 @@ M.Message _decodeMessage(String notificationBody) {
 
 Future<void> backgroundMessageHandler(dynamic message) async {
   try {
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     await setupDI();
   } catch (e) {
     Logger().e(e);

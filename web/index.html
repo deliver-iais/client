@@ -36,8 +36,9 @@
      https://developers.google.com/web/fundamentals/primers/service-workers -->
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js"></script>
+<script src="main.dart.js" type="application/javascript"></script>
 <script>
-      const firebaseConfig = {
+  const firebaseConfig = {
   apiKey: "AIzaSyD-_--oS1VdmgtJ6mCDStZQSPnOP0KZPV4",
   authDomain: "deliver-d705a.firebaseapp.com",
   databaseURL: "https://deliver-d705a.firebaseio.com",
@@ -72,6 +73,7 @@
         // Wait for registration to finish before dropping the <script> tag.
         // Otherwise, the browser will load the script multiple times,
         // potentially different versions.
+
           var customServiceWorkerUrl = './sw.js';
         navigator.serviceWorker.register(customServiceWorkerUrl, { scope: '.' }).then(function (registration) {
           // Registration was successful
@@ -81,7 +83,9 @@
           console.log('CustomServiceWorker registration failed: ', err);
         });
 
+
         var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+        navigator.serviceWorker.register("/firebase-messaging-sw.js");
         navigator.serviceWorker.register('/service_worker.js')
           .then((reg) => {
             function waitForActivation(serviceWorker) {
@@ -92,6 +96,7 @@
                 }
               });
             }
+
             if (!reg.active && (reg.installing || reg.waiting)) {
               // No active web worker and we have installed or are installing
               // one for the first time. Simply wait for it to activate.
@@ -109,6 +114,8 @@
             }
           });
 
+
+
         // If service worker doesn't succeed in a reasonable amount of time,
         // fallback to plaint <script> tag.
         setTimeout(() => {
@@ -125,14 +132,6 @@
       loadMainDartJs();
     }
 
-</script>
-<script src="main.dart.js" type="application/javascript"></script>
-<script>
-if ("serviceWorker" in navigator) {
-window.addEventListener("load", function () {
-navigator.serviceWorker.register("/firebase-messaging-sw.js");
-});
-}
 </script>
 </body>
 </html>
