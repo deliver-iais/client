@@ -128,6 +128,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         _autRepo.isCurrentUserSender(widget.message) ||
         (widget.message.roomUid.isChannel() && widget.hasPermissionInChannel) ||
         (widget.message.roomUid.isGroup() && widget.hasPermissionInGroup);
+    super.initState();
   }
 
   @override

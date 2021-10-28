@@ -3,11 +3,11 @@ import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
-class onEditMessageWidget extends StatelessWidget {
+class OnEditMessageWidget extends StatelessWidget {
   final Message message;
   final Function resetRoomPageDetails;
 
-  const onEditMessageWidget({Key key, this.message, this.resetRoomPageDetails})
+  const OnEditMessageWidget({Key key, this.message, this.resetRoomPageDetails})
       : super(key: key);
 
   @override

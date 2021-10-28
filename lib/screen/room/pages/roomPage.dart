@@ -218,7 +218,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       stream: _editableMessage.stream,
                       builder: (c, em) {
                         if (em.hasData && em.data != null) {
-                          return onEditMessageWidget(
+                          return OnEditMessageWidget(
                               message: _editableMessage.value,
                               resetRoomPageDetails: _resetRoomPageDetails);
                         }
