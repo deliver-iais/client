@@ -7,6 +7,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/call/incoming_call_page.dart';
 import 'package:deliver/screen/call/video_call_page.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
@@ -117,7 +118,7 @@ class RoutingService {
         path: "/settings"));
   }
 
-  void openVideoCallPage(Room room) {
+  void openRequstVideoCallPage(Room room) {
     var widget = VideoCallPage(
       key: ValueKey("/videocall"),
       room: room,
@@ -127,6 +128,17 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/videocall"));
+  }
+  void openInComingCallPage(Uid roomuid) {
+    var widget = InComingCallPage(
+      key: ValueKey("/Incomingcallpage"),
+      roomuid: roomuid,
+    );
+    _popAllAndPush(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/Incomingcallpage"));
   }
 
   bool isAnyRoomOpen() {

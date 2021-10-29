@@ -10,17 +10,15 @@ class CallBottomRow extends StatefulWidget {
   final localRenderer;
   final Room room;
   final AudioCache player;
-  final bool isVideoCall;
   MediaStream localStream;
 
-  CallBottomRow(
-      {Key key,
-      this.localRenderer,
-      this.player,
-      this.localStream,
-      this.room,
-      this.isVideoCall})
-      : super(key: key);
+  CallBottomRow({
+    Key key,
+    this.localRenderer,
+    this.player,
+    this.localStream,
+    this.room,
+  }) : super(key: key);
 
   @override
   _CallBottomRowState createState() => _CallBottomRowState();
@@ -44,27 +42,16 @@ class _CallBottomRowState extends State<CallBottomRow> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              widget.isVideoCall
-                  ? FloatingActionButton(
-                      backgroundColor: _switchCameraIcon,
-                      child: const Icon(Icons.switch_camera),
-                      onPressed: _switchCamera,
-                    )
-                  : FloatingActionButton(
-                      backgroundColor: _switchCameraIcon,
-                      child: const Icon(Icons.volume_up),
-                      onPressed: () {}),
-              widget.isVideoCall
-                  ? FloatingActionButton(
-                      backgroundColor: _offVideoCamIcon,
-                      child: const Icon(Icons.videocam_off_sharp),
-                      onPressed: _offVideoCam,
-                    )
-                  : FloatingActionButton(
-                      backgroundColor: _switchCameraIcon,
-                      child: const Icon(Icons.videocam),
-                      onPressed: null, //ToDo request for video call
-                    ),
+              FloatingActionButton(
+                backgroundColor: _switchCameraIcon,
+                child: const Icon(Icons.switch_camera),
+                onPressed: _switchCamera,
+              ),
+              FloatingActionButton(
+                backgroundColor: _offVideoCamIcon,
+                child: const Icon(Icons.videocam_off_sharp),
+                onPressed: _offVideoCam,
+              ),
               FloatingActionButton(
                 backgroundColor: _muteMicIcon,
                 child: const Icon(Icons.mic_off),
@@ -83,30 +70,26 @@ class _CallBottomRowState extends State<CallBottomRow> {
 
   _hangUp() {
     widget.player.fixedPlayer.stop();
-    _routingService.pop();
-    _videoCallService.endCall();
-
+    _routingService.openRoom(widget.room.uid);
   }
 
   _switchCamera() {
-    if (widget.localStream != null) {
-      Helper.switchCamera(widget.localStream.getVideoTracks()[0]);
-      index_switch_camera++;
-      _switchCameraIcon =
-          index_switch_camera.isOdd ? Colors.grey : Colors.black45;
-      setState(() {});
-    }
+    _videoCallService.switchCamera();
+    index_switch_camera++;
+    _switchCameraIcon =
+    index_switch_camera.isOdd ? Colors.grey : Colors.black45;
+    setState(() {});
   }
 
   _muteMic() {
-    _videoCallService.muteMicrophone();
+    _muteMicIcon =
+    _videoCallService.muteMicrophone() ? Colors.grey : Colors.black45;
+    setState(() {});
   }
 
   _offVideoCam() {
-    _videoCallService.muteCamera();
-  }
-
-  _onSpeaker() {
-    widget.localStream.getAudioTracks()[0].enableSpeakerphone(true);
+    _offVideoCamIcon =
+    _videoCallService.muteCamera() ? Colors.grey : Colors.black45;
+    setState(() {});
   }
 }

@@ -6,6 +6,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chatsPage.dart';
+import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
@@ -50,6 +51,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  final _videoCallService = GetIt.I.get<VideoCallService>();
 
   final ScrollController _scrollController = ScrollController();
   final Function tapOnCurrentUserAvatar;
@@ -146,6 +148,52 @@ class _NavigationCenterState extends State<NavigationCenter> {
       ),
       body: Column(
         children: <Widget>[
+          StreamBuilder(
+            stream: _videoCallService.hasCall,
+            builder: (context, snapshot) {
+              if(snapshot.hasData && snapshot !=null){
+                print("***********************${snapshot.data}");
+              return StreamBuilder(
+                stream: _videoCallService.callingStatus,
+                builder: (context, callingStatus) {
+                  return GestureDetector(
+                    onTap:(){
+                      if(callingStatus.hasData && callingStatus !=null && callingStatus.data=="incomingCall"){
+                        _routingService.openInComingCallPage(snapshot.data);
+                      }
+                    },
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+
+                            FutureBuilder<Object>(
+                              future: _roomRepo.getName(snapshot.data),
+                              builder: (context, name) {
+                                if(name.hasData && name != null)
+                                return Text(name.data,style: TextStyle(color:Colors.white),);
+                                else
+                                  return SizedBox.shrink();
+                              }
+                            ),
+                            Icon(Icons.videocam,color:Colors.white),
+                          ],
+                        ),
+                      ),
+                      width:MediaQuery.of(context).size.width,
+                      height: 30,
+                      color: Colors.greenAccent[400],
+                    ),
+                  );
+                }
+              );}
+              else
+                return SizedBox.shrink();
+            }
+          ),
+          SizedBox(height: 4,),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: SearchBox(onChange: (str) {

@@ -113,27 +113,35 @@ class VideoCallService {
   /*
   * For Close Microphone
   * */
-  void muteMicrophone() {
+  bool muteMicrophone() {
     if (_localStream != null) {
       bool enabled = _localStream.getAudioTracks()[0].enabled;
       _localStream.getAudioTracks()[0].enabled = !enabled;
+      return enabled;
+    }
+    return false;
+  }
+   switchCamera() {
+    if (_localStream != null) {
+      Helper.switchCamera(_localStream.getVideoTracks()[0]);
     }
   }
-
   /*
   * For Close Camera
   * */
-  void muteCamera() {
+  bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream.getVideoTracks()[0].enabled;
       _localStream.getVideoTracks()[0].enabled = !enabled;
+      return enabled;
     }
+    return false;
   }
 
 
   void incomingCall(String offerSdp, Uid roomId){
     callingStatus.add("incomingCall");
-    if(!hasCall.hasValue) {
+    if(hasCall.hasValue) {
       _roomUid = roomId;
       _offerSdp = offerSdp;
       hasCall.add(roomId);
@@ -149,16 +157,17 @@ class VideoCallService {
     _roomUid = roomId;
     hasCall.add(roomId);
     await _initCall();
-    var offer = _createOffer();
+    var offer = await _createOffer();
     //Send offer as message to Receiver
-    messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer.toString());
+    messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
   }
 
-  void acceptCall(){
+  void acceptCall() async{
+    await _initCall();
     callingStatus.add("acceptCall");
     var offerWithoutDetector = _offerSdp.split(webRtcDetectionOffer)[1];
     _setRemoteDescriptionOffer(offerWithoutDetector);
-    var answer = _createAnswer();
+    var answer = await _createAnswer();
     // Send Answer back to Sender
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionAnswer + answer);
   }
@@ -262,8 +271,7 @@ class VideoCallService {
 
   _dispose() async{
     await _cleanLocalStream();
-    await _peerConnection.dispose();
-
+    await _peerConnection?.dispose();
     _candidate = [];
     _roomUid.clear();
     hasCall.add(null);

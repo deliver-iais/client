@@ -26,7 +26,6 @@ class _VideoCallPageState extends State<VideoCallPage> {
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
 
-
   @override
   void initState() {
     _initRenderer();
@@ -61,7 +60,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
 @override
   void dispose() {
-  _player.fixedPlayer.stop();
+  //_player.fixedPlayer.stop();
   _videoCallService.endCall();
   _localRenderer.dispose();
   _remoteRenderer.dispose();
@@ -71,7 +70,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
   @override
   Widget build(BuildContext context) {
     //after 43 second all 51
-    _player.play("audios/beep_ringing_calling_sound.mp3");
+    //_player.play("audios/beep_ringing_calling_sound.mp3");
     return Scaffold(
         body: Stack(children: [
       RTCVideoView(
@@ -117,7 +116,6 @@ class _VideoCallPageState extends State<VideoCallPage> {
       CallBottomRow(
         room: widget.room,
         player: _player,
-        isVideoCall: true,
       )
     ]));
   }
