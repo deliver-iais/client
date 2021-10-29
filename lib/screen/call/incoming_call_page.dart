@@ -4,6 +4,7 @@ import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
@@ -20,6 +21,41 @@ class _InComingCallPageState extends State<InComingCallPage> {
   final _videoCallService = GetIt.I.get<VideoCallService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+
+  RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
+  RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
+
+  @override
+  void initState() {
+    _initRenderer();
+    super.initState();
+  }
+
+  _initRenderer() async {
+    await _localRenderer.initialize();
+    await _remoteRenderer.initialize();
+  }
+
+
+  void acceptCall(Uid roomId) async {
+
+    _videoCallService?.onLocalStream = ((stream) {
+      _localRenderer.srcObject = stream;
+    });
+
+    _videoCallService?.onAddRemoteStream = ((stream) {
+      _remoteRenderer.srcObject = stream;
+    });
+
+    _videoCallService?.onRemoveRemoteStream = ((stream) {
+      _remoteRenderer.srcObject = null;
+    });
+
+    await _videoCallService.acceptCall(roomId);
+
+    setState(() {});
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +137,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
                           ),
                           onTap: () {
                             //we got error here
-                            _videoCallService.acceptCall();
-
-
+                            acceptCall(widget.roomuid);
                           },
                         ),
                       ]))),
