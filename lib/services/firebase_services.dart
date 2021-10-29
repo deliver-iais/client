@@ -36,20 +36,16 @@ class FireBaseServices {
 
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
-      try {
-        _firebaseMessaging = FirebaseMessaging.instance;
-        var res = await _firebaseMessaging.getToken();
-        print("TOKEN:" + res);
-        await _setFirebaseSetting();
-      } catch (e) {
-        print("@@@@@@@" + e.toString());
-      }
-      //   _sendFireBaseToken(await _firebaseMessaging.getToken());
+      _firebaseMessaging = FirebaseMessaging.instance;
+      var res = await _firebaseMessaging.getToken();
+      _logger.d("TOKEN:" + res);
+      if (!kIsWeb) await _setFirebaseSetting();
+      _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
   }
 
   deleteToken() {
-     _firebaseMessaging.deleteToken();
+    _firebaseMessaging.deleteToken();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
@@ -66,13 +62,7 @@ class FireBaseServices {
 
   _setFirebaseSetting() async {
     try {
-      if (!kIsWeb)
-        FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
-      _firebaseMessaging.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
     } catch (e) {
       _logger.e(e);
     }
