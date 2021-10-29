@@ -228,9 +228,9 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
   } else if (isWindows()) {
     GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
-  } else if(kIsWeb) {
+  } else if (kIsWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
-  } else{
+  } else {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
   }
 
@@ -244,11 +244,7 @@ Future<void> setupDI() async {
 }
 
 Future setupFirebaseSetting() async {
-  try {
-   await  Firebase.initializeApp();
-  } catch (e) {
-    print("%%%%%%%%%%%%%%%%%%"+e.toString());
-  }
+  Firebase.initializeApp();
 }
 
 void main() async {
@@ -267,7 +263,7 @@ void main() async {
   }
 
   // TODO add IOS and MacOS too
-  if (isAndroid() || kIsWeb) {
+  if (isAndroid()) {
     await setupFirebaseSetting();
   }
 
