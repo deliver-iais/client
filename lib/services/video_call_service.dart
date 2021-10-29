@@ -167,7 +167,7 @@ class VideoCallService {
     _roomUid = roomId;
     callingStatus.add("acceptCall");
     var offerWithoutDetector = _offerSdp.split(webRtcDetectionOffer)[1];
-    _setRemoteDescriptionOffer(offerWithoutDetector);
+    await _setRemoteDescriptionOffer(offerWithoutDetector);
     var answer = await _createAnswer();
     // Send Answer back to Sender
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionAnswer + answer);
