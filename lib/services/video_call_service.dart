@@ -180,9 +180,9 @@ class VideoCallService {
     _dispose();
   }
 
-  void receivedCallAnswer(String answerSdp){
+  void receivedCallAnswer(String answerSdp)async{
     var answerWithoutDetector = answerSdp.split(webRtcDetectionAnswer)[1];
-    _setRemoteDescriptionAnswer(answerWithoutDetector);
+    await _setRemoteDescriptionAnswer(answerWithoutDetector);
   }
 
   void receivedCallCandidate(String answerCandidate){
