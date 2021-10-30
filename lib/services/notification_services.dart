@@ -232,7 +232,7 @@ class AndroidNotifier implements Notifier {
   AndroidNotificationChannel channel = AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
-      'All notifications of application.', // description
+      description: 'All notifications of application.', // description
       importance: Importance.high,
       groupId: "all_group");
 
@@ -292,7 +292,7 @@ class AndroidNotifier implements Notifier {
         AndroidNotificationDetails(
             selectedNotificationSound + message.roomUid.asString(),
             channel.name,
-            channel.description,
+            channelDescription: channel.description,
             styleInformation: inboxStyleInformation,
             groupKey: channel.groupId,
             playSound: true,
@@ -303,7 +303,7 @@ class AndroidNotifier implements Notifier {
     var platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid.asString(),
       channel.name,
-      channel.description,
+      channelDescription: channel.description,
       groupKey: channel.groupId,
       largeIcon: largeIcon,
       styleInformation: BigTextStyleInformation(''),
