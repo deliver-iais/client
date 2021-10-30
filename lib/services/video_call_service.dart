@@ -11,26 +11,25 @@ import 'package:sdp_transform/sdp_transform.dart';
 import 'package:logger/logger.dart';
 
 class VideoCallService {
-
   var messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
 
   MediaStream _localStream;
-  Uid _roomUid ;
+  Uid _roomUid;
+
   String _offerSdp;
   RTCPeerConnection _peerConnection;
   final String _stunServerURL = "stun:stun.l.google.com:19302";
-  List<RTCIceCandidate> _candidate = [];
+  List<Map<String, Object>> _candidate = [];
 
   Function(MediaStream stream) onLocalStream;
   Function(MediaStream stream) onAddRemoteStream;
   Function(MediaStream stream) onRemoveRemoteStream;
 
-
   /*
   * initial Variable for Render Call Between 2 Client
   * */
-  initCall()async{
+  initCall() async {
     await _createPeerConnection().then((pc) {
       _peerConnection = pc;
     });
@@ -54,22 +53,26 @@ class VideoCallService {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-    await createPeerConnection(configuration, offerSdpConstraints);
+        await createPeerConnection(configuration, offerSdpConstraints);
 
     pc.addStream(_localStream);
 
     pc.onIceConnectionState = (e) {
-      _logger.e(e);
+      _logger.i(e);
     };
 
     pc.onIceCandidate = (e) {
       if (e.candidate != null) {
-        _candidate.add(e);
+        _candidate.add({
+          'candidate': e.candidate.toString(),
+          'sdpMid': e.sdpMid.toString(),
+          'sdpMlineIndex': e.sdpMlineIndex,
+        });
       }
     };
 
     pc.onIceGatheringState = (RTCIceGatheringState state) {
-      if(state == RTCIceGatheringState.RTCIceGatheringStateComplete){
+      if (state == RTCIceGatheringState.RTCIceGatheringStateComplete) {
         _logger.i("onIceGatheringState");
         _calculateCandidate();
       }
@@ -96,7 +99,7 @@ class VideoCallService {
       'video': {
         'mandatory': {
           'minWidth':
-          '640', // Provide your own width, height and frame rate here
+              '640', // Provide your own width, height and frame rate here
           'minHeight': '480',
           'minFrameRate': '30',
         },
@@ -123,11 +126,13 @@ class VideoCallService {
     }
     return false;
   }
-   switchCamera() {
+
+  switchCamera() {
     if (_localStream != null) {
       Helper.switchCamera(_localStream.getVideoTracks()[0]);
     }
   }
+
   /*
   * For Close Camera
   * */
@@ -140,20 +145,19 @@ class VideoCallService {
     return false;
   }
 
-
-  void incomingCall(String offerSdp, Uid roomId){
+  void incomingCall(String offerSdp, Uid roomId) {
     callingStatus.add("incomingCall");
-    if(hasCall.hasValue) {
+    if (hasCall.hasValue) {
       _roomUid = roomId;
       _offerSdp = offerSdp;
       hasCall.add(roomId);
-    }else{
+    } else {
       messageRepo.sendTextMessage(_roomUid, webRtcCallBusied);
       _dispose();
     }
   }
 
-  void startCall(Uid roomId) async{
+  void startCall(Uid roomId) async {
     callingStatus.add("startCall");
     //Set Timer 44 sec for end call
     _roomUid = roomId;
@@ -164,7 +168,7 @@ class VideoCallService {
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
   }
 
-  void acceptCall(Uid roomId) async{
+  void acceptCall(Uid roomId) async {
     _roomUid = roomId;
     callingStatus.add("acceptCall");
     var offerWithoutDetector = _offerSdp.split(webRtcDetectionOffer)[1];
@@ -174,42 +178,45 @@ class VideoCallService {
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionAnswer + answer);
   }
 
-  void declineCall(){
+  void declineCall() {
     callingStatus.add("declinedCall");
     messageRepo.sendTextMessage(_roomUid, webRtcCallDeclined);
     _dispose();
   }
 
-  void receivedCallAnswer(String answerSdp)async{
+  void receivedCallAnswer(String answerSdp) async {
     var answerWithoutDetector = answerSdp.split(webRtcDetectionAnswer)[1];
     await _setRemoteDescriptionAnswer(answerWithoutDetector);
     callingStatus.add("answer");
   }
 
-  void receivedCallCandidate(String answerCandidate){
-    var candidateWithoutDetector = answerCandidate.split(webRtcDetectionCandidate)[1];
-    List<RTCIceCandidate> candidates = (json.decode(candidateWithoutDetector) as List)
-        .map((data) => data)
-        .toList();
+  void receivedCallCandidate(String answerCandidate) {
+    var candidateWithoutDetector =
+        answerCandidate.split(webRtcDetectionCandidate)[1];
+    List<RTCIceCandidate> candidates =
+        (jsonDecode(candidateWithoutDetector) as List)
+            .map((data) => RTCIceCandidate(
+              data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
+            .toList();
     _setCandidate(candidates);
   }
 
-  void receivedBusyCall(){
+  void receivedBusyCall() {
     callingStatus.add("busy");
     _dispose();
   }
 
-  void receivedDeclinedCall(){
+  void receivedDeclinedCall() {
     callingStatus.add("declined");
     _dispose();
   }
 
-  void receivedEndCall(){
+  void receivedEndCall() {
     callingStatus.add("end");
     _dispose();
   }
 
-  void endCall(){
+  void endCall() {
     messageRepo.sendTextMessage(_roomUid, webRtcCallEnded);
     _dispose();
   }
@@ -219,8 +226,7 @@ class VideoCallService {
 
     String sdp = write(session, null);
 
-    RTCSessionDescription description =
-    RTCSessionDescription(sdp, 'offer');
+    RTCSessionDescription description = RTCSessionDescription(sdp, 'offer');
 
     await _peerConnection.setRemoteDescription(description);
   }
@@ -230,15 +236,14 @@ class VideoCallService {
 
     String sdp = write(session, null);
 
-    RTCSessionDescription description =
-    RTCSessionDescription(sdp, 'answer');
+    RTCSessionDescription description = RTCSessionDescription(sdp, 'answer');
 
     await _peerConnection.setRemoteDescription(description);
   }
 
   _createAnswer() async {
     RTCSessionDescription description =
-    await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
+        await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
 
     var session = parse(description.sdp.toString());
     var answerSdp = json.encode(session);
@@ -251,7 +256,7 @@ class VideoCallService {
 
   _createOffer() async {
     RTCSessionDescription description =
-    await _peerConnection.createOffer({'offerToReceiveVideo': 1});
+        await _peerConnection.createOffer({'offerToReceiveVideo': 1});
     //get SDP as String
     var session = parse(description.sdp.toString());
     var offerSdp = json.encode(session);
@@ -260,10 +265,11 @@ class VideoCallService {
     return offerSdp;
   }
 
-  _calculateCandidate(){
+  _calculateCandidate() {
     // Send Candidate back to Sender
     var jsonCandidates = jsonEncode(_candidate);
-    messageRepo.sendTextMessage(_roomUid, webRtcDetectionCandidate + jsonCandidates);
+    messageRepo.sendTextMessage(
+        _roomUid, webRtcDetectionCandidate + jsonCandidates);
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
@@ -272,28 +278,28 @@ class VideoCallService {
     });
   }
 
-  _dispose() async{
+  _dispose() async {
     await _cleanLocalStream();
     await _peerConnection?.dispose();
     _candidate = [];
     _roomUid?.clear();
     hasCall.add(null);
-    if(callingStatus.value=="declined"){
-    Timer(Duration(seconds: 3), () {
-      callingStatus.add(null);
-    });}
-    else
+    if (callingStatus.value == "declined") {
+      Timer(Duration(seconds: 3), () {
+        callingStatus.add(null);
+      });
+    } else
       callingStatus.add(null);
     _offerSdp = null;
   }
 
-  _cleanLocalStream() async{
+  _cleanLocalStream() async {
     if (_localStream != null) {
       _localStream.getTracks().forEach((element) async {
         await element.stop();
       });
       await _localStream.dispose();
-    _localStream = null;
+      _localStream = null;
     }
   }
 
