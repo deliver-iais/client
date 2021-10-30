@@ -253,5 +253,8 @@
   "custom_notifications": "Custom notifications",
   "choose_a_song" : "Choose a song",
   "disable_notifications" : "Disable notifications",
-  "enable_notifications" : "Enable notifications"
+  "enable_notifications" : "Enable notifications",
+  "sure_delete_message": "Are sure you want to delete this message ?",
+  "sure_delete_messages": "Are sure you want to delete these messages ?",
+  "edited": "edited"
 }

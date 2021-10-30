@@ -50,6 +50,8 @@ class RoomRepo {
 
   insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
 
+  updateRoom(Room room) => _roomDao.updateRoom(room);
+
   Future<String> getSlangName(Uid uid) async {
     if (uid == null) return "";
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid

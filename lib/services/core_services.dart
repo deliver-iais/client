@@ -28,6 +28,7 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
     as ProtocolSeen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:flutter/cupertino.dart';
 
@@ -58,6 +59,7 @@ class CoreServices {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
+  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
@@ -268,15 +270,16 @@ class CoreServices {
         DateTime.now().millisecondsSinceEpoch;
 
     var pm = await _messageDao.getPendingMessage(packetId);
+    if (pm != null) {
+      var msg = pm.msg.copyWith(id: id, time: time);
+      _messageDao.deletePendingMessage(packetId);
+      _messageDao.saveMessage(msg);
+      _roomDao.updateRoom(
+          Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id));
 
-    var msg = pm.msg.copyWith(id: id, time: time);
-
-    _messageDao.deletePendingMessage(packetId);
-    _messageDao.saveMessage(msg);
-    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg));
-
-    if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
-      _notificationServices.playSoundOut();
+      if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
+        _notificationServices.playSoundOut();
+      }
     }
   }
 
@@ -290,7 +293,7 @@ class CoreServices {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Room(uid: roomUid.asString(),deleted: true));
+              _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
@@ -339,7 +342,27 @@ class CoreServices {
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-          // TODO: Handle this case.
+          switch (
+              message.persistEvent.messageManipulationPersistentEvent.action) {
+            case MessageManipulationPersistentEvent_Action.EDITED:
+              await getEditedMsg(
+                  roomUid,
+                  message
+                      .persistEvent.messageManipulationPersistentEvent.messageId
+                      .toInt());
+              return;
+              break;
+            case MessageManipulationPersistentEvent_Action.DELETED:
+              var mes = await _messageDao.getMessage(
+                  roomUid.asString(),
+                  message
+                      .persistEvent.messageManipulationPersistentEvent.messageId
+                      .toInt());
+              _messageDao.saveMessage(mes..json = "{}");
+              _roomDao.updateRoom(
+                  Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
+              break;
+          }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
           // TODO: Handle this case.
@@ -349,9 +372,9 @@ class CoreServices {
           break;
       }
     }
-    saveMessage(message, roomUid);
+      saveMessage(message, roomUid);
 
-    if (!_authRepo.isCurrentUser(message.from.asString()) &&
+    if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
         (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
       showNotification(roomUid, message);
@@ -359,6 +382,25 @@ class CoreServices {
     if (message.from.category == Categories.USER)
       updateLastActivityTime(
           _lastActivityDao, message.from, message.time.toInt());
+  }
+
+  getEditedMsg(Uid roomUid, int id) async {
+    var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
+      ..roomUid = roomUid
+      ..limit = 1
+      ..pointer = Int64(id)
+      ..type = FetchMessagesReq_Type.FORWARD_FETCH);
+    var msg = await saveMessageInMessagesDB(
+        _authRepo, _messageDao, res.messages.first);
+    var room = await _roomDao.getRoom(roomUid.asString());
+    if (room.lastMessageId != id)
+      _roomDao.updateRoom(
+          room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
+    else
+      _roomDao.updateRoom(room.copyWith(
+        lastMessage: msg,
+        lastUpdatedMessageId: res.messages.first.id.toInt(),
+      ));
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -388,11 +430,11 @@ class CoreServices {
         isMention = true;
       }
     }
-
     _roomDao.updateRoom(
       Room(
           uid: roomUid.asString(),
           lastMessage: msg,
+          lastMessageId: msg.id,
           mentioned: isMention,
           deleted: false,
           lastUpdateTime: msg.time),
@@ -415,10 +457,34 @@ class CoreServices {
   }
 }
 
+bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
+  bool showNotify = true;
+  showNotify = !authRepo.isCurrentUser(message.from.asString());
+  if (message.whichType() == Message_Type.persistEvent) {
+    // ignore: missing_enum_constant_in_switch
+    switch (message.persistEvent.whichType()) {
+      case PersistentEvent_Type.mucSpecificPersistentEvent:
+        showNotify = !authRepo.isCurrentUser(
+            message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
+        return showNotify;
+        break;
+      case PersistentEvent_Type.messageManipulationPersistentEvent:
+        showNotify = false;
+        return showNotify;
+        break;
+    }
+  }
+  return showNotify;
+}
+
 // TODO, refactor this!!!, we don't need this be functional
 Future<DB.Message> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
-  final msg = extractMessage(authRepo, message);
-  await messageDao.saveMessage(msg);
-  return msg;
+  try {
+    final msg = extractMessage(authRepo, message);
+    await messageDao.saveMessage(msg);
+    return msg;
+  } catch (e) {
+    print(e.toString());
+  }
 }

@@ -63,4 +63,13 @@ extension JsonMapper on String {
   SharePrivateDataRequest toSharePrivateDataRequest() {
     return SharePrivateDataRequest.fromJson(this);
   }
+
+  bool isDeletedMessage() {
+    return this == "{}";
+  }
+
+  bool chatIsDeleted() {
+    return this == "{DELETED}";
+  }
+
 }

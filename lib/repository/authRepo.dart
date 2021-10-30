@@ -41,11 +41,20 @@ class AuthRepo {
 
   PhoneNumber _tmpPhoneNumber;
 
+
   Future<void> init() async {
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
     var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
+
+  AuthRepo(){
+    setCurrentUserUid();
+  }
+  setCurrentUserUid()async {
+    currentUserUid = (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+  }
+
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
@@ -182,7 +191,7 @@ class AuthRepo {
           ..platform = await getPlatformDetails());
       } on GrpcError catch (e) {
         _logger.e(e);
-        if (e.code == StatusCode.unauthenticated) {
+        if (_refreshToken != null && _refreshToken .isNotEmpty && e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
       } catch (e) {

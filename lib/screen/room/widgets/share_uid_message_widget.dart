@@ -144,7 +144,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                         _shareUid.uid,
                                                         _shareUid.joinToken);
                                                 if (res != null) {
-                                                  _messageRepo.updateNewMuc(
+                                                   _messageRepo.updateNewMuc(
                                                       _shareUid.uid,
                                                       res.lastMessageId);
                                                   _routingServices.openRoom(

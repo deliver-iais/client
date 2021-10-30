@@ -13,9 +13,11 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 import 'contactPic.dart';
 import 'lastMessage.dart';
@@ -36,6 +38,7 @@ class _ChatItemState extends State<ChatItem> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
@@ -47,8 +50,31 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
-    I18N _i18n = I18N.of(context);
+    return widget.room.lastMessage != null &&
+            widget.room.lastMessage.json.chatIsDeleted()
+        ? SizedBox.shrink()
+        : widget.room.lastMessage == null ||
+                widget.room.lastMessage.json.isDeletedMessage()
+            ? FutureBuilder<Message>(
+                future: _messageRepo.fetchLastMessages(
+                    widget.room.uid.asUid(),
+                    widget.room.lastMessageId,
+                    widget.room.firstMessageId,
+                    widget.room,
+                    limit: 5,
+                    type: FetchMessagesReq_Type.BACKWARD_FETCH),
+                builder: (c, s) {
+                  if (s.hasData &&
+                      s.data != null &&
+                      !s.data.json.chatIsDeleted()) {
+                    return buildLastMessageWidget(s.data);
+                  }
+                  return SizedBox.shrink();
+                })
+            : buildLastMessageWidget(widget.room.lastMessage);
+  }
 
+  buildLastMessageWidget(Message lastMessage) {
     return FutureBuilder<String>(
         future: _roomRepo.getName(widget.room.uid.asUid()),
         builder: (c, name) {
@@ -163,28 +189,7 @@ class _ChatItemState extends State<ChatItem> {
                                             widget.room.draft.isNotEmpty
                                         ? buildDraftMessageWidget(
                                             _i18n, context)
-                                        : widget.room.lastMessage != null
-                                            ? buildLastMessage(
-                                                widget.room.lastMessage)
-                                            : FutureBuilder<Message>(
-                                                future: _messageRepo
-                                                    .fetchLastMessages(
-                                                        widget.room.uid.asUid(),
-                                                        widget
-                                                            .room.lastMessageId,
-                                                        widget.room
-                                                            .firstMessageId,
-                                                        widget.room
-                                                            .lastUpdateTime,
-                                                        widget.room),
-                                                builder: (c, lastMessage) {
-                                                  if (lastMessage.hasData &&
-                                                      lastMessage.data != null)
-                                                    return buildLastMessage(
-                                                        lastMessage.data);
-                                                  else
-                                                    return SizedBox.shrink();
-                                                });
+                                        : buildLastMessage(lastMessage);
                                   }
                                 }),
                           ],
@@ -194,45 +199,48 @@ class _ChatItemState extends State<ChatItem> {
                   ),
                 ));
           } else
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 11.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.grey[300]
-                            : Colors.grey[800],
-                        shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 16,
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.grey[300]
-                            : Colors.grey[800],
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        width: 200,
-                        height: 13,
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.grey[300]
-                            : Colors.grey[800],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
+            return defaultChatItem();
         });
+  }
+
+  Padding defaultChatItem() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 11.0),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.grey[300]
+                    : Colors.grey[800],
+                shape: BoxShape.circle),
+          ),
+          SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 100,
+                height: 16,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.grey[300]
+                    : Colors.grey[800],
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: 200,
+                height: 13,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.grey[300]
+                    : Colors.grey[800],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   LastMessage buildLastMessage(Message message) {

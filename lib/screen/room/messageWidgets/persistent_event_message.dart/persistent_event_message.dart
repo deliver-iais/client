@@ -20,35 +20,38 @@ class PersistentEventMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      padding:
-          const EdgeInsets.only(top: 5, left: 8.0, right: 8.0, bottom: 4.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).dividerColor.withOpacity(0.25),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: FutureBuilder<String>(
-        future: getPersistentMessage(context, persistentEventMessage),
-        builder: (c, s) {
-          if (s.hasData) {
-            return Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-                child: Text(
-                  s.data,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style:
-                      TextStyle(fontSize: 14, height: 1, color: Colors.white),
-                ));
-          } else {
-            return SizedBox.shrink();
-          }
-        },
-      ),
-    );
+    return message.json == "{}"
+        ? Container(height: 0.0,)
+        : Container(
+            margin: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.only(
+                top: 5, left: 8.0, right: 8.0, bottom: 4.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).dividerColor.withOpacity(0.25),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: FutureBuilder<String>(
+              future: getPersistentMessage(context, persistentEventMessage),
+              builder: (c, s) {
+                if (s.hasData) {
+                  return Directionality(
+                      textDirection: _i18n.isPersian
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      child: Text(
+                        s.data,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: TextStyle(
+                            fontSize: 14, height: 1, color: Colors.white),
+                      ));
+                } else {
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+          );
   }
 
   Future<String> getPersistentMessage(

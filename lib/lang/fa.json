@@ -262,5 +262,8 @@
   "custom_notifications": "اعلان های اختصاصی",
   "choose_a_song" : "یک آهنگ انتخاب کنید",
   "disable_notifications" : "غیرفعال کردن اعلان ها",
-  "enable_notifications" : "فعال کردن اعلان ها"
+  "enable_notifications" : "فعال کردن اعلان ها",
+  "sure_delete_message": "آیا از حذف پیام مطمنید؟",
+  "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
+  "edited": "ویرایش شده"
 }

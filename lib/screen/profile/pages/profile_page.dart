@@ -649,7 +649,7 @@ class _ProfilePageState extends State<ProfilePage>
                       // TODO set name for share uid
                       _routingService.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
-                            ..name = ""
+                            ..name = _roomName
                             ..joinToken = token
                             ..uid = widget.roomUid);
 
