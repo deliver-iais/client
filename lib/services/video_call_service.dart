@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver/repository/messageRepo.dart';
@@ -276,7 +277,12 @@ class VideoCallService {
     _candidate = [];
     _roomUid.clear();
     hasCall.add(null);
-    callingStatus.add(null);
+    if(callingStatus.value=="declined"){
+    Timer(Duration(seconds: 3), () {
+      callingStatus.add(null);
+    });}
+    else
+      callingStatus.add(null);
     _offerSdp = null;
   }
 
