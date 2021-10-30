@@ -28,6 +28,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
   @override
   void initState() {
     _initRenderer();
+    addStream();
     super.initState();
   }
 
@@ -36,9 +37,11 @@ class _InComingCallPageState extends State<InComingCallPage> {
     await _remoteRenderer.initialize();
   }
 
-
   void acceptCall(Uid roomId) async {
+    await _videoCallService.acceptCall(roomId);
+  }
 
+  addStream() async {
     _videoCallService?.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
     });
@@ -50,103 +53,103 @@ class _InComingCallPageState extends State<InComingCallPage> {
     _videoCallService?.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
     });
-
-    await _videoCallService.acceptCall(roomId);
-
+    await _videoCallService?.initCall();
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
     //after 43 second all 51
     return StreamBuilder(
-      stream: _videoCallService.hasCall,
-      builder: (context, snapshot) {
-        if(snapshot.hasData && snapshot != null)
-        return Scaffold(
-            body: Stack(children: [
-          Align(
-              child: Container(color: Colors.indigo[900]),
-              alignment: Alignment.center),
-          Padding(
-            padding:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.15),
-            child: Align(
-                alignment: Alignment.topCenter,
-                child: Column(
-                  children: [
-                    CircleAvatarWidget(widget.roomuid, 60),
-                    FutureBuilder(
-                        future: _roomRepo.getName(widget.roomuid),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot != null) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: Text(
-                                snapshot.data,
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            );
-                          } else
-                            return Text("");
-                        }),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Deliver Call",
-                        style: TextStyle(fontSize: 16, color: Colors.white70),
-                      ),
-                    ),
-                  ],
-                )),
-          ),
-          Padding(
-              padding: const EdgeInsets.only(bottom: 50),
-              child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
+        stream: _videoCallService.hasCall,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot != null)
+            return Scaffold(
+                body: Stack(children: [
+              RTCVideoView(
+                _localRenderer,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                mirror: true,
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.15),
+                child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      children: [
+                        CircleAvatarWidget(widget.roomuid, 60),
+                        FutureBuilder(
+                            future: _roomRepo.getName(widget.roomuid),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot != null) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 20),
+                                  child: Text(
+                                    snapshot.data,
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                );
+                              } else
+                                return Text("");
+                            }),
                         Padding(
-                          padding: const EdgeInsets.only(right: 50),
-                          child: FloatingActionButton(
-                            onPressed: () {
-                              _videoCallService.declineCall();
-                              _routingService.pop();
-                            },
-                            child: Icon(
-                              Icons.call_end,
-                              color: Colors.red,
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Deliver Call",
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white70),
+                          ),
+                        ),
+                      ],
+                    )),
+              ),
+              Padding(
+                  padding: const EdgeInsets.only(bottom: 50),
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(right: 50),
+                              child: FloatingActionButton(
+                                onPressed: () {
+                                  _videoCallService.declineCall();
+                                  _routingService.pop();
+                                },
+                                child: Icon(
+                                  Icons.call_end,
+                                  color: Colors.red,
+                                ),
+                                backgroundColor: Colors.black45,
+                              ),
                             ),
-                            backgroundColor: Colors.black45,
-                          ),
-                        ),
-                        GestureDetector(
-                          child: Container(
-                            child: Lottie.asset(
-                                'assets/animations/accept_call.json',
-                                height: 300,
-                                width: 300),
-                            color: Colors.transparent,
-                            width: 100,
-                            height: 100,
-                          ),
-                          onTap: () {
-                            //we got error here
-                            acceptCall(widget.roomuid);
-
-                          },
-                        ),
-                      ]))),
-        ]));
-        else{
-          return Empty();
-        }
-      }
-    );
+                            GestureDetector(
+                              child: Container(
+                                child: Lottie.asset(
+                                    'assets/animations/accept_call.json',
+                                    height: 300,
+                                    width: 300),
+                                color: Colors.transparent,
+                                width: 100,
+                                height: 100,
+                              ),
+                              onTap: () {
+                                //we got error here
+                                acceptCall(widget.roomuid);
+                                _routingService.openInVideoCallPage(
+                                    _localRenderer, _remoteRenderer);
+                              },
+                            ),
+                          ]))),
+            ]));
+          else {
+            return Empty();
+          }
+        });
   }
 }

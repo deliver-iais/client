@@ -69,8 +69,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
   }
 
   _hangUp() {
-    widget.player.fixedPlayer.stop();
-    _routingService.openRoom(widget.room.uid);
+   // widget.player.fixedPlayer.stop();
+    _routingService.pop();
   }
 
   _switchCamera() {
