@@ -216,7 +216,12 @@ class MessageRepo {
       while (!lastMessageIsSet) {
         try {
           if (msg != null) {
-            if (!msg.json.isDeletedMessage()) {
+            if(firstMessageId != null && msg.id<= firstMessageId){
+              lastMessageIsSet = true;
+              lastMessage = msg.copyWith(json:"{DELETED}" );
+              break;
+            }
+           else if (!msg.json.isDeletedMessage()) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
@@ -280,7 +285,11 @@ class MessageRepo {
     List<Message> messages =
         await _saveFetchMessages(fetchMessagesRes.messages);
     for (var element in messages) {
-      if (!element.json.isDeletedMessage()) {
+      if(firstMessageId != null && element.id<= firstMessageId){
+        lastMessage = element.copyWith(json: "{DELETED}");
+        break;
+      }
+     else if (!element.json.isDeletedMessage()) {
         lastMessage = element;
         break;
       } else if (element.id == 1) {
