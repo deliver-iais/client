@@ -1,28 +1,40 @@
+import 'package:deliver/services/video_call_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get_it/get_it.dart';
 
 import 'call_bottom_row.dart';
 
-class VideoCall extends StatefulWidget {
+class InVideoCallPage extends StatefulWidget {
   RTCVideoRenderer localRenderer;
 
   RTCVideoRenderer remoteRenderer;
 
-  VideoCall({Key key, this.localRenderer, this.remoteRenderer})
+  InVideoCallPage({Key key, this.localRenderer, this.remoteRenderer})
       : super(key: key);
 
   @override
-  _VideoCallState createState() => _VideoCallState();
+  _InVideoCallPageState createState() => _InVideoCallPageState();
 }
 
-class _VideoCallState extends State<VideoCall> {
+class _InVideoCallPageState extends State<InVideoCallPage> {
   double width = 100.0, height = 150.0;
+  final _videoCallService = GetIt.I.get<VideoCallService>();
   Offset position;
 
   @override
   void initState() {
     super.initState();
     position = Offset(10, 30);
+  }
+
+  @override
+  void dispose() {
+    //_player.fixedPlayer.stop();
+    _videoCallService.endCall();
+    widget.localRenderer.dispose();
+    widget.remoteRenderer.dispose();
+    super.dispose();
   }
 
   @override

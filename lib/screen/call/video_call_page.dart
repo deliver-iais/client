@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/call_bottom_row.dart';
+import 'package:deliver/screen/call/in_video_call_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -57,80 +58,102 @@ class _VideoCallPageState extends State<VideoCallPage> {
     setState(() {});
   }
 
-@override
+  @override
   void dispose() {
-  //_player.fixedPlayer.stop();
-  _videoCallService.endCall();
-  _localRenderer.dispose();
-  _remoteRenderer.dispose();
-  super.dispose();
+    //_player.fixedPlayer.stop();
+    _videoCallService.endCall();
+    _localRenderer.dispose();
+    _remoteRenderer.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     //after 43 second all 51
     //_player.play("audios/beep_ringing_calling_sound.mp3");
-    return Scaffold(
-      body: Stack(
-        children: [
-          RTCVideoView(
-            _localRenderer,
-            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-            mirror: true,
-          ),
-          Padding(
-              padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.15),
-              child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Column(children: [
-                    CircleAvatarWidget(widget.room.uid.asUid(), 60),
-                    FutureBuilder(
-                        future: _roomRepo.getName(widget.room.uid.asUid()),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot != null) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 20),
+    return StreamBuilder(
+        stream: _videoCallService.callingStatus,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot != null && snapshot.data == "answer")
+            return InVideoCallPage(
+              remoteRenderer: _remoteRenderer,
+              localRenderer: _localRenderer,
+            );
+          return Scaffold(
+            body: Stack(
+              children: [
+                RTCVideoView(
+                  _localRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  mirror: true,
+                ),
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height * 0.15),
+                    child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Column(children: [
+                          CircleAvatarWidget(widget.room.uid.asUid(), 60),
+                          FutureBuilder(
+                              future:
+                                  _roomRepo.getName(widget.room.uid.asUid()),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData && snapshot != null) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 20),
+                                    child: Text(
+                                      snapshot.data,
+                                      style: TextStyle(
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white),
+                                    ),
+                                  );
+                                } else
+                                  return Text("");
+                              })
+                        ]))),
+                CallBottomRow(
+                  room: widget.room,
+                  player: _player,
+                ),
+                StreamBuilder(
+                    stream: _videoCallService.callingStatus,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot != null) {
+                        if (snapshot.data == "declined")
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.4),
+                            child: Align(
+                              alignment: Alignment.topCenter,
                               child: Text(
-                                snapshot.data,
+                                "Declined",
                                 style: TextStyle(
-                                    fontSize: 25, fontWeight: FontWeight.w500),
+                                    fontSize: 16, color: Colors.white70),
                               ),
-                            );
-                          } else
-                            return Text("");
-                        })
-                  ]))),
-          CallBottomRow(
-            room: widget.room,
-            player: _player,
-          ),
-          StreamBuilder(
-              stream: _videoCallService.callingStatus,
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot != null) {
-                  if (snapshot.data == "declined")
-                    return Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Declined",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    );
-                  else
-                    return Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Ringing",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    );
-                } else {
-                  return Empty();
-                }
-              }),
-        ],
-      ),
-    );
+                            ),
+                          );
+                        else
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.4),
+                            child: Align(
+                              alignment: Alignment.topCenter,
+                              child: Text(
+                                "Ringing",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white70),
+                              ),
+                            ),
+                          );
+                      } else {
+                        return Empty();
+                      }
+                    }),
+              ],
+            ),
+          );
+        });
   }
 }

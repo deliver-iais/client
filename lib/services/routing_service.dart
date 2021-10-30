@@ -7,6 +7,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/call/in_video_call_page.dart';
 import 'package:deliver/screen/call/incoming_call_page.dart';
 import 'package:deliver/screen/call/video_call_page.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -38,6 +39,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -139,6 +141,20 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/Incomingcallpage"));
+  }
+
+  void openInVideoCallPage(
+      RTCVideoRenderer localRenderer, RTCVideoRenderer remoteRenderer) {
+    var widget = InVideoCallPage(
+      key: ValueKey("/invideocallpage"),
+      localRenderer: localRenderer,
+      remoteRenderer: remoteRenderer,
+    );
+    _popAllAndPush(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/invideocallpage"));
   }
 
   bool isAnyRoomOpen() {

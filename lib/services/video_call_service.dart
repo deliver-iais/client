@@ -30,7 +30,7 @@ class VideoCallService {
   /*
   * initial Variable for Render Call Between 2 Client
   * */
-  _initCall()async{
+  initCall()async{
     await _createPeerConnection().then((pc) {
       _peerConnection = pc;
     });
@@ -70,6 +70,7 @@ class VideoCallService {
 
     pc.onIceGatheringState = (RTCIceGatheringState state) {
       if(state == RTCIceGatheringState.RTCIceGatheringStateComplete){
+        _logger.i("onIceGatheringState");
         _calculateCandidate();
       }
     };
@@ -157,14 +158,13 @@ class VideoCallService {
     //Set Timer 44 sec for end call
     _roomUid = roomId;
     hasCall.add(roomId);
-    await _initCall();
+    await initCall();
     var offer = await _createOffer();
     //Send offer as message to Receiver
     messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
   }
 
   void acceptCall(Uid roomId) async{
-    await _initCall();
     _roomUid = roomId;
     callingStatus.add("acceptCall");
     var offerWithoutDetector = _offerSdp.split(webRtcDetectionOffer)[1];
@@ -183,6 +183,7 @@ class VideoCallService {
   void receivedCallAnswer(String answerSdp)async{
     var answerWithoutDetector = answerSdp.split(webRtcDetectionAnswer)[1];
     await _setRemoteDescriptionAnswer(answerWithoutDetector);
+    callingStatus.add("answer");
   }
 
   void receivedCallCandidate(String answerCandidate){
@@ -275,7 +276,7 @@ class VideoCallService {
     await _cleanLocalStream();
     await _peerConnection?.dispose();
     _candidate = [];
-    _roomUid.clear();
+    _roomUid?.clear();
     hasCall.add(null);
     if(callingStatus.value=="declined"){
     Timer(Duration(seconds: 3), () {
