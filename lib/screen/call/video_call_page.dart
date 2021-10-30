@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/call_bottom_row.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -33,14 +34,12 @@ class _VideoCallPageState extends State<VideoCallPage> {
     super.initState();
   }
 
-
   _initRenderer() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
   }
 
   void startCall() async {
-
     _videoCallService?.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
     });
@@ -72,51 +71,66 @@ class _VideoCallPageState extends State<VideoCallPage> {
     //after 43 second all 51
     //_player.play("audios/beep_ringing_calling_sound.mp3");
     return Scaffold(
-        body: Stack(children: [
-      RTCVideoView(
-        _localRenderer,
-        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-        mirror: true,
+      body: Stack(
+        children: [
+          RTCVideoView(
+            _localRenderer,
+            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+            mirror: true,
+          ),
+          Padding(
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height * 0.15),
+              child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(children: [
+                    CircleAvatarWidget(widget.room.uid.asUid(), 60),
+                    FutureBuilder(
+                        future: _roomRepo.getName(widget.room.uid.asUid()),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot != null) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Text(
+                                snapshot.data,
+                                style: TextStyle(
+                                    fontSize: 25, fontWeight: FontWeight.w500),
+                              ),
+                            );
+                          } else
+                            return Text("");
+                        })
+                  ]))),
+          CallBottomRow(
+            room: widget.room,
+            player: _player,
+          ),
+          StreamBuilder(
+              stream: _videoCallService.callingStatus,
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot != null) {
+                  if (snapshot.data == "declined")
+                    return Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Declined",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    );
+                  else
+                    return Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Ringing",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    );
+                } else {
+                  return Empty();
+                }
+              }),
+        ],
       ),
-      Padding(
-        padding:
-            EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.15),
-        child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                CircleAvatarWidget(widget.room.uid.asUid(), 60),
-                FutureBuilder(
-                    future: _roomRepo.getName(widget.room.uid.asUid()),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot != null) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Text(
-                            snapshot.data,
-                            style: TextStyle(
-                                fontSize: 25,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        );
-                      } else
-                        return Text("");
-                    }),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Ringing",
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                ),
-              ],
-            )),
-      ),
-      CallBottomRow(
-        room: widget.room,
-        player: _player,
-      )
-    ]));
+    );
   }
 }
