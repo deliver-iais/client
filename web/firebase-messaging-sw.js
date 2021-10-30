@@ -19,14 +19,19 @@ importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js');
  messaging.onBackgroundMessage((payload) => {
    console.log('[firebase-messaging-sw.js] Received background message ', payload);
    // Customize notification here
-   const notificationTitle = 'Background Message Title';
-   const notificationOptions = {
-     body: 'Background Message body.',
-     icon: 'icons/ic_launcher.png'
-   };
 
-   self.registration.showNotification("Deliver",
-     notificationOptions);
+  var message = window.decodeMessageForCallFromJs(payload);
+  var k =  message.prototype.keys();
+  var roomName = k[0];
+  if(roomName != null){
+  const notificationTitle = roomName;
+        const notificationOptions = {
+          body: message.prototype.keys()[0],
+          icon: 'icons/ic_launcher.png'
+        };
+        self.registration.showNotification(notificationTitle,
+          notificationOptions);
+  }
  });
 
 

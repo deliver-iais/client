@@ -217,7 +217,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-       _routingService.openMemberSelection(isChannel: false);
+        js.context.callMethod("callme");
+      // _routingService.openMemberSelection(isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(isChannel: true);

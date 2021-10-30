@@ -93,7 +93,7 @@ class MessageRepo {
           _roomRepo.fetchBlockedRoom();
           break;
         case ConnectionStatus.Disconnected:
-          await updatingMessages();
+       //   await updatingMessages();
           // await updatingLastSeen();
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
