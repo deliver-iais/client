@@ -11,7 +11,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 
-
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
@@ -40,7 +39,6 @@ class FireBaseServices {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
-
   Future<Map<String, String>> _decodeMessageForWebNotification(
       dynamic notification) async {
     Map<String, String> res = Map();
@@ -58,16 +56,15 @@ class FireBaseServices {
     final dataTitle64 = base64.decode(notification);
     M.Message message = M.Message.fromBuffer(dataTitle64);
     var messageBrief =
-    await extractMessageBrief(_i18n, _roomRepo, _authRepo, message);
+        await extractMessageBrief(_i18n, _roomRepo, _authRepo, message);
     M.Message msg = _decodeMessage(notification.data["body"]);
     String roomName = notification.data['title'];
     Uid roomUid = getRoomUid(_authRepo, msg);
 
-
     try {
       if (_uxService.isAllNotificationDisabled ||
           await _muteDao.isMuted(roomUid.asString()) ||
-          _authRepo.isCurrentUser(msg.from.asString())) {
+          !showNotifyForThisMessage(msg, _authRepo)) {
         return null;
       }
     } catch (e) {}
@@ -78,7 +75,16 @@ class FireBaseServices {
       roomName = msg.from.node;
     } else if (msg.to.category == Categories.USER) {
       var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-      if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
+      if (uidName != null)
+        roomName = uidName.name != null && uidName.name.isNotEmpty
+            ? uidName.name
+            : uidName.id != null && uidName.id.isNotEmpty
+                ? uidName.id
+                : msg.from.isGroup()
+                    ? "Group"
+                    : msg.from.isChannel()
+                        ? "Channel"
+                        : "UnKnown";
     }
     res[roomName] = messageBrief.text;
     return res;
@@ -89,6 +95,7 @@ class FireBaseServices {
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
+      await _firebaseMessaging.requestPermission();
       var res = await _firebaseMessaging.getToken();
       _logger.d("TOKEN:" + res);
       await _setFirebaseSetting();
@@ -118,42 +125,45 @@ class FireBaseServices {
           allowInterop(_decodeMessageForWebNotification);
     }
 
-    try {
-      FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
-      _firebaseMessaging.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    } catch (e) {
-      _logger.e(e);
+    //for web register in  firebase-messaging-sw.js in web folder;
+    if (isAndroid()) {
+      try {
+        FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+        _firebaseMessaging.setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      } catch (e) {
+        _logger.e(e);
+      }
     }
   }
 }
 
-  M.Message _decodeMessage(String notificationBody) {
-    final dataTitle64 = base64.decode(notificationBody);
-    M.Message m = M.Message.fromBuffer(dataTitle64);
-    return m;
+M.Message _decodeMessage(String notificationBody) {
+  final dataTitle64 = base64.decode(notificationBody);
+  M.Message m = M.Message.fromBuffer(dataTitle64);
+  return m;
+}
+
+Future<void> backgroundMessageHandler(dynamic message) async {
+  try {
+    await setupDI();
+  } catch (e) {
+    Logger().e(e);
   }
 
-  Future<void> backgroundMessageHandler(dynamic message) async {
-    try {
-      await setupDI();
-    } catch (e) {
-      Logger().e(e);
-    }
+  var _notificationServices = GetIt.I.get<NotificationServices>();
+  var _authRepo = GetIt.I.get<AuthRepo>();
+  var _uxService = GetIt.I.get<UxService>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  var _muteDao = GetIt.I.get<MuteDao>();
 
-    var _notificationServices = GetIt.I.get<NotificationServices>();
-    var _authRepo = GetIt.I.get<AuthRepo>();
-    var _uxService = GetIt.I.get<UxService>();
-    var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-    var _muteDao = GetIt.I.get<MuteDao>();
-
-    if (message.data.containsKey('body')) {
-      M.Message msg = _decodeMessage(message.data["body"]);
-      String roomName = message.data['title'];
-      Uid roomUid = getRoomUid(_authRepo, msg);
+  if (message.data.containsKey('body')) {
+    M.Message msg = _decodeMessage(message.data["body"]);
+    String roomName = message.data['title'];
+    Uid roomUid = getRoomUid(_authRepo, msg);
 
     try {
       if (_uxService.isAllNotificationDisabled ||
