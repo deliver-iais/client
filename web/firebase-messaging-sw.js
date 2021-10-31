@@ -21,17 +21,20 @@ importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js');
    // Customize notification here
 
   var message = window.decodeMessageForCallFromJs(payload);
-  var k =  message.prototype.keys();
-  var roomName = k[0];
-  if(roomName != null){
-  const notificationTitle = roomName;
-        const notificationOptions = {
-          body: message.prototype.keys()[0],
-          icon: 'icons/ic_launcher.png'
-        };
-        self.registration.showNotification(notificationTitle,
-          notificationOptions);
+  if(message != null){
+    var k =  message.prototype.keys();
+    var roomName = k[0];
+    if(roomName != null){
+    const notificationTitle = roomName;
+          const notificationOptions = {
+            body: message.prototype.keys()[0],
+            icon: 'icons/ic_launcher.png'
+          };
+          self.registration.showNotification(notificationTitle,
+            notificationOptions);
+    }
   }
+
  });
 
 
