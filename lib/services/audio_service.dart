@@ -41,6 +41,8 @@ abstract class AudioPlayerModule {
 
   void playSoundIn();
 
+  void playBeepSound();
+
   void resume();
 }
 
@@ -76,7 +78,8 @@ class AudioService {
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
-    _playerModule.audioCurrentState.listen((event) => _audioCurrentState.add(event));
+    _playerModule.audioCurrentState
+        .listen((event) => _audioCurrentState.add(event));
     _playerModule.audioCurrentPosition
         .listen((event) => _audioCurrentPosition.add(event));
   }
@@ -119,6 +122,10 @@ class AudioService {
 
   void playSoundIn() {
     _playerModule.playSoundIn();
+  }
+
+  void playBeepSound() {
+    _playerModule.playBeepSound();
   }
 
   void resume() {
@@ -190,6 +197,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
   void resume() {
     _audioPlayer.resume();
   }
+
+  @override
+  void playBeepSound() {
+    _fastAudioPlayer.play("beep_ringing_calling_sound.mp3",
+        mode: PlayerMode.LOW_LATENCY);
+  }
 }
 
 class VlcAudioPlayer implements AudioPlayerModule {
@@ -216,6 +229,8 @@ class VlcAudioPlayer implements AudioPlayerModule {
   VlcAudioPlayer() {
     _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
     _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
+    _fastAudioPlayerIn
+        .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
   }
 
   @override
@@ -252,5 +267,10 @@ class VlcAudioPlayer implements AudioPlayerModule {
   @override
   void resume() {
     _audioPlayer.play();
+  }
+
+  @override
+  void playBeepSound() {
+    _fastAudioPlayerIn.play();
   }
 }

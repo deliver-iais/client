@@ -1,6 +1,8 @@
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +65,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
     return StreamBuilder(
         stream: _videoCallService.hasCall,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot != null)
+          if (snapshot.hasData && snapshot != null) {
             return Scaffold(
                 body: Stack(children: [
               RTCVideoView(
@@ -128,27 +130,32 @@ class _InComingCallPageState extends State<InComingCallPage> {
                                 backgroundColor: Colors.black45,
                               ),
                             ),
-                            GestureDetector(
-                              child: Container(
-                                child: Lottie.asset(
-                                    'assets/animations/accept_call.json',
-                                    height: 300,
-                                    width: 300),
-                                color: Colors.transparent,
-                                width: 100,
-                                height: 100,
-                              ),
-                              onTap: () {
-                                //we got error here
-                                acceptCall(widget.roomuid);
-                                _routingService.openInVideoCallPage(
-                                    _localRenderer, _remoteRenderer);
-                              },
-                            ),
+                            FutureBuilder(
+                                future: _roomRepo.getIdByUid(widget.roomuid),
+                                builder: (context, snapshot) {
+                                  return GestureDetector(
+                                    child: Container(
+                                      child: Lottie.asset(
+                                          'assets/animations/accept_call.json',
+                                          height: 300,
+                                          width: 300),
+                                      color: Colors.transparent,
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    onTap: () {
+                                      //we got error here
+                                      acceptCall(widget.roomuid);
+                                      _routingService.openInVideoCallPage(
+                                          _localRenderer, _remoteRenderer);
+                                    },
+                                  );
+                                }),
                           ]))),
             ]));
-          else {
-            return Empty();
+          } else {
+            if(isDesktop()) return Empty();
+            return NavigationCenter(key: ValueKey("navigator"));
           }
         });
   }

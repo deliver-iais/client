@@ -6,9 +6,9 @@ import 'package:deliver/services/webRtcKeys.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
-import 'package:logger/logger.dart';
 
 class VideoCallService {
   var messageRepo = GetIt.I.get<MessageRepo>();
@@ -17,6 +17,7 @@ class VideoCallService {
   MediaStream _localStream;
   Uid _roomUid;
 
+  Uid get roomUid => _roomUid;
   String _offerSdp;
   RTCPeerConnection _peerConnection;
   final String _stunServerURL = "stun:stun.l.google.com:19302";
@@ -196,7 +197,7 @@ class VideoCallService {
     List<RTCIceCandidate> candidates =
         (jsonDecode(candidateWithoutDetector) as List)
             .map((data) => RTCIceCandidate(
-              data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
+                data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
             .toList();
     _setCandidate(candidates);
   }
@@ -282,7 +283,7 @@ class VideoCallService {
     await _cleanLocalStream();
     await _peerConnection?.dispose();
     _candidate = [];
-    _roomUid?.clear();
+   // _roomUid?.clear();
     hasCall.add(null);
     if (callingStatus.value == "declined") {
       Timer(Duration(seconds: 3), () {
