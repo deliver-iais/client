@@ -53,6 +53,7 @@
  firebase.initializeApp(firebaseConfig);
 
 </script>
+
 <script>
     var serviceWorkerVersion = null;
     var scriptLoaded = false;
@@ -73,8 +74,8 @@
         // Wait for registration to finish before dropping the <script> tag.
         // Otherwise, the browser will load the script multiple times,
         // potentially different versions.
-
-          var customServiceWorkerUrl = './sw.js';
+       navigator.serviceWorker.register('./firebase-messaging-sw.js');
+        var customServiceWorkerUrl = './sw.js';
         navigator.serviceWorker.register(customServiceWorkerUrl, { scope: '.' }).then(function (registration) {
           // Registration was successful
           console.log('CustomServiceWorker registration successful with scope: ', registration.scope);
@@ -85,7 +86,8 @@
 
 
         var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
-        navigator.serviceWorker.register("/firebase-messaging-sw.js");
+
+
         navigator.serviceWorker.register('/service_worker.js')
           .then((reg) => {
             function waitForActivation(serviceWorker) {
@@ -114,8 +116,6 @@
             }
           });
 
-
-
         // If service worker doesn't succeed in a reasonable amount of time,
         // fallback to plaint <script> tag.
         setTimeout(() => {
@@ -133,5 +133,6 @@
     }
 
 </script>
+
 </body>
 </html>

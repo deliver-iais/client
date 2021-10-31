@@ -94,12 +94,17 @@ class FireBaseServices {
 
   sendFireBaseToken() async {
     if (!isDesktop() || kIsWeb) {
-      _firebaseMessaging = FirebaseMessaging.instance;
-      await _firebaseMessaging.requestPermission();
-      var res = await _firebaseMessaging.getToken();
-      _logger.d("TOKEN:" + res);
-      await _setFirebaseSetting();
-      _sendFireBaseToken(await _firebaseMessaging.getToken());
+      try{
+        _firebaseMessaging = FirebaseMessaging.instance;
+        await _firebaseMessaging.requestPermission();
+        var res = await _firebaseMessaging.getToken();
+        _logger.d("TOKEN:" + res);
+        await _setFirebaseSetting();
+        _sendFireBaseToken(await _firebaseMessaging.getToken());
+      }catch(e){
+        print("%%%%%%%%%%$e");
+      }
+
     }
   }
 

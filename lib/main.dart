@@ -267,7 +267,7 @@ void main() async {
 
   // TODO add IOS and MacOS too
   if (isAndroid()) {
-    await setupFirebaseSetting();
+    setupFirebaseSetting();
   }
 
   Logger().i("OS based setups done.");
