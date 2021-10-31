@@ -97,6 +97,7 @@ dependencies:
   dcache: 0.4.0
   image_size_getter: 0.2.1
   swipe_to: 0.0.1+8
+  flutter_screen_lock: 4.0.4+2
   audioplayers: 0.20.1
   dart_vlc: 0.0.9
   video_player: 2.2.4
