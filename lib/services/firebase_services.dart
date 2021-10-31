@@ -30,13 +30,14 @@ import 'package:logger/logger.dart';
 import 'notification_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
+@JS('decodeMessageForCallFromJs')
+external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
+
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
-  @JS('decodeMessageForCallFromJs')
-  external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
       dynamic notification) async {
