@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
 
-version: 1.4.6    #if change the version , is necessary to change VERSION  in constants.dart
+version: 1.4.9    #if change the version , is necessary to change VERSION  in constants.dart
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -53,7 +53,6 @@ dependencies:
   synchronized: 3.0.0
   ext_storage: 1.0.3
   path_provider: 2.0.2
-  awesome_notifications: ^0.0.6+11
   path:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -91,7 +90,8 @@ dependencies:
   jwt_decoder: 1.0.1 # TODO, read documentation and update it
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
-      url: git://github.com/EsmaeilDansi/deliver_public_protocol.git
+      url: https://github.com/deliver-iais/pub-dart-artifactory
+      ref: tags/v1.9.0
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -109,7 +109,7 @@ dependencies:
   contacts_service: 0.6.1
   random_string: 2.3.1
   flutter_local_notifications: 9.0.0
-  flutter_local_notifications_linux: ^0.3.0
+  flutter_local_notifications_linux: 0.3.0
   uuid: 3.0.4
   flutter_sound: 8.1.4 # TODO remove later
   record: 3.0.0
@@ -121,7 +121,6 @@ dependencies:
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
   share: 2.0.4
-
   fluttertoast: ^8.0.8
   firebase_messaging: 10.0.9
   firebase_messaging_web: ^2.0.7
@@ -147,6 +146,7 @@ dependencies:
   hive_flutter: 1.1.0
   marquee: 2.2.0
   metadata_fetch: 0.4.1
+  process_run: ^0.12.2+1
   service_worker: 0.2.4
   flutter_mmkv: ^1.0.0
   meta: 1.7.0
@@ -183,7 +183,9 @@ flutter:
     - assets/animations/done.json
     - assets/animations/loading.json
     - assets/animations/error.json
+    - assets/animations/audio_wave.json
     - assets/emoji/
+    - android/app/src/main/res/raw/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

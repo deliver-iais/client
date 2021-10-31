@@ -6,17 +6,18 @@ import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/room/widgets/image_swiper.dart';
-import 'package:deliver/screen/room/widgets/showImage_Widget.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
-import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
-import 'package:deliver/screen/room/pages/roomPage.dart';
-import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
+import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import 'package:deliver/screen/room/pages/roomPage.dart';
+import 'package:deliver/screen/room/widgets/image_swiper.dart';
+import 'package:deliver/screen/room/widgets/showImage_Widget.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -26,6 +27,7 @@ import 'package:deliver/screen/share_input_file/share_input_file.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
@@ -33,11 +35,8 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
-
 
 class Page {
   final Widget largePageNavigator;
@@ -235,6 +234,18 @@ class RoutingService {
         path: "/profile/$roomId"));
   }
 
+  openCustomNotificationSoundSelection(String roomId) {
+    var widget = CustomNotificationSoundSelection(
+      key: ValueKey("/custom_notification_sound_selection"),
+      roomUid: roomId,
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/custom_notification_sound_selection"));
+  }
+
   openAccountSettings({bool forceToSetUsernameAndName = false}) {
     var accountSettingsWidget = AccountSettings(
       key: ValueKey("/account-settings"),
@@ -376,9 +387,9 @@ class RoutingService {
   }
 
   reset() {
+    _route.add("/");
     if (_stack != null) {
       _stack.clear();
-      _route.add("/");
     }
     _stack = ListQueue.from([
       Page(

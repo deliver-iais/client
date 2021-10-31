@@ -1,12 +1,10 @@
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
 
 class BotCommands extends StatefulWidget {
   final Uid botUid;
@@ -26,11 +24,9 @@ class BotCommands extends StatefulWidget {
 
 class _BotCommandsState extends State<BotCommands> {
   var _botRepo = GetIt.I.get<BotRepo>();
-  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   @override
   Widget build(BuildContext context) {
-    widget.query=="-" ? _rawKeyboardService.isScrollInBotCommand=false : _rawKeyboardService.isScrollInBotCommand=true;
     return FutureBuilder<BotInfo>(
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {

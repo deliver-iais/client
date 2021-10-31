@@ -9,6 +9,8 @@ import 'package:deliver/main.dart';
 
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/core_services.dart';
+
 
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -102,8 +104,7 @@ class FireBaseServices {
     if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices
-            .registration(RegistrationReq()
-          ..tokenId = fireBaseToken);
+            .registration(RegistrationReq()..tokenId = fireBaseToken);
         _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
       } catch (e) {
         _logger.e(e);
@@ -119,6 +120,11 @@ class FireBaseServices {
 
     try {
       FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+      _firebaseMessaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -149,24 +155,32 @@ class FireBaseServices {
       String roomName = message.data['title'];
       Uid roomUid = getRoomUid(_authRepo, msg);
 
-      try {
-        if (_uxService.isAllNotificationDisabled ||
-            await _muteDao.isMuted(roomUid.asString()) ||
-            _authRepo.isCurrentUser(msg.from.asString())) {
-          return;
-        }
-      } catch (e) {}
-
-      if (msg.from.category == Categories.SYSTEM) {
-        roomName = APPLICATION_NAME;
-      } else if (msg.from.category == Categories.BOT) {
-        roomName = msg.from.node;
-      } else if (msg.to.category == Categories.USER) {
-        var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-        if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
+    try {
+      if (_uxService.isAllNotificationDisabled ||
+          await _muteDao.isMuted(roomUid.asString()) ||
+          !showNotifyForThisMessage(msg, _authRepo)) {
+        return;
       }
+    } catch (e) {}
 
-      _notificationServices.showNotification(msg, roomName: roomName);
+    if (msg.from.category == Categories.SYSTEM) {
+      roomName = APPLICATION_NAME;
+    } else if (msg.from.category == Categories.BOT) {
+      roomName = msg.from.node;
+    } else if (msg.to.category == Categories.USER) {
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+      if (uidName != null)
+        roomName = uidName.name != null && uidName.name.isNotEmpty
+            ? uidName.name
+            : uidName.id != null && uidName.id.isNotEmpty
+                ? uidName.id
+                : msg.from.isGroup()
+                    ? "Group"
+                    : msg.from.isChannel()
+                        ? "Channel"
+                        : "UnKnown";
     }
-  }
 
+    _notificationServices.showNotification(msg, roomName: roomName);
+  }
+}

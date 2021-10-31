@@ -1,9 +1,5 @@
-
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver/box/dao/live_location_dao.dart';
-import 'package:deliver/box/db_manage.dart';
-import 'package:deliver/box/livelocation.dart';
-import 'package:deliver/localization/i18n.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -12,13 +8,16 @@ import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
+import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/box/last_activity.dart';
+import 'package:deliver/box/livelocation.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
@@ -31,7 +30,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/uid_id_name.dart';
-
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -40,8 +39,8 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
@@ -59,7 +58,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
-
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
@@ -87,6 +85,7 @@ import 'package:universal_html/js_util.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
+import 'box/dao/custom_notication_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
@@ -124,6 +123,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaTypeAdapter());
   Hive.registerAdapter(LiveLocationAdapter());
 
+  GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -257,9 +257,9 @@ void main() async {
 
   if (isDesktop()) {
     try {
-      //   _setWindowSize();
+      _setWindowSize();
 
-      //   setWindowTitle(APPLICATION_NAME);
+      setWindowTitle(APPLICATION_NAME);
     } catch (e) {
       Logger().e(e);
     }
@@ -283,12 +283,8 @@ void main() async {
   runApp(MyApp());
 }
 
-_setWindowSize() async {
-  // var platformWindow = await getWindowInfo();
-  // setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
-  // // TODO, its better to removed
-  // setWindowMaxSize(Size(
-  //     platformWindow.screen.frame.width, platformWindow.screen.frame.height));
+_setWindowSize() {
+  setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
 }
 
 class MyApp extends StatelessWidget {
@@ -313,7 +309,6 @@ class MyApp extends StatelessWidget {
                     event: event, replyMessageId: -1);
                 _rawKeyboardService.searchHandeling(event: event);
                 _rawKeyboardService.navigateInRooms(event: event);
-                _rawKeyboardService.scrollInChatPage(event: event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;

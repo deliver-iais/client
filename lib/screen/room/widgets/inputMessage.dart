@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -25,15 +27,16 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -44,6 +47,8 @@ class InputMessage extends StatefulWidget {
   final Function showMentionList;
   final Function scrollToLastSentMessage;
   static FocusNode myFocusNode;
+  final Message editableMessage;
+  static FocusNode inputMessegeFocusNode;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -54,6 +59,7 @@ class InputMessage extends StatefulWidget {
       this.resetRoomPageDetails,
       this.waitingForForward = false,
       this.sendForwardMessage,
+      this.editableMessage,
       this.showMentionList,
       this.scrollToLastSentMessage});
 }
@@ -65,7 +71,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
-  TextEditingController _controller;
+  TextEditingController _controller = TextEditingController();
   Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -87,6 +93,7 @@ class _InputMessageWidget extends State<InputMessage> {
   Timer _tickTimer;
   TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
+  bool isMentionSelected = false;
 
   bool startAudioRecorder = false;
 
@@ -95,8 +102,9 @@ class _InputMessageWidget extends State<InputMessage> {
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
   String _mentionData;
-  int mentionSelectedIndex = -1;
-  int botCommandSelectedIndex = -1;
+  String _botCommandData;
+  int mentionSelectedIndex = 0;
+  int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
 
@@ -121,6 +129,13 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
+    InputMessage.inputMessegeFocusNode = FocusNode();
+    editMessageInput = BehaviorSubject.seeded("");
+    currentRoom = widget.currentRoom;
+    _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
+    editMessageInput.stream.listen((event) {
+      _controller.text = event;
+    });
     InputMessage.myFocusNode = FocusNode();
     keyboardRawFocusNode = FocusNode();
 
@@ -132,9 +147,7 @@ class _InputMessageWidget extends State<InputMessage> {
     noActivitySubject.listen((event) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
-    currentRoom = widget.currentRoom;
-    _controller = TextEditingController(
-        text: currentRoom.draft != null ? currentRoom.draft : "");
+
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     _controller.addListener(() {
@@ -197,6 +210,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
+    editMessageInput.close();
     _controller.dispose();
     super.dispose();
   }
@@ -215,7 +229,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return ShowMentionList(
                   query: _mentionData,
                   onSelected: (s) {
-                    onSelected(s);
+                    onMentionSelected(s);
                   },
                   roomUid: widget.currentRoom.uid,
                   mentionSelectedIndex: mentionSelectedIndex,
@@ -225,14 +239,12 @@ class _InputMessageWidget extends State<InputMessage> {
         StreamBuilder(
             stream: _botCommandQuery.stream.distinct(),
             builder: (c, show) {
+              _botCommandData = show.data ?? "-";
               return BotCommands(
                 botUid: widget.currentRoom.uid.asUid(),
-                query: show.data ?? "-",
+                query: _botCommandData,
                 onCommandClick: (String command) {
-                  _controller.text = "/" + command;
-                  _controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: _controller.text.length));
-                  _botCommandQuery.add("-");
+                  onCommandClick(command);
                 },
                 botCommandSelectedIndex: botCommandSelectedIndex,
               );
@@ -291,7 +303,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                   focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode: InputMessage.myFocusNode,
+                                    focusNode:
+                                        InputMessage.inputMessegeFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
                                     controller: _controller,
@@ -528,7 +541,7 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onSelected(s) {
+  void onMentionSelected(s) {
     int start = _textSelection.base.offset;
     String block_1 = _controller.text.substring(0, start);
     String block_2 = _controller.text.substring(start, _controller.text.length);
@@ -536,6 +549,14 @@ class _InputMessageWidget extends State<InputMessage> {
     _controller.selection = TextSelection.fromPosition(
         TextPosition(offset: _controller.text.length));
     _mentionQuery.add("-");
+    isMentionSelected = true;
+  }
+
+  onCommandClick(String command) {
+    _controller.text = "/" + command;
+    _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length));
+    _botCommandQuery.add("-");
   }
 
   handleKeyPress(event) async {
@@ -559,27 +580,50 @@ class _InputMessageWidget extends State<InputMessage> {
         event: event);
     setState(() {
       _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
-          event, mentionSelectedIndex, scrollUpInMentions);
+          event, mentionSelectedIndex, scrollUpInMentions, sendMentionByEnter);
     });
     setState(() {
-      _rawKeyboardService.navigateInBotCommand(
-          event, scrollDownInBotCommand, scrollUpInBotCommand);
+      _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
+          scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
     });
   }
 
   scrollUpInBotCommand() {
-    if (botCommandSelectedIndex < 0) {
+    int length = 0;
+    if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-            botCommandSelectedIndex = value.commands.length - 1,
+            value.commands.forEach((key, value) {
+              if (key.contains(_botCommandData)) length++;
+            }),
+            botCommandSelectedIndex = length - 1,
           });
     } else {
       botCommandSelectedIndex--;
     }
   }
 
-  scrollDownInBotCommand() {
+  sendBotCommandByEnter() async {
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-          if (botCommandSelectedIndex >= value.commands.length)
+          onCommandClick(value.commands.keys.toList()[botCommandSelectedIndex])
+        });
+  }
+
+  sendMentionByEnter() async {
+    var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
+        query: _mentionData);
+    if (value != null && value.length > 0) {
+      onMentionSelected(value[mentionSelectedIndex].id);
+      sendMessage();
+    }
+  }
+
+  scrollDownInBotCommand() {
+    int length = 0;
+    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
+          value.commands.forEach((key, value) {
+            if (key.contains(_botCommandData)) length++;
+          }),
+          if (botCommandSelectedIndex >= length)
             botCommandSelectedIndex = 0
           else
             botCommandSelectedIndex++,
@@ -599,7 +643,13 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void sendMessage() {
-    noActivitySubject.add(ActivityType.NO_ACTIVITY);
+    if (_controller.text.contains("\n") &&
+        _controller.text.contains("@") &&
+        isMentionSelected) {
+      _controller.clear();
+      isMentionSelected = false;
+    } else
+      noActivitySubject.add(ActivityType.NO_ACTIVITY);
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage();
     }
@@ -607,13 +657,17 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = _controller.text.trim();
 
     if (text.isNotEmpty && text != null) {
-      if (text.isNotEmpty) if (widget.replyMessageId != null) {
+      if (text.isNotEmpty) if (widget.replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
           replyId: widget.replyMessageId,
         );
-        if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
+        widget.resetRoomPageDetails();
+      } else if (widget.editableMessage != null) {
+        messageRepo.editMessage(currentRoom.uid.asUid(), widget.editableMessage,
+            _controller.text, currentRoom.lastMessageId);
+        widget.resetRoomPageDetails();
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
@@ -675,4 +729,19 @@ class _InputMessageWidget extends State<InputMessage> {
                 {mentionSelectedIndex++}
             });
   }
+
+  String getEditableMessageContent() {
+    String text = "";
+    // ignore: missing_enum_constant_in_switch
+    switch (widget.editableMessage.type) {
+      case MessageType.TEXT:
+        text = widget.editableMessage.json.toText().text;
+        break;
+      case MessageType.FILE:
+        text = widget.editableMessage.json.toFile().caption;
+    }
+    return text + " ";
+  }
 }
+
+BehaviorSubject<String> editMessageInput = BehaviorSubject.seeded("");

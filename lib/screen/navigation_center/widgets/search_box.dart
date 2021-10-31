@@ -6,9 +6,12 @@ import 'package:rxdart/rxdart.dart';
 class SearchBox extends StatefulWidget {
   final Function(String) onChange;
   final Function onCancel;
-  static FocusNode searchBoxFocusNode=FocusNode();
+  final BorderRadius borderRadius;
 
-  SearchBox({this.onChange, this.onCancel});
+  SearchBox(
+      {this.onChange,
+      this.onCancel,
+      this.borderRadius = const BorderRadius.all(const Radius.circular(25.0))});
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
@@ -29,7 +32,6 @@ class _SearchBoxState extends State<SearchBox> {
         textAlign: TextAlign.start,
         controller: _controller,
         autofocus: false,
-        focusNode:SearchBox.searchBoxFocusNode ,
         maxLines: 1,
         onChanged: (str) {
           if (str.isNotEmpty)
@@ -42,14 +44,14 @@ class _SearchBoxState extends State<SearchBox> {
         cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25.0),
+            borderRadius: widget.borderRadius,
             borderSide: BorderSide(
               color: Colors.transparent,
               width: 2.0,
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25.0),
+            borderRadius: widget.borderRadius,
             borderSide: BorderSide(
               color: Colors.transparent,
               width: 0.0,

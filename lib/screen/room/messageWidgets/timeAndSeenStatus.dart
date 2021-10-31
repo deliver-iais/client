@@ -1,8 +1,11 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/msgTime.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class TimeAndSeenStatus extends StatelessWidget {
   final Message message;
@@ -16,6 +19,8 @@ class TimeAndSeenStatus extends StatelessWidget {
       {this.needsPositioned = true,
       this.needsBackground = false,
       this.needsPadding = true});
+
+  var _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     return Container(
       padding: needsPadding
-          ? const EdgeInsets.only(top: 2, bottom: 2, right: 4, left: 4)
+          ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
           : null,
       margin: const EdgeInsets.all(2),
       decoration: needsBackground
@@ -44,8 +49,18 @@ class TimeAndSeenStatus extends StatelessWidget {
             )
           : null,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (message.edited != null && message.edited)
+            Text(
+              _i18n.get("edited"),
+              style: TextStyle(
+                color: ExtraTheme.of(context).textMessage.withAlpha(130),
+                fontSize: 13,
+                height: 1.1,
+              ),
+            ),
           MsgTime(time: date(message.time), isSent: isSender),
           if (isSender)
             Padding(

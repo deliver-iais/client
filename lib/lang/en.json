@@ -246,6 +246,16 @@
   "delete_chat": "Delete Chat",
   "selected_file": "Selected Files",
   "caption": "Caption",
-  "add_caption" : "Add a caption",
+  "add_caption": "Add a caption",
+  "pin_room": "Pin to top",
+  "unpin_room": "Unpin from top",
+  "pin_more_than_5": "Sorry, you can only pin 5 chats to the top",
+  "custom_notifications": "Custom notifications",
+  "choose_a_song" : "Choose a song",
+  "disable_notifications" : "Disable notifications",
+  "enable_notifications" : "Enable notifications",
+  "sure_delete_message": "Are sure you want to delete this message ?",
+  "sure_delete_messages": "Are sure you want to delete these messages ?",
+  "edited": "edited",
   "save_in_downloads" : "Save in Downloads"
 }

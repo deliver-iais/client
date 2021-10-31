@@ -256,5 +256,15 @@
   "selected_file": "فایل انتخاب شده",
   "caption": "متن",
   "add_caption" : "افزودن متن",
-  "save_in_downloads" : "ذخیره در دانلود ها"
+  "save_in_downloads" : "ذخیره در دانلود ها",
+  "pin_room": "سنجاق کردن",
+  "unpin_room": "برداشتن سنجاق",
+  "pin_more_than_5": "متاسفانه شما فقط میتوانید پنج گفتگو را سنجاق کنید",
+  "custom_notifications": "اعلان های اختصاصی",
+  "choose_a_song" : "یک آهنگ انتخاب کنید",
+  "disable_notifications" : "غیرفعال کردن اعلان ها",
+  "enable_notifications" : "فعال کردن اعلان ها",
+  "sure_delete_message": "آیا از حذف پیام مطمنید؟",
+  "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
+  "edited": "ویرایش شده"
 }

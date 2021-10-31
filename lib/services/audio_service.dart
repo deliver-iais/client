@@ -60,9 +60,9 @@ class AudioService {
   // ignore: close_sinks
   final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
 
-  String _audioName;
+  String _audioName = "";
 
-  String _audioPath;
+  String _audioPath = "";
 
   String get audioName => _audioName;
 

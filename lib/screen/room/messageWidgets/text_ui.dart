@@ -200,7 +200,7 @@ class EmojiParser implements Parser {
 
 class BotCommandParser implements Parser {
   final Function onBotCommandClick;
-  final RegExp regex = RegExp(r"[/][a-zA-Z]([a-zA-Z0-9_]){4,19}");
+  final RegExp regex = RegExp(r"[/]([a-zA-Z0-9_-]){5,40}");
 
   BotCommandParser(this.onBotCommandClick);
 
