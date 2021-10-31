@@ -38,9 +38,9 @@ class FireBaseServices {
   @JS('decodeMessageForCallFromJs')
   external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
 
-  Future<Map<String,String>> _decodeMessageForWebNotification(
+  Future<Map<String, String>> _decodeMessageForWebNotification(
       dynamic notification) async {
-    Map<String,String> res =Map();
+    Map<String, String> res = Map();
     try {
       await setupDI();
     } catch (e) {
@@ -55,7 +55,7 @@ class FireBaseServices {
     final dataTitle64 = base64.decode(notification);
     M.Message message = M.Message.fromBuffer(dataTitle64);
     var messageBrief =
-        await extractMessageBrief(_i18n, _roomRepo, _authRepo, message);
+    await extractMessageBrief(_i18n, _roomRepo, _authRepo, message);
     M.Message msg = _decodeMessage(notification.data["body"]);
     String roomName = notification.data['title'];
     Uid roomUid = getRoomUid(_authRepo, msg);
@@ -88,7 +88,7 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       var res = await _firebaseMessaging.getToken();
       _logger.d("TOKEN:" + res);
-       await _setFirebaseSetting();
+      await _setFirebaseSetting();
       _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
   }
@@ -101,7 +101,8 @@ class FireBaseServices {
     if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices
-            .registration(RegistrationReq()..tokenId = fireBaseToken);
+            .registration(RegistrationReq()
+          ..tokenId = fireBaseToken);
         _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
       } catch (e) {
         _logger.e(e);
@@ -121,6 +122,7 @@ class FireBaseServices {
       _logger.e(e);
     }
   }
+}
 
   M.Message _decodeMessage(String notificationBody) {
     final dataTitle64 = base64.decode(notificationBody);
@@ -166,4 +168,4 @@ class FireBaseServices {
       _notificationServices.showNotification(msg, roomName: roomName);
     }
   }
-}
+
