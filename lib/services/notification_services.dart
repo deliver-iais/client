@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 
 // import 'package:desktoasts/desktoasts.dart' if(kIsWeb) "";
@@ -19,13 +20,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:desktoasts/desktoasts.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
-import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
-import "dart:js" as js;
+
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -102,11 +97,11 @@ class IOSNotifier implements Notifier {
 
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  ToastService _windowsNotificationServices = new ToastService(
-    appName: APPLICATION_NAME,
-    companyName: "deliver.co.ir",
-    productName: "deliver",
-  );
+  // ToastService _windowsNotificationServices = new ToastService(
+  //   appName: APPLICATION_NAME,
+  //   companyName: "deliver.co.ir",
+  //   productName: "deliver",
+  // );
 
   @override
   notify(MessageBrief message) async {
@@ -122,34 +117,34 @@ class WindowsNotifier implements Notifier {
         var file = await fileRepo.getFile(
             lastAvatar.fileId, lastAvatar.fileName,
             thumbnailSize: ThumbnailSize.medium);
-        Toast toast = new Toast(
-            type: ToastType.imageAndText02,
-            title: message.roomName,
-            subtitle: createNotificationTextFromMessageBrief(message),
-            image: file);
-        _windowsNotificationServices.show(toast);
-        _windowsNotificationServices.stream?.listen((event) {
-          if (event is ToastActivated) {
-            if (lastAvatar.uid != null)
-              _routingService.openRoom(lastAvatar.uid);
-          }
-        });
+        // Toast toast = new Toast(
+        //     type: ToastType.imageAndText02,
+        //     title: message.roomName,
+        //     subtitle: createNotificationTextFromMessageBrief(message),
+        //     image: null);
+        // _windowsNotificationServices.show(toast);
+        // _windowsNotificationServices.stream?.listen((event) {
+        //   if (event is ToastActivated) {
+        //     if (lastAvatar.uid != null)
+        //       _routingService.openRoom(lastAvatar.uid);
+        //   }
+        // });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          Toast toast = new Toast(
-            type: ToastType.imageAndText02,
-            title: message.roomName,
-            image: deliverIcon,
-            subtitle: createNotificationTextFromMessageBrief(message),
-          );
-          _windowsNotificationServices.show(toast);
-          _windowsNotificationServices.stream?.listen((event) {
-            if (event is ToastActivated) {
-              if (lastAvatar.uid != null)
-                _routingService.openRoom(lastAvatar.uid);
-            }
-          });
+          // Toast toast = new Toast(
+          //   type: ToastType.imageAndText02,
+          //   title: message.roomName,
+          //   image: deliverIcon,
+          //   subtitle: createNotificationTextFromMessageBrief(message),
+          // );
+          // _windowsNotificationServices.show(toast);
+          // _windowsNotificationServices.stream?.listen((event) {
+          //   if (event is ToastActivated) {
+          //     if (lastAvatar.uid != null)
+          //       _routingService.openRoom(lastAvatar.uid);
+          //   }
+          // });
         }
       }
     } catch (e) {
@@ -166,7 +161,7 @@ class WindowsNotifier implements Notifier {
 
 class WebNotifier implements Notifier {
   @override
-  cancel(int id) {
+  cancel(int id,String roomId) {
     // TODO: implement cancel
     throw UnimplementedError();
   }

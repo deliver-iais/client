@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -57,6 +57,7 @@ import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/services/video_player_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
@@ -255,10 +256,9 @@ void main() async {
 
   Logger().i("Application has been started.");
 
-  if (isDesktop()) {
+  if (isDesktop() &&!kIsWeb) {
     try {
       _setWindowSize();
-
       setWindowTitle(APPLICATION_NAME);
     } catch (e) {
       Logger().e(e);
