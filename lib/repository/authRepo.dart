@@ -28,8 +28,10 @@ class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authServiceClient = GetIt.I.get<AuthServiceClient>();
-  var _routingServices = GetIt.I.get<RoutingService>();
+  final _routingServices = GetIt.I.get<RoutingService>();
   final requestLock = Lock();
+
+  var _password = "";
 
   String currentUsername = "";
   Uid currentUserUid = Uid.create()
@@ -41,20 +43,21 @@ class AuthRepo {
 
   PhoneNumber _tmpPhoneNumber;
 
-
   Future<void> init() async {
+    _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD);
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
     var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
-  AuthRepo(){
+  AuthRepo() {
     setCurrentUserUid();
   }
-  setCurrentUserUid()async {
-    currentUserUid = (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
-  }
 
+  setCurrentUserUid() async {
+    currentUserUid =
+        (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+  }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
@@ -191,7 +194,9 @@ class AuthRepo {
           ..platform = await getPlatformDetails());
       } on GrpcError catch (e) {
         _logger.e(e);
-        if (_refreshToken != null && _refreshToken .isNotEmpty && e.code == StatusCode.unauthenticated) {
+        if (_refreshToken != null &&
+            _refreshToken.isNotEmpty &&
+            e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
       } catch (e) {
@@ -211,13 +216,23 @@ class AuthRepo {
     }
   }
 
-  bool isLoggedIn() {
-    return _refreshToken != null && !_isExpired(_refreshToken);
+  // bool isLocalLocked() => _password != "";
+  bool isLocalLocked() => true;
+
+  // bool localPasswordIsCorrect(String pass) => _password == pass;
+  bool localPasswordIsCorrect(String pass) => "sad" == pass;
+
+  String getLocalPassword() => this._password;
+
+  void setLocalPassword(String pass) {
+    _password = pass;
+
+    _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool _isExpired(accessToken) {
-    return JwtDecoder.isExpired(accessToken);
-  }
+  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
+
+  bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
 
   void _saveTokens(RenewAccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
