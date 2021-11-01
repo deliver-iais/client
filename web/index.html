@@ -74,7 +74,7 @@
         // Wait for registration to finish before dropping the <script> tag.
         // Otherwise, the browser will load the script multiple times,
         // potentially different versions.
-       navigator.serviceWorker.register('./firebase-messaging-sw.js');
+       navigator.serviceWorker.register('/firebase-messaging-sw.js');
         var customServiceWorkerUrl = './sw.js';
         navigator.serviceWorker.register(customServiceWorkerUrl, { scope: '.' }).then(function (registration) {
           // Registration was successful
