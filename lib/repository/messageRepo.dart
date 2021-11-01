@@ -14,6 +14,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -75,6 +76,7 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -699,6 +701,9 @@ class MessageRepo {
                         Room(uid: message.from.asString(), deleted: true));
                     continue;
                   }
+                  break;
+                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+                  _avatarRepo.fetchAvatar(message.from, true);
                   break;
               }
               break;

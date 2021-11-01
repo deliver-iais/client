@@ -422,7 +422,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {// ignore: missing_enum_constant_in_switch
+          switch (message.type) {
+            // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
               break;
@@ -891,6 +892,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     if (index > 0) {
       final prevMsg = await _messageAt(pendingMessages, index);
+      if(prevMsg.json.isDeletedMessage()  || msg.json.isDeletedMessage())
+        return null;
 
       final d1 = date(prevMsg.time);
       final d2 = date(msg.time);
@@ -1233,43 +1236,44 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   openRoomSearchBox() {
     _searchMode.add(true);
   }
+
   void _showDeleteMsgDialog(List<Message> messages) {
     showDialog(
         context: context,
         builder: (c) => AlertDialog(
-          title: Text(
-            "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
-          ),
-          content: Text(messages.length > 1
-              ? _i18n.get("sure_delete_messages")
-              : _i18n.get("sure_delete_message")),
-          actions: [
-            GestureDetector(
-                child: Text(
-                  _i18n.get("cancel"),
-                  style: TextStyle(color: Colors.blue),
-                ),
-                onTap: () {
-                  setState(() {
-                    _selectMultiMessageSubject.add(false);
-                    _selectedMessages.clear();
-                  });
-
-                  Navigator.pop(context);
-                }),
-            GestureDetector(
-              child: Text(
-                _i18n.get("delete"),
-                style: TextStyle(color: Colors.red),
+              title: Text(
+                "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
               ),
-              onTap: () {
-                _messageRepo.deleteMessage(
-                    messages, _currentRoom.value.lastMessageId);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ));
+              content: Text(messages.length > 1
+                  ? _i18n.get("sure_delete_messages")
+                  : _i18n.get("sure_delete_message")),
+              actions: [
+                GestureDetector(
+                    child: Text(
+                      _i18n.get("cancel"),
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectMultiMessageSubject.add(false);
+                        _selectedMessages.clear();
+                      });
+
+                      Navigator.pop(context);
+                    }),
+                GestureDetector(
+                  child: Text(
+                    _i18n.get("delete"),
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    _messageRepo.deleteMessage(
+                        messages, _currentRoom.value.lastMessageId);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ));
   }
 }
