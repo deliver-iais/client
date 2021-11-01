@@ -20,6 +20,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
+import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
@@ -117,9 +118,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _scrollPhysics = ClampingScrollPhysics();
 
   final BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Message> _editableMessage =
+      BehaviorSubject.seeded(null);
   final BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
-  final _showProgressBar = BehaviorSubject.seeded(0);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
@@ -183,21 +185,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         children: [
                                           buildMessagesListView(
                                               pendingMessages),
-                                          StreamBuilder<int>(
-                                            stream: _showProgressBar.stream,
-                                            builder: (c, s) {
-                                              if (s.hasData && s.data > 0)
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                  ),
-                                                );
-                                              else
-                                                return SizedBox.shrink();
-                                            },
-                                          ),
                                           StreamBuilder(
                                               stream: _positionSubject.stream,
                                               builder: (c, position) {
@@ -225,6 +212,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         if (rm.hasData && rm.data != null) {
                           return ReplyPreview(
                               message: _repliedMessage.value,
+                              resetRoomPageDetails: _resetRoomPageDetails);
+                        }
+                        return Container();
+                      }),
+                  StreamBuilder(
+                      stream: _editableMessage.stream,
+                      builder: (c, em) {
+                        if (em.hasData && em.data != null) {
+                          return OnEditMessageWidget(
+                              message: _editableMessage.value,
                               resetRoomPageDetails: _resetRoomPageDetails);
                         }
                         return Container();
@@ -330,7 +327,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .distinct()
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) async {
-      var msg = await _getMessage(event, widget.roomId);
+      var msg = await _getMessage(
+          event, widget.roomId, _currentRoom.valueWrapper.value.lastMessageId,
+          lastUpdatedMessageId:
+              _currentRoom.valueWrapper.value.lastUpdatedMessageId);
 
       if (msg == null) return;
 
@@ -358,14 +358,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     super.initState();
   }
 
-  Future<Message> _getMessage(int id, String roomId) async {
+  Future<Message> _getMessage(int id, String roomId, int lastMessageId,
+      {int lastUpdatedMessageId}) async {
     var msg = _messageCache.get(id);
-    if (msg != null) {
+    if (msg != null && id != lastUpdatedMessageId) {
       return msg;
     }
     int page = (id / PAGE_SIZE).floor();
-    List<Message> messages =
-        await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
+    List<Message> messages = await _messageRepo
+        .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
       _messageCache.set(messages[i].id, messages[i]);
     }
@@ -373,6 +374,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
+    editMessageInput.add("");
+    _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
   }
@@ -418,10 +421,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               .openSelectForwardMessage(forwardedMessages: [message]);
           break;
         case OperationOnMessage.DELETE:
-          // TODO: Handle this case.
+          _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          // TODO: Handle this case.
+          switch (message.type) {// ignore: missing_enum_constant_in_switch
+            case MessageType.TEXT:
+              editMessageInput.add(message.json.toText().text);
+              break;
+            case MessageType.FILE:
+              editMessageInput.add(message.json.toFile().caption);
+          }
+          _editableMessage.add(message);
+
           break;
         case OperationOnMessage.SHARE:
           {
@@ -523,7 +534,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           pm.reversed.toList().forEach((element) async {
             if (element != null) {
               try {
-                var m = await _getMessage(element, widget.roomId);
+                var m = await _getMessage(
+                    element, widget.roomId, muc.lastMessageId,
+                    lastUpdatedMessageId:
+                        _currentRoom.value.lastUpdatedMessageId);
                 _pinMessages.add(m);
                 _lastPinedMessage.add(_pinMessages.last.id);
               } catch (e) {
@@ -586,7 +600,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           : _itemCount);
                   _lastShowedMessageId = -1;
                 }),
-            if (!_authRepo.isCurrentUser(_currentRoom.value.lastMessage.from))
+            if (_currentRoom.value.lastMessage != null &&
+                !_authRepo.isCurrentUser(_currentRoom.value.lastMessage.from))
               Positioned(
                   top: 0,
                   left: 0,
@@ -620,11 +635,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           });
     } else
       return StreamBuilder(
-          stream: _repliedMessage.stream,
-          builder: (c, rm) {
+          stream:
+              MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+          builder: (c, data) {
             return NewMessageInput(
               currentRoomId: widget.roomId,
-              replyMessageId: rm.data?.id ?? 0,
+              replyMessageId:
+                  _repliedMessage.value != null ? _repliedMessage.value.id : 0,
+              editableMessage: _editableMessage.value,
               resetRoomPageDetails: _resetRoomPageDetails,
               waitingForForward: _waitingForForwardedMessage.value,
               sendForwardMessage: _sendForwardMessage,
@@ -870,7 +888,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _itemCount - index <= pendingMessages.length;
     return isPendingMessage
         ? Future.value(pendingMessages[_itemCount - index - 1].msg)
-        : _getMessage(index + 1, widget.roomId);
+        : _getMessage(index + 1, widget.roomId,
+            _currentRoom.valueWrapper.value.lastMessageId,
+            lastUpdatedMessageId:
+                _currentRoom.valueWrapper.value.lastUpdatedMessageId);
   }
 
   Future<int> _timeAt(List<PendingMessage> pendingMessages, int index) async {
@@ -955,7 +976,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                padding: EdgeInsets.symmetric(
+                    vertical: msg.json == "{}" ? 0.0 : 4.0),
                 child: PersistentEventMessage(message: msg),
               ),
             ],
@@ -964,6 +986,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget _createWidget(
       Message message, Room currentRoom, List pendingMessages) {
+    if (message.json == "{}") return SizedBox.shrink();
     var messageWidget;
     if (_authRepo.isCurrentUser(message.from))
       messageWidget = showSentMessage(
@@ -996,7 +1019,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
         onLongPress: () {
-          _selectMultiMessageSubject.add(true);
+          if (!_selectMultiMessageSubject.stream.value)
+            _selectMultiMessageSubject.add(true);
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
@@ -1087,6 +1111,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _routingService.openSelectForwardMessage(
                       forwardedMessages: _selectedMessages.values.toList());
+                  _selectedMessages.clear();
+                }),
+          ),
+        ),
+        Tooltip(
+          message: _i18n.get("delete"),
+          child: Badge(
+            animationType: BadgeAnimationType.fade,
+            badgeColor: Theme.of(context).primaryColor,
+            badgeContent: Text(_selectedMessages.length.toString()),
+            animationDuration: Duration(milliseconds: 125),
+            child: IconButton(
+                color: Theme.of(context).primaryColor,
+                icon: Icon(
+                  Icons.delete,
+                  size: 30,
+                ),
+                onPressed: () {
+                  _showDeleteMsgDialog(_selectedMessages.values.toList());
                   _selectedMessages.clear();
                 }),
           ),
@@ -1199,5 +1242,44 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   openRoomSearchBox() {
     _searchMode.add(true);
+  }
+  void _showDeleteMsgDialog(List<Message> messages) {
+    showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: Text(
+            "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+          ),
+          content: Text(messages.length > 1
+              ? _i18n.get("sure_delete_messages")
+              : _i18n.get("sure_delete_message")),
+          actions: [
+            GestureDetector(
+                child: Text(
+                  _i18n.get("cancel"),
+                  style: TextStyle(color: Colors.blue),
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectMultiMessageSubject.add(false);
+                    _selectedMessages.clear();
+                  });
+
+                  Navigator.pop(context);
+                }),
+            GestureDetector(
+              child: Text(
+                _i18n.get("delete"),
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                _messageRepo.deleteMessage(
+                    messages, _currentRoom.value.lastMessageId);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ));
   }
 }

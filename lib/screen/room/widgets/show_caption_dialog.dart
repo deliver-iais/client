@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get_it/get_it.dart';
@@ -104,6 +105,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Text(
                                       fileNames[index],
                                       overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: ExtraTheme.of(context).textField),
                                     ),
                                   ),
                                   Align(
@@ -128,7 +130,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                       keyboardType: TextInputType.multiline,
                       minLines: 1,
                       maxLines: 5,
-                      style: TextStyle(fontSize: 15),
+                      style: TextStyle(fontSize: 15,color: ExtraTheme.of(context).textField),
                       decoration: InputDecoration(
                         labelText: _i18n.get("caption"),
                       )),

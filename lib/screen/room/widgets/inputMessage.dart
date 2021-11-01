@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -27,12 +29,14 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -42,6 +46,8 @@ class InputMessage extends StatefulWidget {
   final Function sendForwardMessage;
   final Function showMentionList;
   final Function scrollToLastSentMessage;
+  static FocusNode myFocusNode;
+  final Message editableMessage;
   static FocusNode inputMessegeFocusNode;
 
   @override
@@ -53,6 +59,7 @@ class InputMessage extends StatefulWidget {
       this.resetRoomPageDetails,
       this.waitingForForward = false,
       this.sendForwardMessage,
+      this.editableMessage,
       this.showMentionList,
       this.scrollToLastSentMessage});
 }
@@ -64,7 +71,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
-  TextEditingController _controller;
+  TextEditingController _controller = TextEditingController();
   Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -123,6 +130,13 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     InputMessage.inputMessegeFocusNode = FocusNode();
+    editMessageInput = BehaviorSubject.seeded("");
+    currentRoom = widget.currentRoom;
+    _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
+    editMessageInput.stream.listen((event) {
+      _controller.text = event;
+    });
+    InputMessage.myFocusNode = FocusNode();
     keyboardRawFocusNode = FocusNode();
 
     isTypingActivitySubject
@@ -133,9 +147,7 @@ class _InputMessageWidget extends State<InputMessage> {
     noActivitySubject.listen((event) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
-    currentRoom = widget.currentRoom;
-    _controller = TextEditingController(
-        text: currentRoom.draft != null ? currentRoom.draft : "");
+
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft.isNotEmpty);
     _controller.addListener(() {
@@ -198,6 +210,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
+    editMessageInput.close();
     _controller.dispose();
     super.dispose();
   }
@@ -642,13 +655,17 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = _controller.text.trim();
 
     if (text.isNotEmpty && text != null) {
-      if (text.isNotEmpty) if (widget.replyMessageId != null) {
+      if (text.isNotEmpty) if (widget.replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
           replyId: widget.replyMessageId,
         );
-        if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
+        widget.resetRoomPageDetails();
+      } else if (widget.editableMessage != null) {
+        messageRepo.editMessage(currentRoom.uid.asUid(), widget.editableMessage,
+            _controller.text, currentRoom.lastMessageId);
+        widget.resetRoomPageDetails();
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
@@ -684,7 +701,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
     if (result.length <= 0) return;
-    captionTextController.text = "";
     showDialog(
         context: context,
         builder: (context) {
@@ -706,4 +722,19 @@ class _InputMessageWidget extends State<InputMessage> {
                 {mentionSelectedIndex++}
             });
   }
+
+  String getEditableMessageContent() {
+    String text = "";
+    // ignore: missing_enum_constant_in_switch
+    switch (widget.editableMessage.type) {
+      case MessageType.TEXT:
+        text = widget.editableMessage.json.toText().text;
+        break;
+      case MessageType.FILE:
+        text = widget.editableMessage.json.toFile().caption;
+    }
+    return text + " ";
+  }
 }
+
+BehaviorSubject<String> editMessageInput = BehaviorSubject.seeded("");

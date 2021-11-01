@@ -62,13 +62,13 @@ class _VideoCallPageState extends State<VideoCallPage> {
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _logger.i("call dispose");
     //_audioService.stopBusySound();
     _audioService.stopPlayBeepSound();
-    _videoCallService.endCall();
-    _localRenderer.dispose();
-    _remoteRenderer.dispose();
+    await _videoCallService.endCall();
+    await _localRenderer.dispose();
+    await _remoteRenderer.dispose();
     super.dispose();
   }
 

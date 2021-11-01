@@ -16,12 +16,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:deliver/services/webRtcKeys.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
 
-  cancel(int id);
+  cancel(int id, String roomId);
 
   cancelAll();
 }
@@ -53,7 +52,7 @@ class NotificationServices {
   }
 
   void cancelRoomNotifications(String roomUid) {
-    _notifier.cancel(roomUid.hashCode);
+    _notifier.cancel(roomUid.hashCode, roomUid);
   }
 
   void cancelAllNotifications() {
@@ -74,7 +73,7 @@ class FakeNotifier implements Notifier {
   notify(MessageBrief message) {}
 
   @override
-  cancel(int id) {}
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}
@@ -85,7 +84,7 @@ class IOSNotifier implements Notifier {
   notify(MessageBrief message) {}
 
   @override
-  cancel(int id) {}
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}
@@ -149,7 +148,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancel(int id) {}
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}
@@ -203,7 +202,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  cancel(int id) async {
+  cancel(int id, String roomId) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {
@@ -222,7 +221,6 @@ class LinuxNotifier implements Notifier {
 }
 
 class AndroidNotifier implements Notifier {
-  final _audioService = GetIt.I.get<AudioService>();
   final _logger = GetIt.I.get<Logger>();
   final _flutterLocalNotificationsPlugin =
       AndroidFlutterLocalNotificationsPlugin();
@@ -234,7 +232,7 @@ class AndroidNotifier implements Notifier {
   AndroidNotificationChannel channel = AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
-      'All notifications of application.', // description
+      description: 'All notifications of application.', // description
       importance: Importance.high,
       groupId: "all_group");
 
@@ -290,31 +288,49 @@ class AndroidNotifier implements Notifier {
         selectedNotificationSound = selectedSound;
       }
     }
+
+    InboxStyleInformation inboxStyleInformation =
+        InboxStyleInformation([], contentTitle: 'new messages');
+
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+            selectedNotificationSound + message.roomUid.asString(),
+            channel.name,
+            channelDescription: channel.description,
+            styleInformation: inboxStyleInformation,
+            groupKey: channel.groupId,
+            playSound: true,
+            sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+            setAsGroupSummary: true);
+    await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
+        notificationDetails: androidNotificationDetails);
     var platformChannelSpecifics = AndroidNotificationDetails(
-        selectedNotificationSound, channel.name, channel.description,
-        groupKey: channel.groupId,
-        largeIcon: largeIcon,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-        setAsGroupSummary: false);
-    if (message.text.contains(webRtcDetectionOffer)) {
-      _audioService.playBusySound();
-      _flutterLocalNotificationsPlugin.show("calling".hashCode,
-          message.roomName, "Incoming call",
-          notificationDetails: platformChannelSpecifics,
-          payload: message.roomUid.asString()+"call");
-    }
-    else{
-    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
-        message.roomName, createNotificationTextFromMessageBrief(message),
+      selectedNotificationSound + message.roomUid.asString(),
+      channel.name,
+      channelDescription: channel.description,
+      groupKey: channel.groupId,
+      largeIcon: largeIcon,
+      styleInformation: BigTextStyleInformation(''),
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+    );
+    _flutterLocalNotificationsPlugin.show(
+        message.roomUid.asString().hashCode + message.text.toString().hashCode,
+        message.roomName,
+        createNotificationTextFromMessageBrief(message),
         notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid.asString());}
+        payload: message.roomUid.asString());
   }
 
   @override
-  cancel(int id) async {
+  cancel(int id, String roomId) async {
     try {
-      await _flutterLocalNotificationsPlugin.cancel(id);
+      List<ActiveNotification> activeNotification =
+          await _flutterLocalNotificationsPlugin.getActiveNotifications();
+      for (var element in activeNotification) {
+        if (element.channelId.contains(roomId) && element.id != 0)
+          await _flutterLocalNotificationsPlugin.cancel(element.id);
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -377,7 +393,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  cancel(int id) async {
+  cancel(int id, String roomId) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {

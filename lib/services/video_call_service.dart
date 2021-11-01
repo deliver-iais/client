@@ -279,9 +279,9 @@ class VideoCallService {
     _dispose();
   }
 
-  void endCall() {
+  endCall() async {
     messageRepo.sendTextMessage(_roomUid, webRtcCallEnded);
-    _dispose();
+    await _dispose();
   }
 
   _setRemoteDescriptionOffer(String remoteSdp) async {
@@ -365,18 +365,20 @@ class VideoCallService {
 
   _dispose() async {
     await _cleanLocalStream();
-    await _peerConnection?.dispose();
+    await _peerConnection.dispose();
     _candidate = [];
-   // _roomUid?.clear();
+    _roomUid.clear();
     hasCall.add(null);
     if (callingStatus.value == "declined" || callingStatus.value == "busy") {
       Timer(Duration(seconds: 4), () {
         callingStatus.add(null);
       });
-    } else
+    } else {
       callingStatus.add(null);
+    }
     _offerSdp = null;
-    _onCalling = false;
+    bool _onCalling = false;
+    bool _isSharing = false;
   }
 
   _cleanLocalStream() async {
