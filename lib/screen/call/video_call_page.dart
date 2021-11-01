@@ -10,6 +10,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class VideoCallPage extends StatefulWidget {
   final Room room;
@@ -24,6 +25,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
   final _videoCallService = GetIt.I.get<VideoCallService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _logger = GetIt.I.get<Logger>();
 
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
@@ -61,6 +63,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   @override
   void dispose() {
+    _logger.i("call dispose");
     //_audioService.stopBusySound();
     _audioService.stopPlayBeepSound();
     _videoCallService.endCall();
@@ -76,11 +79,12 @@ class _VideoCallPageState extends State<VideoCallPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot != null && snapshot.data == "busy")
             _audioService.playBusySound();
-          if (snapshot.hasData && snapshot != null && snapshot.data == "answer")
+          if (snapshot.hasData && snapshot != null && snapshot.data == "answer"){
+            _audioService.stopPlayBeepSound();
             return InVideoCallPage(
               remoteRenderer: _remoteRenderer,
               localRenderer: _localRenderer,
-            );
+            );}
           else if (snapshot.hasData && snapshot != null)
             return Scaffold(
                 body: Stack(children: [

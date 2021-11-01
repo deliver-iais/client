@@ -79,8 +79,6 @@ class VideoCallService {
     };
 
     pc.onIceCandidate = (e) {
-      var candidateTime = DateTime.now().millisecondsSinceEpoch - _time;
-      _logger.i("Time For Candidate:" + candidateTime.toString());
       if (e.candidate != null) {
         _candidate.add({
           'candidate': e.candidate.toString(),
