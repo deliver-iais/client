@@ -292,9 +292,7 @@ class CoreServices {
         _videoCallService.receivedCallAnswer(text);
       } else if (text.startsWith(webRtcDetectionOffer)) {
         _videoCallService.incomingCall(text, message.from);
-      } else if (text.startsWith(webRtcDetectionCandidate)) {
-        _videoCallService.receivedCallCandidate(text);
-      } else if (text.startsWith(webRtcCallDeclined)) {
+      }else if (text.startsWith(webRtcCallDeclined)) {
         _videoCallService.receivedDeclinedCall();
       } else if (text.startsWith(webRtcCallBusied)) {
         _videoCallService.receivedBusyCall();

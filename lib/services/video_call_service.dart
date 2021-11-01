@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/webRtcKeys.dart';
@@ -18,7 +19,11 @@ class VideoCallService {
   Uid _roomUid;
 
   Uid get roomUid => _roomUid;
+  int _time;
   String _offerSdp;
+  String _answerSdp;
+  String _offerSdpCandidate;
+  bool _onCalling = false;
   RTCPeerConnection _peerConnection;
   final String _stunServerURL = "stun:stun.l.google.com:19302";
   List<Map<String, Object>> _candidate = [];
@@ -30,13 +35,14 @@ class VideoCallService {
   /*
   * initial Variable for Render Call Between 2 Client
   * */
-  initCall() async {
-    await _createPeerConnection().then((pc) {
+  initCall(bool isOffer) async {
+    await _createPeerConnection(isOffer).then((pc) {
       _peerConnection = pc;
     });
+    _onCalling = true;
   }
 
-  _createPeerConnection() async {
+  _createPeerConnection(bool isOffer) async {
     Map<String, dynamic> configuration = {
       "iceServers": [
         {"url": _stunServerURL},
@@ -63,6 +69,8 @@ class VideoCallService {
     };
 
     pc.onIceCandidate = (e) {
+      var candidateTime = DateTime.now().millisecondsSinceEpoch - _time;
+      _logger.i("Time For Candidate:" + candidateTime.toString());
       if (e.candidate != null) {
         _candidate.add({
           'candidate': e.candidate.toString(),
@@ -73,9 +81,22 @@ class VideoCallService {
     };
 
     pc.onIceGatheringState = (RTCIceGatheringState state) {
+      if (state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
+        //when we go on this stage after about 2 sec all candidate revived and we can sending them all
+        _logger.i("RTCIceGatheringStateGathering");
+        if(isOffer) {
+          _calculateCandidateAndSendOffer();
+        }else{
+          _calculateCandidateAndSendAnswer();
+        }
+      }
+      if (state == RTCIceGatheringState.RTCIceGatheringStateNew) {
+        _logger.i("RTCIceGatheringStateNew");
+      }
       if (state == RTCIceGatheringState.RTCIceGatheringStateComplete) {
-        _logger.i("onIceGatheringState");
-        _calculateCandidate();
+        //take too long about 40 sec to Enter on this stage
+        //then we move calculate candidate and send them to RTCIceGatheringStateGathering stage
+        _logger.i("RTCIceGatheringStateComplete");
       }
     };
 
@@ -146,11 +167,11 @@ class VideoCallService {
     return false;
   }
 
-  void incomingCall(String offerSdp, Uid roomId) {
-    callingStatus.add("incomingCall");
-    if (hasCall.hasValue) {
+  void incomingCall(String offerSdpWithCandidate, Uid roomId) {
+    if (!_onCalling) {
+      callingStatus.add("incomingCall");
       _roomUid = roomId;
-      _offerSdp = offerSdp;
+      _offerSdpCandidate = offerSdpWithCandidate;
       hasCall.add(roomId);
     } else {
       messageRepo.sendTextMessage(_roomUid, webRtcCallBusied);
@@ -159,24 +180,29 @@ class VideoCallService {
   }
 
   void startCall(Uid roomId) async {
-    callingStatus.add("startCall");
-    //Set Timer 44 sec for end call
-    _roomUid = roomId;
-    hasCall.add(roomId);
-    await initCall();
-    var offer = await _createOffer();
-    //Send offer as message to Receiver
-    messageRepo.sendTextMessage(_roomUid, webRtcDetectionOffer + offer);
+    _time = DateTime.now().millisecondsSinceEpoch;
+    if(!_onCalling) {
+      await initCall(true);
+      callingStatus.add("startCall");
+      //Set Timer 44 sec for end call
+      _roomUid = roomId;
+      hasCall.add(roomId);
+      _offerSdp = await _createOffer();
+    }else{
+      _logger.i("User on Call ... !");
+    }
   }
 
   void acceptCall(Uid roomId) async {
     _roomUid = roomId;
     callingStatus.add("acceptCall");
-    var offerWithoutDetector = _offerSdp.split(webRtcDetectionOffer)[1];
-    await _setRemoteDescriptionOffer(offerWithoutDetector);
-    var answer = await _createAnswer();
-    // Send Answer back to Sender
-    messageRepo.sendTextMessage(_roomUid, webRtcDetectionAnswer + answer);
+    var offerSdpWithCandidateWithoutDetector = _offerSdpCandidate.split(webRtcDetectionOffer)[1];
+    var data = jsonDecode(offerSdpWithCandidateWithoutDetector);
+    //set Remote Descriptions and Candidate
+    await _setRemoteDescriptionOffer(data['offer']);
+    await _setCallCandidate(data['candidate']);
+    //CreateAnswer
+    _answerSdp = await _createAnswer();
   }
 
   void declineCall() {
@@ -185,21 +211,24 @@ class VideoCallService {
     _dispose();
   }
 
-  void receivedCallAnswer(String answerSdp) async {
-    var answerWithoutDetector = answerSdp.split(webRtcDetectionAnswer)[1];
-    await _setRemoteDescriptionAnswer(answerWithoutDetector);
+  void receivedCallAnswer(String answerSdpWithCandidate) async {
+
+    var answerSdpWithCandidateWithoutDetector = answerSdpWithCandidate.split(webRtcDetectionAnswer)[1];
+    var data = jsonDecode(answerSdpWithCandidateWithoutDetector);
+    //set Remote Descriptions and Candidate
+    await _setRemoteDescriptionAnswer(data['answer']);
+    await _setCallCandidate(data['candidate']);
+
     callingStatus.add("answer");
   }
 
-  void receivedCallCandidate(String answerCandidate) {
-    var candidateWithoutDetector =
-        answerCandidate.split(webRtcDetectionCandidate)[1];
+  _setCallCandidate(String candidatesJson) async {
     List<RTCIceCandidate> candidates =
-        (jsonDecode(candidateWithoutDetector) as List)
+        (jsonDecode(candidatesJson) as List)
             .map((data) => RTCIceCandidate(
                 data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
             .toList();
-    _setCandidate(candidates);
+    await _setCandidate(candidates);
   }
 
   void receivedBusyCall() {
@@ -266,11 +295,33 @@ class VideoCallService {
     return offerSdp;
   }
 
-  _calculateCandidate() {
+  _calculateCandidateAndSendOffer() async{
+    await Future.delayed(Duration(seconds: 3));
+    // Send Candidate to Receiver
+    var jsonCandidates = jsonEncode(_candidate);
+    Map<String, String> offerWithCandidate = {
+      "offer" : _offerSdp,
+      "candidate": jsonCandidates
+    };
+    var offerWithCandidateJson = jsonEncode(offerWithCandidate);
+    var callTime = DateTime.now().millisecondsSinceEpoch - _time;
+    _logger.i("Time For Start Call:" + callTime.toString());
+    //Send offer and Candidate as message to Receiver
+    messageRepo.sendTextMessage(
+        _roomUid, webRtcDetectionOffer + offerWithCandidateJson);
+  }
+
+  _calculateCandidateAndSendAnswer() {
     // Send Candidate back to Sender
     var jsonCandidates = jsonEncode(_candidate);
+    Map<String, String> answerWithCandidate = {
+      "answer" : _answerSdp,
+      "candidate": jsonCandidates
+    };
+    var answerWithCandidateJson = jsonEncode(answerWithCandidate);
+    //Send Answer and Candidate as message to Sender
     messageRepo.sendTextMessage(
-        _roomUid, webRtcDetectionCandidate + jsonCandidates);
+        _roomUid, webRtcDetectionAnswer + answerWithCandidateJson);
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
@@ -292,6 +343,7 @@ class VideoCallService {
     } else
       callingStatus.add(null);
     _offerSdp = null;
+    _onCalling = false;
   }
 
   _cleanLocalStream() async {
