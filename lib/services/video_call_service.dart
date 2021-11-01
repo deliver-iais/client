@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/webRtcKeys.dart';
@@ -16,17 +15,25 @@ class VideoCallService {
   final _logger = GetIt.I.get<Logger>();
 
   MediaStream _localStream;
-  Uid _roomUid;
+  MediaStream _localStreamShare;
+  RTCRtpSender _audioSender;
+  RTCRtpSender _videoSender;
+  List<Map<String, Object>> _candidate = [];
 
-  Uid get roomUid => _roomUid;
-  int _time;
   String _offerSdp;
   String _answerSdp;
   String _offerSdpCandidate;
-  bool _onCalling = false;
+
   RTCPeerConnection _peerConnection;
   final String _stunServerURL = "stun:stun.l.google.com:19302";
-  List<Map<String, Object>> _candidate = [];
+
+
+  int _time;
+  bool _onCalling = false;
+  bool _isSharing = false;
+
+  Uid _roomUid;
+  Uid get roomUid => _roomUid;
 
   Function(MediaStream stream) onLocalStream;
   Function(MediaStream stream) onAddRemoteStream;
@@ -62,7 +69,10 @@ class VideoCallService {
     RTCPeerConnection pc =
         await createPeerConnection(configuration, offerSdpConstraints);
 
-    pc.addStream(_localStream);
+    var camVideoTrack = _localStream.getVideoTracks()[0];
+    var camAudioTrack = _localStream.getAudioTracks()[0];
+    _videoSender = await pc.addTrack(camVideoTrack, _localStream);
+    _audioSender = await pc.addTrack(camAudioTrack, _localStream);
 
     pc.onIceConnectionState = (e) {
       _logger.i(e);
@@ -135,6 +145,31 @@ class VideoCallService {
     onLocalStream?.call(stream);
 
     return stream;
+  }
+
+  _getUserDisplay() async {
+    final Map<String, dynamic> mediaConstraints = {
+      'audio': false,
+      'video': true
+    };
+
+    var stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+    return stream;
+  }
+
+  shareScreen() async {
+    if(!_isSharing) {
+      _localStreamShare = await _getUserDisplay();
+      var screenVideoTrack = _localStreamShare.getVideoTracks()[0];
+      _videoSender.replaceTrack(screenVideoTrack);
+      onLocalStream?.call(_localStreamShare);
+      _isSharing = true;
+    }else{
+      var camVideoTrack = _localStream.getVideoTracks()[0];
+      _videoSender.replaceTrack(camVideoTrack);
+      onLocalStream?.call(_localStream);
+      _isSharing = false;
+    }
   }
 
   /*
