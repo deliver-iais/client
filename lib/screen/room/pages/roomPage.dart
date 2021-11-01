@@ -148,7 +148,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   }),
               Column(
                 children: <Widget>[
-                  HasCallRow(),
+                 if(!isDesktop()) HasCallRow(),
                   AudioPlayerAppBar(),
                   Divider(),
                   pinMessageWidget(),

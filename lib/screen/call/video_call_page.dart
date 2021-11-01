@@ -1,9 +1,9 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/call_bottom_row.dart';
 import 'package:deliver/screen/call/in_video_call_page.dart';
 import 'package:deliver/screen/room/pages/roomPage.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -21,9 +21,9 @@ class VideoCallPage extends StatefulWidget {
 }
 
 class _VideoCallPageState extends State<VideoCallPage> {
-  AudioCache _player = AudioCache(fixedPlayer: AudioPlayer());
   final _videoCallService = GetIt.I.get<VideoCallService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
@@ -32,6 +32,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
   void initState() {
     _initRenderer();
     startCall();
+    _audioService.playBeepSound();
     super.initState();
   }
 
@@ -60,7 +61,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   @override
   void dispose() {
-    //_player.fixedPlayer.stop();
+    //_audioService.stopBusySound();
+    _audioService.stopPlayBeepSound();
     _videoCallService.endCall();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
@@ -69,11 +71,11 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    //after 43 second all 51
-    //_player.play("audios/beep_ringing_calling_sound.mp3");
     return StreamBuilder(
         stream: _videoCallService.callingStatus,
         builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot != null && snapshot.data == "busy")
+            _audioService.playBusySound();
           if (snapshot.hasData && snapshot != null && snapshot.data == "answer")
             return InVideoCallPage(
               remoteRenderer: _remoteRenderer,
@@ -114,7 +116,6 @@ class _VideoCallPageState extends State<VideoCallPage> {
                       ]))),
               CallBottomRow(
                 room: widget.room,
-                player: _player,
               ),
               if (snapshot.data == "declined")
                 Padding(
@@ -124,6 +125,18 @@ class _VideoCallPageState extends State<VideoCallPage> {
                     alignment: Alignment.topCenter,
                     child: Text(
                       "Declined",
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
+                    ),
+                  ),
+                )
+              else if (snapshot.data == "busy")
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.45),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      "busy",
                       style: TextStyle(fontSize: 16, color: Colors.white70),
                     ),
                   ),

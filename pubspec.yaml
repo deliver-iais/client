@@ -175,6 +175,7 @@ flutter:
     - android/app/src/main/res/raw/
     - assets/audios/beep_ringing_calling_sound.mp3
     - assets/animations/accept_call.json
+    - assets/audios/Busy-sound.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

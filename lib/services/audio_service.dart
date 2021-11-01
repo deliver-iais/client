@@ -44,6 +44,10 @@ abstract class AudioPlayerModule {
   void playBeepSound();
 
   void resume();
+
+  void stopPlayBeepSound();
+
+  void playBusySound();
 }
 
 class AudioService {
@@ -131,12 +135,21 @@ class AudioService {
   void resume() {
     _playerModule.resume();
   }
+
+  void stopPlayBeepSound() {
+    _playerModule.stopPlayBeepSound();
+  }
+
+  void playBusySound() {
+    _playerModule.playBusySound();
+  }
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
   AudioPlayer _audioPlayer = AudioPlayer();
 
-  AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
+  AudioCache _fastAudioPlayer =
+      AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -200,8 +213,20 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBeepSound() {
-    _fastAudioPlayer.play("beep_ringing_calling_sound.mp3",
-        mode: PlayerMode.LOW_LATENCY);
+    _fastAudioPlayer.play(
+      "beep_ringing_calling_sound.mp3",
+    );
+  }
+
+  void stopPlayBeepSound() {
+    _fastAudioPlayer.fixedPlayer.stop();
+  }
+
+  @override
+  void playBusySound() {
+    _fastAudioPlayer.play(
+      "Busy-sound.mp3",
+    );
   }
 }
 
@@ -209,6 +234,8 @@ class VlcAudioPlayer implements AudioPlayerModule {
   Player _audioPlayer = Player(id: 0);
   Player _fastAudioPlayerOut = Player(id: 1);
   Player _fastAudioPlayerIn = Player(id: 1);
+  Player _fastAudioPlayerBeep = Player(id: 1);
+  Player _fastAudioPlayerBusy = Player(id: 1);
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -229,8 +256,9 @@ class VlcAudioPlayer implements AudioPlayerModule {
   VlcAudioPlayer() {
     _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
     _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
-    _fastAudioPlayerIn
+    _fastAudioPlayerBeep
         .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
+    _fastAudioPlayerBusy.open(Media.asset("assets/audios/Busy-sound.mp3"));
   }
 
   @override
@@ -271,6 +299,15 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBeepSound() {
-    _fastAudioPlayerIn.play();
+    _fastAudioPlayerBeep.play();
+  }
+
+  void stopPlayBeepSound() {
+    _fastAudioPlayerBeep.stop();
+  }
+
+  @override
+  void playBusySound() {
+    _fastAudioPlayerBusy.play();
   }
 }

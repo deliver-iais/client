@@ -9,13 +9,11 @@ import 'package:get_it/get_it.dart';
 class CallBottomRow extends StatefulWidget {
   final localRenderer;
   final Room room;
-  final AudioCache player;
   MediaStream localStream;
 
   CallBottomRow({
     Key key,
     this.localRenderer,
-    this.player,
     this.localStream,
     this.room,
   }) : super(key: key);

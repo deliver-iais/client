@@ -285,8 +285,8 @@ class VideoCallService {
     _candidate = [];
    // _roomUid?.clear();
     hasCall.add(null);
-    if (callingStatus.value == "declined") {
-      Timer(Duration(seconds: 3), () {
+    if (callingStatus.value == "declined" || callingStatus.value == "busy") {
+      Timer(Duration(seconds: 4), () {
         callingStatus.add(null);
       });
     } else
