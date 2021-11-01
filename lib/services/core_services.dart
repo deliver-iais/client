@@ -292,6 +292,8 @@ class CoreServices {
         _videoCallService.receivedCallAnswer(text);
       } else if (text.startsWith(webRtcDetectionOffer)) {
         _videoCallService.incomingCall(text, message.from);
+        Uid roomUid = getRoomUid(_authRepo, message);
+        showNotification(roomUid, message);
       }else if (text.startsWith(webRtcCallDeclined)) {
         _videoCallService.receivedDeclinedCall();
       } else if (text.startsWith(webRtcCallBusied)) {

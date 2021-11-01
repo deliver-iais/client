@@ -16,6 +16,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:deliver/services/webRtcKeys.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -221,6 +222,7 @@ class LinuxNotifier implements Notifier {
 }
 
 class AndroidNotifier implements Notifier {
+  final _audioService = GetIt.I.get<AudioService>();
   final _logger = GetIt.I.get<Logger>();
   final _flutterLocalNotificationsPlugin =
       AndroidFlutterLocalNotificationsPlugin();
@@ -256,7 +258,11 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<dynamic> androidOnSelectNotification(room) async {
-    if (room != null && room.isNotEmpty) {
+    if(room.contains("call")){
+      _routingService.openRoom(room.replaceAll("call", ""));
+      _routingService.openInComingCallPage(room.replaceAll("call", "").asUid());
+    }
+    else if (room != null && room.isNotEmpty) {
       _routingService.openRoom(room);
     }
     return;
@@ -291,11 +297,18 @@ class AndroidNotifier implements Notifier {
         playSound: true,
         sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
         setAsGroupSummary: false);
-
+    if (message.text.contains(webRtcDetectionOffer)) {
+      _audioService.playBusySound();
+      _flutterLocalNotificationsPlugin.show("calling".hashCode,
+          message.roomName, "Incoming call",
+          notificationDetails: platformChannelSpecifics,
+          payload: message.roomUid.asString()+"call");
+    }
+    else{
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
         notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid.asString());
+        payload: message.roomUid.asString());}
   }
 
   @override

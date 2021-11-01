@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -67,7 +68,6 @@ class _CallBottomRowState extends State<CallBottomRow> {
   }
 
   _hangUp() {
-   // widget.player.fixedPlayer.stop();
     _routingService.pop();
   }
 
