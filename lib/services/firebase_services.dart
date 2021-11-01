@@ -99,7 +99,7 @@ class FireBaseServices {
         await _firebaseMessaging.requestPermission();
         var res = await _firebaseMessaging.getToken();
         _logger.d("TOKEN:" + res);
-        await _setFirebaseSetting();
+    //    await _setFirebaseSetting();
         _sendFireBaseToken(await _firebaseMessaging.getToken());
       }catch(e){
         print("%%%%%%%%%%$e");

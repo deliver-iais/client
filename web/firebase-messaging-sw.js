@@ -21,20 +21,20 @@ importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js');
    console.log('[firebase-messaging-sw.js] Received background message ', payload);
    // Customize notification here
 
-//  var message = window.decodeMessageForCallFromJs(payload);
-//  if(message != null){
-//    var k =  message.prototype.keys();
-//    var roomName = k[0];
-//    if(roomName != null){
-//    const notificationTitle = roomName;
-//          const notificationOptions = {
-//            body: message.prototype.keys()[0],
-//            icon: 'icons/ic_launcher.png'
-//          };
-//          self.registration.showNotification(notificationTitle,
-//            notificationOptions);
-//    }
-//  }
+  var message = window.decodeMessageForCallFromJs(payload);
+  if(message != null){
+    var k =  message.prototype.keys();
+    var roomName = k[0];
+    if(roomName != null){
+    const notificationTitle = roomName;
+          const notificationOptions = {
+            body: message.prototype.keys()[0],
+            icon: 'icons/ic_launcher.png'
+          };
+          self.registration.showNotification(notificationTitle,
+            notificationOptions);
+    }
+  }
 
  });
 

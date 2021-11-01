@@ -67,6 +67,7 @@ dependencies:
   uni_links: 0.5.1
   flutter_map: 0.13.1
   geolocator: 7.0.1
+  location: ^4.3.0
   file_picker: 4.1.0
   logger: 1.0.0
   flutter_file_manager: ^0.2.0
@@ -77,6 +78,10 @@ dependencies:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+  geolocation_tnk:
+    git:
+      url: https://github.com/arxarinze/GeolocationPolyFill.git
+
   file_selector: 0.8.2
   file_selector_macos: 0.0.4
   file_selector_linux: 0.0.2

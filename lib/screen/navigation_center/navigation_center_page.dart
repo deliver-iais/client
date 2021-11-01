@@ -19,9 +19,11 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocation_tnk/geolocation.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:location/location.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -213,10 +215,22 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  selectChatMenu(String key) {
+
+  selectChatMenu(String key) async {
     switch (key) {
       case "newGroup":
-       _routingService.openMemberSelection(isChannel: false);
+        try{
+
+          GeolocationT.getCurrentPosition((e) {
+            print(e.coords.longitude);
+            print(e.coords.latitude);
+          }, (e) => print(e.toString()),
+              {"enableHighAccuracy": true, "timeout": 5000, "maximumAge": 0});
+         // print(res.toString());
+        }catch(e){
+          print(e.toString());
+        }
+     //  _routingService.openMemberSelection(isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(isChannel: true);
