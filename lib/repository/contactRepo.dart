@@ -8,6 +8,7 @@ import 'package:deliver/repository/roomRepo.dart';
 
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -182,5 +183,18 @@ class ContactRepo {
   Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
     var result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
+  }
+
+  Future<String> getContactFromServer(Uid contactUid)async {
+    try{
+      var contact = await _contactServices.getUserByUid(GetUserByUidReq()..uid = contactUid);
+      var name = buildName(contact.user.firstName, contact.user.lastName);
+      _uidIdNameDao.update(contactUid.asString(),name: name);
+      return name;
+    }catch(e){
+      _logger.e(e);
+      return null;
+    }
+
   }
 }
