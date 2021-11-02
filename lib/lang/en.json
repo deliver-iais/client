@@ -257,5 +257,6 @@
   "sure_delete_messages": "Are sure you want to delete these messages ?",
   "edited": "edited",
   "change_group_avatar": "changed group avatar",
-  "change_channel_avatar": "changed channel avatar"
+  "change_channel_avatar": "changed channel avatar",
+  "show_in_folder": "Show in folder"
 }

@@ -32,6 +32,7 @@ import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/newMessageInput.dart';
 import 'package:deliver/screen/room/widgets/recievedMessageBox.dart';
 import 'package:deliver/screen/room/widgets/sendedMessageBox.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -401,6 +402,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     ]).then<void>((OperationOnMessage opr) async {
       if (opr == null) return;
       switch (opr) {
+        // ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
           break;
@@ -426,11 +428,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
+              _editableMessage.add(message);
               break;
             case MessageType.FILE:
-              editMessageInput.add(message.json.toFile().caption);
+              showCaptionDialog(
+                  roomUid: widget.roomId.asUid(), editableMessage: message,paths: [],context: context);
           }
-          _editableMessage.add(message);
 
           break;
         case OperationOnMessage.SHARE:
@@ -892,7 +895,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     if (index > 0) {
       final prevMsg = await _messageAt(pendingMessages, index);
-      if(prevMsg.json.isDeletedMessage()  || msg.json.isDeletedMessage())
+      if (prevMsg.json.isDeletedMessage() || msg.json.isDeletedMessage())
         return null;
 
       final d1 = date(prevMsg.time);
