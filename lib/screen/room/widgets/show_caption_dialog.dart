@@ -91,7 +91,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                             if (s.hasData && s.data != null) {
                                               return Image.file(s.data);
                                             } else
-                                              return buildRow(0);
+                                              return buildRow(0,showManage: false);
                                           })),
                               Positioned(
                                   right: 5,
@@ -221,7 +221,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         : SizedBox.shrink();
   }
 
-  Row buildRow(int index) {
+  Row buildRow(int index, {bool showManage = true}) {
     return Row(
       children: [
         ClipOval(
@@ -251,7 +251,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
         ),
-        Align(alignment: Alignment.topRight, child: buildManage(index: index))
+        if (showManage)
+          Align(alignment: Alignment.topRight, child: buildManage(index: index))
       ],
     );
   }
