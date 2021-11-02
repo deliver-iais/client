@@ -86,6 +86,9 @@
   "ban": "اخراج",
   "kick": "حذف",
   "password": "رمز ورود",
+  "current_password": "رمز ورود حال حاضر",
+  "repeat_password": "تکرار رمز ورود",
+  "edit_password": "تغییر رمز ورود",
   "email": "نشانی اینترنتی",
   "description": "توضیحات",
   "save": "ذخیره",
@@ -265,5 +268,9 @@
   "enable_notifications" : "فعال کردن اعلان ها",
   "sure_delete_message": "آیا از حذف پیام مطمنید؟",
   "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
-  "edited": "ویرایش شده"
+  "edited": "ویرایش شده",
+  "security": "امنیت",
+  "enable_local_lock": "فعال سازی قفل برنامه",
+  "disable": "غیر فعال کردن",
+  "change": "تغییر"
 }

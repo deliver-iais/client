@@ -9,7 +9,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screen_lock/functions.dart';
 import 'package:flutter_screen_lock/screen_lock.dart';
 
 import 'package:get_it/get_it.dart';
@@ -56,9 +55,10 @@ class _SplashScreenState extends State<SplashScreen>
         _navigateToIntroPage();
       }
     }).then((_) {
-      if (!_authRepo.isLocalLocked()) {
+      if (!_authRepo.isLocalLockEnabled()) {
         navigateToApp();
       } else {
+        // navigateToApp();
         setState(() {
           _isLocked = true;
         });
@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen>
     return AnimatedSwitcher(
         duration: Duration(milliseconds: 100),
         child: _isLocked
-            ? (!isDesktop() ? desktopLock() : mobileLock(context))
+            ? (isDesktop() ? desktopLock() : mobileLock(context))
             : loading());
   }
 
@@ -157,7 +157,7 @@ class _SplashScreenState extends State<SplashScreen>
                   },
                   onSubmitted: (pass) {
                     if (_authRepo.localPasswordIsCorrect(pass)) {
-                      _animationController.forward(from: 0.25);
+                      _animationController.forward(from: 0.2);
                       Timer(Duration(milliseconds: 500), () {
                         navigateToApp();
                       });

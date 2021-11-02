@@ -44,7 +44,7 @@ class AuthRepo {
   PhoneNumber _tmpPhoneNumber;
 
   Future<void> init() async {
-    _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD);
+    _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
     var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
@@ -216,11 +216,9 @@ class AuthRepo {
     }
   }
 
-  // bool isLocalLocked() => _password != "";
-  bool isLocalLocked() => true;
+  bool isLocalLockEnabled() => _password != "";
 
-  // bool localPasswordIsCorrect(String pass) => _password == pass;
-  bool localPasswordIsCorrect(String pass) => "sad" == pass;
+  bool localPasswordIsCorrect(String pass) => _password == pass;
 
   String getLocalPassword() => this._password;
 

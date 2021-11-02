@@ -1,11 +1,9 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/account.dart';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
 
 import 'package:deliver/services/routing_service.dart';
 
@@ -212,6 +210,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
+                    title: i18n.get("security"),
+                    leading: Icon(Icons.security),
+                    onPressed: (BuildContext context) =>
+                        _routingService.openSecuritySettings(),
+                    trailing: SizedBox.shrink(),
+                  ),
+                  SettingsTile(
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
                     onPressed: (c) {
@@ -281,14 +286,6 @@ class _SettingsPageState extends State<SettingsPage> {
                           });
                         }
                       }),
-                  SettingsTile(
-                    title: "Lock",
-                    leading: Icon(Icons.lock),
-                    onPressed: (BuildContext context) =>
-                        ExtendedNavigator.of(context).pushAndRemoveUntil(
-                            Routes.splashScreen, (_) => false),
-                    trailing: SizedBox.shrink(),
-                  ),
                   SettingsTile(
                     title: i18n.get("logout"),
                     leading: Icon(Icons.exit_to_app),

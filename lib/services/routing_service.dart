@@ -22,6 +22,7 @@ import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/settings/pages/log_settings.dart';
+import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
 import 'package:deliver/services/core_services.dart';
@@ -129,6 +130,15 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/language_settings"));
+  }
+
+  void openSecuritySettings() {
+    var widget = SecuritySettingsPage(key: ValueKey("/security_settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/security_settings"));
   }
 
   void openDevicesPage() {

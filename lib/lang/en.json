@@ -77,6 +77,9 @@
   "ban": "Ban",
   "kick": "Kick",
   "password": "Password",
+  "repeat_password": "Repeat Password",
+  "current_password": "Current Password",
+  "edit_password": "Edit Password",
   "email": "Email",
   "description": "Description",
   "save": "Save",
@@ -256,5 +259,9 @@
   "enable_notifications" : "Enable notifications",
   "sure_delete_message": "Are sure you want to delete this message ?",
   "sure_delete_messages": "Are sure you want to delete these messages ?",
-  "edited": "edited"
+  "edited": "edited",
+  "security": "Security",
+  "enable_local_lock": "Enable local lock",
+  "disable": "Disable",
+  "change": "Change"
 }
