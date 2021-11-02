@@ -7,7 +7,10 @@ import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screen_lock/functions.dart';
+import 'package:flutter_screen_lock/screen_lock.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -17,19 +20,30 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  final _textEditingController = TextEditingController();
+  final _shakeController = ShakeWidgetController();
+  final _focusNode = FocusNode();
 
+  AnimationController _animationController;
   int _attempts = 0;
   bool _isLocked = false;
-  String _password = "";
 
   @override
   void initState() {
+    _animationController = AnimationController(vsync: this);
     tryInitAccountRepo();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   tryInitAccountRepo() async {
@@ -84,15 +98,28 @@ class _SplashScreenState extends State<SplashScreen> {
     return AnimatedSwitcher(
         duration: Duration(milliseconds: 100),
         child: _isLocked
-            ? (isDesktop() ? desktopLock() : mobileLock())
+            ? (!isDesktop() ? desktopLock() : mobileLock(context))
             : loading());
   }
 
-  Widget mobileLock() {
-    return Container(
-      color: Colors.red,
-      width: 100,
-      height: 100,
+  Widget mobileLock(BuildContext context) {
+    return ScreenLock(
+      correctString: "1234",
+      canCancel: false,
+      maxRetries: 5,
+      customizedButtonChild: const Icon(
+        Icons.fingerprint,
+      ),
+      custmizedButtonTap: () {},
+      footer: Container(
+        width: 200,
+        height: 60,
+        child: TextButton(
+          child: Text("logout",
+              style: Theme.of(context).primaryTextTheme.headline6),
+          onPressed: () {},
+        ),
+      ),
     );
   }
 
@@ -104,7 +131,14 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lock, size: 45),
+              ShakeWidget(
+                controller: _shakeController,
+                child: Lottie.asset('assets/animations/unlock.json',
+                    onLoaded: (c) => _animationController.duration = c.duration,
+                    width: 60,
+                    height: 60,
+                    controller: _animationController),
+              ),
               SizedBox(height: 20),
               Text(
                 "Enter your local password",
@@ -116,17 +150,31 @@ class _SplashScreenState extends State<SplashScreen> {
                   obscureText: true,
                   enableSuggestions: false,
                   autocorrect: false,
-                  onChanged: (pass) => setState(() {
-                    _password = pass;
-                  }),
-                  onSubmitted: (pass) => _authRepo.localPasswordIsCorrect(pass)
-                      ? navigateToApp()
-                      : {},
+                  controller: _textEditingController,
+                  focusNode: _focusNode,
+                  onChanged: (String pass) => {
+                    if (pass.length == 0 || pass.length == 1) setState(() {})
+                  },
+                  onSubmitted: (pass) {
+                    if (_authRepo.localPasswordIsCorrect(pass)) {
+                      _animationController.forward(from: 0.25);
+                      Timer(Duration(milliseconds: 500), () {
+                        navigateToApp();
+                      });
+                    } else {
+                      setState(() {
+                        _shakeController.shake();
+                        _textEditingController.clear();
+                        _focusNode.requestFocus();
+                      });
+                    }
+                  },
                 ),
               ),
               SizedBox(height: 20),
               TextButton(
-                  onPressed: _password == "" ? null : () => {},
+                  onPressed:
+                      _textEditingController.text == "" ? null : () => {},
                   child: Container(
                       height: 40,
                       width: 180,
@@ -139,15 +187,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget loading() {
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Lottie.asset(
-          'assets/animations/loading.json',
-          width: 300,
-          height: 300,
-        ),
-      ),
-    );
+    return Container();
   }
 }

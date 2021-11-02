@@ -168,6 +168,7 @@ flutter:
     - lib/lang/en.json
     - assets/backgrounds/
     - assets/animations/done.json
+    - assets/animations/unlock.json
     - assets/animations/loading.json
     - assets/animations/error.json
     - assets/animations/audio_wave.json
