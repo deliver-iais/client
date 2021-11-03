@@ -50,8 +50,8 @@ class PersistentEventMessage extends StatelessWidget {
                       MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
                 FutureBuilder<File>(
                     future: _fileRepo.getFile(
-                        "b039a936-9cbc-4636-9df0-8b2f4908901f",
-                        "wg2ebsshi26t.jpeg"),
+                        persistentEventMessage.mucSpecificPersistentEvent.avatar.fileUuid,
+                        persistentEventMessage.mucSpecificPersistentEvent.avatar.fileName),
                     builder: (context, fileSnapshot) {
                       if (fileSnapshot.hasData && fileSnapshot.data != null) {
                         return CircleAvatar(
