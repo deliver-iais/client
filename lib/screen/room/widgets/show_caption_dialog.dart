@@ -29,16 +29,16 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   final TextEditingController _editingController = TextEditingController();
 
-  List<String> fileNames = [];
-  String type = "";
-  FocusNode captionFocusNode = FocusNode();
+  List<String> _fileNames = [];
+  String _type = "";
+  FocusNode _captionFocusNode = FocusNode();
 
   @override
   void initState() {
-    type = widget.type;
+    _type = widget.type;
     widget.paths.forEach((element) {
       element = element.replaceAll("\\", "/");
-      fileNames.add(element.split("/").last);
+      _fileNames.add(element.split("/").last);
     });
     super.initState();
   }
@@ -55,11 +55,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   widget.paths.length <= 1 &&
-                          type != null &&
-                          (type.contains("image") ||
-                              type.contains("jpg") ||
-                              type.contains("png") ||
-                              type.contains("jfif")||type.contains("jpeg"))
+                          _type != null &&
+                          (_type.contains("image") ||
+                              _type.contains("jpg") ||
+                              _type.contains("png") ||
+                              _type.contains("jfif") ||
+                              _type.contains("jpeg"))
                       ? Container(
                           height: MediaQuery.of(context).size.height / 3,
                           child: Stack(
@@ -105,9 +106,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      fileNames[index],
+                                      _fileNames[index],
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(color: ExtraTheme.of(context).textField),
+                                      style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).textField),
                                     ),
                                   ),
                                   Align(
@@ -128,7 +131,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     height: 5,
                   ),
                   RawKeyboardListener(
-                    focusNode: captionFocusNode,
+                    focusNode: _captionFocusNode,
                     onKey: (event) {
                       if (event.logicalKey == LogicalKeyboardKey.enter) {
                         sendMessages(context);
@@ -139,8 +142,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                         keyboardType: TextInputType.multiline,
                         minLines: 1,
                         maxLines: 5,
-                       autofocus: true,
-                        style: TextStyle(fontSize: 15,color: ExtraTheme.of(context).textField),
+                        autofocus: true,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: ExtraTheme.of(context).textField),
                         decoration: InputDecoration(
                           labelText: _i18n.get("caption"),
                         )),
@@ -158,7 +163,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           var res = await getFile(allowMultiple: true);
                           res.paths.forEach((element) {
                             widget.paths.add(element);
-                            fileNames.add(isWindows()
+                            _fileNames.add(isWindows()
                                 ? element.split("\\").last
                                 : element.split("/").last);
                           });
@@ -209,11 +214,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   void sendMessages(BuildContext context) {
-     Navigator.pop(context);
-    _messageRepo.sendMultipleFilesMessages(
-        widget.currentRoom, widget.paths,
-        caption:
-            _editingController.text.toString());
+    Navigator.pop(context);
+    _messageRepo.sendMultipleFilesMessages(widget.currentRoom, widget.paths,
+        caption: _editingController.text.toString());
   }
 
   Widget buildManage({int index}) {
@@ -223,11 +226,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             onPressed: () async {
               FilePickerResult result = await getFile(allowMultiple: false);
               if (result.paths != null && result.paths.length > 0) {
-                fileNames[index] = isWindows()
+                _fileNames[index] = isWindows()
                     ? result.paths[0].split("\\").last
                     : result.paths[0].split("/").last;
                 widget.paths[index] = result.paths[0];
-                type = result.paths.first.split(".").last;
+                _type = result.paths.first.split(".").last;
                 setState(() {});
               }
             },
@@ -239,7 +242,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         IconButton(
             onPressed: () {
               widget.paths.removeAt(index);
-              fileNames.removeAt(index);
+              _fileNames.removeAt(index);
               if (widget.paths == null || widget.paths.length == 0)
                 Navigator.pop(context);
               setState(() {});
