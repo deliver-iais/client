@@ -41,28 +41,6 @@ class PersistentEventMessage extends StatelessWidget {
         : Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.json.toPersistentEvent().whichType() ==
-                      PersistentEvent_Type.mucSpecificPersistentEvent &&
-                  message.json
-                          .toPersistentEvent()
-                          .mucSpecificPersistentEvent
-                          .issue ==
-                      MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
-                FutureBuilder<File>(
-                    future: _fileRepo.getFile(
-                        persistentEventMessage.mucSpecificPersistentEvent.avatar.fileUuid,
-                        persistentEventMessage.mucSpecificPersistentEvent.avatar.fileName),
-                    builder: (context, fileSnapshot) {
-                      if (fileSnapshot.hasData && fileSnapshot.data != null) {
-                        return CircleAvatar(
-                          backgroundImage:
-                              Image.file(File(fileSnapshot.data.path)).image,
-                          radius: 35,
-                        );
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }),
               Container(
                 margin: const EdgeInsets.all(4.0),
                 padding: const EdgeInsets.only(
@@ -89,6 +67,30 @@ class PersistentEventMessage extends StatelessWidget {
                   },
                 ),
               ),
+              if (message.json.toPersistentEvent().whichType() ==
+                      PersistentEvent_Type.mucSpecificPersistentEvent &&
+                  message.json
+                          .toPersistentEvent()
+                          .mucSpecificPersistentEvent
+                          .issue ==
+                      MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
+                FutureBuilder<File>(
+                    future: _fileRepo.getFile(
+                        persistentEventMessage
+                            .mucSpecificPersistentEvent.avatar.fileUuid,
+                        persistentEventMessage
+                            .mucSpecificPersistentEvent.avatar.fileName),
+                    builder: (context, fileSnapshot) {
+                      if (fileSnapshot.hasData && fileSnapshot.data != null) {
+                        return CircleAvatar(
+                          backgroundImage:
+                              Image.file(File(fileSnapshot.data.path)).image,
+                          radius: 35,
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
             ],
           );
   }
@@ -143,8 +145,9 @@ class PersistentEventMessage extends StatelessWidget {
               softWrap: false,
               style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
             ),
-            onTap: () => onPinMessageClick(
-                persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt()),
+            onTap: () => onPinMessageClick(persistentEventMessage
+                .mucSpecificPersistentEvent.messageId
+                .toInt()),
           );
         }
 
@@ -156,6 +159,7 @@ class PersistentEventMessage extends StatelessWidget {
         );
         return [
           issuerWidget,
+          SizedBox(width: 2,),
           s,
           SizedBox(
             width: 2,
