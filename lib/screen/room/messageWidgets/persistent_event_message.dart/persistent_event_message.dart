@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -7,6 +10,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -20,12 +24,16 @@ class PersistentEventMessage extends StatelessWidget {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingServices = GetIt.I.get<RoutingService>();
+  final _messageDao = GetIt.I.get<MessageDao>();
+  final Function onPinMessageClick;
 
-  PersistentEventMessage({Key key, this.message}) : super(key: key);
+  PersistentEventMessage({Key key, this.message, this.onPinMessageClick})
+      : super(key: key);
+  PersistentEvent persistentEventMessage;
 
   @override
   Widget build(BuildContext context) {
-    PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
+    persistentEventMessage = message.json.toPersistentEvent();
     return message.json == "{}"
         ? Container(
             height: 0.0,
@@ -124,6 +132,21 @@ class PersistentEventMessage extends StatelessWidget {
                 .asString()),
           );
         }
+        var pinedMessageWidget;
+        if (persistentEventMessage.mucSpecificPersistentEvent.issue ==
+            MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
+          var content = await getPinnedMessageContent();
+          pinedMessageWidget = GestureDetector(
+            child: Text(
+              "<<${content.substring(0, min(content.length, 15))} >>",
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
+            ),
+            onTap: () => onPinMessageClick(
+                persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt()),
+          );
+        }
 
         var s = Text(
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
@@ -137,7 +160,8 @@ class PersistentEventMessage extends StatelessWidget {
           SizedBox(
             width: 2,
           ),
-          if (assigneeWidget != null) assigneeWidget
+          if (assigneeWidget != null) assigneeWidget,
+          if (pinedMessageWidget != null) pinedMessageWidget,
         ];
 
         break;
@@ -217,6 +241,57 @@ class PersistentEventMessage extends StatelessWidget {
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
         break;
+    }
+  }
+
+  Future<String> getPinnedMessageContent() async {
+    var m = await _messageDao.getMessage(message.roomUid,
+        persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt());
+    switch (m.type) {
+      case MessageType.TEXT:
+        return m.json.toText().text;
+        break;
+      case MessageType.FILE:
+        return m.json.toFile().caption ?? "";
+        break;
+      case MessageType.STICKER:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LOCATION:
+        return _i18n.get("location");
+        break;
+      case MessageType.LIVE_LOCATION:
+        return _i18n.get("live_location");
+        break;
+      case MessageType.POLL:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM:
+        return _i18n.get("form");
+        break;
+      case MessageType.PERSISTENT_EVENT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.NOT_SET:
+        // TODO: Handle this case.
+        break;
+      case MessageType.BUTTONS:
+        // TODO: Handle this case.
+        break;
+      case MessageType.SHARE_UID:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM_RESULT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+        // TODO: Handle this case.
+        break;
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+        // TODO: Handle this case.
+        break;
+      default:
+        return "";
     }
   }
 }

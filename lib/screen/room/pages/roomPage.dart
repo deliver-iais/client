@@ -432,7 +432,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               break;
             case MessageType.FILE:
               showCaptionDialog(
-                  roomUid: widget.roomId.asUid(), editableMessage: message,paths: [],context: context);
+                  roomUid: widget.roomId.asUid(),
+                  editableMessage: message,
+                  paths: [],
+                  context: context);
           }
 
           break;
@@ -974,7 +977,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               Padding(
                 padding: EdgeInsets.symmetric(
                     vertical: msg.json == "{}" ? 0.0 : 4.0),
-                child: PersistentEventMessage(message: msg),
+                child: PersistentEventMessage(
+                  message: msg,
+                  onPinMessageClick: (int id) {
+                    setState(() {
+                      _replyMessageId = id;
+                    });
+                    _itemScrollController.scrollTo(
+                        alignment: .5,
+                        curve: Curves.easeOut,
+                        opacityAnimationWeights: [20, 20, 60],
+                        index: id,
+                        duration: Duration(milliseconds: 1000));
+                    Timer(Duration(seconds: 1), () {
+                      setState(() {
+                        _replyMessageId = -1;
+                      });
+                    });
+                  },
+                ),
               ),
             ],
           );
@@ -1056,7 +1077,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _scrollToMessage({int id, int position}) {
     _itemScrollController.scrollTo(
-        index: position - 3, duration: Duration(microseconds: 1));
+      index: id,
+      duration: Duration(microseconds: 1),
+      alignment: .5,
+      curve: Curves.easeOut,
+      opacityAnimationWeights: [20, 20, 60],
+    );
     if (id != -1)
       setState(() {
         _replyMessageId = id;
