@@ -1,10 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/repository/contactRepo.dart';
-
-import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +28,7 @@ class _NewContactState extends State<NewContact> {
 
   String _firstName = "";
   String _lastName = "";
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +39,29 @@ class _NewContactState extends State<NewContact> {
         title: Text(_i18n.get("add_new_contact")),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: IconButton(
-                icon: Icon(Icons.check),
-                iconSize: 40,
-                onPressed: () async {
-                  if (_phoneNumber == null) {
-                    return;
-                  }
-                  await _contactRepo.addContact(Contact()
-                    ..phoneNumber = _phoneNumber
-                    ..firstName = _firstName
-                    ..lastName = _lastName);
-                  await showResult();
-                  _routingServices.pop();
-                }),
-          )
+              padding: const EdgeInsets.only(right: 20),
+              child: !_isLoading
+                  ? IconButton(
+                      icon: Icon(Icons.check),
+                      iconSize: 40,
+                      onPressed: () async {
+                        if (_phoneNumber == null) {
+                          return;
+                        }
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        bool addContact =
+                            await _contactRepo.addContact(Contact()
+                              ..phoneNumber = _phoneNumber
+                              ..firstName = _firstName
+                              ..lastName = _lastName);
+                        if (addContact) {
+                          await showResult();
+                          _routingServices.pop();
+                        }
+                      })
+                  : Center(child: CircularProgressIndicator()))
         ],
       ),
       body: FluidContainerWidget(
@@ -118,9 +125,17 @@ class _NewContactState extends State<NewContact> {
         _phoneNumber.countryCode.toString(),
         _phoneNumber.nationalNumber.toString());
     if (result) {
-      ToastDisplay.showToast(toastText: _i18n.get("contactAdd"),tostContext: context);
+      setState(() {
+        _isLoading = false;
+      });
+      ToastDisplay.showToast(
+          toastText: _i18n.get("contactAdd"), tostContext: context);
     } else {
-      ToastDisplay.showToast(toastText: _i18n.get("contact_not_exist"),tostContext: context);
+      setState(() {
+        _isLoading = false;
+      });
+      ToastDisplay.showToast(
+          toastText: _i18n.get("contact_not_exist"), tostContext: context);
     }
   }
 }

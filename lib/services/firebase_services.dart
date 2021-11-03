@@ -7,6 +7,8 @@ import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/main.dart';
 
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/core_services.dart';
+
 
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -98,7 +100,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     try {
       if (_uxService.isAllNotificationDisabled ||
           await _muteDao.isMuted(roomUid.asString()) ||
-          _authRepo.isCurrentUser(msg.from.asString())) {
+          !showNotifyForThisMessage(msg, _authRepo)) {
         return;
       }
     } catch (e) {}
@@ -108,11 +110,19 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     } else if (msg.from.category == Categories.BOT) {
       roomName = msg.from.node;
     } else if (msg.to.category == Categories.USER) {
-     var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-      if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+      if (uidName != null)
+        roomName = uidName.name != null && uidName.name.isNotEmpty
+            ? uidName.name
+            : uidName.id != null && uidName.id.isNotEmpty
+                ? uidName.id
+                : msg.from.isGroup()
+                    ? "Group"
+                    : msg.from.isChannel()
+                        ? "Channel"
+                        : "UnKnown";
     }
 
     _notificationServices.showNotification(msg, roomName: roomName);
-
   }
 }

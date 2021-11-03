@@ -1,3 +1,4 @@
+import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/widgets/inputMessage.dart';
@@ -11,6 +12,7 @@ class NewMessageInput extends StatelessWidget {
   final int replyMessageId;
   final Function resetRoomPageDetails;
   final bool waitingForForward;
+  final Message editableMessage;
   final Function sendForwardMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final Function scrollToLastSentMessage;
@@ -21,6 +23,7 @@ class NewMessageInput extends StatelessWidget {
       this.replyMessageId,
       this.resetRoomPageDetails,
       this.waitingForForward,
+      this.editableMessage,
       this.sendForwardMessage,
       this.scrollToLastSentMessage})
       : super(key: key);
@@ -37,6 +40,7 @@ class NewMessageInput extends StatelessWidget {
                 replyMessageId: replyMessageId,
                 resetRoomPageDetails: resetRoomPageDetails,
                 waitingForForward: waitingForForward,
+                editableMessage:editableMessage,
                 sendForwardMessage: sendForwardMessage,
                 scrollToLastSentMessage: scrollToLastSentMessage);
           } else {

@@ -71,12 +71,6 @@ class RoomDaoImpl implements RoomDao {
   Future<void> updateRoom(Room room) async {
     var box = await _openRoom();
 
-    if (room != null && room.lastMessage != null) {
-      room = room.copyWith(
-          lastMessageId: room.lastMessage.id,
-          firstMessageId: room.firstMessageId);
-    }
-
     var r = box.get(room.uid) ?? room;
 
     return box.put(room.uid, r.copy(room));

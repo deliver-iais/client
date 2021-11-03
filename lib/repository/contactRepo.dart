@@ -10,6 +10,7 @@ import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -156,13 +157,20 @@ class ContactRepo {
   }
 
   Future<List<Uid>> searchUser(String query) async {
-    var result =
-        await _queryServiceClient.searchUid(SearchUidReq()..text = query);
-    List<Uid> searchResult = [];
-    for (var room in result.itemList) {
-      searchResult.add(room.uid);
+    try {
+      var result = await _queryServiceClient.searchUid(SearchUidReq()
+        ..text = query
+        ..justSearchInId = true
+        ..category = Categories.USER
+        ..filterByCategory = false);
+      List<Uid> searchResult = [];
+      for (var room in result.itemList) {
+        searchResult.add(room.uid);
+      }
+      return searchResult;
+    } catch (e) {
+      _logger.e(e);
     }
-    return searchResult;
   }
 
   // TODO needs to be refactored!

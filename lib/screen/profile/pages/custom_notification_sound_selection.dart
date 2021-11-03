@@ -85,7 +85,7 @@ class _CustomNotificationSoundSelectionState
                 return ListTile(
                   onLongPress: () => onLongPress(isSelected, index),
                   onTap: () => onTap(isSelected, index),
-                  title: Text("${data}"),
+                  title: Text("$data"),
                   trailing: _buildSelectIcon(isSelected, data),
                 );
               },
