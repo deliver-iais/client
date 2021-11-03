@@ -257,5 +257,6 @@
   "sure_delete_message": "Are sure you want to delete this message ?",
   "sure_delete_messages": "Are sure you want to delete these messages ?",
   "edited": "edited",
-  "save_in_downloads" : "Save in Downloads"
+  "save_in_downloads" : "Save in Downloads",
+  "send_location_permission": "Are you want to sent your location?"
 }

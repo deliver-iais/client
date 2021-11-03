@@ -451,8 +451,8 @@ class _ShareBoxState extends State<ShareBox> {
                   ),
                   onTap: () {
                     Navigator.of(context).pop();
-                    messageRepo.sendLocationMessage(
-                        position.data, widget.currentRoomId);
+                    messageRepo.sendLocationMessage(position.data.longitude,
+                        position.data.latitude, widget.currentRoomId);
                   },
                 ),
                 SizedBox(

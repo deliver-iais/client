@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -27,12 +28,15 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
@@ -107,6 +111,7 @@ class _InputMessageWidget extends State<InputMessage> {
   int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -367,16 +372,28 @@ class _InputMessageWidget extends State<InputMessage> {
                                     if (sh.hasData &&
                                         !sh.data &&
                                         !widget.waitingForForward) {
-                                      return IconButton(
-                                          icon: Icon(
-                                            Icons.attach_file,
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                          ),
-                                          onPressed: () {
-                                            backSubject.add(false);
-                                            showButtonSheet();
-                                          });
+                                      return Row(
+                                        children: [
+                                          if (kIsWeb)
+                                            IconButton(
+                                              onPressed: () =>
+                                                  _showSendLocationDialog(),
+                                              icon: Icon(Icons.room),
+                                              color: ExtraTheme.of(context)
+                                                  .textField,
+                                            ),
+                                          IconButton(
+                                              icon: Icon(
+                                                Icons.attach_file,
+                                                color: ExtraTheme.of(context)
+                                                    .textField,
+                                              ),
+                                              onPressed: () {
+                                                backSubject.add(false);
+                                                showButtonSheet();
+                                              }),
+                                        ],
+                                      );
                                     } else {
                                       return SizedBox.shrink();
                                     }
@@ -730,17 +747,40 @@ class _InputMessageWidget extends State<InputMessage> {
             });
   }
 
-  String getEditableMessageContent() {
-    String text = "";
-    // ignore: missing_enum_constant_in_switch
-    switch (widget.editableMessage.type) {
-      case MessageType.TEXT:
-        text = widget.editableMessage.json.toText().text;
-        break;
-      case MessageType.FILE:
-        text = widget.editableMessage.json.toFile().caption;
+  _showSendLocationDialog() async {
+    showDialog(
+        context: context,
+        builder: (c) {
+          return AlertDialog(
+            content: Text(
+              _i18n.get("send_location_permission"),
+              style: TextStyle(color: ExtraTheme.of(context).textField),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(_i18n.get("cancel"))),
+              TextButton(
+                  onPressed: () {
+                    sendLocation();
+                    Navigator.pop(context);
+                  },
+                  child: Text(_i18n.get("ok")))
+            ],
+          );
+        });
+  }
+
+  sendLocation() async {
+    await Geolocator.requestPermission();
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    if (position != null) {
+      print(position.toString());
+      // var latitude = jsonDecode(response.body)["latitude"];
+      // var longitude = jsonDecode(response.body)["longitude"];
+      messageRepo.sendLocationMessage(double.parse("51.415279388427734"),
+          double.parse("35.68722152709961"), widget.currentRoom.uid.asUid());
     }
-    return text + " ";
   }
 }
 

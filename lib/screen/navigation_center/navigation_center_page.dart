@@ -219,18 +219,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) async {
     switch (key) {
       case "newGroup":
-        try{
-
-          GeolocationT.getCurrentPosition((e) {
-            print(e.coords.longitude);
-            print(e.coords.latitude);
-          }, (e) => print(e.toString()),
-              {"enableHighAccuracy": true, "timeout": 5000, "maximumAge": 0});
-         // print(res.toString());
-        }catch(e){
-          print(e.toString());
-        }
-     //  _routingService.openMemberSelection(isChannel: false);
+       _routingService.openMemberSelection(isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(isChannel: true);

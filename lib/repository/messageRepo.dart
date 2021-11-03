@@ -377,11 +377,13 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendLocationMessage(Position locationData, Uid room,
+  sendLocationMessage(double longitude,double latitude, Uid room,
       {String forwardedFrom, int replyId}) async {
+
+
     String json = (protoModel.Location()
-          ..longitude = locationData.longitude
-          ..latitude = locationData.latitude)
+          ..longitude = longitude
+          ..latitude = latitude)
         .writeToJson();
 
     Message msg =

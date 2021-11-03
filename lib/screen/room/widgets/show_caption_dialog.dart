@@ -44,7 +44,6 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    print("####"+widget.paths.values.first);
     return widget.paths != null && widget.paths.length > 0
         ? SingleChildScrollView(
             child: Container(
