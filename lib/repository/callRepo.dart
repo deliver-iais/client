@@ -313,7 +313,7 @@ class CallRepo {
     await _setCallCandidate(callOffer.candidates);
 
     //And Create Answer for Calle
-    _answerSdp = _createAnswer();
+    _answerSdp = await _createAnswer();
 
     callingStatus.add(CallStatus.ACCEPTED);
   }
