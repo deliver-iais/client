@@ -134,7 +134,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     focusNode: _captionFocusNode,
                     onKey: (event) {
                       if (event.logicalKey == LogicalKeyboardKey.enter) {
-                        sendMessages(context);
+                        sendMessages();
                       }
                     },
                     child: TextFormField(
@@ -191,9 +191,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             width: 16,
                           ),
                           GestureDetector(
-                              onTap: () {
-                                sendMessages(context);
-                              },
+                              onTap: () => sendMessages(),
                               child: Text(
                                 _i18n.get("send"),
                                 style:
@@ -213,7 +211,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         : SizedBox.shrink();
   }
 
-  void sendMessages(BuildContext context) {
+  void sendMessages() {
     Navigator.pop(context);
     _messageRepo.sendMultipleFilesMessages(widget.currentRoom, widget.paths,
         caption: _editingController.text.toString());
