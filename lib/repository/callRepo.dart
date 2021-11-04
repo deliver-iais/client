@@ -4,13 +4,7 @@ import 'dart:convert';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
-import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/webRtcKeys.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -19,13 +13,15 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
+enum CallStatus {
+  CREATED , IS_RINGING , DECLINED , BUSY , ENDED , NO_CALL , ACCEPTED , IN_CALL
+}
+
 class CallRepo {
 
   final messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
-  final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _routingServices = GetIt.I.get<RoutingService>();
 
   MediaStream _localStream;
   MediaStream _localStreamShare;
@@ -35,14 +31,12 @@ class CallRepo {
 
   String _offerSdp;
   String _answerSdp;
-  String _offerSdpCandidate;
   String _callId;
 
   RTCPeerConnection _peerConnection;
   final String _stunServerURL = "stun:stun.l.google.com:19302";
 
 
-  int _time;
   bool _onCalling = false;
   bool _isSharing = false;
 
@@ -58,30 +52,41 @@ class CallRepo {
     _coreServices.callEvents.listen((event) async {
       switch (event.callTypes) {
         case CallTypes.Answer:
+          _receivedCallAnswer(event.callAnswer);
           break;
         case CallTypes.Offer:
+          _receivedCallOffer(event.callOffer);
           break;
         case CallTypes.Event:
           var callEvent = event.callEvent;
           switch (callEvent.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
+              callingStatus.add(CallStatus.IS_RINGING);
               break;
             case CallEvent_CallStatus.CREATED:
-              incomingCall(event.roomUid);
-              messageRepo.sendCallMessage(CallEvent_CallStatus.IS_RINGING, event.roomUid, callEvent.id);
+              if(!_onCalling) {
+                _callId = callEvent.id;
+                incomingCall(event.roomUid);
+              }else{
+                messageRepo.sendCallMessage(
+                    CallEvent_CallStatus.BUSY, event.roomUid,
+                    callEvent.id);
+              }
               break;
             case CallEvent_CallStatus.BUSY:
+              receivedBusyCall();
               break;
             case CallEvent_CallStatus.DECLINED:
+              receivedDeclinedCall();
               break;
             case CallEvent_CallStatus.ENDED:
+              receivedEndCall();
               break;
           }
           break;
       }
     });
   }
-
   /*
   * initial Variable for Render Call Between 2 Client
   * */
@@ -89,7 +94,6 @@ class CallRepo {
     await _createPeerConnection(isOffer).then((pc) {
       _peerConnection = pc;
     });
-    _onCalling = true;
   }
 
   _createPeerConnection(bool isOffer) async {
@@ -244,61 +248,74 @@ class CallRepo {
   }
 
   void incomingCall(Uid roomId) {
-    if (!_onCalling) {
-      callingStatus.add("incomingCall");
-      _roomUid = roomId;
-      hasCall.add(roomId);
-    } else {
-      messageRepo.sendTextMessage(_roomUid, webRtcCallBusied);
-      _dispose();
-    }
+    _onCalling = true;
+    _roomUid = roomId;
+    callingStatus.add(CallStatus.CREATED);
+    messageRepo.sendCallMessage(
+        CallEvent_CallStatus.IS_RINGING, _roomUid,
+        _callId);
   }
 
   void startCall(Uid roomId) async {
-    var random = randomAlphaNumeric(10);
-    var time = DateTime.now().millisecondsSinceEpoch;
-    //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
-    _callId = time.toString() + "-" + random;
-
     if(!_onCalling) {
-      await initCall(true);
-      callingStatus.add("startCall");
+      await initCall(false);
+      callingStatus.add(CallStatus.CREATED);
       //Set Timer 44 sec for end call
+      Timer(Duration(seconds: 44), () {
+        callingStatus.add(CallStatus.ENDED);
+        endCall();
+      });
       _roomUid = roomId;
-      hasCall.add(roomId);
-      _offerSdp = await _createOffer();
+      _onCalling = true;
+      _sendStartCallEvent();
     }else{
       _logger.i("User on Call ... !");
     }
   }
 
+  _sendStartCallEvent(){
+    _callIdGenerator();
+    messageRepo.sendCallMessage(CallEvent_CallStatus.CREATED, _roomUid, _callId);
+  }
+
+  _callIdGenerator() {
+    var random = randomAlphaNumeric(10);
+    var time = DateTime.now().millisecondsSinceEpoch;
+    //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
+    var callId = time.toString() + "-" + random;
+    _callId = callId;
+  }
+
   void acceptCall(Uid roomId) async {
     _roomUid = roomId;
-    callingStatus.add("acceptCall");
-    var offerSdpWithCandidateWithoutDetector = _offerSdpCandidate.split(webRtcDetectionOffer)[1];
-    var data = jsonDecode(offerSdpWithCandidateWithoutDetector);
-    //set Remote Descriptions and Candidate
-    await _setRemoteDescriptionOffer(data['offer']);
-    await _setCallCandidate(data['candidate']);
-    //CreateAnswer
-    _answerSdp = await _createAnswer();
+    callingStatus.add(CallStatus.ACCEPTED);
+    _offerSdp = _createOffer();
   }
 
   void declineCall() {
-    callingStatus.add("declinedCall");
-    messageRepo.sendTextMessage(_roomUid, CallEvent_CallStatus.DECLINED.toString());
+    callingStatus.add(CallStatus.DECLINED);
+    messageRepo.sendCallMessage(CallEvent_CallStatus.DECLINED, _roomUid, _callId);
     _dispose();
   }
 
-  void receivedCallAnswer(String answerSdpWithCandidate) async {
+  void _receivedCallAnswer(CallAnswer callAnswer) async {
 
-    var answerSdpWithCandidateWithoutDetector = answerSdpWithCandidate.split(webRtcDetectionAnswer)[1];
-    var data = jsonDecode(answerSdpWithCandidateWithoutDetector);
     //set Remote Descriptions and Candidate
-    await _setRemoteDescriptionAnswer(data['answer']);
-    await _setCallCandidate(data['candidate']);
+    await _setRemoteDescriptionAnswer(callAnswer.body);
+    await _setCallCandidate(callAnswer.candidates);
 
-    callingStatus.add("answer");
+    callingStatus.add(CallStatus.IN_CALL);
+  }
+
+  void _receivedCallOffer(CallOffer callOffer) async {
+    //set Remote Descriptions and Candidate
+    await _setRemoteDescriptionOffer(callOffer.body);
+    await _setCallCandidate(callOffer.candidates);
+
+    //And Create Answer for Calle
+    _answerSdp = _createAnswer();
+
+    callingStatus.add(CallStatus.ACCEPTED);
   }
 
   _setCallCandidate(String candidatesJson) async {
@@ -311,22 +328,23 @@ class CallRepo {
   }
 
   void receivedBusyCall() {
-    callingStatus.add("busy");
+    callingStatus.add(CallStatus.BUSY);
     _dispose();
   }
 
   void receivedDeclinedCall() {
-    callingStatus.add("declined");
+    _logger.i("get declined");
+    callingStatus.add(CallStatus.DECLINED);
     _dispose();
   }
 
   void receivedEndCall() {
-    callingStatus.add("end");
+    callingStatus.add(CallStatus.ENDED);
     _dispose();
   }
 
   endCall() async {
-    messageRepo.sendTextMessage(_roomUid, webRtcCallEnded);
+    messageRepo.sendCallMessage(CallEvent_CallStatus.ENDED, _roomUid, _callId);
     await _dispose();
   }
 
@@ -375,32 +393,31 @@ class CallRepo {
   }
 
   _calculateCandidateAndSendOffer() async{
+    //w8 about 3 Sec for received Candidate
     await Future.delayed(Duration(seconds: 3));
     // Send Candidate to Receiver
     var jsonCandidates = jsonEncode(_candidate);
-    Map<String, String> offerWithCandidate = {
-      "offer" : _offerSdp,
-      "candidate": jsonCandidates
-    };
-    var offerWithCandidateJson = jsonEncode(offerWithCandidate);
-    var callTime = DateTime.now().millisecondsSinceEpoch - _time;
-    _logger.i("Time For Start Call:" + callTime.toString());
     //Send offer and Candidate as message to Receiver
-    messageRepo.sendTextMessage(
-        _roomUid, webRtcDetectionOffer + offerWithCandidateJson);
+    var callOfferByClient = (CallOfferByClient()
+      ..id = _callId
+      ..body = _offerSdp
+      ..candidates = jsonCandidates
+      ..to = _roomUid);
+    _coreServices.sendCallOffer(callOfferByClient);
   }
 
-  _calculateCandidateAndSendAnswer() {
+  _calculateCandidateAndSendAnswer() async{
+    //w8 about 3 Sec for received Candidate
+    await Future.delayed(Duration(seconds: 3));
     // Send Candidate back to Sender
     var jsonCandidates = jsonEncode(_candidate);
-    Map<String, String> answerWithCandidate = {
-      "answer" : _answerSdp,
-      "candidate": jsonCandidates
-    };
-    var answerWithCandidateJson = jsonEncode(answerWithCandidate);
     //Send Answer and Candidate as message to Sender
-    messageRepo.sendTextMessage(
-        _roomUid, webRtcDetectionAnswer + answerWithCandidateJson);
+    var callAnswerByClient = (CallAnswerByClient()
+      ..id = _callId
+      ..body = _answerSdp
+      ..candidates = jsonCandidates
+      ..to = _roomUid);
+    _coreServices.sendCallAnswer(callAnswerByClient);
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
@@ -410,21 +427,24 @@ class CallRepo {
   }
 
   _dispose() async {
+    _logger.i("end call in service");
     await _cleanLocalStream();
-    await _peerConnection.dispose();
+    await _peerConnection?.dispose();
     _candidate = [];
-    _roomUid.clear();
-    hasCall.add(null);
-    if (callingStatus.value == "declined" || callingStatus.value == "busy") {
+    if (callingStatus.value == CallStatus.DECLINED || callingStatus.value == CallStatus.BUSY) {
       Timer(Duration(seconds: 4), () {
-        callingStatus.add(null);
+        callingStatus.add(CallStatus.ENDED);
       });
-    } else {
-      callingStatus.add(null);
     }
+    Timer(Duration(seconds: 2), () {
+      callingStatus.add(CallStatus.NO_CALL);
+    });
     _offerSdp = null;
-    bool _onCalling = false;
-    bool _isSharing = false;
+    _answerSdp = null;
+    _callId = null;
+    _roomUid = null;
+    _onCalling = false;
+    _isSharing = false;
   }
 
   _cleanLocalStream() async {
@@ -437,14 +457,5 @@ class CallRepo {
     }
   }
 
-  Future showNotification(Uid roomUid, Message message) async {
-    if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
-      _notificationServices.playSoundIn();
-    } else {
-      _notificationServices.showNotification(message);
-    }
-  }
-
-  BehaviorSubject<Uid> hasCall = BehaviorSubject.seeded(null);
-  BehaviorSubject<String> callingStatus = BehaviorSubject.seeded(null);
+  BehaviorSubject<CallStatus> callingStatus = BehaviorSubject.seeded(CallStatus.NO_CALL);
 }

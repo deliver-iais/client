@@ -61,7 +61,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
     _videoCallService?.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
     });
-    await _videoCallService?.initCall(false);
+    await _videoCallService?.initCall(true);
     setState(() {});
   }
 

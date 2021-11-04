@@ -35,6 +35,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
@@ -56,7 +57,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -235,8 +235,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
 
-  GetIt.I.registerSingleton<VideoCallService>(VideoCallService());
-
+  GetIt.I.registerSingleton<CallRepo>(CallRepo());
 }
 
 Future setupFlutterNotification() async {
