@@ -1,4 +1,5 @@
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class _HasCallRowState extends State<HasCallRow> {
   final _videoCallService = GetIt.I.get<VideoCallService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +30,8 @@ class _HasCallRowState extends State<HasCallRow> {
                   return GestureDetector(
                     onTap: () {
                       if (callingStatus.hasData &&
-                          callingStatus != null &&
-                          callingStatus.data == "incomingCall") {
+                          callingStatus != null )
+                         if( callingStatus.data == "incomingCall") {
                         _routingService.openInComingCallPage(snapshot.data);
                       }
                     },
@@ -60,8 +62,9 @@ class _HasCallRowState extends State<HasCallRow> {
                     ),
                   );
                 });
-          } else
-            return SizedBox.shrink();
+          } else{
+            _audioService.stopPlayBeepSound();
+            return SizedBox.shrink();}
         });
   }
 }
