@@ -1,18 +1,16 @@
 import 'dart:async';
 
-import 'package:deliver/models/call_event_type.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
-import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message.dart' as DB;
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
+import 'package:deliver/box/message.dart' as DB;
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -24,23 +22,23 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart'
+    as CallProto;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
     as ProtocolSeen;
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart'
-    as CallProto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
@@ -413,27 +411,11 @@ class CoreServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-      switch (message.callEvent.newStatus) {
-        case CallEvent_CallStatus.IS_RINGING:
-          Uid roomUid = getRoomUid(_authRepo, message);
-          //TODO: handle this case in notification
-          showNotification(roomUid, message);
-          break;
-        case CallEvent_CallStatus.CREATED:
-          Uid roomUid = getRoomUid(_authRepo, message);
-          //TODO: handle this case in notification
-          showNotification(roomUid, message);
-          break;
-        case CallEvent_CallStatus.BUSY:
-          //TODO: handle this case in notification
-          break;
-        case CallEvent_CallStatus.DECLINED:
-          //TODO: handle this case in notification
-          break;
-        case CallEvent_CallStatus.ENDED:
-          //TODO: handle this case in notification
-          break;
+      if (message.callEvent.newStatus == CallEvent_CallStatus.CREATED) {
+        Uid roomUid = getRoomUid(_authRepo, message);
+        showNotification(roomUid, message);
       }
+
       var callEvents = CallEvents(
           null, message.callEvent, null, CallTypes.Event,
           roomUid: message.from);

@@ -50,7 +50,7 @@ class CallRepo {
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
-      switch (event.callTypes) {
+      switch (event?.callTypes) {
         case CallTypes.Answer:
           _receivedCallAnswer(event.callAnswer);
           break;
@@ -289,7 +289,7 @@ class CallRepo {
   void acceptCall(Uid roomId) async {
     _roomUid = roomId;
     callingStatus.add(CallStatus.ACCEPTED);
-    _offerSdp = _createOffer();
+    _offerSdp = await _createOffer();
   }
 
   void declineCall() {

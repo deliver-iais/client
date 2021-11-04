@@ -1,9 +1,6 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/video_call_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -12,11 +9,8 @@ class CallBottomRow extends StatefulWidget {
   final localRenderer;
   RTCVideoRenderer remoteRenderer;
 
-  CallBottomRow({
-    Key key,
-    this.localRenderer,
-    this.remoteRenderer
-  }) : super(key: key);
+  CallBottomRow({Key key, this.localRenderer, this.remoteRenderer})
+      : super(key: key);
 
   @override
   _CallBottomRowState createState() => _CallBottomRowState();
@@ -27,7 +21,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
   Color _offVideoCamIcon = Colors.black45;
   Color _muteMicIcon = Colors.black45;
   final _routingService = GetIt.I.get<RoutingService>();
-  final _videoCallService = GetIt.I.get<VideoCallService>();
+  final callRepo = GetIt.I.get<CallRepo>();
   final _audioService = GetIt.I.get<AudioService>();
   int index_switch_camera = 0;
   int index_speaker = 0;
@@ -67,32 +61,29 @@ class _CallBottomRowState extends State<CallBottomRow> {
     );
   }
 
-  _hangUp() async{
+  _hangUp() async {
     _audioService.stopPlayBeepSound();
     _routingService.pop();
-    await _videoCallService.endCall();
-    await  widget.localRenderer.dispose();
+    await callRepo.endCall();
+    await widget.localRenderer.dispose();
     await widget.remoteRenderer.dispose();
-
   }
 
   _switchCamera() {
-    _videoCallService.switchCamera();
+    callRepo.switchCamera();
     index_switch_camera++;
     _switchCameraIcon =
-    index_switch_camera.isOdd ? Colors.grey : Colors.black45;
+        index_switch_camera.isOdd ? Colors.grey : Colors.black45;
     setState(() {});
   }
 
   _muteMic() {
-    _muteMicIcon =
-    _videoCallService.muteMicrophone() ? Colors.grey : Colors.black45;
+    _muteMicIcon = callRepo.muteMicrophone() ? Colors.grey : Colors.black45;
     setState(() {});
   }
 
   _offVideoCam() {
-    _offVideoCamIcon =
-    _videoCallService.muteCamera() ? Colors.grey : Colors.black45;
+    _offVideoCamIcon = callRepo.muteCamera() ? Colors.grey : Colors.black45;
     setState(() {});
   }
 }

@@ -1,8 +1,8 @@
 import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -21,7 +21,7 @@ class VideoCallPage extends StatefulWidget {
 }
 
 class _VideoCallPageState extends State<VideoCallPage> {
-  final _videoCallService = GetIt.I.get<VideoCallService>();
+  final callRepo = GetIt.I.get<CallRepo>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _logger = GetIt.I.get<Logger>();
@@ -42,49 +42,78 @@ class _VideoCallPageState extends State<VideoCallPage> {
   }
 
   void startCall() async {
-    _videoCallService?.onLocalStream = ((stream) {
+    callRepo?.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
     });
 
-    _videoCallService?.onAddRemoteStream = ((stream) {
+    callRepo?.onAddRemoteStream = ((stream) {
       _remoteRenderer.srcObject = stream;
     });
 
-    _videoCallService?.onRemoveRemoteStream = ((stream) {
+    callRepo?.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
     });
 
-    await _videoCallService.startCall(widget.room.uid.asUid());
+    await callRepo.startCall(widget.room.uid.asUid());
 
-    setState(() {});
+
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: _videoCallService.callingStatus,
+        stream: callRepo.callingStatus,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot != null) {
-            if (snapshot.data == "answer") {
-              _logger.i("we got an answer an go to in call page");
+            if (snapshot.data == CallStatus.ACCEPTED) {
+              _logger.i("in call");
+              _audioService.stopPlayBeepSound();
               return InVideoCallPage(
-                  localRenderer: _localRenderer,remoteRenderer:_remoteRenderer);
-            } else if (snapshot.data == "end") {
-              _logger.i("we got an end call back to rooms");
-              _videoCallService.endCall();
+                  localRenderer: _localRenderer,
+                  remoteRenderer: _remoteRenderer);
+            } else if (snapshot.data == CallStatus.ENDED) {
+              _logger.i("call ended status");
+              _audioService.stopPlayBeepSound();
+              _routingService.pop();
               _remoteRenderer.dispose();
               _localRenderer.dispose();
-              _routingService.pop();
               return SizedBox.shrink();
-            } else {
-              _logger.i("we got busy / reject / ringing");
+            } else if (snapshot.data == CallStatus.BUSY ||
+                snapshot.data == CallStatus.DECLINED ||
+                snapshot.data == CallStatus.DECLINED ||
+                snapshot.data == CallStatus.CREATED ||
+                snapshot.data == CallStatus.IS_RINGING) {
+              _logger.i("we got busy / reject / ringing /conecting");
+              String text;
+              switch (snapshot.data) {
+                case CallStatus.IS_RINGING:
+                  text = "is Ringing";
+                  _audioService.playBeepSound();
+                  break;
+                case CallStatus.DECLINED:
+                  text = "DECLINED";
+                  _audioService.stopPlayBeepSound();
+                  break;
+                case CallStatus.BUSY:
+                  text = "Busy";
+                  _audioService.stopPlayBeepSound();
+                  break;
+                case CallStatus.CREATED:
+                  text = "Conecting";
+                  break;
+              }
               return StartVideoCallPage(
                 room: widget.room,
                 localRenderer: _localRenderer,
-                text: snapshot.data,
+                text: text,
                 remoteRenderer: _remoteRenderer,
               );
-            }
+            } else if (snapshot.data == CallStatus.NO_CALL) {
+              return Container(
+                color: Colors.green,
+              );
+            } else
+              return SizedBox.shrink();
           } else {
             return SizedBox.shrink();
           }
