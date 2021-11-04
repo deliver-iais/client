@@ -176,9 +176,9 @@ class CallRepo {
       'video': {
         'mandatory': {
           'minWidth':
-          '640', // Provide your own width, height and frame rate here
-          'minHeight': '480',
-          'minFrameRate': '30',
+          '960', // Provide your own width, height and frame rate here
+          'minHeight': '720',
+          'minFrameRate': '45',
         },
         'facingMode': 'user',
         'optional': [],
