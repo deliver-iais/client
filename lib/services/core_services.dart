@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/services/webRtcKeys.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -29,6 +30,8 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
     as ProtocolSeen;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart'
+    as CallProto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
@@ -164,6 +167,15 @@ class CoreServices {
           case ServerPacket_Type.roomPresenceTypeChanged:
             _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
             break;
+          case ServerPacket_Type.callOffer:
+            var _videoCallService = GetIt.I.get<VideoCallService>();
+            var callOffer = serverPacket.callOffer;
+            _videoCallService.incomingCall(callOffer.from);
+            break;
+          case ServerPacket_Type.callAnswer:
+            var _videoCallService = GetIt.I.get<VideoCallService>();
+            _videoCallService.receivedCallAnswer(text);
+            break;
         }
       });
     } catch (e) {
@@ -211,6 +223,26 @@ class CoreServices {
       _clientPacketStream.add(ClientPacket()
         ..seen = seen
         ..id = seen.id.toString());
+    } else {
+      startStream();
+    }
+  }
+
+  sendCallAnswer(CallProto.CallAnswerByClient callAnswerByClient) {
+    if (!_clientPacketStream.isClosed) {
+      _clientPacketStream.add(ClientPacket()
+        ..callAnswer = callAnswerByClient
+        ..id = callAnswerByClient.id.toString());
+    } else {
+      startStream();
+    }
+  }
+
+  sendCallOffer(CallProto.CallOfferByClient callOfferByClient) {
+    if (!_clientPacketStream.isClosed) {
+      _clientPacketStream.add(ClientPacket()
+        ..callOffer = callOfferByClient
+        ..id = callOfferByClient.id.toString());
     } else {
       startStream();
     }
@@ -393,6 +425,25 @@ class CoreServices {
             break;
           case PersistentEvent_Type.notSet:
           // TODO: Handle this case.
+            break;
+        }
+      } else if(message.whichType() == Message_Type.callEvent){
+        switch (message.callEvent.newStatus) {
+          case CallEvent_CallStatus.IS_RINGING:
+            Uid roomUid = getRoomUid(_authRepo, message);
+            //TODO: handle this case in notification
+            showNotification(roomUid, message);
+            break;
+          case CallEvent_CallStatus.CREATED:
+            Uid roomUid = getRoomUid(_authRepo, message);
+            //TODO: handle this case in notification
+            showNotification(roomUid, message);
+            break;
+          case CallEvent_CallStatus.BUSY:
+            break;
+          case CallEvent_CallStatus.DECLINED:
+            break;
+          case CallEvent_CallStatus.ENDED:
             break;
         }
       }

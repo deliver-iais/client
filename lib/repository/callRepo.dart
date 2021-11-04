@@ -1,19 +1,31 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/webRtcKeys.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
-class VideoCallService {
-  var messageRepo = GetIt.I.get<MessageRepo>();
+class CallRepo {
+
+  final messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
+  final _coreServices = GetIt.I.get<CoreServices>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _routingServices = GetIt.I.get<RoutingService>();
 
   MediaStream _localStream;
   MediaStream _localStreamShare;
@@ -24,6 +36,7 @@ class VideoCallService {
   String _offerSdp;
   String _answerSdp;
   String _offerSdpCandidate;
+  String _callId;
 
   RTCPeerConnection _peerConnection;
   final String _stunServerURL = "stun:stun.l.google.com:19302";
@@ -39,6 +52,35 @@ class VideoCallService {
   Function(MediaStream stream) onLocalStream;
   Function(MediaStream stream) onAddRemoteStream;
   Function(MediaStream stream) onRemoveRemoteStream;
+
+
+  CallRepo() {
+    _coreServices.callEvents.listen((event) async {
+      switch (event.callTypes) {
+        case CallTypes.Answer:
+          break;
+        case CallTypes.Offer:
+          break;
+        case CallTypes.Event:
+          var callEvent = event.callEvent;
+          switch (callEvent.newStatus) {
+            case CallEvent_CallStatus.IS_RINGING:
+              break;
+            case CallEvent_CallStatus.CREATED:
+              incomingCall(event.roomUid);
+              messageRepo.sendCallMessage(CallEvent_CallStatus.IS_RINGING, event.roomUid, callEvent.id);
+              break;
+            case CallEvent_CallStatus.BUSY:
+              break;
+            case CallEvent_CallStatus.DECLINED:
+              break;
+            case CallEvent_CallStatus.ENDED:
+              break;
+          }
+          break;
+      }
+    });
+  }
 
   /*
   * initial Variable for Render Call Between 2 Client
@@ -68,7 +110,7 @@ class VideoCallService {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-        await createPeerConnection(configuration, offerSdpConstraints);
+    await createPeerConnection(configuration, offerSdpConstraints);
 
     var camVideoTrack = _localStream.getVideoTracks()[0];
     var camAudioTrack = _localStream.getAudioTracks()[0];
@@ -130,7 +172,7 @@ class VideoCallService {
       'video': {
         'mandatory': {
           'minWidth':
-              '640', // Provide your own width, height and frame rate here
+          '640', // Provide your own width, height and frame rate here
           'minHeight': '480',
           'minFrameRate': '30',
         },
@@ -213,7 +255,11 @@ class VideoCallService {
   }
 
   void startCall(Uid roomId) async {
-    _time = DateTime.now().millisecondsSinceEpoch;
+    var random = randomAlphaNumeric(10);
+    var time = DateTime.now().millisecondsSinceEpoch;
+    //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
+    _callId = time.toString() + "-" + random;
+
     if(!_onCalling) {
       await initCall(true);
       callingStatus.add("startCall");
@@ -257,10 +303,10 @@ class VideoCallService {
 
   _setCallCandidate(String candidatesJson) async {
     List<RTCIceCandidate> candidates =
-        (jsonDecode(candidatesJson) as List)
-            .map((data) => RTCIceCandidate(
-                data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
-            .toList();
+    (jsonDecode(candidatesJson) as List)
+        .map((data) => RTCIceCandidate(
+        data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
+        .toList();
     await _setCandidate(candidates);
   }
 
@@ -306,7 +352,7 @@ class VideoCallService {
 
   _createAnswer() async {
     RTCSessionDescription description =
-        await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
+    await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
 
     var session = parse(description.sdp.toString());
     var answerSdp = json.encode(session);
@@ -319,7 +365,7 @@ class VideoCallService {
 
   _createOffer() async {
     RTCSessionDescription description =
-        await _peerConnection.createOffer({'offerToReceiveVideo': 1});
+    await _peerConnection.createOffer({'offerToReceiveVideo': 1});
     //get SDP as String
     var session = parse(description.sdp.toString());
     var offerSdp = json.encode(session);
@@ -388,6 +434,14 @@ class VideoCallService {
       });
       await _localStream.dispose();
       _localStream = null;
+    }
+  }
+
+  Future showNotification(Uid roomUid, Message message) async {
+    if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
+      _notificationServices.playSoundIn();
+    } else {
+      _notificationServices.showNotification(message);
     }
   }
 

@@ -23,6 +23,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
@@ -30,6 +31,8 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as protoModel;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart'
+    as CallProto;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -376,6 +379,20 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
+  sendCallMessage(CallProto.CallEvent_CallStatus newStatus, Uid room, String callId) async {
+    String json = (CallProto.CallEvent()
+      ..newStatus = newStatus
+      ..id = callId)
+        .writeToJson();
+
+    Message msg =
+    _createMessage(room)
+        .copyWith(type: MessageType.CALL, json: json);
+
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+  }
+
   sendLocationMessage(Position locationData, Uid room,
       {String forwardedFrom, int replyId}) async {
     String json = (protoModel.Location()
@@ -542,6 +559,9 @@ class MessageRepo {
         break;
       case MessageType.FORM:
         byClient.form = message.json.toForm();
+        break;
+      case MessageType.CALL:
+        byClient.callEvent = CallEvent.fromJson(message.json);
         break;
       default:
         break;
