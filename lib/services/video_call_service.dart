@@ -208,7 +208,6 @@ class VideoCallService {
       hasCall.add(roomId);
     } else {
       messageRepo.sendTextMessage(_roomUid, webRtcCallBusied);
-      _dispose();
     }
   }
 
@@ -270,6 +269,7 @@ class VideoCallService {
   }
 
   void receivedDeclinedCall() {
+    _logger.i("get declined");
     callingStatus.add("declined");
     _dispose();
   }
@@ -364,21 +364,22 @@ class VideoCallService {
   }
 
   _dispose() async {
+    _logger.i("end call in service");
     await _cleanLocalStream();
-    await _peerConnection.dispose();
+    await _peerConnection?.dispose();
     _candidate = [];
-    _roomUid.clear();
     hasCall.add(null);
     if (callingStatus.value == "declined" || callingStatus.value == "busy") {
       Timer(Duration(seconds: 4), () {
-        callingStatus.add(null);
+        callingStatus.add("end");
       });
-    } else {
-      callingStatus.add(null);
     }
+    Timer(Duration(seconds: 4), () {
+      callingStatus.add(null);
+    });
     _offerSdp = null;
-    bool _onCalling = false;
-    bool _isSharing = false;
+     _onCalling = false;
+     _isSharing = false;
   }
 
   _cleanLocalStream() async {

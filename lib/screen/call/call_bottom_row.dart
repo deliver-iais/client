@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -9,14 +10,12 @@ import 'package:get_it/get_it.dart';
 
 class CallBottomRow extends StatefulWidget {
   final localRenderer;
-  final Room room;
-  MediaStream localStream;
+  RTCVideoRenderer remoteRenderer;
 
   CallBottomRow({
     Key key,
     this.localRenderer,
-    this.localStream,
-    this.room,
+    this.remoteRenderer
   }) : super(key: key);
 
   @override
@@ -29,13 +28,14 @@ class _CallBottomRowState extends State<CallBottomRow> {
   Color _muteMicIcon = Colors.black45;
   final _routingService = GetIt.I.get<RoutingService>();
   final _videoCallService = GetIt.I.get<VideoCallService>();
+  final _audioService = GetIt.I.get<AudioService>();
   int index_switch_camera = 0;
   int index_speaker = 0;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 50, right: 25, left: 25),
+      padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Row(
@@ -67,8 +67,13 @@ class _CallBottomRowState extends State<CallBottomRow> {
     );
   }
 
-  _hangUp() {
+  _hangUp() async{
+    _audioService.stopPlayBeepSound();
     _routingService.pop();
+    await _videoCallService.endCall();
+    await  widget.localRenderer.dispose();
+    await widget.remoteRenderer.dispose();
+
   }
 
   _switchCamera() {

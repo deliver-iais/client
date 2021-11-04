@@ -6,6 +6,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'call_bottom_row.dart';
 
@@ -34,23 +35,10 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
   }
 
   @override
-  void dispose() {
-    //_player.fixedPlayer.stop();
-    _videoCallService.endCall();
-    widget.localRenderer.dispose();
-    widget.remoteRenderer.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var x = MediaQuery.of(context).size.width;
     var y = MediaQuery.of(context).size.height;
 
-    return StreamBuilder(
-        stream: _videoCallService.hasCall,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot != null)
             return Stack(
               children: <Widget>[
                 RTCVideoView(
@@ -100,13 +88,8 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                     },
                   ),
                 ),
-                CallBottomRow(),
+                CallBottomRow(remoteRenderer:widget.remoteRenderer,localRenderer:widget.localRenderer,),
               ],
             );
-          else {
-            if(isDesktop()) return Empty();
-            return NavigationCenter(key: ValueKey("navigator"));
-          }
-        });
   }
 }

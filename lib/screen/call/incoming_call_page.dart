@@ -1,5 +1,7 @@
+
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/video_call_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -8,6 +10,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 
 class InComingCallPage extends StatefulWidget {
@@ -23,12 +26,15 @@ class _InComingCallPageState extends State<InComingCallPage> {
   final _videoCallService = GetIt.I.get<VideoCallService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
+  final _logger = GetIt.I.get<Logger>();
 
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
 
   @override
   void initState() {
+    _audioService.stopPlayBeepSound();
     _initRenderer();
     addStream();
     super.initState();
@@ -63,10 +69,12 @@ class _InComingCallPageState extends State<InComingCallPage> {
   Widget build(BuildContext context) {
     //after 43 second all 51
     return StreamBuilder(
-        stream: _videoCallService.hasCall,
+        stream: _videoCallService.callingStatus,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot != null) {
-            return Scaffold(
+            if(snapshot.data == "incomingCall"){
+              _logger.i("we got incomming call");
+              return Scaffold(
                 body: Stack(children: [
               RTCVideoView(
                 _localRenderer,
@@ -152,10 +160,18 @@ class _InComingCallPageState extends State<InComingCallPage> {
                                   );
                                 }),
                           ]))),
-            ]));
-          } else {
-            if(isDesktop()) return Empty();
-            return NavigationCenter(key: ValueKey("navigator"));
+            ]));}
+            else if(snapshot.data == "end"){
+              _logger.i("we got end");
+              _routingService.pop();
+              return SizedBox.shrink();}
+            else{
+              _logger.i("we got els ${snapshot.data}");
+              return SizedBox.shrink();}
+          }
+          else {
+            _logger.i("we got null");
+            return SizedBox.shrink();
           }
         });
   }

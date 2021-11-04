@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/webRtcKeys.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
@@ -228,6 +229,7 @@ class AndroidNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   AndroidNotificationChannel channel = AndroidNotificationChannel(
       'notifications', // id
@@ -314,7 +316,18 @@ class AndroidNotifier implements Notifier {
       playSound: true,
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
-    _flutterLocalNotificationsPlugin.show(
+    if (message.text.startsWith(webRtcDetection)) {
+    if(message.text.startsWith(webRtcDetectionOffer)){
+      _flutterLocalNotificationsPlugin.show(
+          message.roomUid.asString().hashCode + message.text.toString().hashCode,
+          message.roomName,
+          "Incoming call",
+          notificationDetails: platformChannelSpecifics,
+          payload: message.roomUid.asString());
+      _audioService.playRingingSound();
+    }}
+    else
+      _flutterLocalNotificationsPlugin.show(
         message.roomUid.asString().hashCode + message.text.toString().hashCode,
         message.roomName,
         createNotificationTextFromMessageBrief(message),
