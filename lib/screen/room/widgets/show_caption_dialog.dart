@@ -2,10 +2,15 @@ import 'dart:io';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as P;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -39,6 +44,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   List<String> fileNames = [];
   String type = "";
   P.File _editableFile;
+  List<String> _fileNames = [];
+  String _type = "";
+  FocusNode _captionFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -101,43 +109,81 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                       child: buildManage(index: 0))),
                             ],
                           ))
-                      : widget.paths != null && widget.paths.length > 0
-                          ? Container(
-                              height: widget.paths.length * 50.toDouble(),
-                              width: 300,
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                itemCount: widget.paths.length,
-                                itemBuilder: (c, index) {
-                                  return buildRow(index);
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(
-                                    height: 6,
-                                  );
-                                },
-                              ),
-                            )
-                          : Container(
-                              height: 50,
-                              width: 300,
-                              child: buildRow(0),
-                            ),
+                      : Container(
+                          height: widget.paths.length * 50.toDouble(),
+                          width: 300,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: widget.paths.length,
+                            itemBuilder: (c, index) {
+                              return Row(
+                                children: [
+                                  ClipOval(
+                                    child: Material(
+                                        color: Theme.of(context)
+                                            .primaryColor, // button color
+                                        child: InkWell(
+                                            splashColor:
+                                                Colors.blue, // inkwell color
+                                            child: SizedBox(
+                                              width: 30,
+                                              height: 40,
+                                              child: Icon(
+                                                Icons.insert_drive_file,
+                                                size: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ))),
+                                  ),
+                                  SizedBox(
+                                    width: 3,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      _fileNames[index],
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).textField),
+                                    ),
+                                  ),
+                                  Align(
+                                      alignment: Alignment.topRight,
+                                      child: buildManage(index: index))
+                                ],
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return SizedBox(
+                                height: 6,
+                              );
+                            },
+                          ),
+                        ),
                   SizedBox(
                     height: 5,
                   ),
-                  TextFormField(
-                      controller: _editingController,
-                      keyboardType: TextInputType.multiline,
-                      minLines: 1,
-                      maxLines: 5,
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: ExtraTheme.of(context).textField),
-                      decoration: InputDecoration(
-                        labelText: _i18n.get("caption"),
-                      )),
+                  RawKeyboardListener(
+                    focusNode: _captionFocusNode,
+                    onKey: (event) {
+                      if (event.logicalKey == LogicalKeyboardKey.enter) {
+                        sendMessages();
+                      }
+                    },
+                    child: TextFormField(
+                        controller: _editingController,
+                        keyboardType: TextInputType.multiline,
+                        minLines: 1,
+                        maxLines: 5,
+                        autofocus: true,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: ExtraTheme.of(context).textField),
+                        decoration: InputDecoration(
+                          labelText: _i18n.get("caption"),
+                        )),
+                  ),
                 ],
               ),
               actions: [
