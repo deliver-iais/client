@@ -262,8 +262,10 @@ class CallRepo {
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 44 sec for end call
       Timer(Duration(seconds: 44), () {
-        callingStatus.add(CallStatus.ENDED);
-        endCall();
+        if(callingStatus.value == CallStatus.CREATED) {
+          callingStatus.add(CallStatus.ENDED);
+          endCall();
+        }
       });
       _roomUid = roomId;
       _onCalling = true;
