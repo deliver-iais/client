@@ -12,10 +12,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/messageRepo.dart';
-import 'package:flutter/material.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
@@ -41,8 +37,6 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   final TextEditingController _editingController = TextEditingController();
 
-  List<String> fileNames = [];
-  String type = "";
   P.File _editableFile;
   List<String> _fileNames = [];
   String _type = "";
@@ -51,15 +45,15 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   void initState() {
     if (widget.editableMessage == null) {
-      type = widget.type;
+      _type = widget.type;
       widget.paths.forEach((element) {
         element = element.replaceAll("\\", "/");
-        fileNames.add(element.split("/").last);
+        _fileNames.add(element.split("/").last);
       });
     } else {
       _editableFile = widget.editableMessage.json.toFile();
       _editingController.text = _editableFile.caption ?? "";
-      type = _editableFile.type;
+      _type = _editableFile.type;
     }
     super.initState();
   }
@@ -78,12 +72,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 children: <Widget>[
                   (widget.editableMessage != null ||
                               widget.paths.length <= 1) &&
-                          type != null &&
-                          (type.contains("image") ||
-                              type.contains("jpg") ||
-                              type.contains("png") ||
-                              type.contains("jfif") ||
-                              type.contains("jpeg"))
+                          _type != null &&
+                          (_type.contains("image") ||
+                              _type.contains("jpg") ||
+                              _type.contains("png") ||
+                              _type.contains("jfif") ||
+                              _type.contains("jpeg"))
                       ? Container(
                           height: MediaQuery.of(context).size.height / 3,
                           child: Stack(
@@ -168,7 +162,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     focusNode: _captionFocusNode,
                     onKey: (event) {
                       if (event.logicalKey == LogicalKeyboardKey.enter) {
-                        sendMessages();
+                        send();
                       }
                     },
                     child: TextFormField(
@@ -198,7 +192,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             var res = await getFile(allowMultiple: true);
                             res.paths.forEach((element) {
                               widget.paths.add(element);
-                              fileNames.add(isWindows()
+                              _fileNames.add(isWindows()
                                   ? element.split("\\").last
                                   : element.split("/").last);
                             });
@@ -231,22 +225,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           ),
                           GestureDetector(
                               onTap: () {
-                                Navigator.pop(context);
-                                widget.editableMessage != null
-                                    ? _messageRepo.editFileMessage(
-                                        widget.editableMessage.roomUid.asUid(),
-                                        widget.editableMessage,
-                                        caption: _editingController.text,
-                                        newFileName: fileNames.length > 0
-                                            ? fileNames[0]
-                                            : "",
-                                        newFilePath: widget.paths.length > 0
-                                            ? widget.paths[0]
-                                            : null)
-                                    : _messageRepo.sendMultipleFilesMessages(
-                                        widget.currentRoom, widget.paths,
-                                        caption:
-                                            _editingController.text.toString());
+                                send();
                               },
                               child: Text(
                                 _i18n.get("send"),
@@ -265,6 +244,25 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             )),
           )
         : SizedBox.shrink();
+  }
+
+  void send() {
+     Navigator.pop(context);
+    widget.editableMessage != null
+        ? _messageRepo.editFileMessage(
+            widget.editableMessage.roomUid.asUid(),
+            widget.editableMessage,
+            caption: _editingController.text,
+            newFileName: _fileNames.length > 0
+                ? _fileNames[0]
+                : "",
+            newFilePath: widget.paths.length > 0
+                ? widget.paths[0]
+                : null)
+        : _messageRepo.sendMultipleFilesMessages(
+            widget.currentRoom, widget.paths,
+            caption:
+                _editingController.text.toString());
   }
 
   Row buildRow(int index, {bool showManage = true}) {
@@ -290,8 +288,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ),
         Expanded(
           child: Text(
-            fileNames.isNotEmpty && fileNames[index] != null
-                ? fileNames[index]
+            _fileNames.isNotEmpty && _fileNames[index] != null
+                ? _fileNames[index]
                 : _editableFile.name,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: ExtraTheme.of(context).textField),
@@ -313,11 +311,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 String p = isWindows()
                     ? result.paths[0].split("\\").last
                     : result.paths[0].split("/").last;
-                fileNames.isNotEmpty ? fileNames[index] = p : fileNames.add(p);
+                _fileNames.isNotEmpty ? _fileNames[index] = p : _fileNames.add(p);
                 widget.paths.isNotEmpty
                     ? widget.paths[index] = result.paths[0]
                     : widget.paths.add(result.paths[0]);
-                type = result.paths.first.split(".").last;
+                _type = result.paths.first.split(".").last;
                 setState(() {});
               }
             },
@@ -330,7 +328,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
           IconButton(
               onPressed: () {
                 widget.paths.removeAt(index);
-                fileNames.removeAt(index);
+                _fileNames.removeAt(index);
                 if (widget.paths == null || widget.paths.length == 0)
                   Navigator.pop(context);
                 setState(() {});
