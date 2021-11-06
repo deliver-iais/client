@@ -1,21 +1,28 @@
 import 'dart:io';
 
+import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as P;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class ShowCaptionDialog extends StatefulWidget {
   final List<String> paths;
   final String type;
   final Uid currentRoom;
+  final Message editableMessage;
 
-  ShowCaptionDialog({Key key, this.paths, this.type, this.currentRoom})
+  ShowCaptionDialog(
+      {Key key, this.paths, this.type, this.currentRoom, this.editableMessage})
       : super(key: key);
 
   @override
@@ -26,26 +33,35 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final _i18n = GetIt.I.get<I18N>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   final TextEditingController _editingController = TextEditingController();
 
+  P.File _editableFile;
   List<String> _fileNames = [];
   String _type = "";
   FocusNode _captionFocusNode = FocusNode();
 
   @override
   void initState() {
-    _type = widget.type;
-    widget.paths.forEach((element) {
-      element = element.replaceAll("\\", "/");
-      _fileNames.add(element.split("/").last);
-    });
+    if (widget.editableMessage == null) {
+      _type = widget.type;
+      widget.paths.forEach((element) {
+        element = element.replaceAll("\\", "/");
+        _fileNames.add(element.split("/").last);
+      });
+    } else {
+      _editableFile = widget.editableMessage.json.toFile();
+      _editingController.text = _editableFile.caption ?? "";
+      _type = _editableFile.type;
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.paths != null && widget.paths.length > 0
+    return (widget.paths != null && widget.paths.length > 0) ||
+            widget.editableMessage != null
         ? SingleChildScrollView(
             child: Container(
                 child: AlertDialog(
@@ -54,7 +70,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  widget.paths.length <= 1 &&
+                  (widget.editableMessage != null ||
+                              widget.paths.length <= 1) &&
                           _type != null &&
                           (_type.contains("image") ||
                               _type.contains("jpg") ||
@@ -66,7 +83,18 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           child: Stack(
                             children: [
                               Center(
-                                  child: Image.file(File(widget.paths.first))),
+                                  child: widget.paths.length > 0
+                                      ? Image.file(File(widget.paths.first))
+                                      : FutureBuilder<File>(
+                                          future: _fileRepo.getFileIfExist(
+                                              _editableFile.uuid,
+                                              _editableFile.name),
+                                          builder: (c, s) {
+                                            if (s.hasData && s.data != null) {
+                                              return Image.file(s.data);
+                                            } else
+                                              return buildRow(0,showManage: false);
+                                          })),
                               Positioned(
                                   right: 5,
                                   top: 2,
@@ -134,7 +162,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     focusNode: _captionFocusNode,
                     onKey: (event) {
                       if (event.logicalKey == LogicalKeyboardKey.enter) {
-                        sendMessages();
+                        send();
                       }
                     },
                     child: TextFormField(
@@ -158,22 +186,27 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GestureDetector(
-                        onTap: () async {
-                          var res = await getFile(allowMultiple: true);
-                          res.paths.forEach((element) {
-                            widget.paths.add(element);
-                            _fileNames.add(isWindows()
-                                ? element.split("\\").last
-                                : element.split("/").last);
-                          });
-                          setState(() {});
-                        },
-                        child: Text(
-                          _i18n.get("add"),
-                          style: TextStyle(fontSize: 16, color: Colors.blue),
+                      if (widget.editableMessage == null)
+                        GestureDetector(
+                          onTap: () async {
+                            var res = await getFile(allowMultiple: true);
+                            res.paths.forEach((element) {
+                              widget.paths.add(element);
+                              _fileNames.add(isWindows()
+                                  ? element.split("\\").last
+                                  : element.split("/").last);
+                            });
+                            setState(() {});
+                          },
+                          child: Text(
+                            _i18n.get("add"),
+                            style: TextStyle(fontSize: 16, color: Colors.blue),
+                          ),
                         ),
-                      ),
+                      if (widget.editableMessage != null)
+                        SizedBox(
+                          width: 40,
+                        ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -191,7 +224,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             width: 16,
                           ),
                           GestureDetector(
-                              onTap: () => sendMessages(),
+                              onTap: () {
+                                send();
+                              },
                               child: Text(
                                 _i18n.get("send"),
                                 style:
@@ -211,10 +246,59 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         : SizedBox.shrink();
   }
 
-  void sendMessages() {
-    Navigator.pop(context);
-    _messageRepo.sendMultipleFilesMessages(widget.currentRoom, widget.paths,
-        caption: _editingController.text.toString());
+  void send() {
+     Navigator.pop(context);
+    widget.editableMessage != null
+        ? _messageRepo.editFileMessage(
+            widget.editableMessage.roomUid.asUid(),
+            widget.editableMessage,
+            caption: _editingController.text,
+            newFileName: _fileNames.length > 0
+                ? _fileNames[0]
+                : "",
+            newFilePath: widget.paths.length > 0
+                ? widget.paths[0]
+                : null)
+        : _messageRepo.sendMultipleFilesMessages(
+            widget.currentRoom, widget.paths,
+            caption:
+                _editingController.text.toString());
+  }
+
+  Row buildRow(int index, {bool showManage = true}) {
+    return Row(
+      children: [
+        ClipOval(
+          child: Material(
+              color: Theme.of(context).primaryColor, // button color
+              child: InkWell(
+                  splashColor: Colors.blue, // inkwell color
+                  child: SizedBox(
+                    width: 30,
+                    height: 40,
+                    child: Icon(
+                      Icons.insert_drive_file,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ))),
+        ),
+        SizedBox(
+          width: 3,
+        ),
+        Expanded(
+          child: Text(
+            _fileNames.isNotEmpty && _fileNames[index] != null
+                ? _fileNames[index]
+                : _editableFile.name,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: ExtraTheme.of(context).textField),
+          ),
+        ),
+        if (showManage)
+          Align(alignment: Alignment.topRight, child: buildManage(index: index))
+      ],
+    );
   }
 
   Widget buildManage({int index}) {
@@ -224,10 +308,13 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             onPressed: () async {
               FilePickerResult result = await getFile(allowMultiple: false);
               if (result.paths != null && result.paths.length > 0) {
-                _fileNames[index] = isWindows()
+                String p = isWindows()
                     ? result.paths[0].split("\\").last
                     : result.paths[0].split("/").last;
-                widget.paths[index] = result.paths[0];
+                _fileNames.isNotEmpty ? _fileNames[index] = p : _fileNames.add(p);
+                widget.paths.isNotEmpty
+                    ? widget.paths[index] = result.paths[0]
+                    : widget.paths.add(result.paths[0]);
                 _type = result.paths.first.split(".").last;
                 setState(() {});
               }
@@ -237,19 +324,20 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
               color: Colors.blue,
               size: 16,
             )),
-        IconButton(
-            onPressed: () {
-              widget.paths.removeAt(index);
-              _fileNames.removeAt(index);
-              if (widget.paths == null || widget.paths.length == 0)
-                Navigator.pop(context);
-              setState(() {});
-            },
-            icon: Icon(
-              Icons.delete,
-              color: Colors.blue,
-              size: 16,
-            ))
+        if (widget.editableMessage == null)
+          IconButton(
+              onPressed: () {
+                widget.paths.removeAt(index);
+                _fileNames.removeAt(index);
+                if (widget.paths == null || widget.paths.length == 0)
+                  Navigator.pop(context);
+                setState(() {});
+              },
+              icon: Icon(
+                Icons.delete,
+                color: Colors.blue,
+                size: 16,
+              ))
       ],
     );
   }
@@ -268,7 +356,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
           'jpg',
           'jpeg',
           'gif',
-          'rar'
+          'rar',
+          'txt'
         ]);
     return result;
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
+import 'package:deliver/box/message.dart';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -595,13 +596,15 @@ showCaptionDialog(
     {String type,
     List<String> paths,
     Uid roomUid,
+    Message editableMessage,
     BuildContext context}) async {
-  if (paths.length <= 0) return;
+  if (paths.length <= 0 && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {
         return ShowCaptionDialog(
           type: type,
+          editableMessage: editableMessage,
           currentRoom: roomUid,
           paths: paths,
         );

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -56,6 +57,7 @@ class CoreServices {
   final _seenDao = GetIt.I.get<SeenDao>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
@@ -332,13 +334,17 @@ class CoreServices {
                     Room(uid: message.from.asString(), deleted: true));
                 return;
               }
-
               _mucDao.deleteMember(Member(
                 memberUid: message
                     .persistEvent.mucSpecificPersistentEvent.issuer
                     .asString(),
                 mucUid: roomUid.asString(),
               ));
+              break;
+            case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+              _avatarRepo.fetchAvatar(message.from, true);
+              break;
+
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:

@@ -53,6 +53,8 @@ class AvatarRepo {
           .toList();
 
       _avatarDao.saveAvatars(userUid.asString(), avatars);
+      // var key = "${userUid.category}-${userUid.node}";
+      // _avatarCache.set(key, avatars.last);
     } catch (e) {
       _logger.e("no avatar exist in $userUid", e);
 

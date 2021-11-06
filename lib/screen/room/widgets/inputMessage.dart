@@ -130,7 +130,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     InputMessage.inputMessegeFocusNode = FocusNode();
-    editMessageInput = BehaviorSubject.seeded("");
+    editMessageInput = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
     editMessageInput.stream.listen((event) {
@@ -663,7 +663,7 @@ class _InputMessageWidget extends State<InputMessage> {
         );
         widget.resetRoomPageDetails();
       } else if (widget.editableMessage != null) {
-        messageRepo.editMessage(currentRoom.uid.asUid(), widget.editableMessage,
+        messageRepo.editTextMessage(currentRoom.uid.asUid(), widget.editableMessage,
             _controller.text, currentRoom.lastMessageId);
         widget.resetRoomPageDetails();
       } else {
