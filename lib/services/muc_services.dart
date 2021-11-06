@@ -258,6 +258,7 @@ class MucServices {
           ChannelServices.LeaveChannelReq()..channel = channelUid);
       return true;
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }

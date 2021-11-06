@@ -38,8 +38,8 @@ class FileRepo {
       ..duration = json["duration"] ?? 0
       ..blurHash = json["blurHash"] ?? ""
       ..hash = json["hash"] ?? "";
-
     _logger.v(uploadedFile);
+    print(uploadedFile.blurHash);
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;

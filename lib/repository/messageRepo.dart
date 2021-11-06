@@ -14,6 +14,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -75,6 +76,7 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -216,12 +218,11 @@ class MessageRepo {
       while (!lastMessageIsSet) {
         try {
           if (msg != null) {
-            if(firstMessageId != null && msg.id<= firstMessageId){
+            if (firstMessageId != null && msg.id <= firstMessageId) {
               lastMessageIsSet = true;
-              lastMessage = msg.copyWith(json:"{DELETED}" );
+              lastMessage = msg.copyWith(json: "{DELETED}");
               break;
-            }
-           else if (!msg.json.isDeletedMessage()) {
+            } else if (!msg.json.isDeletedMessage()) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
@@ -285,11 +286,10 @@ class MessageRepo {
     List<Message> messages =
         await _saveFetchMessages(fetchMessagesRes.messages);
     for (var element in messages) {
-      if(firstMessageId != null && element.id<= firstMessageId){
+      if (firstMessageId != null && element.id <= firstMessageId) {
         lastMessage = element.copyWith(json: "{DELETED}");
         break;
-      }
-     else if (!element.json.isDeletedMessage()) {
+      } else if (!element.json.isDeletedMessage()) {
         lastMessage = element;
         break;
       } else if (element.id == 1) {
@@ -700,6 +700,9 @@ class MessageRepo {
                     continue;
                   }
                   break;
+                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+                  _avatarRepo.fetchAvatar(message.from, true);
+                  break;
               }
               break;
             case PersistentEvent_Type.messageManipulationPersistentEvent:
@@ -914,7 +917,7 @@ class MessageRepo {
     });
   }
 
-  void editMessage(Uid roomUid, Message editableMessage, String text,
+  void editTextMessage(Uid roomUid, Message editableMessage, String text,
       roomLastMessageId) async {
     try {
       var updatedMessage = MessageProto.MessageByClient()
@@ -935,5 +938,44 @@ class MessageRepo {
     } catch (e) {
       _logger.e(e);
     }
+  }
+
+  editFileMessage(Uid roomUid, Message editableMessage,
+      {String caption, String newFilePath, String newFileName}) async {
+    FileProto.File updatedFile;
+    if (newFilePath != null) {
+      String u = DateTime.now().millisecondsSinceEpoch.toString();
+      await _fileRepo.cloneFileInLocalDirectory(
+          DartFile.File(newFilePath),u, newFileName);
+      updatedFile = await _fileRepo.uploadClonedFile(u, newFileName);
+      updatedFile..caption = caption;
+    } else {
+      var preFile = editableMessage.json.toFile();
+      updatedFile = FileProto.File.create()
+        ..caption = caption
+        ..name = preFile.name
+        ..uuid = preFile.uuid
+        ..type = preFile.type
+        ..blurHash = preFile.blurHash
+        ..size = preFile.size
+        ..duration = preFile.duration
+        ..height = preFile.height
+        ..width = preFile.width
+        ..tempLink = preFile.tempLink
+        ..hash = preFile.hash
+        ..sign = preFile.sign;
+    }
+    var updatedMessage = MessageProto.MessageByClient()
+      ..to = editableMessage.to.asUid()
+      ..file = updatedFile;
+    await _queryServiceClient.updateMessage(UpdateMessageReq()
+      ..message = updatedMessage
+      ..messageId = Int64(editableMessage.id));
+    editableMessage.json = updatedFile.writeToJson();
+    editableMessage.edited = true;
+    _messageDao.saveMessage(editableMessage);
+    _roomDao.updateRoom(Room(
+        uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
+
   }
 }

@@ -108,9 +108,17 @@ class RoomRepo {
         var name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
         _uidIdNameDao.update(uid.asString(), name: name);
-
         return name;
       }
+      else {
+        var name = await _contactRepo.getContactFromServer(uid);
+        if(name != null){
+          roomNameCache.set(uid.asString(), name);
+          return name;
+        }
+
+      }
+
     }
 
     if (uidIdName != null && uidIdName.id != null && uidIdName.id.isNotEmpty) {
