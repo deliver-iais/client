@@ -31,7 +31,6 @@ class _TGSState extends State<TGS> with TickerProviderStateMixin {
   @override
   void initState() {
     widget.controller.init(this);
-    // TODO: implement initState
     super.initState();
   }
 
