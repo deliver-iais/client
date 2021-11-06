@@ -260,9 +260,9 @@ class CallRepo {
     if(!_onCalling) {
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
-      //Set Timer 50 sec for end call
-      Timer(Duration(seconds: 50), () {
-        if(callingStatus.value == CallStatus.IS_RINGING) {
+      //Set Timer 44 sec for end call
+      Timer(Duration(seconds: 44), () {
+        if(callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.ENDED);
           endCall();
         }
@@ -331,20 +331,13 @@ class CallRepo {
 
   void receivedBusyCall() {
     callingStatus.add(CallStatus.BUSY);
-    Timer(Duration(seconds: 4), () {
-      callingStatus.add(CallStatus.ENDED);
-      _dispose();
-    });
+    _dispose();
   }
 
-  void receivedDeclinedCall() async{
+  void receivedDeclinedCall() {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
-     Timer(Duration(seconds: 4), () {
-        callingStatus.add(CallStatus.ENDED);
-        _dispose();
-      });
-
+    _dispose();
   }
 
   void receivedEndCall() {
@@ -440,7 +433,12 @@ class CallRepo {
     await _cleanLocalStream();
     await _peerConnection?.dispose();
     _candidate = [];
-    Timer(Duration(seconds: 3), () {
+    if (callingStatus.value == CallStatus.DECLINED || callingStatus.value == CallStatus.BUSY) {
+      Timer(Duration(seconds: 4), () {
+        callingStatus.add(CallStatus.ENDED);
+      });
+    }
+    Timer(Duration(seconds: 2), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
     _offerSdp = null;

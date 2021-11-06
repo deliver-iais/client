@@ -87,7 +87,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
               String text;
               switch (snapshot.data) {
                 case CallStatus.IS_RINGING:
-                  text = "Ringing";
+                  text = "is Ringing";
                   _audioService.playBeepSound();
                   break;
                 case CallStatus.DECLINED:
@@ -97,7 +97,6 @@ class _VideoCallPageState extends State<VideoCallPage> {
                 case CallStatus.BUSY:
                   text = "Busy";
                   _audioService.stopPlayBeepSound();
-                  _audioService.playBusySound();
                   break;
                 case CallStatus.CREATED:
                   text = "Conecting";

@@ -1,6 +1,5 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/in_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -59,8 +58,6 @@ class _InComingCallPageState extends State<InComingCallPage> {
       _remoteRenderer.srcObject = null;
     });
     await callRepo?.initCall(true);
-    setState(() {
-    });
   }
 
   @override
@@ -152,15 +149,14 @@ class _InComingCallPageState extends State<InComingCallPage> {
                                       onTap: () {
                                         //we got error here
                                         acceptCall(widget.roomuid);
+                                        _routingService.openInVideoCallPage(
+                                            _localRenderer, _remoteRenderer);
                                       },
                                     );
                                   }),
                             ]))),
               ]));
-            } else if(snapshot.data == CallStatus.ACCEPTED || snapshot.data == CallStatus.IN_CALL){
-              return InVideoCallPage(localRenderer: _localRenderer,remoteRenderer: _remoteRenderer,);
-            }
-            else if (snapshot.data == CallStatus.ENDED) {
+            } else if (snapshot.data == CallStatus.ENDED) {
               _logger.i("we got end");
               _routingService.pop();
               _localRenderer.dispose();
