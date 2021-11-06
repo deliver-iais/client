@@ -258,11 +258,7 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<dynamic> androidOnSelectNotification(room) async {
-    if(room.contains("call")){
-      _routingService.openRoom(room.replaceAll("call", ""));
-      _routingService.openInComingCallPage(room.replaceAll("call", "").asUid());
-    }
-    else if (room != null && room.isNotEmpty) {
+    if (room != null && room.isNotEmpty) {
       _routingService.openRoom(room);
     }
     return;

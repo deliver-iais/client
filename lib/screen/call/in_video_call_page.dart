@@ -1,5 +1,9 @@
+import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'call_bottom_row.dart';
 
@@ -16,6 +20,9 @@ class InVideoCallPage extends StatefulWidget {
 }
 
 class _InVideoCallPageState extends State<InVideoCallPage> {
+  final callRepo = GetIt.I.get<CallRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _logger = GetIt.I.get<Logger>();
   double width = 100.0, height = 150.0;
   Offset position;
 
@@ -30,58 +37,77 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
     var x = MediaQuery.of(context).size.width;
     var y = MediaQuery.of(context).size.height;
 
-    return Stack(
-      children: <Widget>[
-        RTCVideoView(
-          widget.remoteRenderer,
-          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-          mirror: true,
-        ),
-        Positioned(
-          left: position.dx,
-          top: position.dy,
-          child: Draggable(
-            child: Container(
-              width: width,
-              height: height,
-              child: RTCVideoView(
-                widget.localRenderer,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                mirror: true,
-              ),
-            ),
-            feedback: Container(
-              child: RTCVideoView(
-                widget.localRenderer,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                mirror: true,
-              ),
-              width: width,
-              height: height,
-            ),
-            onDraggableCanceled: (Velocity velocity, Offset offset) {
-              setState(() {
-                if (offset.dx > x / 2 && offset.dy > y / 2) {
-                  position = Offset(x - width - 10, y - height - 30);
-                }
-                if (offset.dx < x / 2 && offset.dy > y / 2) {
-                  position = Offset(10, y - height - 30);
-                }
-                if (offset.dx > x / 2 && offset.dy < y / 2) {
-                  position = Offset(x - width - 10, 30);
-                }
-                if (offset.dx < x / 2 && offset.dy < y / 2) {
-                  position = Offset(10, 30);
-                }
-              });
-            },
-          ),
-        ),
-        CallBottomRow(
-          remoteRenderer: widget.remoteRenderer,
-          localRenderer: widget.localRenderer,
-        ),
-      ],
-    );
+    return StreamBuilder(
+        stream: callRepo.callingStatus,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot != null) {
+            _logger.i(snapshot.data);
+            if (snapshot.data == CallStatus.ACCEPTED || snapshot.data == CallStatus.IN_CALL)
+              return Stack(
+                children: <Widget>[
+                  RTCVideoView(
+                    widget.remoteRenderer,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    mirror: true,
+                  ),
+                  Positioned(
+                    left: position.dx,
+                    top: position.dy,
+                    child: Draggable(
+                      child: Container(
+                        width: width,
+                        height: height,
+                        child: RTCVideoView(
+                          widget.localRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          mirror: true,
+                        ),
+                      ),
+                      feedback: Container(
+                        child: RTCVideoView(
+                          widget.localRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          mirror: true,
+                        ),
+                        width: width,
+                        height: height,
+                      ),
+                      onDraggableCanceled: (Velocity velocity, Offset offset) {
+                        setState(() {
+                          if (offset.dx > x / 2 && offset.dy > y / 2) {
+                            position = Offset(x - width - 10, y - height - 30);
+                          }
+                          if (offset.dx < x / 2 && offset.dy > y / 2) {
+                            position = Offset(10, y - height - 30);
+                          }
+                          if (offset.dx > x / 2 && offset.dy < y / 2) {
+                            position = Offset(x - width - 10, 30);
+                          }
+                          if (offset.dx < x / 2 && offset.dy < y / 2) {
+                            position = Offset(10, 30);
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  CallBottomRow(
+                    remoteRenderer: widget.remoteRenderer,
+                    localRenderer: widget.localRenderer,
+                  ),
+                ],
+              );
+            else if (snapshot.data == CallStatus.ENDED) {
+              widget.remoteRenderer.dispose();
+              widget.localRenderer.dispose();
+              _logger.i("Ended");
+              _routingService.pop();
+              return SizedBox.shrink();
+            } else
+             return SizedBox.shrink();
+          } else
+            return SizedBox.shrink();
+        });
   }
 }

@@ -58,6 +58,8 @@ class _InComingCallPageState extends State<InComingCallPage> {
       _remoteRenderer.srcObject = null;
     });
     await callRepo?.initCall(true);
+    setState(() {
+    });
   }
 
   @override
