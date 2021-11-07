@@ -459,19 +459,19 @@ class _InputMessageWidget extends State<InputMessage> {
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
                                   await _soundRecorder.openAudioSession();
-                                  _soundRecorder.startRecorder(
-                                    toFile: path,
-                                    sampleRate: 128000,
-                                    numChannels: 2,
-                                    bitRate: 128000,
-                                    audioSource: AudioSource.defaultSource,
-                                  );
-                                  setState(() {
-                                    startAudioRecorder = true;
-                                    size = 2;
-                                    started = true;
-                                    time = DateTime.now();
-                                  });
+                                    _soundRecorder.startRecorder(
+                                      toFile: path,
+                                      sampleRate: 128000,
+                                      numChannels: 2,
+                                      bitRate: 128000,
+                                      audioSource: AudioSource.defaultSource,
+                                    );
+                                    setState(() {
+                                      startAudioRecorder = true;
+                                      size = 2;
+                                      started = true;
+                                      time = DateTime.now();
+                                    });
                                 }
                               },
                               onLongPressEnd: (s) async {
@@ -663,8 +663,11 @@ class _InputMessageWidget extends State<InputMessage> {
         );
         widget.resetRoomPageDetails();
       } else if (widget.editableMessage != null) {
-        messageRepo.editTextMessage(currentRoom.uid.asUid(), widget.editableMessage,
-            _controller.text, currentRoom.lastMessageId);
+        messageRepo.editTextMessage(
+            currentRoom.uid.asUid(),
+            widget.editableMessage,
+            _controller.text,
+            currentRoom.lastMessageId);
         widget.resetRoomPageDetails();
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
@@ -688,13 +691,12 @@ class _InputMessageWidget extends State<InputMessage> {
 
   _attachFileInWindowsMode() async {
     //final typeGroup = XTypeGroup(label: 'images');
-    try{
-      final result =  await FilePicker.platform.pickFiles(allowMultiple: true);
-     showCaptionDialog(result:result, icons: Icons.file_upload);
-    }catch(e){
+    try {
+      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+      showCaptionDialog(result: result, icons: Icons.file_upload);
+    } catch (e) {
       print(e.toString());
     }
-
   }
 
   void setTime() {
@@ -704,8 +706,9 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  showCaptionDialog({IconData icons, String type, FilePickerResult result}) async {
-    if (result.files.length<= 0) return;
+  showCaptionDialog(
+      {IconData icons, String type, FilePickerResult result}) async {
+    if (result.files.length <= 0) return;
     showDialog(
         context: context,
         builder: (context) {

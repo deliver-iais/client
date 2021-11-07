@@ -63,7 +63,7 @@ dependencies:
   flutter_map: 0.13.1
   geolocator: 7.0.1
   file_picker: ^4.2.1
-  logger: 1.0.0
+  logger: 1.1.0
   android_intent: 0.3.7+7
   settings_ui: 1.0.0
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
@@ -94,7 +94,7 @@ dependencies:
   random_string: 2.3.1
   flutter_local_notifications: 9.0.0
   flutter_local_notifications_linux: 0.3.0
-  flutter_sound: 8.1.4 # TODO remove later
+  flutter_sound: 8.4.2 # TODO remove later
   percent_indicator: 3.0.1
   package_info_plus: 1.0.3
   sms_autofill: 2.1.2
