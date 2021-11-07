@@ -8,6 +8,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/isPersian.dart';
@@ -190,11 +191,7 @@ class EmojiParser implements Parser {
         blocks,
         regex,
         "emoji",
-        style: TextStyle(
-            inherit: true,
-            fontSize: fontSize,
-            fontFamily: "NotoColorEmoji",
-            fontFamilyFallback: ["NotoColorEmoji"]),
+        style: GoogleFonts.notoColorEmojiCompat(fontSize: fontSize),
       );
 }
 
