@@ -5,11 +5,9 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/services/firebase_services.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screen_lock/screen_lock.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -97,30 +95,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
         duration: Duration(milliseconds: 100),
-        child: _isLocked
-            ? (isDesktop() ? desktopLock() : mobileLock(context))
-            : loading());
-  }
-
-  Widget mobileLock(BuildContext context) {
-    return ScreenLock(
-      correctString: "1234",
-      canCancel: false,
-      maxRetries: 5,
-      customizedButtonChild: const Icon(
-        Icons.fingerprint,
-      ),
-      custmizedButtonTap: () {},
-      footer: Container(
-        width: 200,
-        height: 60,
-        child: TextButton(
-          child: Text("logout",
-              style: Theme.of(context).primaryTextTheme.headline6),
-          onPressed: () {},
-        ),
-      ),
-    );
+        child: _isLocked ? desktopLock() : loading());
   }
 
   Widget desktopLock() {
