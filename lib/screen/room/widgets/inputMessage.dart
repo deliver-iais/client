@@ -26,7 +26,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -687,9 +687,14 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
-    final typeGroup = XTypeGroup(label: 'images');
-    final result = await openFiles(acceptedTypeGroups: [typeGroup]);
-    showCaptionDialog(result: result, icons: Icons.file_upload);
+    //final typeGroup = XTypeGroup(label: 'images');
+    try{
+      final result =  await FilePicker.platform.pickFiles(allowMultiple: true);
+     showCaptionDialog(result:result, icons: Icons.file_upload);
+    }catch(e){
+      print(e.toString());
+    }
+
   }
 
   void setTime() {
@@ -699,14 +704,14 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
-    if (result.length <= 0) return;
+  showCaptionDialog({IconData icons, String type, FilePickerResult result}) async {
+    if (result.files.length<= 0) return;
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            paths: result.map((e) => e.path).toList(),
-            type: result.first.path.split(".").last,
+            paths: result.files.map((e) => e.path).toList(),
+            type: result.files.first.path.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });
