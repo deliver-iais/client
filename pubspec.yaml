@@ -168,9 +168,6 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-#    - family: NotoColorEmoji
-#      fonts:
-#        - asset: assets/fonts/NotoColorEmoji.ttf
     - family: Vazir
       fonts:
         - asset: assets/fonts/vazir/Vazir-Variable.ttf
