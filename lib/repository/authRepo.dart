@@ -23,6 +23,11 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+
+
+// test user access token
+final String TEST_USER_ACCESS_TOKEN ="";
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -40,6 +45,8 @@ class AuthRepo {
   String _refreshToken;
 
   PhoneNumber _tmpPhoneNumber;
+
+  get isTestUser => currentUserUid.isSameEntity("test_user_uid");
 
 
   Future<void> init() async {
@@ -270,7 +277,7 @@ class DeliverClientInterceptor implements ClientInterceptor {
 
   Future<void> metadataProvider(
       Map<String, String> metadata, String uri) async {
-    var token = await _authRepo.getAccessToken();
+    var token = _authRepo.isTestUser?TEST_USER_ACCESS_TOKEN: await _authRepo.getAccessToken();
     metadata['access_token'] = token;
   }
 

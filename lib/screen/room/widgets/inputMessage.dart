@@ -97,6 +97,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
+
   FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
@@ -477,7 +478,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               onLongPressEnd: (s) async {
                                 if (_tickTimer != null) _tickTimer.cancel();
 
-                                await _soundRecorder.stopRecorder();
+                              var res =   await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
                                 noActivitySubject.add(ActivityType.NO_ACTIVITY);

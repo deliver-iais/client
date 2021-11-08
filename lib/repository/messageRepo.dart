@@ -407,6 +407,8 @@ class MessageRepo {
       {String caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
     _fileRepo.initUploadProgress(packetId);
+    var f=  DartFile.File(path);
+
 
     // Create MessageCompanion
     var file = DartFile.File(path);

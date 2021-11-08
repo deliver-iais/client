@@ -94,7 +94,7 @@ dependencies:
   random_string: 2.3.1
   flutter_local_notifications: 9.0.0
   flutter_local_notifications_linux: 0.3.0
-  flutter_sound: 8.4.2 # TODO remove later
+  flutter_sound: 8.1.4 # TODO remove later
   percent_indicator: 3.0.1
   package_info_plus: 1.0.3
   sms_autofill: 2.1.2
@@ -120,6 +120,7 @@ dependencies:
   metadata_fetch: 0.4.1
   process_run: ^0.12.2+1
   google_fonts: ^2.1.0
+  record: ^3.0.0
 
 
 dev_dependencies:
