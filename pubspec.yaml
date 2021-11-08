@@ -120,7 +120,6 @@ dependencies:
   metadata_fetch: 0.4.1
   process_run: ^0.12.2+1
   google_fonts: ^2.1.0
-  record: ^3.0.0
 
 
 dev_dependencies:
