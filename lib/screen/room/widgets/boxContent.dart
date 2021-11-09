@@ -243,6 +243,9 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
+      case MessageType.CALL:
+        // TODO: Handle this case.
+        break;
     }
     return Container();
   }

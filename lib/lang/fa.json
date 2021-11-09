@@ -265,5 +265,6 @@
   "enable_notifications" : "فعال کردن اعلان ها",
   "sure_delete_message": "آیا از حذف پیام مطمنید؟",
   "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
-  "edited": "ویرایش شده"
+  "edited": "ویرایش شده",
+  "call": "تماس"
 }

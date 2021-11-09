@@ -131,6 +131,9 @@ Future<MessageBrief> extractMessageBrief(
         ignoreNotification = true;
       }
       break;
+    case PB.Message_Type.callEvent:
+      typeDetails = i18n.get("call");
+      break;
     default:
       ignoreNotification = true;
       if (kDebugMode) {
@@ -310,6 +313,9 @@ PB.Message extractProtocolBufferMessage(Message message) {
           message.json.toSharePrivateDataAcceptance();
       break;
     case MessageType.NOT_SET:
+      break;
+    case MessageType.CALL:
+      msg.callEvent = message.json.toCallEvent();
       break;
   }
 

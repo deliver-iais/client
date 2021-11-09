@@ -19,6 +19,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
@@ -960,7 +961,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget _buildMessageBox(Message msg, BuildContext context, Room currentRoom,
       List<PendingMessage> pendingMessages) {
-    return msg.type != MessageType.PERSISTENT_EVENT
+    return msg.type == MessageType.CALL?CallMessageWidget(message:msg): msg.type != MessageType.PERSISTENT_EVENT
         ? AnimatedContainer(
             duration: Duration(milliseconds: 200),
             color: _selectedMessages.containsKey(msg.id) ||

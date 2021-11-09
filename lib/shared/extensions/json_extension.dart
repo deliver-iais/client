@@ -1,3 +1,4 @@
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
@@ -62,6 +63,9 @@ extension JsonMapper on String {
 
   SharePrivateDataRequest toSharePrivateDataRequest() {
     return SharePrivateDataRequest.fromJson(this);
+  }
+  CallEvent toCallEvent(){
+    return CallEvent.fromJson(this);
   }
 
   bool isDeletedMessage() {
