@@ -34,7 +34,11 @@ class CallRepo {
   String _callId;
 
   RTCPeerConnection _peerConnection;
-  final String _stunServerURL = "stun:stun.l.google.com:19302";
+  final String _stunServerURL = "stun:217.218.7.16:3478";
+  final String _turnServerURL = "turn:217.218.7.16:3478";
+  final String _turnServerUSERNAME = "deliver";
+  final String _turnServerPASSWORD = "Deliver@123";
+
 
 
   bool _onCalling = false;
@@ -100,6 +104,11 @@ class CallRepo {
     Map<String, dynamic> configuration = {
       "iceServers": [
         {"url": _stunServerURL},
+        {
+          'url': _turnServerURL,
+          'username': _turnServerUSERNAME,
+          'credential': _turnServerPASSWORD
+        },
       ]
     };
 
