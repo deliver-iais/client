@@ -23,11 +23,8 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:synchronized/synchronized.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-
 
 // test user access token
-final String TEST_USER_ACCESS_TOKEN ="";
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -46,8 +43,15 @@ class AuthRepo {
 
   PhoneNumber _tmpPhoneNumber;
 
-  get isTestUser => currentUserUid.isSameEntity("test_user_uid");
-
+  Future<bool> isTestUser() async {
+    if (currentUserUid.node.isNotEmpty)
+      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
+    else {
+      currentUserUid =
+          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
+    }
+  }
 
   Future<void> init() async {
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
@@ -55,13 +59,14 @@ class AuthRepo {
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
-  AuthRepo(){
+  AuthRepo() {
     setCurrentUserUid();
   }
-  setCurrentUserUid()async {
-    currentUserUid = (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
-  }
 
+  setCurrentUserUid() async {
+    currentUserUid =
+        (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+  }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
@@ -198,7 +203,9 @@ class AuthRepo {
           ..platform = await getPlatformDetails());
       } on GrpcError catch (e) {
         _logger.e(e);
-        if (_refreshToken != null && _refreshToken .isNotEmpty && e.code == StatusCode.unauthenticated) {
+        if (_refreshToken != null &&
+            _refreshToken.isNotEmpty &&
+            e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
       } catch (e) {
@@ -270,6 +277,11 @@ class AuthRepo {
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }
+
+  saveTestUserInfo() {
+    currentUserUid = TEST_USER_UID;
+   _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
+  }
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {
@@ -277,7 +289,9 @@ class DeliverClientInterceptor implements ClientInterceptor {
 
   Future<void> metadataProvider(
       Map<String, String> metadata, String uri) async {
-    var token = _authRepo.isTestUser?TEST_USER_ACCESS_TOKEN: await _authRepo.getAccessToken();
+    var token = await _authRepo.isTestUser()
+        ? TEST_USER_ACCESS_TOKEN
+        : await _authRepo.getAccessToken();
     metadata['access_token'] = token;
   }
 

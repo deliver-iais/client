@@ -8,6 +8,7 @@ import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
@@ -90,6 +91,10 @@ class _LoginPageState extends State<LoginPage> {
       (_) => false,
     );
   }
+  _loginASTestUser(){
+    _authRepo.saveTestUserInfo();
+    _navigationToHome();
+  }
 
   @override
   void dispose() {
@@ -104,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
     if (phoneNumber != null &&
         phoneNumber.nationalNumber.toString() == "1234567890") {
       _logger.e("logis as test user ");
-      _navigationToHome();
+      _loginASTestUser();
     } else {
       var isValidated = _formKey?.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {

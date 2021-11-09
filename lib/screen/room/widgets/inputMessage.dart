@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -89,7 +90,6 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
   BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
-  String path;
   Timer _tickTimer;
   TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
@@ -453,7 +453,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   var s =
                                       await getApplicationDocumentsDirectory();
-                                  path = s.path +
+                                 String  path = s.path +
                                       "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   recordSubject.add(DateTime.now());
                                   setTime();
@@ -490,7 +490,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(), path);
+                                        widget.currentRoom.uid.asUid(), res);
                                   } catch (e) {}
                                 }
                               },
