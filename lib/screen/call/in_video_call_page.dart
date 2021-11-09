@@ -1,5 +1,9 @@
+import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'call_bottom_row.dart';
 
@@ -16,6 +20,9 @@ class InVideoCallPage extends StatefulWidget {
 }
 
 class _InVideoCallPageState extends State<InVideoCallPage> {
+  final callRepo = GetIt.I.get<CallRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _logger = GetIt.I.get<Logger>();
   double width = 100.0, height = 150.0;
   Offset position;
 
@@ -29,7 +36,6 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
   Widget build(BuildContext context) {
     var x = MediaQuery.of(context).size.width;
     var y = MediaQuery.of(context).size.height;
-
     return Stack(
       children: <Widget>[
         RTCVideoView(
