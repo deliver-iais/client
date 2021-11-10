@@ -35,7 +35,7 @@ class Room {
   @HiveField(8)
   bool pinned;
 
-  @HiveField(8)
+  @HiveField(9)
   int lastUpdatedMessageId;
 
   Room(
