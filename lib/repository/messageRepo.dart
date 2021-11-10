@@ -140,6 +140,7 @@ class MessageRepo {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (roomMetadata.presenceType == null ||
               roomMetadata.presenceType == PresenceType.ACTIVE) {
+
             if (room != null &&
                 room.lastMessage != null &&
                 room.lastMessage.id != null &&

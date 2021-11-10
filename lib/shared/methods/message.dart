@@ -312,11 +312,12 @@ PB.Message extractProtocolBufferMessage(Message message) {
       msg.sharePrivateDataAcceptance =
           message.json.toSharePrivateDataAcceptance();
       break;
-    case MessageType.NOT_SET:
-      break;
     case MessageType.CALL:
       msg.callEvent = message.json.toCallEvent();
       break;
+    case MessageType.NOT_SET:
+      break;
+
   }
 
   return msg;
@@ -398,10 +399,13 @@ String messageBodyToJson(PB.Message message) {
       break;
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       return message.sharePrivateDataAcceptance.writeToJson();
-
+    case MessageType.CALL:
+      return message.callEvent.writeToJson();
+      break;
     case MessageType.NOT_SET:
       return "{}";
       break;
+
   }
   return jsonEncode(jsonString);
 }
@@ -434,6 +438,8 @@ MessageType getMessageType(PB.Message_Type messageType) {
       return MessageType.SHARE_PRIVATE_DATA_REQUEST;
     case PB.Message_Type.sharePrivateDataAcceptance:
       return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
+    case PB.Message_Type.callEvent:
+      return MessageType.CALL;
     default:
       return MessageType.NOT_SET;
   }
