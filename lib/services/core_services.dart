@@ -411,10 +411,10 @@ class CoreServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-      if (message.callEvent.newStatus == CallEvent_CallStatus.CREATED) {
+       print("call");
         Uid roomUid = getRoomUid(_authRepo, message);
         showNotification(roomUid, message);
-      }
+
 
       var callEvents = CallEvents(
           null, message.callEvent, null, CallTypes.Event,

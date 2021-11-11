@@ -415,13 +415,16 @@ class CallRepo {
     await Future.delayed(Duration(seconds: 3));
     // Send Candidate to Receiver
     var jsonCandidates = jsonEncode(_candidate);
+    _logger.i(_candidate.length);
     //Send offer and Candidate as message to Receiver
     var callOfferByClient = (CallOfferByClient()
       ..id = _callId
       ..body = _offerSdp
       ..candidates = jsonCandidates
       ..to = _roomUid);
+    _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
+
   }
 
   _calculateCandidateAndSendAnswer() async{
@@ -435,7 +438,9 @@ class CallRepo {
       ..body = _answerSdp
       ..candidates = jsonCandidates
       ..to = _roomUid);
+    _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
+
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
