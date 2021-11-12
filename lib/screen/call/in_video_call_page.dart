@@ -1,5 +1,7 @@
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -12,7 +14,9 @@ class InVideoCallPage extends StatefulWidget {
 
   RTCVideoRenderer remoteRenderer;
 
-  InVideoCallPage({Key key, this.localRenderer, this.remoteRenderer})
+  Uid roomUid;
+
+  InVideoCallPage({Key key, this.localRenderer, this.remoteRenderer,this.roomUid})
       : super(key: key);
 
   @override
@@ -38,51 +42,62 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
     var y = MediaQuery.of(context).size.height;
     return Stack(
       children: <Widget>[
-        RTCVideoView(
-          widget.remoteRenderer,
-          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-          mirror: true,
-        ),
-        Positioned(
-          left: position.dx,
-          top: position.dy,
-          child: Draggable(
-            child: Container(
-              width: width,
-              height: height,
-              child: RTCVideoView(
-                widget.localRenderer,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                mirror: true,
-              ),
-            ),
-            feedback: Container(
-              child: RTCVideoView(
-                widget.localRenderer,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                mirror: true,
-              ),
-              width: width,
-              height: height,
-            ),
-            onDraggableCanceled: (Velocity velocity, Offset offset) {
-              setState(() {
-                if (offset.dx > x / 2 && offset.dy > y / 2) {
-                  position = Offset(x - width - 10, y - height - 30);
-                }
-                if (offset.dx < x / 2 && offset.dy > y / 2) {
-                  position = Offset(10, y - height - 30);
-                }
-                if (offset.dx > x / 2 && offset.dy < y / 2) {
-                  position = Offset(x - width - 10, 30);
-                }
-                if (offset.dx < x / 2 && offset.dy < y / 2) {
-                  position = Offset(10, 30);
-                }
-              });
-            },
-          ),
-        ),
+        StreamBuilder(stream: callRepo.mute_camera.stream, builder: (c, s) {
+          if(s.hasData && s.data){
+            return Stack(
+              children: [
+                RTCVideoView(
+                  widget.remoteRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  mirror: true,
+                ),
+                Positioned(
+                  left: position.dx,
+                  top: position.dy,
+                  child: Draggable(
+                    child: Container(
+                      width: width,
+                      height: height,
+                      child: RTCVideoView(
+                        widget.localRenderer,
+                        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        mirror: true,
+                      ),
+                    ),
+                    feedback: Container(
+                      child: RTCVideoView(
+                        widget.localRenderer,
+                        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        mirror: true,
+                      ),
+                      width: width,
+                      height: height,
+                    ),
+                    onDraggableCanceled: (Velocity velocity, Offset offset) {
+                      setState(() {
+                        if (offset.dx > x / 2 && offset.dy > y / 2) {
+                          position = Offset(x - width - 10, y - height - 30);
+                        }
+                        if (offset.dx < x / 2 && offset.dy > y / 2) {
+                          position = Offset(10, y - height - 30);
+                        }
+                        if (offset.dx > x / 2 && offset.dy < y / 2) {
+                          position = Offset(x - width - 10, 30);
+                        }
+                        if (offset.dx < x / 2 && offset.dy < y / 2) {
+                          position = Offset(10, 30);
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return CenterAvatarInCall(roomUid: widget.roomUid ,);
+          }
+        }),
+
         CallBottomRow(
           remoteRenderer: widget.remoteRenderer,
           localRenderer: widget.localRenderer,

@@ -59,8 +59,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
       _remoteRenderer.srcObject = null;
     });
     await callRepo?.initCall(true);
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
@@ -157,10 +156,14 @@ class _InComingCallPageState extends State<InComingCallPage> {
                                   }),
                             ]))),
               ]));
-            } else if(snapshot.data == CallStatus.ACCEPTED || snapshot.data == CallStatus.IN_CALL){
-              return InVideoCallPage(localRenderer: _localRenderer,remoteRenderer: _remoteRenderer,);
-            }
-            else if (snapshot.data == CallStatus.ENDED) {
+            } else if (snapshot.data == CallStatus.ACCEPTED ||
+                snapshot.data == CallStatus.IN_CALL) {
+              return InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomuid,
+              );
+            } else if (snapshot.data == CallStatus.ENDED) {
               _logger.i("we got end");
               _routingService.pop();
               _localRenderer.dispose();

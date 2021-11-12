@@ -120,10 +120,10 @@ class RoutingService {
         path: "/settings"));
   }
 
-  void openRequstVideoCallPage(Room room) {
+  void openRequestVideoCallPage(Uid roomUid) {
     var widget = VideoCallPage(
       key: ValueKey("/videocall"),
-      room: room,
+      roomUid: roomUid,
     );
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,

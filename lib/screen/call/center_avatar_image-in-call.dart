@@ -2,19 +2,20 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class CenterAvatorInCall extends StatefulWidget {
-  final Room room;
+class CenterAvatarInCall extends StatefulWidget {
+  final Uid roomUid;
 
-  const CenterAvatorInCall({Key key, this.room}) : super(key: key);
+  const CenterAvatarInCall({Key key, this.roomUid}) : super(key: key);
 
   @override
-  _CenterAvatorInCallState createState() => _CenterAvatorInCallState();
+  _CenterAvatarInCallState createState() => _CenterAvatarInCallState();
 }
 
-class _CenterAvatorInCallState extends State<CenterAvatorInCall> {
+class _CenterAvatarInCallState extends State<CenterAvatarInCall> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
@@ -25,9 +26,9 @@ class _CenterAvatorInCallState extends State<CenterAvatorInCall> {
         child: Align(
             alignment: Alignment.topCenter,
             child: Column(children: [
-              CircleAvatarWidget(widget.room.uid.asUid(), 60),
+              CircleAvatarWidget(widget.roomUid, 60),
               FutureBuilder(
-                  future: _roomRepo.getName(widget.room.uid.asUid()),
+                  future: _roomRepo.getName(widget.roomUid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot != null) {
                       return Padding(

@@ -23,8 +23,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
   final _routingService = GetIt.I.get<RoutingService>();
   final callRepo = GetIt.I.get<CallRepo>();
   final _audioService = GetIt.I.get<AudioService>();
-  int index_switch_camera = 0;
-  int index_speaker = 0;
+  int indexSwitchCamera = 0;
+  int indexSpeaker = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +71,9 @@ class _CallBottomRowState extends State<CallBottomRow> {
 
   _switchCamera() {
     callRepo.switchCamera();
-    index_switch_camera++;
+    indexSwitchCamera++;
     _switchCameraIcon =
-        index_switch_camera.isOdd ? Colors.grey : Colors.black45;
+        indexSwitchCamera.isOdd ? Colors.grey : Colors.black45;
     setState(() {});
   }
 

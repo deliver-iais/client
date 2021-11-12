@@ -1,5 +1,6 @@
 import 'package:deliver/box/room.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -9,14 +10,14 @@ import 'call_bottom_row.dart';
 import 'center_avatar_image-in-call.dart';
 
 class StartVideoCallPage extends StatefulWidget {
-  final Room room;
+  final Uid roomUid;
   RTCVideoRenderer localRenderer;
 
   String text;
   RTCVideoRenderer remoteRenderer;
 
   StartVideoCallPage(
-      {Key key, this.text, this.room, this.localRenderer, this.remoteRenderer})
+      {Key key, this.text, this.roomUid, this.localRenderer, this.remoteRenderer})
       : super(key: key);
 
   @override
@@ -42,8 +43,8 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
         objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
         mirror: true,
       ),
-      CenterAvatorInCall(
-        room: widget.room,
+      CenterAvatarInCall(
+        roomUid: widget.roomUid,
       ),
       CallBottomRow(
         remoteRenderer: widget.localRenderer,

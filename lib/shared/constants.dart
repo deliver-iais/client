@@ -6,7 +6,12 @@ const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
     "1.4.9"; // if change the VERSION , is necessary to change version in pubspec.yaml file
-const LOG_OUT ="log_out";
+const LOG_OUT = "log_out";
+
+const STUN_SERVER_URL = "stun:217.218.7.16:3478";
+const TURN_SERVER_URL = "turn:217.218.7.16:3478";
+const TURN_SERVER_USERNAME = "deliver";
+const TURN_SERVER_PASSWORD = "Deliver@123";
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";

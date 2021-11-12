@@ -3,7 +3,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -12,9 +12,9 @@ import 'package:logger/logger.dart';
 import 'in_video_call_page.dart';
 
 class VideoCallPage extends StatefulWidget {
-  final Room room;
+  final Uid roomUid;
 
-  VideoCallPage({Key key, this.room}) : super(key: key);
+  VideoCallPage({Key key, this.roomUid}) : super(key: key);
 
   @override
   _VideoCallPageState createState() => _VideoCallPageState();
@@ -54,9 +54,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
       _remoteRenderer.srcObject = null;
     });
 
-    await callRepo.startCall(widget.room.uid.asUid());
-
-
+    await callRepo.startCall(widget.roomUid);
   }
 
   @override
@@ -69,8 +67,10 @@ class _VideoCallPageState extends State<VideoCallPage> {
               _logger.i("in call");
               _audioService.stopPlayBeepSound();
               return InVideoCallPage(
-                  localRenderer: _localRenderer,
-                  remoteRenderer: _remoteRenderer);
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+              );
             } else if (snapshot.data == CallStatus.ENDED) {
               _logger.i("call ended status");
               _audioService.stopPlayBeepSound();
@@ -104,7 +104,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
                   break;
               }
               return StartVideoCallPage(
-                room: widget.room,
+                roomUid: widget.roomUid,
                 localRenderer: _localRenderer,
                 text: text,
                 remoteRenderer: _remoteRenderer,

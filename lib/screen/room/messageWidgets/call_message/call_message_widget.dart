@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/screen/room/widgets/msgTime.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,7 +55,11 @@ class CallMessageWidget extends StatelessWidget {
                           ? Icons.call_made
                           : Icons.call_received,
                       color: Colors.blue,
-                      size: 15,
+                      size: 14,
+                    ),
+                    MsgTime(
+                      time: DateTime.fromMillisecondsSinceEpoch(message.time),
+                      isSent: false,
                     )
                   ],
                 )),

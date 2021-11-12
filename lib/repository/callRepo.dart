@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -34,10 +35,6 @@ class CallRepo {
   String _callId;
 
   RTCPeerConnection _peerConnection;
-  final String _stunServerURL = "stun:217.218.7.16:3478";
-  final String _turnServerURL = "turn:217.218.7.16:3478";
-  final String _turnServerUSERNAME = "deliver";
-  final String _turnServerPASSWORD = "Deliver@123";
 
 
 
@@ -103,11 +100,11 @@ class CallRepo {
   _createPeerConnection(bool isOffer) async {
     Map<String, dynamic> configuration = {
       "iceServers": [
-        {"url": _stunServerURL},
+        {"url": STUN_SERVER_URL},
         {
-          'url': _turnServerURL,
-          'username': _turnServerUSERNAME,
-          'credential': _turnServerPASSWORD
+          'url':TURN_SERVER_URL,
+          'username': TURN_SERVER_USERNAME,
+          'credential': TURN_SERVER_PASSWORD
         },
       ]
     };
@@ -247,10 +244,12 @@ class CallRepo {
   /*
   * For Close Camera
   * */
+  BehaviorSubject <bool> mute_camera = BehaviorSubject.seeded(true);
   bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream.getVideoTracks()[0].enabled;
       _localStream.getVideoTracks()[0].enabled = !enabled;
+      mute_camera.add(enabled);
       return enabled;
     }
     return false;
