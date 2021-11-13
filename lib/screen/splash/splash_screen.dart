@@ -131,25 +131,15 @@ class _SplashScreenState extends State<SplashScreen>
                     if (pass.length == 0 || pass.length == 1) setState(() {})
                   },
                   onSubmitted: (pass) {
-                    if (_authRepo.localPasswordIsCorrect(pass)) {
-                      _animationController.forward(from: 0.2);
-                      Timer(Duration(milliseconds: 500), () {
-                        navigateToApp();
-                      });
-                    } else {
-                      setState(() {
-                        _shakeController.shake();
-                        _textEditingController.clear();
-                        _focusNode.requestFocus();
-                      });
-                    }
+                    checkPassword(pass);
                   },
                 ),
               ),
               SizedBox(height: 20),
               TextButton(
-                  onPressed:
-                      _textEditingController.text == "" ? null : () => {},
+                  onPressed: _textEditingController.text == ""
+                      ? null
+                      : () => checkPassword(_textEditingController.text),
                   child: Container(
                       height: 40,
                       width: 180,
@@ -159,6 +149,21 @@ class _SplashScreenState extends State<SplashScreen>
         ),
       ),
     );
+  }
+
+  void checkPassword(String pass) {
+    if (_authRepo.localPasswordIsCorrect(pass)) {
+      _animationController.forward(from: 0.23);
+      Timer(Duration(milliseconds: 500), () {
+        navigateToApp();
+      });
+    } else {
+      setState(() {
+        _shakeController.shake();
+        _textEditingController.clear();
+        _focusNode.requestFocus();
+      });
+    }
   }
 
   Widget loading() {
