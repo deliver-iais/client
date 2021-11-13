@@ -166,10 +166,8 @@ flutter:
     - lib/lang/fa.json
     - lib/lang/en.json
     - assets/backgrounds/
-    - assets/animations/done.json
-    - assets/animations/unlock.json
-    - assets/animations/loading.json
-    - assets/animations/error.json
+    - assets/animations/done.tgs
+    - assets/animations/unlock.tgs
     - assets/animations/audio_wave.json
     - assets/emoji/
     - android/app/src/main/res/raw/

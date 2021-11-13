@@ -7,6 +7,7 @@ import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
@@ -107,13 +108,14 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ShakeWidget(
-                controller: _shakeController,
-                child: Lottie.asset('assets/animations/unlock.json',
-                    onLoaded: (c) => _animationController.duration = c.duration,
+                  controller: _shakeController,
+                  child: TGS.asset(
+                    "assets/animations/unlock.tgs",
+                    controller: _animationController,
+                    autoPlay: false,
                     width: 60,
                     height: 60,
-                    controller: _animationController),
-              ),
+                  )),
               SizedBox(height: 20),
               Text(
                 "Enter your local password",

@@ -4,47 +4,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 
-class TGSController {
-  final bool repeat;
-
-  AnimationController ctrl;
-
-  TGSController({this.repeat = true});
-
-  void init(TickerProvider vsync) {
-    ctrl = AnimationController(vsync: vsync);
-  }
-
-  void dispose() {
-    ctrl.dispose();
-  }
-
-  void animate() {
-    ctrl.forward(from: 0);
-  }
-}
-
+// TODO add other options of Lottie in constructor
 class TGS extends StatefulWidget {
-  final TGSController controller;
+  final AnimationController controller;
 
   final File file;
   final String assetsPath;
 
-  TGS.assets(this.assetsPath, {Key key, TGSController controller})
+  final double width;
+  final double height;
+  final bool repeat;
+  final bool autoPlay;
+
+  TGS.asset(this.assetsPath,
+      {Key key,
+      this.controller,
+      this.repeat = true,
+      this.autoPlay = true,
+      this.width = 120,
+      this.height = 120})
       : file = null,
-        controller = controller ?? TGSController(),
         super(key: key);
 
-  TGS.file(this.file, {Key key, TGSController controller})
+  TGS.file(this.file,
+      {Key key,
+      this.controller,
+      this.repeat = true,
+      this.autoPlay = true,
+      this.width = 120,
+      this.height = 120})
       : assetsPath = null,
-        controller = controller ?? TGSController(),
         super(key: key);
 
   @override
   _TGSState createState() => _TGSState();
 }
 
-class _TGSState extends State<TGS> with TickerProviderStateMixin {
+class _TGSState extends State<TGS> {
   Future<LottieComposition> _composition;
 
   Future<LottieComposition> _loadAssetsComposition() async {
@@ -67,7 +63,6 @@ class _TGSState extends State<TGS> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    widget.controller.init(this);
     if (widget.assetsPath != null) {
       _composition = _loadAssetsComposition();
     } else {
@@ -78,12 +73,36 @@ class _TGSState extends State<TGS> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    widget.controller.dispose();
+    widget.controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return FutureBuilder<LottieComposition>(
+        future: _composition,
+        builder: (context, snapshot) {
+          var composition = snapshot.data;
+
+          if (composition != null) {
+            if (widget.controller != null) {
+              widget.controller.duration = composition.duration;
+              if (widget.autoPlay) {
+                widget.controller.forward();
+              }
+            }
+            return Lottie(
+                composition: composition,
+                controller: widget.controller,
+                width: widget.width,
+                height: widget.height,
+                repeat: widget.repeat);
+          } else {
+            return Container(
+              width: widget.width,
+              height: widget.height,
+            );
+          }
+        });
   }
 }
