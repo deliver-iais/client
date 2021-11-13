@@ -7,7 +7,6 @@ import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart
 import 'package:flutter/cupertino.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
