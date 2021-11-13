@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
   checkAndGoNext({bool doNotCheckValidator = false}) async {
     I18N i18n = I18N.of(context);
     if (phoneNumber != null &&
-        phoneNumber.nationalNumber.toString() == "1234567890") {
+        phoneNumber.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
       _logger.e("logis as test user ");
       _loginASTestUser();
     } else {
