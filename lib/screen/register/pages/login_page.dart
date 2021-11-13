@@ -91,7 +91,8 @@ class _LoginPageState extends State<LoginPage> {
       (_) => false,
     );
   }
-  _loginASTestUser(){
+
+  _loginASTestUser() {
     _authRepo.saveTestUserInfo();
     _navigationToHome();
   }

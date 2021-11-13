@@ -280,7 +280,7 @@ class AuthRepo {
 
   saveTestUserInfo() {
     currentUserUid = TEST_USER_UID;
-   _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
+    _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
   }
 }
 
