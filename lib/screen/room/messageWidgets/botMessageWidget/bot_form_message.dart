@@ -51,10 +51,11 @@ class _BotFormMessageState extends State<BotFormMessage> {
               Padding(
                 padding: const EdgeInsets.only(left: 4.0),
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 2 / 3,
+                  width: MediaQuery.of(context).size.width*2/3,
                   child: Text(
                     form.title.titleCase,
                     style: Theme.of(context).primaryTextTheme.subtitle1,
+                  ),
                 ),
               ),
             if (form.title != null && form.title.isNotEmpty)
