@@ -1112,7 +1112,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _selectMultiMessageSubject.add(false);
                   _selectedMessages.clear();
-                  setState(() {});
                 }),
           ),
         ),
@@ -1284,11 +1283,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       style: TextStyle(color: Colors.blue),
                     ),
                     onTap: () {
-                      setState(() {
-                        _selectMultiMessageSubject.add(false);
-                        _selectedMessages.clear();
-                      });
-
+                      _selectMultiMessageSubject.add(false);
+                      _selectedMessages.clear();
                       Navigator.pop(context);
                     }),
                 GestureDetector(
@@ -1300,6 +1296,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     _messageRepo.deleteMessage(
                         messages, _currentRoom.value.lastMessageId);
                     Navigator.pop(context);
+                    _selectMultiMessageSubject.add(false);
+                    _selectedMessages.clear();
                   },
                 ),
               ],
