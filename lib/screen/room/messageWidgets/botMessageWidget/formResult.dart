@@ -23,60 +23,66 @@ class _FormResultWidgetState extends State<FormResultWidget> {
   Widget build(BuildContext context) {
     var formResult = widget.message.json.toFormResult();
 
-    return Container(
-      width: 250,
-      color: Colors.black.withAlpha(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2, left: 4, right: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final key in formResult.values.keys)
-                  if (key != null && key.isNotEmpty)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "$key: ",
-                          overflow: TextOverflow.fade,
-                          style: Theme.of(context).primaryTextTheme.subtitle1,
+    return PageStorage(
+      bucket: PageStorage.of(context),
+      child: Container(
+        width: 250,
+        color: Colors.black.withAlpha(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final key in formResult.values.keys)
+                    if (key != null && key.isNotEmpty)
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top:8,bottom: 8),
+                        child: TextField(
+                          enabled: false,
+                          readOnly: true,
+                          style: TextStyle(fontSize: 16),
+                          controller: TextEditingController(
+                              text: formResult.values[key]),
+                          decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.blue),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              labelText: key,
+                              labelStyle:
+                                  TextStyle(color: Colors.blue, fontSize: 16)),
                         ),
-                        Expanded(
-                          child: Text(
-                            formResult.values[key] ?? "",
-                            overflow: TextOverflow.fade,
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
-                        ),
-                      ],
-                    ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(_i18n.get("submitted_on"),
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.6,
-                    color: ExtraTheme.of(context).textMessage.withAlpha(150),
-                  )),
-              TimeAndSeenStatus(
-                widget.message,
-                widget.isSender,
-                widget.isSeen,
-                needsBackground: false,
-                needsPositioned: false,
+                      )
+                ],
               ),
-            ],
-          )
-        ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(_i18n.get("submitted_on"),
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.6,
+                      color: ExtraTheme.of(context).textMessage.withAlpha(150),
+                    )),
+                TimeAndSeenStatus(
+                  widget.message,
+                  widget.isSender,
+                  widget.isSeen,
+                  needsBackground: false,
+                  needsPositioned: false,
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
