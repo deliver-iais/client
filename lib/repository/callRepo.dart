@@ -450,8 +450,10 @@ class CallRepo {
 
   _dispose() async {
     _logger.i("end call in service");
-    await _cleanLocalStream();
     await _peerConnection?.dispose();
+    await _videoSender.dispose();
+    await _audioSender.dispose();
+    await _cleanLocalStream();
     _candidate = [];
     Timer(Duration(seconds: 3), () {
       callingStatus.add(CallStatus.NO_CALL);
@@ -471,6 +473,13 @@ class CallRepo {
       });
       await _localStream.dispose();
       _localStream = null;
+    }
+    if (_localStreamShare != null) {
+      _localStreamShare.getTracks().forEach((element) async {
+        await element.stop();
+      });
+      await _localStreamShare.dispose();
+      _localStreamShare = null;
     }
   }
 

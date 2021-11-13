@@ -37,9 +37,20 @@ class _InComingCallPageState extends State<InComingCallPage> {
     super.initState();
   }
 
+  @override
+  void dispose(){
+    _disposeRenderer();
+    super.dispose();
+  }
+
   _initRenderer() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
+  }
+
+  _disposeRenderer() async {
+    await _localRenderer.dispose();
+    await _remoteRenderer.dispose();
   }
 
   void acceptCall(Uid roomId) async {
