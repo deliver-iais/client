@@ -266,5 +266,13 @@
   "sure_delete_message": "آیا از حذف پیام مطمنید؟",
   "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
   "edited": "ویرایش شده",
-  "show_in_folder": "نمایش محل فایل"
+  "show_in_folder": "نمایش محل فایل",
+  "get_access_phone_number": "اجازه دسترسی به شماره تلفن",
+  "get_access_email": "اجازه دسترسی به ایمیل",
+  "get_access_name": "اجازه دسترسی  به نام ",
+  "get_access_username" : "اجازه دسترسی به نام کاربری",
+  "access_phone_number": "آیا اجازه دسترسی به شماره تلفن را می دهید؟",
+  "access_email": "آیا اجازه دسترسی به ایمیل را می دهید؟",
+  "access_name": "آیا اجازه دسترسی به نام را می دهید؟",
+  "access_username" : "آیا اجاره دسترسی به نام  کاربری را می دهید؟"
 }

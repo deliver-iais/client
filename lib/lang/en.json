@@ -258,5 +258,15 @@
   "edited": "edited",
   "change_group_avatar": "changed group avatar",
   "change_channel_avatar": "changed channel avatar",
-  "show_in_folder": "Show in folder"
+  "show_in_folder": "Show in folder",
+  "get_access_phone_number": "Access to your phoneNumber ?",
+  "get_access_email": "Access to your email ?",
+  "get_access_name": "Access to your name ?",
+  "get_access_username" : "Access to your username ?",
+  "access_phone_number": "Are you get permission for access to your phoneNumber ?",
+  "access_email": "Are you get permission for access to your email ?",
+  "access_name": "Are you get permission for access to your name ?",
+  "access_username" : "Are you get permission for access to your username ?"
+
+
 }

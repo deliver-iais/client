@@ -210,8 +210,10 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
+        break;
       case MessageType.FORM:
         return BotFormMessage(message: widget.message, isSeen: true);
+        break;
       case MessageType.BUTTONS:
         return BotButtonsWidget(message: widget.message);
         break;
