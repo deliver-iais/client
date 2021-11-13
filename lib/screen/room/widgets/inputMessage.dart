@@ -97,7 +97,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
-
   FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
@@ -130,15 +129,15 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    InputMessage.inputMessegeFocusNode = FocusNode();
+    InputMessage.inputMessegeFocusNode = FocusNode(canRequestFocus: false);
     editMessageInput = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
     editMessageInput.stream.listen((event) {
       _controller.text = event;
     });
-    InputMessage.myFocusNode = FocusNode();
-    keyboardRawFocusNode = FocusNode();
+    InputMessage.myFocusNode = FocusNode(canRequestFocus: false);
+    keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
@@ -301,11 +300,14 @@ class _InputMessageWidget extends State<InputMessage> {
                                   }),
                               Flexible(
                                 child: RawKeyboardListener(
-                                  focusNode: keyboardRawFocusNode,
+                                  focusNode: isAndroid()
+                                      ? FocusNode(canRequestFocus: false)
+                                      : keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode:
-                                        InputMessage.inputMessegeFocusNode,
+                                    focusNode: isAndroid()
+                                        ? FocusNode(canRequestFocus: false)
+                                        : InputMessage.inputMessegeFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
                                     controller: _controller,
@@ -453,32 +455,32 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   var s =
                                       await getApplicationDocumentsDirectory();
-                                 String  path = s.path +
+                                  String path = s.path +
                                       "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   recordSubject.add(DateTime.now());
                                   setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
                                   await _soundRecorder.openAudioSession();
-                                    _soundRecorder.startRecorder(
-                                      toFile: path,
-                                      sampleRate: 128000,
-                                      numChannels: 2,
-                                      bitRate: 128000,
-                                      audioSource: AudioSource.defaultSource,
-                                    );
-                                    setState(() {
-                                      startAudioRecorder = true;
-                                      size = 2;
-                                      started = true;
-                                      time = DateTime.now();
-                                    });
+                                  _soundRecorder.startRecorder(
+                                    toFile: path,
+                                    sampleRate: 128000,
+                                    numChannels: 2,
+                                    bitRate: 128000,
+                                    audioSource: AudioSource.defaultSource,
+                                  );
+                                  setState(() {
+                                    startAudioRecorder = true;
+                                    size = 2;
+                                    started = true;
+                                    time = DateTime.now();
+                                  });
                                 }
                               },
                               onLongPressEnd: (s) async {
                                 if (_tickTimer != null) _tickTimer.cancel();
 
-                              var res =   await _soundRecorder.stopRecorder();
+                                var res = await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
                                 noActivitySubject.add(ActivityType.NO_ACTIVITY);

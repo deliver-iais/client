@@ -87,8 +87,8 @@ dependencies:
   image_size_getter: 0.2.1
   swipe_to: 0.0.1+8
   audioplayers: 0.20.1
-  dart_vlc: 0.0.9
-  video_player: 2.2.4
+  dart_vlc: 0.1.8
+  video_player: 2.2.7
   open_file: 3.2.1 # Open file in OS
   contacts_service: 0.6.1
   random_string: 2.3.1

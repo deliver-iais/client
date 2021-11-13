@@ -47,11 +47,7 @@ class _VideoMessageState extends State<VideoMessage> {
           ? duration.toString().substring(2, 7)
           : duration.toString().substring(3, 7);
     } else {
-      videoLength = duration
-          .toString()
-          .split('.')
-          .first
-          .padLeft(8, "0");
+      videoLength = duration.toString().split('.').first.padLeft(8, "0");
     }
     return Container(
       width: 300,
@@ -110,29 +106,18 @@ class _VideoMessageState extends State<VideoMessage> {
                     future: _fileRepo.getFileIfExist(video.uuid, video.name),
                     builder: (c, s) {
                       if (s.hasData && s.data != null) {
-                        return Stack(
-                          children: [
-                            VideoUi(
+                        return videoWidget(
+                            w: VideoUi(
                               video: s.data,
                               duration: video.duration,
                               showSlider: true,
                             ),
-                            size(videoLength, video.size.toInt()),
-                            video.caption.isEmpty
-                                ? (!isDesktop()) | (isDesktop() & showTime)
-                                ? SizedBox.shrink()
-                                : TimeAndSeenStatus(widget.message,
-                                widget.isSender, widget.isSeen,
-                                needsBackground: true)
-                                : Container(),
-                            TimeAndSeenStatus(widget.message, widget.isSender,
-                                widget.isSeen, needsBackground: true)
-                          ],
-                        );
+                            videoLength: videoLength,
+                            video: video,
+                            caption: video.caption);
                       } else {
-                        return Stack(
-                          children: [
-                            DownloadVideoWidget(
+                        return videoWidget(
+                            w: DownloadVideoWidget(
                               name: video.name,
                               uuid: video.uuid,
                               download: () async {
@@ -140,17 +125,9 @@ class _VideoMessageState extends State<VideoMessage> {
                                 setState(() {});
                               },
                             ),
-                            size(videoLength, video.size.toInt()),
-                            video.caption.isEmpty
-                                ? (!isDesktop()) | (isDesktop() & false)
-                                ? SizedBox.shrink()
-                                : TimeAndSeenStatus(widget.message,
-                                widget.isSender, widget.isSeen,needsBackground: true)
-                                : Container(),
-                            TimeAndSeenStatus(widget.message, widget.isSender,
-                                widget.isSeen, needsBackground: true)
-                          ],
-                        );
+                            video: video,
+                            videoLength: videoLength,
+                            caption: video.caption);
                       }
                     },
                   );
@@ -166,7 +143,7 @@ class _VideoMessageState extends State<VideoMessage> {
       // height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       padding:
-      const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
+          const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: Colors.black87,
@@ -187,5 +164,41 @@ class _VideoMessageState extends State<VideoMessage> {
         ],
       ),
     );
+  }
+
+  Widget videoWidget(
+      {Widget w, String caption = "", File video, String videoLength}) {
+    return caption.isEmpty
+        ? Stack(
+            children: [
+              w,
+              size(videoLength, video.size.toInt()),
+              video.caption.isEmpty
+                  ? (!isDesktop()) | (isDesktop() & false)
+                      ? SizedBox.shrink()
+                      : TimeAndSeenStatus(
+                          widget.message, widget.isSender, widget.isSeen,
+                          needsBackground: true)
+                  : Container(),
+              TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+                  needsBackground: true)
+            ],
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              w,
+              size(videoLength, video.size.toInt()),
+              video.caption.isEmpty
+                  ? (!isDesktop()) | (isDesktop() & false)
+                      ? SizedBox.shrink()
+                      : TimeAndSeenStatus(
+                          widget.message, widget.isSender, widget.isSeen,
+                          needsBackground: true)
+                  : Container(),
+              TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+                  needsBackground: true)
+            ],
+          );
   }
 }

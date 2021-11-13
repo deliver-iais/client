@@ -36,6 +36,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       )
     ]).then<void>((OperationOnRoom opr) async {
       if (opr == null) return;
+      // ignore: missing_enum_constant_in_switch
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
           onPin(room, canPin);
