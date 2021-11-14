@@ -6,6 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_TextFie
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_Widget.dart';
 import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as protoForm;
 import 'package:flutter/cupertino.dart';
@@ -51,7 +52,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               Padding(
                 padding: const EdgeInsets.only(left: 4.0),
                 child: Container(
-                  width: MediaQuery.of(context).size.width*2/3,
+                  width:isDesktop()?  270:MediaQuery.of(context).size.width*2/3,
                   child: Text(
                     form.title.titleCase,
                     style: Theme.of(context).primaryTextTheme.subtitle1,

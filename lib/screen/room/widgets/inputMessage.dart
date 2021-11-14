@@ -47,7 +47,6 @@ class InputMessage extends StatefulWidget {
   final Function sendForwardMessage;
   final Function showMentionList;
   final Function scrollToLastSentMessage;
-  static FocusNode myFocusNode;
   final Message editableMessage;
   static FocusNode inputMessegeFocusNode;
 
@@ -136,7 +135,6 @@ class _InputMessageWidget extends State<InputMessage> {
     editMessageInput.stream.listen((event) {
       _controller.text = event;
     });
-    InputMessage.myFocusNode = FocusNode(canRequestFocus: false);
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     isTypingActivitySubject
@@ -300,14 +298,14 @@ class _InputMessageWidget extends State<InputMessage> {
                                   }),
                               Flexible(
                                 child: RawKeyboardListener(
-                                  focusNode: isAndroid()
-                                      ? FocusNode(canRequestFocus: false)
-                                      : keyboardRawFocusNode,
+                                  focusNode: isDesktop()
+                                      ? keyboardRawFocusNode
+                                      : FocusNode(canRequestFocus: false),
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode: isAndroid()
-                                        ? FocusNode(canRequestFocus: false)
-                                        : InputMessage.inputMessegeFocusNode,
+                                    focusNode: isDesktop()
+                                        ? InputMessage.inputMessegeFocusNode
+                                        : FocusNode(canRequestFocus: false),
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
                                     controller: _controller,
