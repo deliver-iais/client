@@ -11,7 +11,6 @@ import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
