@@ -11,7 +11,6 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -31,7 +30,6 @@ class ImageUi extends StatefulWidget {
 
 class _ImageUiState extends State<ImageUi> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  var _routingServices = GetIt.I.get<RoutingService>();
   filePb.File image;
   BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
   bool showTime;

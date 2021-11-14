@@ -574,14 +574,6 @@ class _ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  _navigateHomePage() {
-    _routingService.reset();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
-  }
-
   createInviteLink() async {
     var muc = await _mucRepo.getMuc(widget.roomUid.asString());
     String token = muc.token;

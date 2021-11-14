@@ -22,7 +22,9 @@ class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   double get height => 100;
 
   @override
-  bool represents(OperationOnRoom value) {}
+  bool represents(OperationOnRoom value) {
+    return false;
+  }
 }
 
 class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {

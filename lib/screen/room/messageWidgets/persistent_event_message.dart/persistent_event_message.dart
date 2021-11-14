@@ -245,6 +245,8 @@ class PersistentEventMessage extends StatelessWidget {
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
         break;
+      default:
+        return "";
     }
   }
 
@@ -260,6 +262,7 @@ class PersistentEventMessage extends StatelessWidget {
         break;
       case MessageType.STICKER:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.LOCATION:
         return _i18n.get("location");
@@ -269,30 +272,38 @@ class PersistentEventMessage extends StatelessWidget {
         break;
       case MessageType.POLL:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.FORM:
         return _i18n.get("form");
         break;
       case MessageType.PERSISTENT_EVENT:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.BUTTONS:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.SHARE_UID:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.FORM_RESULT:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         // TODO: Handle this case.
+        return "";
         break;
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         // TODO: Handle this case.
+        return "";
         break;
       default:
         return "";

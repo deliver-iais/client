@@ -56,7 +56,7 @@ packages:
       name: audio_video_progress_bar
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.0"
+    version: "0.4.0"
   audioplayers:
     dependency: "direct main"
     description:
@@ -252,14 +252,14 @@ packages:
       name: dart_vlc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.8"
+    version: "0.0.9"
   dart_vlc_ffi:
     dependency: transitive
     description:
       name: dart_vlc_ffi
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.5"
+    version: "0.0.9"
   date_time_format:
     dependency: "direct main"
     description:
@@ -285,11 +285,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.9.3"
-      resolved-ref: ab3892c4b5edb29c5534765073056df030d7eed0
+      ref: "tags/v1.9.6"
+      resolved-ref: ed24c4f7e1ad9b4be269103e0dd75c3bdbb0de48
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.9.3"
+    version: "1.9.6"
   desktoasts:
     dependency: "direct main"
     description:

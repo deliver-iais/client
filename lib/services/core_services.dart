@@ -164,6 +164,12 @@ class CoreServices {
           case ServerPacket_Type.roomPresenceTypeChanged:
             _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
             break;
+          case ServerPacket_Type.callOffer:
+            // TODO: Handle this case.
+            break;
+          case ServerPacket_Type.callAnswer:
+            // TODO: Handle this case.
+            break;
         }
       });
     } catch (e) {
@@ -492,5 +498,6 @@ Future<DB.Message> saveMessageInMessagesDB(
     return msg;
   } catch (e) {
     print(e.toString());
+    return null;
   }
 }

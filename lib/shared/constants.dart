@@ -9,13 +9,13 @@ const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
     "1.5.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT = "log_out";
-final String TEST_USER_ACCESS_TOKEN =
+const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
 final Uid TEST_USER_UID = Uid.create()
   ..category = Categories.USER
   ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
 
-final TEST_USER_PHONENUMBER ="1234567890";
+const TEST_USER_PHONENUMBER ="1234567890";
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";

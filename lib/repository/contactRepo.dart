@@ -171,6 +171,7 @@ class ContactRepo {
       return searchResult;
     } catch (e) {
       _logger.e(e);
+      return [];
     }
   }
 
