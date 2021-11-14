@@ -97,6 +97,7 @@ dependencies:
   dcache: 0.4.0
   image_size_getter: 0.2.1
   swipe_to: 0.0.1+8
+  local_auth: 1.1.8
   audioplayers: 0.20.1
   dart_vlc: 0.0.9
   video_player: 2.2.4
@@ -165,9 +166,8 @@ flutter:
     - lib/lang/fa.json
     - lib/lang/en.json
     - assets/backgrounds/
-    - assets/animations/done.json
-    - assets/animations/loading.json
-    - assets/animations/error.json
+    - assets/animations/done.tgs
+    - assets/animations/unlock.tgs
     - assets/animations/audio_wave.json
     - assets/emoji/
     - android/app/src/main/res/raw/

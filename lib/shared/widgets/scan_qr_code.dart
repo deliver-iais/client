@@ -12,6 +12,7 @@ import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -25,7 +26,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -152,8 +152,8 @@ class _ScanQrCode extends State<ScanQrCode> {
             builder: (BuildContext ctx) {
               return Container(
                   padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Lottie.asset(
-                    'assets/animations/done.json',
+                  child: TGS.asset(
+                    'assets/animations/done.tgs',
                     width: 150,
                     height: 150,
                     repeat: false,

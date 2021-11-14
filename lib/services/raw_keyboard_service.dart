@@ -22,26 +22,26 @@ class RawKeyboardService {
     _openSearchBox = value;
   }
 
-  void controllFHandle() {
+  void controlFHandle() {
     if (_openSearchBox != null) _openSearchBox();
   }
 
-  Future<void> controllCHandle(TextEditingController controller) {
+  void controlCHandle(TextEditingController controller) {
     Clipboard.setData(
         ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  Future<void> controllVHandle(TextEditingController controller) async {
+  void controlVHandle(TextEditingController controller) async {
     ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
     controller.text = data.text;
   }
 
-  Future<void> controllXHandle(TextEditingController controller) {
+  void controlXHandle(TextEditingController controller) {
     Clipboard.setData(
         ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  void controllAHandle(TextEditingController controller) {
+  void controlAHandle(TextEditingController controller) {
     controller.selection = TextSelection(
         baseOffset: 0, extentOffset: controller.value.text.length);
   }
@@ -119,7 +119,7 @@ class RawKeyboardService {
 
   void searchHandeling({event}) {
     if (event.physicalKey == PhysicalKeyboardKey.keyF && event.isControlPressed)
-      controllFHandle();
+      controlFHandle();
   }
 
   void escapeHandeling(
@@ -170,14 +170,14 @@ class RawKeyboardService {
 
   void handleCopyPastKeyPress(TextEditingController controller, event) {
     if (event.isKeyPressed(LogicalKeyboardKey.keyA) && event.isControlPressed)
-      controllAHandle(controller);
+      controlAHandle(controller);
     if (event.isKeyPressed(LogicalKeyboardKey.keyC) && event.isControlPressed)
-      controllCHandle(controller);
+      controlCHandle(controller);
 
     if (event.isKeyPressed(LogicalKeyboardKey.keyX) && event.isControlPressed)
-      controllXHandle(controller);
+      controlXHandle(controller);
     if (event.isKeyPressed(LogicalKeyboardKey.keyV) && event.isControlPressed)
-      controllVHandle(controller);
+      controlVHandle(controller);
   }
 
   navigateInRooms({event}) {
