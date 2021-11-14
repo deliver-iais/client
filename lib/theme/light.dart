@@ -56,7 +56,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   textDetails: Colors.black,
   menuIconButton: secondary.withAlpha(50),
   chatOrContactItemDetails: Colors.black,
-  sentMessageBox: Color(0xFFDCEDC8),
+  sentMessageBox: Color(0xffeffdde),
   receivedMessageBox: Colors.white,
   textMessage: secondary,
   messageDetails: secondary.withAlpha(200),

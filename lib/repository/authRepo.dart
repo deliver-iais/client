@@ -24,14 +24,14 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:synchronized/synchronized.dart';
 
-// test user access token
-
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authServiceClient = GetIt.I.get<AuthServiceClient>();
-  var _routingServices = GetIt.I.get<RoutingService>();
+  final _routingServices = GetIt.I.get<RoutingService>();
   final requestLock = Lock();
+
+  var _password = "";
 
   String currentUsername = "";
   Uid currentUserUid = Uid.create()
@@ -54,6 +54,7 @@ class AuthRepo {
   }
 
   Future<void> init() async {
+    _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
     var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
@@ -225,13 +226,21 @@ class AuthRepo {
     }
   }
 
-  bool isLoggedIn() {
-    return _refreshToken != null && !_isExpired(_refreshToken);
+  bool isLocalLockEnabled() => _password != "";
+
+  bool localPasswordIsCorrect(String pass) => _password == pass;
+
+  String getLocalPassword() => this._password;
+
+  void setLocalPassword(String pass) {
+    _password = pass;
+
+    _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool _isExpired(accessToken) {
-    return JwtDecoder.isExpired(accessToken);
-  }
+  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
+
+  bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
 
   void _saveTokens(RenewAccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);

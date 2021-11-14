@@ -11,7 +11,7 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const radius = const Radius.circular(14);
+    const radius = const Radius.circular(10);
     const border = const BorderRadius.all(radius);
     return Container(
       padding: const EdgeInsets.all(4.0),
@@ -29,27 +29,26 @@ class MessageWrapper extends StatelessWidget {
               top: 0,
               child: !isSent
                   ? Container(
-                // color: Colors.white,
-                  width: 20,
-                  height: 20,
-                  child: CustomPaint(
-                    foregroundPainter: OPainter(isSent
-                        ? ExtraTheme.of(context).sentMessageBox
-                        : ExtraTheme.of(context).receivedMessageBox),
-                  ))
+                      width: 20,
+                      height: 20,
+                      child: CustomPaint(
+                        foregroundPainter: OPainter(isSent
+                            ? ExtraTheme.of(context).sentMessageBox
+                            : ExtraTheme.of(context).receivedMessageBox),
+                      ))
                   : Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.rotationY(pi),
-                child: Container(
-                  // color: Colors.white,
-                    width: 20,
-                    height: 20,
-                    child: CustomPaint(
-                      foregroundPainter: OPainter(isSent
-                          ? ExtraTheme.of(context).sentMessageBox
-                          : ExtraTheme.of(context).receivedMessageBox),
-                    )),
-              ),
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(pi),
+                      child: Container(
+                          // color: Colors.white,
+                          width: 20,
+                          height: 20,
+                          child: CustomPaint(
+                            foregroundPainter: OPainter(isSent
+                                ? ExtraTheme.of(context).sentMessageBox
+                                : ExtraTheme.of(context).receivedMessageBox),
+                          )),
+                    ),
             ),
             ClipRRect(
                 borderRadius: border,

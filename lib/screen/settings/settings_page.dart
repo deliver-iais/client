@@ -210,6 +210,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
+                    title: i18n.get("security"),
+                    leading: Icon(Icons.security),
+                    onPressed: (BuildContext context) =>
+                        _routingService.openSecuritySettings(),
+                    trailing: SizedBox.shrink(),
+                  ),
+                  SettingsTile(
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
                     onPressed: (c) {
