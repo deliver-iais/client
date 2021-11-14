@@ -43,6 +43,16 @@ class AuthRepo {
 
   PhoneNumber _tmpPhoneNumber;
 
+  Future<bool> isTestUser() async {
+    if (currentUserUid.node.isNotEmpty)
+      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
+    else {
+      currentUserUid =
+          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
+    }
+  }
+
   Future<void> init() async {
     _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
@@ -276,6 +286,11 @@ class AuthRepo {
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }
+
+  saveTestUserInfo() {
+    currentUserUid = TEST_USER_UID;
+    _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
+  }
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {
@@ -283,7 +298,9 @@ class DeliverClientInterceptor implements ClientInterceptor {
 
   Future<void> metadataProvider(
       Map<String, String> metadata, String uri) async {
-    var token = await _authRepo.getAccessToken();
+    var token = await _authRepo.isTestUser()
+        ? TEST_USER_ACCESS_TOKEN
+        : await _authRepo.getAccessToken();
     metadata['access_token'] = token;
   }
 

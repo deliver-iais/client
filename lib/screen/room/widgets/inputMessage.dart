@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -26,7 +27,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -46,7 +47,6 @@ class InputMessage extends StatefulWidget {
   final Function sendForwardMessage;
   final Function showMentionList;
   final Function scrollToLastSentMessage;
-  static FocusNode myFocusNode;
   final Message editableMessage;
   static FocusNode inputMessegeFocusNode;
 
@@ -89,7 +89,6 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
   BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
-  String path;
   Timer _tickTimer;
   TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
@@ -129,15 +128,14 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    InputMessage.inputMessegeFocusNode = FocusNode();
+    InputMessage.inputMessegeFocusNode = FocusNode(canRequestFocus: false);
     editMessageInput = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = currentRoom.draft != null ? currentRoom.draft : "";
     editMessageInput.stream.listen((event) {
       _controller.text = event;
     });
-    InputMessage.myFocusNode = FocusNode();
-    keyboardRawFocusNode = FocusNode();
+    keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
@@ -300,11 +298,14 @@ class _InputMessageWidget extends State<InputMessage> {
                                   }),
                               Flexible(
                                 child: RawKeyboardListener(
-                                  focusNode: keyboardRawFocusNode,
+                                  focusNode: isDesktop()
+                                      ? keyboardRawFocusNode
+                                      : FocusNode(canRequestFocus: false),
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode:
-                                        InputMessage.inputMessegeFocusNode,
+                                    focusNode: isDesktop()
+                                        ? InputMessage.inputMessegeFocusNode
+                                        : FocusNode(canRequestFocus: false),
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
                                     controller: _controller,
@@ -452,7 +453,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   var s =
                                       await getApplicationDocumentsDirectory();
-                                  path = s.path +
+                                  String path = s.path +
                                       "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   recordSubject.add(DateTime.now());
                                   setTime();
@@ -477,7 +478,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               onLongPressEnd: (s) async {
                                 if (_tickTimer != null) _tickTimer.cancel();
 
-                                await _soundRecorder.stopRecorder();
+                                var res = await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
                                 noActivitySubject.add(ActivityType.NO_ACTIVITY);
@@ -489,7 +490,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(), path);
+                                        widget.currentRoom.uid.asUid(), res);
                                   } catch (e) {}
                                 }
                               },
@@ -663,8 +664,11 @@ class _InputMessageWidget extends State<InputMessage> {
         );
         widget.resetRoomPageDetails();
       } else if (widget.editableMessage != null) {
-        messageRepo.editTextMessage(currentRoom.uid.asUid(), widget.editableMessage,
-            _controller.text, currentRoom.lastMessageId);
+        messageRepo.editTextMessage(
+            currentRoom.uid.asUid(),
+            widget.editableMessage,
+            _controller.text,
+            currentRoom.lastMessageId);
         widget.resetRoomPageDetails();
       } else {
         messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
@@ -687,9 +691,13 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
-    final typeGroup = XTypeGroup(label: 'images');
-    final result = await openFiles(acceptedTypeGroups: [typeGroup]);
-    showCaptionDialog(result: result, icons: Icons.file_upload);
+    //final typeGroup = XTypeGroup(label: 'images');
+    try {
+      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+      showCaptionDialog(result: result, icons: Icons.file_upload);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   void setTime() {
@@ -699,14 +707,15 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  showCaptionDialog({IconData icons, String type, List<XFile> result}) async {
-    if (result.length <= 0) return;
+  showCaptionDialog(
+      {IconData icons, String type, FilePickerResult result}) async {
+    if (result.files.length <= 0) return;
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            paths: result.map((e) => e.path).toList(),
-            type: result.first.path.split(".").last,
+            paths: result.files.map((e) => e.path).toList(),
+            type: result.files.first.path.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });

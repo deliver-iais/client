@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/widgets/image_swiper.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -61,14 +63,25 @@ class _ImageUiState extends State<ImageUi> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _routingServices.showImageInRoom(
-                            message: widget.message);
+                        if (isDesktop()) {
+                          _showImageInDesktop(s.data);
+                        } else {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ImageSwiper(
+                              message: widget.message,
+                            );
+                          }));
+                        }
                       },
-                      child: Image.file(
-                        s.data,
-                        width: width,
-                        height: height,
-                        fit: BoxFit.fill,
+                      child: Hero(
+                        tag: image.uuid,
+                        child: Image.file(
+                          s.data,
+                          width: width,
+                          height: height,
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                     if (image.caption.isEmpty)
@@ -157,7 +170,19 @@ class _ImageUiState extends State<ImageUi> {
       h = min(height, maxWidth);
       w = h * aspect;
     }
-
     return Size(w, h);
+  }
+
+  _showImageInDesktop(File file) {
+    return showDialog(
+        context: context,
+        builder: (c) {
+          return AlertDialog(
+            content: InteractiveViewer(
+                child: Hero(
+                    tag: widget.message.json.toFile().uuid,
+                    child: Image.file(file))),
+          );
+        });
   }
 }

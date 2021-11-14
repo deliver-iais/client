@@ -8,6 +8,7 @@ import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
@@ -91,6 +92,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  _loginASTestUser() {
+    _authRepo.saveTestUserInfo();
+    _navigationToHome();
+  }
+
   @override
   void dispose() {
     loginToken?.close();
@@ -101,38 +107,44 @@ class _LoginPageState extends State<LoginPage> {
 
   checkAndGoNext({bool doNotCheckValidator = false}) async {
     I18N i18n = I18N.of(context);
-    var isValidated = _formKey?.currentState?.validate() ?? false;
-    if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-      setState(() {
-        _isLoading = true;
-      });
-      try {
-        var res = await _authRepo.getVerificationCode(phoneNumber);
-        if (res != null) {
-          ExtendedNavigator.of(context).push(Routes.verificationPage);
+    if (phoneNumber != null &&
+        phoneNumber.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
+      _logger.e("logis as test user ");
+      _loginASTestUser();
+    } else {
+      var isValidated = _formKey?.currentState?.validate() ?? false;
+      if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
+        setState(() {
+          _isLoading = true;
+        });
+        try {
+          var res = await _authRepo.getVerificationCode(phoneNumber);
+          if (res != null) {
+            ExtendedNavigator.of(context).push(Routes.verificationPage);
+            setState(() {
+              _isLoading = false;
+            });
+          } else {
+            ToastDisplay.showToast(
+//          TODO more detailed error message needed here.
+              toastText: i18n.get("error_occurred"),
+              tostContext: context,
+            );
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        } catch (e) {
           setState(() {
             _isLoading = false;
           });
-        } else {
+          _logger.e(e);
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
             toastText: i18n.get("error_occurred"),
             tostContext: context,
           );
-          setState(() {
-            _isLoading = false;
-          });
         }
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
-        _logger.e(e);
-        ToastDisplay.showToast(
-//          TODO more detailed error message needed here.
-          toastText: i18n.get("error_occurred"),
-          tostContext: context,
-        );
       }
     }
   }

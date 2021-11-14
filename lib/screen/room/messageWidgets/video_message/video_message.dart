@@ -1,10 +1,12 @@
 import 'dart:io' as da;
+import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -47,15 +49,15 @@ class _VideoMessageState extends State<VideoMessage> {
           ? duration.toString().substring(2, 7)
           : duration.toString().substring(3, 7);
     } else {
-      videoLength = duration
-          .toString()
-          .split('.')
-          .first
-          .padLeft(8, "0");
+      videoLength = duration.toString().split('.').first.padLeft(8, "0");
     }
     return Container(
-      width: 300,
-      height: 200,
+      width: min(
+          (MediaQuery.of(context).size.width -
+              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+              0.7,
+          400),
+      height: min( video.height.toDouble(),200),
       color: Colors.black,
       child: MouseRegion(
         onEnter: (PointerEvent details) {
@@ -72,91 +74,68 @@ class _VideoMessageState extends State<VideoMessage> {
             });
           }
         },
-        child: Stack(alignment: Alignment.center, children: <Widget>[
-          StreamBuilder(
-              stream: _messageRepo.watchPendingMessage(widget.message.packetId),
-              builder: (c, p) {
-                if (p.hasData && p.data != null) {
-                  return Stack(
-                    children: [
-                      Center(
-                        child: StreamBuilder<double>(
-                            stream: fileServices
-                                .filesUploadStatus[widget.message.packetId],
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                return CircularPercentIndicator(
-                                  radius: 45.0,
-                                  lineWidth: 4.0,
-                                  percent: snapshot.data,
-                                  center: Icon(Icons.arrow_upward_rounded),
-                                  progressColor: Colors.blue,
-                                );
-                              } else {
-                                return CircularPercentIndicator(
-                                  radius: 45.0,
-                                  lineWidth: 4.0,
-                                  percent: 0.1,
-                                  center: Icon(Icons.arrow_upward_rounded),
-                                  progressColor: Colors.blue,
-                                );
-                              }
-                            }),
-                      )
-                    ],
-                  );
-                } else {
-                  return FutureBuilder<da.File>(
-                    future: _fileRepo.getFileIfExist(video.uuid, video.name),
-                    builder: (c, s) {
-                      if (s.hasData && s.data != null) {
-                        return Stack(
-                          children: [
-                            VideoUi(
-                              video: s.data,
-                              duration: video.duration,
-                              showSlider: true,
-                            ),
-                            size(videoLength, video.size.toInt()),
-                            video.caption.isEmpty
-                                ? (!isDesktop()) | (isDesktop() & showTime)
-                                ? SizedBox.shrink()
-                                : TimeAndSeenStatus(widget.message,
-                                widget.isSender, widget.isSeen,
-                                needsBackground: true)
-                                : Container(),
-                            TimeAndSeenStatus(widget.message, widget.isSender,
-                                widget.isSeen, needsBackground: true)
-                          ],
-                        );
-                      } else {
-                        return Stack(
-                          children: [
-                            DownloadVideoWidget(
-                              name: video.name,
-                              uuid: video.uuid,
-                              download: () async {
-                                await _fileRepo.getFile(video.uuid, video.name);
-                                setState(() {});
-                              },
-                            ),
-                            size(videoLength, video.size.toInt()),
-                            video.caption.isEmpty
-                                ? (!isDesktop()) | (isDesktop() & false)
-                                ? SizedBox.shrink()
-                                : TimeAndSeenStatus(widget.message,
-                                widget.isSender, widget.isSeen,needsBackground: true)
-                                : Container(),
-                            TimeAndSeenStatus(widget.message, widget.isSender,
-                                widget.isSeen, needsBackground: true)
-                          ],
-                        );
-                      }
-                    },
-                  );
-                }
-              })
-        ]),
+        child: StreamBuilder(
+            stream: _messageRepo.watchPendingMessage(widget.message.packetId),
+            builder: (c, p) {
+              if (p.hasData && p.data != null) {
+                return Stack(
+                  children: [
+                    Center(
+                      child: StreamBuilder<double>(
+                          stream: fileServices
+                              .filesUploadStatus[widget.message.packetId],
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              return CircularPercentIndicator(
+                                radius: 45.0,
+                                lineWidth: 4.0,
+                                percent: snapshot.data,
+                                center: Icon(Icons.arrow_upward_rounded),
+                                progressColor: Colors.blue,
+                              );
+                            } else {
+                              return CircularPercentIndicator(
+                                radius: 45.0,
+                                lineWidth: 4.0,
+                                percent: 0.1,
+                                center: Icon(Icons.arrow_upward_rounded),
+                                progressColor: Colors.blue,
+                              );
+                            }
+                          }),
+                    )
+                  ],
+                );
+              } else {
+                return FutureBuilder<da.File>(
+                  future: _fileRepo.getFileIfExist(video.uuid, video.name),
+                  builder: (c, s) {
+                    if (s.hasData && s.data != null) {
+                      return videoWidget(
+                          w: VideoUi(
+                            video: s.data,
+                            duration: video.duration,
+                            showSlider: true,
+                          ),
+                          videoLength: videoLength,
+                          video: video);
+                    } else {
+                      return videoWidget(
+                          w: DownloadVideoWidget(
+                            name: video.name,
+                            uuid: video.uuid,
+                            download: () async {
+                              await _fileRepo.getFile(video.uuid, video.name);
+                              setState(() {});
+                            },
+                          ),
+                          video: video,
+                          videoLength: videoLength);
+                    }
+                  },
+                );
+              }
+            }),
       ),
     );
   }
@@ -166,7 +145,7 @@ class _VideoMessageState extends State<VideoMessage> {
       // height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       padding:
-      const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
+          const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: Colors.black87,
@@ -186,6 +165,25 @@ class _VideoMessageState extends State<VideoMessage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget videoWidget({Widget w, File video, String videoLength}) {
+    return Stack(
+      children: [
+        w,
+        size(videoLength, video.size.toInt()),
+        video.caption.isEmpty
+            ? (!isDesktop()) | (isDesktop() & false)
+                ? SizedBox.shrink()
+                : TimeAndSeenStatus(
+                    widget.message, widget.isSender, widget.isSeen,
+                    needsBackground: true)
+            : Container(),
+        if (video.caption.isEmpty)
+          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+              needsBackground: true)
+      ],
     );
   }
 }

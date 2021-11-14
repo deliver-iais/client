@@ -265,5 +265,15 @@
   "security": "Security",
   "enable_local_lock": "Enable local lock",
   "disable": "Disable",
-  "change": "Change"
+  "change": "Change",
+  "get_access_phone_number": "Access to your phoneNumber ?",
+  "get_access_email": "Access to your email ?",
+  "get_access_name": "Access to your name ?",
+  "get_access_username" : "Access to your username ?",
+  "access_phone_number": "Do you allow access to your phoneNumber ?",
+  "access_email": "Do you allow access to your email ?",
+  "access_name": "Do you allow access to your name ?",
+  "access_username" : "Do you allow access to your username?"
+
+
 }

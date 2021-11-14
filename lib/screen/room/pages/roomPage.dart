@@ -401,8 +401,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       )
     ]).then<void>((OperationOnMessage opr) async {
       if (opr == null) return;
-      switch (opr) {
-        // ignore: missing_enum_constant_in_switch
+      switch (opr) {// ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
           break;
@@ -424,8 +423,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {
-            // ignore: missing_enum_constant_in_switch
+          switch (message.type) {// ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
               _editableMessage.add(message);
@@ -1112,7 +1110,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _selectMultiMessageSubject.add(false);
                   _selectedMessages.clear();
-                  setState(() {});
                 }),
           ),
         ),
@@ -1284,11 +1281,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       style: TextStyle(color: Colors.blue),
                     ),
                     onTap: () {
-                      setState(() {
-                        _selectMultiMessageSubject.add(false);
-                        _selectedMessages.clear();
-                      });
-
+                      _selectMultiMessageSubject.add(false);
+                      _selectedMessages.clear();
                       Navigator.pop(context);
                     }),
                 GestureDetector(
@@ -1300,6 +1294,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     _messageRepo.deleteMessage(
                         messages, _currentRoom.value.lastMessageId);
                     Navigator.pop(context);
+                    _selectMultiMessageSubject.add(false);
+                    _selectedMessages.clear();
                   },
                 ),
               ],

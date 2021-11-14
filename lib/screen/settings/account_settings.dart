@@ -10,10 +10,9 @@ import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
@@ -56,10 +55,8 @@ class _AccountSettingsState extends State<AccountSettings> {
   attachFile() async {
     String path;
     if (isDesktop()) {
-      final typeGroup =
-          XTypeGroup(label: 'images', extensions: SUPPORTED_IMAGE_EXTENSIONS);
-      final result = await openFile(acceptedTypeGroups: [typeGroup]);
-      path = result.path;
+      final result = await FilePicker.platform.pickFiles(type: FileType.media,allowMultiple: false);
+      path = result.files.first.path;
     } else {
       var result = await ImagePicker().getImage(source: ImageSource.gallery);
       path = result.path;

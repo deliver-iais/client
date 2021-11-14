@@ -16,20 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatefulWidget {
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-
-  ContactsPage({Key key}) : super(key: key) {
-    _syncContacts();
-  }
-
-  _syncContacts() async {
-    bool isAlreadyContactAccessTipShowed =
-        await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed || isDesktop()) {
-      _contactRepo.syncContacts();
-    }
-  }
+  ContactsPage({Key key}) : super(key: key) ;
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
@@ -46,13 +33,15 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   void initState() {
-    widget._syncContacts();
+    _syncContacts();
     super.initState();
+  }
+  _syncContacts() {
+    _showSyncContactDialog(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    _showSyncContactDialog(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -174,8 +163,8 @@ class _ContactsPageState extends State<ContactsPage> {
   _showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed == null && !isDesktop()) {
-      showDialog(
+    if ( isAlreadyContactAccessTipShowed != null && !isAlreadyContactAccessTipShowed && !isDesktop()) {
+      return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
@@ -202,7 +191,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       _sharedDao.putBoolean(
                           SHARED_DAO_SHOW_CONTACT_DIALOG, true);
                       Navigator.pop(context);
-                      widget._syncContacts();
+                      _contactRepo.syncContacts();
                     },
                     child: Text(
                       I18N.of(context).get("continue"),
@@ -210,6 +199,8 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
+    } else if(isAlreadyContactAccessTipShowed != null && isAlreadyContactAccessTipShowed ){
+      _contactRepo.syncContacts();
     }
   }
 

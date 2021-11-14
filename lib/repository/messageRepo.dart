@@ -883,38 +883,42 @@ class MessageRepo {
     }
   }
 
-  _deleteMessage(Message message) async {
+  Future<bool> _deleteMessage(Message message) async {
     try {
       await _queryServiceClient.deleteMessage(DeleteMessageReq()
         ..messageId = Int64(message.id)
         ..roomUid = message.roomUid.asUid());
+      return true;
     } catch (e) {
       _logger.e(e);
+      return false;
     }
   }
 
   deleteMessage(List<Message> messages, int roomLastMessageId) {
-    messages.forEach((msg) {
-      if (msg.id == null)
-        deletePendingMessage(msg);
-      else if (_authRepo.isCurrentUserSender(msg)) {
-        _deleteMessage(msg);
-        if (msg.id == roomLastMessageId)
-          try {
-            _roomDao.updateRoom(Room(
-                uid: msg.roomUid,
-                lastMessageId: roomLastMessageId,
-                lastMessage: msg.copyWith(json: "{}"),
-                lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
-          } catch (e) {
-            print(e.toString());
+    try {
+      messages.forEach((msg) async {
+        if (msg.id == null)
+          deletePendingMessage(msg);
+        else {
+          if (await _deleteMessage(msg)) {
+            if (msg.id == roomLastMessageId)
+              _roomDao.updateRoom(Room(
+                  uid: msg.roomUid,
+                  lastMessageId: roomLastMessageId,
+                  lastMessage: msg.copyWith(json: "{}"),
+                  lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+
+            msg.json = "{}";
+            _messageDao.saveMessage(msg);
+            _roomDao.updateRoom(
+                Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id));
           }
-        msg.json = "{}";
-        _messageDao.saveMessage(msg);
-        _roomDao
-            .updateRoom(Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id));
-      }
-    });
+        }
+      });
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   void editTextMessage(Uid roomUid, Message editableMessage, String text,
@@ -946,7 +950,7 @@ class MessageRepo {
     if (newFilePath != null) {
       String u = DateTime.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
-          DartFile.File(newFilePath),u, newFileName);
+          DartFile.File(newFilePath), u, newFileName);
       updatedFile = await _fileRepo.uploadClonedFile(u, newFileName);
       updatedFile..caption = caption;
     } else {
@@ -976,6 +980,5 @@ class MessageRepo {
     _messageDao.saveMessage(editableMessage);
     _roomDao.updateRoom(Room(
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
-
   }
 }
