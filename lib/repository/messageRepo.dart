@@ -92,7 +92,7 @@ class MessageRepo {
           await updatingLastSeen();
           updatingStatus.add(TitleStatusConditions.Normal);
 
-         // sendPendingMessages();
+          sendPendingMessages();
 
           _roomRepo.fetchBlockedRoom();
           break;
@@ -407,7 +407,6 @@ class MessageRepo {
       {String caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
     _fileRepo.initUploadProgress(packetId);
-    var f = DartFile.File(path);
 
     // Create MessageCompanion
     var file = DartFile.File(path);
