@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -116,6 +118,7 @@ class _CustomNotificationSoundSelectionState
   }
 
   Widget _buildSelectIcon(bool isSelected, String data) {
+    final _shakeController = ShakeWidgetController();
     return StreamBuilder<Object>(
         stream: widget._player.fixedPlayer.onPlayerStateChanged,
         builder: (context, snapshot) {
@@ -125,8 +128,16 @@ class _CustomNotificationSoundSelectionState
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (isSelected && snapshot.data == PlayerState.PLAYING)
-                    Lottie.asset('assets/animations/audio_wave.json',
-                        width: 40, height: 40),
+                    ShakeWidget(
+                        controller: _shakeController,
+                        child: TGS.asset(
+                          'assets/animations/audio_wave.tgs',
+                          autoPlay: true,
+                          width: 60,
+                          height: 60,
+                        )),
+                  Lottie.asset('assets/animations/audio_wave.tgs',
+                      width: 40, height: 40),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Icon(

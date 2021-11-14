@@ -270,10 +270,10 @@
   "get_access_email": "Access to your email ?",
   "get_access_name": "Access to your name ?",
   "get_access_username" : "Access to your username ?",
-  "access_phone_number": "Are you get permission for access to your phoneNumber ?",
-  "access_email": "Are you get permission for access to your email ?",
-  "access_name": "Are you get permission for access to your name ?",
-  "access_username" : "Are you get permission for access to your username ?"
+  "access_phone_number": "Do you allow access to your phoneNumber ?",
+  "access_email": "Do you allow access to your email ?",
+  "access_name": "Do you allow access to your name ?",
+  "access_username" : "Do you allow access to your username?"
 
 
 }

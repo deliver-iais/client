@@ -91,7 +91,6 @@ class _VideoUiState extends State<VideoUi> {
   }
 
   _showVideoDialog() {
-
     BehaviorSubject<bool> _isPlaySubject = BehaviorSubject.seeded(true);
     BehaviorSubject<bool> _showSliderSubject = BehaviorSubject.seeded(true);
     videoPlayerService.videoPlayerController.play();

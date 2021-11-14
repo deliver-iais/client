@@ -151,7 +151,7 @@ flutter:
     - assets/backgrounds/
     - assets/animations/done.tgs
     - assets/animations/unlock.tgs
-    - assets/animations/audio_wave.json
+    - assets/animations/audio_wave.tgs
     - assets/emoji/
     - android/app/src/main/res/raw/
 

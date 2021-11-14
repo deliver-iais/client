@@ -92,7 +92,7 @@ class MessageRepo {
           await updatingLastSeen();
           updatingStatus.add(TitleStatusConditions.Normal);
 
-          sendPendingMessages();
+         // sendPendingMessages();
 
           _roomRepo.fetchBlockedRoom();
           break;

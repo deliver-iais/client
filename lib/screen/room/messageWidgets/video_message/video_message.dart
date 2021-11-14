@@ -6,6 +6,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,11 @@ class _VideoMessageState extends State<VideoMessage> {
       videoLength = duration.toString().split('.').first.padLeft(8, "0");
     }
     return Container(
-      width: min( video.width.toDouble(),300),
+      width: min(
+          (MediaQuery.of(context).size.width -
+              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+              0.7,
+          400),
       height: min( video.height.toDouble(),200),
       color: Colors.black,
       child: MouseRegion(

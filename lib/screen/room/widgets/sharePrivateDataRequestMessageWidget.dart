@@ -28,7 +28,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
         Container(
             constraints: BoxConstraints(minHeight: 35),
             width: 240,
-            margin: const EdgeInsets.only(bottom: 5),
+            margin: const EdgeInsets.only(bottom: 17),
             child: OutlinedButton(
                 onPressed: () {
                   _showGetAccessPrivateData(context, sharePrivateDataRequest);
@@ -59,35 +59,40 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     showDialog(
         context: context,
         builder: (c) {
-          return AlertDialog(
-            content: Text(
-              sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
-                  ? _i18n.get("access_phone_number")
-                  : sharePrivateDataRequest.data == PrivateDataType.EMAIL
-                      ? _i18n.get("access_email")
-                      : sharePrivateDataRequest.data == PrivateDataType.NAME
-                          ? _i18n.get("access_name")
-                          : _i18n.get("access_username"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
-            actions: [
-              GestureDetector(
-                  child: Text(_i18n.get("cancel")),
-                  onTap: () => Navigator.pop(c)),
-              GestureDetector(
-                child: Text(
-                  _i18n.get("ok"),
-                  style: TextStyle(color: Colors.red),
-                ),
-                onTap: () {
-                  _messageRepo.sendPrivateMessageAccept(
-                      message.from.asUid(),
-                      sharePrivateDataRequest.data,
-                      sharePrivateDataRequest.token);
-                  Navigator.pop(c);
-                },
+          return Container(
+            child: AlertDialog(
+              content: Text(
+                sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
+                    ? _i18n.get("access_phone_number")
+                    : sharePrivateDataRequest.data == PrivateDataType.EMAIL
+                        ? _i18n.get("access_email")
+                        : sharePrivateDataRequest.data == PrivateDataType.NAME
+                            ? _i18n.get("access_name")
+                            : _i18n.get("access_username"),
+                style: TextStyle(color: ExtraTheme.of(context).textField),
               ),
-            ],
+              actions: [
+                GestureDetector(
+                    child: Text(_i18n.get("cancel")),
+                    onTap: () => Navigator.pop(c)),
+                SizedBox(
+                  width: 5,
+                ),
+                GestureDetector(
+                  child: Text(
+                    _i18n.get("ok"),
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    _messageRepo.sendPrivateMessageAccept(
+                        message.from.asUid(),
+                        sharePrivateDataRequest.data,
+                        sharePrivateDataRequest.token);
+                    Navigator.pop(c);
+                  },
+                ),
+              ],
+            ),
           );
         });
   }
