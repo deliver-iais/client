@@ -124,6 +124,23 @@ class CallRepo {
 
     var camVideoTrack = _localStream.getVideoTracks()[0];
     var camAudioTrack = _localStream.getAudioTracks()[0];
+
+    camAudioTrack.onMute = (){
+      _logger.i("tarck1 muted");
+    };
+
+    camAudioTrack.onUnMute = (){
+      _logger.i("tarck1 Unmuted");
+    };
+
+    camVideoTrack.onMute = (){
+      _logger.i("tarck1 V muted");
+    };
+
+    camVideoTrack.onUnMute = (){
+      _logger.i("tarck1 V  muted");
+    };
+
     _videoSender = await pc.addTrack(camVideoTrack, _localStream);
     _audioSender = await pc.addTrack(camAudioTrack, _localStream);
 
@@ -450,9 +467,8 @@ class CallRepo {
 
   _dispose() async {
     _logger.i("end call in service");
-    await _peerConnection?.dispose();
-    await _videoSender.dispose();
-    await _audioSender.dispose();
+    await _peerConnection.close();
+    await _peerConnection.dispose();
     await _cleanLocalStream();
     _candidate = [];
     Timer(Duration(seconds: 3), () {

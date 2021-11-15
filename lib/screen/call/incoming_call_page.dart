@@ -37,20 +37,9 @@ class _InComingCallPageState extends State<InComingCallPage> {
     super.initState();
   }
 
-  @override
-  void dispose(){
-    _disposeRenderer();
-    super.dispose();
-  }
-
   _initRenderer() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
-  }
-
-  _disposeRenderer() async {
-    await _localRenderer.dispose();
-    await _remoteRenderer.dispose();
   }
 
   void acceptCall(Uid roomId) async {
@@ -64,17 +53,26 @@ class _InComingCallPageState extends State<InComingCallPage> {
 
     callRepo?.onAddRemoteStream = ((stream) {
       _remoteRenderer.srcObject = stream;
-      stream.getVideoTracks()[0].onMute = (){
-        _logger.i("video Mute");
-      };
-      stream.getVideoTracks()[0].onUnMute = (){
-        _logger.i("video unMute");
-      };
+      stream.getVideoTracks().forEach((track) {
+        if (track.muted) {
+          _logger.i("tarck2 muted");
+        }
+        track.onMute = () {
+          _logger.i("tarck2 muted");
+        };
+        track.onUnMute = () {
+          _logger.i("tarck2 Unmuted");
+        };
+        track.onEnded = () {
+          _logger.i("tarck2 Endede");
+        };
+      });
     });
 
     callRepo?.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
     });
+
     await callRepo?.initCall(true);
     setState(() {});
   }
