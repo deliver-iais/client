@@ -1,9 +1,12 @@
 import 'dart:ui';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chatsPage.dart';
@@ -51,6 +54,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
 
   final ScrollController _scrollController = ScrollController();
   final Function tapOnCurrentUserAvatar;
@@ -62,6 +66,26 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
+    if(isAndroid()){
+      AwesomeNotifications().actionStream.listen((receivedNotification) {
+        int messageId = int.parse(receivedNotification.payload['id']);
+        Uid uid = receivedNotification.payload['uid'].asUid();
+
+        if (!StringUtils.isNullOrEmpty(receivedNotification.buttonKeyInput)) {
+          AwesomeNotifications().cancel(receivedNotification.id);
+          messageRepo.sendTextMessage(
+            uid,
+            receivedNotification.buttonKeyInput,
+            replyId: messageId,
+          );
+        }
+        if (receivedNotification.buttonKeyPressed == "READ") {
+          messageRepo.sendSeen(messageId, uid);
+          _roomRepo.saveMySeen(Seen(
+              uid: receivedNotification.payload['uid'], messageId: messageId));
+        }
+
+      });}
     subject.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
       setState(() {
         query = text;

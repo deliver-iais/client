@@ -25,8 +25,6 @@ class InVideoCallPage extends StatefulWidget {
 
 class _InVideoCallPageState extends State<InVideoCallPage> {
   final callRepo = GetIt.I.get<CallRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _logger = GetIt.I.get<Logger>();
   double width = 100.0, height = 150.0;
   Offset position;
 

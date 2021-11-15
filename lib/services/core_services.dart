@@ -62,6 +62,7 @@ class CoreServices {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
+  var _autRepo = GetIt.I.get<AuthRepo>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
@@ -411,11 +412,6 @@ class CoreServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-       print("call");
-        Uid roomUid = getRoomUid(_authRepo, message);
-        showNotification(roomUid, message);
-
-
       var callEvents = CallEvents(
           null, message.callEvent, null, CallTypes.Event,
           roomUid: message.from);

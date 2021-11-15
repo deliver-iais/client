@@ -139,6 +139,7 @@ dependencies:
   sdp_transform: ^0.3.2
   flutter_webrtc: ^0.7.1
   awesome_notifications: ^0.6.17
+  flutter_incoming_call: ^0.1.0
 
 dev_dependencies:
   flutter_test:
@@ -177,7 +178,6 @@ flutter:
     - assets/audios/beep_ringing_calling_sound.mp3
     - assets/animations/accept_call.json
     - assets/audios/busy_sound.mp3
-    - assets/audios/mobile_phone_calling_sound.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

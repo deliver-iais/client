@@ -48,8 +48,6 @@ abstract class AudioPlayerModule {
   void stopPlayBeepSound();
 
   void playBusySound();
-
-  void playRingingSound();
 }
 
 class AudioService {
@@ -145,10 +143,6 @@ class AudioService {
   void playBusySound() {
     _playerModule.playBusySound();
   }
-  void playRingingSound() {
-    _playerModule.playRingingSound();
-  }
-
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
@@ -234,14 +228,6 @@ class NormalAudioPlayer implements AudioPlayerModule {
       "busy_sound.mp3",
     );
   }
-
-  @override
-  void playRingingSound() {
-    _fastAudioPlayer.play(
-      "mobile_phone_calling_sound.mp3",
-    );
-  }
-
 }
 
 class VlcAudioPlayer implements AudioPlayerModule {
@@ -250,7 +236,6 @@ class VlcAudioPlayer implements AudioPlayerModule {
   Player _fastAudioPlayerIn = Player(id: 1);
   Player _fastAudioPlayerBeep = Player(id: 1);
   Player _fastAudioPlayerBusy = Player(id: 1);
-  Player _fastAudioPlayerRinging = Player(id: 1);
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -274,7 +259,6 @@ class VlcAudioPlayer implements AudioPlayerModule {
     _fastAudioPlayerBeep
         .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
     _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
-    _fastAudioPlayerRinging.open(Media.asset("assets/audios/mobile_phone_calling_sound.mp3"));
   }
 
   @override
@@ -325,10 +309,5 @@ class VlcAudioPlayer implements AudioPlayerModule {
   @override
   void playBusySound() {
     _fastAudioPlayerBusy.play();
-  }
-
-  @override
-  void playRingingSound() {
-    _fastAudioPlayerRinging.play();
   }
 }
