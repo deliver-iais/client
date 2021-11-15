@@ -54,10 +54,10 @@ class _VideoMessageState extends State<VideoMessage> {
     return Container(
       width: min(
           (MediaQuery.of(context).size.width -
-              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+                  (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
               0.7,
           400),
-      height: min( video.height.toDouble(),200),
+      height: min(video.height.toDouble(), 200),
       color: Colors.black,
       child: MouseRegion(
         onEnter: (PointerEvent details) {
@@ -74,68 +74,73 @@ class _VideoMessageState extends State<VideoMessage> {
             });
           }
         },
-        child: StreamBuilder(
-            stream: _messageRepo.watchPendingMessage(widget.message.packetId),
-            builder: (c, p) {
-              if (p.hasData && p.data != null) {
-                return Stack(
-                  children: [
-                    Center(
-                      child: StreamBuilder<double>(
-                          stream: fileServices
-                              .filesUploadStatus[widget.message.packetId],
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data != null) {
-                              return CircularPercentIndicator(
-                                radius: 45.0,
-                                lineWidth: 4.0,
-                                percent: snapshot.data,
-                                center: Icon(Icons.arrow_upward_rounded),
-                                progressColor: Colors.blue,
-                              );
-                            } else {
-                              return CircularPercentIndicator(
-                                radius: 45.0,
-                                lineWidth: 4.0,
-                                percent: 0.1,
-                                center: Icon(Icons.arrow_upward_rounded),
-                                progressColor: Colors.blue,
-                              );
-                            }
-                          }),
-                    )
-                  ],
-                );
-              } else {
-                return FutureBuilder<da.File>(
-                  future: _fileRepo.getFileIfExist(video.uuid, video.name),
-                  builder: (c, s) {
-                    if (s.hasData && s.data != null) {
-                      return videoWidget(
-                          w: VideoUi(
-                            video: s.data,
-                            duration: video.duration,
-                            showSlider: true,
-                          ),
-                          videoLength: videoLength,
-                          video: video);
-                    } else {
-                      return videoWidget(
-                          w: DownloadVideoWidget(
-                            name: video.name,
-                            uuid: video.uuid,
-                            download: () async {
-                              await _fileRepo.getFile(video.uuid, video.name);
-                              setState(() {});
-                            },
-                          ),
-                          video: video,
-                          videoLength: videoLength);
-                    }
-                  },
-                );
-              }
-            }),
+        child: AspectRatio(
+          aspectRatio: widget.message.json.toFile().width /
+              widget.message.json.toFile().height,
+          child: StreamBuilder(
+              stream: _messageRepo.watchPendingMessage(widget.message.packetId),
+              builder: (c, p) {
+                if (p.hasData && p.data != null) {
+                  return Stack(
+                    children: [
+                      Center(
+                        child: StreamBuilder<double>(
+                            stream: fileServices
+                                .filesUploadStatus[widget.message.packetId],
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return CircularPercentIndicator(
+                                  radius: 45.0,
+                                  lineWidth: 4.0,
+                                  percent: snapshot.data,
+                                  center: Icon(Icons.arrow_upward_rounded),
+                                  progressColor: Colors.blue,
+                                );
+                              } else {
+                                return CircularPercentIndicator(
+                                  radius: 45.0,
+                                  lineWidth: 4.0,
+                                  percent: 0.1,
+                                  center: Icon(Icons.arrow_upward_rounded),
+                                  progressColor: Colors.blue,
+                                );
+                              }
+                            }),
+                      )
+                    ],
+                  );
+                } else {
+                  return FutureBuilder<da.File>(
+                    future: _fileRepo.getFileIfExist(video.uuid, video.name),
+                    builder: (c, s) {
+                      if (s.hasData && s.data != null) {
+                        return videoWidget(
+                            w: VideoUi(
+                              videoFile: s.data,
+                              video: widget.message.json.toFile(),
+                              duration: video.duration,
+                              showSlider: true,
+                            ),
+                            videoLength: videoLength,
+                            video: video);
+                      } else {
+                        return videoWidget(
+                            w: DownloadVideoWidget(
+                              name: video.name,
+                              uuid: video.uuid,
+                              download: () async {
+                                await _fileRepo.getFile(video.uuid, video.name);
+                                setState(() {});
+                              },
+                            ),
+                            video: video,
+                            videoLength: videoLength);
+                      }
+                    },
+                  );
+                }
+              }),
+        ),
       ),
     );
   }

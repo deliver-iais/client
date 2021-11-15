@@ -8,14 +8,15 @@ class VideoPlayerService {
 
   Future<void> videoControllerInitialization(File file) {
     videoPlayerController = VideoPlayerController.file(file);
-    thumbnailVideoPlayerController = VideoPlayerController.file(file);
     videoPlayerController.setLooping(false);
     videoPlayerController.setVolume(0.5);
-    thumbnailVideoPlayerController.initialize();
     return videoPlayerController.initialize();
   }
+  initThumbnailVideoPlayerController(File file){
+    thumbnailVideoPlayerController = VideoPlayerController.file(file);
+    thumbnailVideoPlayerController.initialize();
+    return thumbnailVideoPlayerController.initialize();
+  }
 
-  // videoControllerDispose() {
-  //   videoPlayerController.dispose();
-  // }
+
 }

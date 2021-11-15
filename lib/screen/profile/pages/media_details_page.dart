@@ -430,7 +430,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         //buildAppBar(i, widget.mediasLength),
         VideoUi(
           duration: duration,
-          video: snaps,
+          videoFile: snaps,
           showSlider: true,
         ),
         buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
