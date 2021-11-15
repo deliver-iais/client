@@ -14,7 +14,6 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/profile/widgets/document_and_File_ui.dart';
 import 'package:deliver/screen/profile/widgets/image_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/memberWidget.dart';
