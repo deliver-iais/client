@@ -23,6 +23,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
+import 'package:synchronized/synchronized.dart';
 
 class ContactRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -31,43 +32,47 @@ class ContactRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _contactServices = GetIt.I.get<ContactServiceClient>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
+  var requestLock = Lock();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
   final Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-    if (await _checkPermission.checkContactPermission() ||
-        isDesktop() ||
-        isIOS()) {
-      List<Contact> contacts = [];
-      if (!isDesktop()) {
-        Iterable<OsContact.Contact> phoneContacts =
-            await OsContact.ContactsService.getContacts(
-                withThumbnails: false,
-                photoHighResolution: false,
-                orderByGivenName: false,
-                iOSLocalizedLabels: false);
+    if (!requestLock.locked)
+      requestLock.synchronized(() async {
+        if (await _checkPermission.checkContactPermission() ||
+            isDesktop() ||
+            isIOS()) {
+          List<Contact> contacts = [];
+          if (!isDesktop()) {
+            Iterable<OsContact.Contact> phoneContacts =
+                await OsContact.ContactsService.getContacts(
+                    withThumbnails: false,
+                    photoHighResolution: false,
+                    orderByGivenName: false,
+                    iOSLocalizedLabels: false);
 
-        for (OsContact.Contact phoneContact in phoneContacts) {
-          for (var p in phoneContact.phones) {
-            try {
-              String contactPhoneNumber = p.value.toString();
-              PhoneNumber phoneNumber =
-                  _getPhoneNumber(contactPhoneNumber, phoneContact.displayName);
-              _contactsDisplayName[phoneNumber] = phoneContact.displayName;
-              Contact contact = Contact()
-                ..lastName = phoneContact.displayName
-                ..phoneNumber = phoneNumber;
-              contacts.add(contact);
-            } catch (e) {
-              _logger.e(e);
+            for (OsContact.Contact phoneContact in phoneContacts) {
+              for (var p in phoneContact.phones) {
+                try {
+                  String contactPhoneNumber = p.value.toString();
+                  PhoneNumber phoneNumber = _getPhoneNumber(
+                      contactPhoneNumber, phoneContact.displayName);
+                  _contactsDisplayName[phoneNumber] = phoneContact.displayName;
+                  Contact contact = Contact()
+                    ..lastName = phoneContact.displayName
+                    ..phoneNumber = phoneNumber;
+                  contacts.add(contact);
+                } catch (e) {
+                  _logger.e(e);
+                }
+              }
             }
           }
+          sendContacts(contacts);
         }
-      }
-      sendContacts(contacts);
-    }
+      });
   }
 
   PhoneNumber _getPhoneNumber(String phone, String name) {
@@ -186,16 +191,16 @@ class ContactRepo {
     return result != null;
   }
 
-  Future<String> getContactFromServer(Uid contactUid)async {
-    try{
-      var contact = await _contactServices.getUserByUid(GetUserByUidReq()..uid = contactUid);
+  Future<String> getContactFromServer(Uid contactUid) async {
+    try {
+      var contact = await _contactServices
+          .getUserByUid(GetUserByUidReq()..uid = contactUid);
       var name = buildName(contact.user.firstName, contact.user.lastName);
-      _uidIdNameDao.update(contactUid.asString(),name: name);
+      _uidIdNameDao.update(contactUid.asString(), name: name);
       return name;
-    }catch(e){
+    } catch (e) {
       _logger.e(e);
       return null;
     }
-
   }
 }

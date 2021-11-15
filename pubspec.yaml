@@ -64,7 +64,7 @@ dependencies:
   geolocator: 7.0.1
   file_picker: ^4.2.1
   logger: 1.1.0
-  android_intent: 0.3.7+7
+  android_intent: 2.0.2
   settings_ui: 1.0.0
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
     git:
@@ -73,7 +73,7 @@ dependencies:
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
   dio: 4.0.0 # HTTP Invoker Library
   mime_type: 1.0.0 # Get mime type of file path
-  jwt_decoder: 1.0.1 # TODO, read documentation and update it
+  jwt_decoder: 2.0.1 # TODO, read documentation and update it
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/pub-dart-artifactory
@@ -82,10 +82,10 @@ dependencies:
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
-  vibration: 1.7.3 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
+  vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.4.0
   image_size_getter: 0.2.1
-  swipe_to: 0.0.1+8
+  swipe_to: ^0.1.0-nullsafety.1
   local_auth: 1.1.8
   audioplayers: 0.20.1
   dart_vlc: 0.0.9
@@ -105,7 +105,7 @@ dependencies:
   fluttertoast: ^8.0.8
   firebase_messaging: 10.0.1
   firebase_core: 1.2.1
-  flutter_swiper: 1.1.6
+  flutter_swiper_null_safety: 1.0.2
   desktop_drop: 0.1.0
   test:
   badges: 2.0.1

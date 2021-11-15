@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -16,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatefulWidget {
-  ContactsPage({Key key}) : super(key: key) ;
+  ContactsPage({Key key}) : super(key: key);
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
@@ -36,6 +38,7 @@ class _ContactsPageState extends State<ContactsPage> {
     _syncContacts();
     super.initState();
   }
+
   _syncContacts() {
     _showSyncContactDialog(context);
   }
@@ -163,7 +166,9 @@ class _ContactsPageState extends State<ContactsPage> {
   _showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if ( isAlreadyContactAccessTipShowed != null && !isAlreadyContactAccessTipShowed && !isDesktop()) {
+    if (isAlreadyContactAccessTipShowed != null &&
+        !isAlreadyContactAccessTipShowed &&
+        !isDesktop()) {
       return showDialog(
           context: context,
           builder: (context) {
@@ -199,7 +204,8 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
-    } else if(isAlreadyContactAccessTipShowed != null && isAlreadyContactAccessTipShowed ){
+    } else if (isAlreadyContactAccessTipShowed != null &&
+        isAlreadyContactAccessTipShowed) {
       _contactRepo.syncContacts();
     }
   }
