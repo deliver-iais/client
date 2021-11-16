@@ -830,8 +830,8 @@ class MessageRepo {
   Stream<PendingMessage> watchPendingMessage(String packetId) =>
       _messageDao.watchPendingMessage(packetId);
 
-  Stream<List<PendingMessage>> watchPendingMessages(String packetId) =>
-      _messageDao.watchPendingMessages(packetId);
+  Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
+      _messageDao.watchPendingMessages(roomUid);
 
   void resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);

@@ -130,7 +130,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
-  int messageIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -401,7 +400,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       )
     ]).then<void>((OperationOnMessage opr) async {
       if (opr == null) return;
-      switch (opr) {// ignore: missing_enum_constant_in_switch
+      switch (opr) {
+        // ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
           break;
@@ -423,7 +423,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {// ignore: missing_enum_constant_in_switch
+          switch (message.type) {
+            // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
               _editableMessage.add(message);
@@ -816,8 +817,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         if (_currentRoom.value.firstMessageId != null)
           index = index + _currentRoom.value.firstMessageId;
-        if (_itemPositionsListener.itemPositions.value.length > 0)
-          messageIndex = _itemPositionsListener.itemPositions.value.last.index;
         bool isPendingMessage = (_currentRoom.value.lastMessageId == null)
             ? true
             : _itemCount > _currentRoom.value.lastMessageId &&

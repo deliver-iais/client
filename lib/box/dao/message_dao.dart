@@ -78,7 +78,7 @@ class MessageDaoImpl implements MessageDao {
 
     yield* box
         .watch()
-        .where((event) => (event.value as PendingMessage).roomUid == roomUid || event.deleted)
+        .where((event) =>  event.deleted || (event.value as PendingMessage).roomUid == roomUid)
         .map((event) =>
             box.values.where((element) => element.roomUid == roomUid).toList());
   }

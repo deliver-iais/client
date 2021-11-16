@@ -24,7 +24,6 @@ class _VideoUiState extends State<VideoUi> {
 
   @override
   void dispose() {
-    vlcPlayerController.dispose();
     super.dispose();
   }
 
@@ -37,7 +36,6 @@ class _VideoUiState extends State<VideoUi> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.video.blurHash.toString());
     return Stack(
       children: [
         GestureDetector(
