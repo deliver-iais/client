@@ -10,6 +10,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -19,6 +20,7 @@ enum ThumbnailSize { medium }
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _logger = GetIt.I.get<Logger>();
 
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
@@ -88,13 +90,15 @@ class FileService {
     file.writeAsBytesSync(res.data);
     return file;
   }
-  Future<File> getDeliverIcon()async {
-    var file =   await localFile("deliver-icon","png");
-    if(file.existsSync()){
+
+  Future<File> getDeliverIcon() async {
+    var file = await localFile("deliver-icon", "png");
+    if (file.existsSync()) {
       return file;
-    }else{
-      var res =await rootBundle.load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      File f = File("${ await _localPath}/deliver-icon.png");
+    } else {
+      var res = await rootBundle
+          .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+      File f = File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -130,7 +134,7 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    try{
+    try {
       _dio.interceptors.add(InterceptorsWrapper(onRequest:
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
@@ -147,16 +151,15 @@ class FileService {
       var formData = FormData.fromMap({
         "file": MultipartFile.fromFileSync(filePath,
             contentType:
-            MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+                MediaType.parse(mime(filePath) ?? "application/octet-stream")),
       });
 
       return _dio.post(
         "/upload",
         data: formData,
       );
-    }catch(e){
-      print(e.toString());
+    } catch (e) {
+      _logger.e(e);
     }
-
   }
 }
