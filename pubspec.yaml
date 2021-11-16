@@ -89,7 +89,6 @@ dependencies:
   local_auth: 1.1.8
   audioplayers: 0.20.1
   dart_vlc: 0.0.9
-  video_player: 2.2.7
   open_file: 3.2.1 # Open file in OS
   contacts_service: 0.6.1
   random_string: 2.3.1
@@ -121,6 +120,7 @@ dependencies:
   metadata_fetch: 0.4.1
   process_run: ^0.12.2+1
   google_fonts: ^2.1.0
+  flutter_vlc_player: ^6.0.5
 
 
 dev_dependencies:
