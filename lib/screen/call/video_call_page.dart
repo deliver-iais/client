@@ -48,20 +48,6 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
     callRepo?.onAddRemoteStream = ((stream) {
       _remoteRenderer.srcObject = stream;
-      stream.getTracks().forEach((track) {
-        if (track.muted) {
-          _logger.i("tarck2 muted");
-        }
-        track.onMute = (){
-          _logger.i("tarck2 muted");
-        };
-        track.onUnMute = (){
-          _logger.i("tarck2 Unmuted");
-        };
-        track.onEnded = (){
-          _logger.i("tarck2 Endede");
-        };
-      });
     });
 
     callRepo?.onRemoveRemoteStream = ((stream) {
@@ -88,6 +74,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
             } else if (snapshot.data == CallStatus.ENDED) {
               _logger.i("call ended status");
               _audioService.stopPlayBeepSound();
+              //TODO discussion
               _routingService.pop();
               _remoteRenderer.dispose();
               _localRenderer.dispose();

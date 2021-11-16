@@ -29,6 +29,7 @@ class CallRepo {
   MediaStream _localStreamShare;
   RTCRtpSender _audioSender;
   RTCRtpSender _videoSender;
+  RTCDataChannel _dataChannel;
   List<Map<String, Object>> _candidate = [];
 
   String _offerSdp;
@@ -126,27 +127,33 @@ class CallRepo {
     var camVideoTrack = _localStream.getVideoTracks()[0];
     var camAudioTrack = _localStream.getAudioTracks()[0];
 
-    camAudioTrack.onMute = (){
-      _logger.i("tarck1 muted");
-    };
-
-    camAudioTrack.onUnMute = (){
-      _logger.i("tarck1 Unmuted");
-    };
-
-    camVideoTrack.onMute = (){
-      _logger.i("tarck1 V muted");
-    };
-
-    camVideoTrack.onUnMute = (){
-      _logger.i("tarck1 V  muted");
-    };
-
     _videoSender = await pc.addTrack(camVideoTrack, _localStream);
     _audioSender = await pc.addTrack(camAudioTrack, _localStream);
 
     pc.onIceConnectionState = (e) {
       _logger.i(e);
+      // we can do special work on every change in candidate Connection State
+      switch(e){
+        case RTCIceConnectionState.RTCIceConnectionStateChecking:
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateClosed:
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+          //on this state we can connection fully completed
+
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateConnected:
+          //on this state we can recivied Media
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateCount:
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateFailed:
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateNew:
+          break;
+      }
     };
 
     pc.onIceCandidate = (e) {
@@ -188,7 +195,63 @@ class CallRepo {
       onRemoveRemoteStream?.call(stream);
     };
 
+    pc.onDataChannel = (channel) {
+      _dataChannel = channel;
+      _dataChannel.onMessage = (RTCDataChannelMessage data) {
+        var status = data.text;
+        _logger.i(status);
+        // we need Decision making by state
+        switch(status){
+          case STATUS_CAMERA_OPEN:
+            mute_camera.add(true);
+            break;
+          case STATUS_CAMERA_CLOSE:
+            mute_camera.add(false);
+            break;
+          case STATUS_MIC_OPEN:
+            break;
+          case STATUS_MIC_CLOSE:
+            break;
+          case STATUS_SHARE_SCREEN:
+            break;
+          case STATUS_SHARE_VIDEO:
+            break;
+        }
+      };
+    };
+
     return pc;
+  }
+
+  _createDataChannel() async {
+    RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
+      ..maxRetransmits = 15;
+
+    RTCDataChannel dataChannel =
+    await _peerConnection.createDataChannel("stateTransfer", dataChannelDict);
+
+    dataChannel.onMessage = (RTCDataChannelMessage data) {
+      var status = data.text;
+      _logger.i(status);
+      // we need Decision making by state
+      switch(status){
+        case STATUS_CAMERA_OPEN:
+          mute_camera.add(true);
+          break;
+        case STATUS_CAMERA_CLOSE:
+          mute_camera.add(false);
+          break;
+        case STATUS_MIC_OPEN:
+          break;
+        case STATUS_MIC_CLOSE:
+          break;
+        case STATUS_SHARE_SCREEN:
+          break;
+        case STATUS_SHARE_VIDEO:
+          break;
+      }
+    };
+    return dataChannel;
   }
 
   /*
@@ -233,11 +296,13 @@ class CallRepo {
       _videoSender.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare);
       _isSharing = true;
+      _dataChannel.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
     }else{
       var camVideoTrack = _localStream.getVideoTracks()[0];
       _videoSender.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream);
       _isSharing = false;
+      _dataChannel.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
     }
   }
 
@@ -247,6 +312,11 @@ class CallRepo {
   bool muteMicrophone() {
     if (_localStream != null) {
       bool enabled = _localStream.getAudioTracks()[0].enabled;
+      if(enabled){
+        _dataChannel.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
+      }else{
+        _dataChannel.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
+      }
       _localStream.getAudioTracks()[0].enabled = !enabled;
       return enabled;
     }
@@ -262,12 +332,15 @@ class CallRepo {
   /*
   * For Close Camera
   * */
-  BehaviorSubject <bool> mute_camera = BehaviorSubject.seeded(true);
   bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream.getVideoTracks()[0].enabled;
+      if(enabled){
+        _dataChannel.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
+      }else{
+        _dataChannel.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+      }
       _localStream.getVideoTracks()[0].enabled = !enabled;
-      mute_camera.add(enabled);
       return enabled;
     }
     return false;
@@ -317,6 +390,7 @@ class CallRepo {
   void acceptCall(Uid roomId) async {
     _roomUid = roomId;
     callingStatus.add(CallStatus.ACCEPTED);
+    _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
   }
 
@@ -502,5 +576,6 @@ class CallRepo {
     }
   }
 
+  BehaviorSubject <bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus = BehaviorSubject.seeded(CallStatus.NO_CALL);
 }

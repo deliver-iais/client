@@ -12,6 +12,12 @@ const STUN_SERVER_URL = "stun:217.218.7.16:3478";
 const TURN_SERVER_URL = "turn:217.218.7.16:3478";
 const TURN_SERVER_USERNAME = "deliver";
 const TURN_SERVER_PASSWORD = "Deliver@123";
+const STATUS_CAMERA_OPEN = "camera-open";
+const STATUS_CAMERA_CLOSE = "camera-close";
+const STATUS_MIC_OPEN = "mic-open";
+const STATUS_MIC_CLOSE = "mic-close";
+const STATUS_SHARE_SCREEN = "share-screen";
+const STATUS_SHARE_VIDEO = "share-video";
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";

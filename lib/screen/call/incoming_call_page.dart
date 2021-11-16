@@ -53,20 +53,6 @@ class _InComingCallPageState extends State<InComingCallPage> {
 
     callRepo?.onAddRemoteStream = ((stream) {
       _remoteRenderer.srcObject = stream;
-      stream.getVideoTracks().forEach((track) {
-        if (track.muted) {
-          _logger.i("tarck2 muted");
-        }
-        track.onMute = () {
-          _logger.i("tarck2 muted");
-        };
-        track.onUnMute = () {
-          _logger.i("tarck2 Unmuted");
-        };
-        track.onEnded = () {
-          _logger.i("tarck2 Endede");
-        };
-      });
     });
 
     callRepo?.onRemoveRemoteStream = ((stream) {
