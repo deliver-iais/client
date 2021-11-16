@@ -13,8 +13,9 @@ import 'package:lottie/lottie.dart';
 
 class InComingCallPage extends StatefulWidget {
   final Uid roomuid;
+  final bool isAccepted;
 
-  InComingCallPage({Key key, this.roomuid}) : super(key: key);
+  InComingCallPage({Key key, this.roomuid, this.isAccepted}) : super(key: key);
 
   @override
   _InComingCallPageState createState() => _InComingCallPageState();
@@ -24,7 +25,6 @@ class _InComingCallPageState extends State<InComingCallPage> {
   final callRepo = GetIt.I.get<CallRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _audioService = GetIt.I.get<AudioService>();
   final _logger = GetIt.I.get<Logger>();
 
   RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
@@ -74,6 +74,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
     });
 
     await callRepo?.initCall(true);
+    if(widget.isAccepted)acceptCall(widget.roomuid);
     setState(() {});
   }
 

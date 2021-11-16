@@ -25,45 +25,70 @@ class CallMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _callEvent = message.json.toCallEvent();
-    return _callEvent.newStatus != CallEvent_CallStatus.IS_RINGING
-        ? Center(
-            child: Container(
-                margin: const EdgeInsets.all(4.0),
-                padding: const EdgeInsets.only(
-                    top: 5, left: 8.0, right: 8.0, bottom: 4.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(20),
+
+    return Align(
+      alignment: _autRepo.isCurrentUser(message.from)
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+          width: 280,
+          margin: const EdgeInsets.all(10),
+          padding:
+              const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
+          decoration: BoxDecoration(
+            color: _autRepo.isCurrentUser(message.from)
+                ? ExtraTheme.of(context).sentMessageBox
+                : ExtraTheme.of(context).receivedMessageBox,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _callEvent.newStatus.toString(),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        _autRepo.isCurrentUser(message.from)
+                            ? Icons.call_made
+                            : Icons.call_received,
+                        color: Colors.green,
+                        size: 14,
+                      ),
+                      MsgTime(
+                        time: DateTime.fromMillisecondsSinceEpoch(message.time),
+                        isSent: false,
+                      ),
+                      Text(", 1 min 7 s",
+                          style: TextStyle(
+                              fontSize: 11,
+                              height: 1.1,
+                              fontStyle: FontStyle.italic,
+                              color: ExtraTheme.of(context)
+                                  .textMessage
+                                  .withAlpha(130))),
+                    ],
+                  ),
+                ],
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.call,
+                  color: Colors.cyan,
+                  size: 35,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _i18n.get("call"),
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
-                    SizedBox(
-                      width: 3,
-                    ),
-                    Icon(
-                      Icons.call,
-                      color: Colors.blue,
-                      size: 15,
-                    ),
-                    Icon(
-                      _autRepo.isCurrentUser(message.from)
-                          ? Icons.call_made
-                          : Icons.call_received,
-                      color: Colors.blue,
-                      size: 14,
-                    ),
-                    MsgTime(
-                      time: DateTime.fromMillisecondsSinceEpoch(message.time),
-                      isSent: false,
-                    )
-                  ],
-                )),
-          )
-        : Container();
+              ),
+            ],
+          )),
+    );
   }
 }

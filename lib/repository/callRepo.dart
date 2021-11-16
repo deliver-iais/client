@@ -7,6 +7,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter_incoming_call/flutter_incoming_call.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -320,6 +321,7 @@ class CallRepo {
   }
 
   void declineCall() {
+    _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     messageRepo.sendCallMessage(CallEvent_CallStatus.DECLINED, _roomUid, _callId);
     _dispose();
@@ -373,6 +375,7 @@ class CallRepo {
   }
 
   void receivedEndCall() {
+    FlutterIncomingCall.endAllCalls();
     callingStatus.add(CallStatus.ENDED);
     _dispose();
   }
@@ -467,8 +470,8 @@ class CallRepo {
 
   _dispose() async {
     _logger.i("end call in service");
-    await _peerConnection.close();
-    await _peerConnection.dispose();
+    await _peerConnection?.close();
+    await _peerConnection?.dispose();
     await _cleanLocalStream();
     _candidate = [];
     Timer(Duration(seconds: 3), () {

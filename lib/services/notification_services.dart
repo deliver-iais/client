@@ -3,13 +3,11 @@ import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
-import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
@@ -22,11 +20,11 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:flutter_incoming_call/flutter_incoming_call.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktoasts/desktoasts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' as RTCVideoRenderer;
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -267,7 +265,7 @@ class AndroidNotifier implements Notifier {
           callRepo.declineCall();
           _routingService.pop();
         } else if (event.action == CallAction.accept) {
-          _routingService.openInComingCallPage(event.uuid.asUid());
+          _routingService.openInComingCallPage(event.uuid.asUid(),true);
         }
       }
     });

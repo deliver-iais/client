@@ -3,6 +3,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_incoming_call/flutter_incoming_call.dart';
 import 'package:get_it/get_it.dart';
 
 class HasCallRow extends StatefulWidget {
@@ -16,7 +17,6 @@ class _HasCallRowState extends State<HasCallRow> {
   final callRepo = GetIt.I.get<CallRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _audioService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _HasCallRowState extends State<HasCallRow> {
               onTap: () {
                 if (snapshot.data == CallStatus.CREATED &&
                     callRepo.roomUid != null)
-                  _routingService.openInComingCallPage(callRepo.roomUid);
+                  _routingService.openInComingCallPage(callRepo.roomUid,false);
                 //Todo handel other
               },
               child: Container(
@@ -58,7 +58,6 @@ class _HasCallRowState extends State<HasCallRow> {
               ),
             );
           } else {
-            //_audioService.stopPlayBeepSound();
             return SizedBox.shrink();
           }
         });
