@@ -35,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
+  final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
@@ -69,27 +70,24 @@ class _LoginPageState extends State<LoginPage> {
         loginToken.add(randomAlphaNumeric(36));
       });
     } else if (isAndroid() && !kDebugMode) {
-      SmsAutoFill().hint.then((value) {
-        final p = getPhoneNumber(value);
-        phoneNumber = p;
-        controller.text = p.nationalNumber.toString();
-        if (p != null) {
-          setState(() {
-            _isLoading = true;
-          });
-          checkAndGoNext(doNotCheckValidator: true);
-        }
-      });
+      // SmsAutoFill().hint.then((value) {
+      //   final p = getPhoneNumber(value);
+      //   phoneNumber = p;
+      //   controller.text = p.nationalNumber.toString();
+      //   if (p != null) {
+      //     setState(() {
+      //       _isLoading = true;
+      //     });
+      //     checkAndGoNext(doNotCheckValidator: true);
+      //   }
+      // });
     }
     super.initState();
   }
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    AutoRouter.of(context).push(HomeRoute());
   }
 
   _loginASTestUser() {
@@ -106,7 +104,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   checkAndGoNext({bool doNotCheckValidator = false}) async {
-    I18N i18n = I18N.of(context);
     if (phoneNumber != null &&
         phoneNumber.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
       _logger.e("logis as test user ");
@@ -120,14 +117,14 @@ class _LoginPageState extends State<LoginPage> {
         try {
           var res = await _authRepo.getVerificationCode(phoneNumber);
           if (res != null) {
-            ExtendedNavigator.of(context).push(Routes.verificationPage);
+            AutoRouter.of(context).push(VerificationRoute());
             setState(() {
               _isLoading = false;
             });
           } else {
             ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-              toastText: i18n.get("error_occurred"),
+              toastText: _i18n.get("error_occurred"),
               tostContext: context,
             );
             setState(() {
@@ -141,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
           _logger.e(e);
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-            toastText: i18n.get("error_occurred"),
+            toastText: _i18n.get("error_occurred"),
             tostContext: context,
           );
         }
@@ -151,19 +148,19 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
+
     return FluidWidget(
       child: Form(
         key: _formKey,
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
-            title: Text(i18n.get("login")),
+            title: Text(_i18n.get("login")),
             backgroundColor: Theme.of(context).backgroundColor,
           ),
           body: loginWithQrCode
-              ? buildLoginWithQrCode(i18n, context)
-              : buildNormalLogin(i18n, context),
+              ? buildLoginWithQrCode(_i18n, context)
+              : buildNormalLogin(_i18n, context),
         ),
       ),
     );

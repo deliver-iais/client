@@ -1,227 +1,250 @@
+// **************************************************************************
+// AutoRouteGenerator
+// **************************************************************************
+
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
 // AutoRouteGenerator
 // **************************************************************************
 
-// ignore_for_file: public_member_api_docs
-import 'dart:io';
+import 'package:auto_route/auto_route.dart' as _i9;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as _i13;
+import 'package:flutter/cupertino.dart' as _i11;
+import 'package:flutter/material.dart' as _i10;
 
-import 'package:auto_route/auto_route.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/material.dart';
+import '../box/message.dart' as _i12;
+import '../screen/home/pages/home_page.dart' as _i5;
+import '../screen/intro/pages/intro_page.dart' as _i2;
+import '../screen/register/pages/login_page.dart' as _i3;
+import '../screen/register/pages/verification_page.dart' as _i4;
+import '../screen/room/pages/roomPage.dart' as _i6;
+import '../screen/settings/account_settings.dart' as _i7;
+import '../screen/share_input_file/share_input_file.dart' as _i8;
+import '../screen/splash/splash_screen.dart' as _i1;
 
-import '../screen/contacts/new_contact.dart';
-import '../screen/room/pages/roomPage.dart';
-import '../screen/room/widgets/showImage_Widget.dart';
-import '../screen/home/pages/home_page.dart';
-import '../screen/intro/pages/intro_page.dart';
-import '../screen/register/pages/login_page.dart';
-import '../screen/register/pages/verification_page.dart';
-import '../screen/settings/account_settings.dart';
-import '../screen/share_input_file/share_input_file.dart';
-import '../screen/splash/splash_screen.dart';
+class AppRouter extends _i9.RootStackRouter {
+  AppRouter([_i10.GlobalKey<_i10.NavigatorState> navigatorKey])
+      : super(navigatorKey);
 
-class Routes {
-  static const String splashScreen = '/';
-  static const String introPage = '/intro-page';
-  static const String loginPage = '/login-page';
-  static const String verificationPage = '/verification-page';
-  static const String homePage = '/home-page';
-  static const String showImagePage = '/show-image-page';
-  static const String newContact = '/new-contact';
-  static const String accountSettings = '/account-settings';
-  static const String roomPage = '/room-page';
-  static const String shareInputFile = '/share-input-file';
-  static const all = <String>{
-    splashScreen,
-    introPage,
-    loginPage,
-    verificationPage,
-    homePage,
-    showImagePage,
-    newContact,
-    accountSettings,
-    roomPage,
-    shareInputFile,
-  };
-}
-
-class Router extends RouterBase {
   @override
-  List<RouteDef> get routes => _routes;
-  final _routes = <RouteDef>[
-    RouteDef(Routes.splashScreen, page: SplashScreen),
-    RouteDef(Routes.introPage, page: IntroPage),
-    RouteDef(Routes.loginPage, page: LoginPage),
-    RouteDef(Routes.verificationPage, page: VerificationPage),
-    RouteDef(Routes.homePage, page: HomePage),
-    RouteDef(Routes.showImagePage, page: ShowImagePage),
-    RouteDef(Routes.newContact, page: NewContact),
-    RouteDef(Routes.accountSettings, page: AccountSettings),
-    RouteDef(Routes.roomPage, page: RoomPage),
-    RouteDef(Routes.shareInputFile, page: ShareInputFile),
-  ];
-  @override
-  Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
-  final _pagesMap = <Type, AutoRouteFactory>{
-    SplashScreen: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => SplashScreen(),
-        settings: data,
-      );
+  final Map<String, _i9.PageFactory> pagesMap = {
+    SplashScreen.name: (routeData) {
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData, child: _i1.SplashScreen());
     },
-    IntroPage: (data) {
-      final args = data.getArgs<IntroPageArguments>(
-        orElse: () => IntroPageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => IntroPage(
-          key: args.key,
-          currentPage: args.currentPage,
-        ),
-        settings: data,
-      );
+    IntroRoute.name: (routeData) {
+      final args = routeData.argsAs<IntroRouteArgs>(
+          orElse: () => const IntroRouteArgs());
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData, child: _i2.IntroPage(key: args.key));
     },
-    LoginPage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => LoginPage(),
-        settings: data,
-      );
+    LoginRoute.name: (routeData) {
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData, child: _i3.LoginPage());
     },
-    VerificationPage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => VerificationPage(),
-        settings: data,
-      );
+    VerificationRoute.name: (routeData) {
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData, child: _i4.VerificationPage());
     },
-    HomePage: (data) {
-      final args = data.getArgs<HomePageArguments>(
-        orElse: () => HomePageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => HomePage(key: args.key),
-        settings: data,
-      );
+    HomeRoute.name: (routeData) {
+      final args =
+          routeData.argsAs<HomeRouteArgs>(orElse: () => const HomeRouteArgs());
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData, child: _i5.HomePage(key: args.key));
     },
-    ShowImagePage: (data) {
-      final args = data.getArgs<ShowImagePageArguments>(
-        orElse: () => ShowImagePageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => ShowImagePage(
-          key: args.key,
-          imageFile: args.imageFile,
-          roomUid: args.contactUid,
-        ),
-        settings: data,
-      );
+    RoomRoute.name: (routeData) {
+      final args =
+          routeData.argsAs<RoomRouteArgs>(orElse: () => const RoomRouteArgs());
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData,
+          child: _i6.RoomPage(
+              key: args.key,
+              roomId: args.roomId,
+              forwardedMessages: args.forwardedMessages,
+              inputFilePath: args.inputFilePath,
+              shareUid: args.shareUid));
     },
-    NewContact: (data) {
-      final args = data.getArgs<NewContactArguments>(
-        orElse: () => NewContactArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => NewContact(key: args.key),
-        settings: data,
-      );
+    AccountSettings.name: (routeData) {
+      final args = routeData.argsAs<AccountSettingsArgs>(
+          orElse: () => const AccountSettingsArgs());
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData,
+          child: _i7.AccountSettings(
+              key: args.key,
+              forceToSetUsernameAndName: args.forceToSetUsernameAndName));
     },
-    AccountSettings: (data) {
-      final args = data.getArgs<AccountSettingsArguments>(
-        orElse: () => AccountSettingsArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => AccountSettings(
-          key: args.key,
-          forceToSetUsernameAndName: args.forceToSetUsernameAndName,
-        ),
-        settings: data,
-      );
-    },
-    RoomPage: (data) {
-      final args = data.getArgs<RoomPageArguments>(
-        orElse: () => RoomPageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => RoomPage(
-          key: args.key,
-          roomId: args.roomId,
-          forwardedMessages: args.forwardedMessages,
-          inputFilePath: args.inputFilePath,
-          shareUid: args.shareUid,
-        ),
-        settings: data,
-      );
-    },
-    ShareInputFile: (data) {
-      final args = data.getArgs<ShareInputFileArguments>(
-        orElse: () => ShareInputFileArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) =>
-            ShareInputFile(inputSharedFilePath: args.inputSharedFilePath),
-        settings: data,
-      );
-    },
+    ShareInputFile.name: (routeData) {
+      final args = routeData.argsAs<ShareInputFileArgs>(
+          orElse: () => const ShareInputFileArgs());
+      return _i9.MaterialPageX<dynamic>(
+          routeData: routeData,
+          child: _i8.ShareInputFile(
+              inputSharedFilePath: args.inputSharedFilePath, key: args.key));
+    }
   };
+
+  @override
+  List<_i9.RouteConfig> get routes => [
+        _i9.RouteConfig(SplashScreen.name, path: '/'),
+        _i9.RouteConfig(IntroRoute.name, path: '/intro-page'),
+        _i9.RouteConfig(LoginRoute.name, path: '/login-page'),
+        _i9.RouteConfig(VerificationRoute.name, path: '/verification-page'),
+        _i9.RouteConfig(HomeRoute.name, path: '/home-page'),
+        _i9.RouteConfig(RoomRoute.name, path: '/room-page'),
+        _i9.RouteConfig(AccountSettings.name, path: '/account-settings'),
+        _i9.RouteConfig(ShareInputFile.name, path: '/share-input-file')
+      ];
 }
 
-/// ************************************************************************
-/// Arguments holder classes
-/// *************************************************************************
+/// generated route for [_i1.SplashScreen]
+class SplashScreen extends _i9.PageRouteInfo<void> {
+  const SplashScreen() : super(name, path: '/');
 
-/// IntroPage arguments holder class
-class IntroPageArguments {
-  final Key key;
-  final dynamic currentPage;
-  IntroPageArguments({this.key, this.currentPage});
+  static const String name = 'SplashScreen';
 }
 
-/// HomePage arguments holder class
-class HomePageArguments {
-  final Key key;
-  HomePageArguments({this.key});
+/// generated route for [_i2.IntroPage]
+class IntroRoute extends _i9.PageRouteInfo<IntroRouteArgs> {
+  IntroRoute({_i11.Key key})
+      : super(name, path: '/intro-page', args: IntroRouteArgs(key: key));
+
+  static const String name = 'IntroRoute';
 }
 
-/// ShowImagePage arguments holder class
-class ShowImagePageArguments {
-  final Key key;
-  final File imageFile;
-  final Uid contactUid;
-  ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
+class IntroRouteArgs {
+  const IntroRouteArgs({this.key});
+
+  final _i11.Key key;
+
+  @override
+  String toString() {
+    return 'IntroRouteArgs{key: $key}';
+  }
 }
 
-/// NewContact arguments holder class
-class NewContactArguments {
-  final Key key;
-  NewContactArguments({this.key});
+/// generated route for [_i3.LoginPage]
+class LoginRoute extends _i9.PageRouteInfo<void> {
+  const LoginRoute() : super(name, path: '/login-page');
+
+  static const String name = 'LoginRoute';
 }
 
-/// AccountSettings arguments holder class
-class AccountSettingsArguments {
-  final Key key;
-  final bool forceToSetUsernameAndName;
-  AccountSettingsArguments({this.key, this.forceToSetUsernameAndName = true});
+/// generated route for [_i4.VerificationPage]
+class VerificationRoute extends _i9.PageRouteInfo<void> {
+  const VerificationRoute() : super(name, path: '/verification-page');
+
+  static const String name = 'VerificationRoute';
 }
 
-/// RoomPage arguments holder class
-class RoomPageArguments {
-  final Key key;
-  final String roomId;
-  final List<dynamic> forwardedMessages;
-  final List<String> inputFilePath;
-  final ShareUid shareUid;
-  RoomPageArguments(
+/// generated route for [_i5.HomePage]
+class HomeRoute extends _i9.PageRouteInfo<HomeRouteArgs> {
+  HomeRoute({_i11.Key key})
+      : super(name, path: '/home-page', args: HomeRouteArgs(key: key));
+
+  static const String name = 'HomeRoute';
+}
+
+class HomeRouteArgs {
+  const HomeRouteArgs({this.key});
+
+  final _i11.Key key;
+
+  @override
+  String toString() {
+    return 'HomeRouteArgs{key: $key}';
+  }
+}
+
+/// generated route for [_i6.RoomPage]
+class RoomRoute extends _i9.PageRouteInfo<RoomRouteArgs> {
+  RoomRoute(
+      {_i11.Key key,
+      String roomId,
+      List<_i12.Message> forwardedMessages,
+      List<String> inputFilePath,
+      _i13.ShareUid shareUid})
+      : super(name,
+            path: '/room-page',
+            args: RoomRouteArgs(
+                key: key,
+                roomId: roomId,
+                forwardedMessages: forwardedMessages,
+                inputFilePath: inputFilePath,
+                shareUid: shareUid));
+
+  static const String name = 'RoomRoute';
+}
+
+class RoomRouteArgs {
+  const RoomRouteArgs(
       {this.key,
-        this.roomId,
-        this.forwardedMessages,
-        this.inputFilePath,
-        this.shareUid});
+      this.roomId,
+      this.forwardedMessages,
+      this.inputFilePath,
+      this.shareUid});
+
+  final _i11.Key key;
+
+  final String roomId;
+
+  final List<_i12.Message> forwardedMessages;
+
+  final List<String> inputFilePath;
+
+  final _i13.ShareUid shareUid;
+
+  @override
+  String toString() {
+    return 'RoomRouteArgs{key: $key, roomId: $roomId, forwardedMessages: $forwardedMessages, inputFilePath: $inputFilePath, shareUid: $shareUid}';
+  }
 }
 
-/// ShareInputFile arguments holder class
-class ShareInputFileArguments {
+/// generated route for [_i7.AccountSettings]
+class AccountSettings extends _i9.PageRouteInfo<AccountSettingsArgs> {
+  AccountSettings({_i11.Key key, bool forceToSetUsernameAndName = true})
+      : super(name,
+            path: '/account-settings',
+            args: AccountSettingsArgs(
+                key: key,
+                forceToSetUsernameAndName: forceToSetUsernameAndName));
+
+  static const String name = 'AccountSettings';
+}
+
+class AccountSettingsArgs {
+  const AccountSettingsArgs({this.key, this.forceToSetUsernameAndName = true});
+
+  final _i11.Key key;
+
+  final bool forceToSetUsernameAndName;
+
+  @override
+  String toString() {
+    return 'AccountSettingsArgs{key: $key, forceToSetUsernameAndName: $forceToSetUsernameAndName}';
+  }
+}
+
+/// generated route for [_i8.ShareInputFile]
+class ShareInputFile extends _i9.PageRouteInfo<ShareInputFileArgs> {
+  ShareInputFile({List<String> inputSharedFilePath, _i11.Key key})
+      : super(name,
+            path: '/share-input-file',
+            args: ShareInputFileArgs(
+                inputSharedFilePath: inputSharedFilePath, key: key));
+
+  static const String name = 'ShareInputFile';
+}
+
+class ShareInputFileArgs {
+  const ShareInputFileArgs({this.inputSharedFilePath, this.key});
+
   final List<String> inputSharedFilePath;
-  ShareInputFileArguments({this.inputSharedFilePath});
+
+  final _i11.Key key;
+
+  @override
+  String toString() {
+    return 'ShareInputFileArgs{inputSharedFilePath: $inputSharedFilePath, key: $key}';
+  }
 }

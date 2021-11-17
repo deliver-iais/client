@@ -7,14 +7,13 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../animation.dart';
 
 class IntroPage extends StatefulWidget {
-  final currentPage;
-
-  IntroPage({Key key, this.currentPage}) : super(key: key);
+  IntroPage({Key key}) : super(key: key);
 
   @override
   _IntroPageState createState() => _IntroPageState();
@@ -25,6 +24,7 @@ class _IntroPageState extends State<IntroPage> {
       IntroAnimationController();
 
   final subject = ReplaySubject<double>();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
@@ -37,12 +37,11 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToLoginPage() {
-    ExtendedNavigator.of(context).popAndPush(Routes.loginPage);
+    AutoRouter.of(context).push(LoginRoute());
   }
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     double animationSize = animationSquareSize(context);
     double paddingTop = 40;
     return FluidWidget(
@@ -174,9 +173,9 @@ class _IntroPageState extends State<IntroPage> {
                 ),
               ],
               widthDoneBtn: 300,
-              nameDoneBtn: i18n.get("done"),
-              nameSkipBtn: i18n.get("skip"),
-              nameNextBtn: i18n.get("next"),
+              nameDoneBtn: _i18n.get("done"),
+              nameSkipBtn: _i18n.get("skip"),
+              nameNextBtn: _i18n.get("next"),
               onDonePress: navigateToLoginPage,
               styleNameSkipBtn: Theme.of(context).primaryTextTheme.button,
               styleNameDoneBtn: Theme.of(context).primaryTextTheme.button,

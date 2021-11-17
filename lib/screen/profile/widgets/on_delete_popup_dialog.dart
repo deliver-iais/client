@@ -194,9 +194,6 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   _navigateHomePage() {
     _routingService.reset();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    AutoRouter.of(context).push(HomeRoute());
   }
 }

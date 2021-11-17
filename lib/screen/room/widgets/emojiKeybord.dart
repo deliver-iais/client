@@ -1,5 +1,5 @@
 import 'package:deliver/shared/constants.dart';
-import 'package:emojis/emoji.dart';
+import 'package:deliver/shared/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -31,7 +31,9 @@ class _Emojikeybord extends State<EmojiKeyboard> {
 
   @override
   Widget build(BuildContext context) {
-    final style = GoogleFonts.notoColorEmojiCompat(fontSize: 22,);
+    final style = GoogleFonts.notoColorEmojiCompat(
+      fontSize: 22,
+    );
 
     return emojiState
         ? Column(
@@ -230,7 +232,9 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           child: Center(
                             child: Text(
                               emoji.toString(),
-                              style:GoogleFonts.notoColorEmojiCompat(fontSize: 22,),
+                              style: GoogleFonts.notoColorEmojiCompat(
+                                fontSize: 22,
+                              ),
                             ),
                           ),
                         );

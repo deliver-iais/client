@@ -44,10 +44,13 @@ class _VerificationPageState extends State<VerificationPage> {
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        ToastDisplay.showToast(toastText: "PASSWORD_PROTECTED",tostContext: context);
+        ToastDisplay.showToast(
+            toastText: "PASSWORD_PROTECTED", tostContext: context);
         // TODO navigate to password validation page
       } else {
-        ToastDisplay.showToast(toastText: _i18n.get("verification_code_not_valid"),tostContext: context);
+        ToastDisplay.showToast(
+            toastText: _i18n.get("verification_code_not_valid"),
+            tostContext: context);
         _setErrorAndResetCode();
       }
     }).catchError((e) {
@@ -58,10 +61,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    AutoRouter.of(context).push(HomeRoute());
   }
 
   _setErrorAndResetCode() {
