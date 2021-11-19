@@ -4,6 +4,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver/services/check_permissions_service.dart';
@@ -88,13 +89,15 @@ class FileService {
     file.writeAsBytesSync(res.data);
     return file;
   }
-  Future<File> getDeliverIcon()async {
-    var file =   await localFile("deliver-icon","png");
-    if(file.existsSync()){
+
+  Future<File> getDeliverIcon() async {
+    var file = await localFile("deliver-icon", "png");
+    if (file.existsSync()) {
       return file;
-    }else{
-      var res =await rootBundle.load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      File f = File("${ await _localPath}/deliver-icon.png");
+    } else {
+      var res = await rootBundle
+          .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+      File f = File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -130,28 +133,39 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      options.onSendProgress = (int i, int j) {
-        if (sendActivity != null) sendActivity();
-        if (filesUploadStatus[uploadKey] == null) {
-          BehaviorSubject<double> d = BehaviorSubject();
-          filesUploadStatus[uploadKey] = d;
-        }
-        filesUploadStatus[uploadKey].add((i / j));
-      };
-      handler.next(options);
-    }));
-
-    var formData = FormData.fromMap({
-      "file": MultipartFile.fromFileSync(filePath,
+    try {
+      var request = new http.Client().post(Uri.parse(FileServiceBaseUrl + "/upload",),body: await http.MultipartFile.fromPath('file', filePath,
           contentType:
-              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-    });
+          MediaType.parse(mime(filePath) ?? "application/octet-stream")),headers: {"Authorization": await _authRepo.getAccessToken()} );
 
-    return _dio.post(
-      "/upload",
-      data: formData,
-    );
+        request.then((value) => print(value.toString()));
+
+
+    } catch (e) {
+      print(e.toString());
+    }
+    // _dio.interceptors.add(InterceptorsWrapper(onRequest:
+    //     (RequestOptions options, RequestInterceptorHandler handler) async {
+    //   options.onSendProgress = (int i, int j) {
+    //     if (sendActivity != null) sendActivity();
+    //     if (filesUploadStatus[uploadKey] == null) {
+    //       BehaviorSubject<double> d = BehaviorSubject();
+    //       filesUploadStatus[uploadKey] = d;
+    //     }
+    //     filesUploadStatus[uploadKey].add((i / j));
+    //   };
+    //   handler.next(options);
+    // }));
+    //
+    // var formData = FormData.fromMap({
+    //   "file": MultipartFile.fromFileSync(filePath,
+    //       contentType:
+    //           MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+    // });
+    //
+    // return _dio.post(
+    //   "/upload",
+    //   data: formData,
+    // );
   }
 }
