@@ -93,6 +93,7 @@ dependencies:
   video_player: 2.2.7
   open_file: 3.2.1 # Open file in OS
   contacts_service: 0.6.1
+  http: ^0.13.4
   random_string: 2.3.1
   flutter_local_notifications: 9.0.0
   flutter_local_notifications_linux: 0.3.0
