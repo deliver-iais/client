@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    AutoRouter.of(context).push(HomeRoute());
+    AutoRouter.of(context).push(HomePageRoute());
   }
 
   _loginASTestUser() {
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
         try {
           var res = await _authRepo.getVerificationCode(phoneNumber);
           if (res != null) {
-            AutoRouter.of(context).push(VerificationRoute());
+            AutoRouter.of(context).push(VerificationPageRoute());
             setState(() {
               _isLoading = false;
             });

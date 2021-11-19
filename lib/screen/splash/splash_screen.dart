@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -26,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
   final _textEditingController = TextEditingController();
   final _shakeController = ShakeWidgetController();
   final _focusNode = FocusNode();
+  BuildContext _c;
 
   AnimationController _animationController;
   int _attempts = 0;
@@ -73,22 +73,23 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToIntroPage() {
-    AutoRouter.of(context).push(IntroRoute());
+    AutoRouter.of(context).push(IntroPageRoute());
   }
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
-      AutoRouter.of(context).push(HomeRoute());
+      AutoRouter.of(context).push(HomePageRoute());
     } else {
       AutoRouter.of(context)
-          .push(AccountSettings(forceToSetUsernameAndName: true));
+          .push(AccountSettingsRoute(forceToSetUsernameAndName: true));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    _c = context;
     return Directionality(
       textDirection: TextDirection.ltr,
       child: AnimatedSwitcher(

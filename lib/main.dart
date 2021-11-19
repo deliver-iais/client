@@ -330,11 +330,11 @@ class MyApp extends StatelessWidget {
                   }
                   return supportedLocale.first;
                 },
-                // builder: (x, c) =>
-                //     Directionality(
-                //   textDirection: TextDirection.ltr, child: _appRouter.delegate(initialRoutes: [R.SplashScreen()]).build(context),
-                // ),
-                routerDelegate: _appRouter.delegate(initialRoutes: [R.SplashScreen()]),
+                builder: (x, c) =>
+                    Directionality(
+                  textDirection: TextDirection.ltr, child:c,
+                ),
+                routerDelegate: _appRouter.delegate(initialRoutes: [R.SplashScreenRoute()]),
               )),
         );
       },

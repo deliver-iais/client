@@ -235,8 +235,11 @@ class RoutingService {
     ));
   }
 
-  void openProfile(String roomId) {
+  void openProfile(BuildContext context,String roomId) {
     var widget = ProfilePage(roomId.asUid(), key: ValueKey("/profile/$roomId"));
+    Navigator.push(context,MaterialPageRoute(builder: (c){
+      return widget;
+    }) );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -448,7 +451,7 @@ class RoutingService {
 
   Widget routerOutlet(BuildContext context) {
     if (_stack.last.singlePageMain != null) return _stack.last.singlePageMain;
-    return Row(
+    return  Row(
       children: [
         Container(
             width: isLarge(context)

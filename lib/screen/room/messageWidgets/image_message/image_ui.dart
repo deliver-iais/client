@@ -61,7 +61,7 @@ class _ImageUiState extends State<ImageUi> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (isDesktop()) {
+                        if (!isDesktop()) {
                           _showImageInDesktop(s.data);
                         } else {
                           Navigator.push(context,
@@ -69,7 +69,7 @@ class _ImageUiState extends State<ImageUi> {
                             return ImageSwiper(
                               message: widget.message,
                             );
-                          }));
+                          },),);
                         }
                       },
                       child: Hero(

@@ -194,6 +194,7 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   _navigateHomePage() {
     _routingService.reset();
-    AutoRouter.of(context).push(HomeRoute());
+
+    AutoRouter.of(context).push(HomePageRoute());
   }
 }

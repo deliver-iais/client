@@ -13,16 +13,15 @@ import 'package:deliver/screen/splash/splash_screen.dart';
 
 
 @MaterialAutoRouter(
-  replaceInRouteName: 'Page,Route',
   routes: <AutoRoute>[
-    MaterialRoute(page: SplashScreen, initial: true),
-    MaterialRoute(page: IntroPage),
-    MaterialRoute(page: LoginPage),
-    MaterialRoute(page: VerificationPage),
-    MaterialRoute(page: HomePage),
-    MaterialRoute(page: RoomPage),
-    MaterialRoute(page: AccountSettings),
-    MaterialRoute(page: ShareInputFile),
+    AutoRoute(page: SplashScreen, initial: true),
+    AutoRoute(page: IntroPage),
+    AutoRoute(page: LoginPage),
+    AutoRoute(page: VerificationPage),
+    AutoRoute(page: HomePage),
+    AutoRoute(page: RoomPage),
+    AutoRoute(page: AccountSettings),
+    AutoRoute(page: ShareInputFile),
 
   ],
 )

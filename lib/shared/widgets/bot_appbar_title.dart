@@ -42,7 +42,7 @@ class BotAppbarTitle extends StatelessWidget {
             ],
           ),
           onTap: () {
-            _routingService.openProfile(botUid.asString());
+            _routingService.openProfile(context,botUid.asString());
           },
         ));
   }

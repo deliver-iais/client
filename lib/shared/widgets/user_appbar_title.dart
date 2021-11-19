@@ -107,7 +107,7 @@ class UserAppbarTitle extends StatelessWidget {
             ],
           ),
           onTap: () {
-            _routingService.openProfile(userUid.asString());
+            _routingService.openProfile(context,userUid.asString());
           },
         ));
   }

@@ -9,11 +9,10 @@
 // **************************************************************************
 
 import 'package:auto_route/auto_route.dart' as _i9;
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as _i13;
-import 'package:flutter/cupertino.dart' as _i11;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as _i12;
 import 'package:flutter/material.dart' as _i10;
 
-import '../box/message.dart' as _i12;
+import '../box/message.dart' as _i11;
 import '../screen/home/pages/home_page.dart' as _i5;
 import '../screen/intro/pages/intro_page.dart' as _i2;
 import '../screen/register/pages/login_page.dart' as _i3;
@@ -29,33 +28,33 @@ class AppRouter extends _i9.RootStackRouter {
 
   @override
   final Map<String, _i9.PageFactory> pagesMap = {
-    SplashScreen.name: (routeData) {
+    SplashScreenRoute.name: (routeData) {
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData, child: _i1.SplashScreen());
     },
-    IntroRoute.name: (routeData) {
-      final args = routeData.argsAs<IntroRouteArgs>(
-          orElse: () => const IntroRouteArgs());
+    IntroPageRoute.name: (routeData) {
+      final args = routeData.argsAs<IntroPageRouteArgs>(
+          orElse: () => const IntroPageRouteArgs());
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData, child: _i2.IntroPage(key: args.key));
     },
-    LoginRoute.name: (routeData) {
+    LoginPageRoute.name: (routeData) {
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData, child: _i3.LoginPage());
     },
-    VerificationRoute.name: (routeData) {
+    VerificationPageRoute.name: (routeData) {
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData, child: _i4.VerificationPage());
     },
-    HomeRoute.name: (routeData) {
-      final args =
-          routeData.argsAs<HomeRouteArgs>(orElse: () => const HomeRouteArgs());
+    HomePageRoute.name: (routeData) {
+      final args = routeData.argsAs<HomePageRouteArgs>(
+          orElse: () => const HomePageRouteArgs());
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData, child: _i5.HomePage(key: args.key));
     },
-    RoomRoute.name: (routeData) {
-      final args =
-          routeData.argsAs<RoomRouteArgs>(orElse: () => const RoomRouteArgs());
+    RoomPageRoute.name: (routeData) {
+      final args = routeData.argsAs<RoomPageRouteArgs>(
+          orElse: () => const RoomPageRouteArgs());
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData,
           child: _i6.RoomPage(
@@ -65,18 +64,18 @@ class AppRouter extends _i9.RootStackRouter {
               inputFilePath: args.inputFilePath,
               shareUid: args.shareUid));
     },
-    AccountSettings.name: (routeData) {
-      final args = routeData.argsAs<AccountSettingsArgs>(
-          orElse: () => const AccountSettingsArgs());
+    AccountSettingsRoute.name: (routeData) {
+      final args = routeData.argsAs<AccountSettingsRouteArgs>(
+          orElse: () => const AccountSettingsRouteArgs());
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData,
           child: _i7.AccountSettings(
               key: args.key,
               forceToSetUsernameAndName: args.forceToSetUsernameAndName));
     },
-    ShareInputFile.name: (routeData) {
-      final args = routeData.argsAs<ShareInputFileArgs>(
-          orElse: () => const ShareInputFileArgs());
+    ShareInputFileRoute.name: (routeData) {
+      final args = routeData.argsAs<ShareInputFileRouteArgs>(
+          orElse: () => const ShareInputFileRouteArgs());
       return _i9.MaterialPageX<dynamic>(
           routeData: routeData,
           child: _i8.ShareInputFile(
@@ -86,165 +85,166 @@ class AppRouter extends _i9.RootStackRouter {
 
   @override
   List<_i9.RouteConfig> get routes => [
-        _i9.RouteConfig(SplashScreen.name, path: '/'),
-        _i9.RouteConfig(IntroRoute.name, path: '/intro-page'),
-        _i9.RouteConfig(LoginRoute.name, path: '/login-page'),
-        _i9.RouteConfig(VerificationRoute.name, path: '/verification-page'),
-        _i9.RouteConfig(HomeRoute.name, path: '/home-page'),
-        _i9.RouteConfig(RoomRoute.name, path: '/room-page'),
-        _i9.RouteConfig(AccountSettings.name, path: '/account-settings'),
-        _i9.RouteConfig(ShareInputFile.name, path: '/share-input-file')
+        _i9.RouteConfig(SplashScreenRoute.name, path: '/'),
+        _i9.RouteConfig(IntroPageRoute.name, path: '/intro-page'),
+        _i9.RouteConfig(LoginPageRoute.name, path: '/login-page'),
+        _i9.RouteConfig(VerificationPageRoute.name, path: '/verification-page'),
+        _i9.RouteConfig(HomePageRoute.name, path: '/home-page'),
+        _i9.RouteConfig(RoomPageRoute.name, path: '/room-page'),
+        _i9.RouteConfig(AccountSettingsRoute.name, path: '/account-settings'),
+        _i9.RouteConfig(ShareInputFileRoute.name, path: '/share-input-file')
       ];
 }
 
 /// generated route for [_i1.SplashScreen]
-class SplashScreen extends _i9.PageRouteInfo<void> {
-  const SplashScreen() : super(name, path: '/');
+class SplashScreenRoute extends _i9.PageRouteInfo<void> {
+  const SplashScreenRoute() : super(name, path: '/');
 
-  static const String name = 'SplashScreen';
+  static const String name = 'SplashScreenRoute';
 }
 
 /// generated route for [_i2.IntroPage]
-class IntroRoute extends _i9.PageRouteInfo<IntroRouteArgs> {
-  IntroRoute({_i11.Key key})
-      : super(name, path: '/intro-page', args: IntroRouteArgs(key: key));
+class IntroPageRoute extends _i9.PageRouteInfo<IntroPageRouteArgs> {
+  IntroPageRoute({_i10.Key key})
+      : super(name, path: '/intro-page', args: IntroPageRouteArgs(key: key));
 
-  static const String name = 'IntroRoute';
+  static const String name = 'IntroPageRoute';
 }
 
-class IntroRouteArgs {
-  const IntroRouteArgs({this.key});
+class IntroPageRouteArgs {
+  const IntroPageRouteArgs({this.key});
 
-  final _i11.Key key;
+  final _i10.Key key;
 
   @override
   String toString() {
-    return 'IntroRouteArgs{key: $key}';
+    return 'IntroPageRouteArgs{key: $key}';
   }
 }
 
 /// generated route for [_i3.LoginPage]
-class LoginRoute extends _i9.PageRouteInfo<void> {
-  const LoginRoute() : super(name, path: '/login-page');
+class LoginPageRoute extends _i9.PageRouteInfo<void> {
+  const LoginPageRoute() : super(name, path: '/login-page');
 
-  static const String name = 'LoginRoute';
+  static const String name = 'LoginPageRoute';
 }
 
 /// generated route for [_i4.VerificationPage]
-class VerificationRoute extends _i9.PageRouteInfo<void> {
-  const VerificationRoute() : super(name, path: '/verification-page');
+class VerificationPageRoute extends _i9.PageRouteInfo<void> {
+  const VerificationPageRoute() : super(name, path: '/verification-page');
 
-  static const String name = 'VerificationRoute';
+  static const String name = 'VerificationPageRoute';
 }
 
 /// generated route for [_i5.HomePage]
-class HomeRoute extends _i9.PageRouteInfo<HomeRouteArgs> {
-  HomeRoute({_i11.Key key})
-      : super(name, path: '/home-page', args: HomeRouteArgs(key: key));
+class HomePageRoute extends _i9.PageRouteInfo<HomePageRouteArgs> {
+  HomePageRoute({_i10.Key key})
+      : super(name, path: '/home-page', args: HomePageRouteArgs(key: key));
 
-  static const String name = 'HomeRoute';
+  static const String name = 'HomePageRoute';
 }
 
-class HomeRouteArgs {
-  const HomeRouteArgs({this.key});
+class HomePageRouteArgs {
+  const HomePageRouteArgs({this.key});
 
-  final _i11.Key key;
+  final _i10.Key key;
 
   @override
   String toString() {
-    return 'HomeRouteArgs{key: $key}';
+    return 'HomePageRouteArgs{key: $key}';
   }
 }
 
 /// generated route for [_i6.RoomPage]
-class RoomRoute extends _i9.PageRouteInfo<RoomRouteArgs> {
-  RoomRoute(
-      {_i11.Key key,
+class RoomPageRoute extends _i9.PageRouteInfo<RoomPageRouteArgs> {
+  RoomPageRoute(
+      {_i10.Key key,
       String roomId,
-      List<_i12.Message> forwardedMessages,
+      List<_i11.Message> forwardedMessages,
       List<String> inputFilePath,
-      _i13.ShareUid shareUid})
+      _i12.ShareUid shareUid})
       : super(name,
             path: '/room-page',
-            args: RoomRouteArgs(
+            args: RoomPageRouteArgs(
                 key: key,
                 roomId: roomId,
                 forwardedMessages: forwardedMessages,
                 inputFilePath: inputFilePath,
                 shareUid: shareUid));
 
-  static const String name = 'RoomRoute';
+  static const String name = 'RoomPageRoute';
 }
 
-class RoomRouteArgs {
-  const RoomRouteArgs(
+class RoomPageRouteArgs {
+  const RoomPageRouteArgs(
       {this.key,
       this.roomId,
       this.forwardedMessages,
       this.inputFilePath,
       this.shareUid});
 
-  final _i11.Key key;
+  final _i10.Key key;
 
   final String roomId;
 
-  final List<_i12.Message> forwardedMessages;
+  final List<_i11.Message> forwardedMessages;
 
   final List<String> inputFilePath;
 
-  final _i13.ShareUid shareUid;
+  final _i12.ShareUid shareUid;
 
   @override
   String toString() {
-    return 'RoomRouteArgs{key: $key, roomId: $roomId, forwardedMessages: $forwardedMessages, inputFilePath: $inputFilePath, shareUid: $shareUid}';
+    return 'RoomPageRouteArgs{key: $key, roomId: $roomId, forwardedMessages: $forwardedMessages, inputFilePath: $inputFilePath, shareUid: $shareUid}';
   }
 }
 
 /// generated route for [_i7.AccountSettings]
-class AccountSettings extends _i9.PageRouteInfo<AccountSettingsArgs> {
-  AccountSettings({_i11.Key key, bool forceToSetUsernameAndName = true})
+class AccountSettingsRoute extends _i9.PageRouteInfo<AccountSettingsRouteArgs> {
+  AccountSettingsRoute({_i10.Key key, bool forceToSetUsernameAndName = true})
       : super(name,
             path: '/account-settings',
-            args: AccountSettingsArgs(
+            args: AccountSettingsRouteArgs(
                 key: key,
                 forceToSetUsernameAndName: forceToSetUsernameAndName));
 
-  static const String name = 'AccountSettings';
+  static const String name = 'AccountSettingsRoute';
 }
 
-class AccountSettingsArgs {
-  const AccountSettingsArgs({this.key, this.forceToSetUsernameAndName = true});
+class AccountSettingsRouteArgs {
+  const AccountSettingsRouteArgs(
+      {this.key, this.forceToSetUsernameAndName = true});
 
-  final _i11.Key key;
+  final _i10.Key key;
 
   final bool forceToSetUsernameAndName;
 
   @override
   String toString() {
-    return 'AccountSettingsArgs{key: $key, forceToSetUsernameAndName: $forceToSetUsernameAndName}';
+    return 'AccountSettingsRouteArgs{key: $key, forceToSetUsernameAndName: $forceToSetUsernameAndName}';
   }
 }
 
 /// generated route for [_i8.ShareInputFile]
-class ShareInputFile extends _i9.PageRouteInfo<ShareInputFileArgs> {
-  ShareInputFile({List<String> inputSharedFilePath, _i11.Key key})
+class ShareInputFileRoute extends _i9.PageRouteInfo<ShareInputFileRouteArgs> {
+  ShareInputFileRoute({List<String> inputSharedFilePath, _i10.Key key})
       : super(name,
             path: '/share-input-file',
-            args: ShareInputFileArgs(
+            args: ShareInputFileRouteArgs(
                 inputSharedFilePath: inputSharedFilePath, key: key));
 
-  static const String name = 'ShareInputFile';
+  static const String name = 'ShareInputFileRoute';
 }
 
-class ShareInputFileArgs {
-  const ShareInputFileArgs({this.inputSharedFilePath, this.key});
+class ShareInputFileRouteArgs {
+  const ShareInputFileRouteArgs({this.inputSharedFilePath, this.key});
 
   final List<String> inputSharedFilePath;
 
-  final _i11.Key key;
+  final _i10.Key key;
 
   @override
   String toString() {
-    return 'ShareInputFileArgs{inputSharedFilePath: $inputSharedFilePath, key: $key}';
+    return 'ShareInputFileRouteArgs{inputSharedFilePath: $inputSharedFilePath, key: $key}';
   }
 }

@@ -58,7 +58,8 @@ class ChatItemToShareFile extends StatelessWidget {
                       }
                     }),
                 onTap: () {
-                  AutoRouter.of(context).push(RoomRoute(
+
+                  AutoRouter.of(context).push(RoomPageRoute(
                       inputFilePath: sharedFilePath, roomId: uid.asString()));
                 },
               ),
