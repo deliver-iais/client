@@ -39,7 +39,7 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
-        return true;
+        return await getUsername();
       } else
         return getUsername();
     } catch (e) {
