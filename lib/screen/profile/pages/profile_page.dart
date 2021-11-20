@@ -346,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage>
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.message),
                     onPressed: (_) =>
-                        _routingService.openRoom(widget.roomUid.asString())),
+                        _routingService.openRoom(widget.roomUid.asString(),context:context)),
               ),
             if (isAndroid())
               FutureBuilder(
@@ -1089,7 +1089,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                   _routingService
                                                                       .openRoom(
                                                                           snapshot
-                                                                              .data[i]);
+                                                                              .data[i],context: c);
                                                                 }
                                                               },
                                                               child: Text(

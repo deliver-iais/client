@@ -83,9 +83,9 @@ class RoutingService {
   }
 
   void openRoom(String roomId,
-      {List<Message> forwardedMessages = const [],
-      pro.ShareUid shareUid,
-      BuildContext context}) {
+      {BuildContext context,
+      List<Message> forwardedMessages = const [],
+      pro.ShareUid shareUid}) {
     backSubject.add(false);
     var roomWidget = RoomPage(
       key: ValueKey("/room/$roomId"),
@@ -103,7 +103,7 @@ class RoutingService {
           }
         },
         child: roomWidget);
-    if (isDesktop()) {
+    if (isDesktop() || context == null) {
       _popAllAndPush(Page(
           largePageNavigator: _navigationCenter,
           largePageMain: widget,

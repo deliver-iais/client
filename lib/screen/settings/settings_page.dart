@@ -168,8 +168,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("saved_message"),
                     leading: Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
-                      _routingService
-                          .openRoom(_authRepo.currentUserUid.asString());
+                      _routingService.openRoom(
+                          _authRepo.currentUserUid.asString(), context:context);
                     },
                   ),
                   SettingsTile(

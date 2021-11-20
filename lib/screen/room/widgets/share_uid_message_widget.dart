@@ -89,7 +89,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                         _shareUid.uid.category == Categories.CHANNEL)) {
                       var muc = await _mucRepo.getMuc(_shareUid.uid.asString());
                       if (muc != null) {
-                        _routingServices.openRoom(_shareUid.uid.asString());
+                        _routingServices.openRoom(
+                            _shareUid.uid.asString(), context:context);
                       } else {
                         showFloatingModalBottomSheet(
                           context: context,
@@ -135,7 +136,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                       _shareUid.uid,
                                                       res.lastMessageId);
                                                   _routingServices.openRoom(
-                                                      _shareUid.uid.asString());
+                                                      _shareUid.uid.asString(),
+                                                      context:context);
                                                   Navigator.of(context).pop();
                                                 }
                                               } else {
@@ -144,21 +146,23 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                         _shareUid.uid,
                                                         _shareUid.joinToken);
                                                 if (res != null) {
-                                                   _messageRepo.updateNewMuc(
+                                                  _messageRepo.updateNewMuc(
                                                       _shareUid.uid,
                                                       res.lastMessageId);
                                                   _routingServices.openRoom(
-                                                      _shareUid.uid.asString());
+                                                      _shareUid.uid.asString(),
+                                                      context:context);
                                                   Navigator.of(context).pop();
                                                 }
                                               }
                                             } else
                                               _routingServices.openRoom(
-                                                _shareUid.uid.asString(),
-                                              );
+                                                  _shareUid.uid.asString(),
+                                                  context:context);
                                           } else {
                                             _routingServices.openRoom(
-                                                _shareUid.uid.asString());
+                                                _shareUid.uid.asString(),
+                                                context:context);
                                           }
                                         },
                                         child:
@@ -171,7 +175,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                         );
                       }
                     } else {
-                      _routingServices.openRoom(_shareUid.uid.asString());
+                      _routingServices.openRoom(
+                          _shareUid.uid.asString(), context:context);
                     }
                   },
                 ),

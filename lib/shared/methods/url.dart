@@ -37,7 +37,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   if (mucUid != null) {
     var muc = await _mucDao.get(mucUid.asString());
     if (muc != null) {
-      _routingService.openRoom(mucUid.asString());
+      _routingService.openRoom(mucUid.asString(),context:context);
     } else {
       Future.delayed(Duration.zero, () {
         showFloatingModalBottomSheet(
@@ -64,7 +64,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                           if (muc != null) {
                             _messageRepo.updateNewMuc(
                                 mucUid, muc.lastMessageId);
-                            _routingService.openRoom(mucUid.asString());
+                            _routingService.openRoom(mucUid.asString(),context:context);
                             Navigator.of(context).pop();
                           }
                         } else {
@@ -72,7 +72,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                           if (muc != null) {
                             _messageRepo.updateNewMuc(
                                 mucUid, muc.lastMessageId);
-                            _routingService.openRoom(mucUid.asString());
+                            _routingService.openRoom(mucUid.asString(),context:context);
                             Navigator.of(context).pop();
                           }
                         }

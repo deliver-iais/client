@@ -50,8 +50,8 @@ class PersistentEventMessage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: FutureBuilder<List<Widget>>(
-                  future: getPersistentMessage(
-                      persistentEventMessage, message.roomUid.isChannel()),
+                  future: getPersistentMessage(persistentEventMessage,
+                      message.roomUid.isChannel(), context),
                   builder: (c, s) {
                     if (s.hasData && s.data != null) {
                       return Directionality(
@@ -96,9 +96,9 @@ class PersistentEventMessage extends StatelessWidget {
   }
 
   Future<List<Widget>> getPersistentMessage(
-    PersistentEvent persistentEventMessage,
-    bool isChannel,
-  ) async {
+      PersistentEvent persistentEventMessage,
+      bool isChannel,
+      BuildContext context) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         String issuer = await _roomRepo.getSlangName(
@@ -110,9 +110,9 @@ class PersistentEventMessage extends StatelessWidget {
             softWrap: false,
             style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
           ),
-          onTap: () => _routingServices.openRoom(persistentEventMessage
-              .mucSpecificPersistentEvent.issuer
-              .asString()),
+          onTap: () => _routingServices.openRoom(
+            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),context:context
+          ),
         );
         Widget assigneeWidget;
         if ({
@@ -131,7 +131,7 @@ class PersistentEventMessage extends StatelessWidget {
             ),
             onTap: () => _routingServices.openRoom(persistentEventMessage
                 .mucSpecificPersistentEvent.assignee
-                .asString()),
+                .asString(),context:context),
           );
         }
         var pinedMessageWidget;
@@ -159,7 +159,9 @@ class PersistentEventMessage extends StatelessWidget {
         );
         return [
           issuerWidget,
-          SizedBox(width: 2,),
+          SizedBox(
+            width: 2,
+          ),
           s,
           SizedBox(
             width: 2,

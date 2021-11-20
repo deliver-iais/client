@@ -121,7 +121,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                 : GestureDetector(
                                     onTap: () {
                                       if (c.uid != null) {
-                                        _rootingServices.openRoom(c.uid);
+                                        _rootingServices.openRoom(c.uid,context:context);
                                       } else {
                                         // todo invite contact
                                       }

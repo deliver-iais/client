@@ -176,7 +176,9 @@ class _ScanQrCode extends State<ScanQrCode> {
     var res = await _contactRepo.contactIsExist(countryCode, nationalNumber);
     if (res) {
       ToastDisplay.showToast(
-          toastText: "$firstName $lastName ${I18N.of(context).get("contact_exist")}",tostContext: context);
+          toastText:
+              "$firstName $lastName ${I18N.of(context).get("contact_exist")}",
+          tostContext: context);
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -227,7 +229,8 @@ class _ScanQrCode extends State<ScanQrCode> {
                       if (res) {
                         ToastDisplay.showToast(
                             toastText:
-                                "$firstName$lastName ${I18N.of(context).get("contact_add")}",tostContext: context);
+                                "$firstName$lastName ${I18N.of(context).get("contact_add")}",
+                            tostContext: context);
                         Navigator.of(context).pop();
                       }
                     },
@@ -284,10 +287,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                 TextButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-                    _routingServices.openRoom((Uid.create()
-                          ..node = botId
-                          ..category = Categories.BOT)
-                        .asString());
+                    _routingServices.openRoom(
+                        (Uid.create()
+                              ..node = botId
+                              ..category = Categories.BOT)
+                            .asString(),
+                        context: context);
                     _messageRepo.sendTextMessage(
                         Uid()
                           ..category = Categories.BOT
@@ -366,10 +371,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                           ..node = botId,
                         privateDataType,
                         token);
-                    _routingServices.openRoom((Uid.create()
-                          ..node = botId
-                          ..category = Categories.BOT)
-                        .asString());
+                    _routingServices.openRoom(
+                        (Uid.create()
+                              ..node = botId
+                              ..category = Categories.BOT)
+                            .asString(),
+                        context: context);
                     Navigator.of(context).pop();
                   },
                   child: Text(I18N.of(context).get("ok")),

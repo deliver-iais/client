@@ -283,7 +283,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (micUid != null) {
                                     _createMucService.reset();
-                                    _routingService.openRoom(micUid.asString());
+                                    _routingService.openRoom(micUid.asString(),context:context);
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),tostContext: context);

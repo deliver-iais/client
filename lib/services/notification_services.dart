@@ -137,7 +137,7 @@ class WindowsNotifier implements Notifier {
           _windowsNotificationServices.stream?.listen((event) {
             if (event is ToastActivated) {
               if (lastAvatar.uid != null)
-                _routingService.openRoom(lastAvatar.uid);
+                _routingService.openRoom(lastAvatar.uid,);
             }
           });
         }

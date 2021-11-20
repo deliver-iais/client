@@ -63,7 +63,7 @@ class RawKeyboardService {
     }
   }
 
-  void scrollUpInRoom() {
+  void scrollUpInRoom(BuildContext context) {
     int index = -1;
     _roomDao
         .getAllRooms()
@@ -73,12 +73,12 @@ class RawKeyboardService {
                   index++,
                   if (element.node == _currentRoom.node)
                     if (index - 1 >= 0)
-                      _routingService.openRoom(room[index - 1].uid)
+                      _routingService.openRoom(room[index - 1].uid,context:context)
                 }
             }));
   }
 
-  void scrollDownInRoom() {
+  void scrollDownInRoom(BuildContext context) {
     int index = -1;
     _roomDao
         .getAllRooms()
@@ -88,7 +88,7 @@ class RawKeyboardService {
                   index++,
                   if (element.node == _currentRoom.node)
                     if (index + 1 < room.length)
-                      _routingService.openRoom(room[index + 1].uid)
+                      _routingService.openRoom(room[index + 1].uid,context:context)
                 }
             }));
   }
@@ -180,13 +180,13 @@ class RawKeyboardService {
       controlVHandle(controller);
   }
 
-  navigateInRooms({event}) {
+  navigateInRooms({event,BuildContext context}) {
     if (event.isAltPressed) {
       if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-        scrollUpInRoom();
+        scrollUpInRoom(context);
       }
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-        scrollDownInRoom();
+        scrollDownInRoom(context);
       }
     }
   }

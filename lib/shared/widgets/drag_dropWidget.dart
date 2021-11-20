@@ -46,6 +46,6 @@ class DragDropWidget extends StatelessWidget {
         context: context,
         paths: p,
         roomUid: roomUid.asUid());
-    _routingServices.openRoom(roomUid);
+    _routingServices.openRoom(roomUid,context:context);
   }
 }

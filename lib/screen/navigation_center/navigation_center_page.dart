@@ -305,7 +305,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         return GestureDetector(
           onTap: () {
             _roomRepo.insertRoom(snaps.data[index].asString());
-            _rootingServices.openRoom(snaps.data[index].asString());
+            _rootingServices.openRoom(snaps.data[index].asString(),context:c );
           },
           child: _contactResultWidget(uid: snaps.data[index], context: c),
         );

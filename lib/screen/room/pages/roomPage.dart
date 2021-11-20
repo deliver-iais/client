@@ -1203,7 +1203,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 child: CircleAvatarWidget(message.from.asUid(), 18),
               ),
               onTap: () {
-                _routingService.openRoom(message.from);
+                _routingService.openRoom(message.from,context:context);
               },
             ),
           ),
@@ -1224,11 +1224,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   onUsernameClick(String username) async {
     if (username.contains("_bot")) {
       String roomId = "4:${username.substring(1)}";
-      _routingService.openRoom(roomId);
+      _routingService.openRoom(roomId,context:context);
     } else {
       String roomId = await _roomRepo.getUidById(username);
       if (roomId != null) {
-        _routingService.openRoom(roomId);
+        _routingService.openRoom(roomId,context:context);
       }
     }
   }
