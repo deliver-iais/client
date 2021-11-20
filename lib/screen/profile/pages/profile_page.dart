@@ -368,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage>
                             onPressed: (_) async {
                               _routingService
                                   .openCustomNotificationSoundSelection(
-                                      widget.roomUid.asString());
+                                      context, widget.roomUid.asString());
                             },
                           ));
                     } else
@@ -427,7 +427,7 @@ class _ProfilePageState extends State<ProfilePage>
                   titleTextStyle:
                       TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.person_add),
-                  onPressed: (_) => _routingService.openMemberSelection(
+                  onPressed: (_) => _routingService.openMemberSelection(context,
                       isChannel: true, mucUid: widget.roomUid),
                 ),
               ),
@@ -459,7 +459,7 @@ class _ProfilePageState extends State<ProfilePage>
           actions: <Widget>[
             _buildMenu(context),
           ],
-          leading: _routingService.backButtonLeading(),
+          leading: _routingService.backButtonLeading(context),
         ),
       ),
     );
@@ -638,7 +638,7 @@ class _ProfilePageState extends State<ProfilePage>
                   TextButton(
                     onPressed: () {
                       // TODO set name for share uid
-                      _routingService.openSelectForwardMessage(
+                      _routingService.openSelectForwardMessage(context,
                           sharedUid: proto.ShareUid()
                             ..name = _roomName
                             ..joinToken = token

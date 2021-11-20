@@ -207,7 +207,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () {
-                              _routingService.openGroupInfoDeterminationPage(
+                              _routingService.openGroupInfoDeterminationPage(context,
                                   isChannel: widget.isChannel);
                             },
                           ),

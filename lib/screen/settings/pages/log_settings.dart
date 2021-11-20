@@ -31,7 +31,7 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
               title: Text("Log Level"),
-              leading: _routingService.backButtonLeading(),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),

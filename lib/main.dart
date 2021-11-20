@@ -310,8 +310,6 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-
-
                 supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,

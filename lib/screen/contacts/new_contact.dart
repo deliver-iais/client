@@ -35,7 +35,7 @@ class _NewContactState extends State<NewContact> {
     _i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: _routingServices.backButtonLeading(),
+        leading: _routingServices.backButtonLeading(context),
         title: Text(_i18n.get("add_new_contact")),
         actions: [
           Padding(

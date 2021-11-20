@@ -60,7 +60,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n.get("scan_qr_code")),
-        leading: _routingServices.backButtonLeading(),
+        leading: _routingServices.backButtonLeading(context),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,

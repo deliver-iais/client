@@ -417,7 +417,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
           _routingService
-              .openSelectForwardMessage(forwardedMessages: [message]);
+              .openSelectForwardMessage(context,forwardedMessages: [message]);
           break;
         case OperationOnMessage.DELETE:
           _showDeleteMsgDialog([message]);
@@ -671,7 +671,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         searchMessage(controller.text, checkSearchResult);
                       });
                 } else
-                  return _routingService.backButtonLeading(
+                  return _routingService.backButtonLeading(context,
                     back: () {
                       // _notificationServices.reset("\t");
                     },
@@ -1128,7 +1128,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   size: 30,
                 ),
                 onPressed: () {
-                  _routingService.openSelectForwardMessage(
+                  _routingService.openSelectForwardMessage(context,
                       forwardedMessages: _selectedMessages.values.toList());
                   _selectedMessages.clear();
                 }),

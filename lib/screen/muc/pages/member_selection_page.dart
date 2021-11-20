@@ -29,7 +29,7 @@ class MemberSelectionPage extends StatelessWidget {
         child: FluidContainerWidget(
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [

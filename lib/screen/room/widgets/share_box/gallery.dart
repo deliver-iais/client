@@ -102,7 +102,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             final pickedFile = await picker.getImage(
                                 source: ImageSource.camera);
                             widget.selectGallery
-                                ? _routingServices.openImagePage(
+                                ? _routingServices.openImagePage(context,
                                     roomUid: widget.roomUid,
                                     file: File(pickedFile.path))
                                 : cropAvatar(image.path);
@@ -118,7 +118,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 if (!widget.selectedImages
                                     .containsValue(true)) {
                                   Navigator.pop(context);
-                                  _routingServices.openImagePage(
+                                  _routingServices.openImagePage(context,
                                       roomUid: widget.roomUid,
                                       file: File(image.path));
                                 } else {

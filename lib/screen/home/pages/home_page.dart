@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:auto_route/auto_route.dart';
+import 'package:deliver/routes/router.gr.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
@@ -70,7 +72,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         for (var path in value) {
           paths.add(path.path);
         }
-        _routingService.openShareFile(path: paths);
+        _routingService.openShareFile(context,path: paths);
       }
     });
   }
@@ -98,7 +100,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void checkIfUsernameIsSet() async {
     if (!await _accountRepo.getProfile(retry: true)) {
-      _routingService.openAccountSettings(forceToSetUsernameAndName: true);
+      _routingService.openAccountSettings(context,forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();
     }

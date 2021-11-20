@@ -62,7 +62,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    AutoRouter.of(context).push(HomePageRoute());
+    AutoRouter.of(context).replace(HomePageRoute());
   }
 
   _setErrorAndResetCode() {

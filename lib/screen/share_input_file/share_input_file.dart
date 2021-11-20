@@ -23,7 +23,7 @@ class ShareInputFile extends StatelessWidget{
     return Scaffold(
 
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(title:Text(i18n.get("send_To"),style: TextStyle(color: ExtraTheme.of(context).textField),) ,leading: _routingServices.backButtonLeading(),),
+      appBar: AppBar(title:Text(i18n.get("send_To"),style: TextStyle(color: ExtraTheme.of(context).textField),) ,leading: _routingServices.backButtonLeading(context),),
       body: Column(
         children: <Widget>[
           SearchBox(),

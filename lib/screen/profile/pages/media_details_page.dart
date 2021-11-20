@@ -488,7 +488,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   Widget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
-      leading: _routingService.backButtonLeading(),
+      leading: _routingService.backButtonLeading(context),
       title: Align(
           alignment: Alignment.topLeft,
           child: StreamBuilder(

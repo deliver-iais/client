@@ -106,7 +106,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         ),
                       ),
                     ),
-                    onTap: tapOnCurrentUserAvatar,
+                    onTap: () {
+                      _rootingServices.openSettings(context: context);
+                    },
                   ),
                 ],
               ),
@@ -126,7 +128,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     child: IconButton(
                         onPressed: () {
-                          _routingService.openScanQrCode();
+                          _routingService.openScanQrCode(context);
                         },
                         icon: Icon(
                           Icons.qr_code,
@@ -215,10 +217,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-        _routingService.openMemberSelection(isChannel: false);
+        _routingService.openMemberSelection(context, isChannel: false);
         break;
       case "newChannel":
-        _routingService.openMemberSelection(isChannel: true);
+        _routingService.openMemberSelection(context, isChannel: true);
         break;
     }
   }

@@ -62,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 style: TextStyle(color: ExtraTheme.of(context).textField),
               ),
-              leading: _routingService.backButtonLeading(),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),
@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsSection(
                 tiles: [
                   NormalSettingsTitle(
-                      onTap: () => _routingService.openAccountSettings(),
+                      onTap: () => _routingService.openAccountSettings(context),
                       child: Row(
                         children: <Widget>[
                           GestureDetector(
@@ -83,7 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
                                 if (lastAvatar.createdOn != null) {
-                                  _routingService.openShowAllAvatars(
+                                  _routingService.openShowAllAvatars(context,
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
                                       heroTag: "avatar");
@@ -176,7 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("contacts"),
                     leading: Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
-                      _routingService.openContacts();
+                      _routingService.openContacts(context);
                     },
                   )
                 ],
@@ -196,7 +196,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     subtitle: I18N.of(context).locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
-                      _routingService.openLanguageSettings();
+                      _routingService.openLanguageSettings(context);
                     },
                   ),
                   SettingsTile.switchTile(
@@ -213,14 +213,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("security"),
                     leading: Icon(Icons.security),
                     onPressed: (BuildContext context) =>
-                        _routingService.openSecuritySettings(),
+                        _routingService.openSecuritySettings(context),
                     trailing: SizedBox.shrink(),
                   ),
                   SettingsTile(
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
                     onPressed: (c) {
-                      _routingService.openDevicesPage();
+                      _routingService.openDevicesPage(context);
                     },
                   ),
                   if (isDesktop())
@@ -244,7 +244,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           GetIt.I.get<DeliverLogFilter>().level),
                       leading: Icon(Icons.bug_report_rounded),
                       onPressed: (BuildContext context) {
-                        _routingService.openLogSettings();
+                        _routingService.openLogSettings(context);
                       },
                     )
                   ],

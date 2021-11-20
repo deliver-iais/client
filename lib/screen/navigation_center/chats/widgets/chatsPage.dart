@@ -108,7 +108,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                             ),
                             onTap: () {
                               _routingService.openRoom(
-                                rooms[index].uid,
+                                rooms[index].uid,context: context
                               );
                             },
                             onLongPress: () {

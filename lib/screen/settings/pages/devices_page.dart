@@ -36,7 +36,7 @@ class _DevicesPageState extends State<DevicesPage> {
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(_i18n.get("devices")),
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
       ),

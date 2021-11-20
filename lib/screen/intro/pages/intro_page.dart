@@ -37,7 +37,7 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToLoginPage() {
-    AutoRouter.of(context).push(LoginPageRoute());
+    AutoRouter.of(context).replace(LoginPageRoute());
   }
 
   @override

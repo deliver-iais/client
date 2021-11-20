@@ -133,39 +133,39 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    try {
-      var request = new http.Client().post(Uri.parse(FileServiceBaseUrl + "/upload",),body: await http.MultipartFile.fromPath('file', filePath,
-          contentType:
-          MediaType.parse(mime(filePath) ?? "application/octet-stream")),headers: {"Authorization": await _authRepo.getAccessToken()} );
-
-        request.then((value) => print(value.toString()));
-
-
-    } catch (e) {
-      print(e.toString());
-    }
-    // _dio.interceptors.add(InterceptorsWrapper(onRequest:
-    //     (RequestOptions options, RequestInterceptorHandler handler) async {
-    //   options.onSendProgress = (int i, int j) {
-    //     if (sendActivity != null) sendActivity();
-    //     if (filesUploadStatus[uploadKey] == null) {
-    //       BehaviorSubject<double> d = BehaviorSubject();
-    //       filesUploadStatus[uploadKey] = d;
-    //     }
-    //     filesUploadStatus[uploadKey].add((i / j));
-    //   };
-    //   handler.next(options);
-    // }));
-    //
-    // var formData = FormData.fromMap({
-    //   "file": MultipartFile.fromFileSync(filePath,
+    // try {
+    //   var request = new http.Client().post(Uri.parse(FileServiceBaseUrl + "/upload",),body: await http.MultipartFile.fromPath('file', filePath,
     //       contentType:
-    //           MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-    // });
+    //       MediaType.parse(mime(filePath) ?? "application/octet-stream")),headers: {"Authorization": await _authRepo.getAccessToken()} );
     //
-    // return _dio.post(
-    //   "/upload",
-    //   data: formData,
-    // );
+    //     request.then((value) => print(value.toString()));
+    //
+    //
+    // } catch (e) {
+    //   print(e.toString());
+    // }
+    _dio.interceptors.add(InterceptorsWrapper(onRequest:
+        (RequestOptions options, RequestInterceptorHandler handler) async {
+      options.onSendProgress = (int i, int j) {
+        if (sendActivity != null) sendActivity();
+        if (filesUploadStatus[uploadKey] == null) {
+          BehaviorSubject<double> d = BehaviorSubject();
+          filesUploadStatus[uploadKey] = d;
+        }
+        filesUploadStatus[uploadKey].add((i / j));
+      };
+      handler.next(options);
+    }));
+
+    var formData = FormData.fromMap({
+      "file": MultipartFile.fromFileSync(filePath,
+          contentType:
+              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+    });
+
+    return _dio.post(
+      "/upload",
+      data: formData,
+    );
   }
 }

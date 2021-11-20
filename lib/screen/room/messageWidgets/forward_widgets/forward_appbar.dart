@@ -10,7 +10,7 @@ class ForwardAppbar extends StatelessWidget {
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
     return AppBar(
-      leading: _routingServices.backButtonLeading(),
+      leading: _routingServices.backButtonLeading(context),
       title: Text(
         i18n.get("forward_to"),
       ),

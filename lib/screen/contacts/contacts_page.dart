@@ -56,7 +56,7 @@ class _ContactsPageState extends State<ContactsPage> {
               I18N.of(context).get("contacts"),
               style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
       ),
@@ -149,7 +149,7 @@ class _ContactsPageState extends State<ContactsPage> {
                             Icons.add,
                           ),
                           onPressed: () {
-                            _routingService.openCreateNewContactPage();
+                            _routingService.openCreateNewContactPage(context);
                           },
                           label: Text(I18N.of(context).get("add_new_contact")),
                         ),

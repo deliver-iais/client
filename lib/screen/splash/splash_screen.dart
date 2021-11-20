@@ -3,6 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
 
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
@@ -25,7 +26,6 @@ class _SplashScreenState extends State<SplashScreen>
   final _textEditingController = TextEditingController();
   final _shakeController = ShakeWidgetController();
   final _focusNode = FocusNode();
-  BuildContext _c;
 
   AnimationController _animationController;
   int _attempts = 0;
@@ -73,23 +73,22 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToIntroPage() {
-    AutoRouter.of(context).push(IntroPageRoute());
+    AutoRouter.of(context).replace(IntroPageRoute());
   }
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
-      AutoRouter.of(context).push(HomePageRoute());
+    AutoRouter.of(context).replace(HomePageRoute());
     } else {
       AutoRouter.of(context)
-          .push(AccountSettingsRoute(forceToSetUsernameAndName: true));
+          .popAndPush(AccountSettingsRoute(forceToSetUsernameAndName: true));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    _c = context;
     return Directionality(
       textDirection: TextDirection.ltr,
       child: AnimatedSwitcher(

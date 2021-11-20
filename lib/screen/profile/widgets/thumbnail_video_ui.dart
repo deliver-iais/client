@@ -31,7 +31,7 @@ class VideoThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          _routingService.openShowAllVideos(
+          _routingService.openShowAllVideos(context,
             uid: userUid,
             mediaPosition: mediaPosition,
             mediasLength: videoCount,
