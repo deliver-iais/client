@@ -5,7 +5,7 @@ abstract class CustomNotificatonDao {
 
   Future<void> setCustomNotif(String uid, String fileName);
 
-  Future<String> getCustomNotif(String uid);
+  Future<String?> getCustomNotif(String uid);
 }
 
 class CustomNotificatonDaoImpl implements CustomNotificatonDao {
@@ -30,7 +30,7 @@ class CustomNotificatonDaoImpl implements CustomNotificatonDao {
   }
 
   @override
-  Future<String> getCustomNotif(String uid) async {
+  Future<String?> getCustomNotif(String uid) async {
     var box = await _open();
     if (box.get(uid) != null)
       return box.get(uid);

@@ -16,7 +16,7 @@ final bucketGlobal = PageStorageBucket();
 class ChatsPage extends StatefulWidget {
   final ScrollController scrollController;
 
-  ChatsPage({Key key, this.scrollController}) : super(key: key);
+  ChatsPage({Key? key, required this.scrollController}) : super(key: key);
 
   @override
   _ChatsPageState createState() => _ChatsPageState();
@@ -26,7 +26,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
-  I18N _i18n;
+  final I18N _i18n = GetIt.I.get<I18N>();
 
   void _showCustomMenu(BuildContext context, Room room, bool canPin) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
@@ -74,7 +74,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return StreamBuilder<List<Room>>(
         stream: _roomRepo.watchAllRooms(),
         builder: (context, snapshot) {
@@ -82,13 +81,13 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             stream: _routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
               if (snapshot.hasData) {
-                var rooms = snapshot.data
+                var rooms = snapshot.data!
                     .where((element) =>
                         element.deleted == null || element.deleted == false)
                     .toList();
                 rearangChatItem(rooms);
                 return PageStorage(
-                  bucket: PageStorage.of(context),
+                  bucket: PageStorage.of(context)!,
                   child: Scrollbar(
                     controller: widget.scrollController,
                     child: ListView.separated(
@@ -107,9 +106,8 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                   _routingService.isInRoom(rooms[index].uid),
                             ),
                             onTap: () {
-                              _routingService.openRoom(
-                                rooms[index].uid, context:context
-                              );
+                              _routingService.openRoom(rooms[index].uid,
+                                  context: context);
                             },
                             onLongPress: () {
                               //ToDo new design for android

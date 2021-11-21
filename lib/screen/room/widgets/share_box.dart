@@ -554,7 +554,7 @@ class _ShareBoxState extends State<ShareBox> {
                                     Navigator.pop(context);
                                     messageRepo.sendLiveLocationMessage(
                                       widget.currentRoomId,
-                                      int.parse(time.valueWrapper.value),
+                                      int.parse(time.value),
                                       position,
                                     );
                                   }),

@@ -54,14 +54,14 @@ class ContactRepo {
                     iOSLocalizedLabels: false);
 
             for (OsContact.Contact phoneContact in phoneContacts) {
-              for (var p in phoneContact.phones) {
+              for (var p in phoneContact.phones!) {
                 try {
                   String contactPhoneNumber = p.value.toString();
                   PhoneNumber phoneNumber = _getPhoneNumber(
-                      contactPhoneNumber, phoneContact.displayName);
-                  _contactsDisplayName[phoneNumber] = phoneContact.displayName;
+                      contactPhoneNumber, phoneContact.displayName!);
+                  _contactsDisplayName[phoneNumber] = phoneContact.displayName!;
                   Contact contact = Contact()
-                    ..lastName = phoneContact.displayName
+                    ..lastName = phoneContact.displayName!
                     ..phoneNumber = phoneNumber;
                   contacts.add(contact);
                 } catch (e) {
@@ -143,7 +143,7 @@ class ContactRepo {
     }
   }
 
-  Future<String> getUserIdByUid(Uid uid) async {
+  Future<String?> getUserIdByUid(Uid uid) async {
     try {
       // For now, Group and Bot not supported in server side!!
       var result =
@@ -181,8 +181,8 @@ class ContactRepo {
   }
 
   // TODO needs to be refactored!
-  Future<DB.Contact> getContact(Uid userUid) async {
-    DB.Contact contact = await _contactDao.getByUid(userUid.asString());
+  Future<DB.Contact?> getContact(Uid userUid) async {
+    DB.Contact? contact = await _contactDao.getByUid(userUid.asString());
     return contact;
   }
 
@@ -191,7 +191,7 @@ class ContactRepo {
     return result != null;
   }
 
-  Future<String> getContactFromServer(Uid contactUid) async {
+  Future<String?> getContactFromServer(Uid contactUid) async {
     try {
       var contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);

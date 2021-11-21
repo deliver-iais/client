@@ -69,7 +69,7 @@ class FileService {
   }
 
   Future<File> getFile(String uuid, String filename,
-      {ThumbnailSize size}) async {
+      {ThumbnailSize? size}) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -83,14 +83,14 @@ class FileService {
       filesDownloadStatus[uuid] = d;
     }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      filesDownloadStatus[uuid].add((i / j));
+      filesDownloadStatus[uuid]!.add((i / j));
     }, options: Options(responseType: ResponseType.bytes));
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
   }
 
-  Future<File> getDeliverIcon() async {
+  Future<File?> getDeliverIcon() async {
     var file = await localFile("deliver-icon", "png");
     if (file.existsSync()) {
       return file;
@@ -132,7 +132,8 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
+  uploadFile(String filePath,
+      {required String uploadKey, Function? sendActivity}) async {
     // var file = await http.MultipartFile.fromPath("image", filePath,
     //     contentType: MediaType.parse(mime(filePath)));
     // try {
@@ -154,7 +155,7 @@ class FileService {
           BehaviorSubject<double> d = BehaviorSubject();
           filesUploadStatus[uploadKey] = d;
         }
-        filesUploadStatus[uploadKey].add((i / j));
+        filesUploadStatus[uploadKey]!.add((i / j));
       };
       handler.next(options);
     }));

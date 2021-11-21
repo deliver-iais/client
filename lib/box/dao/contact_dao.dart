@@ -2,9 +2,9 @@ import 'package:deliver/box/contact.dart';
 import 'package:hive/hive.dart';
 
 abstract class ContactDao {
-  Future<Contact> get(String countryCode, String nationalNumber);
+  Future<Contact?> get(String countryCode, String nationalNumber);
 
-  Future<Contact> getByUid(String uid);
+  Future<Contact?> getByUid(String uid);
 
   Future<List<Contact>> getAll();
 
@@ -14,17 +14,17 @@ abstract class ContactDao {
 }
 
 class ContactDaoImpl implements ContactDao {
-  Future<Contact> get(String countryCode, String nationalNumber) async {
+  Future<Contact?> get(String countryCode, String nationalNumber) async {
     var box = await _open();
 
     return box.values.firstWhere(
         (element) =>
             element.countryCode == countryCode &&
             element.nationalNumber == nationalNumber,
-        orElse: () => null);
+        orElse: () => null! );
   }
 
-  Future<Contact> getByUid(String uid) async {
+  Future<Contact?> getByUid(String uid) async {
     var box = await _open();
 
     return box.get(uid);

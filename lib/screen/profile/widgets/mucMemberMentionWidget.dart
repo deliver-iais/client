@@ -24,7 +24,9 @@ class MucMemberMentionWidget extends StatelessWidget {
   }
 
   Widget buildGestureDetector(
-      {String username, String name, BuildContext context}) {
+      {required String username,
+      required String name,
+      required BuildContext context}) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(

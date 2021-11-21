@@ -21,7 +21,7 @@ class MusicAndAudioUi extends StatefulWidget {
   final int mediaCount;
   final FetchMediasReq_MediaType type;
 
-  MusicAndAudioUi({Key key, this.userUid, this.type, this.mediaCount})
+  MusicAndAudioUi({Key? key, required this.userUid, required this.type, required this.mediaCount})
       : super(key: key);
 
   @override

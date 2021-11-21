@@ -327,9 +327,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) async {
       var msg = await _getMessage(
-          event, widget.roomId, _currentRoom.valueWrapper.value.lastMessageId,
+          event, widget.roomId, _currentRoom.value.lastMessageId,
           lastUpdatedMessageId:
-              _currentRoom.valueWrapper.value.lastUpdatedMessageId);
+              _currentRoom.value.lastUpdatedMessageId);
 
       if (msg == null) return;
 
@@ -884,9 +884,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return isPendingMessage
         ? Future.value(pendingMessages[_itemCount - index - 1].msg)
         : _getMessage(index + 1, widget.roomId,
-            _currentRoom.valueWrapper.value.lastMessageId,
+            _currentRoom.value.lastMessageId,
             lastUpdatedMessageId:
-                _currentRoom.valueWrapper.value.lastUpdatedMessageId);
+                _currentRoom.value.lastUpdatedMessageId);
   }
 
   Future<int> _timeAt(List<PendingMessage> pendingMessages, int index) async {

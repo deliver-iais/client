@@ -61,7 +61,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
         StreamBuilder<DateTime>(
             stream: streamTime.stream,
             builder: (c, t) {
-              _show.add(!_show.valueWrapper.value);
+              _show.add(!_show.value);
               if (t.hasData && t.data != null && t.data.isAfter(time))
                 return Text(
                   "${durationTimeFormat(t.data.difference(time))}",

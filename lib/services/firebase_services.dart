@@ -47,7 +47,7 @@ class FireBaseServices {
     _firebaseMessaging.deleteToken();
   }
 
-  _sendFireBaseToken(String fireBaseToken) async {
+  _sendFireBaseToken(String ? fireBaseToken) async {
     if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices

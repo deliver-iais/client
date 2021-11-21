@@ -23,10 +23,6 @@ class MediaQueryRepo {
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
-  var mediaList;
-  var allMedia;
-  int count;
-  int lastTime;
 
   getMediaMetaDataReq(Uid uid) async {
     try {
@@ -52,7 +48,7 @@ class MediaQueryRepo {
     ));
   }
 
-  Future<int> getImageMediaCount(Uid uid) async {
+  Future<int?> getImageMediaCount(Uid uid) async {
     try {
       var mediaRes = await _queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
@@ -99,7 +95,6 @@ class MediaQueryRepo {
       return mediasList.reversed.toList();
     }
   }
-
 
   Future<List<Media>> getLastMediasList(
       Uid roomId,
@@ -192,7 +187,7 @@ class MediaQueryRepo {
 
   Future<List<Media>> getMediaAround(
       String roomId, int offset, MediaType type) async {
-    mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset, type);
+    var mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset, type);
     return mediaList;
   }
 

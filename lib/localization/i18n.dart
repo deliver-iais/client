@@ -14,7 +14,7 @@ class I18N {
 
   final _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  Map<String, String> _values;
+  Map<String, String>? _values;
 
   I18N() {
     _loadLanguageResource(DefaultLanguage);
@@ -50,18 +50,19 @@ class I18N {
   Locale get locale => _language.value.locale;
 
   String get(String key) {
-    return _values[key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "");
+    return _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "");
   }
 
   String verb(String key, {isFirstPerson = false}) {
-    return get(key) + (isFirstPerson ? (_values["_first_person_verb_extra_"] ?? "") : "");
+    return get(key) +
+        (isFirstPerson ? (_values!["_first_person_verb_extra_"] ?? "") : "");
   }
 
   changeLanguage(Language language) {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
   }
 
-  static I18N of(BuildContext context) {
+  static I18N? of(BuildContext context) {
     return Localizations.of<I18N>(context, I18N);
   }
 

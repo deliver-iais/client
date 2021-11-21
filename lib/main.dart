@@ -46,7 +46,6 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/routes/router.gr.dart' as R;
 
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -321,18 +320,19 @@ class MyApp extends StatelessWidget {
                     _appRouter.defaultRouteParser(includePrefixMatches: true),
                 localeResolutionCallback: (deviceLocale, supportedLocale) {
                   for (var locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale.languageCode &&
+                    if (locale.languageCode == deviceLocale!.languageCode &&
                         locale.countryCode == deviceLocale.countryCode) {
                       return deviceLocale;
                     }
                   }
                   return supportedLocale.first;
                 },
-                builder: (x, c) =>
-                    Directionality(
-                  textDirection: TextDirection.ltr, child:c,
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: c!,
                 ),
-                routerDelegate: _appRouter.delegate(initialRoutes: [R.SplashScreenRoute()]),
+                routerDelegate:
+                    _appRouter.delegate(initialRoutes: [R.SplashScreenRoute()]),
               )),
         );
       },

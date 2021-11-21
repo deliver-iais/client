@@ -1,15 +1,11 @@
-
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
 
 part 'media.g.dart';
 
 @HiveType(typeId: MEDIA_TRACK_ID)
 class Media {
-
-
   // DbId
   @HiveField(0)
   int createdOn;
@@ -26,13 +22,14 @@ class Media {
   @HiveField(4)
   int messageId;
 
-
   @HiveField(5)
-   MediaType type;
-
+  MediaType type;
 
   Media(
-      { this.createdOn, this.json, this.roomId, this.messageId,this.type,this.createdBy});
-
-
+      {required this.createdOn,
+      required this.json,
+      required this.roomId,
+      required this.messageId,
+      required this.type,
+      required this.createdBy});
 }

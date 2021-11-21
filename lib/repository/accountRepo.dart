@@ -69,8 +69,8 @@ class AccountRepo {
 
   Future<Account> getAccount() async {
     return Account()
-      ..countryCode = await _sharedDao.get(SHARED_DAO_COUNTRY_CODE)
-      ..nationalNumber = await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER)
+      ..countryCode = (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE))
+      ..nationalNumber = (await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER))
       ..userName = await _sharedDao.get(SHARED_DAO_USERNAME)
       ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME)
       ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
@@ -125,14 +125,14 @@ class AccountRepo {
   }
 
   _saveProfilePrivateData(
-      {String username, String firstName, String lastName, String email}) {
-    if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
-    _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName);
-    _sharedDao.put(SHARED_DAO_LAST_NAME, lastName);
-    _sharedDao.put(SHARED_DAO_EMAIL, email);
+      {String? username, String? firstName, String? lastName, String? email}) {
+    _sharedDao.put(SHARED_DAO_USERNAME, username!);
+    _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName!);
+    _sharedDao.put(SHARED_DAO_LAST_NAME, lastName!);
+    _sharedDao.put(SHARED_DAO_EMAIL, email!);
   }
 
-  Future<String> get notification =>
+  Future<String?> get notification =>
       _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
 
   Future<void> fetchProfile() async {
@@ -160,7 +160,7 @@ class AccountRepo {
       await _dbManager.migrate(pv);
     }
 
-    if (shouldUpdateSessionPlatformInformation(pv)) {
+    if (shouldUpdateSessionPlatformInformation(pv!)) {
       Platform platform = Platform()..clientVersion = VERSION;
       platform = await _authRepo.getPlatForm(platform);
       _sessionServicesClient.updateSessionPlatformInformation(
@@ -171,11 +171,11 @@ class AccountRepo {
     _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
   }
 
-  shouldRemoveDB(String previousVersion) {
+  shouldRemoveDB(String? previousVersion) {
     return previousVersion == null || previousVersion != VERSION;
   }
 
-  shouldMigrateDB(String previousVersion) {
+  shouldMigrateDB(String? previousVersion) {
     return false;
   }
 

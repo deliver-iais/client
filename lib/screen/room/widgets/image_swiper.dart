@@ -206,7 +206,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
         stream: _imageIndex.stream,
         builder: (c, s) {
           if (s.hasData && s.data > -1) {
-            return Text("${s.data + 1} of ${imageCount.valueWrapper.value}");
+            return Text("${s.data + 1} of ${imageCount.value}");
           } else {
             var roomUid = widget.message.roomUid.asUid();
             if (roomUid.isMuc())

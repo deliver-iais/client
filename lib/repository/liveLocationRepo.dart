@@ -16,16 +16,16 @@ class LiveLocationRepo {
     _liveLocationDao.saveLiveLocation(liveLocation);
   }
 
-  Future<LiveLocation> getLiveLocation(String uuid) async {
+  Future<LiveLocation?> getLiveLocation(String uuid) async {
     return await _liveLocationDao.getLiveLocation(uuid);
   }
 
-  Stream<LiveLocation> watchLiveLocation(String uuid) {
+  Stream<LiveLocation?> watchLiveLocation(String uuid) {
     return _liveLocationDao.watchLiveLocation(uuid);
   }
 
   Future<void> updateLiveLocation(pb.LiveLocation liveLocation) async {
-    Timer timer;
+    Timer? timer;
     if (DateTime.now().millisecondsSinceEpoch > liveLocation.time.toInt())
       return;
     timer = Timer.periodic(Duration(minutes: 1), (t) async {
@@ -34,7 +34,7 @@ class LiveLocationRepo {
       if (res != null) if (res.shouldSend) {
         _getLatUpdateLocation(liveLocation.uuid);
       } else {
-        timer.cancel();
+        timer!.cancel();
       }
     });
   }
@@ -63,11 +63,11 @@ class LiveLocationRepo {
 
   void sendLiveLocationAsStream(
       String uuid, int duration, pb.Location location) {
-    _liveLocationDao.saveLiveLocation(LiveLocation()
-      ..duration = duration
-      ..uuid = uuid
-      ..locations = [location]
-      ..lastUpdate = DateTime.now().millisecondsSinceEpoch);
+    _liveLocationDao.saveLiveLocation(LiveLocation(
+        duration: duration,
+        uuid: uuid,
+        locations: [location],
+        lastUpdate: DateTime.now().millisecondsSinceEpoch));
     Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
         .listen((p) {
       pb.Location location =
@@ -80,8 +80,8 @@ class LiveLocationRepo {
 
   void _updateLiveLocationInDb(
       String uuid, int duration, pb.Location location) async {
-    var liveL = await _liveLocationDao.getLiveLocation(uuid);
-    List<pb.Location> locations = liveL.locations ?? [];
+    LiveLocation? liveL = await _liveLocationDao.getLiveLocation(uuid);
+    List<pb.Location> locations = liveL!.locations ?? [];
     locations.add(location);
     _liveLocationDao.saveLiveLocation(LiveLocation(
         uuid: uuid,

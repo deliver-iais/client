@@ -37,18 +37,19 @@ class AuthRepo {
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
     ..node = "";
-  Avatar avatar;
-  String _accessToken;
-  String _refreshToken;
+  Avatar? avatar;
+  String _accessToken = "";
+  String _refreshToken = "";
+  late String platformVersion;
 
-  PhoneNumber _tmpPhoneNumber;
+  late PhoneNumber _tmpPhoneNumber;
 
   Future<bool> isTestUser() async {
     if (currentUserUid.node.isNotEmpty)
       return currentUserUid.isSameEntity(TEST_USER_UID.asString());
     else {
       currentUserUid =
-          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
       return currentUserUid.isSameEntity(TEST_USER_UID.asString());
     }
   }
@@ -66,12 +67,10 @@ class AuthRepo {
 
   setCurrentUserUid() async {
     currentUserUid =
-        (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+        (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-  String platformVersion;
 
   Future getVerificationCode(PhoneNumber p) async {
     Pb.Platform platform = await getPlatformDetails();
@@ -246,11 +245,8 @@ class AuthRepo {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
-  void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
-    if (accessToken == null ||
-        accessToken.isEmpty ||
-        refreshToken == null ||
-        refreshToken.isEmpty) {
+  void _setTokensAndCurrentUserUid(String? accessToken, String? refreshToken) {
+    if (accessToken!.isEmpty || refreshToken!.isEmpty) {
       return;
     }
     _accessToken = accessToken;

@@ -22,34 +22,34 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
-  String heroTag;
+  String? heroTag;
   int mediaPosition;
-  int mediasLength;
+  int? mediasLength;
   Uid userUid;
   bool isAvatar = false;
   bool isVideo = false;
   bool hasPermissionToDeletePic = false;
 
   MediaDetailsPage.showMedia(
-      {Key key,
-      this.hasPermissionToDeletePic,
-      @required this.userUid,
-      @required this.mediaPosition,
+      {Key? key,
+      required this.hasPermissionToDeletePic,
+      required this.userUid,
+      required this.mediaPosition,
       this.mediasLength,
       this.heroTag})
       : super(key: key);
 
   MediaDetailsPage.showAvatar(
-      {Key key, this.userUid, this.hasPermissionToDeletePic, this.heroTag})
+      {Key? key, required this.userUid, required this.hasPermissionToDeletePic, this.heroTag})
       : super(key: key) {
     this.isAvatar = true;
   }
 
   MediaDetailsPage.showVideo(
-      {Key key,
-      @required this.userUid,
-      @required this.mediaPosition,
-      @required this.mediasLength})
+      {Key? key,
+      required this.userUid,
+      required this.mediaPosition,
+      required this.mediasLength})
       : super(key: key) {
     this.isVideo = true;
   }

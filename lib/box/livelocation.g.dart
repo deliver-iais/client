@@ -19,7 +19,7 @@ class LiveLocationAdapter extends TypeAdapter<LiveLocation> {
     return LiveLocation(
       uuid: fields[0] as String,
       lastUpdate: fields[2] as int,
-      locations: (fields[3] as List)?.cast<Location>(),
+      locations: (fields[3] as List).cast<Location>(),
       duration: fields[1] as int,
     );
   }

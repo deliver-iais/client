@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
@@ -9,8 +10,8 @@ class SearchBox extends StatefulWidget {
   final BorderRadius borderRadius;
 
   SearchBox(
-      {this.onChange,
-      this.onCancel,
+      {required this.onChange,
+      required this.onCancel,
       this.borderRadius = const BorderRadius.all(const Radius.circular(25.0))});
 
   @override
@@ -20,10 +21,10 @@ class SearchBox extends StatefulWidget {
 class _SearchBoxState extends State<SearchBox> {
   BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   TextEditingController _controller = TextEditingController();
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: TextField(
@@ -66,10 +67,10 @@ class _SearchBoxState extends State<SearchBox> {
             color: ExtraTheme.of(context).centerPageDetails,
             size: 20,
           ),
-          suffixIcon: StreamBuilder(
+          suffixIcon: StreamBuilder<bool?>(
             stream: _hasText.stream,
             builder: (c, ht) {
-              if (ht.hasData && ht.data) {
+              if (ht.hasData && ht.data!) {
                 return IconButton(
                   icon: Icon(
                     Icons.close,

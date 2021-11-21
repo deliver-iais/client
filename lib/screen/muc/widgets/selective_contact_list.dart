@@ -18,11 +18,11 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class SelectiveContactsList extends StatefulWidget {
-  final Uid mucUid;
+  final Uid? mucUid;
 
   final bool isChannel;
 
-  SelectiveContactsList({Key key, this.isChannel, this.mucUid})
+  SelectiveContactsList({Key? key, required this.isChannel, this.mucUid})
       : super(key: key);
 
   @override
@@ -30,11 +30,11 @@ class SelectiveContactsList extends StatefulWidget {
 }
 
 class _SelectiveContactsListState extends State<SelectiveContactsList> {
-  TextEditingController editingController;
+  late TextEditingController editingController;
 
   List<Contact> selectedList = [];
 
-  List<Contact> items;
+  late List<Contact> items;
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -59,9 +59,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   }
 
   getMembers() async {
-    var res = await _mucRepo.getAllMembers(widget.mucUid.asString());
+    var res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
     res.forEach((element) {
-      members.add(element.memberUid);
+      members.add(element!.memberUid);
     });
   }
 
@@ -74,12 +74,12 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             .replaceAll(new RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
-            item.firstName
+            item.firstName!
                 .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
             (item.lastName != null &&
-                item.lastName
+                item.lastName!
                     .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                     .toLowerCase()
                     .contains(query))) {
@@ -98,9 +98,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
     }
   }
 
+  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Stack(
       children: [
         Column(
@@ -120,10 +121,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
-                          snapshot.data.length > 0) {
-                        snapshot.data.removeWhere((element) => element.uid
+                          snapshot.data!.length > 0) {
+                        snapshot.data!.removeWhere((element) => element.uid
                             .contains(_authRepo.currentUserUid.asString()));
-                        contacts = snapshot.data;
+                        contacts = snapshot.data!;
                         if (items == null) {
                           items = contacts;
                         }
@@ -146,7 +147,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               i18n.get("no_results"),
                               style: Theme.of(context)
                                   .textTheme
-                                  .subtitle1
+                                  .subtitle1!
                                   .copyWith(color: Colors.red),
                             ),
                           );
@@ -163,7 +164,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
               if (!snapshot.hasData) {
                 return SizedBox.shrink();
               }
-              if (snapshot.data > 0)
+              if (snapshot.data! > 0)
                 return Positioned(
                   bottom: 0,
                   right: 0,
@@ -186,16 +187,18 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                 users.add(contact.uid.asUid());
                               }
                               bool usersAdd = await _mucRepo.sendMembers(
-                                  widget.mucUid, users);
+                                  widget.mucUid!, users);
                               if (usersAdd) {
-                                _routingService
-                                    .openRoom(widget.mucUid.asString(),context:context);
+                                _routingService.openRoom(
+                                    widget.mucUid!.asString(),
+                                    context: context);
                                 // _routingService.reset();
                                 // _createMucService.reset();
 
                               } else {
                                 ToastDisplay.showToast(
-                                    toastText: i18n.get("error_occurred"),tostContext: context);
+                                    toastText: i18n.get("error_occurred"),
+                                    tostContext: context);
                                 // _routingService.pop();
                               }
                             })
@@ -207,7 +210,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () {
-                              _routingService.openGroupInfoDeterminationPage(context,
+                              _routingService.openGroupInfoDeterminationPage(
+                                  context,
                                   isChannel: widget.isChannel);
                             },
                           ),

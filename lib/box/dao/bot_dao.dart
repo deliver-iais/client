@@ -2,13 +2,13 @@ import 'package:deliver/box/bot_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class BotDao {
-  Future<BotInfo> get(String uid);
+  Future<BotInfo?> get(String uid);
 
   Future<void> save(BotInfo uid);
 }
 
 class BotDaoImpl implements BotDao {
-  Future<BotInfo> get(String uid) async {
+  Future<BotInfo?>  get(String uid) async {
     var box = await _open();
 
     return box.get(uid);

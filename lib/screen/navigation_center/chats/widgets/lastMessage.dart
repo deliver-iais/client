@@ -23,9 +23,9 @@ class LastMessage extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   LastMessage(
-      {Key key,
-      this.message,
-      this.lastMessageId,
+      {Key? key,
+      required this.message,
+      required this.lastMessageId,
       this.hasMentioned = false,
       this.showSender = true,
       this.showSeenStatus = true,
@@ -43,7 +43,7 @@ class LastMessage extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Container(
-                height: Theme.of(context).textTheme.bodyText2.fontSize + 7);
+                height: Theme.of(context).textTheme.bodyText2!.fontSize! + 7);
           final mb = snapshot.data;
           return Row(
             children: [
@@ -59,7 +59,7 @@ class LastMessage extends StatelessWidget {
                     textDirection: TextDirection.ltr,
                     softWrap: false,
                     text: TextSpan(children: [
-                      if (mb.senderIsAUserOrBot && showSender)
+                      if (mb!.senderIsAUserOrBot && showSender)
                         TextSpan(
                             text: "${mb.sender.trim()}" +
                                 (showSenderInSeparatedLine ? "\n" : ": "),

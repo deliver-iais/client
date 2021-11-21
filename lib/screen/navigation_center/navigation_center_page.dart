@@ -32,7 +32,9 @@ class NavigationCenter extends StatefulWidget {
   final Function tapOnCurrentUserAvatar;
 
   const NavigationCenter(
-      {Key key, this.tapOnSelectChat, this.tapOnCurrentUserAvatar})
+      {Key? key,
+      required this.tapOnSelectChat,
+      required this.tapOnCurrentUserAvatar})
       : super(key: key);
 
   @override
@@ -55,7 +57,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final Function tapOnCurrentUserAvatar;
   bool _searchMode = false;
 
-  String query;
+  String? query;
 
   BehaviorSubject<String> subject = new BehaviorSubject<String>();
 
@@ -114,8 +116,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ),
               titleSpacing: 8.0,
               title: TitleStatus(
-                style: Theme.of(context).textTheme.headline6,
-                normalConditionWidget: Text(I18N.of(context).get("chats"),
+                style: Theme.of(context).textTheme.headline6!,
+                normalConditionWidget: Text(I18N.of(context)!.get("chats"),
                     style: Theme.of(context).textTheme.headline6,
                     key: ValueKey(randomString(10))),
               ),
@@ -176,8 +178,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
+  I18N i18n = GetIt.I.get<I18N>();
+
   Widget buildMenu(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -232,9 +235,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: [
             FutureBuilder<List<Uid>>(
-                future: _contactRepo.searchUser(query),
+                future: _contactRepo.searchUser(query!),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
-                  if (snaps.data != null && snaps.data.length > 0) {
+                  if (snaps.data != null && snaps.data!.length > 0) {
                     return Container(
                         child: Expanded(
                             child: SingleChildScrollView(
@@ -253,9 +256,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   }
                 }),
             FutureBuilder<List<Uid>>(
-                future: _botRepo.searchBotByName(query),
+                future: _botRepo.searchBotByName(query!),
                 builder: (c, bot) {
-                  if (bot.hasData && bot.data != null && bot.data.length > 0) {
+                  if (bot.hasData && bot.data != null && bot.data!.length > 0) {
                     return Column(
                       children: [
                         Text(_i18n.get("bots")),
@@ -268,11 +271,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   }
                 }),
             FutureBuilder<List<Uid>>(
-                future: _roomRepo.searchInRoomAndContacts(query),
+                future: _roomRepo.searchInRoomAndContacts(query!),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.hasData &&
                       snaps.data != null &&
-                      snaps.data.length > 0) {
+                      snaps.data!.length > 0) {
                     return Container(
                         child: Expanded(
                             child: SingleChildScrollView(
@@ -300,20 +303,22 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   ListView searchResultWidget(AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
     return ListView.builder(
-      itemCount: snaps.data.length,
+      itemCount: snaps.data!.length,
       itemBuilder: (BuildContext ctx, int index) {
         return GestureDetector(
           onTap: () {
-            _roomRepo.insertRoom(snaps.data[index].asString());
-            _rootingServices.openRoom(snaps.data[index].asString(),context:c );
+            _roomRepo.insertRoom(snaps.data![index].asString());
+            _rootingServices.openRoom(snaps.data![index].asString(),
+                context: c);
           },
-          child: _contactResultWidget(uid: snaps.data[index], context: c),
+          child: _contactResultWidget(uid: snaps.data![index], context: c),
         );
       },
     );
   }
 
-  Widget _contactResultWidget({Uid uid, BuildContext context}) {
+  Widget _contactResultWidget(
+      {required Uid uid, required BuildContext context}) {
     return Column(
       children: [
         Row(

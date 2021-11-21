@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 
 abstract class SharedDao {
-  Future<String> get(String key);
+  Future<String?> get(String key);
 
-  Stream<String> getStream(String key, {defaultValue: String});
+  Stream<String?> getStream(String key, {defaultValue: String});
 
   Future<void> put(String key, String value);
 
@@ -25,10 +25,10 @@ class SharedDaoImpl implements SharedDao {
   }
 
   @override
-  Stream<String> getStream(String key, {defaultValue: String}) async* {
+  Stream<String?> getStream(String key, {defaultValue: String}) async* {
     var box = await _open();
 
-    yield box.get(key, defaultValue: defaultValue);
+    yield box.get(key, defaultValue: defaultValue).toString();
 
     yield* box.watch(key: key).map((event) => box.get(key) ?? defaultValue);
   }
