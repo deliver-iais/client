@@ -133,14 +133,16 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
+    // var file = await http.MultipartFile.fromPath("image", filePath,
+    //     contentType: MediaType.parse(mime(filePath)));
     // try {
-    //   var request = new http.Client().post(Uri.parse(FileServiceBaseUrl + "/upload",),body: await http.MultipartFile.fromPath('file', filePath,
-    //       contentType:
-    //       MediaType.parse(mime(filePath) ?? "application/octet-stream")),headers: {"Authorization": await _authRepo.getAccessToken()} );
-    //
-    //     request.then((value) => print(value.toString()));
-    //
-    //
+    //   var request = new http.MultipartRequest(
+    //       "POST", Uri.parse(FileServiceBaseUrl+"/upload"));
+    //   request.headers["Authorization"] = await _authRepo.getAccessToken();
+    //   request.headers["Content-type"] = "multipart/form-data";
+    //   request.files.add(file);
+    //   var res = await request.send();
+    //   print(res.statusCode);
     // } catch (e) {
     //   print(e.toString());
     // }

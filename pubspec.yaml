@@ -80,7 +80,6 @@ dependencies:
       url: https://github.com/deliver-iais/pub-dart-artifactory
       ref: tags/v1.9.9
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
-  storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)

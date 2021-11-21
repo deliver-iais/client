@@ -30,6 +30,7 @@ class _SearchBoxState extends State<SearchBox> {
         style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
+        focusNode: FocusNode(canRequestFocus: false),
         controller: _controller,
         autofocus: false,
         maxLines: 1,
