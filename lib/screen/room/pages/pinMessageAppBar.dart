@@ -14,8 +14,8 @@ class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final SortedList<Message> pinMessages;
   final Function() onTap;
-  final Function() onNext;
-  final Function onPrev;
+  final Function()? onNext;
+  final Function? onPrev;
   final Function onCancel;
 
   PinMessageAppBar(
@@ -24,8 +24,8 @@ class PinMessageAppBar extends StatelessWidget {
       required this.pinMessages,
       required this.onTap,
       required this.onCancel,
-      required this.onNext,
-      required this.onPrev})
+      this.onNext,
+      this.onPrev})
       : super(key: key);
 
   I18N i18n = GetIt.I.get<I18N>();

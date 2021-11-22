@@ -106,7 +106,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 

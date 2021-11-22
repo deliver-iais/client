@@ -131,11 +131,11 @@ class _InputMessageWidget extends State<InputMessage> {
   void initState() {
     InputMessage.inputMessegeFocusNode = FocusNode(canRequestFocus: false);
     //todo
-    editMessageInput = BehaviorSubject.seeded("");
+    editMessageInput = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = (currentRoom.draft != null ? currentRoom.draft : "")!;
     editMessageInput.stream.listen((event) {
-      _controller.text = event;
+      _controller.text = event!;
     });
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
@@ -156,7 +156,7 @@ class _InputMessageWidget extends State<InputMessage> {
       else
         _showSendIcon.add(false);
 
-      _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text ?? "");
+      _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text);
 
       var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
       var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
@@ -191,8 +191,7 @@ class _InputMessageWidget extends State<InputMessage> {
               _controller.text[start] == "@" &&
               _controller.selection.start == _controller.selection.end &&
               idRegexp.hasMatch(_controller.text
-                      .substring(start + 1, _controller.selection.start) ??
-                  "")) {
+                      .substring(start + 1, _controller.selection.start))) {
             _mentionQuery.add(_controller.text
                 .substring(start + 1, _controller.selection.start));
           } else {
@@ -749,4 +748,4 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 }
 
-BehaviorSubject<String> editMessageInput = BehaviorSubject.seeded("");
+BehaviorSubject<String ?> editMessageInput = BehaviorSubject.seeded("");

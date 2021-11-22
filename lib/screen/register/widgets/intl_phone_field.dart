@@ -13,9 +13,9 @@ import './countries.dart';
 class IntlPhoneField extends StatefulWidget {
   final bool obscureText;
   final TextAlign textAlign;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool readOnly;
-  final FormFieldSetter<PhoneNumber> onSaved;
+  final FormFieldSetter<PhoneNumber>? onSaved;
   final ValueChanged<PhoneNumber> onChanged;
   final FormFieldValidator<String> validator;
   final TextInputType keyboardType;
@@ -25,22 +25,22 @@ class IntlPhoneField extends StatefulWidget {
   final int maxLength;
   final bool enabled;
   final Brightness keyboardAppearance;
-  final String initialValue;
+  final String? initialValue;
 
   /// 2 Letter ISO Code
-  final String initialCountryCode;
+  final String? initialCountryCode;
   final TextStyle? style;
   final bool showDropdownIcon;
 
-  final List<TextInputFormatter> inputFormatters;
+  final List<TextInputFormatter>? inputFormatters;
 
   IntlPhoneField({
-    required this.initialCountryCode,
+    this.initialCountryCode,
     this.obscureText = false,
     this.textAlign = TextAlign.left,
-    required this.onTap,
+    this.onTap,
     this.readOnly = false,
-    required this.initialValue,
+    this.initialValue,
     this.keyboardType = TextInputType.number,
     required this.controller,
     this.focusNode,
@@ -48,9 +48,9 @@ class IntlPhoneField extends StatefulWidget {
     required this.onSubmitted,
     required this.validator,
     required this.onChanged,
-    required this.onSaved,
+    this.onSaved,
     this.showDropdownIcon = true,
-    required this.inputFormatters,
+    this.inputFormatters,
     this.maxLength = 10,
     this.enabled = true,
     this.keyboardAppearance = Brightness.dark,
@@ -148,7 +148,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
   @override
   Widget build(BuildContext context) {
     if (widget.initialCountryCode != null &&
-        widget.initialCountryCode.isNotEmpty) {
+        widget.initialCountryCode!.isNotEmpty) {
       _selectedCountry = countries.firstWhere(
           (item) => item['dial_code'] == "+${widget.initialCountryCode}");
     }
@@ -165,7 +165,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
             onTap: () {
-              if (widget.onTap != null) widget.onTap();
+              if (widget.onTap != null) widget.onTap!();
             },
             controller: widget.controller,
             focusNode: widget.focusNode,
@@ -204,7 +204,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
               if (widget.onSaved != null && value != null)
-                widget.onSaved(PhoneNumber()
+                widget.onSaved!(PhoneNumber()
                   ..countryCode = int.parse(_selectedCountry['dial_code']!)
                   ..nationalNumber = Int64.parseInt(value));
             },

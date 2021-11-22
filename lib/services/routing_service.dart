@@ -498,7 +498,7 @@ class RoutingService {
   Stream<String> get currentRouteStream => _route.stream;
 
   bool canPerformBackButton() {
-    return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);
+    return _stack.length < 2 || (_stack.last.lockBackButton ?? false);
   }
 
   Widget backButtonLeading(BuildContext context, {Function ? back}) {

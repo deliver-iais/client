@@ -77,18 +77,28 @@ class _FormListWidgetState extends State<FormListWidget> {
             items: widget.formField.whichType() ==
                     formModel.Form_Field_Type.radioButtonList
                 ? widget.formField.radioButtonList.values
+                    .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                          value: val,
+                          child: SizedBox(
+                            width: 150,
+                            child: Text(
+                              val,
+                              overflow: TextOverflow.fade,
+                            ),
+                          ),
+                        ))
+                    .toList()
                 : widget.formField.list.values
-                    .map<DropdownMenuItem<String>>(
-                        (val) => DropdownMenuItem(
-                              value: val,
-                              child: SizedBox(
-                                width: 150,
-                                child: Text(
-                                  val,
-                                  overflow: TextOverflow.fade,
-                                ),
-                              ),
-                            ))
+                    .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                          value: val,
+                          child: SizedBox(
+                            width: 150,
+                            child: Text(
+                              val,
+                              overflow: TextOverflow.fade,
+                            ),
+                          ),
+                        ))
                     .toList()),
       ),
     );

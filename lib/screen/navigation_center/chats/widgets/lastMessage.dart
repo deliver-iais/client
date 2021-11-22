@@ -59,23 +59,23 @@ class LastMessage extends StatelessWidget {
                     textDirection: TextDirection.ltr,
                     softWrap: false,
                     text: TextSpan(children: [
-                      if (mb!.senderIsAUserOrBot && showSender)
+                      if (mb!.senderIsAUserOrBot! && showSender)
                         TextSpan(
-                            text: "${mb.sender.trim()}" +
+                            text: "${mb.sender!.trim()}" +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
                             style:
                                 Theme.of(context).primaryTextTheme.bodyText2),
-                      if (mb.typeDetails.isNotEmpty)
+                      if (mb.typeDetails!.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
                             style:
                                 Theme.of(context).primaryTextTheme.bodyText2),
-                      if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
+                      if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty)
                         TextSpan(
                             text: ", ",
                             style:
                                 Theme.of(context).primaryTextTheme.bodyText2),
-                      if (mb.text.isNotEmpty)
+                      if (mb.text!.isNotEmpty)
                         TextSpan(
                             children: buildText(mb, context),
                             style: Theme.of(context).textTheme.bodyText2),
@@ -118,7 +118,7 @@ class LastMessage extends StatelessWidget {
 
   List<TextSpan> buildText(MessageBrief mb, BuildContext context) =>
       extractBlocks(
-              mb.text
+              mb.text!
                   .split("\n")
                   .map((e) => e.trim())
                   .where((e) => e.trim().isNotEmpty)

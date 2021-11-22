@@ -31,7 +31,6 @@ class _NewContactState extends State<NewContact> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(context),
@@ -100,8 +99,9 @@ class _NewContactState extends State<NewContact> {
               height: 10,
             ),
             IntlPhoneField(
+              controller: TextEditingController(),
               validator: (value) =>
-                  value!.length != 10 || (value.length > 0 && value![0] == '0')
+                  value!.length != 10 || (value.length > 0 && value[0] == '0')
                       ? _i18n.get("invalid_mobile_number")
                       : null,
               style: Theme.of(context).textTheme.bodyText1!,

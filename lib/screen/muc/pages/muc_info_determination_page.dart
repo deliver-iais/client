@@ -249,7 +249,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               icon: Icon(Icons.check, color: Colors.white),
                               onPressed: () async {
                                 bool res =
-                                    mucNameKey?.currentState?.validate() ??
+                                    mucNameKey.currentState?.validate() ??
                                         false;
                                 if (res) {
                                   setState(() {
@@ -265,7 +265,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                         .asUid());
                                   }
                                   if (widget.isChannel) {
-                                    bool result = _channelIdKey?.currentState
+                                    bool result = _channelIdKey.currentState
                                             ?.validate() ??
                                         false;
                                     if (result) {

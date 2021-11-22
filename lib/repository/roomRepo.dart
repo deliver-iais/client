@@ -152,7 +152,7 @@ class RoomRepo {
     String? username = await getIdByUid(uid);
     roomNameCache.set(uid.asString(), username!);
     _uidIdNameDao.update(uid.asString(), id: username);
-    return username ?? "Unknown";
+    return username;
   }
 
   Future<String?> ?getId(Uid uid) async {

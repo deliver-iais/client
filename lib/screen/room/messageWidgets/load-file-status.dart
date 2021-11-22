@@ -13,8 +13,8 @@ class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
   final int messageId;
-  final String messagePacketId; // TODO Needs to be refactored
-  final String roomUid;
+  final String? messagePacketId; // TODO Needs to be refactored
+  final String? roomUid;
   final Function onPressed;
 
   const LoadFileStatus(
@@ -22,8 +22,8 @@ class LoadFileStatus extends StatefulWidget {
       required this.fileId,
       required this.fileName,
       required this.messageId,
-      required this.messagePacketId,
-      required this.roomUid,
+      this.messagePacketId,
+      this.roomUid,
       required this.onPressed})
       : super(key: key);
 
@@ -40,7 +40,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage?>(
-        stream: _messageRepo.watchPendingMessage(widget.messagePacketId),
+        stream: _messageRepo.watchPendingMessage(widget.messagePacketId!),
         builder: (context, pendingMessage) {
           isPendingMes = pendingMessage.hasData && pendingMessage.data != null;
           return Row(

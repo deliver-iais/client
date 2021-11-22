@@ -278,7 +278,7 @@ class MucRepo {
   changeGroupMemberRole(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
-      ..role = getRole(groupMember.role);
+      ..role = getRole(groupMember.role!);
     bool result =
         await _mucServices.changeGroupRole(member, groupMember.mucUid.asUid());
     if (result) {
@@ -289,7 +289,7 @@ class MucRepo {
   changeChannelMemberRole(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
-      ..role = getRole(channelMember.role);
+      ..role = getRole(channelMember.role!);
     var result = await _mucServices.changeCahnnelRole(
         member, channelMember.mucUid.asUid());
     if (result) {
@@ -331,7 +331,7 @@ class MucRepo {
     for (Member member in groupMember) {
       members.add(MucPro.Member()
         ..uid = member.memberUid.asUid()
-        ..role = getRole(member.role));
+        ..role = getRole(member.role!));
     }
 
     bool result = await _mucServices.kickGroupMembers(
@@ -347,7 +347,7 @@ class MucRepo {
     for (Member member in channelMember) {
       members.add(MucPro.Member()
         ..uid = member.memberUid.asUid()
-        ..role = getRole(member.role));
+        ..role = getRole(member.role!));
     }
     var result = await _mucServices.kickChannelMembers(
         members, channelMember[0].mucUid.asUid());
@@ -359,7 +359,7 @@ class MucRepo {
   banGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
-      ..role = getRole(groupMember.role);
+      ..role = getRole(groupMember.role!);
     if (await _mucServices
         .kickGroupMembers([member], groupMember.mucUid.asUid())) {
       if (await _mucServices.banGroupMember(
@@ -372,7 +372,7 @@ class MucRepo {
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
-      ..role = getRole(channelMember.role);
+      ..role = getRole(channelMember.role!);
     if (await _mucServices
         .kickChannelMembers([member], channelMember.mucUid.asUid())) {
       if (await _mucServices.banChannelMember(
@@ -385,7 +385,7 @@ class MucRepo {
   unBanGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
-      ..role = getRole(groupMember.role);
+      ..role = getRole(groupMember.role!);
     await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
     //todo change databse
   }
@@ -393,7 +393,7 @@ class MucRepo {
   unBanChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
-      ..role = getRole(channelMember.role);
+      ..role = getRole(channelMember.role!);
     await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid());
     //todo change database
   }
@@ -534,7 +534,7 @@ class MucRepo {
   Future<List<UidIdName?>> getFilteredMember(String roomUid,
       {String? query}) async {
     // TODO add query term in this fetching method
-    return Stream.fromIterable(await getAllMembers(roomUid)!)
+    return Stream.fromIterable(await getAllMembers(roomUid))
         .asyncMap((member) async {
           if (_authRepo.isCurrentUser(member!.memberUid)) {
             var a = await _accountRepo.getAccount();

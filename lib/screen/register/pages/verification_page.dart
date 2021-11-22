@@ -31,7 +31,7 @@ class _VerificationPageState extends State<VerificationPage> {
   I18N _i18n = GetIt.I.get<I18N>();
 
   _sendVerificationCode() {
-    if ((_verificationCode.length ?? 0) < 5) {
+    if ((_verificationCode.length) < 5) {
       setState(() => _showError = true);
       return;
     }

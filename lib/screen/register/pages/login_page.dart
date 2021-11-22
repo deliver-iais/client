@@ -97,9 +97,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    loginToken?.close();
-    checkTimer?.cancel();
-    tokenGeneratorTimer?.cancel();
+    loginToken.close();
+    checkTimer.cancel();
+    tokenGeneratorTimer.cancel();
     super.dispose();
   }
 
@@ -109,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
       _logger.e("logis as test user ");
       _loginASTestUser();
     } else {
-      var isValidated = _formKey?.currentState?.validate() ?? false;
+      var isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
         setState(() {
           _isLoading = true;
@@ -244,7 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       IntlPhoneField(
                         initialCountryCode:
-                            phoneNumber.countryCode.toString() ?? "98",
+                            phoneNumber.countryCode.toString(),
                         controller: controller,
                         validator: (value) => value!.length != 10 ||
                                 (value.length > 0 && value[0] == '0')

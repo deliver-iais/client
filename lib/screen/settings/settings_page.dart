@@ -259,12 +259,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             return isDeveloperMode
-                                ? FutureBuilder<String>(
+                                ? FutureBuilder<String?>(
                                     future: SmsAutoFill().getAppSignature,
                                     builder: (c, sms) {
                                       return Text(
                                         sms.data ??
-                                            snapshot.data!.version ??
+                                            snapshot.data.version ??
                                             VERSION,
                                       );
                                     })

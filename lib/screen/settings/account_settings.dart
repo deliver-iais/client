@@ -79,7 +79,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     subject.stream
         .debounceTime(Duration(milliseconds: 250))
         .listen((username) async {
-      _usernameFormKey?.currentState?.validate();
+      _usernameFormKey.currentState?.validate();
       if (_userNameCorrect) {
         if (_lastUserName != username) {
           bool validUsername = await _accountRepo.checkUserName(username);
@@ -403,9 +403,9 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   checkAndSend() async {
-    bool checkUserName = _usernameFormKey?.currentState?.validate() ?? false;
+    bool checkUserName = _usernameFormKey.currentState?.validate() ?? false;
     if (checkUserName) {
-      bool isValidated = _formKey?.currentState?.validate() ?? false;
+      bool isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
         if (usernameIsAvailable) {
           bool setPrivateInfo = await _accountRepo.setAccountDetails(

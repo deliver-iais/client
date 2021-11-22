@@ -4,17 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Box extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry margin;
+  final Widget? child;
+  final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry largePageMargin;
-  final BorderRadius borderRadius;
+  final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
   Box({
-    required this.child,
-    required this.margin,
+    this.child,
+    this.margin,
     this.largePageMargin = const EdgeInsets.symmetric(horizontal: 24),
-    required this.borderRadius,
+    this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
   });
 
@@ -36,16 +36,16 @@ class Box extends StatelessWidget {
 
 class BoxList extends StatelessWidget {
   final List<Widget> children;
-  final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry largePagePadding;
-  final BorderRadius borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? largePagePadding;
+  final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
   BoxList({
     required this.children,
-    required this.padding,
+    this.padding,
     this.largePagePadding = const EdgeInsets.symmetric(horizontal: 24),
-    required this.borderRadius,
+    this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
   });
 
@@ -53,7 +53,7 @@ class BoxList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Box(
         margin: padding,
-        largePageMargin: largePagePadding,
+        largePageMargin: largePagePadding!,
         borderRadius: borderRadius,
         largePageBorderRadius: largePageBorderRadius,
         child: Column(children: children));

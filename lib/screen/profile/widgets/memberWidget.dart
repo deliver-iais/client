@@ -212,7 +212,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
     for (Member? member in members) {
       if (member != null) if (member.memberUid
           .contains(_authRepo.currentUserUid.asString())) {
-        _myRoleInThisRoom = member.role;
+        _myRoleInThisRoom = member.role!;
       }
     }
   }

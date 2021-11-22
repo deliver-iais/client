@@ -4,6 +4,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/settings/account_settings.dart';
 
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
@@ -82,8 +83,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (setUserName) {
       AutoRouter.of(context).replace(HomePageRoute());
     } else {
-      AutoRouter.of(context)
-          .popAndPush(AccountSettingsRoute(forceToSetUsernameAndName: true));
+      // Navigator.push(AccountSettings(forceToSetUsernameAndName: true,));
+      // AutoRouter.of(context)
+      //     .popAndPush(AccountSettingsRoute(forceToSetUsernameAndName: true));
     }
   }
 

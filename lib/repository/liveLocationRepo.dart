@@ -81,7 +81,7 @@ class LiveLocationRepo {
   void _updateLiveLocationInDb(
       String uuid, int duration, pb.Location location) async {
     LiveLocation? liveL = await _liveLocationDao.getLiveLocation(uuid);
-    List<pb.Location> locations = liveL!.locations ?? [];
+    List<pb.Location> locations = liveL!.locations;
     locations.add(location);
     _liveLocationDao.saveLiveLocation(LiveLocation(
         uuid: uuid,

@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
   final File videoFile;
-  final pb.File video;
+  final pb.File? video;
   final double duration;
   final bool showSlider;
 
@@ -18,7 +18,7 @@ class VideoUi extends StatefulWidget {
       required this.videoFile,
       required this.duration,
       required this.showSlider,
-      required this.video})
+      this.video})
       : super(key: key);
 
   @override
@@ -54,8 +54,9 @@ class _VideoUiState extends State<VideoUi> {
                 return new VideoPlayerWidget(
                   duration: widget.duration,
                   videoFile: widget.videoFile,
-                  video: widget.video,
-                  videoPlayerController: videoPlayerService.videoPlayerController,
+                  video: widget.video!,
+                  videoPlayerController:
+                      videoPlayerService.videoPlayerController,
                 );
               }));
             }
@@ -90,7 +91,7 @@ class _VideoUiState extends State<VideoUi> {
                     videoFile: widget.videoFile,
                     videoPlayerController:
                         videoPlayerService.videoPlayerController,
-                    video: widget.video,
+                    video: widget.video!,
                   );
                 }));
 

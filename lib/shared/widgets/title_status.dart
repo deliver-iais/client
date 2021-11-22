@@ -18,12 +18,12 @@ import 'package:random_string/random_string.dart';
 class TitleStatus extends StatefulWidget {
   final TextStyle style;
   final Widget normalConditionWidget;
-  final Uid currentRoomUid;
+  final Uid? currentRoomUid;
 
   TitleStatus(
       {required this.style,
       this.normalConditionWidget = const SizedBox.shrink(),
-      required this.currentRoomUid});
+      this.currentRoomUid});
 
   @override
   _TitleStatusState createState() => _TitleStatusState();
@@ -39,9 +39,9 @@ class _TitleStatusState extends State<TitleStatus> {
   @override
   void initState() {
     if (widget.currentRoomUid != null) {
-      if (widget.currentRoomUid.category == Categories.USER)
-        _lastActivityRepo.updateLastActivity(widget.currentRoomUid);
-      _roomRepo.initActivity(widget.currentRoomUid.node);
+      if (widget.currentRoomUid!.category == Categories.USER)
+        _lastActivityRepo.updateLastActivity(widget.currentRoomUid!);
+      _roomRepo.initActivity(widget.currentRoomUid!.node);
     }
     super.initState();
   }
@@ -115,7 +115,7 @@ class _TitleStatusState extends State<TitleStatus> {
   Widget activityWidget() {
     return StreamBuilder<Activity>(
         key: ValueKey(randomString(10)),
-        stream: _roomRepo.activityObject[widget.currentRoomUid.node],
+        stream: _roomRepo.activityObject[widget.currentRoomUid!.node],
         builder: (c, activity) {
           if (activity.hasData && activity.data != null) {
             if (activity.data!.typeOfActivity == ActivityType.NO_ACTIVITY) {
@@ -123,7 +123,7 @@ class _TitleStatusState extends State<TitleStatus> {
             } else
               return ActivityStatus(
                 activity: activity.data!,
-                roomUid: widget.currentRoomUid,
+                roomUid: widget.currentRoomUid!,
                 style: widget.style,
               );
           } else {
@@ -133,9 +133,9 @@ class _TitleStatusState extends State<TitleStatus> {
   }
 
   Widget normalActivity() {
-    if (widget.currentRoomUid.category == Categories.USER) {
+    if (widget.currentRoomUid!.category == Categories.USER) {
       return StreamBuilder<LastActivity?>(
-          stream: _lastActivityRepo.watch(widget.currentRoomUid.asString()),
+          stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
           builder: (c, userInfo) {
             if (userInfo.hasData &&
                 userInfo.data != null &&

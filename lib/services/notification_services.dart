@@ -122,7 +122,7 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
         _windowsNotificationServices.show(toast);
-        _windowsNotificationServices.stream?.listen((event) {
+        _windowsNotificationServices.stream.listen((event) {
           if (event is ToastActivated) {
             if (lastAvatar.uid != null)
               _routingService.openRoom(lastAvatar.uid);
@@ -138,7 +138,7 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
-          _windowsNotificationServices.stream?.listen((event) {
+          _windowsNotificationServices.stream.listen((event) {
             if (event is ToastActivated) {
               if (lastAvatar!.uid != null)
                 _routingService.openRoom(

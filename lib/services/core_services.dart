@@ -277,8 +277,7 @@ class CoreServices {
     }
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
-    var time = messageDeliveryAck.time.toInt() ??
-        DateTime.now().millisecondsSinceEpoch;
+    var time = messageDeliveryAck.time.toInt();
 
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {

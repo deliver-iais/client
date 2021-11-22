@@ -685,7 +685,7 @@ class _ProfilePageState extends State<ProfilePage>
     var nameFormKey = GlobalKey<FormState>();
     String _currentName = "";
     String _currentId = "";
-    String mucName = "";
+    String ? mucName ;
     String mucInfo = "";
     String channelId = "";
     BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
