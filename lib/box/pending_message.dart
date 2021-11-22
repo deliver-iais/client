@@ -40,14 +40,14 @@ class PendingMessage {
   PendingMessage copyWith(
           {String? roomUid,
           String? packetId,
-          required Message msg,
+          Message? msg,
           bool? failed,
           int? retries,
           SendingStatus? status}) =>
       PendingMessage(
         roomUid: roomUid ?? this.roomUid,
         packetId: packetId ?? this.packetId,
-        msg: msg,
+        msg: msg ?? this.msg,
         failed: failed ?? this.failed,
         status: status ?? this.status,
       );

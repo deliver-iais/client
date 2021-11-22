@@ -9,12 +9,12 @@ class BotStartWidget extends StatelessWidget {
   final Uid botUid;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  BotStartWidget({required this.botUid});
 
-  BotStartWidget({this.botUid});
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Container(
       height: 45,
       color: Theme.of(context).primaryColor,

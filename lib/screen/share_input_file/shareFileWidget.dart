@@ -10,11 +10,15 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToShareFile extends StatelessWidget {
   final Uid uid;
-  final List<String> sharedFilePath;
-  final String sharedText;
+  final List<String>? sharedFilePath;
+  final String? sharedText;
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  ChatItemToShareFile({Key key, this.uid, this.sharedText, this.sharedFilePath})
+  ChatItemToShareFile(
+      {Key? key,
+      required this.uid,
+        this.sharedText,
+      this.sharedFilePath})
       : super(key: key);
 
   @override
@@ -39,7 +43,7 @@ class ChatItemToShareFile extends StatelessWidget {
                     builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                       if (snaps.hasData && snaps.data != null) {
                         return Text(
-                          snaps.data,
+                          snaps.data!,
                           style: TextStyle(
                             color:
                                 ExtraTheme.of(context).chatOrContactItemDetails,
@@ -58,7 +62,6 @@ class ChatItemToShareFile extends StatelessWidget {
                       }
                     }),
                 onTap: () {
-
                   AutoRouter.of(context).push(RoomPageRoute(
                       inputFilePath: sharedFilePath, roomId: uid.asString()));
                 },

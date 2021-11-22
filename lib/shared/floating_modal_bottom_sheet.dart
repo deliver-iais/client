@@ -7,9 +7,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class FloatingModal extends StatelessWidget {
   final Widget child;
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
-  const FloatingModal({Key key, this.child, this.backgroundColor})
+  const FloatingModal({Key? key, required this.child, this.backgroundColor})
       : super(key: key);
 
   @override
@@ -32,12 +32,11 @@ class FloatingModal extends StatelessWidget {
   }
 }
 
-Future<T> showFloatingModalBottomSheet<T>({
-  BuildContext context,
-  WidgetBuilder builder,
-  Color backgroundColor,
-  bool isDismissible = true
-}) async {
+Future<T> showFloatingModalBottomSheet<T>(
+    {required BuildContext context,
+    required WidgetBuilder builder,
+    Color? backgroundColor,
+    bool isDismissible = true}) async {
   final result = await showCustomModalBottomSheet(
       context: context,
       builder: builder,
@@ -76,8 +75,7 @@ void showQrCode(BuildContext context, String url) {
               padding: const EdgeInsets.only(top: 10.0),
               child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child:
-                      Text(I18N.of(context).get("skip"))),
+                  child: Text(I18N.of(context)!.get("skip"))),
             ),
           ],
         ),

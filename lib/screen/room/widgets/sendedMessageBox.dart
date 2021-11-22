@@ -11,15 +11,15 @@ class SentMessageBox extends StatelessWidget {
   final Function scrollToMessage;
   final bool isSeen;
   final Function omUsernameClick;
-  final String pattern;
+  final String? pattern;
 
   const SentMessageBox(
-      {Key key,
-      this.message,
-      this.isSeen,
-      this.scrollToMessage,
+      {Key? key,
+      required this.message,
+      required this.isSeen,
+      required this.scrollToMessage,
       this.pattern,
-      this.omUsernameClick})
+      required this.omUsernameClick})
       : super(key: key);
 
   @override

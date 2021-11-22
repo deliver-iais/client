@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 
 class OnEditMessageWidget extends StatelessWidget {
   final Message message;
-  final Function resetRoomPageDetails;
+  final Function() resetRoomPageDetails;
 
-  const OnEditMessageWidget({Key key, this.message, this.resetRoomPageDetails})
+  const OnEditMessageWidget(
+      {Key? key, required this.message, required this.resetRoomPageDetails})
       : super(key: key);
 
   @override

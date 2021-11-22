@@ -13,7 +13,7 @@ class DragDropWidget extends StatelessWidget {
   final Widget child;
   final String roomUid;
 
-  DragDropWidget({this.child, this.roomUid});
+  DragDropWidget({required this.child, required this.roomUid});
 
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();

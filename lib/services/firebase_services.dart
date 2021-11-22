@@ -9,7 +9,6 @@ import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/core_services.dart';
 
-
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
@@ -32,7 +31,7 @@ class FireBaseServices {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
-  FirebaseMessaging _firebaseMessaging;
+  late FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
     if (!isDesktop()) {
@@ -47,11 +46,11 @@ class FireBaseServices {
     _firebaseMessaging.deleteToken();
   }
 
-  _sendFireBaseToken(String ? fireBaseToken) async {
+  _sendFireBaseToken(String? fireBaseToken) async {
     if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices
-            .registration(RegistrationReq()..tokenId = fireBaseToken);
+            .registration(RegistrationReq()..tokenId = fireBaseToken!);
         _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
       } catch (e) {
         _logger.e(e);
@@ -94,7 +93,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
-    String roomName = message.data['title'];
+    String? roomName = message.data['title'];
     Uid roomUid = getRoomUid(_authRepo, msg);
 
     try {
@@ -112,9 +111,9 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     } else if (msg.to.category == Categories.USER) {
       var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
       if (uidName != null)
-        roomName = uidName.name != null && uidName.name.isNotEmpty
+        roomName = uidName.name != null && uidName.name!.isNotEmpty
             ? uidName.name
-            : uidName.id != null && uidName.id.isNotEmpty
+            : uidName.id != null && uidName.id!.isNotEmpty
                 ? uidName.id
                 : msg.from.isGroup()
                     ? "Group"
@@ -123,6 +122,6 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
                         : "UnKnown";
     }
 
-    _notificationServices.showNotification(msg, roomName: roomName);
+    _notificationServices.showNotification(msg, roomName: roomName!);
   }
 }

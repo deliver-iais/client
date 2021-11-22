@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/muc.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -63,15 +64,15 @@ class CoreServices {
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
 
-  Timer _connectionTimer;
+  late Timer _connectionTimer;
   var _lastPongTime = 0;
 
   @visibleForTesting
   bool responseChecked = false;
 
-  StreamController<ClientPacket> _clientPacketStream;
+  late StreamController<ClientPacket> _clientPacketStream;
 
-  ResponseStream<ServerPacket> _responseStream;
+  late ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
@@ -195,7 +196,9 @@ class CoreServices {
   Future<void> checkPendingStatus(String packetId) async {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
-      await _messageDao.savePendingMessage(pm.copyWith(failed: true));
+      await _messageDao.savePendingMessage(pm.copyWith(
+        failed: true,
+      ));
       if (_connectionStatus.value == ConnectionStatus.Connected)
         connectionStatus.add(ConnectionStatus.Connected);
     }
@@ -234,7 +237,7 @@ class CoreServices {
   }
 
   _saveSeen(ProtocolSeen.Seen seen) {
-    Uid roomId;
+    Uid? roomId;
     switch (seen.to.category) {
       case Categories.USER:
         seen.to.asString() == _authRepo.currentUserUid.asString()
@@ -251,11 +254,11 @@ class CoreServices {
     }
     if (_authRepo.isCurrentUser(seen.from.asString())) {
       _seenDao.saveMySeen(
-        Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
+        Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
       );
     } else {
       _seenDao.saveOthersSeen(
-        Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
+        Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
       );
       updateLastActivityTime(
           _lastActivityDao, seen.from, DateTime.now().millisecondsSinceEpoch);
@@ -306,13 +309,15 @@ class CoreServices {
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
-                var muc = await _mucDao.get(roomUid.asString());
-                var pinMessages = muc.pinMessagesIdList;
-                pinMessages.add(message
+                Muc? muc = await _mucDao.get(roomUid.asString());
+                var pinMessages = muc!.pinMessagesIdList;
+                pinMessages!.add(message
                     .persistEvent.mucSpecificPersistentEvent.messageId
                     .toInt());
                 _mucDao.update(muc.copyWith(
-                    pinMessagesIdList: pinMessages, showPinMessage: true));
+                    uid: muc.uid,
+                    pinMessagesIdList: pinMessages,
+                    showPinMessage: true));
                 break;
               }
 
@@ -350,7 +355,6 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
               _avatarRepo.fetchAvatar(message.from, true);
               break;
-
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
@@ -370,7 +374,7 @@ class CoreServices {
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
-              _messageDao.saveMessage(mes..json = "{}");
+              _messageDao.saveMessage(mes!..json = "{}");
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
               break;
@@ -384,7 +388,7 @@ class CoreServices {
           break;
       }
     }
-      saveMessage(message, roomUid);
+    saveMessage(message, roomUid);
 
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
@@ -405,7 +409,7 @@ class CoreServices {
     var msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
-    if (room.lastMessageId != id)
+    if (room!.lastMessageId != id)
       _roomDao.updateRoom(
           room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
     else
@@ -446,7 +450,7 @@ class CoreServices {
       Room(
           uid: roomUid.asString(),
           lastMessage: msg,
-          lastMessageId: msg.id,
+          lastMessageId: msg!.id,
           mentioned: isMention,
           deleted: false,
           lastUpdateTime: msg.time),
@@ -490,7 +494,7 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
 }
 
 // TODO, refactor this!!!, we don't need this be functional
-Future<DB.Message> saveMessageInMessagesDB(
+Future<DB.Message ? > saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
   try {
     final msg = extractMessage(authRepo, message);
@@ -498,6 +502,6 @@ Future<DB.Message> saveMessageInMessagesDB(
     return msg;
   } catch (e) {
     print(e.toString());
-    return null;
+    null;
   }
 }

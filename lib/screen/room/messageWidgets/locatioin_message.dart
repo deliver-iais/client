@@ -15,11 +15,12 @@ class LocationMessageWidget extends StatelessWidget {
   final bool isSender;
   final bool isSeen;
 
-  LocationMessageWidget({this.message, this.isSeen, this.isSender});
+  LocationMessageWidget(
+      {required this.message, required this.isSeen, required this.isSender});
 
   @override
   Widget build(BuildContext context) {
-    Location location = message.json.toLocation();
+    Location location = message.json!.toLocation();
     return Container(
       child: Stack(
         children: [

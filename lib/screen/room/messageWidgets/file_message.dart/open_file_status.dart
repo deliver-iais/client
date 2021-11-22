@@ -10,7 +10,7 @@ import 'package:open_file/open_file.dart';
 class OpenFileStatus extends StatelessWidget {
   final filePb.File file;
 
-  const OpenFileStatus({Key key, this.file}) : super(key: key);
+  const OpenFileStatus({Key? key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class OpenFileStatus extends StatelessWidget {
         shape: BoxShape.circle,
         color: ExtraTheme.of(context).circularFileStatus,
       ),
-      child: FutureBuilder<File>(
+      child: FutureBuilder<File?>(
           future: fileRepo.getFile(file.uuid, file.name),
           builder: (context, snapshot) {
             return IconButton(
@@ -36,7 +36,7 @@ class OpenFileStatus extends StatelessWidget {
               ),
               onPressed: () {
                 if (snapshot.hasData) {
-                  OpenFile.open(snapshot.data.path);
+                  OpenFile.open(snapshot.data!.path);
                 }
               },
             );

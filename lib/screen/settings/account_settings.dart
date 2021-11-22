@@ -23,7 +23,7 @@ import 'package:settings_ui/settings_ui.dart';
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
 
-  AccountSettings({Key key, this.forceToSetUsernameAndName = true})
+  AccountSettings({Key? key, this.forceToSetUsernameAndName = true})
       : super(key: key);
 
   @override
@@ -42,28 +42,28 @@ class _AccountSettingsState extends State<AccountSettings> {
   String _email = "";
   String _lastName = "";
   String _firstName = "";
-  String _lastUserName;
-  Account _account;
+  String _lastUserName ="";
+  late Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
   bool usernameIsAvailable = true;
   bool _userNameCorrect = false;
 
   bool _uploadNewAvatar = false;
-  String _newAvatarPath;
+  String _newAvatarPath="";
 
   attachFile() async {
-    String path;
+    String ? path;
     if (isDesktop()) {
-      final result = await FilePicker.platform.pickFiles(type: FileType.media,allowMultiple: false);
-      path = result.files.first.path;
+      FilePickerResult ? result = await FilePicker.platform.pickFiles(type: FileType.media,allowMultiple: false);
+      path = result!.files.first.path;
     } else {
-      var result = await ImagePicker().getImage(source: ImageSource.gallery);
-      path = result.path;
+      var result = await ImagePicker().pickImage(source: ImageSource.gallery);
+      path = result!.path;
     }
     if (path != null) {
       setState(() {
-        _newAvatarPath = path;
+        _newAvatarPath = path!;
         _uploadNewAvatar = true;
       });
       await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
@@ -117,7 +117,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                     _i18n.get("should_set_username_and_name"),
                     style: Theme.of(context)
                         .textTheme
-                        .headline6
+                        .headline6!
                         .copyWith(fontSize: 10),
                   )
               ]),
@@ -134,8 +134,8 @@ class _AccountSettingsState extends State<AccountSettings> {
               if (!snapshot.hasData || snapshot.data == null) {
                 return SizedBox.shrink();
               }
-              _account = snapshot.data;
-              _lastUserName = snapshot.data.userName;
+              _account = snapshot.data!;
+              _lastUserName = snapshot.data!.userName!;
               return ListView(
                 children: [
                   SettingsSection(title: _i18n.get("avatar"), tiles: [
@@ -173,7 +173,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               width: 130,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.grey[500].withOpacity(0.4),
+                                color: Colors.grey[500]!.withOpacity(0.4),
                               ),
                               child: IconButton(
                                 color: Colors.white,
@@ -205,7 +205,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       style: TextStyle(
                                           color:
                                               ExtraTheme.of(context).textField),
-                                      initialValue: snapshot.data.userName,
+                                      initialValue: snapshot.data!.userName,
                                       textInputAction: TextInputAction.send,
                                       onChanged: (str) {
                                         setState(() {
@@ -254,7 +254,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   height: 20,
                                 ),
                                 TextFormField(
-                                  initialValue: snapshot.data.firstName ?? "",
+                                  initialValue: snapshot.data!.firstName ?? "",
                                   minLines: 1,
                                   style: TextStyle(
                                       color: ExtraTheme.of(context).textField),
@@ -272,7 +272,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   height: 20,
                                 ),
                                 TextFormField(
-                                    initialValue: snapshot.data.lastName ?? "",
+                                    initialValue: snapshot.data!.lastName ?? "",
                                     minLines: 1,
                                     style: TextStyle(
                                         color:
@@ -289,7 +289,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   height: 20,
                                 ),
                                 TextFormField(
-                                    initialValue: snapshot.data.email ?? "",
+                                    initialValue: snapshot.data!.email ?? "",
                                     minLines: 1,
                                     style: TextStyle(
                                         color:
@@ -357,7 +357,9 @@ class _AccountSettingsState extends State<AccountSettings> {
         labelStyle: TextStyle(color: Colors.blue));
   }
 
-  String validateFirstName(String value) {
+  String ? validateFirstName(String ? value) {
+    if(value ==null)
+      return null;
     if (value.isEmpty) {
       return _i18n.get("firstname_not_empty");
     } else {
@@ -365,10 +367,10 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-  String validateUsername(String value) {
-    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = new RegExp(pattern);
-    if (value.isEmpty) {
+  String? validateUsername(String? value) {
+    Pattern? pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    RegExp ? regex = new RegExp(pattern.toString());
+    if (value!.isEmpty) {
       setState(() {
         _userNameCorrect = false;
         usernameIsAvailable = true;
@@ -388,11 +390,11 @@ class _AccountSettingsState extends State<AccountSettings> {
     return null;
   }
 
-  String validateEmail(String value) {
+  String ? validateEmail(String ? value) {
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (value.isEmpty) {
+    RegExp regex = new RegExp(pattern.toString());
+    if (value!.isEmpty) {
       return null;
     } else if (!regex.hasMatch(value)) {
       return _i18n.get("email_not_valid");

@@ -395,14 +395,14 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendMultipleFilesMessages(Uid room, List<String> filesPath,
+  sendMultipleFilesMessages(Uid room, List<String?>? filesPath,
       {String? caption, int? replyToId}) async {
-    for (var path in filesPath) {
+    for (var path in filesPath!) {
       if (filesPath.last == path) {
-        await sendFileMessage(room, path,
+        await sendFileMessage(room, path!,
             caption: caption!, replyToId: replyToId!);
       } else {
-        await sendFileMessage(room, path, caption: "", replyToId: replyToId!);
+        await sendFileMessage(room, path!, caption: "", replyToId: replyToId!);
       }
     }
   }
@@ -740,8 +740,9 @@ class MessageRepo {
       } catch (e) {
         _logger.e(e);
       }
-      msgList
-          .add(await saveMessageInMessagesDB(_authRepo, _messageDao, message));
+      Message? m =
+          await saveMessageInMessagesDB(_authRepo, _messageDao, message);
+      msgList.add(m!);
     }
     return msgList;
   }
@@ -779,7 +780,7 @@ class MessageRepo {
 
   void sendFormResultMessage(
       String botUid, Map<String, String> formResultMap, int formMessageId,
-      {required String forwardFromAsString}) async {
+      {String? forwardFromAsString}) async {
     FormResult formResult = FormResult();
     for (var fileId in formResultMap.keys) {
       formResult.values[fileId] = formResultMap[fileId]!;

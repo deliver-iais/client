@@ -7,7 +7,8 @@ class TimeProgressIndicator extends StatefulWidget {
   final String audioUuid;
   final double duration;
 
-  const TimeProgressIndicator({Key key, this.audioUuid, this.duration})
+  const TimeProgressIndicator(
+      {Key? key, required this.audioUuid, required this.duration})
       : super(key: key);
 
   @override
@@ -16,7 +17,7 @@ class TimeProgressIndicator extends StatefulWidget {
 
 class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
-  Duration currentPos;
+  late Duration currentPos;
 
   @override
   Widget build(BuildContext context) {

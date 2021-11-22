@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen>
   final _shakeController = ShakeWidgetController();
   final _focusNode = FocusNode();
 
-  AnimationController _animationController;
+  late AnimationController _animationController;
   int _attempts = 0;
   bool _isLocked = false;
 
@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
-    AutoRouter.of(context).replace(HomePageRoute());
+      AutoRouter.of(context).replace(HomePageRoute());
     } else {
       AutoRouter.of(context)
           .popAndPush(AccountSettingsRoute(forceToSetUsernameAndName: true));

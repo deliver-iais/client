@@ -10,39 +10,48 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class ShareInputFile extends StatelessWidget{
+class ShareInputFile extends StatelessWidget {
   final List<String> inputSharedFilePath;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
 
-  ShareInputFile({this.inputSharedFilePath,Key key}):super(key: key);
+  ShareInputFile({required this.inputSharedFilePath, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
+    I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
-
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(title:Text(i18n.get("send_To"),style: TextStyle(color: ExtraTheme.of(context).textField),) ,leading: _routingServices.backButtonLeading(context),),
+      appBar: AppBar(
+        title: Text(
+          i18n.get("send_To"),
+          style: TextStyle(color: ExtraTheme.of(context).textField),
+        ),
+        leading: _routingServices.backButtonLeading(context),
+      ),
       body: Column(
         children: <Widget>[
-          SearchBox(),
+          SearchBox(
+            onChange: (f) {},
+          ),
           Expanded(
             child: FutureBuilder<List<Uid>>(
               future: _roomRepo.getAllRooms(),
               builder: (context, snapshot) {
-                if(snapshot.hasData  && snapshot.data !=null && snapshot.data.length>0){
-
-                    return ListView.builder(
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        return ChatItemToShareFile(uid: snapshot.data[index],sharedFilePath: inputSharedFilePath,);
-
-
-                      },
-                    );
-
-                } else{
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data!.length > 0) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (BuildContext ctx, int index) {
+                      return ChatItemToShareFile(
+                        uid: snapshot.data![index],
+                        sharedFilePath: inputSharedFilePath,
+                      );
+                    },
+                  );
+                } else {
                   return SizedBox.shrink();
                 }
               },
@@ -51,7 +60,5 @@ class ShareInputFile extends StatelessWidget{
         ],
       ),
     );
-
   }
-
 }

@@ -18,7 +18,7 @@ class StickerMessageWidget extends StatefulWidget {
 
 class _StickerMessageWidgetState extends State<StickerMessageWidget> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  I18N i18n;
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

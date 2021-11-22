@@ -13,17 +13,19 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
   final Widget inputMessage;
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  MuteAndUnMuteRoomWidget({Key key, this.roomId, this.inputMessage})
+  MuteAndUnMuteRoomWidget(
+      {Key? key, required this.roomId, required this.inputMessage})
       : super(key: key);
+
+  var _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    var _i18n = I18N.of(context);
     return FutureBuilder<bool>(
         future: _mucRepo.isMucAdminOrOwner(
             _authRepo.currentUserUid.asString(), this.roomId),
         builder: (c, s) {
-          if (s.hasData && s.data) {
+          if (s.hasData && s.data!) {
             return this.inputMessage;
           } else {
             return Container(
@@ -35,7 +37,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                   stream: _roomRepo.watchIsRoomMuted(roomId),
                   builder: (BuildContext context, AsyncSnapshot<bool> isMuted) {
                     if (isMuted.data != null) {
-                      if (isMuted.data) {
+                      if (isMuted.data!) {
                         return GestureDetector(
                           child: Text(
                             _i18n.get("un_mute"),

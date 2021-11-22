@@ -8,15 +8,15 @@ import 'package:get_it/get_it.dart';
 
 class BotCommands extends StatefulWidget {
   final Uid botUid;
-  final String query;
+  final String? query;
   final Function onCommandClick;
   final int botCommandSelectedIndex;
 
   BotCommands(
-      {this.botUid,
-      this.onCommandClick,
+      {required this.botUid,
+      required this.onCommandClick,
       this.query,
-      this.botCommandSelectedIndex});
+      required this.botCommandSelectedIndex});
 
   @override
   _BotCommandsState createState() => _BotCommandsState();
@@ -32,8 +32,8 @@ class _BotCommandsState extends State<BotCommands> {
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
           Map<String, String> botCommands = Map();
-          botInfo.data.commands.forEach((key, value) {
-            if (key.contains(widget.query))
+          botInfo.data!.commands!.forEach((key, value) {
+            if (key.contains(widget.query!))
               botCommands.putIfAbsent(key, () => value);
           });
           return AnimatedContainer(

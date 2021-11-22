@@ -14,8 +14,7 @@ class ExtraThemeData {
   Color circularFileStatus;
   Color fileMessageDetails;
   Color inputBoxBackground;
-  Color  fileSharingDetails;
-
+  Color fileSharingDetails;
 
   // TODO refactor all of these
   Color username; // primary
@@ -23,41 +22,40 @@ class ExtraThemeData {
   Color textField; //green white -> normal
   Color textDetails; //light green - blue -> accent
 
-  ExtraThemeData({
-    this.centerPageDetails,
-    this.boxOuterBackground,
-    this.boxBackground,
-    this.textDetails,
-    this.menuIconButton,
-    this.username,
-    this.chatOrContactItemDetails,
-    this.sentMessageBox,
-    this.receivedMessageBox,
-    this.textMessage,
-    this.seenStatus,
-    this.messageDetails,
-    this.persistentEventMessage,
-    this.circularFileStatus,
-    this.fileMessageDetails,
-    this.textField,
-    this.inputBoxBackground,
-    this.fileSharingDetails
-  });
+  ExtraThemeData(
+      {required this.centerPageDetails,
+      required this.boxOuterBackground,
+      required this.boxBackground,
+      required this.textDetails,
+      required this.menuIconButton,
+      required this.username,
+      required this.chatOrContactItemDetails,
+      required this.sentMessageBox,
+      required this.receivedMessageBox,
+      required this.textMessage,
+      required this.seenStatus,
+      required this.messageDetails,
+      required this.persistentEventMessage,
+      required this.circularFileStatus,
+      required this.fileMessageDetails,
+      required this.textField,
+      required this.inputBoxBackground,
+      required this.fileSharingDetails});
 }
 
 class ExtraTheme extends InheritedWidget {
   final ExtraThemeData extraThemeData;
 
   ExtraTheme({
-    Key key,
-    @required Widget child,
-    @required this.extraThemeData,
+    Key? key,
+    required Widget child,
+    required this.extraThemeData,
   })  : assert(child != null),
         super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<ExtraTheme>()
+        .dependOnInheritedWidgetOfExactType<ExtraTheme>()!
         .extraThemeData;
   }
 

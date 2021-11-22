@@ -39,15 +39,15 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
-  Timer checkTimer;
-  Timer tokenGeneratorTimer;
-  PhoneNumber phoneNumber;
+  late Timer checkTimer;
+  late Timer tokenGeneratorTimer;
+  late PhoneNumber phoneNumber;
   final TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
-    if (phoneNumber?.nationalNumber != null) {
-      controller.text = phoneNumber?.nationalNumber.toString();
+    if (phoneNumber.nationalNumber != null) {
+      controller.text = phoneNumber.nationalNumber.toString();
     }
 
     if (isDesktop()) {
@@ -148,7 +148,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return FluidWidget(
       child: Form(
         key: _formKey,
@@ -176,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&
-                    snapshot.data.isNotEmpty)
+                    snapshot.data!.isNotEmpty)
                   return Container(
                     width: 200,
                     height: 200,
@@ -245,9 +244,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       IntlPhoneField(
                         initialCountryCode:
-                            phoneNumber?.countryCode?.toString() ?? "98",
+                            phoneNumber.countryCode.toString() ?? "98",
                         controller: controller,
-                        validator: (value) => value.length != 10 ||
+                        validator: (value) => value!.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? i18n.get("invalid_mobile_number")
                             : null,

@@ -14,7 +14,10 @@ class VideoPlayerWidget extends StatefulWidget {
   final VideoPlayerController videoPlayerController;
 
   VideoPlayerWidget(
-      {this.duration, this.videoFile, this.video, this.videoPlayerController});
+      {required this.duration,
+      required this.videoFile,
+      required this.video,
+      required this.videoPlayerController});
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -24,7 +27,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   BehaviorSubject<bool> _isPlaySubject = BehaviorSubject.seeded(true);
 
   BehaviorSubject<bool> _showIconPlayer = BehaviorSubject.seeded(true);
-  double _h;
+  late double _h;
 
   @override
   void initState() {
@@ -80,7 +83,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                             shape: BoxShape.circle,
                             //  color: Colors.black.withOpacity(0.5),
                           ),
-                          child: s.data
+                          child: s.data!
                               ? IconButton(
                                   icon: Icon(
                                     Icons.pause_circle_filled,

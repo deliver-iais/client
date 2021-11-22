@@ -11,7 +11,8 @@ class FormResultWidget extends StatefulWidget {
   final bool isSeen;
   final bool isSender;
 
-  FormResultWidget({this.message, this.isSeen, this.isSender});
+  FormResultWidget(
+      {required this.message, required this.isSeen, required this.isSender});
 
   @override
   _FormResultWidgetState createState() => _FormResultWidgetState();
@@ -21,10 +22,10 @@ class _FormResultWidgetState extends State<FormResultWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
   Widget build(BuildContext context) {
-    var formResult = widget.message.json.toFormResult();
+    var formResult = widget.message.json!.toFormResult();
 
     return PageStorage(
-      bucket: PageStorage.of(context),
+      bucket: PageStorage.of(context)!,
       child: Container(
         width: 250,
         color: Colors.black.withAlpha(10),
@@ -39,8 +40,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   for (final key in formResult.values.keys)
                     if (key != null && key.isNotEmpty)
                       Padding(
-                        padding:
-                            const EdgeInsets.only(top:8,bottom: 8),
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
                         child: TextField(
                           enabled: false,
                           readOnly: true,

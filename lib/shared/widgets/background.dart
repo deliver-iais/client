@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Background extends StatelessWidget {
   final int id;
 
-  const Background({Key key, this.id = 0}) : super(key: key);
+  const Background({Key? key, this.id = 0}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

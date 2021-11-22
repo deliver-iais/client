@@ -11,7 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class LogSettingsPage extends StatefulWidget {
-  LogSettingsPage({Key key}) : super(key: key);
+  LogSettingsPage({Key? key}) : super(key: key);
 
   @override
   _LogSettingsPageState createState() => _LogSettingsPageState();

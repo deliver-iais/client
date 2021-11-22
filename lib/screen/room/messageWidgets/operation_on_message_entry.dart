@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -34,7 +35,7 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   double get height => 100;
 
   @override
-  bool represents(OperationOnMessage value) =>
+  bool represents(OperationOnMessage? value) =>
       value == OperationOnMessage.REPLY;
 }
 
@@ -183,7 +184,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ])),
             if (widget.message.type == MessageType.TEXT ||
                 (widget.message.type == MessageType.FILE &&
-                    widget.message.json.toFile().caption.isNotEmpty))
+                    widget.message.json!.toFile().caption.isNotEmpty))
               TextButton(
                   onPressed: () {
                     onCopy();
@@ -199,12 +200,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             if (widget.message.type == MessageType.FILE)
               FutureBuilder(
                   future: _fileRepo.getFileIfExist(
-                      widget.message.json.toFile().uuid,
-                      widget.message.json.toFile().name),
+                      widget.message.json!.toFile().uuid,
+                      widget.message.json!.toFile().name),
                   builder: (c, fe) {
                     if (fe.hasData && fe.data != null) {
                       _fileIsExist.add(true);
-                      model.File f = widget.message.json.toFile();
+                      model.File f = widget.message.json!.toFile();
                       return TextButton(
                           onPressed: () {
                             if (f.type.contains("image")) {
@@ -243,7 +244,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               StreamBuilder<bool>(
                   stream: _fileIsExist.stream,
                   builder: (c, s) {
-                    if (s.hasData && s.data) {
+                    if (s.hasData && s.data!) {
                       _fileIsExist.add(true);
                       return TextButton(
                           onPressed: () {
@@ -274,14 +275,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(_i18n.get("forward")),
                   ])),
             if (widget.message.id == null)
-              FutureBuilder<PendingMessage>(
+              FutureBuilder<PendingMessage?>(
                   future:
                       _messageRepo.getPendingMessage(widget.message.packetId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&
-                        snapshot.data.failed != null &&
-                        snapshot.data.failed) {
+                        snapshot.data!.failed != null &&
+                        snapshot.data!.failed) {
                       return TextButton(
                           onPressed: () {
                             onResend();
@@ -301,14 +302,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             if (_hasPermissionToDeleteMsg)
               widget.message.id != null
                   ? deleteMenuWidget()
-                  : FutureBuilder<PendingMessage>(
+                  : FutureBuilder<PendingMessage?>(
                       future: _messageRepo
                           .getPendingMessage(widget.message.packetId),
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
-                            snapshot.data.failed != null &&
-                            snapshot.data.failed) {
+                            snapshot.data!.failed != null &&
+                            snapshot.data!.failed) {
                           return deleteMenuWidget();
                         } else {
                           return SizedBox.shrink();
@@ -332,10 +333,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(_i18n.get("edit")),
                   ])),
             if (isDesktop() && widget.message.type == MessageType.FILE)
-              FutureBuilder(
+              FutureBuilder<File?>(
                   future: _fileRepo.getFileIfExist(
-                      widget.message.json.toFile().uuid,
-                      widget.message.json.toFile().name),
+                      widget.message.json!.toFile().uuid,
+                      widget.message.json!.toFile().name),
                   builder: (c, snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
                       return TextButton(

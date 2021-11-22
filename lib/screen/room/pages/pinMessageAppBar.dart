@@ -5,6 +5,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/lastMessage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:sorted_list/sorted_list.dart';
@@ -12,29 +13,30 @@ import 'package:sorted_list/sorted_list.dart';
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final SortedList<Message> pinMessages;
-  final Function onTap;
-  final Function onNext;
+  final Function() onTap;
+  final Function() onNext;
   final Function onPrev;
   final Function onCancel;
 
   PinMessageAppBar(
-      {Key key,
-      this.lastPinedMessage,
-      this.pinMessages,
-      this.onTap,
-      this.onCancel,
-      this.onNext,
-      this.onPrev})
+      {Key? key,
+      required this.lastPinedMessage,
+      required this.pinMessages,
+      required this.onTap,
+      required this.onCancel,
+      required this.onNext,
+      required this.onPrev})
       : super(key: key);
+
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return StreamBuilder<int>(
         stream: lastPinedMessage.stream,
         builder: (c, id) {
-          if (id.hasData && id.data > 0) {
-            Message mes;
+          if (id.hasData && id.data! > 0) {
+            Message? mes;
             pinMessages.forEach((m) {
               if (m.id == id.data) {
                 mes = m;
@@ -104,8 +106,8 @@ class PinMessageAppBar extends StatelessWidget {
                                   Theme.of(context).primaryTextTheme.subtitle2,
                             ),
                             LastMessage(
-                                message: mes,
-                                lastMessageId: mes.id,
+                                message: mes!,
+                                lastMessageId: mes!.id!,
                                 hasMentioned: false,
                                 showSeenStatus: false,
                                 showSender: false),

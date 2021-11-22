@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
 import 'package:deliver/services/video_player_service.dart';
@@ -14,7 +13,12 @@ class VideoUi extends StatefulWidget {
   final double duration;
   final bool showSlider;
 
-  VideoUi({Key key, this.videoFile, this.duration, this.showSlider, this.video})
+  VideoUi(
+      {Key? key,
+      required this.videoFile,
+      required this.duration,
+      required this.showSlider,
+      required this.video})
       : super(key: key);
 
   @override
@@ -29,6 +33,7 @@ class _VideoUiState extends State<VideoUi> {
     videoPlayerService.thumbnailVideoPlayerController.dispose();
     super.dispose();
   }
+
   @override
   void initState() {
     videoPlayerService.videoControllerInitialization(widget.videoFile);
@@ -50,6 +55,7 @@ class _VideoUiState extends State<VideoUi> {
                   duration: widget.duration,
                   videoFile: widget.videoFile,
                   video: widget.video,
+                  videoPlayerController: videoPlayerService.videoPlayerController,
                 );
               }));
             }

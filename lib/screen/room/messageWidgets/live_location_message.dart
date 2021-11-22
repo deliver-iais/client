@@ -28,27 +28,26 @@ class LiveLocationMessageWidget extends StatefulWidget {
 
 class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
   var _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
+  I18N _i18n = GetIt.I.get<I18N>();
 
-  LiveLocation liveLocation;
+  late LiveLocation liveLocation;
 
   @override
   void initState() {
-    liveLocation = widget.message.json.toLiveLocation();
+    liveLocation = widget.message.json!.toLiveLocation();
     _liveLocationRepo.updateLiveLocation(liveLocation);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    I18N _i18n = I18N.of(context);
-
-    return StreamBuilder<box.LiveLocation>(
+    return StreamBuilder<box.LiveLocation?>(
         stream: _liveLocationRepo.watchLiveLocation(liveLocation.uuid),
         builder: (c, liveLocationsnapshot) {
           if (liveLocationsnapshot.hasData &&
               liveLocationsnapshot.data != null) {
             return liveLocationMessageWidgetBuilder(
-                liveLocationsnapshot.data.locations.last,
+                liveLocationsnapshot.data!.locations.last,
                 _i18n,
                 liveLocation.time.toInt());
           }
@@ -110,8 +109,8 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
               )
             ],
           ),
-          TimeAndSeenStatus(
-              widget.message, widget.isSender, widget.isSeen, needsBackground: true),
+          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+              needsBackground: true),
         ],
       ),
     );

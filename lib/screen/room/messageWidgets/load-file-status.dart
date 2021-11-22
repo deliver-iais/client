@@ -18,13 +18,13 @@ class LoadFileStatus extends StatefulWidget {
   final Function onPressed;
 
   const LoadFileStatus(
-      {Key key,
-      this.fileId,
-      this.fileName,
-      this.messageId,
-      this.messagePacketId,
-      this.roomUid,
-      this.onPressed})
+      {Key? key,
+      required this.fileId,
+      required this.fileName,
+      required this.messageId,
+      required this.messagePacketId,
+      required this.roomUid,
+      required this.onPressed})
       : super(key: key);
 
   @override
@@ -39,7 +39,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<PendingMessage>(
+    return StreamBuilder<PendingMessage?>(
         stream: _messageRepo.watchPendingMessage(widget.messagePacketId),
         builder: (context, pendingMessage) {
           isPendingMes = pendingMessage.hasData && pendingMessage.data != null;
@@ -49,8 +49,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               Stack(
                 children: <Widget>[
                   pendingMessage.data != null
-                      ? pendingMessage.data.status == SendingStatus.SENDING_FILE
-                          ? StreamBuilder<double>(
+                      ? pendingMessage.data!.status ==
+                              SendingStatus.SENDING_FILE
+                          ? StreamBuilder<double?>(
                               stream:
                                   _fileService.filesUploadStatus[widget.fileId],
                               builder: (context, snapshot) {
@@ -68,7 +69,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                       ),
                                       onPressed: () {},
                                     ),
-                                    percent: snapshot.data,
+                                    percent: snapshot.data!,
                                     backgroundColor: ExtraTheme.of(context)
                                         .circularFileStatus,
                                     progressColor: ExtraTheme.of(context)
@@ -109,11 +110,12 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     .filesDownloadStatus[widget.fileId],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData &&
-                                      snapshot.data != null && snapshot.data >0) {
+                                      snapshot.data != null &&
+                                      snapshot.data! > 0) {
                                     return CircularPercentIndicator(
                                       radius: 45.0,
                                       lineWidth: 4.0,
-                                      percent: snapshot.data,
+                                      percent: snapshot.data!,
                                       backgroundColor: ExtraTheme.of(context)
                                           .circularFileStatus,
                                       center: Icon(Icons.arrow_downward,

@@ -1,16 +1,17 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver/shared/emoji.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 class AnimatedEmoji extends StatefulWidget {
   final Message message;
@@ -18,11 +19,12 @@ class AnimatedEmoji extends StatefulWidget {
 
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  const AnimatedEmoji({Key key, this.message, this.isSeen}) : super(key: key);
+  const AnimatedEmoji({Key? key, required this.message, required this.isSeen})
+      : super(key: key);
 
   static isAnimatedEmoji(Message message) {
     if (message.type != MessageType.TEXT) return false;
-    final content = message.json.toText().text;
+    final content = message.json!.toText().text;
 
     switch (content) {
       case "👍":
@@ -69,8 +71,8 @@ class AnimatedEmoji extends StatefulWidget {
 
 class _AnimatedEmojiState extends State<AnimatedEmoji>
     with TickerProviderStateMixin {
-  AnimationController _controller;
-  Future<LottieComposition> _composition;
+  late AnimationController _controller;
+  late Future<LottieComposition> _composition;
 
   @override
   void initState() {
@@ -82,9 +84,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   Future<LottieComposition> _loadComposition() async {
     var assetData = await rootBundle.load(getPath());
 
-    var bytes = assetData.buffer.asUint8List();
-
-    bytes = GZipCodec().decode(bytes);
+    Uint8List bytes = assetData.buffer.asUint8List();
 
     return await LottieComposition.fromBytes(bytes);
   }
@@ -145,7 +145,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   String getPath() {
-    final content = widget.message.json.toText().text;
+    final content = widget.message.json!.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 
@@ -153,7 +153,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   String getAlt() {
-    final content = widget.message.json.toText().text;
+    final content = widget.message.json!.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 
@@ -164,7 +164,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 class AnimationLocal extends StatelessWidget {
   final String path;
 
-  const AnimationLocal({Key key, this.path}) : super(key: key);
+  const AnimationLocal({Key? key, required this.path}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

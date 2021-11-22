@@ -86,13 +86,13 @@ class AccountRepo {
   }
 
   Future<bool> setAccountDetails(
-    String username,
-    String firstName,
-    String lastName,
-    String email,
+    String ? username,
+    String ? firstName,
+    String ? lastName,
+    String ? email,
   ) async {
     try {
-      _queryServiceClient.setId(SetIdReq()..id = username);
+      _queryServiceClient.setId(SetIdReq()..id = username!);
 
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {

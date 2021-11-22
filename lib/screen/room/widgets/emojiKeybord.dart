@@ -6,9 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class EmojiKeyboard extends StatefulWidget {
   final Function onTap;
-  final Function onStickerTap;
+  final Function? onStickerTap;
 
-  const EmojiKeyboard({this.onTap, this.onStickerTap});
+  const EmojiKeyboard({required this.onTap, this.onStickerTap});
 
   @override
   _Emojikeybord createState() => _Emojikeybord();
@@ -16,7 +16,7 @@ class EmojiKeyboard extends StatefulWidget {
 
 class _Emojikeybord extends State<EmojiKeyboard> {
   List<Emoji> emojis = [];
-  Function onTap;
+  late Function onTap;
 
   int selectedGroupIndex = 1;
 

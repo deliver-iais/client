@@ -21,7 +21,11 @@ class MusicAndAudioUi extends StatefulWidget {
   final int mediaCount;
   final FetchMediasReq_MediaType type;
 
-  MusicAndAudioUi({Key? key, required this.userUid, required this.type, required this.mediaCount})
+  MusicAndAudioUi(
+      {Key? key,
+      required this.userUid,
+      required this.type,
+      required this.mediaCount})
       : super(key: key);
 
   @override
@@ -56,18 +60,17 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                 child: ListView.builder(
                   itemCount: widget.mediaCount,
                   itemBuilder: (BuildContext ctx, int index) {
-
-                    var fileId = jsonDecode(media.data[index].json)["uuid"];
-                    var fileName = jsonDecode(media.data[index].json)["name"];
-                    var dur = jsonDecode(media.data[index].json)["duration"];
-                    _logger.d(media.data[index].json);
+                    var fileId = jsonDecode(media.data![index].json)["uuid"];
+                    var fileName = jsonDecode(media.data![index].json)["name"];
+                    var dur = jsonDecode(media.data![index].json)["duration"];
+                    _logger.d(media.data![index].json);
                     _logger.d(dur.toString());
 
-                    var messageId = media.data[index].messageId;
+                    var messageId = media.data![index].messageId;
                     return FutureBuilder<bool>(
                         future: fileRepo.isExist(fileId, fileName),
                         builder: (context, isExist) {
-                          if (isExist.hasData && isExist.data) {
+                          if (isExist.hasData && isExist.data!) {
                             return Column(
                               children: [
                                 ListTile(
@@ -82,15 +85,21 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 left: 15.0, top: 10),
-                                            child: Text(fileName,
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.bold, color: ExtraTheme.of(context).textMessage),overflow: TextOverflow.ellipsis,),
+                                            child: Text(
+                                              fileName,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: ExtraTheme.of(context)
+                                                      .textMessage),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
                                           MusicPlayProgress(
                                             audioUuid: fileId,
-                                            duration: double.parse(dur.toString()).toDouble() ,
+                                            duration:
+                                                double.parse(dur.toString())
+                                                    .toDouble(),
                                           ),
                                         ],
                                       ),
@@ -102,7 +111,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                 ),
                               ],
                             );
-                          } else if (isExist.hasData && !isExist.data) {
+                          } else if (isExist.hasData && !isExist.data!) {
                             return Column(
                               children: [
                                 ListTile(
@@ -124,11 +133,16 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
+                                                          FontWeight.bold,
+                                                      color:
+                                                          ExtraTheme.of(context)
+                                                              .textMessage)),
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,
-                                              duration: double.parse(dur.toString()).toDouble(),
+                                              duration:
+                                                  double.parse(dur.toString())
+                                                      .toDouble(),
                                             ),
                                           ],
                                         ),

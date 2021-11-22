@@ -25,7 +25,11 @@ class VideoMessage extends StatefulWidget {
   final bool isSeen;
 
   const VideoMessage(
-      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -41,7 +45,7 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    File video = widget.message.json.toFile();
+    File video = widget.message.json!.toFile();
     Duration duration = Duration(seconds: video.duration.round());
     String videoLength;
     if (duration.inHours == 0) {
@@ -89,7 +93,7 @@ class _VideoMessageState extends State<VideoMessage> {
                               return CircularPercentIndicator(
                                 radius: 45.0,
                                 lineWidth: 4.0,
-                                percent: snapshot.data,
+                                percent: snapshot.data!,
                                 center: Icon(Icons.arrow_upward_rounded),
                                 progressColor: Colors.blue,
                               );
@@ -107,14 +111,14 @@ class _VideoMessageState extends State<VideoMessage> {
                   ],
                 );
               } else {
-                return FutureBuilder<da.File>(
+                return FutureBuilder<da.File?>(
                   future: _fileRepo.getFileIfExist(video.uuid, video.name),
                   builder: (c, s) {
                     if (s.hasData && s.data != null) {
                       return videoWidget(
                           w: VideoUi(
-                            videoFile: s.data,
-                            video: widget.message.json.toFile(),
+                            videoFile: s.data!,
+                            video: widget.message.json!.toFile(),
                             duration: video.duration,
                             showSlider: true,
                           ),
@@ -169,7 +173,8 @@ class _VideoMessageState extends State<VideoMessage> {
     );
   }
 
-  Widget videoWidget({Widget w, File video, String videoLength}) {
+  Widget videoWidget(
+      {required Widget w, required File video, required String videoLength}) {
     return Stack(
       children: [
         w,

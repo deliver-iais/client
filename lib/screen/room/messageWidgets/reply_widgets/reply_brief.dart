@@ -10,14 +10,14 @@ class ReplyBrief extends StatelessWidget {
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ReplyBrief({
-    Key key,
-    this.roomId,
-    this.replyToId,
+    Key? key,
+    required this.roomId,
+    required this.replyToId,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Message>(
+    return FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
@@ -30,12 +30,11 @@ class ReplyBrief extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(
                       left: BorderSide(
-                        width: 3,
-                          color: Theme.of(context).primaryColor)),
+                          width: 3, color: Theme.of(context).primaryColor)),
                   // borderRadius: BorderRadius.circular(10),
                 ),
                 child: SenderAndContent(
-                  messages: [snapshot.data],
+                  messages: [snapshot.data!],
                 ),
               ),
             );

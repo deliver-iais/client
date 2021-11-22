@@ -7,11 +7,12 @@ import 'package:get_it/get_it.dart';
 
 class ForwardPreview extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
-  final List<Message> forwardedMessages;
-  final Function onClick;
-  final proto.ShareUid shareUid;
+  final List<Message>? forwardedMessages;
+  final Function() onClick;
+  final proto.ShareUid? shareUid;
 
-  ForwardPreview({Key key, this.forwardedMessages, this.shareUid, this.onClick})
+  ForwardPreview(
+      {Key? key, this.forwardedMessages, this.shareUid, required this.onClick})
       : super(key: key);
 
   @override
@@ -35,13 +36,13 @@ class ForwardPreview extends StatelessWidget {
             SizedBox(width: 10),
             shareUid != null
                 ? Text(
-                    shareUid.name,
+                    shareUid!.name,
                     style: TextStyle(
                         color: ExtraTheme.of(context).textDetails,
                         fontSize: 20),
                   )
                 : Text(
-                    '${forwardedMessages.length} ${_i18n.get("forwarded_messages")}'),
+                    '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
             Spacer(),
             IconButton(
               padding: EdgeInsets.all(0),

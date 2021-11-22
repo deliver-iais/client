@@ -24,7 +24,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   final _routingService = GetIt.I.get<RoutingService>();
   var m = initialLink.toString().split("/");
 
-  Uid mucUid;
+  late Uid mucUid;
   if (m[4].toString().contains("GROUP")) {
     mucUid = Uid.create()
       ..node = m[5].toString()
@@ -37,7 +37,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   if (mucUid != null) {
     var muc = await _mucDao.get(mucUid.asString());
     if (muc != null) {
-      _routingService.openRoom(mucUid.asString(),context:context);
+      _routingService.openRoom(mucUid.asString(), context: context);
     } else {
       Future.delayed(Duration.zero, () {
         showFloatingModalBottomSheet(
@@ -54,30 +54,32 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                     MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(I18N.of(context).get("skip"))),
+                        child: Text(I18N.of(context)!.get("skip"))),
                     MaterialButton(
                       color: Colors.blueAccent,
                       onPressed: () async {
                         if (mucUid.category == Categories.GROUP) {
-                          Muc muc =
+                          Muc? muc =
                               await _mucRepo.joinGroup(mucUid, m[6].toString());
                           if (muc != null) {
                             _messageRepo.updateNewMuc(
-                                mucUid, muc.lastMessageId);
-                            _routingService.openRoom(mucUid.asString(),context:context);
+                                mucUid, muc.lastMessageId!);
+                            _routingService.openRoom(mucUid.asString(),
+                                context: context);
                             Navigator.of(context).pop();
                           }
                         } else {
-                          Muc muc = await _mucRepo.joinChannel(mucUid, m[6]);
+                          Muc? muc = await _mucRepo.joinChannel(mucUid, m[6]);
                           if (muc != null) {
                             _messageRepo.updateNewMuc(
-                                mucUid, muc.lastMessageId);
-                            _routingService.openRoom(mucUid.asString(),context:context);
+                                mucUid, muc.lastMessageId!);
+                            _routingService.openRoom(mucUid.asString(),
+                                context: context);
                             Navigator.of(context).pop();
                           }
                         }
                       },
-                      child: Text(I18N.of(context).get("join")),
+                      child: Text(I18N.of(context)!.get("join")),
                     ),
                   ],
                 ),

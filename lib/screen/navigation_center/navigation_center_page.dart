@@ -27,19 +27,19 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NavigationCenter extends StatefulWidget {
-  final void Function(String) tapOnSelectChat;
+  final void Function(String) ? tapOnSelectChat;
 
   final Function tapOnCurrentUserAvatar;
 
   const NavigationCenter(
       {Key? key,
-      required this.tapOnSelectChat,
+      this.tapOnSelectChat,
       required this.tapOnCurrentUserAvatar})
       : super(key: key);
 
   @override
   _NavigationCenterState createState() =>
-      _NavigationCenterState(this.tapOnSelectChat, this.tapOnCurrentUserAvatar);
+      _NavigationCenterState(this.tapOnSelectChat!, this.tapOnCurrentUserAvatar);
 }
 
 class _NavigationCenterState extends State<NavigationCenter> {

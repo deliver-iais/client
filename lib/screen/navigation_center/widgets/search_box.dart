@@ -6,12 +6,12 @@ import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
   final Function(String) onChange;
-  final Function onCancel;
+  final Function? onCancel;
   final BorderRadius borderRadius;
 
   SearchBox(
       {required this.onChange,
-      required this.onCancel,
+      this.onCancel,
       this.borderRadius = const BorderRadius.all(const Radius.circular(25.0))});
 
   @override
@@ -80,7 +80,7 @@ class _SearchBoxState extends State<SearchBox> {
                   onPressed: () {
                     _hasText.add(false);
                     _controller.clear();
-                    widget.onCancel();
+                    widget.onCancel!();
                   },
                 );
               } else

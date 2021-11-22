@@ -11,18 +11,17 @@ class Box extends StatelessWidget {
   final BorderRadius largePageBorderRadius;
 
   Box({
-    this.child,
-    this.margin,
+    required this.child,
+    required this.margin,
     this.largePageMargin = const EdgeInsets.symmetric(horizontal: 24),
-    this.borderRadius,
+    required this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
+      padding: margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
       child: ClipRRect(
         borderRadius: borderRadius ??
             (isLarge(context) ? largePageBorderRadius : BorderRadius.zero),
@@ -43,10 +42,10 @@ class BoxList extends StatelessWidget {
   final BorderRadius largePageBorderRadius;
 
   BoxList({
-    this.children,
-    this.padding,
+    required this.children,
+    required this.padding,
     this.largePagePadding = const EdgeInsets.symmetric(horizontal: 24),
-    this.borderRadius,
+    required this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
   });
 

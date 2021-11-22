@@ -11,10 +11,11 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
-  final List<Message> forwardedMessages;
-  final proto.ShareUid shareUid;
+  final List<Message>? forwardedMessages;
+  final proto.ShareUid? shareUid;
 
-  ChatItemToForward({Key key, this.uid, this.forwardedMessages, this.shareUid})
+  ChatItemToForward(
+      {Key? key, required this.uid, this.forwardedMessages, this.shareUid})
       : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -41,7 +42,7 @@ class ChatItemToForward extends StatelessWidget {
                   builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                     if (snaps.hasData && snaps.data != null) {
                       return Text(
-                        snaps.data,
+                        snaps.data!,
                         style: TextStyle(
                           color:
                               ExtraTheme.of(context).chatOrContactItemDetails,
@@ -60,12 +61,10 @@ class ChatItemToForward extends StatelessWidget {
                     }
                   }),
               onTap: () {
-                _routingService.openRoom(uid.asString(), context:context,
-                    forwardedMessages: forwardedMessages, shareUid: shareUid);
-//                ExtendedNavigator.of(context).push(Routes.roomPage,
-//                    arguments: RoomPageArguments(
-//                        roomId: uid.asString(),
-//                        forwardedMessages: forwardedMessages));
+                _routingService.openRoom(uid.asString(),
+                    context: context,
+                    forwardedMessages: forwardedMessages!,
+                    shareUid: shareUid!);
               },
             ),
 

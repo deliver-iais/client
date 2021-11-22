@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerService {
-  VideoPlayerController videoPlayerController;
-  VideoPlayerController  thumbnailVideoPlayerController;
+  late VideoPlayerController videoPlayerController;
+ late VideoPlayerController  thumbnailVideoPlayerController;
 
   Future<void> videoControllerInitialization(File file) {
     videoPlayerController = VideoPlayerController.file(file);

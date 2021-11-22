@@ -29,16 +29,16 @@ import 'share_box/helper_classes.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
-  final int replyMessageId;
+  final int? replyMessageId;
   final Function resetRoomPageDetails;
   final Function scrollToLastSentMessage;
 
   const ShareBox(
-      {Key key,
-      this.currentRoomId,
+      {Key? key,
+      required this.currentRoomId,
       this.replyMessageId,
-      this.resetRoomPageDetails,
-      this.scrollToLastSentMessage})
+      required this.resetRoomPageDetails,
+      required this.scrollToLastSentMessage})
       : super(key: key);
 
   @override
@@ -63,7 +63,7 @@ class _ShareBoxState extends State<ShareBox> {
   CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
 
-  int playAudioIndex;
+  int playAudioIndex = -1;
 
   bool selected = false;
   TextEditingController captionTextController = TextEditingController();
@@ -74,16 +74,17 @@ class _ShareBoxState extends State<ShareBox> {
 
   FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
 
+  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return StreamBuilder<double>(
         stream: initialChildSize.stream,
         builder: (c, initialSize) {
           if (initialSize.hasData && initialSize.data != null)
             return DraggableScrollableSheet(
-              initialChildSize: initialSize.data,
-              minChildSize: initialSize.data,
+              initialChildSize: initialSize.data!,
+              minChildSize: initialSize.data!,
               maxChildSize: 1,
               expand: true,
               builder: (co, scrollController) {
@@ -102,7 +103,7 @@ class _ShareBoxState extends State<ShareBox> {
                                     setState(() {
                                       selectedAudio[index] =
                                           !(selectedAudio[index] ?? false);
-                                      selectedAudio[index]
+                                      selectedAudio[index]!
                                           ? finalSelected[index] = path
                                           : finalSelected.remove(index);
                                     });
@@ -131,7 +132,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         setState(() {
                                           selectedFiles[index] =
                                               !(selectedFiles[index] ?? false);
-                                          selectedFiles[index]
+                                          selectedFiles[index]!
                                               ? finalSelected[index] = path
                                               : finalSelected.remove(index);
                                         });
@@ -146,7 +147,7 @@ class _ShareBoxState extends State<ShareBox> {
                                                   !(selectedImages[index - 1] ??
                                                       false);
 
-                                              selectedImages[index - 1]
+                                              selectedImages[index - 1]!
                                                   ? finalSelected[index - 1] =
                                                       path
                                                   : finalSelected
@@ -263,8 +264,8 @@ class _ShareBoxState extends State<ShareBox> {
                                     children: <Widget>[
                                       circleButton(() async {
                                         var res = await ImageItem.getImages();
-                                        if (res == null || res.length < 1) {
-                                          FilePickerResult result =
+                                        if (res.length < 1) {
+                                          FilePickerResult? result =
                                               await FilePicker.platform
                                                   .pickFiles(
                                             allowMultiple: true,
@@ -287,7 +288,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           i18n.get("gallery"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult result =
+                                        FilePickerResult? result =
                                             await FilePicker.platform.pickFiles(
                                                 allowMultiple: true,
                                                 type: FileType.custom,
@@ -337,7 +338,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           i18n.get("location"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult result =
+                                        FilePickerResult? result =
                                             await FilePicker.platform.pickFiles(
                                                 allowMultiple: true,
                                                 type: FileType.custom,
@@ -345,6 +346,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (result != null) {
                                           Navigator.pop(co);
                                           showCaptionDialog(
+                                              roomUid: widget.currentRoomId,
                                               type: "music",
                                               context: context,
                                               paths: result.paths);
@@ -383,7 +385,7 @@ class _ShareBoxState extends State<ShareBox> {
                   child: FlutterMap(
                     options: new MapOptions(
                       center: LatLng(
-                          position.data.latitude, position.data.longitude),
+                          position.data!.latitude, position.data!.longitude),
                       zoom: 14.0,
                     ),
                     layers: [
@@ -396,8 +398,8 @@ class _ShareBoxState extends State<ShareBox> {
                           new Marker(
                             width: 170.0,
                             height: 170.0,
-                            point: LatLng(position.data.latitude,
-                                position.data.longitude),
+                            point: LatLng(position.data!.latitude,
+                                position.data!.longitude),
                             builder: (ctx) => Container(
                               child: Icon(
                                 Icons.location_pin,
@@ -437,7 +439,7 @@ class _ShareBoxState extends State<ShareBox> {
                   onTap: () {
                     Navigator.of(context).pop();
                     messageRepo.sendLocationMessage(
-                        position.data, widget.currentRoomId);
+                        position.data!, widget.currentRoomId);
                   },
                 ),
                 SizedBox(
@@ -514,13 +516,13 @@ class _ShareBoxState extends State<ShareBox> {
                               sections: [
                                 SettingsSection(
                                   tiles: [
-                                    settingsTile(snapshot.data, "10", () {
+                                    settingsTile(snapshot.data!, "10", () {
                                       time.add("10");
                                     }),
-                                    settingsTile(snapshot.data, "15", () {
+                                    settingsTile(snapshot.data!, "15", () {
                                       time.add("15");
                                     }),
-                                    settingsTile(snapshot.data, "30", () {
+                                    settingsTile(snapshot.data!, "30", () {
                                       time.add("30");
                                     }),
                                   ],
@@ -593,12 +595,12 @@ class _ShareBoxState extends State<ShareBox> {
 }
 
 showCaptionDialog(
-    {String type,
-    List<String> paths,
-    Uid roomUid,
-    Message editableMessage,
-    BuildContext context}) async {
-  if (paths.length <= 0 && editableMessage == null) return;
+    {String? type,
+    List<String?>? paths,
+    required Uid roomUid,
+    Message? editableMessage,
+    required BuildContext context}) async {
+  if (paths!.length <= 0 && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {
@@ -611,8 +613,8 @@ showCaptionDialog(
       });
 }
 
-Widget circleButton(Function onTap, IconData icon, String text, double size,
-    {BuildContext context}) {
+Widget circleButton(Function() onTap, IconData icon, String text, double size,
+    {required BuildContext context}) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[

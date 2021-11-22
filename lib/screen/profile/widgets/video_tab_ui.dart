@@ -16,7 +16,8 @@ class VideoTabUi extends StatefulWidget {
   final Uid userUid;
   final int videoCount;
 
-  VideoTabUi({Key key, this.userUid, this.videoCount}) : super(key: key);
+  VideoTabUi({Key? key, required this.userUid, required this.videoCount})
+      : super(key: key);
 
   @override
   _VideoTabUiState createState() => _VideoTabUiState();
@@ -26,9 +27,8 @@ class _VideoTabUiState extends State<VideoTabUi> {
   final _logger = GetIt.I.get<Logger>();
   final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final fileRepo = GetIt.I.get<FileRepo>();
-  Duration duration;
-  String videoLength;
-  bool isExist;
+  late Duration duration;
+  late String videoLength;
   Map<int, String> totalDuration = Map();
 
   @override
@@ -74,8 +74,9 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == true) {
-                          return FutureBuilder<File>(
-                              future: fileRepo.getFile(fileId, fileName + ".png",
+                          return FutureBuilder<File?>(
+                              future: fileRepo.getFile(
+                                  fileId, fileName + ".png",
                                   thumbnailSize: ThumbnailSize.medium),
                               builder: (BuildContext buildContext,
                                   AsyncSnapshot thumbFile) {
@@ -89,7 +90,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                     videoCount: widget.videoCount,
                                     isExist: true,
                                     mediaPosition: position,
-                                    videoLength: totalDuration[position],
+                                    videoLength: totalDuration[position]!,
                                   );
                                 } else {
                                   return Container(
@@ -101,7 +102,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
-                          return FutureBuilder<File>(
+                          return FutureBuilder<File?>(
                             future: fileRepo.getFile(fileId, fileName + ".png",
                                 thumbnailSize: ThumbnailSize.medium),
                             builder:
@@ -117,7 +118,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   videoCount: widget.videoCount,
                                   isExist: false,
                                   mediaPosition: position,
-                                  videoLength: totalDuration[position],
+                                  videoLength: totalDuration[position]!,
                                 );
                               } else {
                                 return Container(

@@ -18,11 +18,11 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   SharePrivateDataRequestMessageWidget(
-      {this.message, this.isSender, this.isSeen});
+      {required this.message, required this.isSender, required this.isSeen});
 
   @override
   Widget build(BuildContext context) {
-    var sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
+    var sharePrivateDataRequest = message.json!.toSharePrivateDataRequest();
     return Stack(
       children: [
         Container(

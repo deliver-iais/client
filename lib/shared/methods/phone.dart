@@ -4,7 +4,7 @@ import 'package:fixnum/fixnum.dart';
 String buildPhoneNumber(String countryCode, String nationalNumber) =>
     "+$countryCode-$nationalNumber";
 
-PhoneNumber getPhoneNumber(String pStr) {
+PhoneNumber? getPhoneNumber(String pStr) {
   final phone = pStr
       .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
       .replaceAll('+', '')

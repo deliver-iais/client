@@ -71,13 +71,13 @@ const int PAGE_SIZE = 16;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
-  final List<Message> forwardedMessages;
-  final List<String> inputFilePath;
-  final proto.ShareUid shareUid;
+  final List<Message>? forwardedMessages;
+  final List<String>? inputFilePath;
+  final proto.ShareUid? shareUid;
 
   const RoomPage(
-      {Key key,
-      this.roomId,
+      {Key? key,
+     required this.roomId,
       this.forwardedMessages,
       this.inputFilePath,
       this.shareUid})
@@ -98,18 +98,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  String _searchMessagePattern;
+  String? _searchMessagePattern;
   int _lastSeenMessageId = -1;
-  bool _isMuc;
+
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   int _replyMessageId = -1;
   int _lastReceivedMessageId = 0;
   int _currentMessageSearchId = -1;
   List<Message> searchResult = [];
-  Message currentSearchResultMessage;
 
-  var _pinMessages = SortedList<Message>((a, b) => a.id.compareTo(b.id));
+  var _pinMessages = SortedList<Message>((a, b) => a.id!.compareTo(b.id!));
   final Map<int, Message> _selectedMessages = Map();
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(80));
 
@@ -117,10 +116,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _itemScrollController = ItemScrollController();
   final _scrollPhysics = ClampingScrollPhysics();
 
-  final BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
-  final BehaviorSubject<Message> _editableMessage =
+  final BehaviorSubject<Message ?> _repliedMessage = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Message ?> _editableMessage =
       BehaviorSubject.seeded(null);
-  final BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Room?> _currentRoom = BehaviorSubject.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
@@ -143,7 +142,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         body: Container(
           child: Stack(
             children: [
-              StreamBuilder<Room>(
+              StreamBuilder<Room?>(
                   stream: _roomRepo.watchRoom(widget.roomId),
                   builder: (context, snapshot) {
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
@@ -160,23 +159,23 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, pendingMessagesStream) {
                           List<PendingMessage> pendingMessages =
                               pendingMessagesStream.data ?? [];
-                          return StreamBuilder<Room>(
+                          return StreamBuilder<Room?>(
                               stream: _roomRepo.watchRoom(widget.roomId),
                               builder: (context, currentRoomStream) {
                                 if (currentRoomStream.hasData) {
                                   _currentRoom.add(currentRoomStream.data);
                                   int i =
-                                      (_currentRoom.value.lastMessageId ?? 0) +
+                                      (_currentRoom.value!.lastMessageId ?? 0) +
                                           pendingMessages.length;
                                   _itemCountSubject.add(i);
                                   _itemCount = i;
-                                  if (currentRoomStream.data.firstMessageId !=
+                                  if (currentRoomStream.data!.firstMessageId !=
                                       null)
                                     _itemCount = _itemCount -
-                                        currentRoomStream.data.firstMessageId;
+                                        currentRoomStream.data!.firstMessageId!;
 
                                   return PageStorage(
-                                      bucket: PageStorage.of(context),
+                                      bucket: PageStorage.of(context)!,
                                       key: PageStorageKey(widget.roomId),
                                       child: Stack(
                                         alignment:
@@ -184,11 +183,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         children: [
                                           buildMessagesListView(
                                               pendingMessages),
-                                          StreamBuilder(
+                                          StreamBuilder<int>(
                                               stream: _positionSubject.stream,
                                               builder: (c, position) {
                                                 if (_itemCount -
-                                                        (position.data ?? 0) >
+                                                        (position.data! ?? 0) >
                                                     4) {
                                                   return scrollDownButtonWidget();
                                                 } else {
@@ -210,7 +209,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       builder: (c, rm) {
                         if (rm.hasData && rm.data != null) {
                           return ReplyPreview(
-                              message: _repliedMessage.value,
+                              message: _repliedMessage.value!,
                               resetRoomPageDetails: _resetRoomPageDetails);
                         }
                         return Container();
@@ -220,15 +219,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       builder: (c, em) {
                         if (em.hasData && em.data != null) {
                           return OnEditMessageWidget(
-                              message: _editableMessage.value,
+                              message: _editableMessage.value!,
                               resetRoomPageDetails: _resetRoomPageDetails);
                         }
                         return Container();
                       }),
-                  StreamBuilder(
+                  StreamBuilder<bool>(
                       stream: _waitingForForwardedMessage.stream,
                       builder: (c, wm) {
-                        if (wm.hasData && wm.data) {
+                        if (wm.hasData && wm.data!) {
                           return ForwardPreview(
                             forwardedMessages: widget.forwardedMessages,
                             shareUid: widget.shareUid,
@@ -399,7 +398,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         hasPermissionInGroup: _hasPermissionInGroup.value,
         isPinned: _pinMessages.contains(message),
       )
-    ]).then<void>((OperationOnMessage opr) async {
+    ]).then<void>((OperationOnMessage ? opr) async {
       if (opr == null) return;
       switch (opr) {// ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
@@ -407,10 +406,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           break;
         case OperationOnMessage.COPY:
           if (message.type == MessageType.TEXT)
-            Clipboard.setData(ClipboardData(text: message.json.toText().text));
+            Clipboard.setData(ClipboardData(text: message.json!.toText().text));
           else
             Clipboard.setData(
-                ClipboardData(text: message.json.toFile().caption ?? ""));
+                ClipboardData(text: message.json!.toFile().caption ?? ""));
           ToastDisplay.showToast(
               toastText: _i18n.get("copied"), tostContext: context);
           break;
@@ -425,7 +424,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         case OperationOnMessage.EDIT:
           switch (message.type) {// ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
-              editMessageInput.add(message.json.toText().text);
+              editMessageInput.add(message.json!.toText().text);
               _editableMessage.add(message);
               break;
             case MessageType.FILE:
@@ -441,11 +440,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           {
             try {
               var result = await _fileRepo.getFileIfExist(
-                  message.json.toFile().uuid, message.json.toFile().name);
-              if (result.path.isNotEmpty)
+                  message.json!.toFile().uuid, message.json!.toFile().name);
+              if (result!.path.isNotEmpty)
                 Share.shareFiles(['${result.path}'],
-                    text: message.json.toFile().caption.isNotEmpty
-                        ? message.json.toFile().caption.isNotEmpty
+                    text: message.json!.toFile().caption.isNotEmpty
+                        ? message.json!.toFile()!.caption.isNotEmpty
                         : 'Deliver');
               break;
             } catch (e) {

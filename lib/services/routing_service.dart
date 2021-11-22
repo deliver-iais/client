@@ -40,12 +40,12 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
-  final Widget largePageNavigator;
-  final Widget largePageMain;
-  final Widget smallPageMain;
-  final Widget singlePageMain;
+  final Widget? largePageNavigator;
+  final Widget? largePageMain;
+  final Widget? smallPageMain;
+  final Widget? singlePageMain;
   final String path;
-  final bool lockBackButton;
+  final bool? lockBackButton;
 
   Page(
       {this.largePageNavigator,
@@ -53,7 +53,7 @@ class Page {
       this.smallPageMain,
       this.singlePageMain,
       this.lockBackButton,
-      this.path});
+      required this.path});
 }
 
 BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
@@ -65,10 +65,10 @@ class RoutingService {
   final _dbManager = GetIt.I.get<DBManager>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
-  Widget _navigationCenter;
+  late Widget _navigationCenter;
   static Widget _empty = const Empty();
 
-  ListQueue<Page> _stack;
+  late ListQueue<Page> _stack;
 
   RoutingService() {
     this._navigationCenter = NavigationCenter(
@@ -83,15 +83,15 @@ class RoutingService {
   }
 
   void openRoom(String roomId,
-      {BuildContext context,
+      {BuildContext? context,
       List<Message> forwardedMessages = const [],
-      pro.ShareUid shareUid}) {
+      pro.ShareUid? shareUid}) {
     backSubject.add(false);
     var roomWidget = RoomPage(
       key: ValueKey("/room/$roomId"),
       roomId: roomId,
       forwardedMessages: forwardedMessages,
-      shareUid: shareUid,
+      shareUid: shareUid!,
     );
     var widget = WillPopScope(
         onWillPop: () async {
@@ -125,7 +125,7 @@ class RoutingService {
     );
   }
 
-  void openSettings({BuildContext context}) {
+  void openSettings({BuildContext? context}) {
     var widget = SettingsPage(key: ValueKey("/settings"));
     if (isDesktop())
       _push(Page(
@@ -134,7 +134,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/settings"));
     else {
-      _rootInMobileState(widget, context);
+      _rootInMobileState(widget, context!);
     }
   }
 
@@ -206,7 +206,9 @@ class RoutingService {
   }
 
   void openShowAllAvatars(BuildContext context,
-      {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
+      {required Uid uid,
+      required bool hasPermissionToDeleteAvatar,
+      required String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
         key: ValueKey("/media-details"),
         userUid: uid,
@@ -225,7 +227,9 @@ class RoutingService {
   }
 
   void openShowAllVideos(BuildContext context,
-      {Uid uid, int mediaPosition, int mediasLength}) {
+      {required Uid uid,
+      required int mediaPosition,
+      required int mediasLength}) {
     var widget = MediaDetailsPage.showVideo(
       key: ValueKey("/media-details"),
       userUid: uid,
@@ -244,11 +248,11 @@ class RoutingService {
   }
 
   void openShowAllMedia(BuildContext context,
-      {Uid uid,
-      bool hasPermissionToDeletePic,
-      int mediaPosition,
-      int mediasLength,
-      String heroTag}) {
+      {required Uid uid,
+      required bool hasPermissionToDeletePic,
+      required int mediaPosition,
+      required int mediasLength,
+      required String heroTag}) {
     var widget = MediaDetailsPage.showMedia(
       key: ValueKey("/media-details"),
       userUid: uid,
@@ -314,7 +318,7 @@ class RoutingService {
       _rootInMobileState(accountSettingsWidget, context);
   }
 
-  void openMemberSelection(BuildContext context, {bool isChannel, Uid mucUid}) {
+  void openMemberSelection(BuildContext context, {required bool isChannel, Uid ? mucUid}) {
     // _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
@@ -346,7 +350,7 @@ class RoutingService {
   }
 
   void openSelectForwardMessage(BuildContext context,
-      {List<Message> forwardedMessages, pro.ShareUid sharedUid}) {
+      {List<Message>  ? forwardedMessages, pro.ShareUid ? sharedUid}) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
@@ -362,7 +366,7 @@ class RoutingService {
       _rootInMobileState(widget, context);
   }
 
-  void openGroupInfoDeterminationPage(BuildContext context, {bool isChannel}) {
+  void openGroupInfoDeterminationPage(BuildContext context, {required bool isChannel}) {
     var widget = MucInfoDeterminationPage(
       key: ValueKey("/group-info-determination-page"),
       isChannel: isChannel,
@@ -377,7 +381,7 @@ class RoutingService {
       _rootInMobileState(widget, context);
   }
 
-  void openShareFile(BuildContext context, {List<String> path}) {
+  void openShareFile(BuildContext context, {required List<String> path}) {
     var widget = ShareInputFile(
         key: ValueKey("/share_file_page"), inputSharedFilePath: path);
     if (isDesktop())
@@ -404,7 +408,7 @@ class RoutingService {
       _rootInMobileState(widget, context);
   }
 
-  void openImagePage(BuildContext context, {Uid roomUid, File file}) {
+  void openImagePage(BuildContext context, {required Uid roomUid, required File file}) {
     var widget = ShowImagePage(
       roomUid: roomUid,
       imageFile: file,
@@ -497,7 +501,7 @@ class RoutingService {
     return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);
   }
 
-  Widget backButtonLeading(BuildContext context, {Function back}) {
+  Widget backButtonLeading(BuildContext context, {Function ? back}) {
     return BackButton(
       onPressed: () {
         if (back != null) back();
@@ -514,7 +518,7 @@ class RoutingService {
       _stack.last.path == "/profile/$roomId";
 
   Widget routerOutlet(BuildContext context) {
-    if (_stack.last.singlePageMain != null) return _stack.last.singlePageMain;
+    if (_stack.last.singlePageMain != null) return _stack.last.singlePageMain!;
     return Row(
       children: [
         Container(
@@ -561,7 +565,7 @@ class Empty extends StatelessWidget {
               child: Text("Please select a chat to start messaging",
                   style: Theme.of(context)
                       .textTheme
-                      .bodyText2
+                      .bodyText2!
                       .copyWith(color: Colors.white))),
         ),
       ],

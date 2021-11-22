@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:deliver/box/avatar.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -26,10 +29,10 @@ abstract class Notifier {
 }
 
 MessageBrief synthesize(MessageBrief mb) {
-  if (mb.text != null && mb.text.isNotEmpty) {
+  if (mb.text != null && mb.text!.isNotEmpty) {
     return mb.copyWith(
         text:
-            BoldTextParser.transformer(ItalicTextParser.transformer(mb.text)));
+            BoldTextParser.transformer(ItalicTextParser.transformer(mb.text!)));
   }
 
   return mb;
@@ -42,10 +45,10 @@ class NotificationServices {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _notifier = GetIt.I.get<Notifier>();
 
-  void showNotification(pro.Message message, {String roomName}) async {
+  void showNotification(pro.Message message, {String? roomName}) async {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
-        .copyWith(roomName: roomName);
-    if (mb.ignoreNotification) return;
+        .copyWith(roomName: roomName!);
+    if (mb.ignoreNotification!) return;
 
     // TODO change place of synthesizer if we want more styled texts in android
     _notifier.notify(synthesize(mb));
@@ -100,21 +103,22 @@ class WindowsNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification!) return;
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     final _fileServices = GetIt.I.get<FileService>();
 
     final _logger = GetIt.I.get<Logger>();
     try {
-      var lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid, false);
+      Avatar? lastAvatar =
+          await _avatarRepo.getLastAvatar(message.roomUid!, false);
       if (lastAvatar != null && lastAvatar.fileId != null) {
-        var file = await fileRepo.getFile(
-            lastAvatar.fileId, lastAvatar.fileName,
+        File? file = await fileRepo.getFile(
+            lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
         Toast toast = new Toast(
             type: ToastType.imageAndText02,
-            title: message.roomName,
+            title: message.roomName!,
             subtitle: createNotificationTextFromMessageBrief(message),
             image: file);
         _windowsNotificationServices.show(toast);
@@ -129,15 +133,17 @@ class WindowsNotifier implements Notifier {
         if (deliverIcon != null && deliverIcon.existsSync()) {
           Toast toast = new Toast(
             type: ToastType.imageAndText02,
-            title: message.roomName,
+            title: message.roomName!,
             image: deliverIcon,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
           _windowsNotificationServices.stream?.listen((event) {
             if (event is ToastActivated) {
-              if (lastAvatar.uid != null)
-                _routingService.openRoom(lastAvatar.uid,);
+              if (lastAvatar!.uid != null)
+                _routingService.openRoom(
+                  lastAvatar.uid,
+                );
             }
           });
         }
@@ -177,15 +183,15 @@ class LinuxNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification!) return;
 
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
       if (f != null && f.path.isNotEmpty) {
@@ -195,10 +201,10 @@ class LinuxNotifier implements Notifier {
 
     var platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
 
-    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+    _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
         notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid.asString());
+        payload: message.roomUid!.asString());
   }
 
   @override
@@ -251,7 +257,7 @@ class AndroidNotifier implements Notifier {
     final notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails();
     if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-      androidOnSelectNotification(notificationAppLaunchDetails.payload);
+      androidOnSelectNotification(notificationAppLaunchDetails!.payload);
     }
   }
 
@@ -264,15 +270,15 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification!) return;
 
-    AndroidBitmap largeIcon;
+    AndroidBitmap<Object>? largeIcon;
     String selectedNotificationSound = "that_was_quick";
     var selectedSound =
-        await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
+    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
       if (f != null && f.path.isNotEmpty) {
@@ -290,18 +296,19 @@ class AndroidNotifier implements Notifier {
 
     AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-            selectedNotificationSound + message.roomUid.asString(),
+            selectedNotificationSound + message.roomUid!.asString(),
             channel.name,
             channelDescription: channel.description,
             styleInformation: inboxStyleInformation,
             groupKey: channel.groupId,
             playSound: true,
-            sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+            sound:
+                RawResourceAndroidNotificationSound(selectedNotificationSound),
             setAsGroupSummary: true);
     await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
         notificationDetails: androidNotificationDetails);
     var platformChannelSpecifics = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid.asString(),
+      selectedNotificationSound + message.roomUid!.asString(),
       channel.name,
       channelDescription: channel.description,
       groupKey: channel.groupId,
@@ -311,20 +318,20 @@ class AndroidNotifier implements Notifier {
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
     _flutterLocalNotificationsPlugin.show(
-        message.roomUid.asString().hashCode + message.text.toString().hashCode,
+        message.roomUid!.asString().hashCode + message.text.toString().hashCode,
         message.roomName,
         createNotificationTextFromMessageBrief(message),
         notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid.asString());
+        payload: message.roomUid!.asString());
   }
 
   @override
   cancel(int id, String roomId) async {
     try {
-      List<ActiveNotification> activeNotification =
+      List<ActiveNotification>? activeNotification =
           await _flutterLocalNotificationsPlugin.getActiveNotifications();
-      for (var element in activeNotification) {
-        if (element.channelId.contains(roomId) && element.id != 0)
+      for (var element in activeNotification!) {
+        if (element.channelId!.contains(roomId) && element.id != 0)
           await _flutterLocalNotificationsPlugin.cancel(element.id);
       }
     } catch (e) {
@@ -364,14 +371,14 @@ class MacOSNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification!) return;
 
     List<MacOSNotificationAttachment> attachments = [];
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId, la.fileName,
+      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
       if (f != null && f.path.isNotEmpty) {
@@ -382,10 +389,10 @@ class MacOSNotifier implements Notifier {
     var macOSPlatformChannelSpecifics =
         MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
 
-    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+    _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
         notificationDetails: macOSPlatformChannelSpecifics,
-        payload: message.roomUid.asString());
+        payload: message.roomUid!.asString());
   }
 
   @override
@@ -409,17 +416,18 @@ class MacOSNotifier implements Notifier {
 
 String createNotificationTextFromMessageBrief(MessageBrief mb) {
   var text = "";
-  if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
-    text += "${mb.sender.trim()}: ";
+  if (!(mb.roomUid!.isBot() || mb.roomUid!.isUser()) && mb.senderIsAUserOrBot!) {
+    text += "${mb.sender!.trim()}: ";
   }
-  if (mb.typeDetails.isNotEmpty) {
-    text += mb.typeDetails;
+  if (mb.typeDetails!.isNotEmpty) {
+    text += mb.typeDetails!;
   }
-  if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty) {
+  if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty) {
+
     text += ", ";
   }
-  if (mb.text.isNotEmpty) {
-    text += mb.text;
+  if (mb.text!.isNotEmpty) {
+    text += mb.text!;
   }
 
   return text;

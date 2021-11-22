@@ -21,7 +21,11 @@ class ImageUi extends StatefulWidget {
   final bool isSeen;
 
   const ImageUi(
-      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -30,9 +34,8 @@ class ImageUi extends StatefulWidget {
 
 class _ImageUiState extends State<ImageUi> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  filePb.File image;
+  late filePb.File image;
   BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
-  bool showTime;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,7 @@ class _ImageUiState extends State<ImageUi> {
     const border = const BorderRadius.all(radius);
 
     try {
-      image = widget.message.json.toFile();
+      image = widget.message.json!.toFile();
 
       var dimensions =
           getImageDimensions(image.width.toDouble(), image.height.toDouble());
@@ -52,7 +55,7 @@ class _ImageUiState extends State<ImageUi> {
 
       return ClipRRect(
         borderRadius: border,
-        child: FutureBuilder<File>(
+        child: FutureBuilder<File?>(
             future: fileRepo.getFileIfExist(image.uuid, image.name),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
@@ -62,20 +65,24 @@ class _ImageUiState extends State<ImageUi> {
                     GestureDetector(
                       onTap: () {
                         if (!isDesktop()) {
-                          _showImageInDesktop(s.data);
+                          _showImageInDesktop(s.data!);
                         } else {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return ImageSwiper(
-                              message: widget.message,
-                            );
-                          },),);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ImageSwiper(
+                                  message: widget.message,
+                                );
+                              },
+                            ),
+                          );
                         }
                       },
                       child: Hero(
                         tag: image.uuid,
                         child: Image.file(
-                          s.data,
+                          s.data!,
                           width: width,
                           height: height,
                           fit: BoxFit.fill,
@@ -109,10 +116,10 @@ class _ImageUiState extends State<ImageUi> {
                             height: height,
                             child: BlurHash(hash: image.blurHash)),
                         Center(
-                          child: StreamBuilder(
+                          child: StreamBuilder<bool>(
                             stream: _startDownload.stream,
                             builder: (c, s) {
-                              if (s.hasData && s.data) {
+                              if (s.hasData && s.data!) {
                                 return CircularProgressIndicator(
                                   strokeWidth: 4,
                                 );
@@ -178,7 +185,7 @@ class _ImageUiState extends State<ImageUi> {
           return AlertDialog(
             content: InteractiveViewer(
                 child: Hero(
-                    tag: widget.message.json.toFile().uuid,
+                    tag: widget.message.json!.toFile().uuid,
                     child: Image.file(file))),
           );
         });

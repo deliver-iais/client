@@ -14,12 +14,12 @@ class CircularFileStatusIndicator extends StatelessWidget {
   final Function onPressed;
 
   const CircularFileStatusIndicator(
-      {Key key,
-      this.isExist,
+      {Key? key,
+      required this.isExist,
       this.isPending = false,
-      this.file,
-      this.msg,
-      this.onPressed})
+      required this.file,
+      required this.msg,
+      required this.onPressed})
       : super(key: key);
 
   @override
@@ -38,7 +38,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
         return LoadFileStatus(
           fileId: file.uuid,
           fileName: file.name,
-          messageId: msg.id,
+          messageId: msg.id!,
           messagePacketId: msg.packetId,
           roomUid: msg.roomUid,
           onPressed: onPressed,

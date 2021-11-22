@@ -3,10 +3,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class ToastDisplay {
   static showToast(
-      {IconData toastIcon,
-      Color toastColor,
-      BuildContext tostContext,
-      String toastText}) {
+      {IconData ? toastIcon,
+      Color ? toastColor,
+      required BuildContext tostContext,
+     required String toastText}) {
     FToast fToast = FToast();
     fToast.init(tostContext);
     if (toastColor == null)
