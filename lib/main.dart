@@ -57,7 +57,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -203,7 +202,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
 
   if (isLinux() || isWindows()) {
     DartVLC.initialize();

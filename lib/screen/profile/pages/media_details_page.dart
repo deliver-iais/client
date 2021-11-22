@@ -431,12 +431,13 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
+        //todo ...................
         //buildAppBar(i, widget.mediasLength),
-        VideoUi(
-          duration: duration,
-          videoFile: snaps,
-          showSlider: true,
-        ),
+        // VideoUi(
+        //   duration: duration,
+        //   videoFile: snaps,
+        //
+        // ),
         buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
       ],
     );

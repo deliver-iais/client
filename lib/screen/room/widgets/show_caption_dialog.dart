@@ -56,7 +56,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       });
     } else {
       _editableFile = widget.editableMessage!.json!.toFile();
-      _editingController.text = _editableFile.caption ?? "";
+      _editingController.text = _editableFile.caption;
       _type = _editableFile.type;
     }
     super.initState();

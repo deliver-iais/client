@@ -415,7 +415,7 @@ class IntroSliderState extends State<IntroSlider>
 
     tabController.animation!.addListener(() {
       this.setState(() {
-        onAnimationChange?.call(tabController.animation!.value);
+        onAnimationChange.call(tabController.animation!.value);
         if (tabController.animation!.value == currentAnimationValue) {
           return;
         }
@@ -598,7 +598,7 @@ class IntroSliderState extends State<IntroSlider>
           ],
         ),
       ),
-      backgroundColor: this.backgroundColorAllSlides ?? Colors.transparent,
+      backgroundColor: this.backgroundColorAllSlides,
     );
   }
 
@@ -736,11 +736,11 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget renderTab(
     // Title
-    Widget widgetTitle,
-    String title,
+    Widget ? widgetTitle,
+    String ? title,
     int maxLineTitle,
-    TextStyle styleTitle,
-    EdgeInsets marginTitle,
+    TextStyle ? styleTitle,
+    EdgeInsets ? marginTitle,
 
     // Description
     Widget widgetDescription,
@@ -760,18 +760,18 @@ class IntroSliderState extends State<IntroSlider>
     Function onCenterItemPress,
 
     // Background color
-    Color backgroundColor,
-    Color colorBegin,
-    Color colorEnd,
-    AlignmentGeometry directionColorBegin,
-    AlignmentGeometry directionColorEnd,
+    Color ? backgroundColor,
+    Color ? colorBegin,
+    Color ? colorEnd,
+    AlignmentGeometry ? directionColorBegin,
+    AlignmentGeometry ? directionColorEnd,
 
     // Background image
     String backgroundImage,
     BoxFit backgroundImageFit,
     double backgroundOpacity,
-    Color backgroundOpacityColor,
-    BlendMode backgroundBlendMode,
+    Color ? backgroundOpacityColor,
+    BlendMode ? backgroundBlendMode,
   ) {
     double animationSize = animationSquareSize(context);
     return Container(
@@ -782,12 +782,12 @@ class IntroSliderState extends State<IntroSlider>
           ? BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(backgroundImage),
-                fit: backgroundImageFit ?? BoxFit.cover,
+                fit: backgroundImageFit,
                 colorFilter: ColorFilter.mode(
                   backgroundOpacityColor != null
                       ? backgroundOpacityColor
-                          .withOpacity(backgroundOpacity ?? 0.5)
-                      : Colors.black.withOpacity(backgroundOpacity ?? 0.5),
+                          .withOpacity(backgroundOpacity)
+                      : Colors.black.withOpacity(backgroundOpacity),
                   backgroundBlendMode ?? BlendMode.darken,
                 ),
               ),

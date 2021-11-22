@@ -88,7 +88,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                             ),
                                             SizedBox(height: 4),
                                             DefaultTextStyle(
-                                              child: showMemberRole(member!),
+                                              child: showMemberRole(member),
                                               style: TextStyle(
                                                   color: ExtraTheme.of(context)
                                                       .textField,

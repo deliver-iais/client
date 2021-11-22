@@ -158,7 +158,7 @@ class _DevicesPageState extends State<DevicesPage> {
               Text(
                 session.ip.isEmpty
                     ? "No IP Provided"
-                    : session.ip ?? "No IP Provided",
+                    : session.ip,
                 style: Theme.of(context).textTheme.caption,
               ),
               DefaultTextStyle(

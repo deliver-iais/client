@@ -261,7 +261,7 @@ class PersistentEventMessage extends StatelessWidget {
           return m.json!.toText().text;
 
         case MessageType.FILE:
-          return m.json!.toFile().caption ?? "";
+          return m.json!.toFile().caption;
 
         case MessageType.STICKER:
           // TODO: Handle this case.

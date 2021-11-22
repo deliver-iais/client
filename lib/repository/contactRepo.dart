@@ -39,44 +39,43 @@ class ContactRepo {
   final Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-    if (!requestLock.locked)
-      requestLock.synchronized(() async {
-        if (await _checkPermission.checkContactPermission() ||
-            isDesktop() ||
-            isIOS()) {
-          List<Contact> contacts = [];
-          if (!isDesktop()) {
-            Iterable<OsContact.Contact> phoneContacts =
-                await OsContact.ContactsService.getContacts(
-                    withThumbnails: false,
-                    photoHighResolution: false,
-                    orderByGivenName: false,
-                    iOSLocalizedLabels: false);
+    requestLock.synchronized(() async {
+      if (await _checkPermission.checkContactPermission() ||
+          isDesktop() ||
+          isIOS()) {
+        List<Contact> contacts = [];
+        if (!isDesktop()) {
+          Iterable<OsContact.Contact> phoneContacts =
+              await OsContact.ContactsService.getContacts(
+                  withThumbnails: false,
+                  photoHighResolution: false,
+                  orderByGivenName: false,
+                  iOSLocalizedLabels: false);
 
-            for (OsContact.Contact phoneContact in phoneContacts) {
-              for (var p in phoneContact.phones!) {
-                try {
-                  String contactPhoneNumber = p.value.toString();
-                  PhoneNumber phoneNumber = _getPhoneNumber(
-                      contactPhoneNumber, phoneContact.displayName!);
-                  _contactsDisplayName[phoneNumber] = phoneContact.displayName!;
-                  Contact contact = Contact()
-                    ..lastName = phoneContact.displayName!
-                    ..phoneNumber = phoneNumber;
-                  contacts.add(contact);
-                } catch (e) {
-                  _logger.e(e);
-                }
+          for (OsContact.Contact phoneContact in phoneContacts) {
+            for (var p in phoneContact.phones!) {
+              try {
+                String contactPhoneNumber = p.value.toString();
+                PhoneNumber phoneNumber = _getPhoneNumber(
+                    contactPhoneNumber, phoneContact.displayName!);
+                _contactsDisplayName[phoneNumber] = phoneContact.displayName!;
+                Contact contact = Contact()
+                  ..lastName = phoneContact.displayName!
+                  ..phoneNumber = phoneNumber;
+                contacts.add(contact);
+              } catch (e) {
+                _logger.e(e);
               }
             }
           }
-          sendContacts(contacts);
         }
-      });
+        sendContacts(contacts);
+      }
+    });
   }
 
   PhoneNumber _getPhoneNumber(String phone, String name) {
-    PhoneNumber ? p = getPhoneNumber(phone);
+    PhoneNumber? p = getPhoneNumber(phone);
 
     if (p == null) {
       throw Exception("Not Valid Number  $name ***** $phone");

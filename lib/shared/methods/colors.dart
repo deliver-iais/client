@@ -47,8 +47,6 @@ class RandomColor {
     if (random != null) {
       _random = random;
     }
-
-    _random ??= new Random();
   }
 
   bool debug = false;

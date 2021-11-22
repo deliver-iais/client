@@ -269,7 +269,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       );
                                     })
                                 : Text(
-                                    snapshot.data!.version ?? VERSION,
+                                    snapshot.data!.version,
                                   );
                           } else {
                             return Text(

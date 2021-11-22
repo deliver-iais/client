@@ -11,6 +11,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -20,6 +21,7 @@ enum ThumbnailSize { medium }
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _logger = GetIt.I.get<Logger>();
 
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
@@ -132,43 +134,33 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath,
-      {required String uploadKey, Function? sendActivity}) async {
-    // var file = await http.MultipartFile.fromPath("image", filePath,
-    //     contentType: MediaType.parse(mime(filePath)));
-    // try {
-    //   var request = new http.MultipartRequest(
-    //       "POST", Uri.parse(FileServiceBaseUrl+"/upload"));
-    //   request.headers["Authorization"] = await _authRepo.getAccessToken();
-    //   request.headers["Content-type"] = "multipart/form-data";
-    //   request.files.add(file);
-    //   var res = await request.send();
-    //   print(res.statusCode);
-    // } catch (e) {
-    //   print(e.toString());
-    // }
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      options.onSendProgress = (int i, int j) {
-        if (sendActivity != null) sendActivity();
-        if (filesUploadStatus[uploadKey] == null) {
-          BehaviorSubject<double> d = BehaviorSubject();
-          filesUploadStatus[uploadKey] = d;
-        }
-        filesUploadStatus[uploadKey]!.add((i / j));
-      };
-      handler.next(options);
-    }));
+  uploadFile(String filePath, {required String uploadKey, Function ? sendActivity}) async {
+    try {
+      _dio.interceptors.add(InterceptorsWrapper(onRequest:
+          (RequestOptions options, RequestInterceptorHandler handler) async {
+        options.onSendProgress = (int i, int j) {
+          if (sendActivity != null) sendActivity();
+          if (filesUploadStatus[uploadKey] == null) {
+            BehaviorSubject<double> d = BehaviorSubject();
+            filesUploadStatus[uploadKey] = d;
+          }
+          filesUploadStatus[uploadKey]!.add((i / j));
+        };
+        handler.next(options);
+      }));
 
-    var formData = FormData.fromMap({
-      "file": MultipartFile.fromFileSync(filePath,
-          contentType:
-              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-    });
+      var formData = FormData.fromMap({
+        "file": MultipartFile.fromFileSync(filePath,
+            contentType:
+                MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+      });
 
-    return _dio.post(
-      "/upload",
-      data: formData,
-    );
+      return _dio.post(
+        "/upload",
+        data: formData,
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 }

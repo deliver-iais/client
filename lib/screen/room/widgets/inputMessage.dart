@@ -168,8 +168,7 @@ class _InputMessageWidget extends State<InputMessage> {
           _controller.selection.start == _controller.selection.end &&
           _controller.selection.start >= 1 &&
           botCommandRegexp.hasMatch(
-              _controller.text.substring(0 + 1, _controller.selection.start) ??
-                  "")) {
+              _controller.text.substring(0 + 1, _controller.selection.start))) {
         _botCommandQuery.add(
             _controller.text.substring(0 + 1, _controller.selection.start));
       } else if (_controller.text.isEmpty) {

@@ -120,7 +120,6 @@ class _VideoMessageState extends State<VideoMessage> {
                             videoFile: s.data!,
                             video: widget.message.json!.toFile(),
                             duration: video.duration,
-                            showSlider: true,
                           ),
                           videoLength: videoLength,
                           video: video);

@@ -6,5 +6,6 @@
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
 -keep class com.google.firebase.** { *; }
+-keep class org.videolan.libvlc.** { *; }
 -dontwarn io.flutter.embedding.**
 -ignorewarnings
