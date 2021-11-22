@@ -25,7 +25,7 @@ class MucMemberMentionWidget extends StatelessWidget {
 
   Widget buildGestureDetector(
       {required String username,
-      required String name,
+        String? name,
       required BuildContext context}) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -42,7 +42,7 @@ class MucMemberMentionWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  ((name ?? username).isNotEmpty ? name : username).trim(),
+                  ((name ?? username).isNotEmpty ? name : username)!.trim(),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: ExtraTheme.of(context).textField,

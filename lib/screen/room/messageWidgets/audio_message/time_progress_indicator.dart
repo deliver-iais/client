@@ -38,7 +38,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                         builder: (context, snapshot2) {
                           currentPos = audioPlayerService.audioName == null
                               ? Duration.zero
-                              : snapshot2.data ?? currentPos ?? Duration.zero;
+                              : snapshot2.data ?? currentPos ;
 
                           return Text(
                             currentPos.toString().split('.')[0].substring(2) +

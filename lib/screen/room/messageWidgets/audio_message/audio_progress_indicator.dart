@@ -32,7 +32,7 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
           return StreamBuilder<Duration>(
               stream: audioPlayerService.audioCurrentPosition(),
               builder: (context, snapshot2) {
-                currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
+                currentPos = snapshot2.data ?? currentPos;
                 return Slider(
                     value: currentPos.inSeconds.toDouble(),
                     min: 0.0,

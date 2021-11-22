@@ -264,8 +264,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                     builder: (c, sms) {
                                       return Text(
                                         sms.data ??
-                                            snapshot.data.version ??
-                                            VERSION,
+                                            snapshot.data!.version
+
                                       );
                                     })
                                 : Text(
