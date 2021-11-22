@@ -21,11 +21,15 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPinned;
+  final bool isPersistentEventMessage;
 
-  OperationOnMessageEntry(this.message,
-      {this.hasPermissionInChannel = true,
-      this.hasPermissionInGroup = true,
-      this.isPinned = false});
+  OperationOnMessageEntry(
+    this.message, {
+    this.hasPermissionInChannel = true,
+    this.hasPermissionInGroup = true,
+    this.isPinned = false,
+    this.isPersistentEventMessage,
+  });
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -260,7 +264,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     } else
                       return SizedBox.shrink();
                   }),
-            if (widget.message.id != null)
+            if (widget.message.id != null && !widget.isPersistentEventMessage)
               TextButton(
                   onPressed: () {
                     onForward();

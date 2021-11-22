@@ -391,17 +391,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _repliedMessage.add(null);
   }
 
-  void _showCustomMenu(Message message) {
+  void _showCustomMenu(Message message, bool isPersistentEventMessage) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
-      OperationOnMessageEntry(
-        message,
-        hasPermissionInChannel: _hasPermissionInChannel.value,
-        hasPermissionInGroup: _hasPermissionInGroup.value,
-        isPinned: _pinMessages.contains(message),
-      )
+      OperationOnMessageEntry(message,
+          hasPermissionInChannel: _hasPermissionInChannel.value,
+          hasPermissionInGroup: _hasPermissionInGroup.value,
+          isPinned: _pinMessages.contains(message),
+          isPersistentEventMessage: isPersistentEventMessage)
     ]).then<void>((OperationOnMessage opr) async {
       if (opr == null) return;
-      switch (opr) {// ignore: missing_enum_constant_in_switch
+      switch (opr) {
+        // ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
           break;
@@ -423,7 +423,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {// ignore: missing_enum_constant_in_switch
+          switch (message.type) {
+            // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
               _editableMessage.add(message);
@@ -975,25 +976,40 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               Padding(
                 padding: EdgeInsets.symmetric(
                     vertical: msg.json == "{}" ? 0.0 : 4.0),
-                child: PersistentEventMessage(
-                  message: msg,
-                  onPinMessageClick: (int id) {
-                    setState(() {
-                      _replyMessageId = id;
-                    });
-                    _itemScrollController.scrollTo(
-                        alignment: .5,
-                        curve: Curves.easeOut,
-                        opacityAnimationWeights: [20, 20, 60],
-                        index: id,
-                        duration: Duration(milliseconds: 1000));
-                    Timer(Duration(seconds: 1), () {
-                      setState(() {
-                        _replyMessageId = -1;
-                      });
-                    });
-                  },
-                ),
+                child: GestureDetector(
+                    onTap: () {
+                      if (_selectMultiMessageSubject.stream.value)
+                        _addForwardMessage(msg);
+                      if (!isDesktop()) _showCustomMenu(msg, true);
+                    },
+                    onSecondaryTap: !isDesktop()
+                        ? null
+                        : () {
+                            if (!_selectMultiMessageSubject.stream.value)
+                              _showCustomMenu(msg, true);
+                          },
+                    onDoubleTap: !isDesktop() ? null : () => onReply(msg),
+                    onTapDown: storePosition,
+                    onSecondaryTapDown: storePosition,
+                    child: PersistentEventMessage(
+                      message: msg,
+                      onPinMessageClick: (int id) {
+                        setState(() {
+                          _replyMessageId = id;
+                        });
+                        _itemScrollController.scrollTo(
+                            alignment: .5,
+                            curve: Curves.easeOut,
+                            opacityAnimationWeights: [20, 20, 60],
+                            index: id,
+                            duration: Duration(milliseconds: 1000));
+                        Timer(Duration(seconds: 1), () {
+                          setState(() {
+                            _replyMessageId = -1;
+                          });
+                        });
+                      },
+                    )),
               ),
             ],
           );
@@ -1024,13 +1040,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onTap: () {
           if (_selectMultiMessageSubject.stream.value)
             _addForwardMessage(message);
-          else if (!isDesktop()) _showCustomMenu(message);
+          else if (!isDesktop()) _showCustomMenu(message, false);
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!_selectMultiMessageSubject.stream.value)
-                  _showCustomMenu(message);
+                  _showCustomMenu(message, false);
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
         onLongPress: () {
