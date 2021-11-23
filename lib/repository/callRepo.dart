@@ -5,6 +5,7 @@ import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_incoming_call/flutter_incoming_call.dart';
@@ -16,11 +17,19 @@ import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
 enum CallStatus {
-  CREATED , IS_RINGING , DECLINED , BUSY , ENDED , NO_CALL , ACCEPTED , IN_CALL
+  CREATED,
+  IS_RINGING,
+  DECLINED,
+  BUSY,
+  ENDED,
+  NO_CALL,
+  ACCEPTED,
+  IN_CALL,
+  CONNECTING,
+  CONNECTED
 }
 
 class CallRepo {
-
   final messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
@@ -38,18 +47,16 @@ class CallRepo {
 
   RTCPeerConnection _peerConnection;
 
-
-
   bool _onCalling = false;
   bool _isSharing = false;
 
   Uid _roomUid;
+
   Uid get roomUid => _roomUid;
 
   Function(MediaStream stream) onLocalStream;
   Function(MediaStream stream) onAddRemoteStream;
   Function(MediaStream stream) onRemoveRemoteStream;
-
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
@@ -67,13 +74,12 @@ class CallRepo {
               callingStatus.add(CallStatus.IS_RINGING);
               break;
             case CallEvent_CallStatus.CREATED:
-              if(!_onCalling) {
+              if (!_onCalling) {
                 _callId = callEvent.id;
                 incomingCall(event.roomUid);
-              }else{
+              } else {
                 messageRepo.sendCallMessage(
-                    CallEvent_CallStatus.BUSY, event.roomUid,
-                    callEvent.id);
+                    CallEvent_CallStatus.BUSY, event.roomUid, callEvent.id);
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -90,6 +96,7 @@ class CallRepo {
       }
     });
   }
+
   /*
   * initial Variable for Render Call Between 2 Client
   * */
@@ -104,7 +111,7 @@ class CallRepo {
       "iceServers": [
         {"url": STUN_SERVER_URL},
         {
-          'url':TURN_SERVER_URL,
+          'url': TURN_SERVER_URL,
           'username': TURN_SERVER_USERNAME,
           'credential': TURN_SERVER_PASSWORD
         },
@@ -122,7 +129,7 @@ class CallRepo {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-    await createPeerConnection(configuration, offerSdpConstraints);
+        await createPeerConnection(configuration, offerSdpConstraints);
 
     var camVideoTrack = _localStream.getVideoTracks()[0];
     var camAudioTrack = _localStream.getAudioTracks()[0];
@@ -133,25 +140,48 @@ class CallRepo {
     pc.onIceConnectionState = (e) {
       _logger.i(e);
       // we can do special work on every change in candidate Connection State
-      switch(e){
-        case RTCIceConnectionState.RTCIceConnectionStateChecking:
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateClosed:
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-          //on this state we can connection fully completed
+      // switch(e){
+      //   case RTCIceConnectionState.RTCIceConnectionStateFailed:
+      //     break;
+      //   case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+      //     //The ICE agent has finished gathering candidates, has checked all pairs against one another, and has found a connection for all components.
+      //     break;
+      //   case RTCIceConnectionState.RTCIceConnectionStateConnected:
+      //     //A usable pairing of local and remote candidates has been found for all components of the connection, and the connection has been established. It is possible that gathering is still underway, and it is also possible that the ICE agent is still checking candidates against one another looking for a better connection to use.
+      //     break;
+      //   case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+      //     break;
+      // }
+    };
 
+    //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
+    pc.onConnectionState = (RTCPeerConnectionState state) async {
+      _logger.i(state);
+      switch (state) {
+        case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
+          //when connection Connected Status we Set some limit on bitRate
+          // var params = _videoSender.parameters;
+          // if (params.encodings.isEmpty) {
+          //   params.encodings = [];
+          //   params.encodings.add(new RTCRtpEncoding());
+          // }
+          //
+          // params.encodings[0].maxBitrate =
+          //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+          // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+          // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+          //     params.encodings[0].scaleResolutionDownBy = 2;
+          // await _videoSender.setParameters(params);
+          _dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
           break;
-        case RTCIceConnectionState.RTCIceConnectionStateConnected:
-          //on this state we can recivied Media
+        case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
+          //_dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTING));
           break;
-        case RTCIceConnectionState.RTCIceConnectionStateCount:
+        case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
+          _dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_DISCONNECTED));
           break;
-        case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateFailed:
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateNew:
+        case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
+          //_dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_FAILED));
           break;
       }
     };
@@ -170,9 +200,9 @@ class CallRepo {
       if (state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
         //when we go on this stage after about 2 sec all candidate revived and we can sending them all
         _logger.i("RTCIceGatheringStateGathering");
-        if(isOffer) {
+        if (isOffer) {
           _calculateCandidateAndSendOffer();
-        }else{
+        } else {
           _calculateCandidateAndSendAnswer();
         }
       }
@@ -197,11 +227,11 @@ class CallRepo {
 
     pc.onDataChannel = (channel) {
       _dataChannel = channel;
-      _dataChannel.onMessage = (RTCDataChannelMessage data) {
+      _dataChannel.onMessage = (RTCDataChannelMessage data) async {
         var status = data.text;
         _logger.i(status);
         // we need Decision making by state
-        switch(status){
+        switch (status) {
           case STATUS_CAMERA_OPEN:
             mute_camera.add(true);
             break;
@@ -216,6 +246,29 @@ class CallRepo {
             break;
           case STATUS_SHARE_VIDEO:
             break;
+          case STATUS_CONNECTION_FAILED:
+            break;
+          case STATUS_CONNECTION_DISCONNECTED:
+            break;
+          case STATUS_CONNECTION_CONNECTED:
+            //when connection Connected Status we Set some limit on bitRate
+            // var params = _videoSender.parameters;
+            // if (params.encodings.isEmpty) {
+            //   params.encodings = [];
+            //   params.encodings.add(new RTCRtpEncoding());
+            // }
+            //
+            // params.encodings[0].maxBitrate =
+            //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+            // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+            // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+            //     params.encodings[0].scaleResolutionDownBy = 2;
+            // await _videoSender.setParameters(params);
+            callingStatus.add(CallStatus.CONNECTED);
+            break;
+          case STATUS_CONNECTION_CONNECTING:
+            callingStatus.add(CallStatus.CONNECTING);
+            break;
         }
       };
     };
@@ -227,14 +280,14 @@ class CallRepo {
     RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
       ..maxRetransmits = 15;
 
-    RTCDataChannel dataChannel =
-    await _peerConnection.createDataChannel("stateTransfer", dataChannelDict);
+    RTCDataChannel dataChannel = await _peerConnection.createDataChannel(
+        "stateTransfer", dataChannelDict);
 
-    dataChannel.onMessage = (RTCDataChannelMessage data) {
+    dataChannel.onMessage = (RTCDataChannelMessage data) async {
       var status = data.text;
       _logger.i(status);
       // we need Decision making by state
-      switch(status){
+      switch (status) {
         case STATUS_CAMERA_OPEN:
           mute_camera.add(true);
           break;
@@ -249,6 +302,29 @@ class CallRepo {
           break;
         case STATUS_SHARE_VIDEO:
           break;
+        case STATUS_CONNECTION_FAILED:
+          break;
+        case STATUS_CONNECTION_DISCONNECTED:
+          break;
+        case STATUS_CONNECTION_CONNECTED:
+        //when connection Connected Status we Set some limit on bitRate
+        // var params = _videoSender.parameters;
+        // if (params.encodings.isEmpty) {
+        //   params.encodings = [];
+        //   params.encodings.add(new RTCRtpEncoding());
+        // }
+        //
+        // params.encodings[0].maxBitrate =
+        //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+        // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+        // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+        //     params.encodings[0].scaleResolutionDownBy = 2;
+        // await _videoSender.setParameters(params);
+          callingStatus.add(CallStatus.CONNECTED);
+          break;
+        case STATUS_CONNECTION_CONNECTING:
+          callingStatus.add(CallStatus.CONNECTING);
+          break;
       }
     };
     return dataChannel;
@@ -258,19 +334,47 @@ class CallRepo {
   * get Access from User for Camera and Microphone
   * */
   _getUserMedia() async {
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': true,
-      'video': {
-        'mandatory': {
-          'minWidth':
-          '960', // Provide your own width, height and frame rate here
-          'minHeight': '720',
-          'minFrameRate': '45',
+    // Provide your own width, height and frame rate here
+    Map<String, dynamic> mediaConstraints;
+    if (isWindows()) {
+      mediaConstraints = {
+        'video': {
+          'mandatory': {
+            'minWidth': '640',
+            'maxWidth': '720',
+            'minHeight': '360',
+            'maxHeight': '405',
+            'minFrameRate': '15',
+            'maxFrameRate': '25',
+          },
+          'facingMode': 'user',
+          'optional': [],
         },
-        'facingMode': 'user',
-        'optional': [],
-      }
-    };
+        'audio': {
+          'sampleSize': '16',
+          'channelCount': '2',
+        }
+      };
+    } else {
+      mediaConstraints = {
+        'video': {
+          'mandatory': {
+            'minWidth': '480',
+            'maxWidth': '640',
+            'minHeight': '270',
+            'maxHeight': '360',
+            'minFrameRate': '15',
+            'maxFrameRate': '25',
+          },
+          'facingMode': 'user',
+          'optional': [],
+        },
+        'audio': {
+          'sampleSize': '16',
+          'channelCount': '2',
+        }
+      };
+    }
 
     var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
@@ -290,14 +394,14 @@ class CallRepo {
   }
 
   shareScreen() async {
-    if(!_isSharing) {
+    if (!_isSharing) {
       _localStreamShare = await _getUserDisplay();
       var screenVideoTrack = _localStreamShare.getVideoTracks()[0];
       _videoSender.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare);
       _isSharing = true;
       _dataChannel.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
-    }else{
+    } else {
       var camVideoTrack = _localStream.getVideoTracks()[0];
       _videoSender.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream);
@@ -312,9 +416,9 @@ class CallRepo {
   bool muteMicrophone() {
     if (_localStream != null) {
       bool enabled = _localStream.getAudioTracks()[0].enabled;
-      if(enabled){
+      if (enabled) {
         _dataChannel.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
-      }else{
+      } else {
         _dataChannel.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
       }
       _localStream.getAudioTracks()[0].enabled = !enabled;
@@ -335,9 +439,9 @@ class CallRepo {
   bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream.getVideoTracks()[0].enabled;
-      if(enabled){
+      if (enabled) {
         _dataChannel.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
-      }else{
+      } else {
         _dataChannel.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
       }
       _localStream.getVideoTracks()[0].enabled = !enabled;
@@ -351,17 +455,16 @@ class CallRepo {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.IS_RINGING, _roomUid,
-        _callId);
+        CallEvent_CallStatus.IS_RINGING, _roomUid, _callId);
   }
 
   void startCall(Uid roomId) async {
-    if(!_onCalling) {
+    if (!_onCalling) {
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
       Timer(Duration(seconds: 50), () {
-        if(callingStatus.value == CallStatus.IS_RINGING) {
+        if (callingStatus.value == CallStatus.IS_RINGING) {
           callingStatus.add(CallStatus.ENDED);
           endCall();
         }
@@ -369,14 +472,15 @@ class CallRepo {
       _roomUid = roomId;
       _onCalling = true;
       _sendStartCallEvent();
-    }else{
+    } else {
       _logger.i("User on Call ... !");
     }
   }
 
-  _sendStartCallEvent(){
+  _sendStartCallEvent() {
     _callIdGenerator();
-    messageRepo.sendCallMessage(CallEvent_CallStatus.CREATED, _roomUid, _callId);
+    messageRepo.sendCallMessage(
+        CallEvent_CallStatus.CREATED, _roomUid, _callId);
   }
 
   _callIdGenerator() {
@@ -397,12 +501,12 @@ class CallRepo {
   void declineCall() {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
-    messageRepo.sendCallMessage(CallEvent_CallStatus.DECLINED, _roomUid, _callId);
+    messageRepo.sendCallMessage(
+        CallEvent_CallStatus.DECLINED, _roomUid, _callId);
     _dispose();
   }
 
   void _receivedCallAnswer(CallAnswer callAnswer) async {
-
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
@@ -410,6 +514,7 @@ class CallRepo {
     callingStatus.add(CallStatus.IN_CALL);
   }
 
+  //here we have accepted Call
   void _receivedCallOffer(CallOffer callOffer) async {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionOffer(callOffer.body);
@@ -422,10 +527,9 @@ class CallRepo {
   }
 
   _setCallCandidate(String candidatesJson) async {
-    List<RTCIceCandidate> candidates =
-    (jsonDecode(candidatesJson) as List)
+    List<RTCIceCandidate> candidates = (jsonDecode(candidatesJson) as List)
         .map((data) => RTCIceCandidate(
-        data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
+            data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
         .toList();
     await _setCandidate(candidates);
   }
@@ -438,14 +542,13 @@ class CallRepo {
     });
   }
 
-  void receivedDeclinedCall() async{
+  void receivedDeclinedCall() async {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
-     Timer(Duration(seconds: 4), () {
-        callingStatus.add(CallStatus.ENDED);
-        _dispose();
-      });
-
+    Timer(Duration(seconds: 4), () {
+      callingStatus.add(CallStatus.ENDED);
+      _dispose();
+    });
   }
 
   void receivedEndCall() {
@@ -481,7 +584,7 @@ class CallRepo {
 
   _createAnswer() async {
     RTCSessionDescription description =
-    await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
+        await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
 
     var session = parse(description.sdp.toString());
     var answerSdp = json.encode(session);
@@ -494,7 +597,7 @@ class CallRepo {
 
   _createOffer() async {
     RTCSessionDescription description =
-    await _peerConnection.createOffer({'offerToReceiveVideo': 1});
+        await _peerConnection.createOffer({'offerToReceiveVideo': 1});
     //get SDP as String
     var session = parse(description.sdp.toString());
     var offerSdp = json.encode(session);
@@ -503,7 +606,7 @@ class CallRepo {
     return offerSdp;
   }
 
-  _calculateCandidateAndSendOffer() async{
+  _calculateCandidateAndSendOffer() async {
     //w8 about 3 Sec for received Candidate
     await Future.delayed(Duration(seconds: 3));
     // Send Candidate to Receiver
@@ -517,10 +620,9 @@ class CallRepo {
       ..to = _roomUid);
     _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
-
   }
 
-  _calculateCandidateAndSendAnswer() async{
+  _calculateCandidateAndSendAnswer() async {
     //w8 about 3 Sec for received Candidate
     await Future.delayed(Duration(seconds: 3));
     // Send Candidate back to Sender
@@ -533,7 +635,6 @@ class CallRepo {
       ..to = _roomUid);
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
-
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
@@ -576,6 +677,7 @@ class CallRepo {
     }
   }
 
-  BehaviorSubject <bool> mute_camera = BehaviorSubject.seeded(true);
-  BehaviorSubject<CallStatus> callingStatus = BehaviorSubject.seeded(CallStatus.NO_CALL);
+  BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
+  BehaviorSubject<CallStatus> callingStatus =
+      BehaviorSubject.seeded(CallStatus.NO_CALL);
 }
