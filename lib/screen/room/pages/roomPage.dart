@@ -151,7 +151,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   }),
               Column(
                 children: <Widget>[
-                 if(!isDesktop()) HasCallRow(),
+                  if (!isDesktop()) HasCallRow(),
                   AudioPlayerAppBar(),
                   Divider(),
                   pinMessageWidget(),
@@ -425,7 +425,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {// ignore: missing_enum_constant_in_switch
+          switch (message.type) {
+            // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               editMessageInput.add(message.json.toText().text);
               break;
@@ -741,14 +742,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           },
         ),
         actions: [
-          IconButton(
-              onPressed: () {
-                _routingService.openRequestVideoCallPage(_currentRoom.value.uid.asUid());
-              },
-              icon: Icon(Icons.videocam)),
-          SizedBox(
-            width: 10,
-          ),
+          if (_currentRoom.value.uid.asUid().isUser())
+            IconButton(
+                onPressed: () {
+                  _routingService
+                      .openRequestVideoCallPage(_currentRoom.value.uid.asUid());
+                },
+                icon: Icon(Icons.videocam)),
+          if (_currentRoom.value.uid.asUid().isUser())
+            SizedBox(
+              width: 10,
+            ),
           StreamBuilder(
               stream: _searchMode.stream,
               builder: (c, s) {
@@ -961,28 +965,30 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget _buildMessageBox(Message msg, BuildContext context, Room currentRoom,
       List<PendingMessage> pendingMessages) {
-    return msg.type == MessageType.CALL?CallMessageWidget(message:msg): msg.type != MessageType.PERSISTENT_EVENT
-        ? AnimatedContainer(
-            duration: Duration(milliseconds: 200),
-            color: _selectedMessages.containsKey(msg.id) ||
-                    (msg.id != null && msg.id == _replyMessageId) ||
-                    currentSearchResultMessage != null &&
-                        currentSearchResultMessage.id == msg.id
-                ? Theme.of(context).disabledColor
-                : Colors.transparent,
-            child: _createWidget(msg, currentRoom, pendingMessages),
-          )
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: msg.json == "{}" ? 0.0 : 4.0),
-                child: PersistentEventMessage(message: msg),
-              ),
-            ],
-          );
+    return msg.type == MessageType.CALL
+        ? CallMessageWidget(message: msg)
+        : msg.type != MessageType.PERSISTENT_EVENT
+            ? AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                color: _selectedMessages.containsKey(msg.id) ||
+                        (msg.id != null && msg.id == _replyMessageId) ||
+                        currentSearchResultMessage != null &&
+                            currentSearchResultMessage.id == msg.id
+                    ? Theme.of(context).disabledColor
+                    : Colors.transparent,
+                child: _createWidget(msg, currentRoom, pendingMessages),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: msg.json == "{}" ? 0.0 : 4.0),
+                    child: PersistentEventMessage(message: msg),
+                  ),
+                ],
+              );
   }
 
   Widget _createWidget(
@@ -1244,43 +1250,44 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   openRoomSearchBox() {
     _searchMode.add(true);
   }
+
   void _showDeleteMsgDialog(List<Message> messages) {
     showDialog(
         context: context,
         builder: (c) => AlertDialog(
-          title: Text(
-            "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
-          ),
-          content: Text(messages.length > 1
-              ? _i18n.get("sure_delete_messages")
-              : _i18n.get("sure_delete_message")),
-          actions: [
-            GestureDetector(
-                child: Text(
-                  _i18n.get("cancel"),
-                  style: TextStyle(color: Colors.blue),
-                ),
-                onTap: () {
-                  setState(() {
-                    _selectMultiMessageSubject.add(false);
-                    _selectedMessages.clear();
-                  });
-
-                  Navigator.pop(context);
-                }),
-            GestureDetector(
-              child: Text(
-                _i18n.get("delete"),
-                style: TextStyle(color: Colors.red),
+              title: Text(
+                "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
               ),
-              onTap: () {
-                _messageRepo.deleteMessage(
-                    messages, _currentRoom.value.lastMessageId);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ));
+              content: Text(messages.length > 1
+                  ? _i18n.get("sure_delete_messages")
+                  : _i18n.get("sure_delete_message")),
+              actions: [
+                GestureDetector(
+                    child: Text(
+                      _i18n.get("cancel"),
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectMultiMessageSubject.add(false);
+                        _selectedMessages.clear();
+                      });
+
+                      Navigator.pop(context);
+                    }),
+                GestureDetector(
+                  child: Text(
+                    _i18n.get("delete"),
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    _messageRepo.deleteMessage(
+                        messages, _currentRoom.value.lastMessageId);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ));
   }
 }

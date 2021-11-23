@@ -1,7 +1,6 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/in_video_call_page.dart';
-import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -87,7 +86,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
                       alignment: Alignment.topCenter,
                       child: Column(
                         children: [
-                          CircleAvatarWidget(widget.roomuid, 60),
+                         if(!widget.isAccepted) CircleAvatarWidget(widget.roomuid, 60),
                           FutureBuilder(
                               future: _roomRepo.getName(widget.roomuid),
                               builder: (context, snapshot) {
