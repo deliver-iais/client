@@ -21,13 +21,14 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
       description: fields[1] as String,
       name: fields[2] as String,
       commands: (fields[3] as Map)?.cast<String, String>(),
+      isOwner: fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, BotInfo obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
       ..writeByte(2)
       ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.commands);
+      ..write(obj.commands)
+      ..writeByte(4)
+      ..write(obj.isOwner);
   }
 
   @override
@@ -44,7 +47,7 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is BotInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+          other is BotInfoAdapter &&
+              runtimeType == other.runtimeType &&
+              typeId == other.typeId;
 }

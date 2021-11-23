@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -10,6 +11,7 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -65,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage>
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   TabController _tabController;
@@ -559,6 +562,15 @@ class _ProfilePageState extends State<ProfilePage>
         setState(() {
           _isMucAdminOrOwner = settingAvatarPermission;
           _isMucOwner = mucOwner;
+        });
+      } catch (e) {
+        _logger.e(e);
+      }
+    } else if (widget.roomUid.isBot()) {
+      try {
+        final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
+        setState(() {
+          _isMucAdminOrOwner = botAvatarPermission.isOwner;
         });
       } catch (e) {
         _logger.e(e);
