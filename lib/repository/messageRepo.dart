@@ -218,7 +218,12 @@ class MessageRepo {
       Message? msg = await _messageDao.getMessage(roomUid.asString(), pointer);
       while (!lastMessageIsSet) {
         try {
-          if (msg != null) {
+          if (msg == null) {
+            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
+                lastMessageId, type, limit, firstMessageId!, lastUpdateTime!);
+            lastMessageIsSet = true;
+            break;
+          } else {
             if (firstMessageId != null && msg.id! <= firstMessageId) {
               lastMessageIsSet = true;
               lastMessage =
@@ -237,11 +242,6 @@ class MessageRepo {
               pointer = pointer - 1;
               msg = await _messageDao.getMessage(roomUid.asString(), pointer);
             }
-          } else {
-            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
-                lastMessageId, type, limit, firstMessageId!, lastUpdateTime!);
-            lastMessageIsSet = true;
-            break;
           }
         } catch (e) {
           lastMessageIsSet = true;
@@ -250,7 +250,7 @@ class MessageRepo {
       }
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId!.toInt()  ,
+        firstMessageId: firstMessageId!.toInt(),
         lastUpdateTime: lastMessage!.time,
         lastMessageId: lastMessage.id,
         lastMessage: lastMessage,
