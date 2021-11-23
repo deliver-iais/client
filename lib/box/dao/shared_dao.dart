@@ -18,7 +18,7 @@ abstract class SharedDao {
 
 class SharedDaoImpl implements SharedDao {
   @override
-  Future<String> get(String key) async {
+  Future<String ?> get(String key) async {
     var box = await _open();
 
     return box.get(key);

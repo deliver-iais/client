@@ -43,24 +43,26 @@ class TGS extends StatefulWidget {
 
 // todo edit solve animation bug  !!!!
 class _TGSState extends State<TGS> {
- late Future<LottieComposition ?> _composition;
+  late Future<LottieComposition?> _composition;
 
   Future<LottieComposition> _loadAssetsComposition() async {
     var assetData = await rootBundle.load(widget.assetsPath!);
 
     var bytes = assetData.buffer.asUint8List();
 
-    List<int> r = GZipCodec().decode(bytes);
+    bytes = GZipCodec().decode(bytes) as Uint8List;
 
     return await LottieComposition.fromBytes(bytes);
   }
 
-  Future<LottieComposition ?> _loadFileComposition() async {
+  Future<LottieComposition?> _loadFileComposition() async {
     var bytes = await widget.file!.readAsBytes();
 
-   // bytes = GZipCodec().decode(bytes);
+    bytes = GZipCodec().decode(bytes) as Uint8List;
 
-    return await LottieComposition.fromBytes(bytes);
+    var res = await  LottieComposition.fromBytes(bytes);
+    print(res.toString());
+    return res;
   }
 
   @override
@@ -81,7 +83,7 @@ class _TGSState extends State<TGS> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<LottieComposition ?>(
+    return FutureBuilder<LottieComposition?>(
         future: _composition,
         builder: (context, snapshot) {
           var composition = snapshot.data;

@@ -64,7 +64,7 @@ class CoreServices {
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
 
-  late Timer _connectionTimer;
+  Timer? _connectionTimer;
   var _lastPongTime = 0;
 
   @visibleForTesting
@@ -84,7 +84,7 @@ class CoreServices {
 
   //TODO test
   initStreamConnection() async {
-    if (_connectionTimer != null && _connectionTimer.isActive) {
+    if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
     startStream();
@@ -97,12 +97,12 @@ class CoreServices {
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
     _clientPacketStream.close();
-    if (_connectionTimer != null) _connectionTimer.cancel();
+    if (_connectionTimer != null) _connectionTimer!.cancel();
   }
 
   @visibleForTesting
   startCheckerTimer() async {
-    if (_connectionTimer != null && _connectionTimer.isActive) {
+    if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
     if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
@@ -493,7 +493,7 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
 }
 
 // TODO, refactor this!!!, we don't need this be functional
-Future<DB.Message ? > saveMessageInMessagesDB(
+Future<DB.Message?> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
   try {
     final msg = extractMessage(authRepo, message);

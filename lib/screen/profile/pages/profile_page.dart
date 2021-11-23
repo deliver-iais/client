@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage>
                       : _tabsCount,
                   vsync: this,
                   initialIndex:
-                      _uxService.getTabIndex(widget.roomUid.asString()));
+                      _uxService.getTabIndex(widget.roomUid.asString())!);
               _tabController.addListener(() {
                 _uxService.setTabIndex(
                     widget.roomUid.asString(), _tabController.index);

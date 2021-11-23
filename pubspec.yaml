@@ -140,10 +140,10 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
-  plugin:
-    androidPackage: storagepath
-    pluginClass: StoragePathPlugin
+#
+#  plugin:
+#    androidPackage: storagepath
+#    pluginClass: StoragePathPlugin
 
 
   # To add assets to your application, add an assets section, like this:

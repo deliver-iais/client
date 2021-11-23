@@ -27,23 +27,21 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NavigationCenter extends StatefulWidget {
-  final void Function(String) ? tapOnSelectChat;
+  final void Function(String)? tapOnSelectChat;
 
-  final Function tapOnCurrentUserAvatar;
+  final Function? tapOnCurrentUserAvatar;
 
   const NavigationCenter(
-      {Key? key,
-      this.tapOnSelectChat,
-      required this.tapOnCurrentUserAvatar})
+      {Key? key, this.tapOnSelectChat, required this.tapOnCurrentUserAvatar})
       : super(key: key);
 
   @override
-  _NavigationCenterState createState() =>
-      _NavigationCenterState(this.tapOnSelectChat!, this.tapOnCurrentUserAvatar);
+  _NavigationCenterState createState() => _NavigationCenterState(
+      this.tapOnSelectChat, this.tapOnCurrentUserAvatar);
 }
 
 class _NavigationCenterState extends State<NavigationCenter> {
-  final void Function(String) tapOnSelectChat;
+  final void Function(String)? tapOnSelectChat;
 
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
@@ -54,7 +52,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _botRepo = GetIt.I.get<BotRepo>();
 
   final ScrollController _scrollController = ScrollController();
-  final Function tapOnCurrentUserAvatar;
+  final Function? tapOnCurrentUserAvatar;
   bool _searchMode = false;
 
   String? query;

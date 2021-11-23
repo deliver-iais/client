@@ -53,7 +53,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
                   maxWidth: widget.maxWidth,
                   isSender: widget.isSender,
                   isSeen: widget.isSeen,
-                  onUsernameClick: widget.onUsernameClick!,
+                  onUsernameClick: widget.onUsernameClick,
                 )),
           )
       ],

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:hive/hive.dart';
@@ -9,7 +11,7 @@ abstract class MessageDao {
 
   Future<Message?> getMessage(String roomUid, int id);
 
-  Future<List<Message?>> getMessagePage(String roomUid, int page,
+  Future<List<Message?>>? getMessagePage(String roomUid, int page,
       {int pageSize = 16});
 
   // Pending Messages
@@ -53,7 +55,7 @@ class MessageDaoImpl implements MessageDao {
     return box.values.toList();
   }
 
-  Future<List<Message?>> getMessagePage(String roomUid, int page,
+  Future<List<Message?>>? getMessagePage(String roomUid, int page,
       {int pageSize = 16}) async {
     var box = await _openMessages(roomUid);
 
@@ -81,7 +83,8 @@ class MessageDaoImpl implements MessageDao {
 
     yield* box
         .watch()
-        .where((event) =>  event.deleted || (event.value as PendingMessage).roomUid == roomUid)
+        .where((event) =>
+            event.deleted || (event.value as PendingMessage).roomUid == roomUid)
         .map((event) =>
             box.values.where((element) => element.roomUid == roomUid).toList());
   }

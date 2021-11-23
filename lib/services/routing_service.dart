@@ -68,7 +68,7 @@ class RoutingService {
   late Widget _navigationCenter;
   static Widget _empty = const Empty();
 
-  late ListQueue<Page> _stack;
+  ListQueue<Page> ? _stack;
 
   RoutingService() {
     this._navigationCenter = NavigationCenter(
@@ -91,7 +91,7 @@ class RoutingService {
       key: ValueKey("/room/$roomId"),
       roomId: roomId,
       forwardedMessages: forwardedMessages,
-      shareUid: shareUid!,
+      shareUid: shareUid,
     );
     var widget = WillPopScope(
         onWillPop: () async {
@@ -139,7 +139,7 @@ class RoutingService {
   }
 
   bool isAnyRoomOpen() {
-    if (_stack.length == 1) {
+    if (_stack!.length == 1) {
       return false;
     }
     return true;
@@ -436,15 +436,15 @@ class RoutingService {
   }
 
   _push(Page p) {
-    if (p.path == _stack.last.path) return;
-    _stack.add(p);
-    _route.add(_stack.last.path);
+    if (p.path == _stack!.last.path) return;
+    _stack!.add(p);
+    _route.add(_stack!.last.path);
   }
 
   _popAllAndPush(Page p) {
-    if (p.path == _stack.last.path) return;
+    if (p.path == _stack!.last.path) return;
     if (_stack != null) {
-      _stack.clear();
+      _stack!.clear();
     }
     _stack = ListQueue.from([
       Page(
@@ -453,29 +453,34 @@ class RoutingService {
           largePageMain: _empty,
           path: "/")
     ]);
-    _stack.add(p);
-    _route.add(_stack.last.path);
+    _stack!.add(p);
+    _route.add(_stack!.last.path);
   }
 
   pop() {
-    if (_stack.length > 1) {
-      _stack.removeLast();
-      _route.add(_stack.last.path);
+    if (_stack!.length > 1) {
+      _stack!.removeLast();
+      _route.add(_stack!.last.path);
     }
   }
 
   reset() {
-    _route.add("/");
-    if (_stack != null) {
-      _stack.clear();
+    try{
+      _route.add("/");
+      if (_stack!= null) {
+        _stack!.clear();
+      }
+      _stack = ListQueue.from([
+        Page(
+            largePageNavigator: _navigationCenter,
+            smallPageMain: _navigationCenter,
+            largePageMain: _empty,
+            path: "/")
+      ]);
+    }catch(e){
+      print(e.toString());
     }
-    _stack = ListQueue.from([
-      Page(
-          largePageNavigator: _navigationCenter,
-          smallPageMain: _navigationCenter,
-          largePageMain: _empty,
-          path: "/")
-    ]);
+
   }
 
   logout() async {
@@ -498,7 +503,7 @@ class RoutingService {
   Stream<String> get currentRouteStream => _route.stream;
 
   bool canPerformBackButton() {
-    return _stack.length < 2 || (_stack.last.lockBackButton ?? false);
+    return _stack!.length < 2 || (_stack!.last.lockBackButton ?? false);
   }
 
   Widget backButtonLeading(BuildContext context, {Function ? back}) {
@@ -514,11 +519,11 @@ class RoutingService {
   }
 
   bool isInRoom(String roomId) =>
-      _stack.last.path == "/room/$roomId" ||
-      _stack.last.path == "/profile/$roomId";
+      _stack!.last.path == "/room/$roomId" ||
+      _stack!.last.path == "/profile/$roomId";
 
   Widget routerOutlet(BuildContext context) {
-    if (_stack.last.singlePageMain != null) return _stack.last.singlePageMain!;
+    if (_stack!.last.singlePageMain != null) return _stack!.last.singlePageMain!;
     return Row(
       children: [
         Container(
@@ -535,15 +540,15 @@ class RoutingService {
   }
 
   _largePageNavigator(BuildContext context) {
-    return _stack.last.largePageNavigator;
+    return _stack!.last.largePageNavigator;
   }
 
   _largePageMain(BuildContext context) {
-    return _stack.last.largePageMain;
+    return _stack!.last.largePageMain;
   }
 
   _smallPageMain(BuildContext context) {
-    return _stack.last.smallPageMain;
+    return _stack!.last.smallPageMain;
   }
 }
 

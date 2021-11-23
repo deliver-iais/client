@@ -78,7 +78,7 @@ class MemberSelectionPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: SelectiveContactsList(
               isChannel: isChannel,
-              mucUid: mucUid!,
+              mucUid: mucUid,
             ),
           ),
         ),

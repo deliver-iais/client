@@ -39,15 +39,15 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
-  late Timer checkTimer;
-  late Timer tokenGeneratorTimer;
-  late PhoneNumber phoneNumber;
+  Timer? checkTimer;
+  Timer? tokenGeneratorTimer;
+  PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
-    if (phoneNumber.nationalNumber != null) {
-      controller.text = phoneNumber.nationalNumber.toString();
+    if (phoneNumber != null && phoneNumber!.nationalNumber != null) {
+      controller.text = phoneNumber!.nationalNumber.toString();
     }
 
     if (isDesktop()) {
@@ -98,14 +98,14 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     loginToken.close();
-    checkTimer.cancel();
-    tokenGeneratorTimer.cancel();
+    if (checkTimer != null) checkTimer!.cancel();
+    if (tokenGeneratorTimer != null) tokenGeneratorTimer!.cancel();
     super.dispose();
   }
 
   checkAndGoNext({bool doNotCheckValidator = false}) async {
     if (phoneNumber != null &&
-        phoneNumber.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
+        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
       _logger.e("logis as test user ");
       _loginASTestUser();
     } else {
@@ -115,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = true;
         });
         try {
-          var res = await _authRepo.getVerificationCode(phoneNumber);
+          var res = await _authRepo.getVerificationCode(phoneNumber!);
           if (res != null) {
             AutoRouter.of(context).replace(VerificationPageRoute());
             setState(() {
@@ -243,8 +243,9 @@ class _LoginPageState extends State<LoginPage> {
                         height: 5,
                       ),
                       IntlPhoneField(
-                        initialCountryCode:
-                            phoneNumber.countryCode.toString(),
+                        initialCountryCode: phoneNumber != null
+                            ? phoneNumber!.countryCode.toString()
+                            : null,
                         controller: controller,
                         validator: (value) => value!.length != 10 ||
                                 (value.length > 0 && value[0] == '0')

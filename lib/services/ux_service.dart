@@ -152,7 +152,7 @@ class UxService {
   // TODO ???
   Map _tabIndexMap = new Map<String, int>();
 
-  int getTabIndex(String fileId) {
+  int ? getTabIndex(String fileId) {
     return _tabIndexMap[fileId];
   }
 

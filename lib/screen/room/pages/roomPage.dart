@@ -186,9 +186,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           StreamBuilder<int>(
                                               stream: _positionSubject.stream,
                                               builder: (c, position) {
-                                                if (_itemCount -
-                                                        (position.data!) >
-                                                    4) {
+                                                if (position.hasData &&
+                                                    position.data != null &&
+                                                    _itemCount -
+                                                            (position.data!) >
+                                                        4) {
                                                   return scrollDownButtonWidget();
                                                 } else {
                                                   return SizedBox.shrink();
@@ -300,7 +302,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
-        if (_itemCount - (_positionSubject.value ) < 4) {
+        if (_itemCount - (_positionSubject.value) < 4) {
           scrollToLast();
         }
       }
@@ -324,7 +326,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .listen((event) async {
       var msg = await _getMessage(
           event, widget.roomId, _currentRoom.value!.lastMessageId!,
-          lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId!);
+          lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
 
       if (msg == null) return;
 
@@ -352,7 +354,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     super.initState();
   }
 
-  Future<Message> _getMessage(int id, String roomId, int lastMessageId,
+  Future<Message?> _getMessage(int id, String roomId, int lastMessageId,
       {int? lastUpdatedMessageId}) async {
     var msg = _messageCache.get(id);
     if (msg != null && id != lastUpdatedMessageId) {
@@ -538,7 +540,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     element, widget.roomId, muc.lastMessageId!,
                     lastUpdatedMessageId:
                         _currentRoom.value!.lastUpdatedMessageId!);
-                _pinMessages.add(m);
+                _pinMessages.add(m!);
                 _lastPinedMessage.add(_pinMessages.last.id!);
               } catch (e) {
                 _logger.e(e);
@@ -823,7 +825,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 _itemCount - index <= pendingMessages.length;
 
         return _buildMessage(
-            isPendingMessage, pendingMessages, index, _currentRoom.value!);
+            isPendingMessage, pendingMessages, index, _currentRoom.value);
       },
       separatorBuilder: (context, index) {
         int firstIndex = index;
@@ -837,7 +839,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             if (_currentRoom.value!.lastMessageId != null &&
                 _lastShowedMessageId != -1 &&
                 _lastShowedMessageId == firstIndex + 1)
-              FutureBuilder<Message>(
+              FutureBuilder<Message?>(
                   future: _messageAt(pendingMessages, index + 1),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData ||
@@ -876,7 +878,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  Future<Message> _messageAt(List<PendingMessage> pendingMessages, int index) {
+  Future<Message?> _messageAt(List<PendingMessage> pendingMessages, int index) {
     bool isPendingMessage = (_currentRoom.value!.lastMessageId! == null) ||
         _itemCount > _currentRoom.value!.lastMessageId! &&
             _itemCount - index <= pendingMessages.length;
@@ -884,7 +886,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ? Future.value(pendingMessages[_itemCount - index - 1].msg)
         : _getMessage(
             index + 1, widget.roomId, _currentRoom.value!.lastMessageId!,
-            lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId!);
+            lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
   }
 
   Future<int?>? _timeAt(List<PendingMessage> pendingMessages, int index) async {
@@ -894,7 +896,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     if (index > 0) {
       final prevMsg = await _messageAt(pendingMessages, index);
-      if (prevMsg.json!.isDeletedMessage() || msg.json!.isDeletedMessage())
+      if (prevMsg!.json!.isDeletedMessage() || msg!.json!.isDeletedMessage())
         return null;
 
       final d1 = date(prevMsg.time);
@@ -907,15 +909,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
-      int index, Room currentRoom) {
-    if (currentRoom.firstMessageId != null &&
+      int index, Room? currentRoom) {
+    if (_currentRoom != null &&
+        currentRoom!.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
         height: 20,
       );
     }
 
-    return FutureBuilder<Message>(
+    return FutureBuilder<Message?>(
       future: _messageAt(pendingMessages, index),
       builder: (context, ms) {
         if (ms.hasData && ms.data != null) {
@@ -954,7 +957,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  Widget _buildMessageBox(Message msg, BuildContext context, Room currentRoom,
+  Widget _buildMessageBox(Message msg, BuildContext context, Room? currentRoom,
       List<PendingMessage> pendingMessages) {
     return msg.type != MessageType.PERSISTENT_EVENT
         ? AnimatedContainer(
@@ -997,15 +1000,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget _createWidget(
-      Message message, Room currentRoom, List pendingMessages) {
+      Message message, Room? currentRoom, List pendingMessages) {
     if (message.json == "{}") return SizedBox.shrink();
     var messageWidget;
     if (_authRepo.isCurrentUser(message.from))
       messageWidget = showSentMessage(
-          message, currentRoom.lastMessageId!, pendingMessages.length);
+          message, currentRoom!.lastMessageId!, pendingMessages.length);
     else
       messageWidget = showReceivedMessage(
-          message, currentRoom.lastMessageId!, pendingMessages.length);
+          message, currentRoom!.lastMessageId!, pendingMessages.length);
     var dismissibleWidget = SwipeTo(
         onLeftSwipe: () async {
           _repliedMessage.add(message);

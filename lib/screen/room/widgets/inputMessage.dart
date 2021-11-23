@@ -42,9 +42,9 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
   final int? replyMessageId;
-  final Function ? resetRoomPageDetails;
+  final Function? resetRoomPageDetails;
   final bool waitingForForward;
-  final Function ? sendForwardMessage;
+  final Function? sendForwardMessage;
   final Function? showMentionList;
   final Function scrollToLastSentMessage;
   final Message? editableMessage;
@@ -56,7 +56,7 @@ class InputMessage extends StatefulWidget {
   InputMessage(
       {required this.currentRoom,
       this.replyMessageId,
-        this.resetRoomPageDetails,
+      this.resetRoomPageDetails,
       this.waitingForForward = false,
       this.sendForwardMessage,
       this.editableMessage,
@@ -135,7 +135,7 @@ class _InputMessageWidget extends State<InputMessage> {
     currentRoom = widget.currentRoom;
     _controller.text = (currentRoom.draft != null ? currentRoom.draft : "")!;
     editMessageInput.stream.listen((event) {
-      _controller.text = event!;
+      if (event != null) _controller.text = event;
     });
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
@@ -190,7 +190,7 @@ class _InputMessageWidget extends State<InputMessage> {
               _controller.text[start] == "@" &&
               _controller.selection.start == _controller.selection.end &&
               idRegexp.hasMatch(_controller.text
-                      .substring(start + 1, _controller.selection.start))) {
+                  .substring(start + 1, _controller.selection.start))) {
             _mentionQuery.add(_controller.text
                 .substring(start + 1, _controller.selection.start));
           } else {
@@ -747,4 +747,4 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 }
 
-BehaviorSubject<String ?> editMessageInput = BehaviorSubject.seeded("");
+BehaviorSubject<String?> editMessageInput = BehaviorSubject.seeded("");

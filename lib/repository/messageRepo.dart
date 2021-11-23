@@ -106,7 +106,7 @@ class MessageRepo {
     });
   }
 
-  var _completerMap = Map<String, Completer<List<Message>>>();
+  var _completerMap = Map<String, Completer<List<Message?>>>();
 
   updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
@@ -162,7 +162,7 @@ class MessageRepo {
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
-              room!,
+              room,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
@@ -206,7 +206,7 @@ class MessageRepo {
   }
 
   Future<Message?> fetchLastMessages(
-      Uid roomUid, int lastMessageId, int firstMessageId, Room room,
+      Uid roomUid, int lastMessageId, int? firstMessageId, Room? room,
       {bool retry = true,
       int? lastUpdateTime,
       required FetchMessagesReq_Type type,
@@ -215,7 +215,7 @@ class MessageRepo {
     int pointer = lastMessageId;
     Message? lastMessage;
     try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+      Message? msg = await _messageDao.getMessage(roomUid.asString(), pointer);
       while (!lastMessageIsSet) {
         try {
           if (msg != null) {
@@ -239,7 +239,7 @@ class MessageRepo {
             }
           } else {
             lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
-                lastMessageId, type, limit, firstMessageId, lastUpdateTime!);
+                lastMessageId, type, limit, firstMessageId!, lastUpdateTime!);
             lastMessageIsSet = true;
             break;
           }
@@ -250,7 +250,7 @@ class MessageRepo {
       }
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
+        firstMessageId: firstMessageId!.toInt()  ,
         lastUpdateTime: lastMessage!.time,
         lastMessageId: lastMessage.id,
         lastMessage: lastMessage,
@@ -259,12 +259,13 @@ class MessageRepo {
     } catch (e) {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId.toInt(),
+        firstMessageId: firstMessageId!.toInt(),
         lastUpdateTime: lastUpdateTime,
         lastMessageId: lastMessageId.toInt(),
       ));
       _logger.wtf(roomUid);
       _logger.wtf(room);
+
       _logger.e(e);
       return null;
     }
@@ -639,9 +640,9 @@ class MessageRepo {
     completer = new Completer();
     _completerMap["$roomId-$page"] = completer;
 
-    _messageDao.getMessagePage(roomId, page).then((messages) async {
+    _messageDao.getMessagePage(roomId, page)!.then((messages) async {
       if (messages.any((element) => element!.id == containsId)) {
-        //  completer!.complete(messages);
+        completer!.complete(messages);
       } else {
         await getMessages(roomId, page, pageSize, completer!, lastMessageId);
       }
@@ -651,7 +652,7 @@ class MessageRepo {
   }
 
   Future<void> getMessages(String roomId, int page, int pageSize,
-      Completer<List<Message>> completer, int lastMessageId,
+      Completer<List<Message?>> completer, int lastMessageId,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes =

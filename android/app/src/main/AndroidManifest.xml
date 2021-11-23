@@ -26,9 +26,9 @@
         android:launchMode="singleTask"
         android:fullBackupOnly="false"
         android:icon="@mipmap/ic_launcher">
-        <activity
-            android:name="com.yalantis.ucrop.UCropActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+<!--        <activity-->
+<!--            android:name="com.yalantis.ucrop.UCropActivity"-->
+<!--            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>-->
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

@@ -86,10 +86,10 @@ class AccountRepo {
   }
 
   Future<bool> setAccountDetails(
-    String ? username,
-    String ? firstName,
-    String ? lastName,
-    String ? email,
+    String? username,
+    String? firstName,
+    String? lastName,
+    String? email,
   ) async {
     try {
       _queryServiceClient.setId(SetIdReq()..id = username!);
@@ -149,26 +149,27 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    var pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    if (pv != null) {
+      // Migrations
+      if (shouldRemoveDB(pv)) {
+        //  await _dbManager.deleteDB();
+      }
 
-    // Migrations
-    if (shouldRemoveDB(pv)) {
-      //  await _dbManager.deleteDB();
+      if (shouldMigrateDB(pv)) {
+        await _dbManager.migrate(pv);
+      }
+
+      if (shouldUpdateSessionPlatformInformation(pv)) {
+        Platform platform = Platform()..clientVersion = VERSION;
+        platform = await _authRepo.getPlatForm(platform);
+        _sessionServicesClient.updateSessionPlatformInformation(
+            UpdateSessionPlatformInformationReq()..platform = platform);
+      }
+
+      // Update version in DB
+      _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
     }
-
-    if (shouldMigrateDB(pv)) {
-      await _dbManager.migrate(pv);
-    }
-
-    if (shouldUpdateSessionPlatformInformation(pv!)) {
-      Platform platform = Platform()..clientVersion = VERSION;
-      platform = await _authRepo.getPlatForm(platform);
-      _sessionServicesClient.updateSessionPlatformInformation(
-          UpdateSessionPlatformInformationReq()..platform = platform);
-    }
-
-    // Update version in DB
-    _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
   }
 
   shouldRemoveDB(String? previousVersion) {

@@ -38,8 +38,8 @@ class AuthRepo {
     ..category = Categories.USER
     ..node = "";
   Avatar? avatar;
-  String _accessToken = "";
-  String _refreshToken = "";
+  String ? _accessToken;
+  String ? _refreshToken;
   late String platformVersion;
 
   late PhoneNumber _tmpPhoneNumber;
@@ -66,8 +66,8 @@ class AuthRepo {
   }
 
   setCurrentUserUid() async {
-    currentUserUid =
-        (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
+    String? res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+    if (res != null) currentUserUid = (res).asUid();
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -204,7 +204,6 @@ class AuthRepo {
       } on GrpcError catch (e) {
         _logger.e(e);
         if (_refreshToken != null &&
-            _refreshToken.isNotEmpty &&
             e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
@@ -217,11 +216,11 @@ class AuthRepo {
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
-          await _getAccessToken(_refreshToken);
+          await _getAccessToken(_refreshToken!);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-      return _accessToken;
+      return _accessToken!;
     }
   }
 
@@ -237,7 +236,9 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
+  bool isLoggedIn() =>
+      _refreshToken != null &&
+      !_isExpired(_refreshToken);
 
   bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
 
@@ -246,7 +247,10 @@ class AuthRepo {
   }
 
   void _setTokensAndCurrentUserUid(String? accessToken, String? refreshToken) {
-    if (accessToken!.isEmpty || refreshToken!.isEmpty) {
+    if (accessToken == null ||
+        refreshToken == null ||
+        accessToken.isEmpty ||
+        refreshToken.isEmpty) {
       return;
     }
     _accessToken = accessToken;

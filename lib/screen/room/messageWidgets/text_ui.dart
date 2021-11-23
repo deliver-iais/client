@@ -20,9 +20,9 @@ class TextUI extends StatelessWidget {
   final bool isSender;
   final bool isSeen;
   final String? searchTerm;
-  final Function onUsernameClick;
+  final Function? onUsernameClick;
   final bool isBotMessage;
-  final Function ? onBotCommandClick;
+  final Function? onBotCommandClick;
 
   const TextUI(
       {Key? key,
@@ -32,7 +32,7 @@ class TextUI extends StatelessWidget {
       this.isSender = false,
       this.isSeen = false,
       this.searchTerm,
-      required this.onUsernameClick,
+      this.onUsernameClick,
       this.isBotMessage = false,
       this.onBotCommandClick})
       : super(key: key);
@@ -50,8 +50,8 @@ class TextUI extends StatelessWidget {
               : null);
     }).toList();
 
-    String? link =
-        blocks.firstWhere((b) => b.type == "url", orElse: () => ).text;
+    // String link =
+    //     blocks.firstWhere((b) => b.type == "url" ).text;
 
     double linkPreviewMaxWidth = min(
         blocks
@@ -74,7 +74,7 @@ class TextUI extends StatelessWidget {
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
-          LinkPreview(link: link, maxWidth: linkPreviewMaxWidth),
+          LinkPreview(link: "", maxWidth: linkPreviewMaxWidth),
           TimeAndSeenStatus(
             message,
             isSender,
@@ -105,7 +105,7 @@ class TextUI extends StatelessWidget {
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
       UrlParser(),
-      IdParser(onUsernameClick),
+      if (onUsernameClick != null) IdParser(onUsernameClick!),
       if (isBotMessage) BotCommandParser(onBotCommandClick!),
       BoldTextParser(),
       ItalicTextParser()
@@ -240,13 +240,13 @@ List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
       if (b.locked) {
         return [b];
       } else {
-        return parseText(b.text, regex, onTap!, style!, type,
+        return parseText(b.text, regex, onTap, style!, type,
             transformer: transformer);
       }
     })).toList();
 
 List<Block> parseText(
-    String text, RegExp regex, Function onTap, TextStyle style, String type,
+    String text, RegExp regex, Function? onTap, TextStyle style, String type,
     {Function transformer = same}) {
   var start = 0;
 

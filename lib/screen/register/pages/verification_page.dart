@@ -25,19 +25,19 @@ class _VerificationPageState extends State<VerificationPage> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _focusNode = FocusNode();
   bool _showError = false;
-  late String _verificationCode;
+  String ? _verificationCode;
 
   // TODO ???
   I18N _i18n = GetIt.I.get<I18N>();
 
   _sendVerificationCode() {
-    if ((_verificationCode.length) < 5) {
+    if ((_verificationCode!.length) < 5) {
       setState(() => _showError = true);
       return;
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = _authRepo.sendVerificationCode(_verificationCode);
+    var result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();

@@ -34,7 +34,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact> selectedList = [];
 
-  late List<Contact> items;
+  List<Contact>? items;
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -87,13 +87,13 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
         }
       });
       setState(() {
-        items.clear();
-        items.addAll(dummyListData);
+        items!.clear();
+        items!.addAll(dummyListData);
       });
     } else {
       setState(() {
-        items.clear();
-        items.addAll(contacts);
+        items!.clear();
+        items!.addAll(contacts);
       });
     }
   }
@@ -129,7 +129,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           items = contacts;
                         }
 
-                        if (items.length > 0) {
+                        if (items!.length > 0) {
                           return StreamBuilder<int>(
                               stream: _createMucService.selectedLengthStream(),
                               builder: (context, snapshot) {
@@ -137,7 +137,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                   return SizedBox.shrink();
                                 }
                                 return ListView.builder(
-                                  itemCount: items.length,
+                                  itemCount: items!.length,
                                   itemBuilder: _getListItemTile,
                                 );
                               });
@@ -227,20 +227,20 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
         onTap: () {
-          if (!members.contains(items[index].uid)) {
-            if (!_createMucService.isSelected(items[index])) {
-              _createMucService.addContact(items[index]);
+          if (!members.contains(items![index].uid)) {
+            if (!_createMucService.isSelected(items![index])) {
+              _createMucService.addContact(items![index]);
               editingController.clear();
             } else {
-              _createMucService.deleteContact(items[index]);
+              _createMucService.deleteContact(items![index]);
               editingController.clear();
             }
           }
         },
         child: SelectiveContact(
-          contact: items[index],
-          isSelected: _createMucService.isSelected(items[index]),
-          cureentMember: members.contains(items[index].uid),
+          contact: items![index],
+          isSelected: _createMucService.isSelected(items![index]),
+          cureentMember: members.contains(items![index].uid),
         ));
   }
 }

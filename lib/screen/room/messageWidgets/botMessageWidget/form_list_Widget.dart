@@ -22,7 +22,7 @@ class FormListWidget extends StatefulWidget {
 class _FormListWidgetState extends State<FormListWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
-  late String selectedItem;
+  String? selectedItem;
   final _formKey = new GlobalKey<FormState>();
 
   @override
