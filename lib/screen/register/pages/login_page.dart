@@ -5,6 +5,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -87,7 +89,9 @@ class _LoginPageState extends State<LoginPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    AutoRouter.of(context).replace(HomePageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }));
   }
 
   _loginASTestUser() {
@@ -117,7 +121,10 @@ class _LoginPageState extends State<LoginPage> {
         try {
           var res = await _authRepo.getVerificationCode(phoneNumber!);
           if (res != null) {
-            AutoRouter.of(context).replace(VerificationPageRoute());
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+              return VerificationPage();
+            }));
+
             setState(() {
               _isLoading = false;
             });

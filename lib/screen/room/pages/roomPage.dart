@@ -24,7 +24,6 @@ import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.da
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
 import 'package:deliver/screen/room/pages/pinMessageAppBar.dart';
-import 'package:deliver/screen/room/pages/searchInMessageButtom.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chatTime.dart';
 import 'package:deliver/screen/room/widgets/inputMessage.dart';
@@ -32,6 +31,7 @@ import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/newMessageInput.dart';
 import 'package:deliver/screen/room/widgets/recievedMessageBox.dart';
 import 'package:deliver/screen/room/widgets/sendedMessageBox.dart';
+
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -1004,11 +1004,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (message.json == "{}") return SizedBox.shrink();
     var messageWidget;
     if (_authRepo.isCurrentUser(message.from))
-      messageWidget = showSentMessage(
-          message, currentRoom!.lastMessageId!, pendingMessages.length);
+      messageWidget = showSentMessage(message);
     else
-      messageWidget = showReceivedMessage(
-          message, currentRoom!.lastMessageId!, pendingMessages.length);
+      messageWidget = showReceivedMessage(message);
     var dismissibleWidget = SwipeTo(
         onLeftSwipe: () async {
           _repliedMessage.add(message);
@@ -1161,8 +1159,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
   }
 
-  Widget showSentMessage(
-      Message message, int lastMessageId, int pendingMessagesLength) {
+  Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
       message: message,
       isSeen: message.id != null && message.id! <= _lastSeenMessageId,
@@ -1180,8 +1177,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  Widget showReceivedMessage(
-      Message message, int lastMessageId, int pendingMessagesLength) {
+  Widget showReceivedMessage(Message message) {
     var messageWidget = ReceivedMessageBox(
       message: message,
       pattern: _searchMessagePattern,

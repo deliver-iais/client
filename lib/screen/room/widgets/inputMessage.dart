@@ -453,12 +453,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                   var s =
                                       await getApplicationDocumentsDirectory();
                                   String path = s.path +
-                                      "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
+                                      "/Deliver/${DateTime.now().millisecondsSinceEpoch}";
                                   recordSubject.add(DateTime.now());
                                   setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
                                   await _soundRecorder.openAudioSession();
+
                                   _soundRecorder.startRecorder(
                                     toFile: path,
                                     sampleRate: 128000,

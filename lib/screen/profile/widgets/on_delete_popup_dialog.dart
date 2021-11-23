@@ -3,6 +3,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -198,7 +199,8 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   _navigateHomePage() {
     _routingService.reset();
-
-    AutoRouter.of(context).push(HomePageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }));
   }
 }

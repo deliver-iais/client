@@ -3,6 +3,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:flare_flutter/flare_actor.dart';
@@ -37,7 +38,9 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToLoginPage() {
-    AutoRouter.of(context).replace(LoginPageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return LoginPage();
+    }));
   }
 
   @override

@@ -3,6 +3,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -25,7 +27,7 @@ class _VerificationPageState extends State<VerificationPage> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _focusNode = FocusNode();
   bool _showError = false;
-  String ? _verificationCode;
+  String? _verificationCode;
 
   // TODO ???
   I18N _i18n = GetIt.I.get<I18N>();
@@ -61,7 +63,9 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    AutoRouter.of(context).replace(HomePageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }));
   }
 
   _setErrorAndResetCode() {
@@ -87,6 +91,15 @@ class _VerificationPageState extends State<VerificationPage> {
           },
         ),
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (c) {
+                return LoginPage();
+              }));
+            },
+          ),
           backgroundColor: Theme.of(context).backgroundColor,
           title: Text(
             _i18n.get("verification"),

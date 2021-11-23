@@ -64,7 +64,7 @@ class _ImageUiState extends State<ImageUi> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (!isDesktop()) {
+                        if (isDesktop()) {
                           _showImageInDesktop(s.data!);
                         } else {
                           Navigator.push(
@@ -183,6 +183,7 @@ class _ImageUiState extends State<ImageUi> {
         context: context,
         builder: (c) {
           return AlertDialog(
+            backgroundColor: Colors.white12,
             content: InteractiveViewer(
                 child: Hero(
                     tag: widget.message.json!.toFile().uuid,

@@ -217,7 +217,6 @@ class MessageRepo {
     try {
       Message? msg = await _messageDao.getMessage(roomUid.asString(), pointer);
       while (!lastMessageIsSet) {
-        try {
           if (msg == null) {
             lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
                 lastMessageId, type, limit, firstMessageId!, lastUpdateTime!);
@@ -243,10 +242,7 @@ class MessageRepo {
               msg = await _messageDao.getMessage(roomUid.asString(), pointer);
             }
           }
-        } catch (e) {
-          lastMessageIsSet = true;
-          break;
-        }
+
       }
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
@@ -257,6 +253,7 @@ class MessageRepo {
       ));
       return lastMessage;
     } catch (e) {
+
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
         firstMessageId: firstMessageId!.toInt(),
@@ -401,9 +398,9 @@ class MessageRepo {
     for (var path in filesPath!) {
       if (filesPath.last == path) {
         await sendFileMessage(room, path!,
-            caption: caption!, replyToId: replyToId!);
+            caption: caption!, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, path!, caption: "", replyToId: replyToId!);
+        await sendFileMessage(room, path!, caption: "", replyToId: replyToId);
       }
     }
   }

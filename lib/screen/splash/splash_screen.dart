@@ -4,6 +4,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 
 import 'package:deliver/services/firebase_services.dart';
@@ -74,18 +75,24 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToIntroPage() {
-    AutoRouter.of(context).replace(IntroPageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return IntroPage();
+    }));
   }
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
-      AutoRouter.of(context).replace(HomePageRoute());
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+        return HomePage();
+      }));
     } else {
-      // Navigator.push(AccountSettings(forceToSetUsernameAndName: true,));
-      // AutoRouter.of(context)
-      //     .popAndPush(AccountSettingsRoute(forceToSetUsernameAndName: true));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+        return AccountSettings(
+          forceToSetUsernameAndName: true,
+        );
+      }));
     }
   }
 

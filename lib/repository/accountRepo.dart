@@ -126,7 +126,7 @@ class AccountRepo {
 
   _saveProfilePrivateData(
       {String? username, String? firstName, String? lastName, String? email}) {
-    _sharedDao.put(SHARED_DAO_USERNAME, username!);
+    if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
     _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName!);
     _sharedDao.put(SHARED_DAO_LAST_NAME, lastName!);
     _sharedDao.put(SHARED_DAO_EMAIL, email!);

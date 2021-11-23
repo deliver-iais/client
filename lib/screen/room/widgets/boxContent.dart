@@ -186,22 +186,22 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
           isSeen: widget.isSeen,
         );
-        break;
+
       case MessageType.STICKER:
         return StickerMessageWidget(
             widget.message, widget.isSender, widget.isSeen);
-        break;
+
       case MessageType.LOCATION:
         return LocationMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
-        break;
+
       case MessageType.LIVE_LOCATION:
         return LiveLocationMessageWidget(
             widget.message, widget.isSender, widget.isSeen);
-        break;
+
       case MessageType.POLL:
         // TODO: Handle this case.
         break;

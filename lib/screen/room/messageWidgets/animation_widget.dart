@@ -72,7 +72,7 @@ class AnimatedEmoji extends StatefulWidget {
 class _AnimatedEmojiState extends State<AnimatedEmoji>
     with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Future<LottieComposition> _composition;
+  late Future<LottieComposition?> _composition;
 
   @override
   void initState() {
@@ -81,11 +81,10 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
     _controller = AnimationController(vsync: this);
   }
 
-  Future<LottieComposition> _loadComposition() async {
+  Future<LottieComposition?> _loadComposition() async {
     var assetData = await rootBundle.load(getPath());
-
     Uint8List bytes = assetData.buffer.asUint8List();
-
+    bytes = GZipCodec().decode(bytes) as Uint8List;
     return await LottieComposition.fromBytes(bytes);
   }
 
@@ -102,7 +101,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
     return Column(
       children: [
-        FutureBuilder<LottieComposition>(
+        FutureBuilder<LottieComposition?>(
             future: _composition,
             builder: (context, snapshot) {
               var composition = snapshot.data;

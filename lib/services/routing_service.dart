@@ -68,7 +68,7 @@ class RoutingService {
   late Widget _navigationCenter;
   static Widget _empty = const Empty();
 
-  ListQueue<Page> ? _stack;
+  ListQueue<Page>? _stack;
 
   RoutingService() {
     this._navigationCenter = NavigationCenter(
@@ -318,7 +318,8 @@ class RoutingService {
       _rootInMobileState(accountSettingsWidget, context);
   }
 
-  void openMemberSelection(BuildContext context, {required bool isChannel, Uid ? mucUid}) {
+  void openMemberSelection(BuildContext context,
+      {required bool isChannel, Uid? mucUid}) {
     // _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
@@ -350,7 +351,7 @@ class RoutingService {
   }
 
   void openSelectForwardMessage(BuildContext context,
-      {List<Message>  ? forwardedMessages, pro.ShareUid ? sharedUid}) {
+      {List<Message>? forwardedMessages, pro.ShareUid? sharedUid}) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
@@ -366,7 +367,8 @@ class RoutingService {
       _rootInMobileState(widget, context);
   }
 
-  void openGroupInfoDeterminationPage(BuildContext context, {required bool isChannel}) {
+  void openGroupInfoDeterminationPage(BuildContext context,
+      {required bool isChannel}) {
     var widget = MucInfoDeterminationPage(
       key: ValueKey("/group-info-determination-page"),
       isChannel: isChannel,
@@ -408,7 +410,8 @@ class RoutingService {
       _rootInMobileState(widget, context);
   }
 
-  void openImagePage(BuildContext context, {required Uid roomUid, required File file}) {
+  void openImagePage(BuildContext context,
+      {required Uid roomUid, required File file}) {
     var widget = ShowImagePage(
       roomUid: roomUid,
       imageFile: file,
@@ -465,22 +468,17 @@ class RoutingService {
   }
 
   reset() {
-    try{
-      _route.add("/");
-      if (_stack!= null) {
-        _stack!.clear();
-      }
-      _stack = ListQueue.from([
-        Page(
-            largePageNavigator: _navigationCenter,
-            smallPageMain: _navigationCenter,
-            largePageMain: _empty,
-            path: "/")
-      ]);
-    }catch(e){
-      print(e.toString());
+    _route.add("/");
+    if (_stack != null) {
+      _stack!.clear();
     }
-
+    _stack = ListQueue.from([
+      Page(
+          largePageNavigator: _navigationCenter,
+          smallPageMain: _navigationCenter,
+          largePageMain: _empty,
+          path: "/")
+    ]);
   }
 
   logout() async {
@@ -506,7 +504,7 @@ class RoutingService {
     return _stack!.length < 2 || (_stack!.last.lockBackButton ?? false);
   }
 
-  Widget backButtonLeading(BuildContext context, {Function ? back}) {
+  Widget backButtonLeading(BuildContext context, {Function? back}) {
     return BackButton(
       onPressed: () {
         if (back != null) back();
@@ -523,7 +521,8 @@ class RoutingService {
       _stack!.last.path == "/profile/$roomId";
 
   Widget routerOutlet(BuildContext context) {
-    if (_stack!.last.singlePageMain != null) return _stack!.last.singlePageMain!;
+    if (_stack!.last.singlePageMain != null)
+      return _stack!.last.singlePageMain!;
     return Row(
       children: [
         Container(
