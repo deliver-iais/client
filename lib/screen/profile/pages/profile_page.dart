@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';

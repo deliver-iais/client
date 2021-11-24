@@ -1,8 +1,8 @@
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';

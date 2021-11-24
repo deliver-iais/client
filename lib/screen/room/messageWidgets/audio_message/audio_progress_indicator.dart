@@ -16,8 +16,8 @@ class AudioProgressIndicator extends StatefulWidget {
 
 class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
-  late Duration currentPos;
-  late Duration dur;
+  Duration? currentPos;
+  Duration? dur;
 
   @override
   void dispose() {
@@ -33,17 +33,20 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
               stream: audioPlayerService.audioCurrentPosition(),
               builder: (context, snapshot2) {
                 currentPos = snapshot2.data ?? currentPos;
-                return Slider(
-                    value: currentPos.inSeconds.toDouble(),
-                    min: 0.0,
-                    max: widget.duration,
-                    onChanged: (double value) {
-                      setState(() {
-                        audioPlayerService
-                            .seek(Duration(seconds: value.toInt()));
-                        value = value;
+                if (currentPos != null)
+                  return Slider(
+                      value: currentPos!.inSeconds.toDouble(),
+                      min: 0.0,
+                      max: widget.duration,
+                      onChanged: (double value) {
+                        setState(() {
+                          audioPlayerService
+                              .seek(Duration(seconds: value.toInt()));
+                          value = value;
+                        });
                       });
-                    });
+                else
+                  return SizedBox.shrink();
               });
         });
   }

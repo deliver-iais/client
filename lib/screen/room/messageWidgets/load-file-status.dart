@@ -12,7 +12,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
-  final int messageId;
+  final int ? messageId;
   final String? messagePacketId; // TODO Needs to be refactored
   final String? roomUid;
   final Function onPressed;
@@ -21,7 +21,7 @@ class LoadFileStatus extends StatefulWidget {
       {Key? key,
       required this.fileId,
       required this.fileName,
-      required this.messageId,
+      this.messageId,
       this.messagePacketId,
       this.roomUid,
       required this.onPressed})

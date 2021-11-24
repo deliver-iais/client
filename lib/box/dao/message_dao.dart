@@ -119,9 +119,24 @@ class MessageDaoImpl implements MessageDao {
 
   static String _keyPending() => "pending";
 
-  static Future<Box<Message>> _openMessages(String uid) =>
-      Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
+  static Future<Box<Message>> _openMessages(String uid) async {
+    try {
+      var res =
+          await Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
+      return res;
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
+      return await Hive.openBox<Message>(
+          _keyMessages(uid.replaceAll(":", "-")));
+    }
+  }
 
-  static Future<Box<PendingMessage>> _openPending() =>
-      Hive.openBox<PendingMessage>(_keyPending());
+  static Future<Box<PendingMessage>> _openPending() async {
+    try {
+      return Hive.openBox<PendingMessage>(_keyPending());
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyPending());
+      return Hive.openBox<PendingMessage>(_keyPending());
+    }
+  }
 }

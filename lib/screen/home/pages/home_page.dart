@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:auto_route/auto_route.dart';
-import 'package:deliver/routes/router.gr.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';

@@ -47,7 +47,7 @@ class NotificationServices {
 
   void showNotification(pro.Message message, {String? roomName}) async {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
-        .copyWith(roomName: roomName!);
+        .copyWith(roomName: roomName);
     if (mb.ignoreNotification!) return;
 
     // TODO change place of synthesizer if we want more styled texts in android

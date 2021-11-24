@@ -11,7 +11,11 @@ class VideoUi extends StatefulWidget {
   final pb.File video;
   final double duration;
 
-  VideoUi({Key? key, required this.videoFile, required this.duration,required  this.video})
+  VideoUi(
+      {Key? key,
+      required this.videoFile,
+      required this.duration,
+      required this.video})
       : super(key: key);
 
   @override
@@ -19,12 +23,7 @@ class VideoUi extends StatefulWidget {
 }
 
 class _VideoUiState extends State<VideoUi> {
- late VlcPlayerController vlcPlayerController;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  late VlcPlayerController vlcPlayerController;
 
   @override
   void initState() {
@@ -92,4 +91,3 @@ class _VideoUiState extends State<VideoUi> {
     );
   }
 }
-

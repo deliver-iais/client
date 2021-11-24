@@ -219,11 +219,11 @@ class MessageRepo {
       while (!lastMessageIsSet) {
           if (msg == null) {
             lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
-                lastMessageId, type, limit, firstMessageId!, lastUpdateTime!);
+                lastMessageId, type, limit, firstMessageId!, lastUpdateTime);
             lastMessageIsSet = true;
             break;
           } else {
-            if (firstMessageId != null && msg.id! <= firstMessageId) {
+            if (firstMessageId != null &&  msg.id!= null && msg.id! <= firstMessageId) {
               lastMessageIsSet = true;
               lastMessage =
                   msg.copyWith(json: "{DELETED}", roomUid: roomUid.asString());
@@ -253,6 +253,7 @@ class MessageRepo {
       ));
       return lastMessage;
     } catch (e) {
+    //  lastMessageIsSet = true;
 
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
@@ -275,7 +276,7 @@ class MessageRepo {
       FetchMessagesReq_Type type,
       int limit,
       int firstMessageId,
-      int lastUpdateTime) async {
+      int? lastUpdateTime) async {
     Message? lastMessage;
     var fetchMessagesRes = await _queryServiceClient.fetchMessages(
         FetchMessagesReq()

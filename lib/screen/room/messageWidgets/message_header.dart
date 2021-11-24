@@ -50,7 +50,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                   : CrossAxisAlignment.start,
               children: <Widget>[
                 CircularFileStatusIndicator(
-                  isExist: isExist.data!,
+                  isExist: isExist.data,
                   file: file,
                   msg: widget.message,
                   onPressed: download,

@@ -25,6 +25,12 @@ class _VlcVideoProgressIndicatorState extends State<VlcVideoProgressIndicator> {
 
 
   @override
+  void dispose() {
+    widget.vlcPlayerController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       child: FutureBuilder<Duration>(

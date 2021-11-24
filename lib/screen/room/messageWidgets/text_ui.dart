@@ -49,13 +49,16 @@ class TextUI extends StatelessWidget {
               ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
               : null);
     }).toList();
-
-    // String link =
-    //     blocks.firstWhere((b) => b.type == "url" ).text;
+    String link;
+    try {
+      link = blocks.firstWhere((b) => b.type == "url").text;
+    } catch (e) {
+      link = "";
+    }
 
     double linkPreviewMaxWidth = min(
         blocks
-                .map((b) => b.text.length)
+                .map((b) => b!.text.length)
                 .reduce((value, element) => value < element ? element : value) *
             6.85,
         maxWidth);
@@ -74,7 +77,7 @@ class TextUI extends StatelessWidget {
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
-          LinkPreview(link: "", maxWidth: linkPreviewMaxWidth),
+          LinkPreview(link: link, maxWidth: linkPreviewMaxWidth),
           TimeAndSeenStatus(
             message,
             isSender,

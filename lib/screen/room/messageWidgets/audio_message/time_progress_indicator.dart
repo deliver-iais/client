@@ -17,7 +17,7 @@ class TimeProgressIndicator extends StatefulWidget {
 
 class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
-  late Duration currentPos;
+  Duration ? currentPos;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                     return StreamBuilder<Duration>(
                         stream: audioPlayerService.audioCurrentPosition(),
                         builder: (context, snapshot2) {
-                          currentPos = audioPlayerService.audioName == null
+                          currentPos = audioPlayerService.audioName!= null
                               ? Duration.zero
                               : snapshot2.data ?? currentPos ;
 

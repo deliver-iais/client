@@ -1,4 +1,4 @@
-package com.follow2vivek.storagepath;
+package android.app.src.storagepath;
 
 import java.io.Serializable;
 import java.util.ArrayList;

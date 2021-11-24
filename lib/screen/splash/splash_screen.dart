@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';

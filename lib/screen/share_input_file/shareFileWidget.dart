@@ -1,6 +1,6 @@
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+
 import 'package:deliver/screen/navigation_center/chats/widgets/contactPic.dart';
 import 'package:deliver/screen/room/pages/roomPage.dart';
 import 'package:deliver/theme/extra_theme.dart';

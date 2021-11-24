@@ -34,7 +34,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
         builder: (BuildContext c, AsyncSnapshot<List<Media>> snaps) {
           if (!snaps.hasData &&
               snaps.data == null &&
-              snaps.data!.length > 0 &&
               snaps.connectionState == ConnectionState.waiting) {
             return Container(width: 0.0, height: 0.0);
           } else {

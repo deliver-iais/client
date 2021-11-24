@@ -370,7 +370,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-    editMessageInput.add("");
+    inputMessagePrifix.add("");
     _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
@@ -424,7 +424,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           switch (message.type) {
             // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
-              editMessageInput.add(message.json!.toText().text);
+              inputMessagePrifix.add(message.json!.toText().text);
               _editableMessage.add(message);
               break;
             case MessageType.FILE:
@@ -743,30 +743,30 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             }
           },
         ),
-        actions: [
-          StreamBuilder<bool>(
-              stream: _searchMode.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data!) {
-                  return IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {
-                        _searchMode.add(false);
-                      });
-                } else {
-                  return PopupMenuButton(
-                    icon: Icon(Icons.more_vert),
-                    itemBuilder: (_) => <PopupMenuItem<String>>[
-                      new PopupMenuItem<String>(
-                          child: Text(_i18n.get("search")), value: "search"),
-                    ],
-                    onSelected: (search) {
-                      _searchMode.add(true);
-                    },
-                  );
-                }
-              }),
-        ],
+        // actions: [
+        //   StreamBuilder<bool>(
+        //       stream: _searchMode.stream,
+        //       builder: (c, s) {
+        //         if (s.hasData && s.data!) {
+        //           return IconButton(
+        //               icon: Icon(Icons.close),
+        //               onPressed: () {
+        //                 _searchMode.add(false);
+        //               });
+        //         } else {
+        //           return PopupMenuButton(
+        //             icon: Icon(Icons.more_vert),
+        //             itemBuilder: (_) => <PopupMenuItem<String>>[
+        //               new PopupMenuItem<String>(
+        //                   child: Text(_i18n.get("search")), value: "search"),
+        //             ],
+        //             onSelected: (search) {
+        //               _searchMode.add(true);
+        //             },
+        //           );
+        //         }
+        //       }),
+        // ],
         bottom: PreferredSize(
           child: Divider(),
           preferredSize: Size.fromHeight(1),
@@ -819,7 +819,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         if (_currentRoom.value!.firstMessageId != null)
           index = index + _currentRoom.value!.firstMessageId!;
-        bool isPendingMessage = (_currentRoom.value!.lastMessageId! == null)
+        bool isPendingMessage = (_currentRoom.value == null ||
+                (_currentRoom.value != null &&
+                    _currentRoom.value!.lastMessageId == null))
             ? true
             : _itemCount > _currentRoom.value!.lastMessageId! &&
                 _itemCount - index <= pendingMessages.length;
@@ -879,7 +881,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future<Message?> _messageAt(List<PendingMessage> pendingMessages, int index) {
-    bool isPendingMessage = (_currentRoom.value!.lastMessageId! == null) ||
+    bool isPendingMessage = (_currentRoom.value != null &&
+            _currentRoom.value!.lastMessageId == null) ||
         _itemCount > _currentRoom.value!.lastMessageId! &&
             _itemCount - index <= pendingMessages.length;
     return isPendingMessage

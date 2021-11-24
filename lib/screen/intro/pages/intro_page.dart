@@ -1,6 +1,5 @@
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
@@ -62,7 +61,7 @@ class _IntroPageState extends State<IntroPage> {
                 "assets/images/a.flr",
                 alignment: Alignment.center,
                 fit: BoxFit.contain,
-                antialias: false,
+                antialias: true,
                 controller: introAnimationController,
               ),
             ),

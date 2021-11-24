@@ -7,7 +7,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 
 class CircularFileStatusIndicator extends StatelessWidget {
-  final bool isExist;
+  final bool? isExist;
   final bool isPending;
   final File file;
   final Message msg;
@@ -15,7 +15,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
 
   const CircularFileStatusIndicator(
       {Key? key,
-      required this.isExist,
+      this.isExist,
       this.isPending = false,
       required this.file,
       required this.msg,
@@ -25,7 +25,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isExist != null) {
-      if (isExist && msg.id != null) {
+      if (isExist! && msg.id != null) {
         return file.type.contains("audio")
             ? PlayAudioStatus(
                 fileId: file.uuid,
@@ -38,7 +38,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
         return LoadFileStatus(
           fileId: file.uuid,
           fileName: file.name,
-          messageId: msg.id!,
+          messageId: msg.id,
           messagePacketId: msg.packetId,
           roomUid: msg.roomUid,
           onPressed: onPressed,

@@ -35,6 +35,7 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -107,6 +108,9 @@ class _InputMessageWidget extends State<InputMessage> {
   int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  var r = Record();
+
+  String? path;
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -131,10 +135,10 @@ class _InputMessageWidget extends State<InputMessage> {
   void initState() {
     InputMessage.inputMessegeFocusNode = FocusNode(canRequestFocus: false);
     //todo
-    editMessageInput = BehaviorSubject.seeded(null);
+    inputMessagePrifix = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = (currentRoom.draft != null ? currentRoom.draft : "")!;
-    editMessageInput.stream.listen((event) {
+    inputMessagePrifix.stream.listen((event) {
       if (event != null) _controller.text = event;
     });
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
@@ -208,7 +212,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
-    editMessageInput.close();
+    inputMessagePrifix.close();
     _controller.dispose();
     super.dispose();
   }
@@ -452,21 +456,29 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   var s =
                                       await getApplicationDocumentsDirectory();
-                                  String path = s.path +
-                                      "/Deliver/${DateTime.now().millisecondsSinceEpoch}";
+                                  path = s.path +
+                                      "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   recordSubject.add(DateTime.now());
                                   setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
                                   await _soundRecorder.openAudioSession();
-
-                                  _soundRecorder.startRecorder(
-                                    toFile: path,
-                                    sampleRate: 128000,
-                                    numChannels: 2,
-                                    bitRate: 128000,
-                                    audioSource: AudioSource.defaultSource,
+                                  // Start recording
+                                  await r.start(
+                                    path: path,
+                                    encoder: AudioEncoder.AAC, // by default
+                                    bitRate: 128000, // by default
+                                    samplingRate: 16000, // by default
                                   );
+
+                                  // _soundRecorder.startRecorder(
+                                  //   toFile: path,
+                                  //   codec:Codec.aacMP4,
+                                  //   sampleRate: 16000,
+                                  //   numChannels: 1,
+                                  //   bitRate: 16000,
+                                  //   audioSource: AudioSource.microphone,
+                                  // );
                                   setState(() {
                                     startAudioRecorder = true;
                                     size = 2;
@@ -477,9 +489,9 @@ class _InputMessageWidget extends State<InputMessage> {
                               },
                               onLongPressEnd: (s) async {
                                 if (_tickTimer != null) _tickTimer.cancel();
+                                var res = await r.stop();
 
-                                var res = await _soundRecorder.stopRecorder();
-                                _soundRecorder.closeAudioSession();
+                                // _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
                                 noActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
@@ -489,6 +501,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 });
                                 if (started) {
                                   try {
+                                    print(res.toString());
                                     messageRepo.sendFileMessage(
                                         widget.currentRoom.uid.asUid(), res!);
                                   } catch (e) {}
@@ -748,4 +761,4 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 }
 
-BehaviorSubject<String?> editMessageInput = BehaviorSubject.seeded("");
+BehaviorSubject<String?> inputMessagePrifix = BehaviorSubject.seeded("");

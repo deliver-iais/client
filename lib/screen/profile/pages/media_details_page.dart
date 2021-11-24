@@ -65,9 +65,9 @@ class MediaDetailsPage extends StatefulWidget {
 class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var fileId;
   var fileName;
-  late Uid mediaSender;
-  late DateTime createdOn;
-  late double duration;
+  Uid? mediaSender;
+  DateTime? createdOn;
+  double? duration;
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
@@ -289,8 +289,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            child: buildVeidoWidget(i, videoFile, duration, mediaSender,
-                createdOn, _senderName, fileId),
+            child: buildVeidoWidget(i, videoFile, duration!, mediaSender!,
+                createdOn!, _senderName, fileId),
           ),
         );
         // }
@@ -303,8 +303,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                 i: i,
                 fileId: fileId,
                 senderName: _senderName,
-                createdOn: createdOn,
-                mediaSender: mediaSender,
+                createdOn: createdOn!,
+                mediaSender: mediaSender!,
                 snaps: thumnailFile,
                 fileName: fileName),
           ),
@@ -338,8 +338,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                child: buildVeidoWidget(i, snaps.data, duration, mediaSender,
-                    createdOn, _senderName, fileId),
+                child: buildVeidoWidget(i, snaps.data, duration!, mediaSender!,
+                    createdOn!, _senderName, fileId),
               ),
             );
           } else if (snaps.data == null &&
@@ -359,8 +359,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             i: i,
                             fileId: fileId,
                             senderName: _senderName,
-                            createdOn: createdOn,
-                            mediaSender: mediaSender,
+                            createdOn: createdOn!,
+                            mediaSender: mediaSender!,
                             snaps: snaps.data,
                             fileName: fileName),
                       ),
@@ -452,8 +452,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildBottomAppBar(
-      Uid mediaSender, DateTime createdOn, var name, var fileId) {
-    if (name == null) {
+      Uid ? mediaSender, DateTime? createdOn, var name, var fileId) {
+    if (name == null && mediaSender!= null) {
       return FutureBuilder<String>(
         future: _roomRepo.getName(mediaSender),
         builder: (BuildContext c, AsyncSnapshot s) {
@@ -461,15 +461,17 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               s.data == null ||
               s.connectionState == ConnectionState.waiting) {
             return Center();
-          } else {
+          } else if(createdOn!= null) {
             _mediaSenderCache.set(fileId, s.data);
             return buildNameWidget(s.data, createdOn);
-          }
+          }else
+            return SizedBox.shrink();
         },
       );
-    } else {
+    } else  if(createdOn!=null){
       return buildNameWidget(name, createdOn);
-    }
+    }else
+      return SizedBox.shrink();
   }
 
   Positioned buildNameWidget(String name, DateTime createdOn) {
