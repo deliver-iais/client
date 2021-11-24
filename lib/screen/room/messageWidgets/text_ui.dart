@@ -58,7 +58,7 @@ class TextUI extends StatelessWidget {
 
     double linkPreviewMaxWidth = min(
         blocks
-                .map((b) => b!.text.length)
+                .map((b) => b.text.length)
                 .reduce((value, element) => value < element ? element : value) *
             6.85,
         maxWidth);
