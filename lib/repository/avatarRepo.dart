@@ -2,11 +2,15 @@ import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as ProtocolFile;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -21,6 +25,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 
 import 'authRepo.dart';
+import 'botRepo.dart';
 
 class AvatarRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -29,6 +34,8 @@ class AvatarRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
   final _queryServices = GetIt.I.get<query.QueryServiceClient>();
+  final _botRepo = GetIt.I.get<BotRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: InMemoryStorage(40));
 
@@ -174,7 +181,11 @@ class AvatarRepo {
     var addAvatarReq = query.AddAvatarReq()..avatar = avatar;
 
     try {
-      await _queryServices.addAvatar(addAvatarReq);
+      if (uid.isBot()) {
+        if (!await _botRepo.addBotAvatar(avatar))
+          ToastDisplay.showToast(toastText: _i18n.get("error_occurred"));
+      } else
+        await _queryServices.addAvatar(addAvatarReq);
       await _avatarDao.saveAvatars(uid.asString(), [
         Avatar(
             uid: uid.asString(),
@@ -191,12 +202,23 @@ class AvatarRepo {
     ProtocolAvatar.Avatar deleteAvatar = ProtocolAvatar.Avatar();
     deleteAvatar..fileUuid = avatar.fileId;
     deleteAvatar..fileName = avatar.fileName;
-    deleteAvatar..node = _authRepo.currentUserUid.node;
+    deleteAvatar
+      ..node = avatar.uid.isBot()
+          ? avatar.uid.asUid().node
+          : _authRepo.currentUserUid.node;
     deleteAvatar
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
-    deleteAvatar..category = _authRepo.currentUserUid.category;
+    deleteAvatar
+      ..category = avatar.uid.isBot()
+          ? avatar.uid.asUid().category
+          : _authRepo.currentUserUid.category;
     var removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
-    await _queryServices.removeAvatar(removeAvatarReq);
+    if (avatar.uid.isBot()) {
+      if (!await _botRepo.removeBotAvatar(deleteAvatar)) {
+        ToastDisplay.showToast(toastText: _i18n.get("error_occurred"));
+      }
+    } else
+      await _queryServices.removeAvatar(removeAvatarReq);
     await _avatarDao.removeAvatar(avatar);
   }
 }
