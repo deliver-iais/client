@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -8,7 +9,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter_incoming_call/flutter_incoming_call.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -58,6 +58,9 @@ class CallRepo {
   Function(MediaStream stream) onAddRemoteStream;
   Function(MediaStream stream) onRemoveRemoteStream;
 
+  int startCallTime;
+  int endCallTime;
+
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
       switch (event?.callTypes) {
@@ -79,7 +82,7 @@ class CallRepo {
                 incomingCall(event.roomUid);
               } else {
                 messageRepo.sendCallMessage(
-                    CallEvent_CallStatus.BUSY, event.roomUid, callEvent.id);
+                    CallEvent_CallStatus.BUSY, event.roomUid, callEvent.id, 0);
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -455,7 +458,7 @@ class CallRepo {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.IS_RINGING, _roomUid, _callId);
+        CallEvent_CallStatus.IS_RINGING, _roomUid, _callId, 0);
   }
 
   void startCall(Uid roomId) async {
@@ -480,7 +483,7 @@ class CallRepo {
   _sendStartCallEvent() {
     _callIdGenerator();
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.CREATED, _roomUid, _callId);
+        CallEvent_CallStatus.CREATED, _roomUid, _callId, 0);
   }
 
   _callIdGenerator() {
@@ -496,13 +499,14 @@ class CallRepo {
     callingStatus.add(CallStatus.ACCEPTED);
     _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
+    startCallTime = DateTime.now().millisecondsSinceEpoch;
   }
 
   void declineCall() {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.DECLINED, _roomUid, _callId);
+        CallEvent_CallStatus.DECLINED, _roomUid, _callId, 0);
     _dispose();
   }
 
@@ -551,14 +555,19 @@ class CallRepo {
     });
   }
 
-  void receivedEndCall() {
-    FlutterIncomingCall.endAllCalls();
+  Future<void> receivedEndCall() async {
+    String sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
+    ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
+    ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     callingStatus.add(CallStatus.ENDED);
     _dispose();
   }
 
   endCall() async {
-    messageRepo.sendCallMessage(CallEvent_CallStatus.ENDED, _roomUid, _callId);
+    var time = endCallTime - startCallTime;
+    print(time);
+    messageRepo.sendCallMessage(
+        CallEvent_CallStatus.ENDED, _roomUid, _callId, time);
     await _dispose();
   }
 
