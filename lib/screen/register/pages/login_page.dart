@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
@@ -89,9 +88,9 @@ class _LoginPageState extends State<LoginPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
       return HomePage();
-    }));
+    }), (r) => false);
   }
 
   _loginASTestUser() {
@@ -121,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
         try {
           var res = await _authRepo.getVerificationCode(phoneNumber!);
           if (res != null) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+            Navigator.push(context, MaterialPageRoute(builder: (c) {
               return VerificationPage();
             }));
 

@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
         return HomePage();
       }));
     } else {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      Navigator.push(context, MaterialPageRoute(builder: (c) {
         return AccountSettings(
           forceToSetUsernameAndName: true,
         );

@@ -530,7 +530,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage!)) {
-        List<int> pm = muc.pinMessagesIdList!;
+        List<int >? pm = muc.pinMessagesIdList;
         _pinMessages.clear();
         if (pm != null && pm.length > 0)
           pm.reversed.toList().forEach((element) async {
@@ -538,8 +538,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               try {
                 var m = await _getMessage(
                     element, widget.roomId, muc.lastMessageId!,
-                    lastUpdatedMessageId:
-                        _currentRoom.value!.lastUpdatedMessageId!);
+                    lastUpdatedMessageId:_currentRoom.value!.lastUpdatedMessageId!= null ?
+                        _currentRoom.value!.lastUpdatedMessageId!:0);
                 _pinMessages.add(m!);
                 _lastPinedMessage.add(_pinMessages.last.id!);
               } catch (e) {

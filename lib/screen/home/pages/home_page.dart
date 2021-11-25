@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   checkLogOutApp() {
     _logOut.stream.listen((event) {
       if (event)
-        Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) => IntroPage()));
+        Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (context) => IntroPage()), (e) => false);
     });
   }
 

@@ -2,10 +2,13 @@ import 'dart:ui';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
+import 'package:deliver/screen/room/pages/roomPage.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -16,6 +19,7 @@ import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
   final bool isChannel;
@@ -256,7 +260,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                     _showIcon = false;
                                   });
                                   List<Uid> memberUidList = [];
-                                  Uid? micUid;
+                                  Uid? mucUid;
                                   for (var i = 0;
                                       i < _createMucService.contacts.length;
                                       i++) {
@@ -270,7 +274,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                         false;
                                     if (result) {
                                       if (await checkChannelD(channelId))
-                                        micUid =
+                                        mucUid =
                                             await _mucRepo.createNewChannel(
                                                 idController.text,
                                                 memberUidList,
@@ -279,15 +283,27 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                                 infoController.text);
                                     }
                                   } else {
-                                    micUid = await _mucRepo.createNewGroup(
+                                    mucUid = await _mucRepo.createNewGroup(
                                         memberUidList,
                                         controller.text,
                                         infoController.text);
                                   }
-                                  if (micUid != null) {
+                                  if (mucUid != null) {
                                     _createMucService.reset();
-                                    _routingService.openRoom(micUid.asString(),
-                                        context: context);
+                                    if (isDesktop()) {
+                                      _routingService.openRoom(
+                                          mucUid.asString(),
+                                          context: context);
+                                    } else {
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (c) => RoomPage(
+                                                  roomId: mucUid!.asString())),
+                                          (t) {
+                                        return t.isFirst;
+                                      });
+                                    }
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),
