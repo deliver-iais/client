@@ -355,14 +355,14 @@ class AndroidNotifier implements Notifier {
             NotificationActionButton(
               key: 'REPLY',
               label: 'Reply',
-              autoDismissable: false,
+              autoDismissible: false,
               showInCompactView: true,
               buttonType: ActionButtonType.InputField,
             ),
             NotificationActionButton(
               key: 'READ',
               label: 'Mark as read',
-              autoDismissable: true,
+              autoDismissible: true,
             ),
           ]);
     }

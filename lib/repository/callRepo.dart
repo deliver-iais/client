@@ -9,6 +9,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -392,13 +393,17 @@ class CallRepo {
       'video': true
     };
 
+    await startForegroundService();
+
     var stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
     return stream;
   }
 
   shareScreen() async {
     if (!_isSharing) {
-      _localStreamShare = await _getUserDisplay();
+      if(_localStreamShare == null) { //get Access for first time
+        _localStreamShare = await _getUserDisplay();
+      }
       var screenVideoTrack = _localStreamShare.getVideoTracks()[0];
       _videoSender.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare);
@@ -451,6 +456,28 @@ class CallRepo {
       return enabled;
     }
     return false;
+  }
+
+  startForegroundService() async {
+    await FlutterForegroundPlugin.setServiceMethodInterval(seconds: 5);
+    await FlutterForegroundPlugin.setServiceMethod(globalForegroundService);
+    await FlutterForegroundPlugin.startForegroundService(
+      holdWakeLock: false,
+      onStarted: () {
+        print("Foreground on Started");
+      },
+      onStopped: () {
+        print("Foreground on Stopped");
+      },
+      title: "Tcamera",
+      content: "Tcamera sharing your screen.",
+      iconName: "ic_stat_mobile_screen_share",
+    );
+    return true;
+  }
+
+  void globalForegroundService() {
+    _logger.i("current datetime is ${DateTime.now()}");
   }
 
   void incomingCall(Uid roomId) {
@@ -564,6 +591,7 @@ class CallRepo {
   }
 
   endCall() async {
+    endCallTime = DateTime.now().millisecondsSinceEpoch;
     var time = endCallTime - startCallTime;
     print(time);
     messageRepo.sendCallMessage(

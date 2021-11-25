@@ -140,6 +140,7 @@ dependencies:
   flutter_webrtc: ^0.7.1
   awesome_notifications: ^0.6.17
   connectycube_flutter_call_kit: ^0.1.0-dev.2
+  flutter_foreground_plugin: ^0.8.0
 
 dev_dependencies:
   flutter_test:
