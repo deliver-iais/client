@@ -76,6 +76,7 @@ class _ProfilePageState extends State<ProfilePage>
   I18N _locale;
 
   bool _isMucAdminOrOwner = false;
+  bool _isBotOwner = false;
   bool _isMucOwner = false;
   String _roomName = "";
 
@@ -282,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 ProfileAvatar(
                   roomUid: widget.roomUid,
-                  canSetAvatar: _isMucAdminOrOwner,
+                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
                 ),
                 // _buildMenu(context)
               ],
@@ -555,12 +556,12 @@ class _ProfilePageState extends State<ProfilePage>
   Future<void> _setupRoomSettings() async {
     if (widget.roomUid.isMuc()) {
       try {
-        final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
+        final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         final mucOwner = await _mucRepo.isMucOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         setState(() {
-          _isMucAdminOrOwner = settingAvatarPermission;
+          _isMucAdminOrOwner = isMucAdminOrAdmin;
           _isMucOwner = mucOwner;
         });
       } catch (e) {
@@ -570,7 +571,7 @@ class _ProfilePageState extends State<ProfilePage>
       try {
         final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
         setState(() {
-          _isMucAdminOrOwner = botAvatarPermission.isOwner;
+          _isBotOwner = botAvatarPermission.isOwner;
         });
       } catch (e) {
         _logger.e(e);
