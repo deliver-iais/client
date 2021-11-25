@@ -18,5 +18,8 @@ class BotInfo {
   @HiveField(3)
   Map<String, String> commands;
 
-  BotInfo({this.uid, this.description, this.name, this.commands});
+  @HiveField(4)
+  bool isOwner;
+
+  BotInfo({this.uid, this.description, this.name, this.commands, this.isOwner});
 }
