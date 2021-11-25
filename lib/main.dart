@@ -76,7 +76,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_incoming_call/flutter_incoming_call.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -243,25 +242,6 @@ Future<void> setupDI() async {
 Future setupFlutterNotification() async {
   await Firebase.initializeApp();
   AwesomeNotifications().initialize(null, []);
-  FlutterIncomingCall.configure(
-      appName: 'example_incoming_call',
-      duration: 30000,
-      android: ConfigAndroid(
-        vibration: true,
-        ringtonePath: 'default',
-        channelId: 'calls',
-        channelName: 'Calls channel name',
-        channelDescription: 'Calls channel description',
-      ),
-      ios: ConfigIOS(
-        iconName: 'AppIcon40x40',
-        ringtonePath: null,
-        includesCallsInRecents: false,
-        supportsVideo: true,
-        maximumCallGroups: 2,
-        maximumCallsPerCallGroup: 1,
-      )
-  );
 }
 
 void main() async {

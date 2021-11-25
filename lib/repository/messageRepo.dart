@@ -380,10 +380,11 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(CallProto.CallEvent_CallStatus newStatus, Uid room, String callId) async {
+  sendCallMessage(CallProto.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration ) async {
     String json = (CallProto.CallEvent()
       ..newStatus = newStatus
-      ..id = callId)
+      ..id = callId
+      ..callDuration = Int64(callDuration) )
         .writeToJson();
 
     Message msg =

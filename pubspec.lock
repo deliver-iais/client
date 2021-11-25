@@ -204,6 +204,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  connectycube_flutter_call_kit:
+    dependency: "direct main"
+    description:
+      name: connectycube_flutter_call_kit
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-dev.2"
   contacts_service:
     dependency: "direct main"
     description:
@@ -299,11 +306,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.9.3"
-      resolved-ref: ab3892c4b5edb29c5534765073056df030d7eed0
+      ref: "tags/v1.9.9"
+      resolved-ref: "666ebbf3377e876088f1a57390ff7d24a03c6de4"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.9.3"
+    version: "1.9.9"
   desktoasts:
     dependency: "direct main"
     description:
@@ -519,13 +526,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
-  flutter_incoming_call:
-    dependency: "direct main"
-    description:
-      name: flutter_incoming_call
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0"
   flutter_isolate:
     dependency: "direct main"
     description:
@@ -1540,6 +1540,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.1"
+  universal_io:
+    dependency: transitive
+    description:
+      name: universal_io
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.4"
   url_launcher:
     dependency: "direct main"
     description:

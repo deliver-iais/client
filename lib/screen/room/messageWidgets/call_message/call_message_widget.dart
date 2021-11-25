@@ -18,6 +18,7 @@ class CallMessageWidget extends StatelessWidget {
 
   CallMessageWidget({Key key, this.message}) : super(key: key);
   CallEvent _callEvent;
+  var time;
   var _i18n = GetIt.I.get<I18N>();
   var _autRepo = GetIt.I.get<AuthRepo>();
 
@@ -25,7 +26,7 @@ class CallMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _callEvent = message.json.toCallEvent();
-
+     time=message.json;
     return Align(
       alignment: _autRepo.isCurrentUser(message.from)
           ? Alignment.centerRight

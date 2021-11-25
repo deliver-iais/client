@@ -87,7 +87,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/pub-dart-artifactory
-      ref: tags/v1.9.3
+      ref: tags/v1.9.9
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -139,7 +139,7 @@ dependencies:
   sdp_transform: ^0.3.2
   flutter_webrtc: ^0.7.1
   awesome_notifications: ^0.6.17
-  flutter_incoming_call: ^0.1.0
+  connectycube_flutter_call_kit: ^0.1.0-dev.2
 
 dev_dependencies:
   flutter_test:

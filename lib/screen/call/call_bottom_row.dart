@@ -1,6 +1,7 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -51,6 +52,11 @@ class _CallBottomRowState extends State<CallBottomRow> {
                 onPressed: _muteMic,
               ),
               FloatingActionButton(
+                backgroundColor: _muteMicIcon,
+                child: (isAndroid()) ? Icon(Icons.mobile_screen_share) : Icon(Icons.screen_share_outlined ),
+                onPressed: _shareScreen,
+              ),
+              FloatingActionButton(
                 onPressed: _hangUp,
                 tooltip: 'Hangup',
                 child: Icon(Icons.call_end),
@@ -85,5 +91,9 @@ class _CallBottomRowState extends State<CallBottomRow> {
   _offVideoCam() {
     _offVideoCamIcon = callRepo.muteCamera() ? Colors.grey : Colors.black45;
     setState(() {});
+  }
+
+  _shareScreen() {
+    callRepo.shareScreen();
   }
 }
