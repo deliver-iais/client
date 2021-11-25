@@ -11,7 +11,7 @@ class StickerRepo {
     //   getTrendPacks();
   }
 
-  Future<StickerPacket> getStickerPackByUUID(String uuid) async {
+  Future<StickerPacket?> getStickerPackByUUID(String uuid) async {
     return null;
     // Sticker sticker = await _stickerDao.getSticker(uuid);
     // if (sticker != null) {
@@ -35,7 +35,7 @@ class StickerRepo {
     // }
   }
 
-  Future<Sticker> getSticker(String uuid) async {
+  Future<Sticker?> getSticker(String uuid) async {
     return null;
     // var sticker = await _stickerDao.getSticker(uuid);
     // return sticker;
@@ -54,7 +54,7 @@ class StickerRepo {
   //   return _stickerIdDao.getNotDownloadStickerPackId();
   // }
 
-  Future<Sticker> getFirstStickerFromPack(String packId) async {
+  Future<Sticker?> getFirstStickerFromPack(String packId) async {
     // List<Sticker> stickers = await _stickerDao.getStickerByPacKId(packId);
     return null;
   }
@@ -70,7 +70,7 @@ class StickerRepo {
     }
   }
 
-  Stream<List<Sticker>> getAllSticker() {
+  Stream<List<Sticker>>? getAllSticker() {
     return null;
   }
 
@@ -94,7 +94,7 @@ class StickerRepo {
   //       packISDownloaded: true));
   // }
 
-  Future<List<Sticker>> getStickerPackByPackId(String packId) async {
+  Future<List<Sticker>?> getStickerPackByPackId(String packId) async {
     return null;
     // List<Sticker> stickers = await _stickerDao.gatStickerPack(packId);
     // return stickers;

@@ -30,5 +30,5 @@ class DBManager {
     });
   }
 
-  Future<void> migrate(String previousVersion) async {}
+  Future<void> migrate(String ? previousVersion) async {}
 }

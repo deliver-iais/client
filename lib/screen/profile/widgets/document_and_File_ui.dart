@@ -19,7 +19,11 @@ class DocumentAndFileUi extends StatefulWidget {
   final int documentCount;
   final MediaType type;
 
-  DocumentAndFileUi({Key key, this.roomUid, this.documentCount, this.type})
+  DocumentAndFileUi(
+      {Key? key,
+      required this.roomUid,
+      required this.documentCount,
+      required this.type})
       : super(key: key);
 
   @override
@@ -55,11 +59,11 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                         itemCount: widget.documentCount,
                         itemBuilder: (BuildContext ctx, int index) {
                           var fileId =
-                              jsonDecode(media.data[index].json)["uuid"];
+                              jsonDecode(media.data![index].json)["uuid"];
                           var fileName =
-                              jsonDecode(media.data[index].json)["name"];
-                          var messageId = media.data[index].messageId;
-                          return FutureBuilder<File>(
+                              jsonDecode(media.data![index].json)["name"];
+                          var messageId = media.data![index].messageId;
+                          return FutureBuilder<File?>(
                               future: fileRepo.getFileIfExist(fileId, fileName),
                               builder: (context, file) {
                                 if (file.hasData && file.data != null) {
@@ -68,7 +72,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                       ListTile(
                                         title: GestureDetector(
                                           onTap: () {
-                                            OpenFile.open(file.data.path);
+                                            OpenFile.open(file.data!.path);
                                           },
                                           child: Row(children: <Widget>[
                                             Padding(
@@ -147,7 +151,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                       style: TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
-                                                          FontWeight.bold,
+                                                              FontWeight.bold,
                                                           color: ExtraTheme.of(
                                                                   context)
                                                               .textMessage)),

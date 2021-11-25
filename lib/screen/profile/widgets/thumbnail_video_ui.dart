@@ -13,25 +13,26 @@ class VideoThumbnail extends StatelessWidget {
   final String videoLength;
   final File thumbnail;
   final int videoCount;
-  final Function onClick;
+  final Function ? onClick;
   final bool showPlayIcon;
   final bool isExist;
 
   VideoThumbnail(
-      {this.userUid,
-      this.mediaPosition,
-      this.videoLength,
-      this.thumbnail,
-      this.videoCount,
-      this.onClick,
+      {required this.userUid,
+      required this.mediaPosition,
+      required this.videoLength,
+      required this.thumbnail,
+      required this.videoCount,
+        this.onClick,
       this.showPlayIcon = false,
-      this.isExist});
+      required this.isExist});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
           _routingService.openShowAllVideos(
+            context,
             uid: userUid,
             mediaPosition: mediaPosition,
             mediasLength: videoCount,
@@ -70,7 +71,7 @@ class VideoThumbnail extends StatelessWidget {
                 child: MaterialButton(
                   color: Colors.black26,
                   onPressed: () async {
-                    onClick();
+                    onClick!();
                   },
                   shape: CircleBorder(),
                   child: Icon(

@@ -12,16 +12,16 @@ class FileMessageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final bool isSender;
-  final Function onUsernameClick;
+  final Function? onUsernameClick;
   final bool isSeen;
 
   const FileMessageUi(
-      {Key key,
-      this.message,
-      this.maxWidth,
-      this.isSender,
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
       this.onUsernameClick,
-      this.isSeen})
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -31,7 +31,7 @@ class FileMessageUi extends StatefulWidget {
 class _FileMessageUiState extends State<FileMessageUi> {
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json.toFile();
+    var file = widget.message.json!.toFile();
     var type = file.type;
     var caption = file.caption;
     var dimensions =

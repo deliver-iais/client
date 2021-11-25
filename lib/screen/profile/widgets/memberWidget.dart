@@ -15,7 +15,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class MucMemberWidget extends StatefulWidget {
   final Uid mucUid;
 
-  MucMemberWidget({this.mucUid});
+  MucMemberWidget({required this.mucUid});
 
   @override
   _MucMemberWidgetState createState() => _MucMemberWidgetState();
@@ -32,33 +32,33 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   static const String DELETE = "delete";
   static const String BAN = "ban";
 
-  I18N _i18n;
-  MucRole _myRoleInThisRoom;
+  I18N _i18n = GetIt.I.get<I18N>();
+  MucRole _myRoleInThisRoom = MucRole.NONE;
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
-    return StreamBuilder<List<Member>>(
+    return StreamBuilder<List<Member?>>(
         stream: _mucRepo.watchAllMembers(widget.mucUid.asString()),
-        builder: (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<Member?>> snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&
-              snapshot.data.length > 0) {
-            obtainMyRole(snapshot.data);
+              snapshot.data!.length > 0) {
+            obtainMyRole(snapshot.data!);
             List<Widget> widgets = [];
 
-            snapshot.data.forEach((member) {
+            snapshot.data!.forEach((member) {
               widgets.add(Divider());
               widgets.add(GestureDetector(
                   onTap: () {
-                    _routingServices.openRoom(member.memberUid);
+                    _routingServices.openRoom(member!.memberUid,
+                        context: context);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          CircleAvatarWidget(member.memberUid.asUid(), 18),
+                          CircleAvatarWidget(member!.memberUid.asUid(), 18),
                           SizedBox(
                             width: 10,
                           ),
@@ -122,7 +122,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                           value: BAN),
                                     ],
                                     onSelected: (key) {
-                                      onSelected(key, member);
+                                      onSelected(key.toString(), member);
                                     },
                                   ),
                                 if (member.memberUid.contains(_authRepo
@@ -208,10 +208,11 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
     }
   }
 
-  obtainMyRole(List<Member> members) {
-    for (Member member in members) {
-      if (member.memberUid.contains(_authRepo.currentUserUid.asString())) {
-        _myRoleInThisRoom = member.role;
+  obtainMyRole(List<Member?> members) {
+    for (Member? member in members) {
+      if (member != null) if (member.memberUid
+          .contains(_authRepo.currentUserUid.asString())) {
+        _myRoleInThisRoom = member.role!;
       }
     }
   }

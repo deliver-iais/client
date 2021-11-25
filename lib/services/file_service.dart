@@ -4,13 +4,13 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -20,6 +20,7 @@ enum ThumbnailSize { medium }
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _logger = GetIt.I.get<Logger>();
 
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
@@ -69,7 +70,7 @@ class FileService {
   }
 
   Future<File> getFile(String uuid, String filename,
-      {ThumbnailSize size}) async {
+      {ThumbnailSize? size}) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -83,14 +84,14 @@ class FileService {
       filesDownloadStatus[uuid] = d;
     }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      filesDownloadStatus[uuid].add((i / j));
+      filesDownloadStatus[uuid]!.add((i / j));
     }, options: Options(responseType: ResponseType.bytes));
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
   }
 
-  Future<File> getDeliverIcon() async {
+  Future<File?> getDeliverIcon() async {
     var file = await localFile("deliver-icon", "png");
     if (file.existsSync()) {
       return file;
@@ -132,40 +133,33 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
+  uploadFile(String filePath, {required String uploadKey, Function ? sendActivity}) async {
     try {
-      var request = new http.Client().post(Uri.parse(FileServiceBaseUrl + "/upload",),body: await http.MultipartFile.fromPath('file', filePath,
-          contentType:
-          MediaType.parse(mime(filePath) ?? "application/octet-stream")),headers: {"Authorization": await _authRepo.getAccessToken()} );
+      _dio.interceptors.add(InterceptorsWrapper(onRequest:
+          (RequestOptions options, RequestInterceptorHandler handler) async {
+        options.onSendProgress = (int i, int j) {
+          if (sendActivity != null) sendActivity();
+          if (filesUploadStatus[uploadKey] == null) {
+            BehaviorSubject<double> d = BehaviorSubject();
+            filesUploadStatus[uploadKey] = d;
+          }
+          filesUploadStatus[uploadKey]!.add((i / j));
+        };
+        handler.next(options);
+      }));
 
-        request.then((value) => print(value.toString()));
+      var formData = FormData.fromMap({
+        "file": MultipartFile.fromFileSync(filePath,
+            contentType:
+                MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+      });
 
-
+      return _dio.post(
+        "/upload",
+        data: formData,
+      );
     } catch (e) {
-      print(e.toString());
+      _logger.e(e);
     }
-    // _dio.interceptors.add(InterceptorsWrapper(onRequest:
-    //     (RequestOptions options, RequestInterceptorHandler handler) async {
-    //   options.onSendProgress = (int i, int j) {
-    //     if (sendActivity != null) sendActivity();
-    //     if (filesUploadStatus[uploadKey] == null) {
-    //       BehaviorSubject<double> d = BehaviorSubject();
-    //       filesUploadStatus[uploadKey] = d;
-    //     }
-    //     filesUploadStatus[uploadKey].add((i / j));
-    //   };
-    //   handler.next(options);
-    // }));
-    //
-    // var formData = FormData.fromMap({
-    //   "file": MultipartFile.fromFileSync(filePath,
-    //       contentType:
-    //           MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-    // });
-    //
-    // return _dio.post(
-    //   "/upload",
-    //   data: formData,
-    // );
   }
 }

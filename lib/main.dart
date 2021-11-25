@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -44,9 +43,8 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
-import 'package:deliver/routes/router.gr.dart' as R;
-
 import 'package:deliver/screen/splash/splash_screen.dart';
+
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -58,7 +56,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -204,8 +201,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
-
   if (isLinux() || isWindows()) {
     DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
@@ -282,7 +277,6 @@ class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
-  var _appRouter = R.AppRouter();
 
   @override
   Widget build(BuildContext context) {
@@ -300,18 +294,17 @@ class MyApp extends StatelessWidget {
                 _rawKeyboardService.escapeHandeling(
                     event: event, replyMessageId: -1);
                 _rawKeyboardService.searchHandeling(event: event);
-                _rawKeyboardService.navigateInRooms(event: event);
+                _rawKeyboardService.navigateInRooms(
+                    event: event, context: context);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
               },
-              child: MaterialApp.router(
+              child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-
-
                 supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,
@@ -319,22 +312,20 @@ class MyApp extends StatelessWidget {
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate
                 ],
-                routeInformationParser:
-                    _appRouter.defaultRouteParser(includePrefixMatches: true),
+                home: SplashScreen(),
                 localeResolutionCallback: (deviceLocale, supportedLocale) {
                   for (var locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale.languageCode &&
+                    if (locale.languageCode == deviceLocale!.languageCode &&
                         locale.countryCode == deviceLocale.countryCode) {
                       return deviceLocale;
                     }
                   }
                   return supportedLocale.first;
                 },
-                builder: (x, c) =>
-                    Directionality(
-                  textDirection: TextDirection.ltr, child:c,
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: c!,
                 ),
-                routerDelegate: _appRouter.delegate(initialRoutes: [R.SplashScreenRoute()]),
               )),
         );
       },

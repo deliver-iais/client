@@ -12,19 +12,19 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
-  final int messageId;
-  final String messagePacketId; // TODO Needs to be refactored
-  final String roomUid;
+  final int ? messageId;
+  final String? messagePacketId; // TODO Needs to be refactored
+  final String? roomUid;
   final Function onPressed;
 
   const LoadFileStatus(
-      {Key key,
-      this.fileId,
-      this.fileName,
+      {Key? key,
+      required this.fileId,
+      required this.fileName,
       this.messageId,
       this.messagePacketId,
       this.roomUid,
-      this.onPressed})
+      required this.onPressed})
       : super(key: key);
 
   @override
@@ -39,8 +39,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<PendingMessage>(
-        stream: _messageRepo.watchPendingMessage(widget.messagePacketId),
+    return StreamBuilder<PendingMessage?>(
+        stream: _messageRepo.watchPendingMessage(widget.messagePacketId!),
         builder: (context, pendingMessage) {
           isPendingMes = pendingMessage.hasData && pendingMessage.data != null;
           return Row(
@@ -49,8 +49,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               Stack(
                 children: <Widget>[
                   pendingMessage.data != null
-                      ? pendingMessage.data.status == SendingStatus.SENDING_FILE
-                          ? StreamBuilder<double>(
+                      ? pendingMessage.data!.status ==
+                              SendingStatus.SENDING_FILE
+                          ? StreamBuilder<double?>(
                               stream:
                                   _fileService.filesUploadStatus[widget.fileId],
                               builder: (context, snapshot) {
@@ -68,7 +69,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                       ),
                                       onPressed: () {},
                                     ),
-                                    percent: snapshot.data,
+                                    percent: snapshot.data!,
                                     backgroundColor: ExtraTheme.of(context)
                                         .circularFileStatus,
                                     progressColor: ExtraTheme.of(context)
@@ -109,11 +110,12 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     .filesDownloadStatus[widget.fileId],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData &&
-                                      snapshot.data != null && snapshot.data >0) {
+                                      snapshot.data != null &&
+                                      snapshot.data! > 0) {
                                     return CircularPercentIndicator(
                                       radius: 45.0,
                                       lineWidth: 4.0,
-                                      percent: snapshot.data,
+                                      percent: snapshot.data!,
                                       backgroundColor: ExtraTheme.of(context)
                                           .circularFileStatus,
                                       center: Icon(Icons.arrow_downward,

@@ -10,7 +10,7 @@ class Message {
   String roomUid;
 
   @HiveField(1)
-  int id;
+  int? id;
 
   @HiveField(2)
   String packetId;
@@ -25,30 +25,30 @@ class Message {
   String to;
 
   @HiveField(6)
-  int replyToId;
+  int? replyToId;
 
   @HiveField(7)
-  String forwardedFrom;
+  String? forwardedFrom;
 
   @HiveField(8)
-  bool edited;
+  bool? edited;
 
   @HiveField(9)
-  bool encrypted;
+  bool? encrypted;
 
   @HiveField(10)
-  MessageType type;
+  MessageType? type;
 
   @HiveField(11)
-  String json;
+  String? json;
 
   Message(
-      {this.roomUid,
+      {required this.roomUid,
       this.id,
-      this.packetId,
-      this.time,
-      this.from,
-      this.to,
+      required this.packetId,
+      required this.time,
+      required this.from,
+      required this.to,
       this.replyToId,
       this.forwardedFrom,
       this.edited,
@@ -57,33 +57,33 @@ class Message {
       this.json});
 
   Message copy(Message pm) => Message(
-        roomUid: pm.roomUid ?? this.roomUid,
+        roomUid: pm.roomUid,
         id: pm.id ?? this.id,
-        packetId: pm.packetId ?? this.packetId,
-        time: pm.time ?? this.time,
-        from: pm.from ?? this.from,
-        to: pm.to ?? this.to,
+        packetId: pm.packetId,
+        time: pm.time,
+        from: pm.from,
+        to: pm.to,
         replyToId: pm.replyToId ?? this.replyToId,
         forwardedFrom: pm.forwardedFrom ?? this.forwardedFrom,
         edited: pm.edited ?? this.edited,
         encrypted: pm.encrypted ?? this.encrypted,
-        type: pm.type ?? this.type,
-        json: pm.json ?? this.json,
+        type: pm.type,
+        json: pm.json,
       );
 
   Message copyWith(
-          {String roomUid,
-          int id,
-          String packetId,
-          int time,
-          String from,
-          String to,
-          int replyToId,
-          String forwardedFrom,
-          bool edited,
-          bool encrypted,
-          MessageType type,
-          String json}) =>
+          {String? roomUid,
+          int? id,
+          String? packetId,
+          int? time,
+          String? from,
+          String? to,
+          int? replyToId,
+          String? forwardedFrom,
+          bool? edited,
+          bool? encrypted,
+          MessageType? type,
+          String? json}) =>
       Message(
         roomUid: roomUid ?? this.roomUid,
         id: id ?? this.id,

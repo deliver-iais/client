@@ -2,29 +2,29 @@ import 'package:deliver/box/uid_id_name.dart';
 import 'package:hive/hive.dart';
 
 abstract class UidIdNameDao {
-  Future<UidIdName> getByUid(String uid);
+  Future<UidIdName?> getByUid(String uid);
 
-  Future<String> getUidById(String id);
+  Future<String?> getUidById(String id);
 
-  Future<void> update(String uid, {String id, String name});
+  Future<void> update(String uid, {String? id, String? name});
 
   Future<List<UidIdName>> search(String text);
 }
 
 class UidIdNameDaoImpl implements UidIdNameDao {
-  Future<UidIdName> getByUid(String uid) async {
+  Future<UidIdName?> getByUid(String uid) async {
     var box = await _open();
 
     return box.get(uid);
   }
 
-  Future<String> getUidById(String id) async {
+  Future<String?> getUidById(String id) async {
     var box = await _open2();
 
     return box.get(id);
   }
 
-  Future<void> update(String uid, {String id, String name}) async {
+  Future<void> update(String uid, {String? id, String? name}) async {
     var box = await _open();
     var box2 = await _open2();
 
@@ -60,7 +60,7 @@ class UidIdNameDaoImpl implements UidIdNameDao {
         .where((element) =>
             (element.id != null &&
                 element.id.toString().toLowerCase().contains(text)) ||
-            (element.name != null && element.name.toLowerCase().contains(text)))
+            (element.name!.toLowerCase().contains(text)))
         .toList();
     return res;
   }

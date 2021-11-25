@@ -13,15 +13,16 @@ class ActivityStatus extends StatelessWidget {
   final Uid roomUid;
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  ActivityStatus({this.activity, this.style, this.roomUid});
+  ActivityStatus({required this.activity, required this.style,required this.roomUid});
   
   TextStyle textStyle(BuildContext context) {
     return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
   }
 
+  var i18n = GetIt.I.get<I18N>();
   @override
   Widget build(BuildContext context) {
-    var i18n = I18N.of(context);
+
     if (activity.typeOfActivity == ActivityType.TYPING) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(

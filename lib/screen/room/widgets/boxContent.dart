@@ -31,20 +31,20 @@ class BoxContent extends StatefulWidget {
   final bool isSender;
   final Function scrollToMessage;
   final bool isSeen;
-  final Function onUsernameClick;
-  final String pattern;
-  final Function onBotCommandClick;
+  final Function? onUsernameClick;
+  final String? pattern;
+  final Function? onBotCommandClick;
 
   const BoxContent(
-      {Key key,
-      this.message,
-      this.maxWidth,
-      this.isSender,
-      this.isSeen,
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen,
       this.pattern,
       this.onUsernameClick,
       this.onBotCommandClick,
-      this.scrollToMessage})
+      required this.scrollToMessage})
       : super(key: key);
 
   @override
@@ -55,11 +55,11 @@ class _BoxContentState extends State<BoxContent> {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
 
-  I18N _i18n;
+  I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Column(
@@ -70,7 +70,7 @@ class _BoxContentState extends State<BoxContent> {
             senderNameBox(),
           if (hasReply()) replyToIdBox(),
           if (widget.message.forwardedFrom != null &&
-              widget.message.forwardedFrom.length > 3)
+              widget.message.forwardedFrom!.length > 3)
             forwardedFromBox(),
           messageBox()
         ],
@@ -87,7 +87,7 @@ class _BoxContentState extends State<BoxContent> {
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId,
+          replyToId: widget.message.replyToId!,
         ),
       ),
     );
@@ -106,7 +106,7 @@ class _BoxContentState extends State<BoxContent> {
         future: _roomRepo.getName(widget.message.from.asUid()),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            return showName(snapshot.data);
+            return showName(snapshot.data!);
           } else {
             return Text("");
           }
@@ -124,7 +124,7 @@ class _BoxContentState extends State<BoxContent> {
           style: Theme.of(context).primaryTextTheme.bodyText2,
         ),
         onTap: () {
-          _routingServices.openRoom(widget.message.from);
+          _routingServices.openRoom(widget.message.from, context: context);
         },
       ),
     );
@@ -134,7 +134,7 @@ class _BoxContentState extends State<BoxContent> {
     return Container(
       padding: EdgeInsets.all(4),
       child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.forwardedFrom.asUid()),
+        future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             return GestureDetector(
@@ -143,7 +143,8 @@ class _BoxContentState extends State<BoxContent> {
                       color: ExtraTheme.of(context).messageDetails,
                       fontSize: 13)),
               onTap: () {
-                _routingServices.openRoom(widget.message.forwardedFrom);
+                _routingServices.openRoom(widget.message.forwardedFrom!,
+                    context: context);
               },
             );
           } else {
@@ -173,7 +174,7 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           searchTerm: widget.pattern,
-          onUsernameClick: widget.onUsernameClick,
+          onUsernameClick: widget.onUsernameClick!,
           isBotMessage: widget.message.from.asUid().category == Categories.BOT,
           onBotCommandClick: widget.onBotCommandClick,
         );
@@ -185,22 +186,22 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
           isSeen: widget.isSeen,
         );
-        break;
+
       case MessageType.STICKER:
         return StickerMessageWidget(
             widget.message, widget.isSender, widget.isSeen);
-        break;
+
       case MessageType.LOCATION:
         return LocationMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
-        break;
+
       case MessageType.LIVE_LOCATION:
         return LiveLocationMessageWidget(
             widget.message, widget.isSender, widget.isSeen);
-        break;
+
       case MessageType.POLL:
         // TODO: Handle this case.
         break;
@@ -252,6 +253,6 @@ class _BoxContentState extends State<BoxContent> {
   bool hasReply() {
     return widget.message.to.asUid().category != Categories.BOT &&
         widget.message.replyToId != null &&
-        widget.message.replyToId > 0;
+        widget.message.replyToId! > 0;
   }
 }

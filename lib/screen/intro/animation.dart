@@ -10,14 +10,14 @@ import 'package:flare_flutter/flare_controller.dart';
 /// playing at the same time, this controller will mix them.
 class IntroAnimationController extends FlareController {
   /// The current [FlutterActorArtboard].
-  FlutterActorArtboard _artboard;
+  FlutterActorArtboard ? _artboard;
 
   /// The current [ActorAnimation].
   String _animationName = "Steps";
   final double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.
-  FlareAnimationLayer _animationLayers;
+  FlareAnimationLayer?_animationLayers;
   double pauseTime = 0;
   double direction = 1;
 
@@ -27,7 +27,7 @@ class IntroAnimationController extends FlareController {
   void initialize(FlutterActorArtboard artboard) {
     _artboard = artboard;
     if (_animationName != null && _artboard != null) {
-      ActorAnimation animation = _artboard.getAnimation(_animationName);
+      ActorAnimation? animation = _artboard!.getAnimation(_animationName);
       if (animation != null) {
         _animationLayers = FlareAnimationLayer(_animationName,animation)
           ..mix = 1;
@@ -37,10 +37,10 @@ class IntroAnimationController extends FlareController {
 
   void play({double pauseTime = 1}) {
     if (_animationLayers != null) {
-      this.pauseTime = pauseTime > _animationLayers.duration
-          ? _animationLayers.duration
+      this.pauseTime = pauseTime > _animationLayers!.duration
+          ? _animationLayers!.duration
           : pauseTime < 0 ? 0 : pauseTime;
-      if (pauseTime > _animationLayers.time) {
+      if (pauseTime > _animationLayers!.time) {
         direction = 1;
       } else {
         direction = -1;
@@ -62,7 +62,7 @@ class IntroAnimationController extends FlareController {
     /// This loop will mix all the currently active animation layers so that,
     /// if an animation is played on top of the current one, it'll smoothly mix
     ///  between the two instead of immediately switching to the new one.
-    FlareAnimationLayer layer = _animationLayers;
+    FlareAnimationLayer layer = _animationLayers!;
 
 //    layer.mix += direction * elapsed;
     var speed = direction > 0 ? elapsed * 1.75 : elapsed * 2.5;
@@ -78,7 +78,7 @@ class IntroAnimationController extends FlareController {
     }
 
     /// Apply the animation with the current mix.
-    layer.animation.apply(layer.time, _artboard, mix);
+    layer.animation.apply(layer.time, _artboard!, mix);
 
     /// Add (non-looping) finished animations to the list.
     if ((direction > 0 && layer.time >= pauseTime) ||

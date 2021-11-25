@@ -106,7 +106,7 @@ class MessageRepo {
     });
   }
 
-  var _completerMap = Map<String, Completer<List<Message>>>();
+  var _completerMap = Map<String, Completer<List<Message?>>>();
 
   updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
@@ -141,22 +141,23 @@ class MessageRepo {
               roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
                 room.lastMessage != null &&
-                room.lastMessage.id != null &&
-                room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
-                room.lastMessage.id != 0 &&
+                room.lastMessage!.id != null &&
+                room.lastMessage!.id! >= roomMetadata.lastMessageId.toInt() &&
+                room.lastMessage!.id != 0 &&
                 room.lastUpdateTime != null &&
-                room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
+                room.lastUpdateTime! >= roomMetadata.lastUpdate.toInt()) {
               if (fetchAllRoom != null)
                 finished = true; // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted != null && room.deleted)
+            if (room != null && room.deleted != null && room.deleted!) {
               _roomDao.updateRoom(Room(
                   uid: room.uid,
                   deleted: false,
                   lastMessageId: roomMetadata.lastMessageId.toInt(),
                   firstMessageId: roomMetadata.firstMessageId.toInt(),
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
+            }
             fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
@@ -189,79 +190,80 @@ class MessageRepo {
     var rooms = await _roomDao.getAllRooms();
 
     rooms.forEach((r) async {
-      var category = r.lastMessage.to.asUid().category;
-      if (r.lastMessage.id == null) return;
-      if (!_authRepo.isCurrentUser(r.lastMessage.from) &&
+      var category = r.lastMessage!.to.asUid().category;
+      if (r.lastMessage!.id == null) return;
+      if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
         var rm = await _queryServiceClient
             .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
         fetchCurrentUserLastSeen(rm.roomMeta);
       }
-      var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
-      if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
+      var othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
+      if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
         fetchOtherSeen(r.uid.asUid());
       }
     });
   }
 
-  Future<Message> fetchLastMessages(
-      Uid roomUid, int lastMessageId, int firstMessageId, Room room,
+  Future<Message?> fetchLastMessages(
+      Uid roomUid, int lastMessageId, int? firstMessageId, Room? room,
       {bool retry = true,
-      int lastUpdateTime,
-      FetchMessagesReq_Type type,
-      int limit}) async {
+      int? lastUpdateTime,
+      required FetchMessagesReq_Type type,
+      required int limit}) async {
     bool lastMessageIsSet = false;
     int pointer = lastMessageId;
-    Message lastMessage;
+    Message? lastMessage;
     try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+      Message? msg = await _messageDao.getMessage(roomUid.asString(), pointer);
       while (!lastMessageIsSet) {
-        try {
-          if (msg != null) {
-            if (firstMessageId != null && msg.id <= firstMessageId) {
+          if (msg == null) {
+            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
+                lastMessageId, type, limit, firstMessageId!, lastUpdateTime);
+            lastMessageIsSet = true;
+            break;
+          } else {
+            if (firstMessageId != null &&  msg.id!= null && msg.id! <= firstMessageId) {
               lastMessageIsSet = true;
-              lastMessage = msg.copyWith(json: "{DELETED}");
+              lastMessage =
+                  msg.copyWith(json: "{DELETED}", roomUid: roomUid.asString());
               break;
-            } else if (!msg.json.isDeletedMessage()) {
+            } else if (!msg.json!.isDeletedMessage()) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
             } else if (msg.id == 1) {
-              lastMessage = msg.copyWith(json: "{DELETED}");
+              lastMessage =
+                  msg.copyWith(json: "{DELETED}", roomUid: roomUid.asString());
               lastMessageIsSet = true;
               break;
             } else {
               pointer = pointer - 1;
               msg = await _messageDao.getMessage(roomUid.asString(), pointer);
             }
-          } else {
-            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
-                lastMessageId, type, limit, firstMessageId, lastUpdateTime);
-            lastMessageIsSet = true;
-            break;
           }
-        } catch (e) {
-          lastMessageIsSet = true;
-          break;
-        }
+
       }
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
-        lastUpdateTime: lastMessage.time,
+        firstMessageId: firstMessageId!.toInt(),
+        lastUpdateTime: lastMessage!.time,
         lastMessageId: lastMessage.id,
         lastMessage: lastMessage,
       ));
       return lastMessage;
     } catch (e) {
+    //  lastMessageIsSet = true;
+
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId.toInt(),
+        firstMessageId: firstMessageId!.toInt(),
         lastUpdateTime: lastUpdateTime,
         lastMessageId: lastMessageId.toInt(),
       ));
       _logger.wtf(roomUid);
       _logger.wtf(room);
+
       _logger.e(e);
       return null;
     }
@@ -274,8 +276,8 @@ class MessageRepo {
       FetchMessagesReq_Type type,
       int limit,
       int firstMessageId,
-      int lastUpdateTime) async {
-    Message lastMessage;
+      int? lastUpdateTime) async {
+    Message? lastMessage;
     var fetchMessagesRes = await _queryServiceClient.fetchMessages(
         FetchMessagesReq()
           ..roomUid = roomUid
@@ -286,19 +288,19 @@ class MessageRepo {
     List<Message> messages =
         await _saveFetchMessages(fetchMessagesRes.messages);
     for (var element in messages) {
-      if (firstMessageId != null && element.id <= firstMessageId) {
+      if (firstMessageId != null && element.id! <= firstMessageId) {
         lastMessage = element.copyWith(json: "{DELETED}");
         break;
-      } else if (!element.json.isDeletedMessage()) {
+      } else if (!element.json!.isDeletedMessage()) {
         lastMessage = element;
         break;
       } else if (element.id == 1) {
         lastMessage = element.copyWith(json: "{DELETED}");
       }
     }
-    if (lastMessage != null)
+    if (lastMessage != null) {
       return lastMessage;
-    else
+    } else {
       return getLastMessageFromServer(
           roomUid,
           lastMessageId,
@@ -307,6 +309,7 @@ class MessageRepo {
           limit,
           firstMessageId,
           lastUpdateTime);
+    }
   }
 
   Future<void> fetchOtherSeen(Uid roomUid) async {
@@ -350,7 +353,7 @@ class MessageRepo {
       var mentionResult =
           await _queryServiceClient.fetchMentionList(FetchMentionListReq()
             ..group = room.uid.asUid()
-            ..afterId = Int64.parseInt(room.lastMessage.id.toString()));
+            ..afterId = Int64.parseInt(room.lastMessage!.id.toString()));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
         _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
@@ -360,7 +363,7 @@ class MessageRepo {
   }
 
   Future<void> sendTextMessage(Uid room, String text,
-      {int replyId, String forwardedFrom}) async {
+      {int? replyId, String? forwardedFrom}) async {
     String json = (MessageProto.Text()..text = text).writeToJson();
     Message msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
@@ -377,7 +380,7 @@ class MessageRepo {
   }
 
   sendLocationMessage(Position locationData, Uid room,
-      {String forwardedFrom, int replyId}) async {
+      {String? forwardedFrom, int? replyId}) async {
     String json = (protoModel.Location()
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
@@ -391,20 +394,20 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendMultipleFilesMessages(Uid room, List<String> filesPath,
-      {String caption, int replyToId}) async {
-    for (var path in filesPath) {
+  sendMultipleFilesMessages(Uid room, List<String?>? filesPath,
+      {String? caption, int? replyToId}) async {
+    for (var path in filesPath!) {
       if (filesPath.last == path) {
-        await sendFileMessage(room, path,
-            caption: caption, replyToId: replyToId);
+        await sendFileMessage(room, path!,
+            caption: caption!, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, path, caption: "", replyToId: replyToId);
+        await sendFileMessage(room, path!, caption: "", replyToId: replyToId);
       }
     }
   }
 
   sendFileMessage(Uid room, String path,
-      {String caption = "", int replyToId = 0}) async {
+      {String? caption = "", int? replyToId = 0}) async {
     String packetId = _getPacketId();
     _fileRepo.initUploadProgress(packetId);
 
@@ -451,10 +454,10 @@ class MessageRepo {
   }
 
   sendStickerMessage(
-      {Uid room,
-      Sticker sticker,
-      int replyId,
-      String forwardedFromAsString}) async {
+      {required Uid room,
+      required Sticker sticker,
+      int? replyId,
+      String? forwardedFromAsString}) async {
     // FileProto.File sendingFakeFile = FileProto.File()
     //   ..uuid = sticker.uuid
     //   ..type = "image"
@@ -472,7 +475,7 @@ class MessageRepo {
 
   Future<PendingMessage> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
-    var fakeFileInfo = FileProto.File.fromJson(pm.msg.json);
+    var fakeFileInfo = FileProto.File.fromJson(pm.msg.json!);
 
     var packetId = pm.msg.packetId;
 
@@ -509,39 +512,39 @@ class MessageRepo {
       ..packetId = message.packetId
       ..to = message.to.asUid();
 
-    if (message.replyToId != null)
-      byClient.replyToId = Int64(message.replyToId);
-    else
+    if (message.replyToId != null) {
+      byClient.replyToId = Int64(message.replyToId!);
+    } else
       byClient.replyToId = Int64(0);
 
     if (message.forwardedFrom != null)
-      byClient.forwardFrom = message.forwardedFrom.asUid();
+      byClient.forwardFrom = message.forwardedFrom!.asUid();
 
     switch (message.type) {
       case MessageType.TEXT:
-        byClient.text = MessageProto.Text.fromJson(message.json);
+        byClient.text = MessageProto.Text.fromJson(message.json!);
         break;
       case MessageType.FILE:
-        byClient.file = FileProto.File.fromJson(message.json);
+        byClient.file = FileProto.File.fromJson(message.json!);
         break;
       case MessageType.LOCATION:
-        byClient.location = protoModel.Location.fromJson(message.json);
+        byClient.location = protoModel.Location.fromJson(message.json!);
         break;
       case MessageType.STICKER:
-        byClient.sticker = FileProto.File.fromJson(message.json);
+        byClient.sticker = FileProto.File.fromJson(message.json!);
         break;
       case MessageType.FORM_RESULT:
-        byClient.formResult = FormResult.fromJson(message.json);
+        byClient.formResult = FormResult.fromJson(message.json!);
         break;
       case MessageType.SHARE_UID:
-        byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
+        byClient.shareUid = MessageProto.ShareUid.fromJson(message.json!);
         break;
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         byClient.sharePrivateDataAcceptance =
-            SharePrivateDataAcceptance.fromJson(message.json);
+            SharePrivateDataAcceptance.fromJson(message.json!);
         break;
       case MessageType.FORM:
-        byClient.form = message.json.toForm();
+        byClient.form = message.json!.toForm();
         break;
       default:
         break;
@@ -608,7 +611,7 @@ class MessageRepo {
     }
   }
 
-  Message _createMessage(Uid room, {int replyId, String forwardedFrom}) {
+  Message _createMessage(Uid room, {int? replyId, String? forwardedFrom}) {
     return Message(
       roomUid: room.asString(),
       packetId: _getPacketId(),
@@ -624,7 +627,7 @@ class MessageRepo {
     return "${DateTime.now().microsecondsSinceEpoch.toString()}-${randomString(5)}";
   }
 
-  Future<List<Message>> getPage(
+  Future<List<Message?>> getPage(
       int page, String roomId, int containsId, int lastMessageId,
       {int pageSize = 16}) async {
     var completer = _completerMap["$roomId-$page"];
@@ -635,11 +638,11 @@ class MessageRepo {
     completer = new Completer();
     _completerMap["$roomId-$page"] = completer;
 
-    _messageDao.getMessagePage(roomId, page).then((messages) async {
-      if (messages.any((element) => element.id == containsId)) {
-        completer.complete(messages);
+    _messageDao.getMessagePage(roomId, page)!.then((messages) async {
+      if (messages.any((element) => element!.id == containsId)) {
+        completer!.complete(messages);
       } else {
-        await getMessages(roomId, page, pageSize, completer, lastMessageId);
+        await getMessages(roomId, page, pageSize, completer!, lastMessageId);
       }
     });
 
@@ -647,7 +650,7 @@ class MessageRepo {
   }
 
   Future<void> getMessages(String roomId, int page, int pageSize,
-      Completer<List<Message>> completer, int lastMessageId,
+      Completer<List<Message?>> completer, int lastMessageId,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes =
@@ -722,7 +725,7 @@ class MessageRepo {
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
                           .toInt());
-                  _messageDao.saveMessage(mes..json = "{}");
+                  _messageDao.saveMessage(mes!..json = "{}");
                   _roomDao.updateRoom(Room(
                       uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
                   break;
@@ -736,8 +739,9 @@ class MessageRepo {
       } catch (e) {
         _logger.e(e);
       }
-      msgList
-          .add(await saveMessageInMessagesDB(_authRepo, _messageDao, message));
+      Message? m =
+          await saveMessageInMessagesDB(_authRepo, _messageDao, message);
+      msgList.add(m!);
     }
     return msgList;
   }
@@ -751,7 +755,7 @@ class MessageRepo {
     var msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
-    await _roomDao.updateRoom(room.copyWith(lastUpdatedMessageId: id));
+    await _roomDao.updateRoom(room!.copyWith(lastUpdatedMessageId: id));
     if (room.lastMessageId == id)
       _roomDao.updateRoom(room.copyWith(lastMessage: msg));
   }
@@ -775,10 +779,10 @@ class MessageRepo {
 
   void sendFormResultMessage(
       String botUid, Map<String, String> formResultMap, int formMessageId,
-      {String forwardFromAsString}) async {
+      {String? forwardFromAsString}) async {
     FormResult formResult = FormResult();
     for (var fileId in formResultMap.keys) {
-      formResult.values[fileId] = formResultMap[fileId];
+      formResult.values[fileId] = formResultMap[fileId]!;
     }
     String jsonString = (formResult).writeToJson();
 
@@ -821,21 +825,21 @@ class MessageRepo {
     return [];
   }
 
-  Future<Message> getMessage(String roomUid, int id) =>
+  Future<Message?> getMessage(String roomUid, int id) =>
       _messageDao.getMessage(roomUid, id);
 
-  Future<PendingMessage> getPendingMessage(String packetId) =>
+  Future<PendingMessage?> getPendingMessage(String packetId) =>
       _messageDao.getPendingMessage(packetId);
 
-  Stream<PendingMessage> watchPendingMessage(String packetId) =>
+  Stream<PendingMessage?> watchPendingMessage(String packetId) =>
       _messageDao.watchPendingMessage(packetId);
 
-  Stream<List<PendingMessage>> watchPendingMessages(String packetId) =>
-      _messageDao.watchPendingMessages(packetId);
+  Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
+      _messageDao.watchPendingMessages(roomUid);
 
   void resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);
-    _saveAndSend(pm);
+    _saveAndSend(pm!);
   }
 
   void deletePendingMessage(Message message) {
@@ -861,7 +865,7 @@ class MessageRepo {
   }
 
   void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
-      {int replyId, String forwardedFrom}) async {
+      {int? replyId, String? forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     if (res != null) {
       protoModel.Location location = protoModel.Location(
@@ -886,7 +890,7 @@ class MessageRepo {
   Future<bool> _deleteMessage(Message message) async {
     try {
       await _queryServiceClient.deleteMessage(DeleteMessageReq()
-        ..messageId = Int64(message.id)
+        ..messageId = Int64(message.id!)
         ..roomUid = message.roomUid.asUid());
       return true;
     } catch (e) {
@@ -930,7 +934,7 @@ class MessageRepo {
         ..text = MessageProto.Text(text: text);
       await _queryServiceClient.updateMessage(UpdateMessageReq()
         ..message = updatedMessage
-        ..messageId = Int64(editableMessage.id));
+        ..messageId = Int64(editableMessage.id!));
       editableMessage.json = (MessageProto.Text()..text = text).writeToJson();
       editableMessage.edited = true;
       _messageDao.saveMessage(editableMessage);
@@ -945,18 +949,18 @@ class MessageRepo {
   }
 
   editFileMessage(Uid roomUid, Message editableMessage,
-      {String caption, String newFilePath, String newFileName}) async {
+      {String? caption, String? newFilePath, String? newFileName}) async {
     FileProto.File updatedFile;
     if (newFilePath != null) {
       String u = DateTime.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
-          DartFile.File(newFilePath), u, newFileName);
+          DartFile.File(newFilePath), u, newFileName!);
       updatedFile = await _fileRepo.uploadClonedFile(u, newFileName);
-      updatedFile..caption = caption;
+      updatedFile..caption = caption!;
     } else {
-      var preFile = editableMessage.json.toFile();
+      var preFile = editableMessage.json!.toFile();
       updatedFile = FileProto.File.create()
-        ..caption = caption
+        ..caption = caption!
         ..name = preFile.name
         ..uuid = preFile.uuid
         ..type = preFile.type
@@ -974,7 +978,7 @@ class MessageRepo {
       ..file = updatedFile;
     await _queryServiceClient.updateMessage(UpdateMessageReq()
       ..message = updatedMessage
-      ..messageId = Int64(editableMessage.id));
+      ..messageId = Int64(editableMessage.id!));
     editableMessage.json = updatedFile.writeToJson();
     editableMessage.edited = true;
     _messageDao.saveMessage(editableMessage);

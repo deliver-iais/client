@@ -9,13 +9,13 @@ import '../constants.dart';
 
 class ContactWidget extends StatelessWidget {
   final Contact contact;
-  final IconData circleIcon;
-  final Function onCircleIcon;
+  final IconData? circleIcon;
+  final Function? onCircleIcon;
   final bool isSelected;
   final bool currentMember;
 
   ContactWidget(
-      {this.contact,
+      {required this.contact,
       this.circleIcon,
       this.isSelected = false,
       this.currentMember = false,

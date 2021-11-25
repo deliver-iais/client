@@ -18,7 +18,7 @@ class ProfileAvatar extends StatefulWidget {
   final Uid roomUid;
   final bool canSetAvatar;
 
-  ProfileAvatar({this.roomUid, this.canSetAvatar = false});
+  ProfileAvatar({required this.roomUid, this.canSetAvatar = false});
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -27,7 +27,7 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-  String _uploadAvatarPath;
+  String _uploadAvatarPath = "";
   bool _showProgressBar = false;
   final _selectedImages = Map<int, bool>();
 
@@ -65,7 +65,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         var lastAvatar = await _avatarRepo.getLastAvatar(
                             widget.roomUid, false);
                         if (lastAvatar?.createdOn != null) {
-                          _routingService.openShowAllAvatars(
+                          _routingService.openShowAllAvatars(context,
                               uid: widget.roomUid,
                               hasPermissionToDeleteAvatar: widget.canSetAvatar,
                               heroTag: "avatar");
@@ -102,22 +102,22 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   selectAvatar() async {
     if (isDesktop()) {
-      final result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowMultiple: false,
           allowedExtensions: ['png', 'jpeg', 'jpg']);
-      if (result.files.isNotEmpty) {
-        _setAvatar(result.files.first.path);
+      if (result!.files.isNotEmpty) {
+        _setAvatar(result.files.first.path!);
       }
     } else if ((await ImageItem.getImages()) == null ||
         (await ImageItem.getImages()).length < 1) {
-      FilePickerResult result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.custom,
       );
       if (result != null) {
         for (var path in result.paths) {
-          _setAvatar(path);
+          _setAvatar(path!);
         }
       }
     } else {

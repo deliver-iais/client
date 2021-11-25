@@ -2,11 +2,11 @@ import 'package:deliver/box/avatar.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {
-  Stream<List<Avatar>> watchAvatars(String uid);
+  Stream<List<Avatar?>> watchAvatars(String uid);
 
-  Stream<Avatar> watchLastAvatar(String uid);
+  Stream<Avatar?> watchLastAvatar(String uid);
 
-  Future<Avatar> getLastAvatar(String uid);
+  Future<Avatar?> getLastAvatar(String uid);
 
   Future<void> saveAvatars(String uid, List<Avatar> avatars);
 
@@ -41,20 +41,20 @@ class AvatarDaoImpl implements AvatarDao {
   Future<void> saveLastAvatar(List<Avatar> avatars, String uid) async {
     var box2 = await _open2();
 
-    var lastAvatarOfList = avatars.fold<Avatar>(
+    var lastAvatarOfList = avatars.fold<Avatar?>(
         null,
-        (value, element) => value == null
+        (value , element) => value == null
             ? element
             : value.createdOn > element.createdOn
                 ? value
                 : element);
 
-    var lastAvatar = box2.get(uid);
+    var  lastAvatar  = box2.get(uid);
 
     if (lastAvatar == null ||
-        lastAvatar.createdOn < lastAvatarOfList.createdOn) {
+        lastAvatar.createdOn < lastAvatarOfList!.createdOn) {
       box2.put(
-          lastAvatarOfList.uid,
+          lastAvatarOfList!.uid,
           lastAvatarOfList.copyWith(
               lastUpdate: DateTime.now().millisecondsSinceEpoch));
     }
@@ -81,33 +81,32 @@ class AvatarDaoImpl implements AvatarDao {
 
     var lastAvatar = box2.get(avatar.uid);
 
-    if (avatar.createdOn == lastAvatar.createdOn) {
+    if (avatar.createdOn == lastAvatar!.createdOn) {
       await box2.delete(lastAvatar.uid);
 
       if (box.values.length > 0) {
-        var lastAvatarOfList = box.values.fold<Avatar>(
+        var lastAvatarOfList = box.values.fold<Avatar?>(
             null,
-            (value, element) => value == null
-                ? element
+            (value, element) => value == null ? element
                 : value.createdOn > element.createdOn
                     ? value
                     : element);
 
         box2.put(
-            lastAvatarOfList.uid,
+            lastAvatarOfList!.uid,
             lastAvatarOfList.copyWith(
                 lastUpdate: DateTime.now().millisecondsSinceEpoch));
       }
     }
   }
 
-  Future<Avatar> getLastAvatar(String uid) async {
+  Future<Avatar?>  getLastAvatar(String uid) async {
     var box = await _open2();
 
-    return box.get(uid);
+    return  box.get(uid);
   }
 
-  Stream<Avatar> watchLastAvatar(String uid) async* {
+  Stream<Avatar?> watchLastAvatar(String uid) async* {
     var box = await _open2();
 
     yield box.get(uid);

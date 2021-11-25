@@ -15,5 +15,5 @@ class LastActivity {
   @HiveField(2)
   int lastUpdate;
 
-  LastActivity({this.uid, this.time, this.lastUpdate});
+  LastActivity({required this.uid, required this.time, required this.lastUpdate});
 }

@@ -12,18 +12,17 @@ import 'package:get_it/get_it.dart';
 
 // TODO, change accessibility and improve UI
 class NewContact extends StatefulWidget {
-  NewContact({Key key}) : super(key: key);
+  NewContact({Key? key}) : super(key: key);
 
   @override
   _NewContactState createState() => _NewContactState();
 }
 
 class _NewContactState extends State<NewContact> {
-  PhoneNumber _phoneNumber;
+  late PhoneNumber _phoneNumber;
 
-  I18N _i18n;
+  I18N _i18n = GetIt.I.get<I18N>();
   var _routingServices = GetIt.I.get<RoutingService>();
-
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
   String _firstName = "";
@@ -32,10 +31,9 @@ class _NewContactState extends State<NewContact> {
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: _routingServices.backButtonLeading(),
+        leading: _routingServices.backButtonLeading(context),
         title: Text(_i18n.get("add_new_contact")),
         actions: [
           Padding(
@@ -101,11 +99,12 @@ class _NewContactState extends State<NewContact> {
               height: 10,
             ),
             IntlPhoneField(
+              controller: TextEditingController(),
               validator: (value) =>
-                  value.length != 10 || (value.length > 0 && value[0] == '0')
+                  value!.length != 10 || (value.length > 0 && value[0] == '0')
                       ? _i18n.get("invalid_mobile_number")
                       : null,
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyText1!,
               onChanged: (ph) {
                 _phoneNumber = ph;
               },

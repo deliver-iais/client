@@ -11,11 +11,11 @@ class BotButtonsWidget extends StatelessWidget {
   final Message message;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  BotButtonsWidget({this.message});
+  BotButtonsWidget({required this.message});
 
   @override
   Widget build(BuildContext context) {
-    var buttons = message.json.toButtons();
+    var buttons = message.json!.toButtons();
     return Container(
         padding: const EdgeInsets.only(top: 2, right: 2, left: 2),
         child: Column(

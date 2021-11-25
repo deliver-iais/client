@@ -18,9 +18,9 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
     };
     return BotInfo(
       uid: fields[0] as String,
-      description: fields[1] as String,
+      description: fields[1] as String?,
       name: fields[2] as String,
-      commands: (fields[3] as Map)?.cast<String, String>(),
+      commands: (fields[3] as Map?)?.cast<String, String>(),
     );
   }
 

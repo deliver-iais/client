@@ -27,7 +27,8 @@ class ChatItem extends StatefulWidget {
 
   final bool isSelected;
 
-  ChatItem({key: Key, this.room, this.isSelected}) : super(key: key);
+  ChatItem({key: Key, required this.room, required this.isSelected})
+      : super(key: key);
 
   @override
   _ChatItemState createState() => _ChatItemState();
@@ -51,34 +52,34 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
     return widget.room.lastMessage != null &&
-            widget.room.lastMessage.json.chatIsDeleted()
+            widget.room.lastMessage!.json!.chatIsDeleted()
         ? SizedBox.shrink()
         : widget.room.lastMessage == null ||
-                widget.room.lastMessage.json.isDeletedMessage()
-            ? FutureBuilder<Message>(
+                widget.room.lastMessage!.json!.isDeletedMessage()
+            ? FutureBuilder<Message?>(
                 future: _messageRepo.fetchLastMessages(
                     widget.room.uid.asUid(),
-                    widget.room.lastMessageId,
-                    widget.room.firstMessageId,
+                    widget.room.lastMessageId!,
+                    widget.room.firstMessageId!,
                     widget.room,
                     limit: 5,
                     type: FetchMessagesReq_Type.BACKWARD_FETCH),
                 builder: (c, s) {
                   if (s.hasData &&
                       s.data != null &&
-                      !s.data.json.chatIsDeleted()) {
-                    return buildLastMessageWidget(s.data);
+                      !s.data!.json!.chatIsDeleted()) {
+                    return buildLastMessageWidget(s.data!);
                   }
                   return SizedBox.shrink();
                 })
-            : buildLastMessageWidget(widget.room.lastMessage);
+            : buildLastMessageWidget(widget.room.lastMessage!);
   }
 
   buildLastMessageWidget(Message lastMessage) {
     return FutureBuilder<String>(
         future: _roomRepo.getName(widget.room.uid.asUid()),
         builder: (c, name) {
-          if (name.hasData && name.data != null && name.data.isNotEmpty) {
+          if (name.hasData && name.data != null && name.data!.isNotEmpty) {
             return DragDropWidget(
                 roomUid: widget.room.uid,
                 child: Container(
@@ -149,11 +150,11 @@ class _ChatItemState extends State<ChatItem> {
                                                 context)
                                             : _showDisplayName(
                                                 widget.room.uid.asUid(),
-                                                name.data,
+                                                name.data!,
                                                 context))),
                                 Text(
                                   dateTimeFormat(
-                                      date(widget.room.lastUpdateTime)),
+                                      date(widget.room.lastUpdateTime!)),
                                   maxLines: 1,
                                   style: TextStyle(
                                     color: ExtraTheme.of(context)
@@ -169,12 +170,12 @@ class _ChatItemState extends State<ChatItem> {
                                 builder: (c, s) {
                                   if (s.hasData &&
                                       s.data != null &&
-                                      s.data.typeOfActivity !=
+                                      s.data!.typeOfActivity !=
                                           ActivityType.NO_ACTIVITY) {
                                     return Row(
                                       children: [
                                         ActivityStatus(
-                                          activity: s.data,
+                                          activity: s.data!,
                                           roomUid: widget.room.uid.asUid(),
                                           style: TextStyle(
                                             fontSize: 16,
@@ -186,7 +187,7 @@ class _ChatItemState extends State<ChatItem> {
                                     );
                                   } else {
                                     return widget.room.draft != null &&
-                                            widget.room.draft.isNotEmpty
+                                            widget.room.draft!.isNotEmpty
                                         ? buildDraftMessageWidget(
                                             _i18n, context)
                                         : buildLastMessage(lastMessage);
@@ -246,7 +247,7 @@ class _ChatItemState extends State<ChatItem> {
   LastMessage buildLastMessage(Message message) {
     return LastMessage(
       message: message,
-      lastMessageId: widget.room.lastMessageId,
+      lastMessageId: widget.room.lastMessageId!,
       hasMentioned: widget.room.mentioned == true,
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),

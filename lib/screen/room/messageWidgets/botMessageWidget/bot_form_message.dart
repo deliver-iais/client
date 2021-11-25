@@ -19,7 +19,7 @@ class BotFormMessage extends StatefulWidget {
   final Message message;
   final bool isSeen;
 
-  BotFormMessage({this.message, this.isSeen});
+  BotFormMessage({required this.message, required this.isSeen});
 
   @override
   _BotFormMessageState createState() => _BotFormMessageState();
@@ -30,13 +30,15 @@ class _BotFormMessageState extends State<BotFormMessage> {
   final Map<String, String> formResultMap = Map();
   final Map<String, GlobalKey<FormState>> formFieldsKey = Map();
 
-  protoForm.Form form;
+  late protoForm.Form form;
 
   @override
   void initState() {
-    form = widget.message.json.toForm();
+    form = widget.message.json!.toForm();
     super.initState();
   }
+
+  var _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
               Padding(
                 padding: const EdgeInsets.only(left: 4.0),
                 child: Container(
-                  width:isDesktop()?  270:MediaQuery.of(context).size.width*2/3,
+                  width: isDesktop()
+                      ? 270
+                      : MediaQuery.of(context).size.width * 2 / 3,
                   child: Text(
                     form.title.titleCase,
                     style: Theme.of(context).primaryTextTheme.subtitle1,
@@ -168,18 +172,18 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
                   for (var field in formFieldsKey.values) {
                     if (field.currentState == null ||
-                        !field.currentState.validate()) {
+                        !field.currentState!.validate()) {
                       validate = false;
                       break;
                     }
                   }
                   if (validate) {
                     _messageRepo.sendFormResultMessage(
-                        widget.message.from, formResultMap, widget.message.id);
+                        widget.message.from, formResultMap, widget.message.id!);
                   }
                 },
                 child: Text(
-                  I18N.of(context).get("submit"),
+                  _i18n.get("submit"),
                   style: TextStyle(color: Colors.blueAccent),
                 ),
               ),

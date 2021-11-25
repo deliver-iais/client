@@ -1,8 +1,8 @@
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/routes/router.gr.dart';
 import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:flare_flutter/flare_actor.dart';
@@ -13,7 +13,7 @@ import 'package:rxdart/rxdart.dart';
 import '../animation.dart';
 
 class IntroPage extends StatefulWidget {
-  IntroPage({Key key}) : super(key: key);
+  IntroPage({Key? key}) : super(key: key);
 
   @override
   _IntroPageState createState() => _IntroPageState();
@@ -37,7 +37,9 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToLoginPage() {
-    AutoRouter.of(context).push(LoginPageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return LoginPage();
+    }));
   }
 
   @override
@@ -59,7 +61,7 @@ class _IntroPageState extends State<IntroPage> {
                 "assets/images/a.flr",
                 alignment: Alignment.center,
                 fit: BoxFit.contain,
-                antialias: false,
+                antialias: true,
                 controller: introAnimationController,
               ),
             ),
@@ -177,9 +179,9 @@ class _IntroPageState extends State<IntroPage> {
               nameSkipBtn: _i18n.get("skip"),
               nameNextBtn: _i18n.get("next"),
               onDonePress: navigateToLoginPage,
-              styleNameSkipBtn: Theme.of(context).primaryTextTheme.button,
-              styleNameDoneBtn: Theme.of(context).primaryTextTheme.button,
-              styleNamePrevBtn: Theme.of(context).primaryTextTheme.button,
+              styleNameSkipBtn: Theme.of(context).primaryTextTheme.button!,
+              styleNameDoneBtn: Theme.of(context).primaryTextTheme.button!,
+              styleNamePrevBtn: Theme.of(context).primaryTextTheme.button!,
               colorDot: Color(0xFFBCE0FD),
               colorActiveDot: Theme.of(context).primaryColor,
               onSkipPress: navigateToLoginPage,

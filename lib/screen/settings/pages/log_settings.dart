@@ -11,7 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class LogSettingsPage extends StatefulWidget {
-  LogSettingsPage({Key key}) : super(key: key);
+  LogSettingsPage({Key? key}) : super(key: key);
 
   @override
   _LogSettingsPageState createState() => _LogSettingsPageState();
@@ -31,7 +31,7 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
               title: Text("Log Level"),
-              leading: _routingService.backButtonLeading(),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),

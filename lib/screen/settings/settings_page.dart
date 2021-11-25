@@ -30,7 +30,7 @@ import 'package:logger/logger.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class SettingsPage extends StatefulWidget {
-  SettingsPage({Key key}) : super(key: key);
+  SettingsPage({Key? key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -45,10 +45,10 @@ class _SettingsPageState extends State<SettingsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   bool isDeveloperMode = false || kDebugMode;
   int developerModeCounterCountDown = 10;
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -62,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 style: TextStyle(color: ExtraTheme.of(context).textField),
               ),
-              leading: _routingService.backButtonLeading(),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),
@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsSection(
                 tiles: [
                   NormalSettingsTitle(
-                      onTap: () => _routingService.openAccountSettings(),
+                      onTap: () => _routingService.openAccountSettings(context),
                       child: Row(
                         children: <Widget>[
                           GestureDetector(
@@ -82,8 +82,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 var lastAvatar =
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
-                                if (lastAvatar.createdOn != null) {
-                                  _routingService.openShowAllAvatars(
+                                if (lastAvatar!.createdOn != null) {
+                                  _routingService.openShowAllAvatars(context,
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
                                       heroTag: "avatar");
@@ -106,7 +106,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        "${snapshot.data.firstName ?? ""} ${snapshot.data.lastName ?? ""}"
+                                        "${snapshot.data!.firstName ?? ""} ${snapshot.data!.lastName ?? ""}"
                                             .trim(),
                                         overflow: TextOverflow.fade,
                                         // maxLines: 1,
@@ -118,7 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        snapshot.data.userName ?? "",
+                                        snapshot.data!.userName ?? "",
                                         style: Theme.of(context)
                                             .primaryTextTheme
                                             .subtitle1,
@@ -126,8 +126,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                       SizedBox(height: 4),
                                       Text(
                                         buildPhoneNumber(
-                                            snapshot.data.countryCode,
-                                            snapshot.data.nationalNumber),
+                                            snapshot.data!.countryCode!,
+                                            snapshot.data!.nationalNumber!),
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle1,
@@ -158,25 +158,26 @@ class _SettingsPageState extends State<SettingsPage> {
                       showQrCode(
                           context,
                           buildShareUserUrl(
-                              account.countryCode,
-                              account.nationalNumber,
-                              account.firstName,
-                              account.lastName));
+                              account.countryCode!,
+                              account.nationalNumber!,
+                              account.firstName!,
+                              account.lastName!));
                     },
                   ),
                   SettingsTile(
                     title: i18n.get("saved_message"),
                     leading: Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
-                      _routingService
-                          .openRoom(_authRepo.currentUserUid.asString());
+                      _routingService.openRoom(
+                          _authRepo.currentUserUid.asString(),
+                          context: context);
                     },
                   ),
                   SettingsTile(
                     title: i18n.get("contacts"),
                     leading: Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
-                      _routingService.openContacts();
+                      _routingService.openContacts(context);
                     },
                   )
                 ],
@@ -193,10 +194,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: i18n.get("language"),
-                    subtitle: I18N.of(context).locale.language().name,
+                    subtitle: I18N.of(context)!.locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
-                      _routingService.openLanguageSettings();
+                      _routingService.openLanguageSettings(context);
                     },
                   ),
                   SettingsTile.switchTile(
@@ -213,14 +214,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("security"),
                     leading: Icon(Icons.security),
                     onPressed: (BuildContext context) =>
-                        _routingService.openSecuritySettings(),
+                        _routingService.openSecuritySettings(context),
                     trailing: SizedBox.shrink(),
                   ),
                   SettingsTile(
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
                     onPressed: (c) {
-                      _routingService.openDevicesPage();
+                      _routingService.openDevicesPage(context);
                     },
                   ),
                   if (isDesktop())
@@ -241,10 +242,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     SettingsTile(
                       title: 'Log Level',
                       subtitle: LogLevelHelper.levelToString(
-                          GetIt.I.get<DeliverLogFilter>().level),
+                          GetIt.I.get<DeliverLogFilter>().level!),
                       leading: Icon(Icons.bug_report_rounded),
                       onPressed: (BuildContext context) {
-                        _routingService.openLogSettings();
+                        _routingService.openLogSettings(context);
                       },
                     )
                   ],
@@ -253,22 +254,22 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      trailing: FutureBuilder(
+                      trailing: FutureBuilder<PackageInfo>(
                         future: PackageInfo.fromPlatform(),
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             return isDeveloperMode
-                                ? FutureBuilder<String>(
+                                ? FutureBuilder<String?>(
                                     future: SmsAutoFill().getAppSignature,
                                     builder: (c, sms) {
                                       return Text(
                                         sms.data ??
-                                            snapshot.data.version ??
-                                            VERSION,
+                                            snapshot.data!.version
+
                                       );
                                     })
                                 : Text(
-                                    snapshot.data.version ?? VERSION,
+                                    snapshot.data!.version,
                                   );
                           } else {
                             return Text(
@@ -329,15 +330,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
 class NormalSettingsTitle extends SettingsTile {
   final Widget child;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  NormalSettingsTitle({this.onTap, this.child});
+  NormalSettingsTitle({ this.onTap, required this.child}) : super(title: "");
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => onTap?.call(),
+      onTap: () => onTap!.call(),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: child,

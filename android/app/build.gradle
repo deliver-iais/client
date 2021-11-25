@@ -47,7 +47,7 @@ android {
         applicationId "ir.we.deliver"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 26
+        versionCode 28
         versionName flutterVersionName
     }
     signingConfigs {
@@ -57,6 +57,11 @@ android {
             storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
             storePassword keystoreProperties['storePassword']
         }
+    }
+    packagingOptions {
+        // Fixes duplicate libraries build issue,
+        // when your project uses more than one plugin that depend on C++ libs.
+        pickFirst 'lib/**/libc++_shared.so'
     }
 
 
@@ -75,6 +80,7 @@ android {
             zipAlignEnabled true
         }
     }
+
 }
 
 flutter {

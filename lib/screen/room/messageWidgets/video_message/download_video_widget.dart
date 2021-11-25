@@ -13,7 +13,8 @@ class DownloadVideoWidget extends StatefulWidget {
   final String name;
   final Function download;
 
-  DownloadVideoWidget({this.uuid, this.download, this.name});
+  DownloadVideoWidget(
+      {required this.uuid, required this.download, required this.name});
 
   @override
   _DownloadVideoWidgetState createState() => _DownloadVideoWidgetState();
@@ -26,7 +27,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File>(
+    return FutureBuilder<File?>(
       future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
           thumbnailSize: ThumbnailSize.medium),
       builder: (c, thumbnail) {
@@ -34,10 +35,10 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           return Container(
               decoration: BoxDecoration(
                 image: new DecorationImage(
-                  image: Image.file(thumbnail.data).image,
+                  image: Image.file(thumbnail.data!).image,
                   fit: BoxFit.cover,
                 ),
-                color: Colors.black.withOpacity(0.5),//TODO check
+                color: Colors.black.withOpacity(0.5), //TODO check
               ),
               child: Center(
                 child: startDownload
@@ -48,33 +49,43 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                             return CircularPercentIndicator(
                               radius: 35.0,
                               lineWidth: 4.0,
-                              percent: snapshot.data,
-                              center: Icon(Icons.download_rounded, color: ExtraTheme.of(context).messageDetails,),
-                              progressColor: ExtraTheme.of(context).messageDetails,
+                              percent: snapshot.data!,
+                              center: Icon(
+                                Icons.download_rounded,
+                                color: ExtraTheme.of(context).messageDetails,
+                              ),
+                              progressColor:
+                                  ExtraTheme.of(context).messageDetails,
                             );
                           } else {
                             return CircularPercentIndicator(
                               radius: 35.0,
                               lineWidth: 4.0,
                               percent: 0.01,
-                              center: Icon(Icons.download_rounded, color: ExtraTheme.of(context).messageDetails,),
-                              progressColor: ExtraTheme.of(context).messageDetails,
+                              center: Icon(
+                                Icons.download_rounded,
+                                color: ExtraTheme.of(context).messageDetails,
+                              ),
+                              progressColor:
+                                  ExtraTheme.of(context).messageDetails,
                             );
                           }
                         },
                       )
                     : MaterialButton(
-                  color: Theme.of(context).primaryColor,
-                  onPressed: () async {
-                    widget.download();
-                    startDownload = true;
-                    setState(() {
-                    });
-                  },
-                  shape: CircleBorder(),
-                  child: Icon(Icons.download_rounded, color: ExtraTheme.of(context).messageDetails,),
-                  padding: const EdgeInsets.all(10),
-                ),
+                        color: Theme.of(context).primaryColor,
+                        onPressed: () async {
+                          widget.download();
+                          startDownload = true;
+                          setState(() {});
+                        },
+                        shape: CircleBorder(),
+                        child: Icon(
+                          Icons.download_rounded,
+                          color: ExtraTheme.of(context).messageDetails,
+                        ),
+                        padding: const EdgeInsets.all(10),
+                      ),
               ));
         } else {
           return Center(
@@ -93,29 +104,38 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                           return CircularPercentIndicator(
                             radius: 35.0,
                             lineWidth: 4.0,
-                            percent: snapshot.data,
-                            center: Icon(Icons.arrow_downward, color: ExtraTheme.of(context).messageDetails,),
-                            progressColor: ExtraTheme.of(context).messageDetails,
+                            percent: snapshot.data!,
+                            center: Icon(
+                              Icons.arrow_downward,
+                              color: ExtraTheme.of(context).messageDetails,
+                            ),
+                            progressColor:
+                                ExtraTheme.of(context).messageDetails,
                           );
                         } else {
                           return CircularPercentIndicator(
                             radius: 35.0,
                             lineWidth: 4.0,
                             percent: 0.1,
-                            center: Icon(Icons.arrow_downward, color: ExtraTheme.of(context).messageDetails,),
-                            progressColor: ExtraTheme.of(context).messageDetails,
+                            center: Icon(
+                              Icons.arrow_downward,
+                              color: ExtraTheme.of(context).messageDetails,
+                            ),
+                            progressColor:
+                                ExtraTheme.of(context).messageDetails,
                           );
                         }
                       },
                     )
                   : IconButton(
-                      icon: Icon(Icons.file_download, color: ExtraTheme.of(context).messageDetails,),
+                      icon: Icon(
+                        Icons.file_download,
+                        color: ExtraTheme.of(context).messageDetails,
+                      ),
                       onPressed: () async {
                         startDownload = true;
                         widget.download();
-                        setState(() {
-                        });
-
+                        setState(() {});
                       },
                     ),
             ),

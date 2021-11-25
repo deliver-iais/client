@@ -76,7 +76,8 @@ class AudioService {
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
-    _playerModule.audioCurrentState.listen((event) => _audioCurrentState.add(event));
+    _playerModule.audioCurrentState
+        .listen((event) => _audioCurrentState.add(event));
     _playerModule.audioCurrentPosition
         .listen((event) => _audioCurrentPosition.add(event));
   }
@@ -199,7 +200,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   Stream<Duration> get audioCurrentPosition =>
-      _audioPlayer.positionStream.map((event) => event.position);
+      _audioPlayer.positionStream.map((event) => event.position!);
 
   @override
   Stream<AudioPlayerState> get audioCurrentState =>

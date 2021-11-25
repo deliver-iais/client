@@ -7,7 +7,7 @@ class RecordAudioAnimation extends StatelessWidget {
   final double size;
   final animationDuration = const Duration(milliseconds: 100);
 
-  RecordAudioAnimation({this.rightPadding, this.size});
+  RecordAudioAnimation({required this.rightPadding, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +20,13 @@ class RecordAudioAnimation extends StatelessWidget {
           duration: animationDuration,
           width: 50 * size,
           height: 50 * size,
-          color: (1 - size) == 0 ? Colors.transparent : ExtraTheme.of(context).textDetails,
+          color: (1 - size) == 0
+              ? Colors.transparent
+              : ExtraTheme.of(context).textDetails,
           child: Center(
             child: Icon(
               Icons.keyboard_voice,
-              size: 14 * (size - 1) + IconTheme.of(context).size,
+              size: 14 * (size - 1) + IconTheme.of(context).size!,
               color: ExtraTheme.of(context).textField,
             ),
           ),

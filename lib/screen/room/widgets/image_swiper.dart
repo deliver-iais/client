@@ -20,7 +20,7 @@ import 'package:deliver/theme/extra_theme.dart';
 class ImageSwiper extends StatefulWidget {
   final Message message;
 
-  ImageSwiper({Key key, this.message}) : super(key: key);
+  ImageSwiper({Key? key, required this.message}) : super(key: key);
 
   @override
   _ImageSwiperState createState() => _ImageSwiperState();
@@ -138,17 +138,17 @@ class _ImageSwiperState extends State<ImageSwiper> {
   }
 
   Widget defaultWidget() {
-    return FutureBuilder<File>(
-        future: _fileRepo.getFile(widget.message.json.toFile().uuid,
-            widget.message.json.toFile().name),
+    return FutureBuilder<File?>(
+        future: _fileRepo.getFile(widget.message.json!.toFile().uuid,
+            widget.message.json!.toFile().name),
         builder: (c, file) {
           if (file.hasData && file.data != null)
             return buildImageUi(
                 context,
-                file.data,
-                widget.message.id,
-                widget.message.json.toFile().width.toDouble(),
-                widget.message.json.toFile().height.toDouble());
+                file.data!,
+                widget.message.id!,
+                widget.message.json!.toFile().width.toDouble(),
+                widget.message.json!.toFile().height.toDouble());
           else
             return SizedBox.shrink();
         });
@@ -164,7 +164,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
               width: width,
               height: height,
               child: Hero(
-                tag: widget.message.json.toFile().uuid,
+                tag: widget.message.json!.toFile().uuid,
                 child: Image.file(
                   file,
                 ),
@@ -184,14 +184,14 @@ class _ImageSwiperState extends State<ImageSwiper> {
   }
 
   Widget imageCaptionWidget(int messageId) {
-    return FutureBuilder<Message>(
+    return FutureBuilder<Message?>(
         future: _messageRepo.getMessage(widget.message.roomUid, messageId),
         builder: (c, mes) {
           if (mes.hasData &&
               mes.data != null &&
-              mes.data.json.toFile().caption.isNotEmpty) {
+              mes.data!.json!.toFile().caption.isNotEmpty) {
             return Text(
-              mes.data.json.toFile().caption,
+              mes.data!.json!.toFile().caption,
               overflow: TextOverflow.fade,
               style: TextStyle(
                   color: ExtraTheme.of(context).textField, fontSize: 20),
@@ -202,11 +202,11 @@ class _ImageSwiperState extends State<ImageSwiper> {
   }
 
   Widget title() {
-    return StreamBuilder(
+    return StreamBuilder<int>(
         stream: _imageIndex.stream,
         builder: (c, s) {
-          if (s.hasData && s.data > -1) {
-            return Text("${s.data + 1} of ${imageCount.valueWrapper.value}");
+          if (s.hasData && s.data! > -1) {
+            return Text("${s.data! + 1} of ${imageCount.value}");
           } else {
             var roomUid = widget.message.roomUid.asUid();
             if (roomUid.isMuc())

@@ -1,4 +1,5 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 
 part 'avatar.g.dart';
@@ -14,23 +15,27 @@ class Avatar {
   int createdOn;
 
   @HiveField(2)
-  String fileId;
+  String? fileId;
 
   @HiveField(3)
-  String fileName;
+  String? fileName;
 
   @HiveField(4)
-  int lastUpdate;
+  int? lastUpdate;
 
   Avatar(
-      {this.uid, this.createdOn, this.fileId, this.fileName, this.lastUpdate});
+      {required this.uid,
+      required this.createdOn,
+      this.fileId,
+      this.fileName,
+      this.lastUpdate});
 
   Avatar copyWith(
-          {String uid,
-          int createdOn,
-          String fileId,
-          String fileName,
-          int lastUpdate}) =>
+          {String? uid,
+          int? createdOn,
+          String? fileId,
+          String? fileName,
+          int? lastUpdate}) =>
       Avatar(
         uid: uid ?? this.uid,
         createdOn: createdOn ?? this.createdOn,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:hive/hive.dart';
@@ -7,10 +9,9 @@ abstract class MessageDao {
 
   Future<void> deleteMessage(Message message);
 
-  Future<Message> getMessage(String roomUid, int id);
+  Future<Message?> getMessage(String roomUid, int id);
 
-
-  Future<List<Message>> getMessagePage(String roomUid, int page,
+  Future<List<Message?>>? getMessagePage(String roomUid, int page,
       {int pageSize = 16});
 
   // Pending Messages
@@ -18,9 +19,9 @@ abstract class MessageDao {
 
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid);
 
-  Future<PendingMessage> getPendingMessage(String packetId);
+  Future<PendingMessage?> getPendingMessage(String packetId);
 
-  Stream<PendingMessage> watchPendingMessage(String packetId);
+  Stream<PendingMessage?> watchPendingMessage(String packetId);
 
   Future<List<PendingMessage>> getAllPendingMessages();
 
@@ -42,7 +43,7 @@ class MessageDaoImpl implements MessageDao {
     box.delete(packetId);
   }
 
-  Future<Message> getMessage(String roomUid, int id) async {
+  Future<Message?> getMessage(String roomUid, int id) async {
     var box = await _openMessages(roomUid);
 
     return box.get(id);
@@ -54,7 +55,7 @@ class MessageDaoImpl implements MessageDao {
     return box.values.toList();
   }
 
-  Future<List<Message>> getMessagePage(String roomUid, int page,
+  Future<List<Message?>>? getMessagePage(String roomUid, int page,
       {int pageSize = 16}) async {
     var box = await _openMessages(roomUid);
 
@@ -74,22 +75,27 @@ class MessageDaoImpl implements MessageDao {
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
     var box = await _openPending();
 
-    yield box.values.where((element) => element.roomUid == roomUid).toList().reversed.toList();
+    yield box.values
+        .where((element) => element.roomUid == roomUid)
+        .toList()
+        .reversed
+        .toList();
 
     yield* box
         .watch()
-        .where((event) => (event.value as PendingMessage).roomUid == roomUid || event.deleted)
+        .where((event) =>
+            event.deleted || (event.value as PendingMessage).roomUid == roomUid)
         .map((event) =>
             box.values.where((element) => element.roomUid == roomUid).toList());
   }
 
-  Future<PendingMessage> getPendingMessage(String packetId) async {
+  Future<PendingMessage?> getPendingMessage(String packetId) async {
     var box = await _openPending();
 
     return box.get(packetId);
   }
 
-  Stream<PendingMessage> watchPendingMessage(String packetId) async* {
+  Stream<PendingMessage?> watchPendingMessage(String packetId) async* {
     var box = await _openPending();
 
     yield box.get(packetId);
@@ -113,10 +119,24 @@ class MessageDaoImpl implements MessageDao {
 
   static String _keyPending() => "pending";
 
-  static Future<Box<Message>> _openMessages(String uid) =>
-      Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
+  static Future<Box<Message>> _openMessages(String uid) async {
+    try {
+      var res =
+          await Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
+      return res;
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
+      return await Hive.openBox<Message>(
+          _keyMessages(uid.replaceAll(":", "-")));
+    }
+  }
 
-  static Future<Box<PendingMessage>> _openPending() =>
-      Hive.openBox<PendingMessage>(_keyPending());
-
+  static Future<Box<PendingMessage>> _openPending() async {
+    try {
+      return Hive.openBox<PendingMessage>(_keyPending());
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyPending());
+      return Hive.openBox<PendingMessage>(_keyPending());
+    }
+  }
 }

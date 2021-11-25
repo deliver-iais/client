@@ -11,15 +11,15 @@ class ReceivedMessageBox extends StatelessWidget {
   final Message message;
   final Function scrollToMessage;
   final Function onUsernameClick;
-  final String pattern;
+  final String? pattern;
   final Function onBotCommandClick;
 
   ReceivedMessageBox(
-      {Key key,
-      this.message,
-      this.onBotCommandClick,
-      this.scrollToMessage,
-      this.onUsernameClick,
+      {Key? key,
+      required this.message,
+      required this.onBotCommandClick,
+      required this.scrollToMessage,
+      required this.onUsernameClick,
       this.pattern})
       : super(key: key);
 
@@ -32,6 +32,7 @@ class ReceivedMessageBox extends StatelessWidget {
       isSender: false,
       scrollToMessage: scrollToMessage,
       pattern: this.pattern,
+      isSeen: true,
       onUsernameClick: this.onUsernameClick,
     );
 

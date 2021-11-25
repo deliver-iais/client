@@ -13,7 +13,8 @@ class CustomNotificationSoundSelection extends StatefulWidget {
   AudioCache _player =
       AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
 
-  CustomNotificationSoundSelection({Key key, this.roomUid}) : super(key: key);
+  CustomNotificationSoundSelection({Key? key, required this.roomUid})
+      : super(key: key);
 
   @override
   _CustomNotificationSoundSelectionState createState() =>
@@ -37,10 +38,10 @@ class _CustomNotificationSoundSelectionState
     "that_was_quick"
   ];
   Map<int, bool> selectedFlag = {};
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -83,7 +84,7 @@ class _CustomNotificationSoundSelectionState
               itemBuilder: (builder, index) {
                 String data = staticData[index];
                 selectedFlag[index] = selectedFlag[index] ?? false;
-                bool isSelected = selectedFlag[index];
+                bool isSelected = selectedFlag[index]!;
                 return ListTile(
                   onLongPress: () => onLongPress(isSelected, index),
                   onTap: () => onTap(isSelected, index),
@@ -106,7 +107,7 @@ class _CustomNotificationSoundSelectionState
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
     });
-    widget._player.fixedPlayer.stop();
+    widget._player.fixedPlayer!.stop();
     widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
   }
 
@@ -120,7 +121,7 @@ class _CustomNotificationSoundSelectionState
   Widget _buildSelectIcon(bool isSelected, String data) {
     final _shakeController = ShakeWidgetController();
     return StreamBuilder<Object>(
-        stream: widget._player.fixedPlayer.onPlayerStateChanged,
+        stream: widget._player.fixedPlayer!.onPlayerStateChanged,
         builder: (context, snapshot) {
           return Container(
               width: 80,

@@ -12,7 +12,7 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/methods/time.dart';
 
 class DevicesPage extends StatefulWidget {
-  DevicesPage({Key key}) : super(key: key);
+  DevicesPage({Key? key}) : super(key: key);
 
   @override
   _DevicesPageState createState() => _DevicesPageState();
@@ -23,11 +23,11 @@ class _DevicesPageState extends State<DevicesPage> {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  I18N _i18n;
+  I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -36,7 +36,7 @@ class _DevicesPageState extends State<DevicesPage> {
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(_i18n.get("devices")),
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
       ),
@@ -44,13 +44,13 @@ class _DevicesPageState extends State<DevicesPage> {
         future: _accountRepo.getSessions(),
         builder: (c, sessionData) {
           if (sessionData.hasData && sessionData.data != null) {
-            Session currentSession = sessionData.data.firstWhere(
+            Session currentSession = sessionData.data!.firstWhere(
                 (s) => s.sessionId == _authRepo.currentUserUid.sessionId,
                 orElse: () => Session()
                   ..node = _authRepo.currentUserUid.node
                   ..sessionId = _authRepo.currentUserUid.sessionId);
 
-            List<Session> otherSessions = sessionData.data
+            List<Session> otherSessions = sessionData.data!
                 .where((s) => s.sessionId != _authRepo.currentUserUid.sessionId)
                 .toList();
 
@@ -158,11 +158,11 @@ class _DevicesPageState extends State<DevicesPage> {
               Text(
                 session.ip.isEmpty
                     ? "No IP Provided"
-                    : session.ip ?? "No IP Provided",
+                    : session.ip,
                 style: Theme.of(context).textTheme.caption,
               ),
               DefaultTextStyle(
-                style: Theme.of(context).textTheme.caption,
+                style: Theme.of(context).textTheme.caption!,
                 child: Row(
                   children: [
                     Text("Created On: "),

@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -49,7 +47,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ProfilePage extends StatefulWidget {
   final Uid roomUid;
 
-  ProfilePage(this.roomUid, {Key key}) : super(key: key);
+  ProfilePage(this.roomUid, {Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -67,10 +65,10 @@ class _ProfilePageState extends State<ProfilePage>
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
-  TabController _tabController;
-  int _tabsCount;
+  late TabController _tabController;
+  late int _tabsCount;
 
-  I18N _locale;
+  I18N _i18n = GetIt.I.get<I18N>();
 
   bool _isMucAdminOrOwner = false;
   bool _isMucOwner = false;
@@ -96,8 +94,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    this._locale = I18N.of(context);
-
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
@@ -107,25 +103,25 @@ class _ProfilePageState extends State<ProfilePage>
             builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
-                if (snapshot.data.imagesCount != 0) {
+                if (snapshot.data!.imagesCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
-                if (snapshot.data.videosCount != 0) {
+                if (snapshot.data!.videosCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
-                if (snapshot.data.linkCount != 0) {
+                if (snapshot.data!.linkCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
-                if (snapshot.data.filesCount != 0) {
+                if (snapshot.data!.filesCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
-                if (snapshot.data.documentsCount != 0) {
+                if (snapshot.data!.documentsCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
-                if (snapshot.data.musicsCount != 0) {
+                if (snapshot.data!.musicsCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
-                if (snapshot.data.audiosCount != 0) {
+                if (snapshot.data!.audiosCount != 0) {
                   _tabsCount = _tabsCount + 1;
                 }
               }
@@ -137,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage>
                       : _tabsCount,
                   vsync: this,
                   initialIndex:
-                      _uxService.getTabIndex(widget.roomUid.asString()));
+                      _uxService.getTabIndex(widget.roomUid.asString())!);
               _tabController.addListener(() {
                 _uxService.setTabIndex(
                     widget.roomUid.asString(), _tabController.index);
@@ -170,35 +166,35 @@ class _ProfilePageState extends State<ProfilePage>
                                           (widget.roomUid.isChannel() &&
                                               _isMucAdminOrOwner))
                                         Tab(
-                                          text: _locale.get("members"),
+                                          text: _i18n.get("members"),
                                         ),
                                       if (snapshot.hasData &&
-                                          snapshot.data.imagesCount != 0)
+                                          snapshot.data!.imagesCount != 0)
                                         Tab(
-                                          text: _locale.get("images"),
+                                          text: _i18n.get("images"),
                                         ),
                                       if (snapshot.hasData &&
-                                          snapshot.data.videosCount != 0)
+                                          snapshot.data!.videosCount != 0)
                                         Tab(
-                                          text: _locale.get("videos"),
+                                          text: _i18n.get("videos"),
                                         ),
                                       if (snapshot.hasData &&
-                                          snapshot.data.filesCount != 0)
+                                          snapshot.data!.filesCount != 0)
                                         Tab(
-                                          text: _locale.get("file"),
+                                          text: _i18n.get("file"),
                                         ),
                                       if (snapshot.hasData &&
-                                          snapshot.data.linkCount != 0)
-                                        Tab(text: _locale.get("links")),
+                                          snapshot.data!.linkCount != 0)
+                                        Tab(text: _i18n.get("links")),
                                       if (snapshot.hasData &&
-                                          snapshot.data.documentsCount != 0)
-                                        Tab(text: _locale.get("documents")),
+                                          snapshot.data!.documentsCount != 0)
+                                        Tab(text: _i18n.get("documents")),
                                       if (snapshot.hasData &&
-                                          snapshot.data.musicsCount != 0)
-                                        Tab(text: _locale.get("musics")),
+                                          snapshot.data!.musicsCount != 0)
+                                        Tab(text: _i18n.get("musics")),
                                       if (snapshot.hasData &&
-                                          snapshot.data.audiosCount != 0)
-                                        Tab(text: _locale.get("audios")),
+                                          snapshot.data!.audiosCount != 0)
+                                        Tab(text: _i18n.get("audios")),
                                     ],
                                     controller: _tabController,
                                   ),
@@ -220,44 +216,44 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                               ),
                             if (snapshot.hasData &&
-                                snapshot.data.imagesCount != 0)
+                                snapshot.data!.imagesCount != 0)
                               ImageTabUi(
-                                  snapshot.data.imagesCount, widget.roomUid),
+                                  snapshot.data!.imagesCount, widget.roomUid),
                             if (snapshot.hasData &&
-                                snapshot.data.videosCount != 0)
+                                snapshot.data!.videosCount != 0)
                               VideoTabUi(
                                   userUid: widget.roomUid,
-                                  videoCount: snapshot.data.videosCount),
+                                  videoCount: snapshot.data!.videosCount),
                             if (snapshot.hasData &&
-                                snapshot.data.filesCount != 0)
+                                snapshot.data!.filesCount != 0)
                               DocumentAndFileUi(
                                 roomUid: widget.roomUid,
-                                documentCount: snapshot.data.filesCount,
+                                documentCount: snapshot.data!.filesCount,
                                 type: MediaType.FILE,
                               ),
                             if (snapshot.hasData &&
-                                snapshot.data.linkCount != 0)
+                                snapshot.data!.linkCount != 0)
                               linkWidget(widget.roomUid, _mediaQueryRepo,
-                                  snapshot.data.linkCount),
+                                  snapshot.data!.linkCount),
                             if (snapshot.hasData &&
-                                snapshot.data.documentsCount != 0)
+                                snapshot.data!.documentsCount != 0)
                               DocumentAndFileUi(
                                 roomUid: widget.roomUid,
-                                documentCount: snapshot.data.documentsCount,
+                                documentCount: snapshot.data!.documentsCount,
                                 type: MediaType.DOCUMENT,
                               ),
                             if (snapshot.hasData &&
-                                snapshot.data.musicsCount != 0)
+                                snapshot.data!.musicsCount != 0)
                               MusicAndAudioUi(
                                   userUid: widget.roomUid,
                                   type: FetchMediasReq_MediaType.MUSICS,
-                                  mediaCount: snapshot.data.musicsCount),
+                                  mediaCount: snapshot.data!.musicsCount),
                             if (snapshot.hasData &&
-                                snapshot.data.audiosCount != 0)
+                                snapshot.data!.audiosCount != 0)
                               MusicAndAudioUi(
                                   userUid: widget.roomUid,
                                   type: FetchMediasReq_MediaType.AUDIOS,
-                                  mediaCount: snapshot.data.audiosCount),
+                                  mediaCount: snapshot.data!.audiosCount),
                           ],
                           controller: _tabController,
                         ),
@@ -285,15 +281,15 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             ),
             if (!widget.roomUid.isGroup())
-              FutureBuilder<String>(
+              FutureBuilder<String?>(
                 future: _roomRepo.getId(widget.roomUid),
                 builder:
-                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    (BuildContext context, AsyncSnapshot<String?> snapshot) {
                   if (snapshot.data != null) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
-                        title: _locale.get("username"),
+                        title: _i18n.get("username"),
                         titleTextStyle:
                             TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: "${snapshot.data}",
@@ -311,25 +307,25 @@ class _ProfilePageState extends State<ProfilePage>
                 },
               ),
             if (widget.roomUid.isUser())
-              FutureBuilder<Contact>(
+              FutureBuilder<Contact?>(
                 future: _contactRepo.getContact(widget.roomUid),
                 builder:
-                    (BuildContext context, AsyncSnapshot<Contact> snapshot) {
+                    (BuildContext context, AsyncSnapshot<Contact?> snapshot) {
                   if (snapshot.data != null) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
-                        title: _locale.get("phone"),
+                        title: _i18n.get("phone"),
                         titleTextStyle:
                             TextStyle(color: ExtraTheme.of(context).textField),
-                        subtitle: buildPhoneNumber(snapshot.data.countryCode,
-                            snapshot.data.nationalNumber),
+                        subtitle: buildPhoneNumber(snapshot.data!.countryCode,
+                            snapshot.data!.nationalNumber),
                         subtitleTextStyle:
                             TextStyle(color: ExtraTheme.of(context).username),
                         leading: Icon(Icons.phone),
                         trailing: Icon(Icons.call),
                         onPressed: (_) => launch(
-                            "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
+                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}"),
                       ),
                     );
                   } else {
@@ -341,15 +337,15 @@ class _ProfilePageState extends State<ProfilePage>
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
-                    title: _locale.get("send_message"),
+                    title: _i18n.get("send_message"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.message),
-                    onPressed: (_) =>
-                        _routingService.openRoom(widget.roomUid.asString())),
+                    onPressed: (_) => _routingService
+                        .openRoom(widget.roomUid.asString(), context: context)),
               ),
             if (isAndroid())
-              FutureBuilder(
+              FutureBuilder<String?>(
                   future: _roomRepo
                       .getRoomCustomNotification(widget.roomUid.asString()),
                   builder: (context, snapshot) {
@@ -357,18 +353,18 @@ class _ProfilePageState extends State<ProfilePage>
                       return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: SettingsTile(
-                            title: _locale.get("custom_notifications"),
+                            title: _i18n.get("custom_notifications"),
                             titleTextStyle: TextStyle(
                                 color: ExtraTheme.of(context).textField),
                             leading: Icon(Icons.music_note_sharp),
-                            subtitle: snapshot.data,
+                            subtitle: snapshot.data!,
                             subtitleTextStyle: TextStyle(
                                 color: ExtraTheme.of(context).username,
                                 fontSize: 16),
                             onPressed: (_) async {
                               _routingService
                                   .openCustomNotificationSoundSelection(
-                                      widget.roomUid.asString());
+                                      context, widget.roomUid.asString());
                             },
                           ));
                     } else
@@ -379,11 +375,11 @@ class _ProfilePageState extends State<ProfilePage>
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
                   return SettingsTile.switchTile(
-                      title: _locale.get("notification"),
+                      title: _i18n.get("notification"),
                       titleTextStyle:
                           TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.notifications_active),
-                      switchValue: !snapshot.data,
+                      switchValue: snapshot.data!,
                       onToggle: (state) {
                         if (state) {
                           _roomRepo.unmute(widget.roomUid.asString());
@@ -397,19 +393,19 @@ class _ProfilePageState extends State<ProfilePage>
               },
             ),
             if (widget.roomUid.isMuc())
-              StreamBuilder<Muc>(
+              StreamBuilder<Muc?>(
                   stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                   builder: (c, muc) {
                     if (muc.hasData &&
                         muc.data != null &&
-                        muc.data.info.isNotEmpty) {
+                        muc.data!.info!.isNotEmpty) {
                       return Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: SettingsTile(
-                            title: _locale.get("description"),
+                            title: _i18n.get("description"),
                             titleTextStyle: TextStyle(
                                 color: ExtraTheme.of(context).textField),
-                            subtitle: muc.data.info,
+                            subtitle: muc.data!.info,
                             subtitleTextStyle: TextStyle(
                                 color: ExtraTheme.of(context).username,
                                 fontSize: 16),
@@ -423,11 +419,11 @@ class _ProfilePageState extends State<ProfilePage>
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
-                  title: _locale.get("add_member"),
+                  title: _i18n.get("add_member"),
                   titleTextStyle:
                       TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.person_add),
-                  onPressed: (_) => _routingService.openMemberSelection(
+                  onPressed: (_) => _routingService.openMemberSelection(context,
                       isChannel: true, mucUid: widget.roomUid),
                 ),
               ),
@@ -459,7 +455,7 @@ class _ProfilePageState extends State<ProfilePage>
           actions: <Widget>[
             _buildMenu(context),
           ],
-          leading: _routingService.backButtonLeading(),
+          leading: _routingService.backButtonLeading(context),
         ),
       ),
     );
@@ -476,7 +472,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Icon(Icons.add_link_outlined),
                   SizedBox(width: 8),
-                  Text(_locale.get("create_invite_link"))
+                  Text(_i18n.get("create_invite_link"))
                 ],
               ),
               value: "invite_link"),
@@ -487,8 +483,8 @@ class _ProfilePageState extends State<ProfilePage>
                   Icon(Icons.settings),
                   SizedBox(width: 8),
                   Text(widget.roomUid.category == Categories.GROUP
-                      ? _locale.get("manage_group")
-                      : _locale.get("manage_channel")),
+                      ? _i18n.get("manage_group")
+                      : _i18n.get("manage_channel")),
                 ],
               ),
               value: "manage"),
@@ -503,10 +499,10 @@ class _ProfilePageState extends State<ProfilePage>
                   SizedBox(width: 8),
                   Text(
                     !widget.roomUid.isMuc()
-                        ? _locale.get("delete_chat")
+                        ? _i18n.get("delete_chat")
                         : widget.roomUid.isGroup()
-                            ? _locale.get("left_group")
-                            : _locale.get("left_channel"),
+                            ? _i18n.get("left_group")
+                            : _i18n.get("left_channel"),
                   ),
                 ],
               ),
@@ -519,8 +515,8 @@ class _ProfilePageState extends State<ProfilePage>
                   Icon(Icons.delete),
                   SizedBox(width: 8),
                   Text(widget.roomUid.isGroup()
-                      ? _locale.get("delete_group")
-                      : _locale.get("delete_channel"))
+                      ? _i18n.get("delete_group")
+                      : _i18n.get("delete_channel"))
                 ],
               ),
               value: "deleteMuc"),
@@ -530,7 +526,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Icon(Icons.person_add),
                   SizedBox(width: 8),
-                  Text(_locale.get("add_to_group")),
+                  Text(_i18n.get("add_to_group")),
                 ],
               ),
               value: "addBotToGroup"),
@@ -540,7 +536,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Icon(Icons.report),
                   SizedBox(width: 8),
-                  Text(_locale.get("report")),
+                  Text(_i18n.get("report")),
                 ],
               ),
               value: "report")
@@ -574,20 +570,23 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   createInviteLink() async {
-    var muc = await _mucRepo.getMuc(widget.roomUid.asString());
-    String token = muc.token;
-    if (token == null || token.isEmpty || token.length == 0) {
-      if (widget.roomUid.category == Categories.GROUP) {
-        token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
-      } else {
-        token = await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+    Muc? muc = await _mucRepo.getMuc(widget.roomUid.asString());
+    if (muc != null && muc.token != null) {
+      String? token = muc.token!;
+      if (token == null || token.isEmpty || token.length == 0) {
+        if (widget.roomUid.category == Categories.GROUP) {
+          token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
+        } else {
+          token =
+              await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+        }
       }
-    }
-    if (token != null && token.isNotEmpty) {
-      _showInviteLinkDialog(token);
-    } else {
-      ToastDisplay.showToast(
-          toastText: _locale.get("error_occurred"), tostContext: context);
+      if (token != null && token.isNotEmpty) {
+        _showInviteLinkDialog(token);
+      } else {
+        ToastDisplay.showToast(
+            toastText: _i18n.get("error_occurred"), tostContext: context);
+      }
     }
   }
 
@@ -628,17 +627,17 @@ class _ProfilePageState extends State<ProfilePage>
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
                         ToastDisplay.showToast(
-                            toastText: _locale.get("copied"),
+                            toastText: _i18n.get("copied"),
                             tostContext: context);
                         Navigator.pop(context);
                       },
                       child: Text(
-                        _locale.get("copy"),
+                        _i18n.get("copy"),
                       )),
                   TextButton(
                     onPressed: () {
                       // TODO set name for share uid
-                      _routingService.openSelectForwardMessage(
+                      _routingService.openSelectForwardMessage(context,
                           sharedUid: proto.ShareUid()
                             ..name = _roomName
                             ..joinToken = token
@@ -647,7 +646,7 @@ class _ProfilePageState extends State<ProfilePage>
                       Navigator.pop(context);
                     },
                     child: Text(
-                      _locale.get("share"),
+                      _i18n.get("share"),
                     ),
                   ),
                 ],
@@ -682,11 +681,11 @@ class _ProfilePageState extends State<ProfilePage>
   void showManageDialog() {
     var channelIdFormKey = GlobalKey<FormState>();
     var nameFormKey = GlobalKey<FormState>();
-    String _currentName;
-    String _currentId;
-    String mucName;
-    String mucInfo;
-    String channelId;
+    String _currentName = "";
+    String _currentId = "";
+    String ? mucName ;
+    String mucInfo = "";
+    String channelId = "";
     BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
     showDialog(
         context: context,
@@ -696,19 +695,19 @@ class _ProfilePageState extends State<ProfilePage>
               child: SingleChildScrollView(
                   child: Column(
                 children: [
-                  FutureBuilder<String>(
+                  FutureBuilder<String?>(
                     future: _roomRepo.getName(widget.roomUid),
                     builder: (c, name) {
-                      if (name.hasData) {
-                        _currentName = name.data;
+                      if (name.hasData && name.data != null) {
+                        _currentName = name.data!;
                         return Container(
                           child: Form(
                               key: nameFormKey,
                               child: TextFormField(
                                 initialValue: name.data,
                                 validator: (s) {
-                                  if (s.isEmpty) {
-                                    return _locale.get("name_not_empty");
+                                  if (s!.isEmpty) {
+                                    return _i18n.get("name_not_empty");
                                   } else {
                                     return null;
                                   }
@@ -723,8 +722,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 keyboardType: TextInputType.text,
                                 decoration: buildInputDecoration(
                                   widget.roomUid.isGroup()
-                                      ? _locale.get("group_name")
-                                      : _locale.get("channel_name"),
+                                      ? _i18n.get("group_name")
+                                      : _i18n.get("channel_name"),
                                 ),
                               )),
                         );
@@ -736,22 +735,22 @@ class _ProfilePageState extends State<ProfilePage>
                     height: 10,
                   ),
                   if (widget.roomUid.category == Categories.CHANNEL)
-                    StreamBuilder<Muc>(
+                    StreamBuilder<Muc?>(
                         stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                         builder: (c, muc) {
                           if (muc.hasData && muc.data != null) {
-                            _currentId = muc.data.id;
+                            _currentId = muc.data!.id!;
                             return Column(
                               children: [
                                 Form(
                                     key: channelIdFormKey,
                                     child: TextFormField(
-                                      initialValue: muc.data.id,
+                                      initialValue: muc.data!.id,
                                       minLines: 1,
                                       validator: validateChannelId,
                                       onChanged: (str) {
                                         if (str.isNotEmpty &&
-                                            str != muc.data.id) {
+                                            str != muc.data!.id) {
                                           channelId = str;
                                           if (!newChange.value)
                                             newChange.add(true);
@@ -759,14 +758,16 @@ class _ProfilePageState extends State<ProfilePage>
                                       },
                                       keyboardType: TextInputType.text,
                                       decoration: buildInputDecoration(
-                                          _locale.get("channel_id")),
+                                          _i18n.get("channel_id")),
                                     )),
-                                StreamBuilder(
+                                StreamBuilder<bool?>(
                                     stream: _showChannelIdError.stream,
                                     builder: (c, e) {
-                                      if (e.hasData && e.data) {
+                                      if (e.hasData &&
+                                          e.data != null &&
+                                          e.data!) {
                                         return Text(
-                                          _locale.get("channel_id_is_exist"),
+                                          _i18n.get("channel_id_is_exist"),
                                           style: TextStyle(color: Colors.red),
                                         );
                                       } else {
@@ -781,18 +782,18 @@ class _ProfilePageState extends State<ProfilePage>
                   SizedBox(
                     height: 10,
                   ),
-                  StreamBuilder<Muc>(
+                  StreamBuilder<Muc?>(
                     stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
-                        mucInfo = muc.data.info;
+                        mucInfo = muc.data!.info!;
                         return TextFormField(
-                          initialValue: muc.data.info ?? "",
-                          minLines: muc.data.info.isNotEmpty
-                              ? muc.data.info.split("\n").length
+                          initialValue: muc.data!.info!,
+                          minLines: muc.data!.info!.isNotEmpty
+                              ? muc.data!.info!.split("\n").length
                               : 1,
-                          maxLines: muc.data.info.isNotEmpty
-                              ? muc.data.info.split("\n").length + 4
+                          maxLines: muc.data!.info!.isNotEmpty
+                              ? muc.data!.info!.split("\n").length + 4
                               : 4,
                           onChanged: (str) {
                             mucInfo = str;
@@ -801,8 +802,8 @@ class _ProfilePageState extends State<ProfilePage>
                           keyboardType: TextInputType.multiline,
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
-                                ? _locale.get("enter_group_desc")
-                                : _locale.get("enter_channel_desc"),
+                                ? _i18n.get("enter_group_desc")
+                                : _i18n.get("enter_channel_desc"),
                           ),
                         );
                       } else {
@@ -817,12 +818,12 @@ class _ProfilePageState extends State<ProfilePage>
               StreamBuilder<bool>(
                 stream: newChange.stream,
                 builder: (c, change) {
-                  if (change.hasData) {
+                  if (change.hasData && change.data != null) {
                     return TextButton(
-                      onPressed: change.data
+                      onPressed: change.data!
                           ? () async {
-                              if (nameFormKey?.currentState != null &&
-                                  nameFormKey.currentState.validate()) {
+                              if (nameFormKey.currentState != null &&
+                                  nameFormKey.currentState!.validate()) {
                                 if (widget.roomUid.category ==
                                     Categories.GROUP) {
                                   _mucRepo.modifyGroup(
@@ -843,9 +844,9 @@ class _ProfilePageState extends State<ProfilePage>
                                     _roomRepo.updateRoomName(widget.roomUid,
                                         mucName ?? _currentName);
                                     Navigator.pop(context);
-                                  } else if (channelIdFormKey?.currentState !=
+                                  } else if (channelIdFormKey.currentState !=
                                           null &&
-                                      channelIdFormKey.currentState
+                                      channelIdFormKey.currentState!
                                           .validate()) {
                                     if (await checkChannelD(channelId)) {
                                       _mucRepo.modifyChannel(
@@ -865,7 +866,7 @@ class _ProfilePageState extends State<ProfilePage>
                             }
                           : () {},
                       child: Text(
-                        _locale.get("set"),
+                        _i18n.get("set"),
                       ),
                     );
                   } else
@@ -887,13 +888,14 @@ class _ProfilePageState extends State<ProfilePage>
     return false;
   }
 
-  String validateChannelId(String value) {
+  String? validateChannelId(String? value) {
+    if (value == null) return null;
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = new RegExp(pattern);
+    RegExp regex = new RegExp(pattern.toString());
     if (value.isEmpty) {
-      return _locale.get("channel_id_not_empty");
+      return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
-      return _locale.get("channel_id_length");
+      return _i18n.get("channel_id_length");
     } else
       return null;
   }
@@ -931,7 +933,7 @@ class _ProfilePageState extends State<ProfilePage>
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
         ToastDisplay.showToast(
-            toastText: _locale.get("report_result"), tostContext: context);
+            toastText: _i18n.get("report_result"), tostContext: context);
         break;
       case "manage":
         showManageDialog();
@@ -953,13 +955,15 @@ class _ProfilePageState extends State<ProfilePage>
         context: context,
         builder: (c1) {
           return AlertDialog(
-            title: Text(_locale.get("add_bot_to_group")),
+            title: Text(_i18n.get("add_bot_to_group")),
             content: FutureBuilder<List<Room>>(
               future: _roomRepo.getAllGroups(),
               builder: (c, mucs) {
-                if (mucs.hasData && mucs.data != null && mucs.data.length > 0) {
+                if (mucs.hasData &&
+                    mucs.data != null &&
+                    mucs.data!.length > 0) {
                   List<String> s = [];
-                  mucs.data.forEach((room) {
+                  mucs.data!.forEach((room) {
                     s.add(room.uid);
                   });
                   groups.add(s);
@@ -968,12 +972,10 @@ class _ProfilePageState extends State<ProfilePage>
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
-                            snapshot.data.length > 0)
+                            snapshot.data!.length > 0)
                           return Container(
-                            height: min(
-                                MediaQuery.of(context).size.height / 2,
-                                groups.valueWrapper.value.length *
-                                    100.toDouble()),
+                            height: min(MediaQuery.of(context).size.height / 2,
+                                groups.value.length * 100.toDouble()),
                             width: MediaQuery.of(context).size.width / 2,
                             child: Column(
                               children: [
@@ -983,7 +985,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   onChanged: (str) {
                                     List<String> searchRes = [];
                                     nameOfGroup.keys.forEach((uid) {
-                                      if (nameOfGroup[uid].contains(str) ||
+                                      if (nameOfGroup[uid]!.contains(str) ||
                                           nameOfGroup[uid] == str) {
                                         searchRes.add(uid);
                                       }
@@ -991,7 +993,7 @@ class _ProfilePageState extends State<ProfilePage>
                                     groups.add(searchRes);
                                   },
                                   decoration: InputDecoration(
-                                    hintText: _locale.get("search"),
+                                    hintText: _i18n.get("search"),
                                     prefixIcon: Icon(Icons.search),
                                   ),
                                 ),
@@ -1001,12 +1003,12 @@ class _ProfilePageState extends State<ProfilePage>
                                         return GestureDetector(
                                           child: FutureBuilder<String>(
                                             future: _roomRepo.getName(
-                                                snapshot.data[i].asUid()),
+                                                snapshot.data![i].asUid()),
                                             builder: (c, name) {
                                               if (name.hasData &&
                                                   name.data != null) {
-                                                nameOfGroup[snapshot.data[i]] =
-                                                    name.data;
+                                                nameOfGroup[snapshot.data![i]] =
+                                                    name.data!;
                                                 return Container(
                                                     height: 50,
                                                     child: Row(
@@ -1015,15 +1017,15 @@ class _ProfilePageState extends State<ProfilePage>
                                                               .start,
                                                       children: [
                                                         CircleAvatarWidget(
-                                                            snapshot.data[i]
+                                                            snapshot.data![i]
                                                                 .asUid(),
                                                             20),
                                                         SizedBox(
                                                           width: 10,
                                                         ),
                                                         Expanded(
-                                                            child:
-                                                                Text(name.data))
+                                                            child: Text(
+                                                                name.data!))
                                                       ],
                                                     ));
                                               } else
@@ -1046,10 +1048,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                           if (name.hasData &&
                                                               name.data !=
                                                                   null &&
-                                                              name.data
+                                                              name.data!
                                                                   .isNotEmpty) {
                                                             return Text(
-                                                                "${_locale.get("add")} ${name.data} ${_locale.get("to")} ${nameOfGroup[snapshot.data[i]]}");
+                                                                "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} ${nameOfGroup[snapshot.data![i]]}");
                                                           } else
                                                             return SizedBox
                                                                 .shrink();
@@ -1067,7 +1069,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                     .pop();
                                                               },
                                                               child: Text(
-                                                                  _locale.get(
+                                                                  _i18n.get(
                                                                       "cancel"))),
                                                           TextButton(
                                                               onPressed:
@@ -1075,7 +1077,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                 var res = await _mucRepo
                                                                     .sendMembers(
                                                                         snapshot
-                                                                            .data[i]
+                                                                            .data![i]
                                                                             .asUid(),
                                                                         [
                                                                       widget
@@ -1088,13 +1090,14 @@ class _ProfilePageState extends State<ProfilePage>
                                                                       c1);
                                                                   _routingService
                                                                       .openRoom(
-                                                                          snapshot
-                                                                              .data[i]);
+                                                                          snapshot.data![
+                                                                              i],
+                                                                          context:
+                                                                              c);
                                                                 }
                                                               },
-                                                              child: Text(
-                                                                  _locale.get(
-                                                                      "add"))),
+                                                              child: Text(_i18n
+                                                                  .get("add"))),
                                                         ],
                                                       )
                                                     ],
@@ -1106,7 +1109,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       separatorBuilder: (c, i) {
                                         return Divider();
                                       },
-                                      itemCount: snapshot.data.length),
+                                      itemCount: snapshot.data!.length),
                                 ),
                               ],
                             ),
@@ -1140,7 +1143,7 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
                 child: LinkPreview(
-                    link: jsonDecode(snapshot.data[index].json)["url"],
+                    link: jsonDecode(snapshot.data![index].json)["url"],
                     maxWidth: 100),
               );
             },
@@ -1152,9 +1155,9 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
-    @required this.minHeight,
-    @required this.maxHeight,
-    @required this.child,
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
   });
 
   final double minHeight;

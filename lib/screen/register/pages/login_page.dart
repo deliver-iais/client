@@ -1,15 +1,17 @@
 import 'dart:async';
 
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/phone.dart';
+
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -39,15 +41,15 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
-  Timer checkTimer;
-  Timer tokenGeneratorTimer;
-  PhoneNumber phoneNumber;
+  Timer? checkTimer;
+  Timer? tokenGeneratorTimer;
+  PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
-    if (phoneNumber?.nationalNumber != null) {
-      controller.text = phoneNumber?.nationalNumber.toString();
+    if (phoneNumber != null && phoneNumber!.nationalNumber != null) {
+      controller.text = phoneNumber!.nationalNumber.toString();
     }
 
     if (isDesktop()) {
@@ -87,7 +89,9 @@ class _LoginPageState extends State<LoginPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    AutoRouter.of(context).push(HomePageRoute());
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }));
   }
 
   _loginASTestUser() {
@@ -97,27 +101,30 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    loginToken?.close();
-    checkTimer?.cancel();
-    tokenGeneratorTimer?.cancel();
+    loginToken.close();
+    if (checkTimer != null) checkTimer!.cancel();
+    if (tokenGeneratorTimer != null) tokenGeneratorTimer!.cancel();
     super.dispose();
   }
 
   checkAndGoNext({bool doNotCheckValidator = false}) async {
     if (phoneNumber != null &&
-        phoneNumber.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
+        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
       _logger.e("logis as test user ");
       _loginASTestUser();
     } else {
-      var isValidated = _formKey?.currentState?.validate() ?? false;
+      var isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
         setState(() {
           _isLoading = true;
         });
         try {
-          var res = await _authRepo.getVerificationCode(phoneNumber);
+          var res = await _authRepo.getVerificationCode(phoneNumber!);
           if (res != null) {
-            AutoRouter.of(context).push(VerificationPageRoute());
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+              return VerificationPage();
+            }));
+
             setState(() {
               _isLoading = false;
             });
@@ -148,7 +155,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return FluidWidget(
       child: Form(
         key: _formKey,
@@ -176,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&
-                    snapshot.data.isNotEmpty)
+                    snapshot.data!.isNotEmpty)
                   return Container(
                     width: 200,
                     height: 200,
@@ -244,10 +250,11 @@ class _LoginPageState extends State<LoginPage> {
                         height: 5,
                       ),
                       IntlPhoneField(
-                        initialCountryCode:
-                            phoneNumber?.countryCode?.toString() ?? "98",
+                        initialCountryCode: phoneNumber != null
+                            ? phoneNumber!.countryCode.toString()
+                            : null,
                         controller: controller,
-                        validator: (value) => value.length != 10 ||
+                        validator: (value) => value!.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? i18n.get("invalid_mobile_number")
                             : null,

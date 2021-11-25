@@ -7,7 +7,8 @@ class MessageWrapper extends StatelessWidget {
   final Widget child;
   final bool isSent;
 
-  const MessageWrapper({Key key, this.child, this.isSent}) : super(key: key);
+  const MessageWrapper({Key? key, required this.child, required this.isSent})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -8,14 +8,16 @@ class RadioButtonFieldWidget extends StatefulWidget {
   final Function selected;
   final GlobalKey<FormState> formValidator;
 
-  RadioButtonFieldWidget({this.formField, this.selected, this.formValidator});
+  RadioButtonFieldWidget({required this.formField, required this.selected, required this.formValidator});
 
   @override
   _RadioButtonFieldWidgetState createState() => _RadioButtonFieldWidgetState();
 }
 
 class _RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
-  String selected;
+ late  String selected;
+
+ ///todo need check
 
   @override
   Widget build(BuildContext context) {

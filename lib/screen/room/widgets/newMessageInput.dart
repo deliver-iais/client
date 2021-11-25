@@ -9,17 +9,17 @@ import 'package:get_it/get_it.dart';
 //TODO empty text click on arrow
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
-  final int replyMessageId;
-  final Function resetRoomPageDetails;
-  final bool waitingForForward;
-  final Message editableMessage;
-  final Function sendForwardMessage;
+  final int? replyMessageId;
+  final Function? resetRoomPageDetails;
+  final bool? waitingForForward;
+  final Message? editableMessage;
+  final Function? sendForwardMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final Function scrollToLastSentMessage;
+  final Function? scrollToLastSentMessage;
 
   NewMessageInput(
-      {Key key,
-      this.currentRoomId,
+      {Key? key,
+      required this.currentRoomId,
       this.replyMessageId,
       this.resetRoomPageDetails,
       this.waitingForForward,
@@ -30,19 +30,19 @@ class NewMessageInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Room>(
+    return StreamBuilder<Room?>(
         stream: _roomRepo.watchRoom(currentRoomId),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Room currentRoom = snapshot.data;
+            Room currentRoom = snapshot.data!;
             return InputMessage(
                 currentRoom: currentRoom,
                 replyMessageId: replyMessageId,
                 resetRoomPageDetails: resetRoomPageDetails,
-                waitingForForward: waitingForForward,
-                editableMessage:editableMessage,
-                sendForwardMessage: sendForwardMessage,
-                scrollToLastSentMessage: scrollToLastSentMessage);
+                waitingForForward: waitingForForward!,
+                editableMessage: editableMessage,
+                sendForwardMessage: sendForwardMessage!,
+                scrollToLastSentMessage: scrollToLastSentMessage!);
           } else {
             _roomRepo.createRoomIfNotExist(currentRoomId);
             return SizedBox.shrink();

@@ -20,7 +20,8 @@ import 'package:rxdart/rxdart.dart';
 class MucInfoDeterminationPage extends StatefulWidget {
   final bool isChannel;
 
-  const MucInfoDeterminationPage({Key key, this.isChannel}) : super(key: key);
+  const MucInfoDeterminationPage({Key? key, required this.isChannel})
+      : super(key: key);
 
   @override
   _MucInfoDeterminationPageState createState() =>
@@ -28,9 +29,9 @@ class MucInfoDeterminationPage extends StatefulWidget {
 }
 
 class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
-  TextEditingController controller;
-  TextEditingController idController;
-  TextEditingController infoController;
+  late TextEditingController controller;
+  late TextEditingController idController;
+  late TextEditingController infoController;
 
   String mucName = '';
   String channelId = "";
@@ -40,7 +41,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   var _createMucService = GetIt.I.get<CreateMucService>();
   MucRepo _mucRepo = GetIt.I.get<MucRepo>();
   bool idIsAvailable = false;
-  I18N _i18n;
+  I18N _i18n = GetIt.I.get<I18N>();
   final mucNameKey = GlobalKey<FormState>();
   final _channelIdKey = GlobalKey<FormState>();
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -65,7 +66,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         // TODO, use some constant variable
@@ -73,10 +73,13 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         child: FluidContainerWidget(
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(),
-            title: Text(widget.isChannel
-                ? _i18n.get("newChannel")
-                : _i18n.get("newGroup"),style: TextStyle(color:ExtraTheme.of(context).textField),),
+            leading: _routingService.backButtonLeading(context),
+            title: Text(
+              widget.isChannel
+                  ? _i18n.get("newChannel")
+                  : _i18n.get("newGroup"),
+              style: TextStyle(color: ExtraTheme.of(context).textField),
+            ),
           ),
         ),
       ),
@@ -149,15 +152,15 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             ],
                           )
                         : SizedBox.shrink(),
-                    StreamBuilder(
+                    StreamBuilder<bool>(
                         stream: showChannelIdError.stream,
                         builder: (c, e) {
-                          if (e.hasData && e.data) {
+                          if (e.hasData && e.data!) {
                             return Text(
                               _i18n.get("channel_id_is_exist"),
                               style: Theme.of(context)
                                   .textTheme
-                                  .overline
+                                  .overline!
                                   .copyWith(color: Colors.red),
                             );
                           } else {
@@ -246,14 +249,14 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               icon: Icon(Icons.check, color: Colors.white),
                               onPressed: () async {
                                 bool res =
-                                    mucNameKey?.currentState?.validate() ??
+                                    mucNameKey.currentState?.validate() ??
                                         false;
                                 if (res) {
                                   setState(() {
                                     _showIcon = false;
                                   });
                                   List<Uid> memberUidList = [];
-                                  Uid micUid;
+                                  Uid? micUid;
                                   for (var i = 0;
                                       i < _createMucService.contacts.length;
                                       i++) {
@@ -262,7 +265,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                         .asUid());
                                   }
                                   if (widget.isChannel) {
-                                    bool result = _channelIdKey?.currentState
+                                    bool result = _channelIdKey.currentState
                                             ?.validate() ??
                                         false;
                                     if (result) {
@@ -283,10 +286,12 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (micUid != null) {
                                     _createMucService.reset();
-                                    _routingService.openRoom(micUid.asString());
+                                    _routingService.openRoom(micUid.asString(),
+                                        context: context);
                                   } else {
                                     ToastDisplay.showToast(
-                                        toastText: _i18n.get("error_occurred"),tostContext: context);
+                                        toastText: _i18n.get("error_occurred"),
+                                        tostContext: context);
                                     setState(() {
                                       _showIcon = true;
                                     });
@@ -347,18 +352,18 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         labelText: label);
   }
 
-  String checkMucNameIsSet(String value) {
-    if (value.length < 1) {
+  String? checkMucNameIsSet(String? value) {
+    if (value!.length < 1) {
       return _i18n.get("inter_muc_name");
     } else {
       return null;
     }
   }
 
-  String validateUsername(String value) {
+  String? validateUsername(String? value) {
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = new RegExp(pattern);
-    if (value.isEmpty) {
+    RegExp regex = new RegExp(pattern.toString());
+    if (value!.isEmpty) {
       return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
       return _i18n.get("channel_id_length");

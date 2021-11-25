@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class SearchInMessageButton extends StatefulWidget {
@@ -17,23 +18,24 @@ class SearchInMessageButton extends StatefulWidget {
   final Message currentSearchResultMessage;
 
   SearchInMessageButton(
-      {this.roomId,
-      this.scrollDown,
-      this.scrollUp,
-      this.searchMode,
-      this.searchResult,
-      this.currentSearchResultMessage,
-      this.keyboardWidget});
+      {required this.roomId,
+      required this.scrollDown,
+      required this.scrollUp,
+      required this.searchMode,
+      required this.searchResult,
+      required this.currentSearchResultMessage,
+      required this.keyboardWidget});
 }
+
+var _i18n = GetIt.I.get<I18N>();
 
 class _SearchInMessageButtonState extends State<SearchInMessageButton> {
   @override
   Widget build(BuildContext context) {
-    var _i18n = I18N.of(context);
-    return StreamBuilder(
+    return StreamBuilder<bool>(
       stream: widget.searchMode.stream,
       builder: (c, s) {
-        if (s.hasData && s.data && widget.searchResult.length > 0) {
+        if (s.hasData && s.data! && widget.searchResult.length > 0) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

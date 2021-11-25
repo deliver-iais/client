@@ -15,40 +15,41 @@ class MemberSelectionPage extends StatelessWidget {
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  final Uid mucUid;
+  final Uid? mucUid;
   final bool isChannel;
 
-  MemberSelectionPage({Key key, this.isChannel, this.mucUid}) : super(key: key);
+  MemberSelectionPage({Key? key, required this.isChannel, this.mucUid})
+      : super(key: key);
+  I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: FluidContainerWidget(
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 mucUid != null
-                    ? FutureBuilder<String>(
-                        future: _roomRepo.getName(mucUid),
+                    ? FutureBuilder<String?>(
+                        future: _roomRepo.getName(mucUid!),
                         builder: (BuildContext context,
-                            AsyncSnapshot<String> snapshot) {
+                            AsyncSnapshot<String?> snapshot) {
                           if (snapshot.data != null) {
-                            return Text(snapshot.data);
+                            return Text(snapshot.data!);
                           } else {
-                            return Text(i18n.get("add_member"));
+                            return Text(_i18n.get("add_member"));
                           }
                         },
                       )
                     : Text(
                         isChannel
-                            ? i18n.get("newChannel")
-                            : i18n.get("newGroup"),
+                            ? _i18n.get("newChannel")
+                            : _i18n.get("newGroup"),
                         style:
                             TextStyle(color: ExtraTheme.of(context).textField),
                       ),
@@ -58,11 +59,11 @@ class MemberSelectionPage extends StatelessWidget {
                       if (!snapshot.hasData) {
                         return SizedBox.shrink();
                       }
-                      int members = snapshot.data;
+                      int members = snapshot.data!;
                       return Text(
                         members >= 1
-                            ? '$members ${i18n.get("of_max_member")}'
-                            : i18n.get("max_member"),
+                            ? '$members ${_i18n.get("of_max_member")}'
+                            : _i18n.get("max_member"),
                         style: Theme.of(context).textTheme.subtitle2,
                       );
                     })

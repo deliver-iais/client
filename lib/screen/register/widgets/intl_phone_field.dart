@@ -13,26 +13,26 @@ import './countries.dart';
 class IntlPhoneField extends StatefulWidget {
   final bool obscureText;
   final TextAlign textAlign;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool readOnly;
-  final FormFieldSetter<PhoneNumber> onSaved;
+  final FormFieldSetter<PhoneNumber>? onSaved;
   final ValueChanged<PhoneNumber> onChanged;
   final FormFieldValidator<String> validator;
   final TextInputType keyboardType;
   final TextEditingController controller;
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
   final void Function(PhoneNumber) onSubmitted;
   final int maxLength;
   final bool enabled;
   final Brightness keyboardAppearance;
-  final String initialValue;
+  final String? initialValue;
 
   /// 2 Letter ISO Code
-  final String initialCountryCode;
-  final TextStyle style;
+  final String? initialCountryCode;
+  final TextStyle? style;
   final bool showDropdownIcon;
 
-  final List<TextInputFormatter> inputFormatters;
+  final List<TextInputFormatter>? inputFormatters;
 
   IntlPhoneField({
     this.initialCountryCode,
@@ -42,12 +42,12 @@ class IntlPhoneField extends StatefulWidget {
     this.readOnly = false,
     this.initialValue,
     this.keyboardType = TextInputType.number,
-    this.controller,
+    required this.controller,
     this.focusNode,
     this.style,
-    this.onSubmitted,
-    this.validator,
-    this.onChanged,
+    required this.onSubmitted,
+    required this.validator,
+    required this.onChanged,
     this.onSaved,
     this.showDropdownIcon = true,
     this.inputFormatters,
@@ -74,7 +74,6 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   Future<void> _changeCountry(BuildContext context) async {
     filteredCountries = countries;
-    I18N i18n = I18N.of(context);
     await showDialog(
       context: context,
       builder: (c) {
@@ -87,13 +86,13 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                   TextField(
                     decoration: InputDecoration(
                       suffixIcon: Icon(Icons.search),
-                      labelText: i18n.get("search_by_country_name"),
+                      labelText: _i18n.get("search_by_country_name"),
                     ),
                     style: TextStyle(color: ExtraTheme.of(context).textField),
                     onChanged: (value) {
                       setState(() {
                         filteredCountries = countries
-                            .where((country) => country['name']
+                            .where((country) => country['name']!
                                 .toLowerCase()
                                 .contains(value.toLowerCase()))
                             .toList();
@@ -109,19 +108,19 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                         children: <Widget>[
                           ListTile(
                             leading: Text(
-                              filteredCountries[index]['flag'],
+                              filteredCountries[index]['flag']!,
                               style: TextStyle(
                                   fontSize: 30,
                                   color: ExtraTheme.of(context).textField),
                             ),
                             title: Text(
-                              filteredCountries[index]['code'],
+                              filteredCountries[index]['code']!,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: ExtraTheme.of(context).textField),
                             ),
                             trailing: Text(
-                              filteredCountries[index]['dial_code'],
+                              filteredCountries[index]['dial_code']!,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: ExtraTheme.of(context).textField),
@@ -149,7 +148,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
   @override
   Widget build(BuildContext context) {
     if (widget.initialCountryCode != null &&
-        widget.initialCountryCode.isNotEmpty) {
+        widget.initialCountryCode!.isNotEmpty) {
       _selectedCountry = countries.firstWhere(
           (item) => item['dial_code'] == "+${widget.initialCountryCode}");
     }
@@ -166,14 +165,14 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
             onTap: () {
-              if (widget.onTap != null) widget.onTap();
+              if (widget.onTap != null) widget.onTap!();
             },
             controller: widget.controller,
             focusNode: widget.focusNode,
             onFieldSubmitted: (s) {
               if (widget.onSubmitted != null)
                 widget.onSubmitted(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code'])
+                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
                   ..nationalNumber = Int64.parseInt(s));
             },
             decoration: InputDecoration(
@@ -204,15 +203,15 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             ),
             style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
-              if (widget.onSaved != null)
-                widget.onSaved(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code'])
+              if (widget.onSaved != null && value != null)
+                widget.onSaved!(PhoneNumber()
+                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
                   ..nationalNumber = Int64.parseInt(value));
             },
             onChanged: (value) {
               if (widget.onChanged != null)
                 widget.onChanged(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code'])
+                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
                   ..nationalNumber = Int64.parseInt(value));
             },
             validator: widget.validator,
@@ -241,14 +240,14 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
               SizedBox(width: 4)
             ],
             Text(
-              _selectedCountry['flag'],
+              _selectedCountry['flag']!,
               style: TextStyle(
                   fontSize: 24, color: ExtraTheme.of(context).textField),
             ),
             SizedBox(width: 8),
             FittedBox(
               child: Text(
-                _selectedCountry['code'],
+                _selectedCountry['code']!,
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: ExtraTheme.of(context).textField),
