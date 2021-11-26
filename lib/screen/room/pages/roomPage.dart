@@ -138,15 +138,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       roomUid: widget.roomId,
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: buildAppbar(),
+       appBar: buildAppbar(),
         body: Container(
           child: Stack(
             children: [
               StreamBuilder<Room?>(
                   stream: _roomRepo.watchRoom(widget.roomId),
                   builder: (context, snapshot) {
+                    print("5555");
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
+
               Column(
                 children: <Widget>[
                   AudioPlayerAppBar(),
@@ -308,8 +310,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
 
-    _roomRepo.resetMention(widget.roomId);
-    _notificationServices.cancelRoomNotifications(widget.roomId);
+   _roomRepo.resetMention(widget.roomId);
+   _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(widget.forwardedMessages != null
         ? widget.forwardedMessages!.length > 0
         : widget.shareUid != null);
@@ -945,14 +947,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           }
         } else if (_currentMessageSearchId == -1) {
           _currentMessageSearchId = index;
-          return Container(
-              height: 100,
-              width: 100,
-              child: Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: ExtraTheme.of(context).textDetails,
-                ),
-              ));
+          return Container(width: 50, height: 50, child: Text(""));
         } else {
           return Container(width: 50, height: 50, child: Text(""));
         }

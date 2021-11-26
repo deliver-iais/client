@@ -215,46 +215,46 @@ class MessageRepo {
     int pointer = lastMessageId;
     Message? lastMessage;
     try {
-      Message? msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+      var msg = await _messageDao.getMessage(roomUid.asString(), pointer);
       while (!lastMessageIsSet) {
-          if (msg == null) {
-            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
-                lastMessageId, type, limit, firstMessageId!, lastUpdateTime);
-            lastMessageIsSet = true;
-            break;
-          } else {
-            if (firstMessageId != null &&  msg.id!= null && msg.id! <= firstMessageId) {
+        try {
+          if (msg != null) {
+            if (firstMessageId != null && msg.id! <= firstMessageId) {
               lastMessageIsSet = true;
-              lastMessage =
-                  msg.copyWith(json: "{DELETED}", roomUid: roomUid.asString());
+              lastMessage = msg.copyWith(json: "{DELETED}");
               break;
             } else if (!msg.json!.isDeletedMessage()) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
             } else if (msg.id == 1) {
-              lastMessage =
-                  msg.copyWith(json: "{DELETED}", roomUid: roomUid.asString());
+              lastMessage = msg.copyWith(json: "{DELETED}");
               lastMessageIsSet = true;
               break;
             } else {
               pointer = pointer - 1;
               msg = await _messageDao.getMessage(roomUid.asString(), pointer);
             }
+          } else {
+            lastMessage = await getLastMessageFromServer(roomUid, lastMessageId,
+                lastMessageId, type, limit, firstMessageId, lastUpdateTime);
+            lastMessageIsSet = true;
+            break;
           }
-
+        } catch (e) {
+          lastMessageIsSet = true;
+          break;
+        }
       }
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId!.toInt(),
+        firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
         lastUpdateTime: lastMessage!.time,
-        lastMessageId: lastMessage.id,
+        lastMessageId: lastMessage.id!,
         lastMessage: lastMessage,
       ));
       return lastMessage;
     } catch (e) {
-    //  lastMessageIsSet = true;
-
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
         firstMessageId: firstMessageId!.toInt(),
@@ -275,7 +275,7 @@ class MessageRepo {
       int pointer,
       FetchMessagesReq_Type type,
       int limit,
-      int firstMessageId,
+      int? firstMessageId,
       int? lastUpdateTime) async {
     Message? lastMessage;
     var fetchMessagesRes = await _queryServiceClient.fetchMessages(
