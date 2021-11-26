@@ -106,6 +106,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         context, OperationOnMessage.DELETE_PENDING_MESSAGE);
   }
 
+  onReportMessage() {
+    print("tttttttttt");
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPORT);
+  }
+
   Future<void> onShowInFolder(
       AsyncSnapshot<dynamic> snapshot, BuildContext context) async {
     var shell = Shell();
@@ -261,6 +266,19 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     } else
                       return SizedBox.shrink();
                   }),
+            if (widget.message.roomUid.isMuc())
+              TextButton(
+                  onPressed: () {
+                    onReportMessage();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.report,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(_i18n.get("report")),
+                  ])),
             if (widget.message.id != null)
               TextButton(
                   onPressed: () {

@@ -23,6 +23,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -62,7 +63,7 @@ class RoomRepo {
     }
   }
 
-  Future<String> ? getName(Uid uid) async {
+  Future<String>? getName(Uid uid) async {
     if (uid == null) {
       return "";
     }
@@ -155,7 +156,7 @@ class RoomRepo {
     return username;
   }
 
-  Future<String?> ?getId(Uid uid) async {
+  Future<String?>? getId(Uid uid) async {
     if (uid.isBot()) return uid.node;
 
     var userInfo = await _uidIdNameDao.getByUid(uid.asString());
@@ -244,7 +245,7 @@ class RoomRepo {
 
   Future<bool> isRoomBlocked(String uid) => _blockDao.isBlocked(uid);
 
-  Stream<bool> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
+  Stream<bool?> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
 
   Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
@@ -267,14 +268,14 @@ class RoomRepo {
 
   Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
-  void block(String uid) async {
-    await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
-    _blockDao.block(uid);
-  }
-
-  void unblock(String uid) async {
-    await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid());
-    _blockDao.unblock(uid);
+  void block(String uid, {bool? block}) async {
+    if (block!) {
+      await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
+      _blockDao.block(uid);
+    } else {
+      await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid());
+      _blockDao.unblock(uid);
+    }
   }
 
   fetchBlockedRoom() async {

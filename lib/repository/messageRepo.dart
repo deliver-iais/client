@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io' as DartFile;
 import 'dart:math';
 
+import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -77,6 +78,7 @@ class MessageRepo {
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _blockDao = GetIt.I.get<BlockDao>();
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -89,7 +91,8 @@ class MessageRepo {
 
           updatingStatus.add(TitleStatusConditions.Updating);
           await updatingMessages();
-          await updatingLastSeen();
+          updatingLastSeen();
+          fetchBlockedRoom();
           updatingStatus.add(TitleStatusConditions.Normal);
 
           sendPendingMessages();
@@ -984,5 +987,19 @@ class MessageRepo {
     _messageDao.saveMessage(editableMessage);
     _roomDao.updateRoom(Room(
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
+  }
+
+  void fetchBlockedRoom() async {
+    try {
+      GetBlockedListRes? res =
+          await _queryServiceClient.getBlockedList(GetBlockedListReq());
+      if (res != null && res.uidList.isNotEmpty) {
+        for (var uid in res.uidList) {
+          _blockDao.block(uid.asString());
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 }
