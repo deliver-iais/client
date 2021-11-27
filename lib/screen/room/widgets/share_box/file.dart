@@ -8,10 +8,10 @@ class ShareBoxFile extends StatefulWidget {
   final Map<int, bool> selectedFiles;
 
   const ShareBoxFile(
-      {Key key,
-      @required this.scrollController,
-      @required this.onClick,
-      @required this.selectedFiles})
+      {Key? key,
+      required this.scrollController,
+      required this.onClick,
+      required this.selectedFiles})
       : super(key: key);
 
   @override
@@ -35,9 +35,9 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
           if (files.hasData) {
             return ListView.builder(
                 controller: widget.scrollController,
-                itemCount: files.data.length,
+                itemCount: files.data!.length,
                 itemBuilder: (ctx, index) {
-                  var fileItem = files.data[index];
+                  var fileItem = files.data![index];
                   var onTap = () => widget.onClick(index, fileItem.path);
                   var selected = widget.selectedFiles[index] ?? false;
                   return GestureDetector(

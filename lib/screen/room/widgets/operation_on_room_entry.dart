@@ -13,7 +13,7 @@ class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   final bool isPinned;
   final Room room;
 
-  OperationOnRoomEntry({this.room, this.isPinned = false});
+  OperationOnRoomEntry({required this.room, this.isPinned = false});
 
   @override
   OperationOnRoomEntryState createState() => OperationOnRoomEntryState();
@@ -22,7 +22,7 @@ class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   double get height => 100;
 
   @override
-  bool represents(OperationOnRoom value) {
+  bool represents(OperationOnRoom? value) {
     return false;
   }
 }
@@ -42,14 +42,14 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
 
   onDeleteRoom(String selected) async {
     Navigator.pop<OperationOnRoom>(context, OperationOnRoom.DELETE_ROOM);
-    String roomName = await _roomRepo.getName(widget.room.uid.asUid());
+    String? roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
         context: context,
         builder: (context) {
           return OnDeletePopupDialog(
             roomUid: widget.room.uid.asUid(),
             selected: selected,
-            roomName: roomName,
+            roomName: roomName!,
           );
         });
   }
@@ -58,9 +58,10 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
     Navigator.pop<OperationOnRoom>(context, OperationOnRoom.Un_MUTE_ROOM);
   }
 
+  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Container(
       child: SingleChildScrollView(
         child: Column(
@@ -95,7 +96,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
               stream: _roomRepo.watchIsRoomMuted(widget.room.uid),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
-                  return snapshot.data
+                  return snapshot.data!
                       ? TextButton(
                           onPressed: () {
                             onMuteOrUnMuteRoom();
@@ -127,12 +128,12 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 }
               },
             ),
-            FutureBuilder(
+            FutureBuilder<bool>(
                 future: _mucRepo.isMucOwner(
                     _authRepo.currentUserUid.asString(), widget.room.uid),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
-                    return !snapshot.data
+                    return !snapshot.data!
                         ? TextButton(
                             onPressed: () async {
                               onDeleteRoom("delete_room");

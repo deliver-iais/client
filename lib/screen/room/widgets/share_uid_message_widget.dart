@@ -24,11 +24,14 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  ShareUidMessageWidget({this.message, this.isSender, this.isSeen});
+  ShareUidMessageWidget(
+      {required this.message, required this.isSender, required this.isSeen});
+
+  var _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    var _shareUid = message.json.toShareUid();
+    var _shareUid = message.json!.toShareUid();
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: StreamBuilder<Object>(
@@ -72,7 +75,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                           child: Text(
                             _shareUid.name +
                                 (_shareUid.uid.category != Categories.USER
-                                    ? " ${I18N.of(context).get("invite_link")}"
+                                    ? " ${_i18n.get("invite_link")}"
                                     : ""),
                             style: TextStyle(
                               fontSize: 16,
@@ -89,7 +92,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                         _shareUid.uid.category == Categories.CHANNEL)) {
                       var muc = await _mucRepo.getMuc(_shareUid.uid.asString());
                       if (muc != null) {
-                        _routingServices.openRoom(_shareUid.uid.asString());
+                        _routingServices.openRoom(_shareUid.uid.asString(),
+                            context: context);
                       } else {
                         showFloatingModalBottomSheet(
                           context: context,
@@ -112,8 +116,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                     MaterialButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(),
-                                        child:
-                                            Text(I18N.of(context).get("skip"))),
+                                        child: Text(_i18n.get("skip"))),
                                     MaterialButton(
                                         onPressed: () async {
                                           // Navigator.of(context).pop();
@@ -133,9 +136,10 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 if (res != null) {
                                                   _messageRepo.updateNewMuc(
                                                       _shareUid.uid,
-                                                      res.lastMessageId);
+                                                      res.lastMessageId!);
                                                   _routingServices.openRoom(
-                                                      _shareUid.uid.asString());
+                                                      _shareUid.uid.asString(),
+                                                      context: context);
                                                   Navigator.of(context).pop();
                                                 }
                                               } else {
@@ -144,25 +148,26 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                         _shareUid.uid,
                                                         _shareUid.joinToken);
                                                 if (res != null) {
-                                                   _messageRepo.updateNewMuc(
+                                                  _messageRepo.updateNewMuc(
                                                       _shareUid.uid,
-                                                      res.lastMessageId);
+                                                      res.lastMessageId!);
                                                   _routingServices.openRoom(
-                                                      _shareUid.uid.asString());
+                                                      _shareUid.uid.asString(),
+                                                      context: context);
                                                   Navigator.of(context).pop();
                                                 }
                                               }
                                             } else
                                               _routingServices.openRoom(
-                                                _shareUid.uid.asString(),
-                                              );
+                                                  _shareUid.uid.asString(),
+                                                  context: context);
                                           } else {
                                             _routingServices.openRoom(
-                                                _shareUid.uid.asString());
+                                                _shareUid.uid.asString(),
+                                                context: context);
                                           }
                                         },
-                                        child:
-                                            Text(I18N.of(context).get("join")))
+                                        child: Text(_i18n.get("join")))
                                   ],
                                 ),
                               ],
@@ -171,7 +176,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                         );
                       }
                     } else {
-                      _routingServices.openRoom(_shareUid.uid.asString());
+                      _routingServices.openRoom(_shareUid.uid.asString(),
+                          context: context);
                     }
                   },
                 ),

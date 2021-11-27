@@ -2,13 +2,13 @@ import 'package:deliver/box/seen.dart';
 import 'package:hive/hive.dart';
 
 abstract class SeenDao {
-  Future<Seen> getOthersSeen(String uid);
+  Future<Seen?> getOthersSeen(String uid);
 
-  Stream<Seen> watchOthersSeen(String uid);
+  Stream<Seen?> watchOthersSeen(String uid);
 
-  Future<Seen> getMySeen(String uid);
+  Future<Seen?> getMySeen(String uid);
 
-  Stream<Seen> watchMySeen(String uid);
+  Stream<Seen?> watchMySeen(String uid);
 
   Future<void> saveOthersSeen(Seen seen);
 
@@ -16,13 +16,13 @@ abstract class SeenDao {
 }
 
 class SeenDaoImpl implements SeenDao {
-  Future<Seen> getOthersSeen(String uid) async {
+  Future<Seen?> getOthersSeen(String uid) async {
     var box = await _openOthersSeen();
 
     return box.get(uid);
   }
 
-  Stream<Seen> watchOthersSeen(String uid) async* {
+  Stream<Seen?> watchOthersSeen(String uid) async* {
     var box = await _openOthersSeen();
 
     yield box.get(uid);
@@ -30,13 +30,13 @@ class SeenDaoImpl implements SeenDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
-  Future<Seen> getMySeen(String uid) async {
+  Future<Seen?> getMySeen(String uid) async {
     var box = await _openMySeen();
 
     return box.get(uid);
   }
 
-  Stream<Seen> watchMySeen(String uid) async* {
+  Stream<Seen?> watchMySeen(String uid) async* {
     var box = await _openMySeen();
 
     yield box.get(uid);

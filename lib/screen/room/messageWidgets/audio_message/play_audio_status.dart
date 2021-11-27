@@ -9,7 +9,8 @@ class PlayAudioStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
 
-  const PlayAudioStatus({Key key, this.fileId, this.fileName})
+  const PlayAudioStatus(
+      {Key? key, required this.fileId, required this.fileName})
       : super(key: key);
 
   @override
@@ -22,7 +23,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File>(
+    return FutureBuilder<File?>(
         future: fileRepo.getFileIfExist(widget.fileId, widget.fileName),
         builder: (context, audio) {
           return Padding(
@@ -69,7 +70,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         });
   }
 
-  IconButton buildPlay(BuildContext context, AsyncSnapshot<File> audio) {
+  IconButton buildPlay(BuildContext context, AsyncSnapshot<File?> audio) {
     return IconButton(
         padding: EdgeInsets.all(0),
         alignment: Alignment.center,
@@ -80,7 +81,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         ),
         onPressed: () {
           audioPlayerService.play(
-            audio.data.path,
+            audio.data!.path,
             widget.fileId,
             widget.fileName,
           );

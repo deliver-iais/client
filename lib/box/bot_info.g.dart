@@ -18,10 +18,10 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
     };
     return BotInfo(
       uid: fields[0] as String,
-      description: fields[1] as String,
-      name: fields[2] as String,
-      commands: (fields[3] as Map)?.cast<String, String>(),
-      isOwner: fields[4] as bool,
+      description: fields[1] as String?,
+      name: fields[2] as String?,
+      commands: (fields[3] as Map?)?.cast<String, String>(),
+      isOwner: fields[4] as bool?,
     );
   }
 
@@ -47,7 +47,7 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is BotInfoAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is BotInfoAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

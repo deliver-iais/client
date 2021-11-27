@@ -10,7 +10,12 @@ class SettingsRow extends StatelessWidget {
 
   final String title;
 
-  const SettingsRow({Key key, this.child, this.onClick, this.iconData, this.title})
+  const SettingsRow(
+      {Key? key,
+      required this.child,
+      required this.onClick,
+      required this.iconData,
+      required this.title})
       : super(key: key);
 
   @override

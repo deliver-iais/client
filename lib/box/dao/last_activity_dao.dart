@@ -2,21 +2,21 @@ import 'package:deliver/box/last_activity.dart';
 import 'package:hive/hive.dart';
 
 abstract class LastActivityDao {
-  Future<LastActivity> get(String uid);
+  Future<LastActivity?> get(String uid);
 
-  Stream<LastActivity> watch(String uid);
+  Stream<LastActivity?> watch(String uid);
 
   Future<void> save(LastActivity lastActivity);
 }
 
 class LastActivityDaoImpl implements LastActivityDao {
-  Future<LastActivity> get(String uid) async {
+  Future<LastActivity?> get(String uid) async {
     var box = await _open();
 
     return box.get(uid);
   }
 
-  Stream<LastActivity> watch(String uid) async* {
+  Stream<LastActivity?> watch(String uid) async* {
     var box = await _open();
 
     yield box.get(uid);

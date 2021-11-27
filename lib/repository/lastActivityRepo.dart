@@ -24,9 +24,9 @@ class LastActivityRepo {
     }
   }
 
-  Future<LastActivity> get(String uid) => _lastActivityDao.get(uid);
+  Future<LastActivity?> get(String uid) => _lastActivityDao.get(uid);
 
-  Stream<LastActivity> watch(String uid) => _lastActivityDao.watch(uid);
+  Stream<LastActivity?> watch(String uid) => _lastActivityDao.watch(uid);
 
   Future<void> _getLastActivityTime(Uid currentUserUid) async {
     var lastActivityTime = await _queryServiceClient

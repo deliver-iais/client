@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,10 +7,10 @@ import 'package:lottie/lottie.dart';
 
 // TODO add other options of Lottie in constructor
 class TGS extends StatefulWidget {
-  final AnimationController controller;
+  final AnimationController? controller;
 
-  final File file;
-  final String assetsPath;
+  final File? file;
+  final String? assetsPath;
 
   final double width;
   final double height;
@@ -17,7 +18,7 @@ class TGS extends StatefulWidget {
   final bool autoPlay;
 
   TGS.asset(this.assetsPath,
-      {Key key,
+      {Key? key,
       this.controller,
       this.repeat = true,
       this.autoPlay = true,
@@ -27,8 +28,8 @@ class TGS extends StatefulWidget {
         super(key: key);
 
   TGS.file(this.file,
-      {Key key,
-      this.controller,
+      {Key? key,
+      required this.controller,
       this.repeat = true,
       this.autoPlay = true,
       this.width = 120,
@@ -40,25 +41,28 @@ class TGS extends StatefulWidget {
   _TGSState createState() => _TGSState();
 }
 
+// todo edit solve animation bug  !!!!
 class _TGSState extends State<TGS> {
-  Future<LottieComposition> _composition;
+  late Future<LottieComposition?> _composition;
 
   Future<LottieComposition> _loadAssetsComposition() async {
-    var assetData = await rootBundle.load(widget.assetsPath);
+    var assetData = await rootBundle.load(widget.assetsPath!);
 
     var bytes = assetData.buffer.asUint8List();
 
-    bytes = GZipCodec().decode(bytes);
+    bytes = GZipCodec().decode(bytes) as Uint8List;
 
     return await LottieComposition.fromBytes(bytes);
   }
 
-  Future<LottieComposition> _loadFileComposition() async {
-    var bytes = await widget.file.readAsBytes();
+  Future<LottieComposition?> _loadFileComposition() async {
+    var bytes = await widget.file!.readAsBytes();
 
-    bytes = GZipCodec().decode(bytes);
+    bytes = GZipCodec().decode(bytes) as Uint8List;
 
-    return await LottieComposition.fromBytes(bytes);
+    var res = await  LottieComposition.fromBytes(bytes);
+    print(res.toString());
+    return res;
   }
 
   @override
@@ -79,16 +83,16 @@ class _TGSState extends State<TGS> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<LottieComposition>(
+    return FutureBuilder<LottieComposition?>(
         future: _composition,
         builder: (context, snapshot) {
           var composition = snapshot.data;
 
           if (composition != null) {
             if (widget.controller != null) {
-              widget.controller.duration = composition.duration;
+              widget.controller!.duration = composition.duration;
               if (widget.autoPlay) {
-                widget.controller.forward();
+                widget.controller!.forward();
               }
             }
             return Lottie(

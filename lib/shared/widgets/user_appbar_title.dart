@@ -17,11 +17,11 @@ class UserAppbarTitle extends StatelessWidget {
 
   final Uid userUid;
 
-  UserAppbarTitle({Key key, this.userUid}) : super(key: key);
+  UserAppbarTitle({Key? key, required this.userUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
+    I18N i18n = GetIt.I.get<I18N>();
     return Container(
         color: Theme.of(context).appBarTheme.backgroundColor,
         child: GestureDetector(
@@ -56,7 +56,7 @@ class UserAppbarTitle extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  (snapshot.data).trim(),
+                                  (snapshot.data)!.trim(),
                                   maxLines: 1,
                                   overflow: TextOverflow.fade,
                                   softWrap: false,
@@ -64,7 +64,7 @@ class UserAppbarTitle extends StatelessWidget {
                                 ),
                                 TitleStatus(
                                   currentRoomUid: userUid,
-                                  style: Theme.of(context).textTheme.caption,
+                                  style: Theme.of(context).textTheme.caption!,
                                   normalConditionWidget:
                                       userUid.category == Categories.SYSTEM
                                           ? Text("Notification Service",
@@ -107,7 +107,7 @@ class UserAppbarTitle extends StatelessWidget {
             ],
           ),
           onTap: () {
-            _routingService.openProfile(userUid.asString());
+            _routingService.openProfile(context, userUid.asString());
           },
         ));
   }

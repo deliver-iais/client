@@ -16,15 +16,15 @@ class Contact {
   String uid;
 
   @HiveField(3)
-  String firstName;
+  String ?firstName;
 
   @HiveField(4)
-  String lastName;
+  String ? lastName;
 
   Contact({
-    this.countryCode,
-    this.nationalNumber,
-    this.uid,
+    required this.countryCode,
+    required this.nationalNumber,
+    required this.uid,
     this.firstName,
     this.lastName,
   });

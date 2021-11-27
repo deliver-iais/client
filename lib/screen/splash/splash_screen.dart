@@ -1,9 +1,11 @@
 import 'dart:async';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/intro/pages/intro_page.dart';
+import 'package:deliver/screen/settings/account_settings.dart';
+
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
@@ -26,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen>
   final _shakeController = ShakeWidgetController();
   final _focusNode = FocusNode();
 
-  AnimationController _animationController;
+  late AnimationController _animationController;
   int _attempts = 0;
   bool _isLocked = false;
 
@@ -72,30 +74,35 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToIntroPage() {
-    ExtendedNavigator.of(context)
-        .pushAndRemoveUntil(Routes.introPage, (_) => false);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return IntroPage();
+    }));
   }
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
-      ExtendedNavigator.of(context).pushAndRemoveUntil(
-        Routes.homePage,
-        (_) => false,
-      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+        return HomePage();
+      }));
     } else {
-      ExtendedNavigator.of(context).push(Routes.accountSettings,
-          arguments:
-              AccountSettingsArguments(forceToSetUsernameAndName: false));
+      Navigator.push(context, MaterialPageRoute(builder: (c) {
+        return AccountSettings(
+          forceToSetUsernameAndName: true,
+        );
+      }));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-        duration: Duration(milliseconds: 100),
-        child: _isLocked ? desktopLock() : loading());
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: AnimatedSwitcher(
+          duration: Duration(milliseconds: 100),
+          child: _isLocked ? desktopLock() : loading()),
+    );
   }
 
   Widget desktopLock() {

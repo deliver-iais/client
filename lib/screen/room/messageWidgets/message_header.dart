@@ -16,7 +16,11 @@ class UnknownFileUi extends StatefulWidget {
   final bool isSeen;
 
   UnknownFileUi(
-      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -33,7 +37,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
 
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json.toFile();
+    var file = widget.message.json!.toFile();
     return FutureBuilder<bool>(
         future: fileRepo.isExist(file.uuid, file.name),
         builder: (context, isExist) {
@@ -84,8 +88,9 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                     ),
                     HeaderDetails(file: file),
                     file.caption.isEmpty
-                        ? TimeAndSeenStatus(widget.message, widget.isSender,
-                            widget.isSeen, needsBackground: true)
+                        ? TimeAndSeenStatus(
+                            widget.message, widget.isSender, widget.isSeen,
+                            needsBackground: true)
                         : Container(),
                   ],
                 ),

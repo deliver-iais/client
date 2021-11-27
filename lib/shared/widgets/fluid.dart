@@ -7,7 +7,7 @@ class FluidWidget extends StatelessWidget {
   final BoxDecoration boxDecoration;
 
   FluidWidget(
-      {this.child,
+      {required this.child,
       this.boxDecoration = const BoxDecoration(
           gradient: const LinearGradient(
         begin: Alignment.bottomLeft,

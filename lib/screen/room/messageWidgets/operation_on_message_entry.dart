@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -6,29 +7,37 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:share/share.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPinned;
-  final bool isPersistentEventMessage;
+  final Function? onDelete;
+  int? roomLastMessageId = 1;
 
   OperationOnMessageEntry(
     this.message, {
     this.hasPermissionInChannel = true,
     this.hasPermissionInGroup = true,
     this.isPinned = false,
-    this.isPersistentEventMessage,
+    this.onDelete,
+    this.roomLastMessageId,
   });
 
   @override
@@ -38,7 +47,7 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   double get height => 100;
 
   @override
-  bool represents(OperationOnMessage value) =>
+  bool represents(OperationOnMessage? value) =>
       value == OperationOnMessage.REPLY;
 }
 
@@ -47,32 +56,52 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _autRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _logger = GetIt.I.get<Logger>();
 
   onReply() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPLY);
   }
 
   onCopy() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.COPY);
+    if (widget.message.type == MessageType.TEXT)
+      Clipboard.setData(
+          ClipboardData(text: widget.message.json!.toText().text));
+    else
+      Clipboard.setData(
+          ClipboardData(text: widget.message.json!.toFile().caption));
+    ToastDisplay.showToast(
+        toastText: _i18n.get("copied"), tostContext: context);
+    Navigator.pop(context);
   }
 
   onForward() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.FORWARD);
+    _routingServices
+        .openSelectForwardMessage(context, forwardedMessages: [widget.message]);
+    Navigator.pop(context);
   }
 
   onEditMessage() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.EDIT);
   }
 
-  onDelete() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE);
-  }
-
   onResend() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
   }
 
-  onShare() {
+  onShare() async {
+    try {
+      var result = await _fileRepo.getFileIfExist(
+          widget.message.json!.toFile().uuid,
+          widget.message.json!.toFile().name);
+      if (result!.path.isNotEmpty)
+        Share.shareFiles(['${result.path}'],
+            text: widget.message.json!.toFile().caption.isNotEmpty
+                ? widget.message.json!.toFile().caption
+                : 'Deliver');
+    } catch (e) {
+      _logger.e(e);
+    }
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
   }
 
@@ -91,8 +120,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onSaveTODownloads() {
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.SAVE_TO_DOWNLOADS);
+    var file = widget.message.json!.toFile();
+    _fileRepo.saveFileInDownloadDir(
+        file.uuid, file.name, ExtStorage.DIRECTORY_DOWNLOADS);
+    Navigator.pop(context);
   }
 
   onSaveToMusic() {
@@ -101,12 +132,20 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onDeleteMessage() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE);
+    Navigator.pop(context);
+    showDeleteMsgDialog([widget.message], context, widget.onDelete, widget.roomLastMessageId);
+
   }
 
   onDeletePendingMessage() {
     Navigator.pop<OperationOnMessage>(
         context, OperationOnMessage.DELETE_PENDING_MESSAGE);
+  }
+
+  onReportMessage() {
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPORT);
+    ToastDisplay.showToast(
+        toastText: _i18n.get("report_message"), tostContext: context);
   }
 
   Future<void> onShowInFolder(
@@ -187,7 +226,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ])),
             if (widget.message.type == MessageType.TEXT ||
                 (widget.message.type == MessageType.FILE &&
-                    widget.message.json.toFile().caption.isNotEmpty))
+                    widget.message.json!.toFile().caption.isNotEmpty))
               TextButton(
                   onPressed: () {
                     onCopy();
@@ -203,12 +242,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             if (widget.message.type == MessageType.FILE)
               FutureBuilder(
                   future: _fileRepo.getFileIfExist(
-                      widget.message.json.toFile().uuid,
-                      widget.message.json.toFile().name),
+                      widget.message.json!.toFile().uuid,
+                      widget.message.json!.toFile().name),
                   builder: (c, fe) {
                     if (fe.hasData && fe.data != null) {
                       _fileIsExist.add(true);
-                      model.File f = widget.message.json.toFile();
+                      model.File f = widget.message.json!.toFile();
                       return TextButton(
                           onPressed: () {
                             if (f.type.contains("image")) {
@@ -247,7 +286,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               StreamBuilder<bool>(
                   stream: _fileIsExist.stream,
                   builder: (c, s) {
-                    if (s.hasData && s.data) {
+                    if (s.hasData && s.data!) {
                       _fileIsExist.add(true);
                       return TextButton(
                           onPressed: () {
@@ -264,7 +303,21 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     } else
                       return SizedBox.shrink();
                   }),
-            if (widget.message.id != null && !widget.isPersistentEventMessage)
+            if (widget.message.roomUid.isMuc())
+              TextButton(
+                  onPressed: () {
+                    onReportMessage();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.report,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(_i18n.get("report")),
+                  ])),
+            if (widget.message.id != null &&
+                widget.message.type != MessageType.PERSISTENT_EVENT)
               TextButton(
                   onPressed: () {
                     onForward();
@@ -278,14 +331,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(_i18n.get("forward")),
                   ])),
             if (widget.message.id == null)
-              FutureBuilder<PendingMessage>(
+              FutureBuilder<PendingMessage?>(
                   future:
                       _messageRepo.getPendingMessage(widget.message.packetId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&
-                        snapshot.data.failed != null &&
-                        snapshot.data.failed) {
+                        snapshot.data!.failed != null &&
+                        snapshot.data!.failed) {
                       return TextButton(
                           onPressed: () {
                             onResend();
@@ -305,14 +358,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             if (_hasPermissionToDeleteMsg)
               widget.message.id != null
                   ? deleteMenuWidget()
-                  : FutureBuilder<PendingMessage>(
+                  : FutureBuilder<PendingMessage?>(
                       future: _messageRepo
                           .getPendingMessage(widget.message.packetId),
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
-                            snapshot.data.failed != null &&
-                            snapshot.data.failed) {
+                            snapshot.data!.failed != null &&
+                            snapshot.data!.failed) {
                           return deleteMenuWidget();
                         } else {
                           return SizedBox.shrink();
@@ -336,10 +389,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(_i18n.get("edit")),
                   ])),
             if (isDesktop() && widget.message.type == MessageType.FILE)
-              FutureBuilder(
+              FutureBuilder<File?>(
                   future: _fileRepo.getFileIfExist(
-                      widget.message.json.toFile().uuid,
-                      widget.message.json.toFile().name),
+                      widget.message.json!.toFile().uuid,
+                      widget.message.json!.toFile().name),
                   builder: (c, snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
                       return TextButton(
@@ -385,4 +438,44 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     return DateTime.now().millisecondsSinceEpoch - message.time <=
         3 * 24 * 60 * 60 * 1000;
   }
+}
+
+void showDeleteMsgDialog(List<Message> messages, BuildContext context,
+    Function ? onDelete, int? roomLastMessageId) {
+  var _i18n = GetIt.I.get<I18N>();
+  var _messageRepo = GetIt.I.get<MessageRepo>();
+ showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+            title: Text(
+              "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+            ),
+            content: Text(messages.length > 1
+                ? _i18n.get("sure_delete_messages")
+                : _i18n.get("sure_delete_message")),
+            actions: [
+              GestureDetector(
+                  child: Text(
+                    _i18n.get("cancel"),
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  onTap: () {
+                    onDelete!();
+                    Navigator.pop(c);
+                  }),
+              GestureDetector(
+                child: Text(
+                  _i18n.get("delete"),
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  _messageRepo.deleteMessage(messages, roomLastMessageId!);
+
+                  onDelete!();
+                  Navigator.pop(c);
+                },
+              ),
+            ],
+          ));
 }

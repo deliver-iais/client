@@ -8,11 +8,11 @@ class ShakeWidget extends StatefulWidget {
   final Duration animationDuration;
 
   const ShakeWidget(
-      {Key key,
-      @required this.child,
+      {Key? key,
+      required this.child,
       this.horizontalPadding = 30,
       this.animationRange = 24,
-      this.controller,
+      required this.controller,
       this.animationDuration = const Duration(milliseconds: 400)})
       : super(key: key);
 
@@ -22,7 +22,7 @@ class ShakeWidget extends StatefulWidget {
 
 class _ShakeWidgetState extends State<ShakeWidget>
     with SingleTickerProviderStateMixin {
-  AnimationController animationController;
+  late AnimationController animationController;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class _ShakeWidgetState extends State<ShakeWidget>
 }
 
 class ShakeWidgetController {
-  _ShakeWidgetState _state;
+  late _ShakeWidgetState _state;
 
   void setState(_ShakeWidgetState state) {
     _state = state;

@@ -25,11 +25,11 @@ class ContactPic extends StatelessWidget {
             showSavedMessageLogoIfNeeded: true),
         if (userUid.category == Categories.USER &&
             !_authRepo.isCurrentUser(userUid.asString()))
-          StreamBuilder<LastActivity>(
+          StreamBuilder<LastActivity?>(
               stream: _lastActivityRepo.watch(userUid.asString()),
               builder: (c, la) {
-                if (la.hasData && la.data != null && la.data.time != null)
-                  return isOnline(la.data.time)
+                if (la.hasData && la.data != null && la.data!.time != null)
+                  return isOnline(la.data!.time)
                       ? Positioned(
                           child: Container(
                             width: 12.0,

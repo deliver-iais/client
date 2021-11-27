@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
 
-  const ChatTime({Key key, this.currentMessageTime}) : super(key: key);
+  const ChatTime({Key? key, required this.currentMessageTime}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class ChatTime extends StatelessWidget {
               outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
             return Text(
               outT,
-              style: Theme.of(context).textTheme.bodyText2.copyWith(height: 1, color: Colors.white),
+              style: Theme.of(context).textTheme.bodyText2!.copyWith(height: 1, color: Colors.white),
             );
           }),
     );

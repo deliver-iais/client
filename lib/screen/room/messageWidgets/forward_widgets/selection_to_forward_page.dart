@@ -10,10 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SelectionToForwardPage extends StatefulWidget {
-  final List<Message> forwardedMessages;
-  final proto.ShareUid shareUid;
+  final List<Message>? forwardedMessages;
+  final proto.ShareUid? shareUid;
 
-  const SelectionToForwardPage({Key key, this.forwardedMessages, this.shareUid})
+  const SelectionToForwardPage(
+      {Key? key, this.forwardedMessages, this.shareUid})
       : super(key: key);
 
   @override
@@ -49,7 +50,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                 });
               }
             },
-            onCancel: (){
+            onCancel: () {
               setState(() {
                 _searchMode = false;
               });
@@ -63,9 +64,9 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&
-                    snapshot.data.length > 0) {
+                    snapshot.data!.length > 0) {
                   return Container(
-                    child: buildListView(snapshot.data),
+                    child: buildListView(snapshot.data!),
                   );
                 } else {
                   return Center(

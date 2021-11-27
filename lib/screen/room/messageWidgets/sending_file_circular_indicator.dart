@@ -8,10 +8,10 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 class SendingFileCircularIndicator extends StatefulWidget {
   final double loadProgress;
   final bool isMedia;
-  final File file;
+  final File? file;
 
   const SendingFileCircularIndicator(
-      {Key key, this.loadProgress, this.isMedia, this.file})
+      {Key? key, required this.loadProgress, required this.isMedia, this.file})
       : super(key: key);
 
   @override
@@ -22,7 +22,7 @@ class SendingFileCircularIndicator extends StatefulWidget {
 class _SendingFileCircularIndicatorState
     extends State<SendingFileCircularIndicator>
     with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+  late AnimationController _controller;
   var fileService = GetIt.I.get<FileService>();
 
   @override
@@ -45,14 +45,14 @@ class _SendingFileCircularIndicatorState
       return Stack(
         children: [
           StreamBuilder<double>(
-              stream: fileService.filesUploadStatus[widget.file.uuid],
+              stream: fileService.filesUploadStatus[widget.file!.uuid],
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircularPercentIndicator(
                     backgroundColor: ExtraTheme.of(context).circularFileStatus,
                     radius: 55.0,
                     lineWidth: 5.0,
-                    percent: snapshot.data,
+                    percent: snapshot.data!,
                     progressColor: ExtraTheme.of(context).fileMessageDetails,
                   );
                 } else {

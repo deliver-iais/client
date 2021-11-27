@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/box/avatar.dart';
@@ -100,7 +101,7 @@ class CircleAvatarWidget extends StatelessWidget {
                             contactUid, forceToUpdate),
                         builder: (context, snapshot) =>
                             this.builder(context, snapshot, textColor))
-                    : FutureBuilder<Avatar>(
+                    : FutureBuilder<Avatar?>(
                         future: _avatarRepo.getLastAvatar(
                             contactUid, forceToUpdate),
                         builder: (context, snapshot) =>
@@ -110,13 +111,14 @@ class CircleAvatarWidget extends StatelessWidget {
   }
 
   Widget builder(
-      BuildContext context, AsyncSnapshot<Avatar> snapshot, Color textColor) {
+      BuildContext context, AsyncSnapshot<Avatar?> snapshot, Color textColor) {
     if (snapshot.hasData &&
         snapshot.data != null &&
-        snapshot.data.fileId != null &&
-        snapshot.data.fileName != null) {
-      return FutureBuilder(
-        future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName,
+        snapshot.data!.fileId != null &&
+        snapshot.data!.fileName != null) {
+      return FutureBuilder<File?>(
+        future: _fileRepo.getFile(
+            snapshot.data!.fileId!, snapshot.data!.fileName!,
             thumbnailSize: contactUid == _authRepo.currentUserUid
                 ? null
                 : ThumbnailSize.medium),
@@ -146,7 +148,7 @@ class CircleAvatarWidget extends StatelessWidget {
       future: _roomRepo.getName(contactUid),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.data != null) {
-          String name = snapshot.data.trim();
+          String name = snapshot.data!.trim();
           return avatarAlt(name.trim(), textColor);
         } else {
           return Icon(
@@ -167,8 +169,7 @@ class CircleAvatarWidget extends StatelessWidget {
               : name.toUpperCase(),
           maxLines: null,
           style: TextStyle(
-              color: textColor,
-              fontSize: (radius * 0.9).toInt().toDouble())),
+              color: textColor, fontSize: (radius * 0.9).toInt().toDouble())),
     );
   }
 }

@@ -11,7 +11,10 @@ class FormInputTextFieldWidget extends StatefulWidget {
   final Function setResult;
   final Function setFormKey;
 
-  FormInputTextFieldWidget({this.formField, this.setResult, this.setFormKey});
+  FormInputTextFieldWidget(
+      {required this.formField,
+      required this.setResult,
+      required this.setFormKey});
 
   @override
   _FormInputTextFieldWidgetState createState() =>
@@ -52,7 +55,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   }
 
   TextFormField buildTextFormField(TextInputType keyboardType,
-      {int maxLength}) {
+      {int? maxLength}) {
     return maxLength != null && maxLength > 0
         ? TextFormField(
             minLines: 1,
@@ -114,7 +117,8 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
         labelStyle: TextStyle(color: Colors.grey));
   }
 
-  String validateFormTextField(String value) {
+  String? validateFormTextField(String? value) {
+    if (value == null) return null;
     if (value.isEmpty && !widget.formField.isOptional) {
       return _i18n.get("this_filed_not_empty");
     }

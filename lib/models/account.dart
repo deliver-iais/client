@@ -1,17 +1,17 @@
 class Account {
-  String countryCode;
+  String? countryCode;
 
-  String nationalNumber;
+  String? nationalNumber;
 
-  String userName;
+  String? userName;
 
-  String firstName;
+  String? firstName;
 
-  String lastName;
+  String? lastName;
 
-  String password;
+  String? password;
 
-  String email;
+  String? email;
 
-  String description;
+  String? description;
 }

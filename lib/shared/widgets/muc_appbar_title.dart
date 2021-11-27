@@ -15,11 +15,10 @@ class MucAppbarTitle extends StatelessWidget {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final String mucUid;
 
-  MucAppbarTitle({Key key, this.mucUid}) : super(key: key);
-
+  MucAppbarTitle({Key? key, required this.mucUid}) : super(key: key);
+  I18N i18n = GetIt.I.get<I18N>();
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Container(
         color: Theme.of(context).appBarTheme.backgroundColor,
         child: MouseRegion(
@@ -33,7 +32,7 @@ class MucAppbarTitle extends StatelessWidget {
                   width: 16,
                 ),
                 Expanded(
-                  child: StreamBuilder<Muc>(
+                  child: StreamBuilder<Muc?>(
                       stream: _mucRepo.watchMuc(mucUid),
                       builder: (context, snapshot) {
                         if (snapshot.hasData)
@@ -41,16 +40,16 @@ class MucAppbarTitle extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                snapshot.data.name,
+                                snapshot.data!.name!,
                                 maxLines: 1,
                                 overflow: TextOverflow.fade,
                                 softWrap: false,
                                 style: Theme.of(context).textTheme.subtitle1,
                               ),
                               TitleStatus(
-                                style: Theme.of(context).textTheme.caption,
+                                style: Theme.of(context).textTheme.caption!,
                                 normalConditionWidget: Text(
-                                  "${snapshot.data.population} ${i18n.get("members")}",
+                                  "${snapshot.data!.population} ${i18n.get("members")}",
                                   maxLines: 1,
                                   overflow: TextOverflow.fade,
                                   softWrap: false,
@@ -87,7 +86,7 @@ class MucAppbarTitle extends StatelessWidget {
               ],
             ),
             onTap: () {
-              _routingService.openProfile(mucUid);
+              _routingService.openProfile(context,mucUid);
             },
           ),
         ));

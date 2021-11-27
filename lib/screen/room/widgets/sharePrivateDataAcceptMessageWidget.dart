@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart
 import 'package:flutter/cupertino.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   final Message message;
@@ -12,12 +13,12 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   final bool isSeen;
 
   SharePrivateDataAcceptMessageWidget(
-      {this.message, this.isSender, this.isSeen});
+      {required this.message, required this.isSender, required this.isSeen});
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
-    var spda = message.json.toSharePrivateDataAcceptance();
+    I18N i18n = GetIt.I.get<I18N>();
+    var spda = message.json!.toSharePrivateDataAcceptance();
 
     return Row(
       children: [
@@ -39,12 +40,16 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                             : spda.data == PrivateDataType.EMAIL
                                 ? i18n.get("email_granted")
                                 : i18n.get("private_data_granted"),
-                style: Theme.of(context).primaryTextTheme.bodyText2.copyWith(fontWeight: FontWeight.w400),
+                style: Theme.of(context)
+                    .primaryTextTheme
+                    .bodyText2!
+                    .copyWith(fontWeight: FontWeight.w400),
               ),
             ],
           ),
         ),
-        TimeAndSeenStatus(message, isSender, isSeen, needsPositioned: false, needsBackground: false),
+        TimeAndSeenStatus(message, isSender, isSeen,
+            needsPositioned: false, needsBackground: false),
       ],
     );
   }

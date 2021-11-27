@@ -3,6 +3,7 @@ import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class RecordAudioSlideWidget extends StatelessWidget {
@@ -13,11 +14,12 @@ class RecordAudioSlideWidget extends StatelessWidget {
   final BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
 
   RecordAudioSlideWidget(
-      {this.opacity, this.time, this.running, this.streamTime});
+      {required this.opacity,required  this.time, required this.running,required this.streamTime});
 
+  var _i18n = GetIt.I.get<I18N>();
   @override
   Widget build(BuildContext context) {
-    var _i18n = I18N.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -34,10 +36,10 @@ class RecordAudioSlideWidget extends StatelessWidget {
               ),
               Opacity(
                 opacity: opacity,
-                child: StreamBuilder(
+                child: StreamBuilder<bool>(
                     stream: _show.stream,
                     builder: (c, s) {
-                      if (s.hasData && s.data) {
+                      if (s.hasData && s.data!) {
                         return Opacity(
                           opacity: 0,
                           child: Icon(
@@ -61,10 +63,10 @@ class RecordAudioSlideWidget extends StatelessWidget {
         StreamBuilder<DateTime>(
             stream: streamTime.stream,
             builder: (c, t) {
-              _show.add(!_show.valueWrapper.value);
-              if (t.hasData && t.data != null && t.data.isAfter(time))
+              _show.add(!_show.value);
+              if (t.hasData && t.data != null && t.data!.isAfter(time))
                 return Text(
-                  "${durationTimeFormat(t.data.difference(time))}",
+                  "${durationTimeFormat(t.data!.difference(time))}",
                   style: TextStyle(color: ExtraTheme.of(context).textField),
                 );
               else

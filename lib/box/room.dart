@@ -12,34 +12,34 @@ class Room {
 
   // DbId
   @HiveField(1)
-  Message lastMessage;
+  Message? lastMessage;
 
   @HiveField(2)
-  bool deleted;
+  bool? deleted;
 
   @HiveField(3)
-  bool mentioned;
+  bool? mentioned;
 
   @HiveField(4)
-  int lastMessageId;
+  int? lastMessageId;
 
   @HiveField(5)
-  String draft;
+  String? draft;
 
   @HiveField(6)
-  int lastUpdateTime;
+  int? lastUpdateTime;
 
   @HiveField(7)
-  int firstMessageId;
+  int? firstMessageId;
 
   @HiveField(8)
-  bool pinned;
+  bool? pinned;
 
-  @HiveField(8)
-  int lastUpdatedMessageId;
+  @HiveField(9)
+  int? lastUpdatedMessageId;
 
   Room(
-      {this.uid,
+      {required this.uid,
       this.lastMessage,
       this.deleted,
       this.mentioned,
@@ -51,7 +51,7 @@ class Room {
       this.lastUpdatedMessageId});
 
   Room copy(Room r) => Room(
-      uid: r.uid ?? this.uid,
+      uid: r.uid,
       lastMessage: r.lastMessage ?? this.lastMessage,
       deleted: r.deleted ?? this.deleted,
       draft: r.draft ?? this.draft,
@@ -60,19 +60,20 @@ class Room {
       lastMessageId: r.lastMessageId ?? this.lastMessageId,
       firstMessageId: r.firstMessageId ?? this.firstMessageId,
       pinned: r.pinned ?? this.pinned,
-      lastUpdatedMessageId: r.lastUpdatedMessageId ?? this.lastUpdatedMessageId);
+      lastUpdatedMessageId:
+          r.lastUpdatedMessageId ?? this.lastUpdatedMessageId);
 
   Room copyWith(
-          {String uid,
-          Message lastMessage,
-          int lastMessageId,
-          bool deleted,
-          String draft,
-          int lastUpdateTime,
-          int firstMessageId,
-          int lastUpdatedMessageId,
-          bool mentioned,
-          bool pinned}) =>
+          {String? uid,
+          Message? lastMessage,
+          int? lastMessageId,
+          bool? deleted,
+          String? draft,
+          int? lastUpdateTime,
+          int? firstMessageId,
+          int? lastUpdatedMessageId,
+          bool? mentioned,
+          bool? pinned}) =>
       Room(
           uid: uid ?? this.uid,
           lastMessage: lastMessage ?? this.lastMessage,
@@ -83,5 +84,6 @@ class Room {
           firstMessageId: firstMessageId ?? this.firstMessageId,
           lastMessageId: lastMessageId ?? this.lastMessageId,
           pinned: pinned ?? this.pinned,
-          lastUpdatedMessageId: lastUpdatedMessageId ?? this.lastUpdatedMessageId);
+          lastUpdatedMessageId:
+              lastUpdatedMessageId ?? this.lastUpdatedMessageId);
 }

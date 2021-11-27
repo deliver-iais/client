@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 abstract class BlockDao {
   Future<bool> isBlocked(String uid);
 
-  Stream<bool> watchIsBlocked(String uid);
+  Stream<bool?> watchIsBlocked(String uid);
 
   Future<void> block(String uid);
 
@@ -17,7 +17,7 @@ class BlockDaoImpl implements BlockDao {
     return box.get(uid) ?? false;
   }
 
-  Stream<bool> watchIsBlocked(String uid) async* {
+  Stream<bool?> watchIsBlocked(String uid) async* {
     var box = await _open();
 
     yield box.get(uid) ?? false;

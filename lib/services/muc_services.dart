@@ -24,7 +24,7 @@ class MucServices {
   final groupServices = GetIt.I.get<GroupServices.GroupServiceClient>();
   final channelServices = GetIt.I.get<ChannelServices.ChannelServiceClient>();
 
-  Future<Uid> createNewGroup(String groupName, String info) async {
+  Future<Uid?> createNewGroup(String groupName, String info) async {
     try {
       var request =
           await groupServices.createGroup(GroupServices.CreateGroupReq()
@@ -59,7 +59,7 @@ class MucServices {
     }
   }
 
-  Future<GroupServices.GetGroupRes> getGroup(Uid groupUid) async {
+  Future<GroupServices.GetGroupRes?> getGroup(Uid groupUid) async {
     try {
       var request = await groupServices
           .getGroup(GroupServices.GetGroupReq()..uid = groupUid);
@@ -170,7 +170,7 @@ class MucServices {
     }
   }
 
-  Future<Uid> createNewChannel(
+  Future<Uid?> createNewChannel(
       String channelName, ChannelType type, String channelId, String info,
       {bool retry = true}) async {
     try {
@@ -207,7 +207,7 @@ class MucServices {
     }
   }
 
-  Future<ChannelServices.GetChannelRes> getChannel(Uid channelUid) async {
+  Future<ChannelServices.GetChannelRes?> getChannel(Uid channelUid) async {
     try {
       var request = await channelServices
           .getChannel(ChannelServices.GetChannelReq()..uid = channelUid);
@@ -238,7 +238,7 @@ class MucServices {
     }
   }
 
-  Future<ChannelServices.GetMembersRes> getChannelMembers(
+  Future<ChannelServices.GetMembersRes?> getChannelMembers(
       Uid channelUid, int limit, int pointer) async {
     try {
       var request =
@@ -329,11 +329,11 @@ class MucServices {
       if (message.roomUid.asUid().category == Categories.GROUP) {
         groupServices.pinMessage(GroupServices.PinMessageReq()
           ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id));
+          ..messageId = Int64(message.id!));
       } else {
         channelServices.pinMessage(ChannelServices.PinMessageReq()
           ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id));
+          ..messageId = Int64(message.id!));
       }
       return true;
     } catch (e) {
@@ -341,7 +341,7 @@ class MucServices {
     }
   }
 
-  Future getGroupJointToken({Uid groupUid}) async {
+  Future<String?> getGroupJointToken({required Uid groupUid}) async {
     try {
       var res = await groupServices.createToken(GroupServices.CreateTokenReq()
         ..uid = groupUid
@@ -353,7 +353,7 @@ class MucServices {
     }
   }
 
-  Future getChannelJointToken({Uid channelUid}) async {
+  Future<String?> getChannelJointToken({required Uid channelUid}) async {
     try {
       var res =
           await channelServices.createToken(ChannelServices.CreateTokenReq()
@@ -370,11 +370,11 @@ class MucServices {
       if (message.roomUid.asUid().category == Categories.GROUP) {
         groupServices.unpinMessage(GroupServices.UnpinMessageReq()
           ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id));
+          ..messageId = Int64(message.id!));
       } else {
         channelServices.unpinMessage(ChannelServices.UnpinMessageReq()
           ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id));
+          ..messageId = Int64(message.id!));
       }
       return true;
     } catch (e) {

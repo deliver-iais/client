@@ -13,7 +13,7 @@ class AudioPlayProgress extends StatelessWidget {
   final String audioUuid;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
+  AudioPlayProgress({Key? key, required this.audioUuid, required this.audio}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

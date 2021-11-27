@@ -13,7 +13,7 @@ class ShowImagePage extends StatefulWidget {
   final File imageFile;
   final Uid roomUid;
 
-  const ShowImagePage({Key key, this.imageFile, this.roomUid})
+  const ShowImagePage({Key? key, required this.imageFile,required this.roomUid})
       : super(key: key);
 
   @override
@@ -27,9 +27,10 @@ class _ImageWidget extends State<ShowImagePage> {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
 
+  I18N i18n = GetIt.I.get<I18N>();
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
+
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue,
@@ -52,7 +53,7 @@ class _ImageWidget extends State<ShowImagePage> {
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 return Text(
-                  snapshot.data,
+                  snapshot.data!,
                   style: TextStyle(color: Colors.white),
                 );
               } else {
@@ -63,7 +64,7 @@ class _ImageWidget extends State<ShowImagePage> {
               }
             },
           ),
-          leading: _routingServices.backButtonLeading(),
+          leading: _routingServices.backButtonLeading(context),
           backgroundColor: Colors.blue,
         ),
         backgroundColor: Theme.of(context).backgroundColor,

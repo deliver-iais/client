@@ -52,7 +52,7 @@ class TimeAndSeenStatus extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (message.edited != null && message.edited)
+          if (message.edited != null && message.edited!)
             Text(
               _i18n.get("edited"),
               style: TextStyle(

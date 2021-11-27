@@ -7,16 +7,17 @@ import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
 class CheckBoxFormField extends StatefulWidget {
   final formModel.Form_Field formField;
   final Function selected;
-  final GlobalKey<FormState> formKey;
 
-  CheckBoxFormField({this.formField, this.selected, this.formKey});
+
+  CheckBoxFormField(
+      {required this.formField, required this.selected});
 
   @override
   _CheckBoxFormFieldState createState() => _CheckBoxFormFieldState();
 }
 
 class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
-  bool _selected;
+  late bool _selected;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
             value: _selected,
             onChanged: (value) {
               setState(() {
-                _selected = value;
+                _selected = value!;
               });
               widget.selected(value.toString());
             },

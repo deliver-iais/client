@@ -1,8 +1,9 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -25,29 +26,32 @@ class _VerificationPageState extends State<VerificationPage> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _focusNode = FocusNode();
   bool _showError = false;
-  String _verificationCode;
+  String? _verificationCode;
 
   // TODO ???
-  I18N _i18n;
+  I18N _i18n = GetIt.I.get<I18N>();
 
   _sendVerificationCode() {
-    if ((_verificationCode?.length ?? 0) < 5) {
+    if ((_verificationCode!.length) < 5) {
       setState(() => _showError = true);
       return;
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = _authRepo.sendVerificationCode(_verificationCode);
+    var result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        ToastDisplay.showToast(toastText: "PASSWORD_PROTECTED",tostContext: context);
+        ToastDisplay.showToast(
+            toastText: "PASSWORD_PROTECTED", tostContext: context);
         // TODO navigate to password validation page
       } else {
-        ToastDisplay.showToast(toastText: _i18n.get("verification_code_not_valid"),tostContext: context);
+        ToastDisplay.showToast(
+            toastText: _i18n.get("verification_code_not_valid"),
+            tostContext: context);
         _setErrorAndResetCode();
       }
     }).catchError((e) {
@@ -58,10 +62,9 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }), (r) => false);
   }
 
   _setErrorAndResetCode() {
@@ -74,14 +77,13 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return FluidWidget(
       child: Scaffold(
         primary: true,
         backgroundColor: Theme.of(context).backgroundColor,
         floatingActionButton: FloatingActionButton(
           backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Theme.of(context).buttonTheme.colorScheme.onPrimary,
+          foregroundColor: Theme.of(context).buttonTheme.colorScheme!.onPrimary,
           child: Icon(Icons.arrow_forward),
           onPressed: () {
             _sendVerificationCode();
@@ -144,7 +146,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               Theme.of(context).colorScheme.secondary),
                           textStyle: Theme.of(context)
                               .primaryTextTheme
-                              .headline5
+                              .headline5!
                               .copyWith(color: Theme.of(context).primaryColor)),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
@@ -153,10 +155,12 @@ class _VerificationPageState extends State<VerificationPage> {
                         _sendVerificationCode();
                       },
                       onCodeChanged: (code) {
-                        _logger.d(_verificationCode);
-                        _verificationCode = code;
-                        if (code.length == 5) {
-                          _sendVerificationCode();
+                        if (code != null) {
+                          _logger.d(_verificationCode);
+                          _verificationCode = code;
+                          if (code.length == 5) {
+                            _sendVerificationCode();
+                          }
                         }
                       },
                     ),
@@ -166,7 +170,7 @@ class _VerificationPageState extends State<VerificationPage> {
                           _i18n.get("wrong_code"),
                           style: Theme.of(context)
                               .primaryTextTheme
-                              .subtitle1
+                              .subtitle1!
                               .copyWith(color: Theme.of(context).errorColor),
                         )
                       : Container(),

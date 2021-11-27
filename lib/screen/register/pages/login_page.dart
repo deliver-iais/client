@@ -1,20 +1,22 @@
 import 'dart:async';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/phone.dart';
+
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -23,6 +25,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -35,18 +38,20 @@ class _LoginPageState extends State<LoginPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _formKey = GlobalKey<FormState>();
+  final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
+  bool _accept_privacy = false;
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
-  Timer checkTimer;
-  Timer tokenGeneratorTimer;
-  PhoneNumber phoneNumber;
+  Timer? checkTimer;
+  Timer? tokenGeneratorTimer;
+  PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
-    if (phoneNumber?.nationalNumber != null) {
-      controller.text = phoneNumber?.nationalNumber.toString();
+    if (phoneNumber != null && phoneNumber!.nationalNumber != null) {
+      controller.text = phoneNumber!.nationalNumber.toString();
     }
 
     if (isDesktop()) {
@@ -69,27 +74,26 @@ class _LoginPageState extends State<LoginPage> {
         loginToken.add(randomAlphaNumeric(36));
       });
     } else if (isAndroid() && !kDebugMode) {
-      SmsAutoFill().hint.then((value) {
-        final p = getPhoneNumber(value);
-        phoneNumber = p;
-        controller.text = p.nationalNumber.toString();
-        if (p != null) {
-          setState(() {
-            _isLoading = true;
-          });
-          checkAndGoNext(doNotCheckValidator: true);
-        }
-      });
+      // SmsAutoFill().hint.then((value) {
+      //   final p = getPhoneNumber(value);
+      //   phoneNumber = p;
+      //   controller.text = p.nationalNumber.toString();
+      //   if (p != null) {
+      //     setState(() {
+      //       _isLoading = true;
+      //     });
+      //     checkAndGoNext(doNotCheckValidator: true);
+      //   }
+      // });
     }
     super.initState();
   }
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }), (r) => false);
   }
 
   _loginASTestUser() {
@@ -99,35 +103,37 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    loginToken?.close();
-    checkTimer?.cancel();
-    tokenGeneratorTimer?.cancel();
+    loginToken.close();
+    if (checkTimer != null) checkTimer!.cancel();
+    if (tokenGeneratorTimer != null) tokenGeneratorTimer!.cancel();
     super.dispose();
   }
 
   checkAndGoNext({bool doNotCheckValidator = false}) async {
-    I18N i18n = I18N.of(context);
     if (phoneNumber != null &&
-        phoneNumber.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
+        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
       _logger.e("logis as test user ");
       _loginASTestUser();
     } else {
-      var isValidated = _formKey?.currentState?.validate() ?? false;
+      var isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
         setState(() {
           _isLoading = true;
         });
         try {
-          var res = await _authRepo.getVerificationCode(phoneNumber);
+          var res = await _authRepo.getVerificationCode(phoneNumber!);
           if (res != null) {
-            ExtendedNavigator.of(context).push(Routes.verificationPage);
+            Navigator.push(context, MaterialPageRoute(builder: (c) {
+              return VerificationPage();
+            }));
+
             setState(() {
               _isLoading = false;
             });
           } else {
             ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-              toastText: i18n.get("error_occurred"),
+              toastText: _i18n.get("error_occurred"),
               tostContext: context,
             );
             setState(() {
@@ -141,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
           _logger.e(e);
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
-            toastText: i18n.get("error_occurred"),
+            toastText: _i18n.get("error_occurred"),
             tostContext: context,
           );
         }
@@ -151,19 +157,18 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return FluidWidget(
       child: Form(
         key: _formKey,
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
-            title: Text(i18n.get("login")),
+            title: Text(_i18n.get("login")),
             backgroundColor: Theme.of(context).backgroundColor,
           ),
           body: loginWithQrCode
-              ? buildLoginWithQrCode(i18n, context)
-              : buildNormalLogin(i18n, context),
+              ? buildLoginWithQrCode(_i18n, context)
+              : buildNormalLogin(_i18n, context),
         ),
       ),
     );
@@ -179,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&
-                    snapshot.data.isNotEmpty)
+                    snapshot.data!.isNotEmpty)
                   return Container(
                     width: 200,
                     height: 200,
@@ -247,10 +252,11 @@ class _LoginPageState extends State<LoginPage> {
                         height: 5,
                       ),
                       IntlPhoneField(
-                        initialCountryCode:
-                            phoneNumber?.countryCode?.toString() ?? "98",
+                        initialCountryCode: phoneNumber != null
+                            ? phoneNumber!.countryCode.toString()
+                            : null,
                         controller: controller,
-                        validator: (value) => value.length != 10 ||
+                        validator: (value) => value!.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? i18n.get("invalid_mobile_number")
                             : null,
@@ -287,25 +293,54 @@ class _LoginPageState extends State<LoginPage> {
                                 loginWithQrCode = true;
                               });
                             }),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _accept_privacy,
+                            onChanged: (c) {
+                              setState(() {
+                                _accept_privacy = c!;
+                              });
+                            },
+                          ),
+                          RichText(
+                            text: TextSpan(children: [
+                              TextSpan(
+                                  text: "شرایط حریم خصوصی",
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 13),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => launch(
+                                        "https://deliver-co.ir/#/termofuse")),
+                              TextSpan(
+                                  text:
+                                      " را مطالعه نموده ام و آن را قبول می کنم",
+                                  style: TextStyle(fontSize: 13)),
+                            ], style: Theme.of(context).textTheme.bodyText2),
+                            textDirection: TextDirection.rtl,
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: TextButton(
-                        child: Text(
-                          i18n.get("next"),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 14.5,
+                if (_accept_privacy)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: TextButton(
+                          child: Text(
+                            i18n.get("next"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 14.5,
+                            ),
                           ),
-                        ),
-                        onPressed: checkAndGoNext),
+                          onPressed: checkAndGoNext),
+                    ),
                   ),
-                ),
               ],
             ),
           );

@@ -15,7 +15,7 @@ class ImageTabUi extends StatefulWidget {
   final int imagesCount;
   final Uid userUid;
 
-  ImageTabUi(this.imagesCount, this.userUid, {Key key}) : super(key: key);
+  ImageTabUi(this.imagesCount, this.userUid, {Key? key}) : super(key: key);
 
   @override
   _ImageTabUiState createState() => _ImageTabUiState();
@@ -40,15 +40,15 @@ class _ImageTabUiState extends State<ImageTabUi> {
             return GridView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
-                itemCount: snaps.data.length,
+                itemCount: snaps.data!.length,
                 scrollDirection: Axis.vertical,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
                 ),
                 itemBuilder: (context, position) {
-                  var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                  var fileName = jsonDecode(snaps.data[position].json)["name"];
+                  var fileId = jsonDecode(snaps.data![position].json)["uuid"];
+                  var fileName = jsonDecode(snaps.data![position].json)["name"];
                   return Container(
                     decoration: new BoxDecoration(
                       border: Border.all(
@@ -72,6 +72,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                     return GestureDetector(
                                       onTap: () {
                                         _routingService.openShowAllMedia(
+                                          context,
                                           uid: widget.userUid,
                                           hasPermissionToDeletePic: true,
                                           mediaPosition: position,
@@ -101,6 +102,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllMedia(
+                                  context,
                                   uid: widget.userUid,
                                   hasPermissionToDeletePic: true,
                                   mediaPosition: position,
@@ -113,7 +115,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                   height: 100,
                                   child: BlurHash(
                                       hash:
-                                          jsonDecode(snaps.data[position].json)[
+                                          jsonDecode(snaps.data![position].json)[
                                               "blurHash"])),
                             );
                         }),

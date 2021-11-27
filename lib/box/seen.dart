@@ -13,5 +13,5 @@ class Seen {
   @HiveField(1)
   int messageId;
 
-  Seen({this.uid, this.messageId});
+  Seen({required this.uid, required this.messageId});
 }

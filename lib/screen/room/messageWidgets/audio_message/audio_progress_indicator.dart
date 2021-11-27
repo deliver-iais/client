@@ -6,7 +6,8 @@ class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
   final double duration;
 
-  const AudioProgressIndicator({Key key, this.audioUuid, this.duration})
+  const AudioProgressIndicator(
+      {Key? key, required this.audioUuid, required this.duration})
       : super(key: key);
 
   @override
@@ -15,8 +16,8 @@ class AudioProgressIndicator extends StatefulWidget {
 
 class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
-  Duration currentPos;
-  Duration dur;
+  Duration? currentPos;
+  Duration? dur;
 
   @override
   void dispose() {
@@ -31,18 +32,21 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
           return StreamBuilder<Duration>(
               stream: audioPlayerService.audioCurrentPosition(),
               builder: (context, snapshot2) {
-                currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
-                return Slider(
-                    value: currentPos.inSeconds.toDouble(),
-                    min: 0.0,
-                    max: widget.duration,
-                    onChanged: (double value) {
-                      setState(() {
-                        audioPlayerService
-                            .seek(Duration(seconds: value.toInt()));
-                        value = value;
+                currentPos = snapshot2.data ?? currentPos;
+                if (currentPos != null)
+                  return Slider(
+                      value: currentPos!.inSeconds.toDouble(),
+                      min: 0.0,
+                      max: widget.duration,
+                      onChanged: (double value) {
+                        setState(() {
+                          audioPlayerService
+                              .seek(Duration(seconds: value.toInt()));
+                          value = value;
+                        });
                       });
-                    });
+                else
+                  return SizedBox.shrink();
               });
         });
   }

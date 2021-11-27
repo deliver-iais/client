@@ -1,8 +1,8 @@
-import 'package:auto_route/auto_route.dart';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/routes/router.gr.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -15,7 +15,11 @@ class OnDeletePopupDialog extends StatefulWidget {
   final Uid roomUid;
   final String roomName;
 
-  OnDeletePopupDialog({Key key, this.selected, this.roomUid, this.roomName})
+  OnDeletePopupDialog(
+      {Key? key,
+      required this.selected,
+      required this.roomUid,
+      required this.roomName})
       : super(key: key);
 
   @override
@@ -194,9 +198,8 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   _navigateHomePage() {
     _routingService.reset();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+      return HomePage();
+    }));
   }
 }

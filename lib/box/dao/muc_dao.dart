@@ -3,9 +3,9 @@ import 'package:deliver/box/muc.dart';
 import 'package:hive/hive.dart';
 
 abstract class MucDao {
-  Future<Muc> get(String uid);
+  Future<Muc?> get(String uid);
 
-  Stream<Muc> watch(String uid);
+  Stream<Muc?> watch(String uid);
 
   Future<void> save(Muc muc);
 
@@ -13,11 +13,11 @@ abstract class MucDao {
 
   Future<void> delete(String uid);
 
-  Future<Member> getMember(String mucUid, String memberUid);
+  Future<Member?> getMember(String mucUid, String memberUid);
 
-  Future<List<Member>> getAllMembers(String mucUid);
+  Future<List<Member?>> getAllMembers(String mucUid);
 
-  Stream<List<Member>> watchAllMembers(String mucUid);
+  Stream<List<Member?>> watchAllMembers(String mucUid);
 
   Future<void> saveMember(Member member);
 
@@ -33,12 +33,11 @@ class MucDaoImpl implements MucDao {
     box.delete(uid);
   }
 
-  Future<Muc> get(String uid) async {
+  Future<Muc?> get(String uid) async {
     var box = await _openMuc();
 
     return box.get(uid);
   }
-
 
   Future<void> save(Muc muc) async {
     var box = await _openMuc();
@@ -49,12 +48,11 @@ class MucDaoImpl implements MucDao {
   Future<void> update(Muc muc) async {
     var box = await _openMuc();
 
-    var m = box.get(muc.uid) ?? Muc();
-
-    return box.put(muc.uid, m.copy(muc));
+    var m = box.get(muc.uid);
+    return box.put(muc.uid, m!.copy(muc));
   }
 
-  Stream<Muc> watch(String uid) async* {
+  Stream<Muc?> watch(String uid) async* {
     var box = await _openMuc();
 
     yield box.get(uid);
@@ -74,15 +72,15 @@ class MucDaoImpl implements MucDao {
     return box.delete(member.memberUid);
   }
 
-  Future<List<Member>> getAllMembers(String mucUid) async {
+  Future<List<Member?>> getAllMembers(String mucUid) async {
     var box = await _openMembers(mucUid);
 
     return box.values.toList();
   }
 
-  Future<Member> getMember(String memberUid, String mucUid ) async {
+  Future<Member?> getMember(String memberUid, String mucUid) async {
     var box = await _openMembers(mucUid);
-     return  box.get(memberUid);
+    return box.get(memberUid);
   }
 
   Future<void> saveMember(Member member) async {
@@ -107,5 +105,4 @@ class MucDaoImpl implements MucDao {
 
   static Future<Box<Member>> _openMembers(String uid) =>
       Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-")));
-
 }

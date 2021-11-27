@@ -37,18 +37,19 @@ class AuthRepo {
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
     ..node = "";
-  Avatar avatar;
-  String _accessToken;
-  String _refreshToken;
+  Avatar? avatar;
+  String ? _accessToken;
+  String ? _refreshToken;
+  late String platformVersion;
 
-  PhoneNumber _tmpPhoneNumber;
+  late PhoneNumber _tmpPhoneNumber;
 
   Future<bool> isTestUser() async {
     if (currentUserUid.node.isNotEmpty)
       return currentUserUid.isSameEntity(TEST_USER_UID.asString());
     else {
       currentUserUid =
-          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
       return currentUserUid.isSameEntity(TEST_USER_UID.asString());
     }
   }
@@ -65,13 +66,11 @@ class AuthRepo {
   }
 
   setCurrentUserUid() async {
-    currentUserUid =
-        (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
+    String? res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+    if (res != null) currentUserUid = (res).asUid();
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-  String platformVersion;
 
   Future getVerificationCode(PhoneNumber p) async {
     Pb.Platform platform = await getPlatformDetails();
@@ -205,7 +204,6 @@ class AuthRepo {
       } on GrpcError catch (e) {
         _logger.e(e);
         if (_refreshToken != null &&
-            _refreshToken.isNotEmpty &&
             e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
@@ -218,11 +216,11 @@ class AuthRepo {
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
-          await _getAccessToken(_refreshToken);
+          await _getAccessToken(_refreshToken!);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-      return _accessToken;
+      return _accessToken!;
     }
   }
 
@@ -238,7 +236,9 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
+  bool isLoggedIn() =>
+      _refreshToken != null &&
+      !_isExpired(_refreshToken);
 
   bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
 
@@ -246,10 +246,10 @@ class AuthRepo {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
-  void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
+  void _setTokensAndCurrentUserUid(String? accessToken, String? refreshToken) {
     if (accessToken == null ||
-        accessToken.isEmpty ||
         refreshToken == null ||
+        accessToken.isEmpty ||
         refreshToken.isEmpty) {
       return;
     }

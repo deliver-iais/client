@@ -10,7 +10,7 @@ class RawKeyboardService {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  Function _openSearchBox;
+  late Function _openSearchBox;
 
   var _currentRoom;
 
@@ -32,8 +32,8 @@ class RawKeyboardService {
   }
 
   void controlVHandle(TextEditingController controller) async {
-    ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
-    controller.text = data.text;
+    ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+    controller.text = data!.text!;
   }
 
   void controlXHandle(TextEditingController controller) {
@@ -63,7 +63,7 @@ class RawKeyboardService {
     }
   }
 
-  void scrollUpInRoom() {
+  void scrollUpInRoom(BuildContext context) {
     int index = -1;
     _roomDao
         .getAllRooms()
@@ -73,12 +73,13 @@ class RawKeyboardService {
                   index++,
                   if (element.node == _currentRoom.node)
                     if (index - 1 >= 0)
-                      _routingService.openRoom(room[index - 1].uid)
+                      _routingService.openRoom(room[index - 1].uid,
+                          context: context)
                 }
             }));
   }
 
-  void scrollDownInRoom() {
+  void scrollDownInRoom(BuildContext context) {
     int index = -1;
     _roomDao
         .getAllRooms()
@@ -88,7 +89,8 @@ class RawKeyboardService {
                   index++,
                   if (element.node == _currentRoom.node)
                     if (index + 1 < room.length)
-                      _routingService.openRoom(room[index + 1].uid)
+                      _routingService.openRoom(room[index + 1].uid,
+                          context: context)
                 }
             }));
   }
@@ -123,9 +125,9 @@ class RawKeyboardService {
   }
 
   void escapeHandeling(
-      {event, int replyMessageId, Function resetRoomPageDetails}) {
+      {event, int? replyMessageId, Function? resetRoomPageDetails}) {
     if (event.isKeyPressed(LogicalKeyboardKey.escape))
-      escapeHandle(replyMessageId, resetRoomPageDetails);
+      escapeHandle(replyMessageId!, resetRoomPageDetails!);
   }
 
   navigateInMentions(
@@ -180,13 +182,13 @@ class RawKeyboardService {
       controlVHandle(controller);
   }
 
-  navigateInRooms({event}) {
+  navigateInRooms({event, required BuildContext context}) {
     if (event.isAltPressed) {
       if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-        scrollUpInRoom();
+        scrollUpInRoom(context);
       }
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-        scrollDownInRoom();
+        scrollDownInRoom(context);
       }
     }
   }

@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
 
@@ -21,12 +19,12 @@ class ShareBoxGallery extends StatefulWidget {
   final Uid roomUid;
 
   const ShareBoxGallery(
-      {Key key,
-      @required this.selectGallery,
-      @required this.scrollController,
-      @required this.onClick,
-      @required this.selectedImages,
-      @required this.roomUid})
+      {Key? key,
+      required this.selectGallery,
+      required this.scrollController,
+      required this.onClick,
+      required this.selectedImages,
+      required this.roomUid})
       : super(key: key);
 
   @override
@@ -34,7 +32,6 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  I18N i18n;
   var _routingServices = GetIt.I.get<RoutingService>();
   var _future;
 
@@ -45,7 +42,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 
   void cropAvatar(String imagePath) async {
-    File croppedFile = await ImageCropper.cropImage(
+    File? croppedFile = await ImageCropper.cropImage(
         sourcePath: imagePath,
         aspectRatioPresets: Platform.isAndroid
             ? [CropAspectRatioPreset.square]
@@ -69,20 +66,23 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }
   }
 
+  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    i18n = I18N.of(context);
-    return FutureBuilder<List<ImageItem>>(
+    return FutureBuilder<List<ImageItem>?>(
         future: _future,
         builder: (context, images) {
-          if (images.hasData && images.data != null && images.data.length > 0) {
+          if (images.hasData &&
+              images.data != null &&
+              images.data!.length > 0) {
             return GridView.builder(
                 controller: widget.scrollController,
-                itemCount: images.data.length + 1,
+                itemCount: images.data!.length + 1,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
                 itemBuilder: (context, index) {
-                  var image = index > 0 ? images.data[index - 1] : null;
+                  ImageItem? image = index > 0 ? images.data![index - 1] : null;
                   if (index <= 0) {
                     return Container(
                       width: 50,
@@ -99,13 +99,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           try {
                             Navigator.pop(context);
                             final picker = ImagePicker();
-                            final pickedFile = await picker.getImage(
+                            final pickedFile = await picker.pickImage(
                                 source: ImageSource.camera);
                             widget.selectGallery
-                                ? _routingServices.openImagePage(
+                                ? _routingServices.openImagePage(context,
                                     roomUid: widget.roomUid,
-                                    file: File(pickedFile.path))
-                                : cropAvatar(image.path);
+                                    file: File(pickedFile!.path))
+                                : cropAvatar(image!.path);
                           } catch (e) {}
                         },
                       ),
@@ -118,22 +118,22 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 if (!widget.selectedImages
                                     .containsValue(true)) {
                                   Navigator.pop(context);
-                                  _routingServices.openImagePage(
+                                  _routingServices.openImagePage(context,
                                       roomUid: widget.roomUid,
-                                      file: File(image.path));
+                                      file: File(image!.path));
                                 } else {
-                                  widget.onClick(index, image.path);
+                                  widget.onClick(index, image!.path);
                                 }
                               }
                             : () {
-                                cropAvatar(image.path);
+                                cropAvatar(image!.path);
                                 Navigator.pop(context);
                               },
                         child: AnimatedPadding(
                           duration: Duration(milliseconds: 200),
                           padding: EdgeInsets.all(selected ? 8.0 : 4.0),
                           child: Hero(
-                            tag: image,
+                            tag: image!,
                             child: Container(
                               width: 50,
                               height: 50,

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class HeaderDetails extends StatelessWidget {
   final File file;
 
-  const HeaderDetails({Key key, this.file}) : super(key: key);
+  const HeaderDetails({Key? key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

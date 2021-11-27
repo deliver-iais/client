@@ -18,11 +18,11 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   SharePrivateDataRequestMessageWidget(
-      {this.message, this.isSender, this.isSeen});
+      {required this.message, required this.isSender, required this.isSeen});
 
   @override
   Widget build(BuildContext context) {
-    var sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
+    var sharePrivateDataRequest = message.json!.toSharePrivateDataRequest();
     return Stack(
       children: [
         Container(
@@ -73,7 +73,10 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               ),
               actions: [
                 GestureDetector(
-                    child: Text(_i18n.get("cancel")),
+                    child: Text(
+                      _i18n.get("cancel"),
+                      style: TextStyle(fontSize: 15),
+                    ),
                     onTap: () => Navigator.pop(c)),
                 SizedBox(
                   width: 5,
@@ -81,7 +84,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 GestureDetector(
                   child: Text(
                     _i18n.get("ok"),
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: Colors.red, fontSize: 15),
                   ),
                   onTap: () {
                     _messageRepo.sendPrivateMessageAccept(
@@ -91,6 +94,9 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                     Navigator.pop(c);
                   },
                 ),
+                SizedBox(
+                  width: 5,
+                )
               ],
             ),
           );

@@ -11,7 +11,7 @@ class AudioPlayerAppBar extends StatelessWidget {
     return StreamBuilder<bool>(
         stream: audioPlayerService.audioCenterIsOn,
         builder: (c, s) {
-          if (s.hasData && s.data) {
+          if (s.hasData && s.data!) {
             return Container(
               height: 45,
               decoration: BoxDecoration(

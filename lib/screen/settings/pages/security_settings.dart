@@ -12,7 +12,7 @@ import 'package:get_it/get_it.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
-  SecuritySettingsPage({Key key}) : super(key: key);
+  SecuritySettingsPage({Key? key}) : super(key: key);
 
   @override
   _SecuritySettingsPageState createState() => _SecuritySettingsPageState();
@@ -36,7 +36,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
               title: Text(_i18n.get("security")),
-              leading: _routingService.backButtonLeading(),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),

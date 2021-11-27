@@ -5,7 +5,8 @@ class MsgTime extends StatelessWidget {
   final DateTime time;
   final bool isSent;
 
-  const MsgTime({Key key, this.time, this.isSent = false}) : super(key: key);
+  const MsgTime({Key? key, required this.time, this.isSent = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -1,14 +1,14 @@
 import 'package:deliver/shared/constants.dart';
-import 'package:emojis/emoji.dart';
+import 'package:deliver/shared/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EmojiKeyboard extends StatefulWidget {
   final Function onTap;
-  final Function onStickerTap;
+  final Function? onStickerTap;
 
-  const EmojiKeyboard({this.onTap, this.onStickerTap});
+  const EmojiKeyboard({required this.onTap, this.onStickerTap});
 
   @override
   _Emojikeybord createState() => _Emojikeybord();
@@ -16,7 +16,7 @@ class EmojiKeyboard extends StatefulWidget {
 
 class _Emojikeybord extends State<EmojiKeyboard> {
   List<Emoji> emojis = [];
-  Function onTap;
+  late Function onTap;
 
   int selectedGroupIndex = 1;
 
@@ -31,7 +31,9 @@ class _Emojikeybord extends State<EmojiKeyboard> {
 
   @override
   Widget build(BuildContext context) {
-    final style = GoogleFonts.notoColorEmojiCompat(fontSize: 22,);
+    final style = GoogleFonts.notoColorEmojiCompat(
+      fontSize: 22,
+    );
 
     return emojiState
         ? Column(
@@ -230,7 +232,9 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                           child: Center(
                             child: Text(
                               emoji.toString(),
-                              style:GoogleFonts.notoColorEmojiCompat(fontSize: 22,),
+                              style: GoogleFonts.notoColorEmojiCompat(
+                                fontSize: 22,
+                              ),
                             ),
                           ),
                         );

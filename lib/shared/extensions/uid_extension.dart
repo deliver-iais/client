@@ -44,7 +44,7 @@ extension StringUidExtension on String {
       throw AssertionError("Uid is incorrect");
     } else {
       return Uid()
-        ..category = Categories.valueOf(int.parse(list[0]))
+        ..category = Categories.valueOf(int.parse(list[0]))!
         ..node = list[1]
         ..sessionId = _ALL_SESSIONS;
     }

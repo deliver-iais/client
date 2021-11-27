@@ -7,7 +7,7 @@ class FluidContainerWidget extends StatelessWidget {
   final Widget child;
 
   FluidContainerWidget({
-    this.child,
+    required this.child,
   });
 
   @override

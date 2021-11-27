@@ -10,9 +10,10 @@ class FormListWidget extends StatefulWidget {
   final Function selected;
   final Function setFormKey;
 
-  FormListWidget({this.formField, this.selected,this.setFormKey});
-
-
+  FormListWidget(
+      {required this.formField,
+      required this.selected,
+      required this.setFormKey});
 
   @override
   _FormListWidgetState createState() => _FormListWidgetState();
@@ -21,7 +22,7 @@ class FormListWidget extends StatefulWidget {
 class _FormListWidgetState extends State<FormListWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
-  String selectedItem;
+  String? selectedItem;
   final _formKey = new GlobalKey<FormState>();
 
   @override
@@ -41,15 +42,17 @@ class _FormListWidgetState extends State<FormListWidget> {
                   borderSide: BorderSide(color: Colors.blue),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                suffixIcon: widget.formField.isOptional?SizedBox.shrink(): Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 25),
-                  child: Text(
-                    "*",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                suffixIcon: widget.formField.isOptional
+                    ? SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 25),
+                        child: Text(
+                          "*",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
                 labelText: widget.formField.id,
                 labelStyle: TextStyle(color: Colors.grey)),
             value: selectedItem,
@@ -63,27 +66,39 @@ class _FormListWidgetState extends State<FormListWidget> {
                   return null;
               }
             },
-            onChanged: (String valu) {
-              setState(() {
-                selectedItem = valu;
-              });
-              widget.selected(valu);
+            onChanged: (String? value) {
+              if (value != null) {
+                setState(() {
+                  selectedItem = value;
+                });
+                widget.selected(value);
+              }
             },
             items: widget.formField.whichType() ==
                     formModel.Form_Field_Type.radioButtonList
                 ? widget.formField.radioButtonList.values
+                    .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                          value: val,
+                          child: SizedBox(
+                            width: 150,
+                            child: Text(
+                              val,
+                              overflow: TextOverflow.fade,
+                            ),
+                          ),
+                        ))
+                    .toList()
                 : widget.formField.list.values
-                    .map<DropdownMenuItem<String>>(
-                        (val) => DropdownMenuItem(
-                              value: val,
-                              child: SizedBox(
-                                width: 150,
-                                child: Text(
-                                  val,
-                                  overflow: TextOverflow.fade,
-                                ),
-                              ),
-                            ))
+                    .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                          value: val,
+                          child: SizedBox(
+                            width: 150,
+                            child: Text(
+                              val,
+                              overflow: TextOverflow.fade,
+                            ),
+                          ),
+                        ))
                     .toList()),
       ),
     );
