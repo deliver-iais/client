@@ -564,10 +564,11 @@ class CallRepo {
   }
 
   endCall() async {
-    var time = endCallTime - startCallTime;
-    print(time);
+    // endCallTime= DateTime.now().millisecondsSinceEpoch;
+    // var time = endCallTime - startCallTime;
+    //print(time);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.ENDED, _roomUid, _callId, time);
+        CallEvent_CallStatus.ENDED, _roomUid, _callId, 0);
     await _dispose();
   }
 

@@ -150,6 +150,8 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   AudioCache _fastAudioPlayer =
       AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
+  AudioCache _callFastAudioPlayer =
+  AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -213,18 +215,18 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBeepSound() {
-    _fastAudioPlayer.play(
+    _callFastAudioPlayer.play(
       "beep_ringing_calling_sound.mp3",
     );
   }
 
   void stopPlayBeepSound() {
-    _fastAudioPlayer.fixedPlayer.stop();
+    _callFastAudioPlayer.fixedPlayer.stop();
   }
 
   @override
   void playBusySound() {
-    _fastAudioPlayer.play(
+    _callFastAudioPlayer.play(
       "busy_sound.mp3",
     );
   }
@@ -234,8 +236,8 @@ class VlcAudioPlayer implements AudioPlayerModule {
   Player _audioPlayer = Player(id: 0);
   Player _fastAudioPlayerOut = Player(id: 1);
   Player _fastAudioPlayerIn = Player(id: 1);
-  Player _fastAudioPlayerBeep = Player(id: 1);
-  Player _fastAudioPlayerBusy = Player(id: 1);
+  Player _fastAudioPlayerBeep = Player(id: 2);
+  Player _fastAudioPlayerBusy = Player(id: 2);
 
   @override
   Stream<Duration> get audioCurrentPosition =>

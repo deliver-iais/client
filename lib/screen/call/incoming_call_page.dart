@@ -86,7 +86,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
                       alignment: Alignment.topCenter,
                       child: Column(
                         children: [
-                         if(!widget.isAccepted) CircleAvatarWidget(widget.roomuid, 60),
+                         if(!widget.isAccepted || widget.roomuid==null) CircleAvatarWidget(widget.roomuid, 60),
                           FutureBuilder(
                               future: _roomRepo.getName(widget.roomuid),
                               builder: (context, snapshot) {
