@@ -62,7 +62,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:share/share.dart';
 import 'package:sorted_list/sorted_list.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
@@ -242,41 +241,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         }
                       }),
                   keyboardWidget(),
-                  // SearchInMessageButton(
-                  //     keyboardWidget: keyboardWidget,
-                  //     searchMode: _searchMode,
-                  //     searchResult: searchResult,
-                  //     currentSearchResultMessage: currentSearchResultMessage,
-                  //     roomId: widget.roomId,
-                  //     scrollDown: () {
-                  //       if (searchResult.indexOf(currentSearchResultMessage) !=
-                  //           searchResult.length)
-                  //         _itemScrollController.scrollTo(
-                  //             index: searchResult[searchResult
-                  //                     .indexOf(currentSearchResultMessage)]
-                  //                 .id,
-                  //             duration: Duration(microseconds: 1));
-                  //       setState(() {
-                  //         currentSearchResultMessage = searchResult[
-                  //             searchResult.indexOf(currentSearchResultMessage) +
-                  //                 1];
-                  //       });
-                  //     },
-                  //     scrollUp: () {
-                  //       if (searchResult.indexOf(currentSearchResultMessage) !=
-                  //           0)
-                  //         _itemScrollController.scrollTo(
-                  //             index: searchResult[searchResult
-                  //                         .indexOf(currentSearchResultMessage) -
-                  //                     1]
-                  //                 .id,
-                  //             duration: Duration(microseconds: 1));
-                  //       setState(() {
-                  //         currentSearchResultMessage = searchResult[
-                  //             searchResult.indexOf(currentSearchResultMessage) -
-                  //                 1];
-                  //       });
-                  //     }),
                 ],
               ),
             ],
@@ -395,18 +359,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         hasPermissionInChannel: _hasPermissionInChannel.value,
         hasPermissionInGroup: _hasPermissionInGroup.value,
         isPinned: _pinMessages.contains(message),
+        roomLastMessageId: _currentRoom.value!.lastMessageId!,
+        onDelete: () {
+          _selectMultiMessageSubject.add(false);
+          _selectedMessages.clear();
+        },
       )
     ]).then<void>((OperationOnMessage? opr) async {
       if (opr == null) return;
-      switch (opr) {// ignore: missing_enum_constant_in_switch
+      switch (opr) {
+        // ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
           break;
-        case OperationOnMessage.DELETE:
-          _showDeleteMsgDialog([message]);
-          break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {// ignore: missing_enum_constant_in_switch
+          switch (message.type) {
+            // ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               inputMessagePrifix.add(message.json!.toText().text);
               _editableMessage.add(message);
@@ -706,30 +674,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             }
           },
         ),
-        // actions: [
-        //   StreamBuilder<bool>(
-        //       stream: _searchMode.stream,
-        //       builder: (c, s) {
-        //         if (s.hasData && s.data!) {
-        //           return IconButton(
-        //               icon: Icon(Icons.close),
-        //               onPressed: () {
-        //                 _searchMode.add(false);
-        //               });
-        //         } else {
-        //           return PopupMenuButton(
-        //             icon: Icon(Icons.more_vert),
-        //             itemBuilder: (_) => <PopupMenuItem<String>>[
-        //               new PopupMenuItem<String>(
-        //                   child: Text(_i18n.get("search")), value: "search"),
-        //             ],
-        //             onSelected: (search) {
-        //               _searchMode.add(true);
-        //             },
-        //           );
-        //         }
-        //       }),
-        // ],
         bottom: PreferredSize(
           child: Divider(),
           preferredSize: Size.fromHeight(1),
@@ -1105,7 +1049,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   size: 30,
                 ),
                 onPressed: () {
-                  _showDeleteMsgDialog(_selectedMessages.values.toList());
+                  showDeleteMsgDialog(
+                      _selectedMessages.values.toList(), context, () {
+                    _selectMultiMessageSubject.add(false);
+                    _selectedMessages.clear();
+                  }, _currentRoom.value!.lastMessageId);
                   _selectedMessages.clear();
                 }),
           ),
@@ -1215,44 +1163,5 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   openRoomSearchBox() {
     _searchMode.add(true);
-  }
-
-  void _showDeleteMsgDialog(List<Message> messages) {
-    showDialog(
-        context: context,
-        builder: (c) => AlertDialog(
-              title: Text(
-                "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
-              ),
-              content: Text(messages.length > 1
-                  ? _i18n.get("sure_delete_messages")
-                  : _i18n.get("sure_delete_message")),
-              actions: [
-                GestureDetector(
-                    child: Text(
-                      _i18n.get("cancel"),
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                    onTap: () {
-                      _selectMultiMessageSubject.add(false);
-                      _selectedMessages.clear();
-                      Navigator.pop(context);
-                    }),
-                GestureDetector(
-                  child: Text(
-                    _i18n.get("delete"),
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  onTap: () {
-                    _messageRepo.deleteMessage(
-                        messages, _currentRoom.value!.lastMessageId!);
-                    Navigator.pop(context);
-                    _selectMultiMessageSubject.add(false);
-                    _selectedMessages.clear();
-                  },
-                ),
-              ],
-            ));
   }
 }
