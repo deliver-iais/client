@@ -16,6 +16,7 @@ import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -24,6 +25,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -39,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
   final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
+  bool _accept_privacy = false;
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -290,25 +293,54 @@ class _LoginPageState extends State<LoginPage> {
                                 loginWithQrCode = true;
                               });
                             }),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _accept_privacy,
+                            onChanged: (c) {
+                              setState(() {
+                                _accept_privacy = c!;
+                              });
+                            },
+                          ),
+                          RichText(
+                            text: TextSpan(children: [
+                              TextSpan(
+                                  text: "شرایط حریم خصوصی",
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 13),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => launch(
+                                        "https://deliver-co.ir/#/termofuse")),
+                              TextSpan(
+                                  text:
+                                      " را مطالعه نموده ام و آن را قبول می کنم",
+                                  style: TextStyle(fontSize: 13)),
+                            ], style: Theme.of(context).textTheme.bodyText2),
+                            textDirection: TextDirection.rtl,
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: TextButton(
-                        child: Text(
-                          i18n.get("next"),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 14.5,
+                if (_accept_privacy)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: TextButton(
+                          child: Text(
+                            i18n.get("next"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 14.5,
+                            ),
                           ),
-                        ),
-                        onPressed: checkAndGoNext),
+                          onPressed: checkAndGoNext),
+                    ),
                   ),
-                ),
               ],
             ),
           );

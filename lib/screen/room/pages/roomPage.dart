@@ -145,7 +145,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder<Room?>(
                   stream: _roomRepo.watchRoom(widget.roomId),
                   builder: (context, snapshot) {
-                    print("5555");
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
 
