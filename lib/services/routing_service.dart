@@ -7,6 +7,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/in_video_call_page.dart';
 import 'package:deliver/screen/call/incoming_call_page.dart';
 import 'package:deliver/screen/call/video_call_page.dart';
@@ -130,6 +131,18 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/videocall"));
+  }
+
+  void openRequestAudioCallPage(Uid roomUid) {
+    var widget = AudioCallScreen(
+      key: ValueKey("/audiocall"),
+      roomUid: roomUid,
+    );
+    _popAllAndPush(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/audiocall"));
   }
 
   void openInComingCallPage(Uid roomuid, bool isAccepted) {
