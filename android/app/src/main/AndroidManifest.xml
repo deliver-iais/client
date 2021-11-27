@@ -14,7 +14,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -150,11 +149,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <service android:name="changjoopark.com.flutter_foreground_plugin.FlutterForegroundService"
-                 android:foregroundServiceType="mediaProjection"
-                 android:enabled="true"
-                 android:exported="false"/>
 
         <receiver android:name="com.github.alezhka.flutter_incoming_call.CallBroadcastReceiver"
             android:enabled="true"

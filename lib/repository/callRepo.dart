@@ -9,7 +9,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -393,8 +392,6 @@ class CallRepo {
       'video': true
     };
 
-    await startForegroundService();
-
     var stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
     return stream;
   }
@@ -456,28 +453,6 @@ class CallRepo {
       return enabled;
     }
     return false;
-  }
-
-  startForegroundService() async {
-    await FlutterForegroundPlugin.setServiceMethodInterval(seconds: 5);
-    await FlutterForegroundPlugin.setServiceMethod(globalForegroundService);
-    await FlutterForegroundPlugin.startForegroundService(
-      holdWakeLock: false,
-      onStarted: () {
-        print("Foreground on Started");
-      },
-      onStopped: () {
-        print("Foreground on Stopped");
-      },
-      title: "Tcamera",
-      content: "Tcamera sharing your screen.",
-      iconName: "ic_stat_mobile_screen_share",
-    );
-    return true;
-  }
-
-  void globalForegroundService() {
-    _logger.i("current datetime is ${DateTime.now()}");
   }
 
   void incomingCall(Uid roomId) {
