@@ -4,7 +4,6 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver/services/check_permissions_service.dart';

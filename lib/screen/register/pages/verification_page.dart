@@ -1,4 +1,3 @@
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
@@ -63,9 +62,9 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _navigationToHome() async {
     _contactRepo.getContacts();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
       return HomePage();
-    }));
+    }), (r) => false);
   }
 
   _setErrorAndResetCode() {
@@ -91,15 +90,6 @@ class _VerificationPageState extends State<VerificationPage> {
           },
         ),
         appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (c) {
-                return LoginPage();
-              }));
-            },
-          ),
           backgroundColor: Theme.of(context).backgroundColor,
           title: Text(
             _i18n.get("verification"),

@@ -32,8 +32,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
-      final initialLink = await getInitialLink();
-      if (initialLink!.isNotEmpty) await handleJoinUri(context, initialLink);
+      String? initialLink = await getInitialLink();
+      if (initialLink != null && initialLink.isNotEmpty)
+        await handleJoinUri(context, initialLink);
     } catch (e) {
       _logger.e(e);
     }
@@ -58,8 +59,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   checkLogOutApp() {
     _logOut.stream.listen((event) {
       if (event)
-        Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) => IntroPage()));
+        Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (context) => IntroPage()), (e) => false);
     });
   }
 

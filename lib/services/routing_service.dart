@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
-
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:flutter/material.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -110,7 +111,9 @@ class RoutingService {
           smallPageMain: widget,
           path: "/room/$roomId"));
     } else {
-      _rootInMobileState(widget, context);
+      Navigator.push(context,
+          EnterExitRoute(exitPage: HomePage(), enterPage:widget));
+      //_rootInMobileState(widget, context);
     }
   }
 
@@ -575,4 +578,42 @@ class Empty extends StatelessWidget {
       ],
     );
   }
+}
+
+class EnterExitRoute extends PageRouteBuilder {
+  final Widget? enterPage;
+  final Widget? exitPage;
+  EnterExitRoute({this.exitPage, this.enterPage})
+      : super(
+    pageBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+        ) =>
+    enterPage!,
+    transitionsBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+        Widget child,
+        ) =>
+        Stack(
+          children: <Widget>[
+            SlideTransition(
+              position: new Tween<Offset>(
+                begin: const Offset(0.0, 0.0),
+                end: const Offset(-1.0, 0.0),
+              ).animate(animation),
+              child: exitPage,
+            ),
+            SlideTransition(
+              position: new Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: enterPage,
+            )
+          ],
+        ),
+  );
 }

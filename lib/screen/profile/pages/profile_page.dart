@@ -73,6 +73,7 @@ class _ProfilePageState extends State<ProfilePage>
   bool _isMucAdminOrOwner = false;
   bool _isMucOwner = false;
   String _roomName = "";
+  bool _roomIsBlocked = false;
 
   @override
   void initState() {
@@ -539,7 +540,25 @@ class _ProfilePageState extends State<ProfilePage>
                   Text(_i18n.get("report")),
                 ],
               ),
-              value: "report")
+              value: "report"),
+        PopupMenuItem<String>(
+            child: StreamBuilder<bool?>(
+                stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
+                builder: (c, s) {
+                  if (s.hasData)
+                    return Row(
+                      children: [
+                        Icon(Icons.report),
+                        SizedBox(width: 8),
+                        Text(s.data == null || !s.data!
+                            ? _i18n.get("blockRoom")
+                            : _i18n.get("unblock_room")),
+                      ],
+                    );
+                  else
+                    return SizedBox.shrink();
+                }),
+            value: "blockRoom")
       ],
       onSelected: onSelected,
     );
@@ -683,7 +702,7 @@ class _ProfilePageState extends State<ProfilePage>
     var nameFormKey = GlobalKey<FormState>();
     String _currentName = "";
     String _currentId = "";
-    String ? mucName ;
+    String? mucName;
     String mucInfo = "";
     String channelId = "";
     BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
@@ -924,11 +943,8 @@ class _ProfilePageState extends State<ProfilePage>
               );
             });
         break;
-      case "unblock_room":
-        _roomRepo.unblock(widget.roomUid.asString());
-        break;
       case "blockRoom":
-        _roomRepo.block(widget.roomUid.asString());
+        _roomRepo.block(widget.roomUid.asString(), block: !_roomIsBlocked);
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);

@@ -5,6 +5,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chatsPage.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -218,7 +219,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-        _routingService.openMemberSelection(context, isChannel: false);
+        Navigator.push(context, MaterialPageRoute(builder: (v){
+         return MemberSelectionPage(isChannel: false,);
+        }));
+      //  _routingService.openMemberSelection(context, isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(context, isChannel: true);
