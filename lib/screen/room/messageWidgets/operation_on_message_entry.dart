@@ -7,6 +7,7 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -107,8 +108,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onReportMessage() {
-    print("tttttttttt");
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPORT);
+    ToastDisplay.showToast(
+        toastText: _i18n.get("report_message"), tostContext: context);
   }
 
   Future<void> onShowInFolder(

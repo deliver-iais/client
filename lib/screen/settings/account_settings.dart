@@ -42,7 +42,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   String _email = "";
   String _lastName = "";
   String _firstName = "";
-  String _lastUserName ="";
+  String _lastUserName = "";
   late Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
@@ -50,12 +50,13 @@ class _AccountSettingsState extends State<AccountSettings> {
   bool _userNameCorrect = false;
 
   bool _uploadNewAvatar = false;
-  String _newAvatarPath="";
+  String _newAvatarPath = "";
 
   attachFile() async {
-    String ? path;
+    String? path;
     if (isDesktop()) {
-      FilePickerResult ? result = await FilePicker.platform.pickFiles(type: FileType.media,allowMultiple: false);
+      FilePickerResult? result = await FilePicker.platform
+          .pickFiles(type: FileType.media, allowMultiple: false);
       path = result!.files.first.path;
     } else {
       var result = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -135,7 +136,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                 return SizedBox.shrink();
               }
               _account = snapshot.data!;
-              _lastUserName = snapshot.data!.userName!;
+              if (snapshot.data!.userName != null)
+                _lastUserName = snapshot.data!.userName!;
               return ListView(
                 children: [
                   SettingsSection(title: _i18n.get("avatar"), tiles: [
@@ -357,9 +359,8 @@ class _AccountSettingsState extends State<AccountSettings> {
         labelStyle: TextStyle(color: Colors.blue));
   }
 
-  String ? validateFirstName(String ? value) {
-    if(value ==null)
-      return null;
+  String? validateFirstName(String? value) {
+    if (value == null) return null;
     if (value.isEmpty) {
       return _i18n.get("firstname_not_empty");
     } else {
@@ -369,7 +370,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   String? validateUsername(String? value) {
     Pattern? pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp ? regex = new RegExp(pattern.toString());
+    RegExp? regex = new RegExp(pattern.toString());
     if (value!.isEmpty) {
       setState(() {
         _userNameCorrect = false;
@@ -390,7 +391,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     return null;
   }
 
-  String ? validateEmail(String ? value) {
+  String? validateEmail(String? value) {
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regex = new RegExp(pattern.toString());

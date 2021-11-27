@@ -541,24 +541,27 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "report"),
-        PopupMenuItem<String>(
-            child: StreamBuilder<bool?>(
-                stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
-                builder: (c, s) {
-                  if (s.hasData)
-                    return Row(
-                      children: [
-                        Icon(Icons.report),
-                        SizedBox(width: 8),
-                        Text(s.data == null || !s.data!
-                            ? _i18n.get("blockRoom")
-                            : _i18n.get("unblock_room")),
-                      ],
-                    );
-                  else
-                    return SizedBox.shrink();
-                }),
-            value: "blockRoom")
+        if (!widget.roomUid.isMuc())
+          PopupMenuItem<String>(
+              child: StreamBuilder<bool?>(
+                  stream:
+                      _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
+                  builder: (c, s) {
+                    if (s.hasData) {
+                      _roomIsBlocked = s.data ?? false;
+                      return Row(
+                        children: [
+                          Icon(Icons.block),
+                          SizedBox(width: 8),
+                          Text(s.data == null || !s.data!
+                              ? _i18n.get("blockRoom")
+                              : _i18n.get("unblock_room")),
+                        ],
+                      );
+                    } else
+                      return SizedBox.shrink();
+                  }),
+              value: "blockRoom")
       ],
       onSelected: onSelected,
     );

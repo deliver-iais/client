@@ -400,8 +400,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       )
     ]).then<void>((OperationOnMessage? opr) async {
       if (opr == null) return;
-      switch (opr) {
-        // ignore: missing_enum_constant_in_switch
+      switch (opr) {// ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
           break;
@@ -423,8 +422,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _showDeleteMsgDialog([message]);
           break;
         case OperationOnMessage.EDIT:
-          switch (message.type) {
-            // ignore: missing_enum_constant_in_switch
+          switch (message.type) {// ignore: missing_enum_constant_in_switch
             case MessageType.TEXT:
               inputMessagePrifix.add(message.json!.toText().text);
               _editableMessage.add(message);
