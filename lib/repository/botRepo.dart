@@ -2,6 +2,7 @@ import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -13,21 +14,47 @@ class BotRepo {
   final _botServiceClient = GetIt.I.get<BotServiceClient>();
   final _botDao = GetIt.I.get<BotDao>();
 
-  Future<BotInfo> fetchBotInfo(Uid botUid) async {
-    var result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+  Future<BotInfo?> fetchBotInfo(Uid botUid) async {
+    GetInfoRes ? result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    if(result != null ){
+      var botInfo = BotInfo(
+          description: result.description,
+          uid: botUid.asString(),
+          name: result.name,
+          commands: result.commands,
+          isOwner: result.isOwner);
 
-    var botInfo = BotInfo(
-        description: result.description,
-        uid: botUid.asString(),
-        name: result.name,
-        commands: result.commands);
+      _botDao.save(botInfo);
 
-    _botDao.save(botInfo);
+      return botInfo;
+    } else
+      return null;
 
-    return botInfo;
+
   }
 
-  Future<BotInfo> getBotInfo(Uid botUid) async {
+  Future<bool> addBotAvatar(Avatar botAvatar) async {
+    try {
+      await _botServiceClient.addAvatar(AddAvatarReq()..avatar = botAvatar);
+      return true;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
+
+  Future<bool> removeBotAvatar(Avatar botAvatar) async {
+    try {
+      var result = await _botServiceClient
+          .removeAvatar(RemoveAvatarReq()..avatar = botAvatar);
+      return true;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
+
+  Future<BotInfo ?> getBotInfo(Uid botUid) async {
     var botInfo = await _botDao.get(botUid.asString());
     // TODO add lastUpdate field in model and check it later in here!
     if (botInfo != null) {

@@ -605,9 +605,10 @@ class _InputMessageWidget extends State<InputMessage> {
     int length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-            value.commands!.forEach((key, value) {
-              if (key.contains(_botCommandData)) length++;
-            }),
+            if (value != null)
+              value.commands!.forEach((key, value) {
+                if (key.contains(_botCommandData)) length++;
+              }),
             botCommandSelectedIndex = length - 1,
           });
     } else {
@@ -617,7 +618,9 @@ class _InputMessageWidget extends State<InputMessage> {
 
   sendBotCommandByEnter() async {
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-          onCommandClick(value.commands!.keys.toList()[botCommandSelectedIndex])
+          if (value != null)
+            onCommandClick(
+                value.commands!.keys.toList()[botCommandSelectedIndex])
         });
   }
 
@@ -633,9 +636,10 @@ class _InputMessageWidget extends State<InputMessage> {
   scrollDownInBotCommand() {
     int length = 0;
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
-          value.commands!.forEach((key, value) {
-            if (key.contains(_botCommandData)) length++;
-          }),
+          if (value != null)
+            value.commands!.forEach((key, value) {
+              if (key.contains(_botCommandData)) length++;
+            }),
           if (botCommandSelectedIndex >= length)
             botCommandSelectedIndex = 0
           else

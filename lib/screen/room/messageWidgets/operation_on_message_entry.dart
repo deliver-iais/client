@@ -8,15 +8,20 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:share/share.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
@@ -24,10 +29,12 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool hasPermissionInGroup;
   final bool isPinned;
 
-  OperationOnMessageEntry(this.message,
-      {this.hasPermissionInChannel = true,
-      this.hasPermissionInGroup = true,
-      this.isPinned = false});
+  OperationOnMessageEntry(
+    this.message, {
+    this.hasPermissionInChannel = true,
+    this.hasPermissionInGroup = true,
+    this.isPinned = false,
+  });
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -45,32 +52,52 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _autRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _logger = GetIt.I.get<Logger>();
 
   onReply() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPLY);
   }
 
   onCopy() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.COPY);
+    if (widget.message.type == MessageType.TEXT)
+      Clipboard.setData(
+          ClipboardData(text: widget.message.json!.toText().text));
+    else
+      Clipboard.setData(
+          ClipboardData(text: widget.message.json!.toFile().caption));
+    ToastDisplay.showToast(
+        toastText: _i18n.get("copied"), tostContext: context);
+    Navigator.pop(context);
   }
 
   onForward() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.FORWARD);
+    _routingServices
+        .openSelectForwardMessage(context, forwardedMessages: [widget.message]);
+    Navigator.pop(context);
   }
 
   onEditMessage() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.EDIT);
   }
 
-  onDelete() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE);
-  }
-
   onResend() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
   }
 
-  onShare() {
+  onShare() async {
+    try {
+      var result = await _fileRepo.getFileIfExist(
+          widget.message.json!.toFile().uuid,
+          widget.message.json!.toFile().name);
+      if (result!.path.isNotEmpty)
+        Share.shareFiles(['${result.path}'],
+            text: widget.message.json!.toFile().caption.isNotEmpty
+                ? widget.message.json!.toFile().caption
+                : 'Deliver');
+    } catch (e) {
+      _logger.e(e);
+    }
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
   }
 
@@ -89,8 +116,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onSaveTODownloads() {
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.SAVE_TO_DOWNLOADS);
+    var file = widget.message.json!.toFile();
+    _fileRepo.saveFileInDownloadDir(
+        file.uuid, file.name, ExtStorage.DIRECTORY_DOWNLOADS);
+    Navigator.pop(context);
   }
 
   onSaveToMusic() {
@@ -281,7 +310,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(_i18n.get("report")),
                   ])),
-            if (widget.message.id != null)
+            if (widget.message.id != null &&
+                widget.message.type != MessageType.PERSISTENT_EVENT)
               TextButton(
                   onPressed: () {
                     onForward();

@@ -138,7 +138,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       roomUid: widget.roomId,
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-       appBar: buildAppbar(),
+        appBar: buildAppbar(),
         body: Container(
           child: Stack(
             children: [
@@ -147,7 +147,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   builder: (context, snapshot) {
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
-
               Column(
                 children: <Widget>[
                   AudioPlayerAppBar(),
@@ -309,8 +308,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
 
-   _roomRepo.resetMention(widget.roomId);
-   _notificationServices.cancelRoomNotifications(widget.roomId);
+    _roomRepo.resetMention(widget.roomId);
+    _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(widget.forwardedMessages != null
         ? widget.forwardedMessages!.length > 0
         : widget.shareUid != null);
@@ -389,7 +388,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _repliedMessage.add(null);
   }
 
-  void _showCustomMenu(Message message) {
+  void _showCustomMenu(Message message, bool isPersistentEventMessage) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(
         message,
@@ -402,20 +401,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       switch (opr) {// ignore: missing_enum_constant_in_switch
         case OperationOnMessage.REPLY:
           onReply(message);
-          break;
-        case OperationOnMessage.COPY:
-          if (message.type == MessageType.TEXT)
-            Clipboard.setData(ClipboardData(text: message.json!.toText().text));
-          else
-            Clipboard.setData(
-                ClipboardData(text: message.json!.toFile().caption));
-          ToastDisplay.showToast(
-              toastText: _i18n.get("copied"), tostContext: context);
-          break;
-        case OperationOnMessage.FORWARD:
-          _repliedMessage.add(null);
-          _routingService
-              .openSelectForwardMessage(context, forwardedMessages: [message]);
           break;
         case OperationOnMessage.DELETE:
           _showDeleteMsgDialog([message]);
@@ -433,34 +418,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   paths: [],
                   context: context);
           }
-
           break;
-        case OperationOnMessage.SHARE:
-          {
-            try {
-              var result = await _fileRepo.getFileIfExist(
-                  message.json!.toFile().uuid, message.json!.toFile().name);
-              if (result!.path.isNotEmpty)
-                Share.shareFiles(['${result.path}'],
-                    text: message.json!.toFile().caption.isNotEmpty
-                        ? message.json!.toFile().caption
-                        : 'Deliver');
-              break;
-            } catch (e) {
-              _logger.e(e);
-              break;
-            }
-          }
-
         case OperationOnMessage.SAVE_TO_GALLERY:
           var file = message.json!.toFile();
           _fileRepo.saveFileInDownloadDir(
               file.uuid, file.name, ExtStorage.DIRECTORY_PICTURES);
-          break;
-        case OperationOnMessage.SAVE_TO_DOWNLOADS:
-          var file = message.json!.toFile();
-          _fileRepo.saveFileInDownloadDir(
-              file.uuid, file.name, ExtStorage.DIRECTORY_DOWNLOADS);
           break;
         case OperationOnMessage.SAVE_TO_MUSIC:
           var file = message.json!.toFile();
@@ -529,7 +491,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage!)) {
-        List<int >? pm = muc.pinMessagesIdList;
+        List<int>? pm = muc.pinMessagesIdList;
         _pinMessages.clear();
         if (pm != null && pm.length > 0)
           pm.reversed.toList().forEach((element) async {
@@ -537,8 +499,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               try {
                 var m = await _getMessage(
                     element, widget.roomId, muc.lastMessageId!,
-                    lastUpdatedMessageId:_currentRoom.value!.lastUpdatedMessageId!= null ?
-                        _currentRoom.value!.lastUpdatedMessageId!:0);
+                    lastUpdatedMessageId:
+                        _currentRoom.value!.lastUpdatedMessageId != null
+                            ? _currentRoom.value!.lastUpdatedMessageId!
+                            : 0);
                 _pinMessages.add(m!);
                 _lastPinedMessage.add(_pinMessages.last.id!);
               } catch (e) {
@@ -1017,13 +981,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onTap: () {
           if (_selectMultiMessageSubject.stream.value)
             _addForwardMessage(message);
-          else if (!isDesktop()) _showCustomMenu(message);
+          else if (!isDesktop()) _showCustomMenu(message, false);
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!_selectMultiMessageSubject.stream.value)
-                  _showCustomMenu(message);
+                  _showCustomMenu(message, false);
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
         onLongPress: () {
