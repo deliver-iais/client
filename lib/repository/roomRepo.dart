@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notication_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
@@ -140,12 +141,11 @@ class RoomRepo {
 
     // Is bot
     if (uid.category == Categories.BOT) {
-      var botInfo = await _botRepo.getBotInfo(uid);
-      if (botInfo != null && botInfo.name.isNotEmpty) {
-        roomNameCache.set(uid.asString(), botInfo.name);
+      BotInfo? botInfo = await _botRepo.getBotInfo(uid);
+      if (botInfo != null && botInfo.name!.isNotEmpty) {
+        roomNameCache.set(uid.asString(), botInfo.name!);
         _uidIdNameDao.update(uid.asString(), name: botInfo.name, id: uid.node);
-
-        return botInfo.name;
+        return botInfo.name!;
       }
       return uid.node;
     }

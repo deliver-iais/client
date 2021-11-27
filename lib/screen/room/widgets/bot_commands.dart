@@ -27,7 +27,7 @@ class _BotCommandsState extends State<BotCommands> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<BotInfo>(
+    return FutureBuilder<BotInfo?>(
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
