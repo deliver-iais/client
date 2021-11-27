@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/screen/room/pages/roomPage.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
@@ -19,7 +18,6 @@ import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
   final bool isChannel;
@@ -60,7 +58,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   Future<bool> checkChannelD(String id) async {
     var res = await _mucRepo.channelIdIsAvailable(id);
-    if (res != null && res) {
+    if (res) {
       showChannelIdError.add(false);
       return res;
     } else

@@ -13,20 +13,16 @@ class MucMemberMentionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return member != null
-        ? Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            child: buildGestureDetector(
-                username: member.id ?? "",
-                name: member.name ?? "",
-                context: context))
-        : SizedBox.shrink();
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: buildGestureDetector(
+            username: member.id ?? "",
+            name: member.name ?? "",
+            context: context));
   }
 
   Widget buildGestureDetector(
-      {required String username,
-        String? name,
-      required BuildContext context}) {
+      {required String username, String? name, required BuildContext context}) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(

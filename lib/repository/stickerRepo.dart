@@ -59,15 +59,8 @@ class StickerRepo {
     return null;
   }
 
-  getTrendPacks() async {
-    var result = await _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
-    if (result != null) {
-      // for (String packId in result.packIdList)
-      //   _stickerIdDao.upsertStickerPack(StickerId(
-      //       getPackTime: DateTime.now(),
-      //       packId: packId,
-      //       packISDownloaded: false));
-    }
+  getTrendPacks() {
+    _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
   }
 
   Stream<List<Sticker>>? getAllSticker() {

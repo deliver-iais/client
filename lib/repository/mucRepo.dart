@@ -501,32 +501,25 @@ class MucRepo {
     switch (role) {
       case MucRole.MEMBER:
         return MucPro.Role.MEMBER;
-        break;
       case MucRole.ADMIN:
         return MucPro.Role.ADMIN;
-        break;
       case MucRole.OWNER:
         return MucPro.Role.OWNER;
       case MucRole.NONE:
         return MucPro.Role.NONE;
-        break;
     }
-    return MucPro.Role.NONE;
   }
 
   MucRole getLocalRole(Role role) {
     switch (role) {
       case Role.MEMBER:
         return MucRole.MEMBER;
-        break;
       case Role.ADMIN:
         return MucRole.ADMIN;
-        break;
       case Role.OWNER:
         return MucRole.OWNER;
       case Role.NONE:
         return MucRole.NONE;
-        break;
     }
     throw Exception("Not Valid Role! $role");
   }

@@ -19,7 +19,7 @@ class NewContact extends StatefulWidget {
 }
 
 class _NewContactState extends State<NewContact> {
-  late PhoneNumber _phoneNumber;
+  PhoneNumber? _phoneNumber;
 
   I18N _i18n = GetIt.I.get<I18N>();
   var _routingServices = GetIt.I.get<RoutingService>();
@@ -43,20 +43,19 @@ class _NewContactState extends State<NewContact> {
                       icon: Icon(Icons.check),
                       iconSize: 40,
                       onPressed: () async {
-                        if (_phoneNumber == null) {
-                          return;
-                        }
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        bool addContact =
-                            await _contactRepo.addContact(Contact()
-                              ..phoneNumber = _phoneNumber
-                              ..firstName = _firstName
-                              ..lastName = _lastName);
-                        if (addContact) {
-                          await showResult();
-                          _routingServices.pop();
+                        if (_phoneNumber != null) {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          bool addContact =
+                          await _contactRepo.addContact(Contact()
+                            ..phoneNumber = _phoneNumber!
+                            ..firstName = _firstName
+                            ..lastName = _lastName);
+                          if (addContact) {
+                            await showResult(_phoneNumber!);
+                            _routingServices.pop();
+                          }
                         }
                       })
                   : Center(child: CircularProgressIndicator()))
@@ -119,10 +118,10 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  Future<void> showResult() async {
+  Future<void> showResult(PhoneNumber pn) async {
     var result = await _contactRepo.contactIsExist(
-        _phoneNumber.countryCode.toString(),
-        _phoneNumber.nationalNumber.toString());
+        pn.countryCode.toString(),
+        pn.nationalNumber.toString());
     if (result) {
       setState(() {
         _isLoading = false;

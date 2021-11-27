@@ -26,13 +26,11 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
@@ -166,7 +164,6 @@ class _InputMessageWidget extends State<InputMessage> {
       var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
       if (currentRoom.uid.asUid().category == Categories.BOT &&
-          _controller.text != null &&
           _controller.text.isNotEmpty &&
           _controller.text[0] == "/" &&
           _controller.selection.start == _controller.selection.end &&
@@ -337,7 +334,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     onTap: () => backSubject.add(false),
                                     onChanged: (str) {
                                       _textSelection = _controller.selection;
-                                      if (str != null && str.length > 0)
+                                      if (str.length > 0)
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
                                       else
@@ -395,12 +392,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           Icons.send,
                                           color: Colors.blue,
                                         ),
-                                        onPressed: _controller.text != null &&
-                                                _controller.text.isEmpty &&
-                                                (widget.waitingForForward ==
-                                                        null ||
-                                                    widget.waitingForForward ==
-                                                        false)
+                                        onPressed: _controller.text.isEmpty &&
+                                                !widget.waitingForForward
                                             ? () async {}
                                             : () {
                                                 sendMessage();
@@ -440,7 +433,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 } else {
                                   if (started) {
                                     started = false;
-                                    if (_tickTimer != null) _tickTimer.cancel();
+                                    _tickTimer.cancel();
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
@@ -488,7 +481,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
-                                if (_tickTimer != null) _tickTimer.cancel();
+                                _tickTimer.cancel();
                                 var res = await r.stop();
 
                                 // _soundRecorder.closeAudioSession();
@@ -627,7 +620,7 @@ class _InputMessageWidget extends State<InputMessage> {
   sendMentionByEnter() async {
     var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
         query: _mentionData);
-    if (value != null && value.length > 0) {
+    if (value.length > 0) {
       onMentionSelected(value[mentionSelectedIndex]!.id!);
       sendMessage();
     }

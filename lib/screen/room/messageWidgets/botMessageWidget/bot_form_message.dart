@@ -50,7 +50,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (form.title != null && form.title.isNotEmpty)
+            if (form.title.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(left: 4.0),
                 child: Container(
@@ -63,7 +63,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   ),
                 ),
               ),
-            if (form.title != null && form.title.isNotEmpty)
+            if (form.title.isNotEmpty)
               SizedBox(
                 height: 4,
               ),
@@ -88,7 +88,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       case protoForm.Form_Field_Type.numberField:
                         return FormInputTextFieldWidget(
                           formField: form.fields[index],
@@ -99,7 +98,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       case protoForm.Form_Field_Type.dateField:
                         return FormInputTextFieldWidget(
                           formField: form.fields[index],
@@ -110,7 +108,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       case protoForm.Form_Field_Type.timeField:
                         return FormInputTextFieldWidget(
                           formField: form.fields[index],
@@ -121,7 +118,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       case protoForm.Form_Field_Type.checkbox:
                         return CheckBoxFormField(
                           formField: form.fields[index],
@@ -129,7 +125,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       case protoForm.Form_Field_Type.list:
                         return FormListWidget(
                           formField: form.fields[index],
@@ -140,7 +135,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       case protoForm.Form_Field_Type.radioButtonList:
                         return FormListWidget(
                           formField: form.fields[index],
@@ -151,7 +145,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             setResult(index, value);
                           },
                         );
-                        break;
                       default:
                         return SizedBox.shrink();
                     }

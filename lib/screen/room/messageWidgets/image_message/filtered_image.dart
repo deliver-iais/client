@@ -39,7 +39,7 @@ class _FilteredImageState extends State<FilteredImage> {
         future: fileRepo.getFile(widget.uuid, widget.name,
             thumbnailSize: ThumbnailSize.medium),
         builder: (context, file) {
-          if (file.hasData == false && widget.path != null) {
+          if (file.hasData == false) {
             return Stack(
               alignment: Alignment.center,
               children: [

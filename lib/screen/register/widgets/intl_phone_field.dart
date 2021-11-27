@@ -170,10 +170,9 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             controller: widget.controller,
             focusNode: widget.focusNode,
             onFieldSubmitted: (s) {
-              if (widget.onSubmitted != null)
-                widget.onSubmitted(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                  ..nationalNumber = Int64.parseInt(s));
+              widget.onSubmitted(PhoneNumber()
+                ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                ..nationalNumber = Int64.parseInt(s));
             },
             decoration: InputDecoration(
               suffixIcon: Icon(
@@ -209,10 +208,9 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                   ..nationalNumber = Int64.parseInt(value));
             },
             onChanged: (value) {
-              if (widget.onChanged != null)
-                widget.onChanged(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                  ..nationalNumber = Int64.parseInt(value));
+              widget.onChanged(PhoneNumber()
+                ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                ..nationalNumber = Int64.parseInt(value));
             },
             validator: widget.validator,
             keyboardType: widget.keyboardType,

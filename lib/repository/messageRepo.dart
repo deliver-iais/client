@@ -140,8 +140,7 @@ class MessageRepo {
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-          if (roomMetadata.presenceType == null ||
-              roomMetadata.presenceType == PresenceType.ACTIVE) {
+          if (roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
                 room.lastMessage != null &&
                 room.lastMessage!.id != null &&
@@ -357,7 +356,7 @@ class MessageRepo {
           await _queryServiceClient.fetchMentionList(FetchMentionListReq()
             ..group = room.uid.asUid()
             ..afterId = Int64.parseInt(room.lastMessage!.id.toString()));
-      if (mentionResult.idList != null && mentionResult.idList.length > 0) {
+      if (mentionResult.idList.length > 0) {
         _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
     } catch (e) {
@@ -693,7 +692,6 @@ class MessageRepo {
                   _roomDao.updateRoom(
                       Room(uid: message.from.asString(), deleted: true));
                   continue;
-                  break;
                 case MucSpecificPersistentEvent_Issue.ADD_USER:
                   _roomDao.updateRoom(
                       Room(uid: message.from.asString(), deleted: false));
@@ -870,24 +868,22 @@ class MessageRepo {
   void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
       {int? replyId, String? forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
-    if (res != null) {
-      protoModel.Location location = protoModel.Location(
-          longitude: position.longitude, latitude: position.latitude);
-      String json = (protoModel.LiveLocation()
-            ..location = location
-            ..from = _authRepo.currentUserUid
-            ..uuid = res.uuid
-            ..to = roomUid
-            ..time = Int64(duration))
-          .writeToJson();
-      Message msg = _createMessage(roomUid,
-              replyId: replyId, forwardedFrom: forwardedFrom)
-          .copyWith(type: MessageType.LIVE_LOCATION, json: json);
+    protoModel.Location location = protoModel.Location(
+        longitude: position.longitude, latitude: position.latitude);
+    String json = (protoModel.LiveLocation()
+          ..location = location
+          ..from = _authRepo.currentUserUid
+          ..uuid = res.uuid
+          ..to = roomUid
+          ..time = Int64(duration))
+        .writeToJson();
+    Message msg = _createMessage(roomUid,
+            replyId: replyId, forwardedFrom: forwardedFrom)
+        .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
-      var pm = _createPendingMessage(msg, SendingStatus.PENDING);
-      _saveAndSend(pm);
-      _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
-    }
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+    _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
   }
 
   Future<bool> _deleteMessage(Message message) async {
@@ -991,9 +987,9 @@ class MessageRepo {
 
   void fetchBlockedRoom() async {
     try {
-      GetBlockedListRes? res =
+      GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());
-      if (res != null && res.uidList.isNotEmpty) {
+      if (res.uidList.isNotEmpty) {
         for (var uid in res.uidList) {
           _blockDao.block(uid.asString());
         }

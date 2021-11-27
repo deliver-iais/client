@@ -124,7 +124,7 @@ class LastMessage extends StatelessWidget {
                   .where((e) => e.trim().isNotEmpty)
                   .join(" "),
               context)
-          .where((b) => b.text != null && b.text.isNotEmpty)
+          .where((b) => b.text.isNotEmpty)
           .map((e) => TextSpan(text: e.text, style: e.style))
           .toList();
 

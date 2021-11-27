@@ -172,11 +172,8 @@ class PersistentEventMessage extends StatelessWidget {
           if (assigneeWidget != null) assigneeWidget,
           if (pinedMessageWidget != null) pinedMessageWidget,
         ];
-
-        break;
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         return null;
-        break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
         switch (persistentEventMessage.adminSpecificPersistentEvent.event) {
           case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
@@ -240,13 +237,11 @@ class PersistentEventMessage extends StatelessWidget {
             isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
-        break;
       case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
         return _i18n.verb("pinned",
             isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
-        break;
       default:
         return "";
     }

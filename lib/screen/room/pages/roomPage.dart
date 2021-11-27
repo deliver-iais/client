@@ -463,20 +463,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _pinMessages.clear();
         if (pm != null && pm.length > 0)
           pm.reversed.toList().forEach((element) async {
-            if (element != null) {
-              try {
-                var m = await _getMessage(
-                    element, widget.roomId, muc.lastMessageId!,
-                    lastUpdatedMessageId:
-                        _currentRoom.value!.lastUpdatedMessageId != null
-                            ? _currentRoom.value!.lastUpdatedMessageId!
-                            : 0);
-                _pinMessages.add(m!);
-                _lastPinedMessage.add(_pinMessages.last.id!);
-              } catch (e) {
-                _logger.e(e);
-                _logger.d(element);
-              }
+            try {
+              var m = await _getMessage(
+                  element, widget.roomId, muc.lastMessageId!,
+                  lastUpdatedMessageId:
+                      _currentRoom.value!.lastUpdatedMessageId != null
+                          ? _currentRoom.value!.lastUpdatedMessageId!
+                          : 0);
+              _pinMessages.add(m!);
+              _lastPinedMessage.add(_pinMessages.last.id!);
+            } catch (e) {
+              _logger.e(e);
+              _logger.d(element);
             }
           });
       }
@@ -683,7 +681,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future searchMessage(String str, BehaviorSubject subject) async {
-    if (str != null && str.length > 0) {
+    if (str.length > 0) {
       subject.add(false);
       _searchMessagePattern = str;
       Map<int, Message> rm = Map();
@@ -693,7 +691,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           rm[element.id!] = element;
         }
       });
-      if (rm != null && rm.values.length > 0) {
+      if (rm.values.length > 0) {
         setState(() {
           searchResult = rm.values.toList();
         });
@@ -711,7 +709,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
       initialScrollIndex: _itemCount > 0
-          ? (_lastShowedMessageId != null && _lastShowedMessageId != -1)
+          ? (_lastShowedMessageId != -1)
               ? _lastShowedMessageId
               : _itemCount
           : 0,
@@ -820,8 +818,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
       int index, Room? currentRoom) {
-    if (_currentRoom != null &&
-        currentRoom!.firstMessageId != null &&
+    if (currentRoom!.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
         height: 20,
@@ -1129,9 +1126,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _routingService.openRoom(roomId, context: context);
     } else {
       String roomId = await _roomRepo.getUidById(username);
-      if (roomId != null) {
-        _routingService.openRoom(roomId, context: context);
-      }
+      _routingService.openRoom(roomId, context: context);
     }
   }
 

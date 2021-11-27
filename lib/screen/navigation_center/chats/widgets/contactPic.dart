@@ -28,7 +28,7 @@ class ContactPic extends StatelessWidget {
           StreamBuilder<LastActivity?>(
               stream: _lastActivityRepo.watch(userUid.asString()),
               builder: (c, la) {
-                if (la.hasData && la.data != null && la.data!.time != null)
+                if (la.hasData && la.data != null)
                   return isOnline(la.data!.time)
                       ? Positioned(
                           child: Container(

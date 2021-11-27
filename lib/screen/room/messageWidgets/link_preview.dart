@@ -58,7 +58,7 @@ class LinkPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (link == null || link.isEmpty) return SizedBox.shrink();
+    if (link.isEmpty) return SizedBox.shrink();
     return FutureBuilder<Metadata?>(
         future: _fetchMetadata(link),
         builder: (context, snapshot) {

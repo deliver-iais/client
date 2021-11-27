@@ -178,7 +178,6 @@ class _BoxContentState extends State<BoxContent> {
           isBotMessage: widget.message.from.asUid().category == Categories.BOT,
           onBotCommandClick: widget.onBotCommandClick,
         );
-        break;
       case MessageType.FILE:
         return FileMessageUi(
           message: widget.message,
@@ -211,13 +210,10 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
-        break;
       case MessageType.FORM:
         return BotFormMessage(message: widget.message, isSeen: true);
-        break;
       case MessageType.BUTTONS:
         return BotButtonsWidget(message: widget.message);
-        break;
       case MessageType.PERSISTENT_EVENT:
         // we show peristant event message in roompage
         break;
@@ -227,22 +223,18 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
           isSeen: widget.isSeen,
         );
-        break;
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return SharePrivateDataRequestMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
-        break;
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return SharePrivateDataAcceptMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
-
-        break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;

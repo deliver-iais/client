@@ -337,7 +337,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&
-                        snapshot.data!.failed != null &&
                         snapshot.data!.failed) {
                       return TextButton(
                           onPressed: () {
@@ -364,7 +363,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
-                            snapshot.data!.failed != null &&
                             snapshot.data!.failed) {
                           return deleteMenuWidget();
                         } else {

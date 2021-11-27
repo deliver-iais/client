@@ -595,7 +595,7 @@ class _ProfilePageState extends State<ProfilePage>
     Muc? muc = await _mucRepo.getMuc(widget.roomUid.asString());
     if (muc != null && muc.token != null) {
       String? token = muc.token!;
-      if (token == null || token.isEmpty || token.length == 0) {
+      if (token.isEmpty || token.length == 0) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
         } else {
@@ -902,7 +902,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<bool> checkChannelD(String id) async {
     var res = await _mucRepo.channelIdIsAvailable(id);
-    if (res != null && res) {
+    if (res) {
       _showChannelIdError.add(false);
       return res;
     } else

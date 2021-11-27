@@ -87,7 +87,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
 
   Size getImageDimensions(double width, double height) {
     double maxWidth = widget.maxWidth;
-    if (width == null || width == 0 || height == null || height == 0) {
+    if (width == 0 || height == 0) {
       width = maxWidth;
       height = maxWidth;
     }

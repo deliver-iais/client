@@ -161,25 +161,18 @@ class MediaQueryRepo {
     switch (mediaType) {
       case MediaType.IMAGE:
         return FetchMediasReq_MediaType.IMAGES;
-        break;
       case MediaType.VIDEO:
         return FetchMediasReq_MediaType.VIDEOS;
-        break;
       case MediaType.FILE:
         return FetchMediasReq_MediaType.FILES;
-        break;
       case MediaType.AUDIO:
         return FetchMediasReq_MediaType.AUDIOS;
-        break;
       case MediaType.MUSIC:
         return FetchMediasReq_MediaType.MUSICS;
-        break;
       case MediaType.DOCUMENT:
         return FetchMediasReq_MediaType.DOCUMENTS;
-        break;
       case MediaType.LINK:
         return FetchMediasReq_MediaType.LINKS;
-        break;
       default:
         return FetchMediasReq_MediaType.FILES;
     }

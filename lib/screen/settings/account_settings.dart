@@ -87,11 +87,10 @@ class _AccountSettingsState extends State<AccountSettings> {
           setState(() {
             usernameIsAvailable = validUsername;
           });
-        } else if (_lastUserName != null) {
+        } else
           setState(() {
             usernameIsAvailable = true;
           });
-        }
       }
     });
     super.initState();

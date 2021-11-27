@@ -137,9 +137,9 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
             : widget.formField.textField.min;
     if (value.isEmpty && widget.formField.isOptional) {
       return null;
-    } else if (max != null && max > 0 && value != null && value.length > max) {
+    } else if (max > 0 && value.length > max) {
       return "${_i18n.get("max_length")}  $max";
-    } else if (min != null && value == null || value.length < min) {
+    } else if (value.length < min) {
       return " ${_i18n.get("min_length")} $min";
     } else {
       return null;

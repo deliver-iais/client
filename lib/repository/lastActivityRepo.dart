@@ -16,7 +16,6 @@ class LastActivityRepo {
   Future<void> updateLastActivity(Uid userUId) async {
     var la = await _lastActivityDao.get(userUId.asString());
     if (la != null &&
-        la.time != null &&
         DateTime.now().millisecondsSinceEpoch - la.lastUpdate < 10 * 60) {
       return;
     } else {
@@ -33,11 +32,9 @@ class LastActivityRepo {
         .getLastActivity(GetLastActivityReq()..uid = currentUserUid);
     _logger.v(lastActivityTime.toString());
 
-    if (lastActivityTime != null) {
-      _lastActivityDao.save(LastActivity(
-          uid: currentUserUid.asString(),
-          time: lastActivityTime.lastActivityTime.toInt(),
-          lastUpdate: DateTime.now().millisecondsSinceEpoch));
-    }
+    _lastActivityDao.save(LastActivity(
+        uid: currentUserUid.asString(),
+        time: lastActivityTime.lastActivityTime.toInt(),
+        lastUpdate: DateTime.now().millisecondsSinceEpoch));
   }
 }

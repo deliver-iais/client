@@ -24,7 +24,6 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -55,7 +54,6 @@ class RoomRepo {
   updateRoom(Room room) => _roomDao.updateRoom(room);
 
   Future<String?> getSlangName(Uid uid) async {
-    if (uid == null) return "";
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
       return _i18n.get("you");
@@ -65,10 +63,6 @@ class RoomRepo {
   }
 
   Future<String>? getName(Uid uid) async {
-    if (uid == null) {
-      return "";
-    }
-
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -320,7 +314,7 @@ class RoomRepo {
       return uid;
     } else {
       var uid = await fetchUidById(id);
-      if (uid != null) _uidIdNameDao.update(uid.asString(), id: id);
+      _uidIdNameDao.update(uid.asString(), id: id);
       return uid.asString();
     }
   }

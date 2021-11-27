@@ -326,7 +326,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
+            CircleAvatarWidget(uid, 23),
             SizedBox(
               width: 20,
             ),

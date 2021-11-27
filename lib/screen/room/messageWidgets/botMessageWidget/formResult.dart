@@ -38,7 +38,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (final key in formResult.values.keys)
-                    if (key != null && key.isNotEmpty)
+                    if (key.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 8, bottom: 8),
                         child: TextField(

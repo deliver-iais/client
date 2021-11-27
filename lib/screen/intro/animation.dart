@@ -26,7 +26,7 @@ class IntroAnimationController extends FlareController {
   @override
   void initialize(FlutterActorArtboard artboard) {
     _artboard = artboard;
-    if (_animationName != null && _artboard != null) {
+    if (_artboard != null) {
       ActorAnimation? animation = _artboard!.getAnimation(_animationName);
       if (animation != null) {
         _animationLayers = FlareAnimationLayer(_animationName,animation)
@@ -68,7 +68,7 @@ class IntroAnimationController extends FlareController {
     var speed = direction > 0 ? elapsed * 1.75 : elapsed * 2.5;
     layer.time += direction * speed;
 
-    double mix = (_mixSeconds == null || _mixSeconds == 0.0)
+    double mix = (_mixSeconds == 0.0)
         ? 1.0
         : min(1.0, layer.mix / _mixSeconds);
 

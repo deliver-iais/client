@@ -24,7 +24,6 @@ import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
@@ -41,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
-  bool _accept_privacy = false;
+  bool _acceptPrivacy = false;
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -50,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    if (phoneNumber != null && phoneNumber!.nationalNumber != null) {
+    if (phoneNumber != null) {
       controller.text = phoneNumber!.nationalNumber.toString();
     }
 
@@ -296,10 +295,10 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         children: [
                           Checkbox(
-                            value: _accept_privacy,
+                            value: _acceptPrivacy,
                             onChanged: (c) {
                               setState(() {
-                                _accept_privacy = c!;
+                                _acceptPrivacy = c!;
                               });
                             },
                           ),
@@ -324,7 +323,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                if (_accept_privacy)
+                if (_acceptPrivacy)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(
