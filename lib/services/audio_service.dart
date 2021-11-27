@@ -142,16 +142,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
         switch (event) {
           case PlayerState.STOPPED:
             return AudioPlayerState.STOPPED;
-            break;
           case PlayerState.PLAYING:
             return AudioPlayerState.PLAYING;
-            break;
           case PlayerState.PAUSED:
             return AudioPlayerState.PAUSED;
-            break;
           case PlayerState.COMPLETED:
             return AudioPlayerState.COMPLETED;
-            break;
           default:
             return AudioPlayerState.STOPPED;
         }

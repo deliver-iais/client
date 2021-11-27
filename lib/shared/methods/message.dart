@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -339,7 +337,6 @@ Message extractMessage(AuthRepo authRepo, PB.Message message) {
 
 String messageBodyToJson(PB.Message message) {
   var type = getMessageType(message.whichType());
-  var jsonString = Object();
   switch (type) {
     case MessageType.TEXT:
       return message.text.writeToJson();

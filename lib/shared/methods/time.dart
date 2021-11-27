@@ -6,7 +6,6 @@ bool isOnline(int time) {
 }
 
 DateTime date(int time) {
-  if (time == null) time = 0;
   return DateTime.fromMillisecondsSinceEpoch(time);
 }
 

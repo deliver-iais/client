@@ -180,8 +180,7 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) async {
-    if (_clientPacketStream != null &&
-        !_clientPacketStream.isClosed &&
+    if (!_clientPacketStream.isClosed &&
         _connectionStatus.value == ConnectionStatus.Connected) {
       _clientPacketStream.add(ClientPacket()
         ..message = message
@@ -205,7 +204,7 @@ class CoreServices {
   }
 
   sendPing() {
-    if (_clientPacketStream != null && !_clientPacketStream.isClosed) {
+    if (!_clientPacketStream.isClosed) {
       var ping = Ping()..lastPongTime = Int64(_lastPongTime);
       _clientPacketStream.add(ClientPacket()
         ..ping = ping
@@ -305,7 +304,6 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.DELETED:
               _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
               return;
-              break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
                 Muc? muc = await _mucDao.get(roomUid.asString());
@@ -366,7 +364,6 @@ class CoreServices {
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
               return;
-              break;
             case MessageManipulationPersistentEvent_Action.DELETED:
               var mes = await _messageDao.getMessage(
                   roomUid.asString(),
@@ -461,14 +458,13 @@ class CoreServices {
   void _saveRoomPresenceTypeChange(
       RoomPresenceTypeChanged roomPresenceTypeChanged) {
     PresenceType type = roomPresenceTypeChanged.presenceType;
-    if (type != null)
-      _roomDao.updateRoom(Room(
-          uid: roomPresenceTypeChanged.uid.asString(),
-          deleted: type == PresenceType.BANNED ||
-              type == PresenceType.DELETED ||
-              type == PresenceType.KICKED ||
-              type == PresenceType.LEFT ||
-              type != PresenceType.ACTIVE));
+    _roomDao.updateRoom(Room(
+        uid: roomPresenceTypeChanged.uid.asString(),
+        deleted: type == PresenceType.BANNED ||
+            type == PresenceType.DELETED ||
+            type == PresenceType.KICKED ||
+            type == PresenceType.LEFT ||
+            type != PresenceType.ACTIVE));
   }
 }
 
@@ -482,11 +478,9 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
         showNotify = !authRepo.isCurrentUser(
             message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
         return showNotify;
-        break;
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         showNotify = false;
         return showNotify;
-        break;
     }
   }
   return showNotify;
@@ -501,6 +495,6 @@ Future<DB.Message?> saveMessageInMessagesDB(
     return msg;
   } catch (e) {
     print(e.toString());
-    null;
+    return null;
   }
 }

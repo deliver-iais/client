@@ -23,7 +23,7 @@ class RawKeyboardService {
   }
 
   void controlFHandle() {
-    if (_openSearchBox != null) _openSearchBox();
+ _openSearchBox();
   }
 
   void controlCHandle(TextEditingController controller) {

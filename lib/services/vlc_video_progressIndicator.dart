@@ -21,6 +21,7 @@ class _VlcVideoProgressIndicatorState extends State<VlcVideoProgressIndicator> {
     widget.vlcPlayerController.addListener(() {
       setState(() {});
     });
+    super.initState();
   }
 
 

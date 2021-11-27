@@ -87,13 +87,11 @@ class _TitleStatusState extends State<TitleStatus> {
               overflow: TextOverflow.fade,
               softWrap: false,
               style: widget.style);
-          break;
         case TitleStatusConditions.Normal:
           if (widget.currentRoomUid != null)
             return activityWidget();
           else
             return this.widget.normalConditionWidget;
-          break;
       }
     }
     return widget.normalConditionWidget;
@@ -138,8 +136,7 @@ class _TitleStatusState extends State<TitleStatus> {
           stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
           builder: (c, userInfo) {
             if (userInfo.hasData &&
-                userInfo.data != null &&
-                userInfo.data!.time != null) {
+                userInfo.data != null) {
               if (isOnline(userInfo.data!.time)) {
                 return Text(
                   i18n.get("online"),

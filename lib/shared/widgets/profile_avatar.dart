@@ -109,8 +109,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       if (result!.files.isNotEmpty) {
         _setAvatar(result.files.first.path!);
       }
-    } else if ((await ImageItem.getImages()) == null ||
-        (await ImageItem.getImages()).length < 1) {
+    } else if ((await ImageItem.getImages()).length < 1) {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.custom,

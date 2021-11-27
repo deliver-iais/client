@@ -124,8 +124,7 @@ class WindowsNotifier implements Notifier {
         _windowsNotificationServices.show(toast);
         _windowsNotificationServices.stream.listen((event) {
           if (event is ToastActivated) {
-            if (lastAvatar.uid != null)
-              _routingService.openRoom(lastAvatar.uid);
+            _routingService.openRoom(lastAvatar.uid);
           }
         });
       } else {
@@ -140,10 +139,7 @@ class WindowsNotifier implements Notifier {
           _windowsNotificationServices.show(toast);
           _windowsNotificationServices.stream.listen((event) {
             if (event is ToastActivated) {
-              if (lastAvatar!.uid != null)
-                _routingService.openRoom(
-                  lastAvatar.uid,
-                );
+              if (lastAvatar != null) _routingService.openRoom(lastAvatar.uid);
             }
           });
         }
@@ -416,14 +412,14 @@ class MacOSNotifier implements Notifier {
 
 String createNotificationTextFromMessageBrief(MessageBrief mb) {
   var text = "";
-  if (!(mb.roomUid!.isBot() || mb.roomUid!.isUser()) && mb.senderIsAUserOrBot!) {
+  if (!(mb.roomUid!.isBot() || mb.roomUid!.isUser()) &&
+      mb.senderIsAUserOrBot!) {
     text += "${mb.sender!.trim()}: ";
   }
   if (mb.typeDetails!.isNotEmpty) {
     text += mb.typeDetails!;
   }
   if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty) {
-
     text += ", ";
   }
   if (mb.text!.isNotEmpty) {

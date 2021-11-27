@@ -50,8 +50,7 @@ class ExtraTheme extends InheritedWidget {
     Key? key,
     required Widget child,
     required this.extraThemeData,
-  })  : assert(child != null),
-        super(key: key, child: child);
+  })  : super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
     return context
