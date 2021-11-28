@@ -1,4 +1,3 @@
-import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
@@ -54,7 +53,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
       _remoteRenderer.srcObject = null;
     });
 
-    await callRepo.startCall(widget.roomUid);
+    //True means its VideoCall and false means AudioCall
+    await callRepo.startCall(widget.roomUid, true);
   }
 
   @override
@@ -63,8 +63,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot != null) {
-            if (snapshot.data == CallStatus.ACCEPTED) {
-              _logger.i("in call");
+            if (snapshot.data == CallStatus.ACCEPTED || snapshot.data == CallStatus.CONNECTED) {
+              _logger.i("CallSTATUS : " + snapshot.data.toString());
               _audioService.stopPlayBeepSound();
               return InVideoCallPage(
                 localRenderer: _localRenderer,

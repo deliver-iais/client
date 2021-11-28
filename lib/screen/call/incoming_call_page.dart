@@ -158,7 +158,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
                             ]))),
               ]));
             } else if (snapshot.data == CallStatus.ACCEPTED ||
-                snapshot.data == CallStatus.IN_CALL) {
+                snapshot.data == CallStatus.IN_CALL || snapshot.data == CallStatus.CONNECTED) {
               return InVideoCallPage(
                 localRenderer: _localRenderer,
                 remoteRenderer: _remoteRenderer,

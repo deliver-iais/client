@@ -1,11 +1,9 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
 import 'call_bottom_row.dart';
 

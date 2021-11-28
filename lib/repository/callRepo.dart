@@ -46,9 +46,12 @@ class CallRepo {
   String _callId;
 
   RTCPeerConnection _peerConnection;
+  Map<String, dynamic> _sdpConstraints;
 
   bool _onCalling = false;
   bool _isSharing = false;
+  bool _isCaller = false;
+  bool _isVideo = false;
 
   Uid _roomUid;
 
@@ -79,10 +82,14 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (!_onCalling) {
                 _callId = callEvent.id;
+                if(callEvent.callType == CallEvent_CallType.VIDEO){
+                  _logger.i("VideoCall");
+                  _isVideo = true;
+                }
                 incomingCall(event.roomUid);
               } else {
                 messageRepo.sendCallMessage(
-                    CallEvent_CallStatus.BUSY, event.roomUid, callEvent.id, 0);
+                    CallEvent_CallStatus.BUSY, event.roomUid, callEvent.id, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -92,7 +99,7 @@ class CallRepo {
               receivedDeclinedCall();
               break;
             case CallEvent_CallStatus.ENDED:
-              receivedEndCall();
+              receivedEndCall(callEvent.callDuration.toInt());
               break;
           }
           break;
@@ -121,10 +128,10 @@ class CallRepo {
       ]
     };
 
-    final Map<String, dynamic> offerSdpConstraints = {
+    _sdpConstraints = {
       "mandatory": {
         "OfferToReceiveAudio": true,
-        "OfferToReceiveVideo": true,
+        "OfferToReceiveVideo": _isVideo ? true : false,
       },
       "optional": [],
     };
@@ -132,13 +139,15 @@ class CallRepo {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-        await createPeerConnection(configuration, offerSdpConstraints);
+        await createPeerConnection(configuration, _sdpConstraints);
 
-    var camVideoTrack = _localStream.getVideoTracks()[0];
     var camAudioTrack = _localStream.getAudioTracks()[0];
-
-    _videoSender = await pc.addTrack(camVideoTrack, _localStream);
     _audioSender = await pc.addTrack(camAudioTrack, _localStream);
+
+    if(_isVideo) {
+      var camVideoTrack = _localStream.getVideoTracks()[0];
+      _videoSender = await pc.addTrack(camVideoTrack, _localStream);
+    }
 
     pc.onIceConnectionState = (e) {
       _logger.i(e);
@@ -175,10 +184,10 @@ class CallRepo {
           // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
+          startCallTime = DateTime.now().millisecondsSinceEpoch;
+          _logger.i("Start Call" + startCallTime.toString());
+          callingStatus.add(CallStatus.CONNECTED);
           _dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
-          break;
-        case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-          //_dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTING));
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
           _dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_DISCONNECTED));
@@ -267,6 +276,8 @@ class CallRepo {
             // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
             //     params.encodings[0].scaleResolutionDownBy = 2;
             // await _videoSender.setParameters(params);
+            startCallTime = DateTime.now().millisecondsSinceEpoch;
+            _logger.i("Start Call" + startCallTime.toString());
             callingStatus.add(CallStatus.CONNECTED);
             break;
           case STATUS_CONNECTION_CONNECTING:
@@ -340,43 +351,43 @@ class CallRepo {
     // Provide your own width, height and frame rate here
     Map<String, dynamic> mediaConstraints;
     if (isWindows()) {
-      mediaConstraints = {
-        'video': {
-          'mandatory': {
-            'minWidth': '640',
-            'maxWidth': '720',
-            'minHeight': '360',
-            'maxHeight': '405',
-            'minFrameRate': '15',
-            'maxFrameRate': '25',
-          },
-          'facingMode': 'user',
-          'optional': [],
-        },
-        'audio': {
-          'sampleSize': '16',
-          'channelCount': '2',
-        }
-      };
+        mediaConstraints = {
+          'video': _isVideo ? {
+            'mandatory': {
+              'minWidth': '640',
+              'maxWidth': '720',
+              'minHeight': '360',
+              'maxHeight': '405',
+              'minFrameRate': '15',
+              'maxFrameRate': '25',
+            },
+            'facingMode': 'user',
+            'optional': [],
+          } : false ,
+          'audio': {
+            'sampleSize': '16',
+            'channelCount': '2',
+          }
+        };
     } else {
-      mediaConstraints = {
-        'video': {
-          'mandatory': {
-            'minWidth': '480',
-            'maxWidth': '640',
-            'minHeight': '270',
-            'maxHeight': '360',
-            'minFrameRate': '15',
-            'maxFrameRate': '25',
-          },
-          'facingMode': 'user',
-          'optional': [],
-        },
-        'audio': {
-          'sampleSize': '16',
-          'channelCount': '2',
-        }
-      };
+        mediaConstraints = {
+          'video': _isVideo ? {
+            'mandatory': {
+              'minWidth': '480',
+              'maxWidth': '640',
+              'minHeight': '270',
+              'maxHeight': '360',
+              'minFrameRate': '15',
+              'maxFrameRate': '25',
+            },
+            'facingMode': 'user',
+            'optional': [],
+          } : false,
+          'audio': {
+            'sampleSize': '16',
+            'channelCount': '2',
+          }
+        };
     }
 
     var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
@@ -460,10 +471,12 @@ class CallRepo {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.IS_RINGING, _roomUid, _callId, 0);
+        CallEvent_CallStatus.IS_RINGING, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-  void startCall(Uid roomId) async {
+  void startCall(Uid roomId, bool isVideo) async {
+    _isCaller = true;
+    _isVideo = isVideo;
     if (!_onCalling) {
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
@@ -485,7 +498,7 @@ class CallRepo {
   _sendStartCallEvent() {
     _callIdGenerator();
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.CREATED, _roomUid, _callId, 0);
+        CallEvent_CallStatus.CREATED, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
   _callIdGenerator() {
@@ -501,14 +514,13 @@ class CallRepo {
     callingStatus.add(CallStatus.ACCEPTED);
     _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
-    startCallTime = DateTime.now().millisecondsSinceEpoch;
   }
 
   void declineCall() {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.DECLINED, _roomUid, _callId, 0);
+        CallEvent_CallStatus.DECLINED, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     _dispose();
   }
 
@@ -557,21 +569,39 @@ class CallRepo {
     });
   }
 
-  Future<void> receivedEndCall() async {
+  Future<void> receivedEndCall(int callDuration) async {
+    //TODO callDuration on ms shouldBe Save on DB
     String sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     callingStatus.add(CallStatus.ENDED);
-    _dispose();
+    if(_isCaller) {
+      int time = calculateCallEndTime();
+      messageRepo.sendCallMessage(
+          CallEvent_CallStatus.ENDED, _roomUid, _callId, time, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+    }
+    await _dispose();
   }
 
   endCall() async {
-    endCallTime = DateTime.now().millisecondsSinceEpoch;
+    if(_isCaller) {
+      int callDuration = calculateCallEndTime();
+      messageRepo.sendCallMessage(
+          CallEvent_CallStatus.ENDED, _roomUid, _callId, callDuration, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      //TODO callDuration shouldBe Save on DB
+    }
+    messageRepo.sendCallMessage(
+        CallEvent_CallStatus.ENDED, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+    await _dispose();
+  }
+
+  int calculateCallEndTime() {
+    endCallTime = DateTime
+        .now()
+        .millisecondsSinceEpoch;
     var time = endCallTime - startCallTime;
     print(time);
-    messageRepo.sendCallMessage(
-        CallEvent_CallStatus.ENDED, _roomUid, _callId, time);
-    await _dispose();
+    return time;
   }
 
   _setRemoteDescriptionOffer(String remoteSdp) async {
@@ -596,7 +626,7 @@ class CallRepo {
 
   _createAnswer() async {
     RTCSessionDescription description =
-        await _peerConnection.createAnswer({'offerToReceiveVideo': 1});
+        await _peerConnection.createAnswer(_sdpConstraints);
 
     var session = parse(description.sdp.toString());
     var answerSdp = json.encode(session);
@@ -609,7 +639,7 @@ class CallRepo {
 
   _createOffer() async {
     RTCSessionDescription description =
-        await _peerConnection.createOffer({'offerToReceiveVideo': 1});
+        await _peerConnection.createOffer(_sdpConstraints);
     //get SDP as String
     var session = parse(description.sdp.toString());
     var offerSdp = json.encode(session);
@@ -658,7 +688,6 @@ class CallRepo {
   _dispose() async {
     _logger.i("end call in service");
     await _peerConnection?.close();
-    await _peerConnection?.dispose();
     await _cleanLocalStream();
     _candidate = [];
     Timer(Duration(seconds: 3), () {
@@ -670,6 +699,8 @@ class CallRepo {
     _roomUid = null;
     _onCalling = false;
     _isSharing = false;
+    _isCaller = false;
+    _sdpConstraints = {};
   }
 
   _cleanLocalStream() async {
