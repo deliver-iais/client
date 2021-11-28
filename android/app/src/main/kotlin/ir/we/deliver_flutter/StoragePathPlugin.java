@@ -1,10 +1,10 @@
-package android.app.src.storagepath;
+
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
+import anedroid.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;

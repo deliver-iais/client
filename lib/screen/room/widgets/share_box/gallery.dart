@@ -4,6 +4,7 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 
@@ -37,8 +38,22 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   void initState() {
+    call();
     _future = ImageItem.getImages();
     super.initState();
+  }
+
+  call() async {
+    const platform = const MethodChannel('get_media');
+
+    String response = "";
+    try {
+      final String result = await platform.invokeMethod('1');
+      response = result;
+      print(response.toString());
+    } on PlatformException catch (e) {
+      response = "Failed to Invoke: '${e.message}'.";
+    }
   }
 
   void cropAvatar(String imagePath) async {

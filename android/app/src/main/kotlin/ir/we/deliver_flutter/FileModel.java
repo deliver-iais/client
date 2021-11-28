@@ -1,23 +1,21 @@
-package android.app.src.storagepath;
 
+
+import java.io.Serializable;
+import java.util.ArrayList;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
-
 /**
- * Created by Vivek Sharma - @follow2vivek on 07-Mar-19.
+ * Created by Vivek Sharma - @follow2vivek on 06-Mar-19.
  */
-public class MediaModel {
-
+class FileModel implements Serializable {
 
     @SerializedName("folderName")
     @Expose
     String folder;
+
     @SerializedName("files")
     @Expose
-    ArrayList<MetaData> files;
-
+    ArrayList<String> files;
 
     public String getFolder() {
         return folder;
@@ -27,13 +25,11 @@ public class MediaModel {
         this.folder = folder;
     }
 
-    public ArrayList<MetaData> getFiles() {
+    public ArrayList<String> getFiles() {
         return files;
     }
 
-    public void setFiles(ArrayList<MetaData> files) {
+    public void setFiles(ArrayList<String> files) {
         this.files = files;
     }
-
 }
-

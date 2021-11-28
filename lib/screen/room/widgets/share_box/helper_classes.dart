@@ -52,6 +52,7 @@ class AudioItem extends FileBasic {
 }
 
 class ImageItem extends FileBasic {
+
   ImageItem({required String path}) : super(path);
 
   static Future<List<ImageItem>> getImages() async {
