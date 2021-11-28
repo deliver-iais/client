@@ -14,13 +14,12 @@ class TimeAndSeenStatus extends StatelessWidget {
   final bool needsBackground;
   final bool needsPositioned;
   final bool needsPadding;
+  final _i18n = GetIt.I.get<I18N>();
 
   TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
       {this.needsPositioned = true,
       this.needsBackground = false,
       this.needsPadding = true});
-
-  var _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

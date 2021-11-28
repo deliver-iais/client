@@ -24,10 +24,10 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  final _i18n = GetIt.I.get<I18N>();
+
   ShareUidMessageWidget(
       {required this.message, required this.isSender, required this.isSeen});
-
-  var _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

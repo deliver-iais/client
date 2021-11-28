@@ -8,10 +8,9 @@ import 'package:get_it/get_it.dart';
 class BotStartWidget extends StatelessWidget {
   final Uid botUid;
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final i18n = GetIt.I.get<I18N>();
 
   BotStartWidget({required this.botUid});
-
-  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

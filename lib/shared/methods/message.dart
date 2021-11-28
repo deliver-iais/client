@@ -308,6 +308,8 @@ PB.Message extractProtocolBufferMessage(Message message) {
       break;
     case MessageType.NOT_SET:
       break;
+    default:
+      break;
   }
 
   return msg;

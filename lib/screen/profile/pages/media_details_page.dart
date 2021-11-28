@@ -21,41 +21,46 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
-  String? heroTag;
-  int? mediaPosition;
-  int? mediasLength;
-  Uid userUid;
-  bool isAvatar = false;
-  bool isVideo = false;
-  bool hasPermissionToDeletePic = false;
+  final String? heroTag;
+  final int mediaPosition;
+  final int mediasLength;
+  final Uid userUid;
+  final bool isAvatar;
+  final bool isVideo;
+  final bool hasPermissionToDeletePic;
 
   MediaDetailsPage.showMedia(
       {Key? key,
       required this.hasPermissionToDeletePic,
       required this.userUid,
       required this.mediaPosition,
-      this.mediasLength,
+      required this.mediasLength,
       this.heroTag})
-      : super(key: key);
+      : isVideo = false,
+        isAvatar = false,
+        super(key: key);
 
   MediaDetailsPage.showAvatar(
       {Key? key,
       required this.userUid,
       required this.hasPermissionToDeletePic,
-      this.heroTag,
-      this.mediaPosition})
-      : super(key: key) {
-    this.isAvatar = true;
-  }
+      required this.heroTag})
+      : mediaPosition = 0,
+        mediasLength = 0,
+        isVideo = false,
+        isAvatar = true,
+        super(key: key);
 
   MediaDetailsPage.showVideo(
       {Key? key,
       required this.userUid,
       required this.mediaPosition,
       required this.mediasLength})
-      : super(key: key) {
-    this.isVideo = true;
-  }
+      : isVideo = true,
+        isAvatar = false,
+        hasPermissionToDeletePic = false,
+        heroTag = null,
+        super(key: key);
 
   @override
   _MediaDetailsPageState createState() => _MediaDetailsPageState();
@@ -104,10 +109,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
     } else if (widget.isVideo == true) {
-      _swipePositionSubject.add(widget.mediaPosition!);
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, true);
     } else {
-      _swipePositionSubject.add(widget.mediaPosition!);
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, false);
     }
   }
@@ -159,7 +164,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
     return Scaffold(
-      appBar: buildAppBar(widget.mediaPosition!, widget.mediasLength),
+      appBar: buildAppBar(widget.mediaPosition, widget.mediasLength),
       body: Container(
         child: Swiper(
           scrollDirection: Axis.horizontal,
@@ -169,7 +174,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             if (isVideo) return vedioSwiper(i, context);
             return mediaSuper(i, context);
           },
-          itemCount: widget.mediasLength!,
+          itemCount: widget.mediasLength,
           viewportFraction: 1.0,
           scale: 0.9,
           loop: false,
@@ -181,12 +186,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget mediaSuper(int i, BuildContext context) {
     var media = _mediaCache.get("$i");
     if (media == null) {
-      widget.heroTag = "btn$i";
       return FutureBuilder<List<Media>>(
           future: _mediaQueryRepo.getMedia(
             widget.userUid,
             MediaType.IMAGE,
-            widget.mediasLength!,
+            widget.mediasLength,
           ),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
@@ -202,7 +206,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             }
           });
     } else {
-      widget.heroTag = "btn$i";
       buildMediaPropertise(media);
       var mediaFile = _fileCache.get(fileId);
       if (mediaFile != null)
@@ -269,7 +272,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               return Center();
             } else {
               setMediaUrlCache(i, snapshot.data!);
-              if (i == widget.mediasLength! - 1) {
+              if (i == widget.mediasLength- 1) {
                 buildMediaPropertise(snapshot.data![snapshot.data!.length - 1]);
               } else {
                 buildMediaPropertise(snapshot.data![snapshot.data!.length - 2]);
@@ -451,8 +454,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildBottomAppBar(
-      Uid ? mediaSender, DateTime? createdOn, var name, var fileId) {
-    if (name == null && mediaSender!= null) {
+      Uid? mediaSender, DateTime? createdOn, var name, var fileId) {
+    if (name == null && mediaSender != null) {
       return FutureBuilder<String>(
         future: _roomRepo.getName(mediaSender),
         builder: (BuildContext c, AsyncSnapshot s) {
@@ -460,16 +463,16 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               s.data == null ||
               s.connectionState == ConnectionState.waiting) {
             return Center();
-          } else if(createdOn!= null) {
+          } else if (createdOn != null) {
             _mediaSenderCache.set(fileId, s.data);
             return buildNameWidget(s.data, createdOn);
-          }else
+          } else
             return SizedBox.shrink();
         },
       );
-    } else  if(createdOn!=null){
+    } else if (createdOn != null) {
       return buildNameWidget(name, createdOn);
-    }else
+    } else
       return SizedBox.shrink();
   }
 

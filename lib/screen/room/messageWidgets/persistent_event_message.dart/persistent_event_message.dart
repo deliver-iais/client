@@ -26,15 +26,15 @@ class PersistentEventMessage extends StatelessWidget {
   final _routingServices = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final Function? onPinMessageClick;
+  final PersistentEvent persistentEventMessage;
 
   PersistentEventMessage(
       {Key? key, required this.message, this.onPinMessageClick})
-      : super(key: key);
-  late PersistentEvent persistentEventMessage;
+      : persistentEventMessage = message.json!.toPersistentEvent(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    persistentEventMessage = message.json!.toPersistentEvent();
     return message.json == "{}"
         ? Container(
             height: 0.0,

@@ -12,6 +12,7 @@ class ActivityStatus extends StatelessWidget {
   final TextStyle style;
   final Uid roomUid;
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final i18n = GetIt.I.get<I18N>();
 
   ActivityStatus({required this.activity, required this.style,required this.roomUid});
   
@@ -19,7 +20,6 @@ class ActivityStatus extends StatelessWidget {
     return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
   }
 
-  var i18n = GetIt.I.get<I18N>();
   @override
   Widget build(BuildContext context) {
 

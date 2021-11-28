@@ -238,6 +238,8 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
+      default:
+        break;
     }
     return Container();
   }

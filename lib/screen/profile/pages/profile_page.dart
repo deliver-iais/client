@@ -857,7 +857,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   setState(() {});
                                   Navigator.pop(context);
                                 } else {
-                                  if (channelId == null) {
+                                  if (channelId.isEmpty) {
                                     _mucRepo.modifyChannel(
                                         widget.roomUid.asString(),
                                         mucName ?? _currentName,

@@ -17,11 +17,14 @@ class ContactDaoImpl implements ContactDao {
   Future<Contact?> get(String countryCode, String nationalNumber) async {
     var box = await _open();
 
-    return box.values.firstWhere(
-        (element) =>
-            element.countryCode == countryCode &&
-            element.nationalNumber == nationalNumber,
-        orElse: () => null! );
+    try {
+      box.values.firstWhere(
+              (element) =>
+          element.countryCode == countryCode &&
+              element.nationalNumber == nationalNumber);
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<Contact?> getByUid(String uid) async {

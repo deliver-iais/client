@@ -385,6 +385,45 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   editableMessage: message,
                   paths: [],
                   context: context);
+              break;
+            case MessageType.STICKER:
+              // TODO: Handle this case.
+              break;
+            case MessageType.LOCATION:
+              // TODO: Handle this case.
+              break;
+            case MessageType.LIVE_LOCATION:
+              // TODO: Handle this case.
+              break;
+            case MessageType.POLL:
+              // TODO: Handle this case.
+              break;
+            case MessageType.FORM:
+              // TODO: Handle this case.
+              break;
+            case MessageType.PERSISTENT_EVENT:
+              // TODO: Handle this case.
+              break;
+            case MessageType.NOT_SET:
+              // TODO: Handle this case.
+              break;
+            case MessageType.BUTTONS:
+              // TODO: Handle this case.
+              break;
+            case MessageType.SHARE_UID:
+              // TODO: Handle this case.
+              break;
+            case MessageType.FORM_RESULT:
+              // TODO: Handle this case.
+              break;
+            case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+              // TODO: Handle this case.
+              break;
+            case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+              // TODO: Handle this case.
+              break;
+            default:
+              break;
           }
           break;
         case OperationOnMessage.SAVE_TO_GALLERY:
@@ -420,6 +459,27 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _lastPinedMessage
                 .add(_pinMessages.length > 0 ? _pinMessages.last.id! : 0);
           }
+          break;
+        case OperationOnMessage.COPY:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.FORWARD:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.DELETE:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.SHARE:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.SAVE_TO_DOWNLOADS:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.SHOW_IN_FOLDER:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.REPORT:
+          // TODO: Handle this case.
           break;
       }
     });

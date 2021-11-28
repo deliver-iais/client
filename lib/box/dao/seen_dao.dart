@@ -55,14 +55,11 @@ class SeenDaoImpl implements SeenDao {
   }
 
   Future<void> saveMySeen(Seen seen) async {
-    if (seen == null || seen.messageId == null) return;
-
     var box = await _openMySeen();
 
     var mySeen = box.get(seen.uid);
 
-    if (mySeen == null ||
-        (mySeen != null && mySeen.messageId < seen.messageId)) {
+    if (mySeen == null || mySeen.messageId < seen.messageId) {
       box.put(seen.uid, seen);
     }
   }

@@ -18,6 +18,8 @@ class PinMessageAppBar extends StatelessWidget {
   final Function? onPrev;
   final Function onCancel;
 
+  final i18n = GetIt.I.get<I18N>();
+
   PinMessageAppBar(
       {Key? key,
       required this.lastPinedMessage,
@@ -27,8 +29,6 @@ class PinMessageAppBar extends StatelessWidget {
       this.onNext,
       this.onPrev})
       : super(key: key);
-
-  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

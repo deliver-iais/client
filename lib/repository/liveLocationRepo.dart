@@ -31,7 +31,7 @@ class LiveLocationRepo {
     timer = Timer.periodic(Duration(minutes: 1), (t) async {
       var res = await _liveLocationClient
           .shouldSendLiveLocation(ShouldSendLiveLocationReq());
-      if (res != null) if (res.shouldSend) {
+      if (res.shouldSend) {
         _getLatUpdateLocation(liveLocation.uuid);
       } else {
         timer!.cancel();
@@ -43,15 +43,13 @@ class LiveLocationRepo {
     List<pb.Location> locations = [];
     var res = await _liveLocationClient.getLastUpdatedLiveLocation(
         GetLastUpdatedLiveLocationReq()..uuid = uuid);
-    if (res != null) {
-      res.liveLocations.forEach((liveLocation) {
-        locations.add(liveLocation.location);
-      });
-      _liveLocationDao.saveLiveLocation(LiveLocation(
-          uuid: uuid,
-          lastUpdate: DateTime.now().millisecondsSinceEpoch,
-          locations: locations));
-    }
+    res.liveLocations.forEach((liveLocation) {
+      locations.add(liveLocation.location);
+    });
+    _liveLocationDao.saveLiveLocation(LiveLocation(
+        uuid: uuid,
+        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        locations: locations));
   }
 
   Future<CreateLiveLocationRes> createLiveLocation(

@@ -10,7 +10,7 @@ import 'package:lottie/lottie.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
-  AudioCache _player =
+  final AudioCache _player =
       AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
 
   CustomNotificationSoundSelection({Key? key, required this.roomUid})

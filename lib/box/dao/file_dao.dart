@@ -13,8 +13,8 @@ class FileDaoImpl implements FileDao {
   Future<FileInfo?> get(String uuid, String sizeType) async {
     var box = await _open(sizeType);
 
-    if (uuid == null || uuid.isEmpty) {
-      return null!;
+    if (uuid.isEmpty) {
+      return null;
     }
 
     return box.get(uuid);

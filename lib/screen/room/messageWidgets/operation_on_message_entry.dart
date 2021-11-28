@@ -28,17 +28,19 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPinned;
-  final Function? onDelete;
-  int? roomLastMessageId = 1;
+  final Function onDelete;
+  final int roomLastMessageId;
 
   OperationOnMessageEntry(
     this.message, {
     this.hasPermissionInChannel = true,
     this.hasPermissionInGroup = true,
     this.isPinned = false,
-    this.onDelete,
-    this.roomLastMessageId,
+    this.onDelete = empty,
+    this.roomLastMessageId = 1,
   });
+
+  static empty() {}
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -133,8 +135,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   onDeleteMessage() {
     Navigator.pop(context);
-    showDeleteMsgDialog([widget.message], context, widget.onDelete, widget.roomLastMessageId);
-
+    showDeleteMsgDialog(
+        [widget.message], context, widget.onDelete, widget.roomLastMessageId);
   }
 
   onDeletePendingMessage() {
@@ -439,10 +441,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 }
 
 void showDeleteMsgDialog(List<Message> messages, BuildContext context,
-    Function ? onDelete, int? roomLastMessageId) {
+    Function? onDelete, int? roomLastMessageId) {
   var _i18n = GetIt.I.get<I18N>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
- showDialog(
+  showDialog(
       context: context,
       builder: (c) => AlertDialog(
             title: Text(

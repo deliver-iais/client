@@ -262,14 +262,12 @@ class AuthRepo {
 
   _setCurrentUid(String accessToken) {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-    if (decodedToken != null) {
-      currentUserUid = Uid()
-        ..category = Categories.USER
-        ..node = decodedToken["sub"]
-        ..sessionId = decodedToken["jti"];
-      _logger.d(currentUserUid);
-      _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
-    }
+    currentUserUid = Uid()
+      ..category = Categories.USER
+      ..node = decodedToken["sub"]
+      ..sessionId = decodedToken["jti"];
+    _logger.d(currentUserUid);
+    _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);

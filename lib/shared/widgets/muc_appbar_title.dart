@@ -13,10 +13,12 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class MucAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
+  final i18n = GetIt.I.get<I18N>();
+
   final String mucUid;
 
   MucAppbarTitle({Key? key, required this.mucUid}) : super(key: key);
-  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
     return Container(

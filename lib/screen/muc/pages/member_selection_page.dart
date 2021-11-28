@@ -14,13 +14,13 @@ class MemberSelectionPage extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final Uid? mucUid;
   final bool isChannel;
 
   MemberSelectionPage({Key? key, required this.isChannel, this.mucUid})
       : super(key: key);
-  I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

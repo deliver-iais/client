@@ -55,7 +55,7 @@ class AccountRepo {
     try {
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
-      if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
+      if (getIdRequest.id.isNotEmpty) {
         _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
         return true;
       } else {

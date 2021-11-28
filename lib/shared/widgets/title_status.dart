@@ -92,6 +92,8 @@ class _TitleStatusState extends State<TitleStatus> {
             return activityWidget();
           else
             return this.widget.normalConditionWidget;
+        default:
+          break;
       }
     }
     return widget.normalConditionWidget;

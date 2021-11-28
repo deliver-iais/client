@@ -9,7 +9,6 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
@@ -144,30 +143,23 @@ class _AccountSettingsState extends State<AccountSettings> {
                       child: Center(
                         child: Stack(
                           children: [
-                            _newAvatarPath != null
-                                ? CircleAvatar(
-                                    radius: 65,
-                                    backgroundImage:
-                                        Image.file(File(_newAvatarPath)).image,
-                                    child: Center(
-                                      child: SizedBox(
-                                          height: 50.0,
-                                          width: 50.0,
-                                          child: _uploadNewAvatar
-                                              ? CircularProgressIndicator(
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation(
-                                                          Colors.blue),
-                                                  strokeWidth: 6.0,
-                                                )
-                                              : SizedBox.shrink()),
-                                    ),
-                                  )
-                                : CircleAvatarWidget(
-                                    _authRepo.currentUserUid,
-                                    65,
-                                    showAsStreamOfAvatar: true,
-                                  ),
+                            CircleAvatar(
+                              radius: 65,
+                              backgroundImage:
+                                  Image.file(File(_newAvatarPath)).image,
+                              child: Center(
+                                child: SizedBox(
+                                    height: 50.0,
+                                    width: 50.0,
+                                    child: _uploadNewAvatar
+                                        ? CircularProgressIndicator(
+                                            valueColor: AlwaysStoppedAnimation(
+                                                Colors.blue),
+                                            strokeWidth: 6.0,
+                                          )
+                                        : SizedBox.shrink()),
+                              ),
+                            ),
                             // Spacer(),
                             Container(
                               height: 130,

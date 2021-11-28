@@ -12,11 +12,11 @@ class RecordAudioSlideWidget extends StatelessWidget {
   final bool running;
   final BehaviorSubject<DateTime> streamTime;
   final BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
+  final _i18n = GetIt.I.get<I18N>();
 
   RecordAudioSlideWidget(
       {required this.opacity,required  this.time, required this.running,required this.streamTime});
 
-  var _i18n = GetIt.I.get<I18N>();
   @override
   Widget build(BuildContext context) {
 
