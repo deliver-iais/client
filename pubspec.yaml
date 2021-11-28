@@ -88,7 +88,7 @@ dependencies:
   swipe_to: 0.1.0-nullsafety.1
   local_auth: 1.1.8
   audioplayers: 0.20.1
-  dart_vlc: 0.1.8
+  dart_vlc: 0.0.9
   open_file: 3.2.1 # Open file in OS
   contacts_service: 0.6.3
   http: 0.13.4
