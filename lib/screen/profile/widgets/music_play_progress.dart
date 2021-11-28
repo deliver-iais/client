@@ -26,19 +26,20 @@ class MusicPlayProgress extends StatelessWidget {
                   return StreamBuilder<String>(
                       stream: _audioPlayerService.audioUuid,
                       builder: (c, uuid) {
-                        if (uuid.hasData && uuid.data!.contains(audioUuid))
+                        if (uuid.hasData && uuid.data!.contains(audioUuid)) {
                           return AudioProgressIndicator(
                             audioUuid: audioUuid,
                             duration: duration,
                           );
-                        else
-                          return Container(
+                        } else {
+                          return const SizedBox(
                             width: 0,
                             height: 0,
                           );
+                        }
                       });
                 } else {
-                  return Container(
+                  return const SizedBox(
                     width: 0,
                     height: 0,
                   );

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 
 import 'package:deliver/box/dao/live_location_dao.dart';
@@ -9,7 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 
 class LiveLocationRepo {
-  var _liveLocationDao = GetIt.I.get<LiveLocationDao>();
+  final _liveLocationDao = GetIt.I.get<LiveLocationDao>();
   final _liveLocationClient = GetIt.I.get<LiveLocationServiceClient>();
 
   saveLiveLocation(LiveLocation liveLocation) {
@@ -26,12 +28,13 @@ class LiveLocationRepo {
 
   Future<void> updateLiveLocation(pb.LiveLocation liveLocation) async {
     Timer? timer;
-    if (DateTime.now().millisecondsSinceEpoch > liveLocation.time.toInt())
+    if (DateTime.now().millisecondsSinceEpoch > liveLocation.time.toInt()) {
       return;
-    timer = Timer.periodic(Duration(minutes: 1), (t) async {
+    }
+    timer = Timer.periodic(const Duration(minutes: 1), (t) async {
       var res = await _liveLocationClient
           .shouldSendLiveLocation(ShouldSendLiveLocationReq());
-      if (res != null) if (res.shouldSend) {
+      if (res.shouldSend) {
         _getLatUpdateLocation(liveLocation.uuid);
       } else {
         timer!.cancel();
@@ -43,15 +46,13 @@ class LiveLocationRepo {
     List<pb.Location> locations = [];
     var res = await _liveLocationClient.getLastUpdatedLiveLocation(
         GetLastUpdatedLiveLocationReq()..uuid = uuid);
-    if (res != null) {
-      res.liveLocations.forEach((liveLocation) {
-        locations.add(liveLocation.location);
-      });
-      _liveLocationDao.saveLiveLocation(LiveLocation(
-          uuid: uuid,
-          lastUpdate: DateTime.now().millisecondsSinceEpoch,
-          locations: locations));
+    for (var liveLocation in res.liveLocations) {
+      locations.add(liveLocation.location);
     }
+    _liveLocationDao.saveLiveLocation(LiveLocation(
+        uuid: uuid,
+        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        locations: locations));
   }
 
   Future<CreateLiveLocationRes> createLiveLocation(

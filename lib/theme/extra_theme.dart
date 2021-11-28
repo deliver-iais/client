@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class ExtraThemeData {
   Color centerPageDetails;
-  Color boxOuterBackground = Color(0xfde2f8f0);
-  Color boxBackground = Color(0xfde2f8f0);
+  Color boxOuterBackground = const Color(0xfde2f8f0);
+  Color boxBackground = const Color(0xfde2f8f0);
   Color menuIconButton;
   Color chatOrContactItemDetails;
   Color sentMessageBox;
@@ -46,12 +46,11 @@ class ExtraThemeData {
 class ExtraTheme extends InheritedWidget {
   final ExtraThemeData extraThemeData;
 
-  ExtraTheme({
+  const ExtraTheme({
     Key? key,
     required Widget child,
     required this.extraThemeData,
-  })  : assert(child != null),
-        super(key: key, child: child);
+  })  : super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
     return context
@@ -60,7 +59,7 @@ class ExtraTheme extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(ExtraTheme old) {
+  bool updateShouldNotify(ExtraTheme oldWidget) {
     // TODO ???
     return true;
   }

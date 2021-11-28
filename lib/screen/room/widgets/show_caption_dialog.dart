@@ -6,7 +6,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as P;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ class ShowCaptionDialog extends StatefulWidget {
   final Uid currentRoom;
   final Message? editableMessage;
 
-  ShowCaptionDialog(
+  const ShowCaptionDialog(
       {Key? key,
       this.paths,
       this.type,
@@ -41,19 +41,19 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   final TextEditingController _editingController = TextEditingController();
 
-  late P.File _editableFile;
-  List<String> _fileNames = [];
+  late file_pb.File _editableFile;
+  final List<String> _fileNames = [];
   String _type = "";
-  FocusNode _captionFocusNode = FocusNode();
+  final FocusNode _captionFocusNode = FocusNode();
 
   @override
   void initState() {
     if (widget.editableMessage == null) {
       _type = widget.type!;
-      widget.paths!.forEach((element) {
+      for (var element in widget.paths!) {
         element = element!.replaceAll("\\", "/");
         _fileNames.add(element.split("/").last);
-      });
+      }
     } else {
       _editableFile = widget.editableMessage!.json!.toFile();
       _editingController.text = _editableFile.caption;
@@ -64,11 +64,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return (widget.paths != null && widget.paths!.length > 0) ||
+    return (widget.paths != null && widget.paths!.isNotEmpty) ||
             widget.editableMessage != null
         ? SingleChildScrollView(
-            child: Container(
-                child: AlertDialog(
+            child: AlertDialog(
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -81,12 +80,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                               _type.contains("png") ||
                               _type.contains("jfif") ||
                               _type.contains("jpeg"))
-                      ? Container(
+                      ? SizedBox(
                           height: MediaQuery.of(context).size.height / 3,
                           child: Stack(
                             children: [
                               Center(
-                                  child: widget.paths!.length > 0
+                                  child: widget.paths!.isNotEmpty
                                       ? Image.file(File(widget.paths!.first!))
                                       : FutureBuilder<File?>(
                                           future: _fileRepo.getFileIfExist(
@@ -95,9 +94,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                           builder: (c, s) {
                                             if (s.hasData && s.data != null) {
                                               return Image.file(s.data!);
-                                            } else
+                                            } else {
                                               return buildRow(0,
                                                   showManage: false);
+                                            }
                                           })),
                               Positioned(
                                   right: 5,
@@ -107,7 +107,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                       child: buildManage(index: 0))),
                             ],
                           ))
-                      : Container(
+                      : SizedBox(
                           height: widget.paths!.length * 50.toDouble(),
                           width: 300,
                           child: ListView.separated(
@@ -120,7 +120,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Material(
                                         color: Theme.of(context)
                                             .primaryColor, // button color
-                                        child: InkWell(
+                                        child: const InkWell(
                                             splashColor:
                                                 Colors.blue, // inkwell color
                                             child: SizedBox(
@@ -133,7 +133,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                               ),
                                             ))),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 3,
                                   ),
                                   Expanded(
@@ -153,13 +153,13 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             },
                             separatorBuilder:
                                 (BuildContext context, int index) {
-                              return SizedBox(
+                              return const SizedBox(
                                 height: 6,
                               );
                             },
                           ),
                         ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                   RawKeyboardListener(
@@ -195,22 +195,24 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           onTap: () async {
                             FilePickerResult? res =
                                 await getFile(allowMultiple: true);
-                            if (res != null)
-                              res.paths.forEach((element) {
+                            if (res != null) {
+                              for (var element in res.paths) {
                                 widget.paths!.add(element!);
                                 _fileNames.add(isWindows()
                                     ? element.split("\\").last
                                     : element.split("/").last);
-                              });
+                              }
+                            }
                             setState(() {});
                           },
                           child: Text(
                             _i18n.get("add"),
-                            style: TextStyle(fontSize: 16, color: Colors.blue),
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.blue),
                           ),
                         ),
                       if (widget.editableMessage != null)
-                        SizedBox(
+                        const SizedBox(
                           width: 40,
                         ),
                       Row(
@@ -222,34 +224,30 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             },
                             child: Text(
                               _i18n.get("cancel"),
-                              style:
-                                  TextStyle(color: Colors.blue, fontSize: 15),
+                              style: const TextStyle(
+                                  color: Colors.blue, fontSize: 15),
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 16,
                           ),
                           GestureDetector(
                               onTap: () {
                                 send();
                               },
-                              child: Text(
-                                _i18n.get("send"),
-                                style:
-                                    TextStyle(color: Colors.blue, fontSize: 16),
-                              )),
-                          SizedBox(
-                            width: 10,
-                          )
+                              child: Text(_i18n.get("send"),
+                                  style: const TextStyle(
+                                      color: Colors.blue, fontSize: 16))),
+                          const SizedBox(width: 10)
                         ],
                       )
                     ],
                   ),
                 )
               ],
-            )),
+            ),
           )
-        : SizedBox.shrink();
+        : const SizedBox.shrink();
   }
 
   void send() {
@@ -258,8 +256,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ? _messageRepo.editFileMessage(
             widget.editableMessage!.roomUid.asUid(), widget.editableMessage!,
             caption: _editingController.text,
-            newFileName: _fileNames.length > 0 ? _fileNames[0] : "",
-            newFilePath: widget.paths!.length > 0 ? widget.paths![0] : null)
+            newFileName: _fileNames.isNotEmpty ? _fileNames[0] : "",
+            newFilePath: widget.paths!.isNotEmpty ? widget.paths![0] : null)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.paths!,
             caption: _editingController.text.toString());
@@ -271,7 +269,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ClipOval(
           child: Material(
               color: Theme.of(context).primaryColor, // button color
-              child: InkWell(
+              child: const InkWell(
                   splashColor: Colors.blue, // inkwell color
                   child: SizedBox(
                     width: 30,
@@ -283,7 +281,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     ),
                   ))),
         ),
-        SizedBox(
+        const SizedBox(
           width: 3,
         ),
         Expanded(
@@ -306,7 +304,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             onPressed: () async {
               FilePickerResult? result = await getFile(allowMultiple: false);
 
-              if (result != null && result.paths.length > 0) {
+              if (result != null && result.paths.isNotEmpty) {
                 String p = isWindows()
                     ? result.paths[0]!.split("\\").last
                     : result.paths[0]!.split("/").last;
@@ -320,7 +318,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 setState(() {});
               }
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.wifi_protected_setup,
               color: Colors.blue,
               size: 16,
@@ -330,11 +328,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
               onPressed: () {
                 widget.paths!.removeAt(index);
                 _fileNames.removeAt(index);
-                if (widget.paths == null || widget.paths!.length == 0)
+                if (widget.paths == null || widget.paths!.isEmpty) {
                   Navigator.pop(context);
+                }
                 setState(() {});
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.delete,
                 color: Colors.blue,
                 size: 16,

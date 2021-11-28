@@ -4,10 +4,10 @@ import 'dart:ui';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
@@ -34,16 +34,16 @@ class ImageUi extends StatefulWidget {
 
 class _ImageUiState extends State<ImageUi> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  late filePb.File image;
-  BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
+  late file_pb.File image;
+  final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
 
-    const radius = const Radius.circular(12);
-    const border = const BorderRadius.all(radius);
+    const radius = Radius.circular(12);
+    const border = BorderRadius.all(radius);
 
     try {
       image = widget.message.json!.toFile();
@@ -95,7 +95,7 @@ class _ImageUiState extends State<ImageUi> {
                           needsBackground: true)
                   ],
                 );
-              } else
+              } else {
                 return GestureDetector(
                   onTap: () async {
                     _startDownload.add(true);
@@ -106,12 +106,12 @@ class _ImageUiState extends State<ImageUi> {
                     _startDownload.add(false);
                     setState(() {});
                   },
-                  child: Container(
+                  child: SizedBox(
                     width: width,
                     height: height,
                     child: Stack(
                       children: [
-                        Container(
+                        SizedBox(
                             width: width,
                             height: height,
                             child: BlurHash(hash: image.blurHash)),
@@ -120,10 +120,10 @@ class _ImageUiState extends State<ImageUi> {
                             stream: _startDownload.stream,
                             builder: (c, s) {
                               if (s.hasData && s.data!) {
-                                return CircularProgressIndicator(
+                                return const CircularProgressIndicator(
                                   strokeWidth: 4,
                                 );
-                              } else
+                              } else {
                                 return MaterialButton(
                                   color: Theme.of(context).primaryColor,
                                   onPressed: () async {
@@ -134,10 +134,11 @@ class _ImageUiState extends State<ImageUi> {
                                       _startDownload.add(false);
                                     });
                                   },
-                                  shape: CircleBorder(),
-                                  child: Icon(Icons.arrow_downward),
+                                  shape: const CircleBorder(),
+                                  child: const Icon(Icons.arrow_downward),
                                   padding: const EdgeInsets.all(20),
                                 );
+                              }
                             },
                           ),
                         ),
@@ -149,10 +150,11 @@ class _ImageUiState extends State<ImageUi> {
                     ),
                   ),
                 );
+              }
             }),
       );
     } catch (e) {
-      return Container(
+      return SizedBox(
         width: width,
         height: height,
       );
@@ -161,7 +163,7 @@ class _ImageUiState extends State<ImageUi> {
 
   Size getImageDimensions(double width, double height) {
     double maxWidth = widget.maxWidth;
-    if (width == null || width == 0 || height == null || height == 0) {
+    if (width == 0 || height == 0) {
       width = maxWidth;
       height = maxWidth;
     }

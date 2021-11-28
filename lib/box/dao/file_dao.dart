@@ -10,22 +10,25 @@ abstract class FileDao {
 }
 
 class FileDaoImpl implements FileDao {
+  @override
   Future<FileInfo?> get(String uuid, String sizeType) async {
     var box = await _open(sizeType);
 
-    if (uuid == null || uuid.isEmpty) {
-      return null!;
+    if (uuid.isEmpty) {
+      return null;
     }
 
     return box.get(uuid);
   }
 
+  @override
   Future<void> save(FileInfo fileInfo) async {
     var box = await _open(fileInfo.sizeType);
 
     box.put(fileInfo.uuid, fileInfo);
   }
 
+  @override
   Future<void> remove(FileInfo fileInfo) async {
     var box = await _open(fileInfo.sizeType);
 

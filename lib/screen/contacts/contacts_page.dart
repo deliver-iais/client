@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -18,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatefulWidget {
-  ContactsPage({Key? key}) : super(key: key);
+  const ContactsPage({Key? key}) : super(key: key);
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
@@ -73,7 +71,7 @@ class _ContactsPageState extends State<ContactsPage> {
                   AsyncSnapshot<List<Contact>> snapshot) {
                 List<Contact> contacts = snapshot.data ?? [];
                 if (!snapshot.hasData) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
@@ -107,26 +105,23 @@ class _ContactsPageState extends State<ContactsPage> {
                         child: ListView.separated(
                           separatorBuilder: (BuildContext context, int index) {
                             if (_authRepo.isCurrentUser(contacts[index].uid) ||
-                                searchHasResult(contacts[index]))
-                              return SizedBox.shrink();
-                            else
-                              return Divider();
+                                searchHasResult(contacts[index])) {
+                              return const SizedBox.shrink();
+                            } else {
+                              return const Divider();
+                            }
                           },
                           itemCount: snapshot.data!.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (searchHasResult(c)) return SizedBox.shrink();
+                            if (searchHasResult(c)) return const SizedBox.shrink();
                             if (_authRepo.isCurrentUser(c.uid)) {
-                              return SizedBox.shrink();
+                              return const SizedBox.shrink();
                             } else {
                               return GestureDetector(
                                 onTap: () {
-                                  if (c.uid != null) {
-                                    _rootingServices.openRoom(c.uid,
-                                        context: context);
-                                  } else {
-                                    // todo invite contact
-                                  }
+                                  _rootingServices.openRoom(c.uid,
+                                      context: context);
                                 },
                                 child: ContactWidget(
                                     contact: c,
@@ -143,12 +138,12 @@ class _ContactsPageState extends State<ContactsPage> {
                           },
                         ),
                       )),
-                      Divider(),
-                      Container(
+                      const Divider(),
+                      SizedBox(
                         height: 40,
                         width: double.infinity,
                         child: TextButton.icon(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.add,
                           ),
                           onPressed: () {
@@ -169,26 +164,24 @@ class _ContactsPageState extends State<ContactsPage> {
   _showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (isAlreadyContactAccessTipShowed != null &&
-        !isAlreadyContactAccessTipShowed &&
-        !isDesktop()) {
+    if (!isAlreadyContactAccessTipShowed && !isDesktop()) {
       return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-              actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+              titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+              actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
               backgroundColor: Colors.white,
               title: Container(
                 height: 80,
                 color: Colors.blue,
-                child: Icon(
+                child: const Icon(
                   Icons.contacts,
                   color: Colors.white,
                   size: 40,
                 ),
               ),
-              content: Container(
+              content: SizedBox(
                 width: 200,
                 child: Text(I18N.of(context)!.get("send_contacts_message"),
                     style: Theme.of(context).textTheme.subtitle1),
@@ -207,8 +200,7 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
-    } else if (isAlreadyContactAccessTipShowed != null &&
-        isAlreadyContactAccessTipShowed) {
+    } else if (isAlreadyContactAccessTipShowed) {
       _contactRepo.syncContacts();
     }
   }

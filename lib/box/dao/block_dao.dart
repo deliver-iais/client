@@ -11,12 +11,14 @@ abstract class BlockDao {
 }
 
 class BlockDaoImpl implements BlockDao {
+  @override
   Future<bool> isBlocked(String uid) async {
     var box = await _open();
 
     return box.get(uid) ?? false;
   }
 
+  @override
   Stream<bool?> watchIsBlocked(String uid) async* {
     var box = await _open();
 
@@ -25,12 +27,14 @@ class BlockDaoImpl implements BlockDao {
     yield* box.watch(key: uid).map((event) => box.get(uid) ?? false);
   }
 
+  @override
   Future<void> block(String uid) async {
     var box = await _open();
 
     box.put(uid, true);
   }
 
+  @override
   Future<void> unblock(String uid) async {
     var box = await _open();
 

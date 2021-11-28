@@ -34,7 +34,7 @@ class IntlPhoneField extends StatefulWidget {
 
   final List<TextInputFormatter>? inputFormatters;
 
-  IntlPhoneField({
+  const IntlPhoneField({Key? key,
     this.initialCountryCode,
     this.obscureText = false,
     this.textAlign = TextAlign.left,
@@ -54,7 +54,7 @@ class IntlPhoneField extends StatefulWidget {
     this.maxLength = 10,
     this.enabled = true,
     this.keyboardAppearance = Brightness.dark,
-  });
+  }) : super(key: key);
 
   @override
   _IntlPhoneFieldState createState() => _IntlPhoneFieldState();
@@ -80,12 +80,12 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
         return StatefulBuilder(
           builder: (ctx, setState) => Dialog(
             child: Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 children: <Widget>[
                   TextField(
                     decoration: InputDecoration(
-                      suffixIcon: Icon(Icons.search),
+                      suffixIcon: const Icon(Icons.search),
                       labelText: _i18n.get("search_by_country_name"),
                     ),
                     style: TextStyle(color: ExtraTheme.of(context).textField),
@@ -99,7 +99,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                       });
                     },
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Expanded(
                     child: ListView.builder(
                       shrinkWrap: true,
@@ -130,7 +130,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                               Navigator.of(context).pop();
                             },
                           ),
-                          Divider(thickness: 1),
+                          const Divider(thickness: 1),
                         ],
                       ),
                     ),
@@ -157,7 +157,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _buildFlagsButton(context),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: TextFormField(
             initialValue: widget.initialValue,
@@ -170,10 +170,9 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             controller: widget.controller,
             focusNode: widget.focusNode,
             onFieldSubmitted: (s) {
-              if (widget.onSubmitted != null)
-                widget.onSubmitted(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                  ..nationalNumber = Int64.parseInt(s));
+              widget.onSubmitted(PhoneNumber()
+                ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                ..nationalNumber = Int64.parseInt(s));
             },
             decoration: InputDecoration(
               suffixIcon: Icon(
@@ -203,16 +202,16 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             ),
             style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
-              if (widget.onSaved != null && value != null)
+              if (widget.onSaved != null && value != null) {
                 widget.onSaved!(PhoneNumber()
                   ..countryCode = int.parse(_selectedCountry['dial_code']!)
                   ..nationalNumber = Int64.parseInt(value));
+              }
             },
             onChanged: (value) {
-              if (widget.onChanged != null)
-                widget.onChanged(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                  ..nationalNumber = Int64.parseInt(value));
+              widget.onChanged(PhoneNumber()
+                ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                ..nationalNumber = Int64.parseInt(value));
             },
             validator: widget.validator,
             keyboardType: widget.keyboardType,
@@ -229,22 +228,22 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   Widget _buildFlagsButton(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.all(Radius.circular(5)),
+      borderRadius: const BorderRadius.all(Radius.circular(5)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             if (widget.showDropdownIcon) ...[
-              Icon(Icons.arrow_drop_down),
-              SizedBox(width: 4)
+              const Icon(Icons.arrow_drop_down),
+              const SizedBox(width: 4)
             ],
             Text(
               _selectedCountry['flag']!,
               style: TextStyle(
                   fontSize: 24, color: ExtraTheme.of(context).textField),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             FittedBox(
               child: Text(
                 _selectedCountry['code']!,
@@ -253,7 +252,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                     color: ExtraTheme.of(context).textField),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
           ],
         ),
       ),

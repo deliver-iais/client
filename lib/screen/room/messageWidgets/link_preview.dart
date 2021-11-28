@@ -4,8 +4,9 @@ import 'package:dcache/dcache.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:metadata_fetch/metadata_fetch.dart';
-import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 
+// ignore: constant_identifier_names
 const APARAT = "https://www.aparat.com";
 
 class LinkPreview extends StatelessWidget {
@@ -58,14 +59,15 @@ class LinkPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (link == null || link.isEmpty) return SizedBox.shrink();
+    if (link.isEmpty) return const SizedBox.shrink();
     return FutureBuilder<Metadata?>(
         future: _fetchMetadata(link),
         builder: (context, snapshot) {
           if ((!snapshot.hasData || snapshot.data == null) ||
               ((snapshot.data?.description == null) &&
-                  (snapshot.data?.description == null)))
-            return SizedBox.shrink();
+                  (snapshot.data?.description == null))) {
+            return const SizedBox.shrink();
+          }
 
           return Container(
               margin: const EdgeInsets.only(top: 10),

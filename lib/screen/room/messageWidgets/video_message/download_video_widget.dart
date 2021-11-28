@@ -13,8 +13,8 @@ class DownloadVideoWidget extends StatefulWidget {
   final String name;
   final Function download;
 
-  DownloadVideoWidget(
-      {required this.uuid, required this.download, required this.name});
+  const DownloadVideoWidget(
+      {Key? key, required this.uuid, required this.download, required this.name}) : super(key: key);
 
   @override
   _DownloadVideoWidgetState createState() => _DownloadVideoWidgetState();
@@ -22,8 +22,8 @@ class DownloadVideoWidget extends StatefulWidget {
 
 class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   bool startDownload = false;
-  var fileServices = GetIt.I.get<FileService>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
+  final _fileServices = GetIt.I.get<FileService>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
         if (thumbnail.hasData && thumbnail.data != null) {
           return Container(
               decoration: BoxDecoration(
-                image: new DecorationImage(
+                image: DecorationImage(
                   image: Image.file(thumbnail.data!).image,
                   fit: BoxFit.cover,
                 ),
@@ -43,7 +43,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
               child: Center(
                 child: startDownload
                     ? StreamBuilder<double>(
-                        stream: fileServices.filesDownloadStatus[widget.uuid],
+                        stream: _fileServices.filesDownloadStatus[widget.uuid],
                         builder: (c, snapshot) {
                           if (snapshot.hasData && snapshot.data != null) {
                             return CircularPercentIndicator(
@@ -79,7 +79,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                           startDownload = true;
                           setState(() {});
                         },
-                        shape: CircleBorder(),
+                        shape: const CircleBorder(),
                         child: Icon(
                           Icons.download_rounded,
                           color: ExtraTheme.of(context).messageDetails,
@@ -98,7 +98,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
               ),
               child: startDownload
                   ? StreamBuilder<double>(
-                      stream: fileServices.filesDownloadStatus[widget.uuid],
+                      stream: _fileServices.filesDownloadStatus[widget.uuid],
                       builder: (c, snapshot) {
                         if (snapshot.hasData && snapshot.data != null) {
                           return CircularPercentIndicator(

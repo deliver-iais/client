@@ -33,7 +33,7 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
               stream: audioPlayerService.audioCurrentPosition(),
               builder: (context, snapshot2) {
                 currentPos = snapshot2.data ?? currentPos;
-                if (currentPos != null)
+                if (currentPos != null) {
                   return Slider(
                       value: currentPos!.inSeconds.toDouble(),
                       min: 0.0,
@@ -45,8 +45,9 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                           value = value;
                         });
                       });
-                else
-                  return SizedBox.shrink();
+                } else {
+                  return const SizedBox.shrink();
+                }
               });
         });
   }

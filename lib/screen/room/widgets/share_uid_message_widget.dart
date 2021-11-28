@@ -2,7 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -24,10 +24,10 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  ShareUidMessageWidget(
-      {required this.message, required this.isSender, required this.isSeen});
+  final _i18n = GetIt.I.get<I18N>();
 
-  var _i18n = GetIt.I.get<I18N>();
+  ShareUidMessageWidget(
+      {Key? key, required this.message, required this.isSender, required this.isSeen}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,16 +55,16 @@ class ShareUidMessageWidget extends StatelessWidget {
                         CircleAvatarWidget(_shareUid.uid, 18,
                             forceText: _shareUid.name),
                         if (_shareUid.uid.category == Categories.GROUP)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8.0),
                             child: Icon(
                               Icons.group_rounded,
                               size: 18,
                             ),
                           ),
                         if (_shareUid.uid.category == Categories.CHANNEL)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8.0),
                             child: Icon(
                               Icons.rss_feed_rounded,
                               size: 18,
@@ -83,7 +83,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Icon(Icons.chevron_right)
+                        const Icon(Icons.chevron_right)
                       ],
                     ),
                   ),
@@ -108,7 +108,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                   _shareUid.name,
                                   style: Theme.of(context).textTheme.headline6,
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -157,10 +157,11 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                   Navigator.of(context).pop();
                                                 }
                                               }
-                                            } else
+                                            } else {
                                               _routingServices.openRoom(
                                                   _shareUid.uid.asString(),
                                                   context: context);
+                                            }
                                           } else {
                                             _routingServices.openRoom(
                                                 _shareUid.uid.asString(),

@@ -44,9 +44,7 @@ class RandomColor {
   /// Constructor for random generator
   /// [seed] Random seed to use for generating colors
   RandomColor(Random random) {
-    if (random != null) {
-      _random = random;
-    }
+    _random = random;
   }
 
   bool debug = false;

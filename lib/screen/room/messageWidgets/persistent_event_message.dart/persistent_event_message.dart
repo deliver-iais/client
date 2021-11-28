@@ -26,15 +26,15 @@ class PersistentEventMessage extends StatelessWidget {
   final _routingServices = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final Function? onPinMessageClick;
+  final PersistentEvent persistentEventMessage;
 
   PersistentEventMessage(
       {Key? key, required this.message, this.onPinMessageClick})
-      : super(key: key);
-  late PersistentEvent persistentEventMessage;
+      : persistentEventMessage = message.json!.toPersistentEvent(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    persistentEventMessage = message.json!.toPersistentEvent();
     return message.json == "{}"
         ? Container(
             height: 0.0,
@@ -63,7 +63,7 @@ class PersistentEventMessage extends StatelessWidget {
                             children: s.data!,
                           ));
                     } else {
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     }
                   },
                 ),
@@ -89,7 +89,7 @@ class PersistentEventMessage extends StatelessWidget {
                           radius: 35,
                         );
                       } else {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                     }),
             ],
@@ -109,7 +109,7 @@ class PersistentEventMessage extends StatelessWidget {
             issuer!,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
+            style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
           ),
           onTap: () => _routingServices.openRoom(
               persistentEventMessage.mucSpecificPersistentEvent.issuer
@@ -129,7 +129,7 @@ class PersistentEventMessage extends StatelessWidget {
               assignee!,
               overflow: TextOverflow.ellipsis,
               softWrap: false,
-              style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
+              style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
             ),
             onTap: () => _routingServices.openRoom(
                 persistentEventMessage.mucSpecificPersistentEvent.assignee
@@ -137,7 +137,7 @@ class PersistentEventMessage extends StatelessWidget {
                 context: context),
           );
         }
-        var pinedMessageWidget;
+        Widget? pinedMessageWidget;
         if (persistentEventMessage.mucSpecificPersistentEvent.issue ==
             MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
           var content = await getPinnedMessageContent();
@@ -146,7 +146,7 @@ class PersistentEventMessage extends StatelessWidget {
               "<<${content!.substring(0, min(content.length, 15))} >>",
               overflow: TextOverflow.ellipsis,
               softWrap: false,
-              style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
+              style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
             ),
             onTap: () => onPinMessageClick!(persistentEventMessage
                 .mucSpecificPersistentEvent.messageId
@@ -158,25 +158,22 @@ class PersistentEventMessage extends StatelessWidget {
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
-          style: TextStyle(fontSize: 14, height: 1, color: Colors.white),
+          style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
         );
         return [
           issuerWidget,
-          SizedBox(
+          const SizedBox(
             width: 2,
           ),
           s,
-          SizedBox(
+          const SizedBox(
             width: 2,
           ),
           if (assigneeWidget != null) assigneeWidget,
           if (pinedMessageWidget != null) pinedMessageWidget,
         ];
-
-        break;
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         return null;
-        break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
         switch (persistentEventMessage.adminSpecificPersistentEvent.event) {
           case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
@@ -240,13 +237,11 @@ class PersistentEventMessage extends StatelessWidget {
             isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
-        break;
       case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
         return _i18n.verb("pinned",
             isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
-        break;
       default:
         return "";
     }
@@ -255,7 +250,7 @@ class PersistentEventMessage extends StatelessWidget {
   Future<String?> getPinnedMessageContent() async {
     Message? m = await _messageDao.getMessage(message.roomUid,
         persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt());
-    if (m != null)
+    if (m != null) {
       switch (m.type) {
         case MessageType.TEXT:
           return m.json!.toText().text;
@@ -311,5 +306,6 @@ class PersistentEventMessage extends StatelessWidget {
         default:
           return "";
       }
+    }
   }
 }

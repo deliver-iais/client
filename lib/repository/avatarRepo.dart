@@ -1,18 +1,16 @@
+// ignore_for_file: file_names
+
 import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
-    as ProtocolAvatar;
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+    as avatar_pb;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as ProtocolFile;
+    as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query;
 
@@ -35,7 +33,6 @@ class AvatarRepo {
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
   final _queryServices = GetIt.I.get<query.QueryServiceClient>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  final _i18n = GetIt.I.get<I18N>();
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: InMemoryStorage(40));
 
@@ -126,7 +123,7 @@ class AvatarRepo {
       return ac;
     }
 
-    if (ac == null || ac != null && (ac.fileId == null || ac.fileId!.isEmpty)) {
+    if (ac == null || (ac.fileId == null || ac.fileId!.isEmpty)) {
       return null;
     }
 
@@ -153,27 +150,23 @@ class AvatarRepo {
     });
   }
 
-  Future<Avatar?> uploadAvatar(File file, Uid uid) async {
+  Future<Avatar> uploadAvatar(File file, Uid uid) async {
     await _fileRepo.cloneFileInLocalDirectory(
         file, uid.node, file.path.split('/').last);
     var fileInfo =
         await _fileRepo.uploadClonedFile(uid.node, file.path.split('/').last);
-    if (fileInfo != null) {
-      int createdOn = DateTime.now().millisecondsSinceEpoch;
-      _setAvatarAtServer(fileInfo, createdOn, uid);
-      Avatar avatar = Avatar(
-          uid: uid.asString(),
-          createdOn: createdOn,
-          fileId: fileInfo.uuid,
-          fileName: fileInfo.name);
-      return avatar;
-    } else {
-      return null;
-    }
+    int createdOn = DateTime.now().millisecondsSinceEpoch;
+    _setAvatarAtServer(fileInfo, createdOn, uid);
+    Avatar avatar = Avatar(
+        uid: uid.asString(),
+        createdOn: createdOn,
+        fileId: fileInfo.uuid,
+        fileName: fileInfo.name);
+    return avatar;
   }
 
-  _setAvatarAtServer(ProtocolFile.File fileInfo, int createOn, Uid uid) async {
-    var avatar = ProtocolAvatar.Avatar()
+  _setAvatarAtServer(file_pb.File fileInfo, int createOn, Uid uid) async {
+    var avatar = avatar_pb.Avatar()
       ..createdOn = Int64.parseInt(createOn.toString())
       ..category = uid.category
       ..node = uid.node
@@ -185,9 +178,10 @@ class AvatarRepo {
     try {
       if (uid.isBot()) {
         setAvatarReqAccepted = await _botRepo.addBotAvatar(avatar);
-      } else
+      } else {
         setAvatarReqAccepted = await addAvatarRequest(addAvatarReq);
-      if (setAvatarReqAccepted!)
+      }
+      if (setAvatarReqAccepted!) {
         await _avatarDao.saveAvatars(uid.asString(), [
           Avatar(
               uid: uid.asString(),
@@ -195,6 +189,7 @@ class AvatarRepo {
               fileId: fileInfo.uuid,
               fileName: fileInfo.name)
         ]);
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -210,24 +205,25 @@ class AvatarRepo {
   }
 
   Future<bool?> deleteAvatar(Avatar avatar) async {
-    ProtocolAvatar.Avatar deleteAvatar = ProtocolAvatar.Avatar();
-    deleteAvatar..fileUuid = avatar.fileId!;
-    deleteAvatar..fileName = avatar.fileName!;
+    avatar_pb.Avatar deleteAvatar = avatar_pb.Avatar();
+    deleteAvatar.fileUuid = avatar.fileId!;
+    deleteAvatar.fileName = avatar.fileName!;
     deleteAvatar
-      ..node = avatar.uid.isBot()
+      .node = avatar.uid.isBot()
           ? avatar.uid.asUid().node
           : _authRepo.currentUserUid.node;
     deleteAvatar
-      ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
+      .createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
     deleteAvatar
-      ..category = avatar.uid.isBot()
+      .category = avatar.uid.isBot()
           ? avatar.uid.asUid().category
           : _authRepo.currentUserUid.category;
     var removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
     if (avatar.uid.isBot()) {
       _botRepo.removeBotAvatar(deleteAvatar);
-    } else
+    } else {
       await _queryServices.removeAvatar(removeAvatarReq);
+    }
     await _avatarDao.removeAvatar(avatar);
   }
 }

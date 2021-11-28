@@ -24,10 +24,11 @@ import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -41,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
-  bool _accept_privacy = false;
+  bool _acceptPrivacy = false;
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -50,12 +51,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    if (phoneNumber != null && phoneNumber!.nationalNumber != null) {
+    if (phoneNumber != null) {
       controller.text = phoneNumber!.nationalNumber.toString();
     }
 
     if (isDesktop()) {
-      checkTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
         try {
           var res = await _authRepo.checkQrCodeToken(loginToken.value);
           if (res.status == AccessTokenRes_Status.OK) {
@@ -70,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
           _logger.e(e);
         }
       });
-      tokenGeneratorTimer = Timer.periodic(Duration(seconds: 60), (timer) {
+      tokenGeneratorTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
     } else if (isAndroid() && !kDebugMode) {
@@ -92,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
   _navigationToHome() async {
     _contactRepo.getContacts();
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-      return HomePage();
+      return const HomePage();
     }), (r) => false);
   }
 
@@ -111,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
 
   checkAndGoNext({bool doNotCheckValidator = false}) async {
     if (phoneNumber != null &&
-        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONENUMBER) {
+        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
       _logger.e("logis as test user ");
       _loginASTestUser();
     } else {
@@ -124,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
           var res = await _authRepo.getVerificationCode(phoneNumber!);
           if (res != null) {
             Navigator.push(context, MaterialPageRoute(builder: (c) {
-              return VerificationPage();
+              return const VerificationPage();
             }));
 
             setState(() {
@@ -184,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&
-                    snapshot.data!.isNotEmpty)
+                    snapshot.data!.isNotEmpty) {
                   return Container(
                     width: 200,
                     height: 200,
@@ -199,30 +200,31 @@ class _LoginPageState extends State<LoginPage> {
                       foregroundColor: Colors.black,
                     ),
                   );
-                else
-                  return Center(
+                } else {
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
+                }
               }),
-          SizedBox(height: 30),
-          Text("1. Open Deliver on your phone"),
-          SizedBox(height: 10),
+          const SizedBox(height: 30),
+          const Text("1. Open Deliver on your phone"),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               Text("2. Go to QrCode reader by clicking"),
               Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: EdgeInsets.all(4.0),
                 child: Icon(Icons.qr_code_rounded, size: 17),
               ),
               Text("in appbar"),
             ],
           ),
-          SizedBox(height: 10),
-          Text("3. Point your phone at this screen to confirm login"),
-          SizedBox(height: 30),
+          const SizedBox(height: 10),
+          const Text("3. Point your phone at this screen to confirm login"),
+          const SizedBox(height: 30),
           TextButton(
-              child: Text(
+              child: const Text(
                 "Don't you have access to an authenticated phone?",
               ),
               onPressed: () {
@@ -237,27 +239,23 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
     return _isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      SizedBox(
-                        height: 5,
-                      ),
+                      const SizedBox(height: 5),
                       IntlPhoneField(
                         initialCountryCode: phoneNumber != null
                             ? phoneNumber!.countryCode.toString()
                             : null,
                         controller: controller,
                         validator: (value) => value!.length != 10 ||
-                                (value.length > 0 && value[0] == '0')
+                                (value.isNotEmpty && value[0] == '0')
                             ? i18n.get("invalid_mobile_number")
                             : null,
                         onChanged: (p) {
@@ -268,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                           checkAndGoNext();
                         },
                       ),
-                      SizedBox(height: 15),
+                      const SizedBox(height: 15),
                       Text(
                         i18n.get("insert_phone_and_code"),
                         style: TextStyle(
@@ -277,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 15,
                         ),
                       ),
-                      if (isDesktop()) SizedBox(height: 40),
+                      if (isDesktop()) const SizedBox(height: 40),
                       if (isDesktop())
                         TextButton(
                             child: Text(
@@ -296,10 +294,10 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         children: [
                           Checkbox(
-                            value: _accept_privacy,
+                            value: _acceptPrivacy,
                             onChanged: (c) {
                               setState(() {
-                                _accept_privacy = c!;
+                                _acceptPrivacy = c!;
                               });
                             },
                           ),
@@ -307,12 +305,12 @@ class _LoginPageState extends State<LoginPage> {
                             text: TextSpan(children: [
                               TextSpan(
                                   text: "شرایط حریم خصوصی",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.blue, fontSize: 13),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () => launch(
                                         "https://deliver-co.ir/#/termofuse")),
-                              TextSpan(
+                              const TextSpan(
                                   text:
                                       " را مطالعه نموده ام و آن را قبول می کنم",
                                   style: TextStyle(fontSize: 13)),
@@ -324,7 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                if (_accept_privacy)
+                if (_acceptPrivacy)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(

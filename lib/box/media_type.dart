@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:deliver/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 

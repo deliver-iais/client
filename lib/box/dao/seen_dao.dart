@@ -16,12 +16,14 @@ abstract class SeenDao {
 }
 
 class SeenDaoImpl implements SeenDao {
+  @override
   Future<Seen?> getOthersSeen(String uid) async {
     var box = await _openOthersSeen();
 
     return box.get(uid);
   }
 
+  @override
   Stream<Seen?> watchOthersSeen(String uid) async* {
     var box = await _openOthersSeen();
 
@@ -30,12 +32,14 @@ class SeenDaoImpl implements SeenDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
+  @override
   Future<Seen?> getMySeen(String uid) async {
     var box = await _openMySeen();
 
     return box.get(uid);
   }
 
+  @override
   Stream<Seen?> watchMySeen(String uid) async* {
     var box = await _openMySeen();
 
@@ -44,6 +48,7 @@ class SeenDaoImpl implements SeenDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
+  @override
   Future<void> saveOthersSeen(Seen seen) async {
     var box = await _openOthersSeen();
 
@@ -54,15 +59,13 @@ class SeenDaoImpl implements SeenDao {
     }
   }
 
+  @override
   Future<void> saveMySeen(Seen seen) async {
-    if (seen == null || seen.messageId == null) return;
-
     var box = await _openMySeen();
 
     var mySeen = box.get(seen.uid);
 
-    if (mySeen == null ||
-        (mySeen != null && mySeen.messageId < seen.messageId)) {
+    if (mySeen == null || mySeen.messageId < seen.messageId) {
       box.put(seen.uid, seen);
     }
   }

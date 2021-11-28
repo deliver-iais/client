@@ -1,7 +1,8 @@
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/widgets/inputMessage.dart';
+import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -12,7 +13,7 @@ class RawKeyboardService {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   late Function _openSearchBox;
 
-  var _currentRoom;
+  Uid? _currentRoom;
 
   set currentRoom(value) {
     _currentRoom = value;
@@ -23,7 +24,7 @@ class RawKeyboardService {
   }
 
   void controlFHandle() {
-    if (_openSearchBox != null) _openSearchBox();
+    _openSearchBox();
   }
 
   void controlCHandle(TextEditingController controller) {
@@ -47,10 +48,10 @@ class RawKeyboardService {
   }
 
   void escapeHandle(int replyMessageId, Function resetRoomPageDetails) {
-    if (InputMessage.inputMessegeFocusNode == null) {
+    if (InputMessage.inputMessageFocusNode == null) {
       if (_routingService.isAnyRoomOpen()) _routingService.pop();
     } else {
-      if (InputMessage.inputMessegeFocusNode?.hasFocus == true) {
+      if (InputMessage.inputMessageFocusNode?.hasFocus == true) {
         if (replyMessageId == 0) {
           _routingService.pop();
         }
@@ -71,7 +72,7 @@ class RawKeyboardService {
               for (var element in value)
                 {
                   index++,
-                  if (element.node == _currentRoom.node)
+                  if (element.node == _currentRoom?.node)
                     if (index - 1 >= 0)
                       _routingService.openRoom(room[index - 1].uid,
                           context: context)
@@ -87,7 +88,7 @@ class RawKeyboardService {
               for (var element in value)
                 {
                   index++,
-                  if (element.node == _currentRoom.node)
+                  if (element.node == _currentRoom?.node)
                     if (index + 1 < room.length)
                       _routingService.openRoom(room[index + 1].uid,
                           context: context)
@@ -120,14 +121,17 @@ class RawKeyboardService {
   }
 
   void searchHandeling({event}) {
-    if (event.physicalKey == PhysicalKeyboardKey.keyF && event.isControlPressed)
+    if (event.physicalKey == PhysicalKeyboardKey.keyF &&
+        event.isControlPressed) {
       controlFHandle();
+    }
   }
 
   void escapeHandeling(
       {event, int? replyMessageId, Function? resetRoomPageDetails}) {
-    if (event.isKeyPressed(LogicalKeyboardKey.escape))
+    if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
       escapeHandle(replyMessageId!, resetRoomPageDetails!);
+    }
   }
 
   navigateInMentions(
@@ -171,15 +175,19 @@ class RawKeyboardService {
   }
 
   void handleCopyPastKeyPress(TextEditingController controller, event) {
-    if (event.isKeyPressed(LogicalKeyboardKey.keyA) && event.isControlPressed)
+    if (event.isKeyPressed(LogicalKeyboardKey.keyA) && event.isControlPressed) {
       controlAHandle(controller);
-    if (event.isKeyPressed(LogicalKeyboardKey.keyC) && event.isControlPressed)
+    }
+    if (event.isKeyPressed(LogicalKeyboardKey.keyC) && event.isControlPressed) {
       controlCHandle(controller);
+    }
 
-    if (event.isKeyPressed(LogicalKeyboardKey.keyX) && event.isControlPressed)
+    if (event.isKeyPressed(LogicalKeyboardKey.keyX) && event.isControlPressed) {
       controlXHandle(controller);
-    if (event.isKeyPressed(LogicalKeyboardKey.keyV) && event.isControlPressed)
+    }
+    if (event.isKeyPressed(LogicalKeyboardKey.keyV) && event.isControlPressed) {
       controlVHandle(controller);
+    }
   }
 
   navigateInRooms({event, required BuildContext context}) {

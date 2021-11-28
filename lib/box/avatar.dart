@@ -1,5 +1,4 @@
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 
 part 'avatar.g.dart';

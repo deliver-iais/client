@@ -20,10 +20,10 @@ class TitleStatus extends StatefulWidget {
   final Widget normalConditionWidget;
   final Uid? currentRoomUid;
 
-  TitleStatus(
-      {required this.style,
+  const TitleStatus(
+      {Key? key, required this.style,
       this.normalConditionWidget = const SizedBox.shrink(),
-      this.currentRoomUid});
+      this.currentRoomUid}) : super(key: key);
 
   @override
   _TitleStatusState createState() => _TitleStatusState();
@@ -39,8 +39,9 @@ class _TitleStatusState extends State<TitleStatus> {
   @override
   void initState() {
     if (widget.currentRoomUid != null) {
-      if (widget.currentRoomUid!.category == Categories.USER)
+      if (widget.currentRoomUid!.category == Categories.USER) {
         _lastActivityRepo.updateLastActivity(widget.currentRoomUid!);
+      }
       _roomRepo.initActivity(widget.currentRoomUid!.node);
     }
     super.initState();
@@ -53,7 +54,7 @@ class _TitleStatusState extends State<TitleStatus> {
         builder: (context, snapshot) {
           return AnimatedSwitcher(
               layoutBuilder: (currentChild, previousChildren) {
-                return Container(
+                return SizedBox(
                   height: widget.style.fontSize! * 1.5,
                   child: Stack(
                     children: <Widget>[
@@ -69,8 +70,8 @@ class _TitleStatusState extends State<TitleStatus> {
                     opacity: animation,
                     child: SizeTransition(sizeFactor: animation, child: child));
               },
-              duration: Duration(milliseconds: 150),
-              reverseDuration: Duration(milliseconds: 150),
+              duration: const Duration(milliseconds: 150),
+              reverseDuration: const Duration(milliseconds: 150),
               child: buildTitle(snapshot));
         });
   }
@@ -87,12 +88,13 @@ class _TitleStatusState extends State<TitleStatus> {
               overflow: TextOverflow.fade,
               softWrap: false,
               style: widget.style);
-          break;
         case TitleStatusConditions.Normal:
-          if (widget.currentRoomUid != null)
+          if (widget.currentRoomUid != null) {
             return activityWidget();
-          else
-            return this.widget.normalConditionWidget;
+          } else {
+            return widget.normalConditionWidget;
+          }
+        default:
           break;
       }
     }
@@ -120,12 +122,13 @@ class _TitleStatusState extends State<TitleStatus> {
           if (activity.hasData && activity.data != null) {
             if (activity.data!.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return normalActivity();
-            } else
+            } else {
               return ActivityStatus(
                 activity: activity.data!,
                 roomUid: widget.currentRoomUid!,
                 style: widget.style,
               );
+            }
           } else {
             return normalActivity();
           }
@@ -138,8 +141,7 @@ class _TitleStatusState extends State<TitleStatus> {
           stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
           builder: (c, userInfo) {
             if (userInfo.hasData &&
-                userInfo.data != null &&
-                userInfo.data!.time != null) {
+                userInfo.data != null) {
               if (isOnline(userInfo.data!.time)) {
                 return Text(
                   i18n.get("online"),
@@ -163,7 +165,7 @@ class _TitleStatusState extends State<TitleStatus> {
                         .copyWith(color: Theme.of(context).primaryColor));
               }
             }
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           });
     } else {
       return widget.normalConditionWidget;

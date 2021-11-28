@@ -58,15 +58,15 @@ class Message {
 
   Message copy(Message pm) => Message(
         roomUid: pm.roomUid,
-        id: pm.id ?? this.id,
+        id: pm.id ?? id,
         packetId: pm.packetId,
         time: pm.time,
         from: pm.from,
         to: pm.to,
-        replyToId: pm.replyToId ?? this.replyToId,
-        forwardedFrom: pm.forwardedFrom ?? this.forwardedFrom,
-        edited: pm.edited ?? this.edited,
-        encrypted: pm.encrypted ?? this.encrypted,
+        replyToId: pm.replyToId ?? replyToId,
+        forwardedFrom: pm.forwardedFrom ?? forwardedFrom,
+        edited: pm.edited ?? edited,
+        encrypted: pm.encrypted ?? encrypted,
         type: pm.type,
         json: pm.json,
       );

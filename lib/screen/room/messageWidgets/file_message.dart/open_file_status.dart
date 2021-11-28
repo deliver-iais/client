@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 
 class OpenFileStatus extends StatelessWidget {
-  final filePb.File file;
+  final file_pb.File file;
 
   const OpenFileStatus({Key? key, required this.file}) : super(key: key);
 
@@ -27,7 +27,7 @@ class OpenFileStatus extends StatelessWidget {
           future: fileRepo.getFile(file.uuid, file.name),
           builder: (context, snapshot) {
             return IconButton(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               alignment: Alignment.center,
               icon: Icon(
                 Icons.insert_drive_file,

@@ -11,7 +11,7 @@ class SeenStatus extends StatelessWidget {
   final Message message;
   final bool? isSeen;
 
-  const SeenStatus(this.message, {this.isSeen});
+  const SeenStatus(this.message, {Key? key, this.isSeen}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,27 +20,27 @@ class SeenStatus extends StatelessWidget {
     Widget pendingMessage = Icon(Icons.access_alarm,
         color: ExtraTheme.of(context).seenStatus, size: 15);
 
-    if (message.id == null)
+    if (message.id == null) {
       return FutureBuilder<PendingMessage?>(
           future: messageRepo.getPendingMessage(message.packetId),
           builder: ((c, pm) {
             if (pm.hasData && pm.data != null && pm.data!.failed) {
-              return Icon(Icons.warning, color: Colors.red, size: 15);
+              return const Icon(Icons.warning, color: Colors.red, size: 15);
             } else {
               return pendingMessage;
             }
           }));
-    else if (isSeen != null && isSeen!) {
+    } else if (isSeen != null && isSeen!) {
       return Icon(
         Icons.done_all,
         color: ExtraTheme.of(context).seenStatus,
         size: 15,
       );
-    } else
+    } else {
       return StreamBuilder<Seen?>(
         stream: seenDao.watchOthersSeen(message.roomUid),
         builder: (context, snapshot) {
-          if (snapshot.hasData)
+          if (snapshot.hasData) {
             return Icon(
               snapshot.data!.messageId >= message.id!
                   ? Icons.done_all
@@ -48,13 +48,15 @@ class SeenStatus extends StatelessWidget {
               color: ExtraTheme.of(context).seenStatus,
               size: 15,
             );
-          else
+          } else {
             return Icon(
               Icons.done,
               color: ExtraTheme.of(context).seenStatus,
               size: 15,
             );
+          }
         },
       );
+    }
   }
 }

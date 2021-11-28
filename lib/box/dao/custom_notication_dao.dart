@@ -16,10 +16,11 @@ class CustomNotificatonDaoImpl implements CustomNotificatonDao {
   @override
   Future<bool> isHaveCustomNotif(String uid) async {
     var box = await _open();
-    if (box.get(uid) == null)
+    if (box.get(uid) == null) {
       return false;
-    else
+    } else {
       return true;
+    }
   }
 
   @override
@@ -32,9 +33,10 @@ class CustomNotificatonDaoImpl implements CustomNotificatonDao {
   @override
   Future<String?> getCustomNotif(String uid) async {
     var box = await _open();
-    if (box.get(uid) != null)
+    if (box.get(uid) != null) {
       return box.get(uid);
-    else
+    } else {
       return "-";
+    }
   }
 }

@@ -17,7 +17,7 @@ class TGS extends StatefulWidget {
   final bool repeat;
   final bool autoPlay;
 
-  TGS.asset(this.assetsPath,
+  const TGS.asset(this.assetsPath,
       {Key? key,
       this.controller,
       this.repeat = true,
@@ -27,7 +27,7 @@ class TGS extends StatefulWidget {
       : file = null,
         super(key: key);
 
-  TGS.file(this.file,
+  const TGS.file(this.file,
       {Key? key,
       required this.controller,
       this.repeat = true,
@@ -61,7 +61,6 @@ class _TGSState extends State<TGS> {
     bytes = GZipCodec().decode(bytes) as Uint8List;
 
     var res = await  LottieComposition.fromBytes(bytes);
-    print(res.toString());
     return res;
   }
 
@@ -102,7 +101,7 @@ class _TGSState extends State<TGS> {
                 height: widget.height,
                 repeat: widget.repeat);
           } else {
-            return Container(
+            return SizedBox(
               width: widget.width,
               height: widget.height,
             );

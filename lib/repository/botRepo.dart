@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 
@@ -15,22 +17,18 @@ class BotRepo {
   final _botDao = GetIt.I.get<BotDao>();
 
   Future<BotInfo?> fetchBotInfo(Uid botUid) async {
-    GetInfoRes ? result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
-    if(result != null ){
-      var botInfo = BotInfo(
-          description: result.description,
-          uid: botUid.asString(),
-          name: result.name,
-          commands: result.commands,
-          isOwner: result.isOwner);
+    GetInfoRes result =
+        await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    var botInfo = BotInfo(
+        description: result.description,
+        uid: botUid.asString(),
+        name: result.name,
+        commands: result.commands,
+        isOwner: result.isOwner);
 
-      _botDao.save(botInfo);
+    _botDao.save(botInfo);
 
-      return botInfo;
-    } else
-      return null;
-
-
+    return botInfo;
   }
 
   Future<bool> addBotAvatar(Avatar botAvatar) async {
@@ -45,7 +43,7 @@ class BotRepo {
 
   Future<bool> removeBotAvatar(Avatar botAvatar) async {
     try {
-      var result = await _botServiceClient
+      await _botServiceClient
           .removeAvatar(RemoveAvatarReq()..avatar = botAvatar);
       return true;
     } catch (e) {
@@ -54,7 +52,7 @@ class BotRepo {
     }
   }
 
-  Future<BotInfo ?> getBotInfo(Uid botUid) async {
+  Future<BotInfo?> getBotInfo(Uid botUid) async {
     var botInfo = await _botDao.get(botUid.asString());
     // TODO add lastUpdate field in model and check it later in here!
     if (botInfo != null) {

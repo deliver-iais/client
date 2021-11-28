@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-const English = const Language(1, 'English', '🇺🇸', "en", "US");
-const Farsi = const Language(1, 'فارسی', '🇮🇷', "fa", "IR");
-const DefaultLanguage = English;
+const english = Language(1, 'English', '🇺🇸', "en", "US");
+const farsi = Language(1, 'فارسی', '🇮🇷', "fa", "IR");
+const defaultLanguage = english;
 
 class Language {
   final int id;
@@ -15,7 +15,7 @@ class Language {
       this.id, this.name, this.flag, this.languageCode, this.countryCode);
 
   static List<Language> languageList() {
-    return <Language>[Farsi, English];
+    return <Language>[farsi, english];
   }
 
   Locale get locale => Locale(languageCode, countryCode);
@@ -24,10 +24,10 @@ class Language {
 extension LanguageOnLocale on Locale {
   Language language() {
     var index = Language.languageList()
-        .indexWhere((element) => element.languageCode == this.languageCode);
+        .indexWhere((element) => element.languageCode == languageCode);
     if (index > -1) {
       return Language.languageList()[index];
     }
-    return English;
+    return english;
   }
 }

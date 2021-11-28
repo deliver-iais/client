@@ -14,28 +14,35 @@ abstract class ContactDao {
 }
 
 class ContactDaoImpl implements ContactDao {
+  @override
   Future<Contact?> get(String countryCode, String nationalNumber) async {
     var box = await _open();
 
-    return box.values.firstWhere(
-        (element) =>
-            element.countryCode == countryCode &&
-            element.nationalNumber == nationalNumber,
-        orElse: () => null! );
+    try {
+      box.values.firstWhere(
+              (element) =>
+          element.countryCode == countryCode &&
+              element.nationalNumber == nationalNumber);
+    } catch (e) {
+      return null;
+    }
   }
 
+  @override
   Future<Contact?> getByUid(String uid) async {
     var box = await _open();
 
     return box.get(uid);
   }
 
+  @override
   Future<List<Contact>> getAll() async {
     var box = await _open();
 
     return box.values.toList();
   }
 
+  @override
   Stream<List<Contact>> watchAll() async* {
     var box = await _open();
 
@@ -44,6 +51,7 @@ class ContactDaoImpl implements ContactDao {
     yield* box.watch().map((event) => box.values.toList());
   }
 
+  @override
   Future<void> save(Contact contact) async {
     var box = await _open();
 

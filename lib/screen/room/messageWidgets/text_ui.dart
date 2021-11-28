@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/gestures.dart';
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;
@@ -135,8 +135,9 @@ class UrlParser implements Parser {
       parseBlocks(blocks, regex, "url", onTap: (uri) async {
         if (uri.toString().contains(APPLICATION_DOMAIN)) {
           handleJoinUri(context, uri);
-        } else
+        } else {
           await launch(uri);
+        }
       },
           style:
               TextStyle(inherit: true, color: Theme.of(context).primaryColor));
@@ -166,7 +167,7 @@ class BoldTextParser implements Parser {
         regex,
         "bold",
         transformer: BoldTextParser.transformer,
-        style: TextStyle(inherit: true, fontWeight: FontWeight.w800),
+        style: const TextStyle(inherit: true, fontWeight: FontWeight.w800),
       );
 }
 
@@ -179,7 +180,7 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "italic",
           transformer: ItalicTextParser.transformer,
-          style: TextStyle(inherit: true, fontStyle: FontStyle.italic));
+          style: const TextStyle(inherit: true, fontStyle: FontStyle.italic));
 }
 
 class EmojiParser implements Parser {

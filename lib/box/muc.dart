@@ -46,14 +46,14 @@ class Muc {
 
   Muc copy(Muc muc) => Muc(
         uid: muc.uid,
-        name: muc.name ?? this.name,
-        token: muc.token ?? this.token,
-        id: muc.id ?? this.id,
-        info: muc.info ?? this.info,
-        lastMessageId: muc.lastMessageId ?? this.lastMessageId,
-        pinMessagesIdList: muc.pinMessagesIdList ?? this.pinMessagesIdList,
-        showPinMessage: muc.showPinMessage ?? this.showPinMessage,
-        population: muc.population ?? this.population,
+        name: muc.name ?? name,
+        token: muc.token ?? token,
+        id: muc.id ?? id,
+        info: muc.info ?? info,
+        lastMessageId: muc.lastMessageId ?? lastMessageId,
+        pinMessagesIdList: muc.pinMessagesIdList ?? pinMessagesIdList,
+        showPinMessage: muc.showPinMessage ?? showPinMessage,
+        population: muc.population ?? population,
       );
 
   Muc copyWith(

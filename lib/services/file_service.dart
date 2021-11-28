@@ -22,18 +22,19 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
 
-  var _dio = Dio();
-  Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
+  final _dio = Dio();
+  Map<String, BehaviorSubject<double>> filesUploadStatus = {};
 
-  Map<String, BehaviorSubject<double>> filesDownloadStatus = Map();
+  Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() ||
         isDesktop() ||
         isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists())
+      if (!await Directory('${directory.path}/Deliver').exists()) {
         await Directory('${directory.path}/Deliver').create(recursive: true);
+      }
       return directory.path + "/Deliver";
     }
     throw Exception("There is no Storage Permission!");
@@ -114,7 +115,7 @@ class FileService {
     File f = File('$downloadDir/$name');
     try {
       await f.writeAsBytes(file.readAsBytesSync());
-    } catch (e) {}
+    } catch (_) {}
   }
 
   Future<File> _getFileThumbnail(

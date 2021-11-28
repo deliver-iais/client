@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/models/account.dart';
@@ -40,14 +42,16 @@ class AccountRepo {
             lastName: result.profile.lastName,
             email: result.profile.email);
         return await getUsername();
-      } else
+      } else {
         return getUsername();
+      }
     } catch (e) {
       _logger.e(e);
-      if (retry)
+      if (retry) {
         return getProfile();
-      else
+      } else {
         return false;
+      }
     }
   }
 
@@ -55,7 +59,7 @@ class AccountRepo {
     try {
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
-      if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
+      if (getIdRequest.id.isNotEmpty) {
         _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
         return true;
       } else {

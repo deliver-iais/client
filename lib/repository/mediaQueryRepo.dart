@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:convert';
 
 import 'package:deliver/box/dao/media_dao.dart';
@@ -8,9 +10,9 @@ import 'package:deliver/box/media_type.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart' as queryObject;
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart' as query_pb;
 import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
-    as MediaObject;
+    as media_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:fixnum/fixnum.dart';
@@ -35,7 +37,7 @@ class MediaQueryRepo {
   }
 
   Future insertMediaMetaData(
-      Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
+      Uid uid, query_pb.GetMediaMetadataRes mediaResponse) async {
     _mediaMetaDataDao.save(MediaMetaData(
       roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
@@ -67,7 +69,7 @@ class MediaQueryRepo {
       {int messageId = 0}) async {
     List<Media> mediasList = [];
     mediasList = await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType);
-    if (mediasList.length == 0) {
+    if (mediasList.isEmpty) {
       mediasList = await getLastMediasList(
           uid,
           convertType(mediaType),
@@ -102,12 +104,12 @@ class MediaQueryRepo {
       int pointer,
       FetchMediasReq_FetchingDirectionType directionType) async {
     var getMediaReq = FetchMediasReq();
-    getMediaReq..roomUid = roomId;
-    getMediaReq..pointer = Int64(pointer);
-    getMediaReq..year = DateTime.now().year;
-    getMediaReq..mediaType = mediaType;
-    getMediaReq..fetchingDirectionType = directionType;
-    getMediaReq..limit = 30;
+    getMediaReq.roomUid = roomId;
+    getMediaReq.pointer = Int64(pointer);
+    getMediaReq.year = DateTime.now().year;
+    getMediaReq.mediaType = mediaType;
+    getMediaReq.fetchingDirectionType = directionType;
+    getMediaReq.limit = 30;
     try {
       var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq);
       List<Media> medias =
@@ -119,10 +121,10 @@ class MediaQueryRepo {
     }
   }
 
-  Future<List<Media>> _saveFetchedMedias(List<MediaObject.Media> getMedias,
+  Future<List<Media>> _saveFetchedMedias(List<media_pb.Media> getMedias,
       Uid roomUid, FetchMediasReq_MediaType mediaType) async {
     List<Media> mediaList = [];
-    for (MediaObject.Media media in getMedias) {
+    for (media_pb.Media media in getMedias) {
       MediaType type = findFetchedMediaType(mediaType);
       String json = findFetchedMediaJson(media);
       Media insertedMedia = Media(
@@ -153,33 +155,27 @@ class MediaQueryRepo {
       return MediaType.DOCUMENT;
     } else if (mediaType == FetchMediasReq_MediaType.LINKS) {
       return MediaType.LINK;
-    } else
+    } else {
       return MediaType.NOT_SET;
+    }
   }
 
   FetchMediasReq_MediaType convertType(MediaType mediaType) {
     switch (mediaType) {
       case MediaType.IMAGE:
         return FetchMediasReq_MediaType.IMAGES;
-        break;
       case MediaType.VIDEO:
         return FetchMediasReq_MediaType.VIDEOS;
-        break;
       case MediaType.FILE:
         return FetchMediasReq_MediaType.FILES;
-        break;
       case MediaType.AUDIO:
         return FetchMediasReq_MediaType.AUDIOS;
-        break;
       case MediaType.MUSIC:
         return FetchMediasReq_MediaType.MUSICS;
-        break;
       case MediaType.DOCUMENT:
         return FetchMediasReq_MediaType.DOCUMENTS;
-        break;
       case MediaType.LINK:
         return FetchMediasReq_MediaType.LINKS;
-        break;
       default:
         return FetchMediasReq_MediaType.FILES;
     }
@@ -191,7 +187,7 @@ class MediaQueryRepo {
     return mediaList;
   }
 
-  String findFetchedMediaJson(MediaObject.Media media) {
+  String findFetchedMediaJson(media_pb.Media media) {
     var json = Object();
     if (media.hasLink()) {
       json = {"url": media.link};

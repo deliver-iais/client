@@ -13,7 +13,7 @@ class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   final bool isPinned;
   final Room room;
 
-  OperationOnRoomEntry({required this.room, this.isPinned = false});
+  const OperationOnRoomEntry({Key? key, required this.room, this.isPinned = false}) : super(key: key);
 
   @override
   OperationOnRoomEntryState createState() => OperationOnRoomEntryState();
@@ -62,117 +62,116 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            if (!widget.isPinned)
-              TextButton(
-                  onPressed: () {
-                    onPinRoom();
-                  },
-                  child: Row(children: [
-                    Icon(
-                      Icons.push_pin,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(i18n.get("pin_room")),
-                  ]))
-            else
-              TextButton(
-                  onPressed: () {
-                    onUnPinRoom();
-                  },
-                  child: Row(children: [
-                    Icon(
-                      Icons.remove,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(i18n.get("unpin_room")),
-                  ])),
-            StreamBuilder<bool>(
-              stream: _roomRepo.watchIsRoomMuted(widget.room.uid),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          if (!widget.isPinned)
+            TextButton(
+                onPressed: () {
+                  onPinRoom();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.push_pin,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(i18n.get("pin_room")),
+                ]))
+          else
+            TextButton(
+                onPressed: () {
+                  onUnPinRoom();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.remove,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(i18n.get("unpin_room")),
+                ])),
+          StreamBuilder<bool>(
+            stream: _roomRepo.watchIsRoomMuted(widget.room.uid),
+            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return snapshot.data!
+                    ? TextButton(
+                        onPressed: () {
+                          onMuteOrUnMuteRoom();
+                          _roomRepo.unmute(widget.room.uid);
+                        },
+                        child: Row(children: [
+                          const Icon(
+                            Icons.notifications_active,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(i18n.get("enable_notifications")),
+                        ]))
+                    : TextButton(
+                        onPressed: () {
+                          onMuteOrUnMuteRoom();
+                          _roomRepo.mute(widget.room.uid);
+                        },
+                        child: Row(children: [
+                          const Icon(
+                            Icons.notifications_off_sharp,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(i18n.get("disable_notifications")),
+                        ]));
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+          FutureBuilder<bool>(
+              future: _mucRepo.isMucOwner(
+                  _authRepo.currentUserUid.asString(), widget.room.uid),
+              builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
-                  return snapshot.data!
+                  return !snapshot.data!
                       ? TextButton(
-                          onPressed: () {
-                            onMuteOrUnMuteRoom();
-                            _roomRepo.unmute(widget.room.uid);
+                          onPressed: () async {
+                            onDeleteRoom("delete_room");
                           },
                           child: Row(children: [
                             Icon(
-                              Icons.notifications_active,
+                              widget.room.uid.asUid().isMuc()
+                                  ? Icons.arrow_back_outlined
+                                  : Icons.delete,
                               size: 20,
                             ),
-                            SizedBox(width: 8),
-                            Text(i18n.get("enable_notifications")),
+                            const SizedBox(width: 8),
+                            Text(
+                              !widget.room.uid.asUid().isMuc()
+                                  ? i18n.get("delete_chat")
+                                  : widget.room.uid.asUid().isGroup()
+                                      ? i18n.get("left_group")
+                                      : i18n.get("left_channel"),
+                            ),
                           ]))
                       : TextButton(
                           onPressed: () {
-                            onMuteOrUnMuteRoom();
-                            _roomRepo.mute(widget.room.uid);
+                            onDeleteRoom("deleteMuc");
                           },
                           child: Row(children: [
-                            Icon(
-                              Icons.notifications_off_sharp,
+                            const Icon(
+                              Icons.delete,
                               size: 20,
                             ),
-                            SizedBox(width: 8),
-                            Text(i18n.get("disable_notifications")),
+                            const SizedBox(width: 8),
+                            Text(widget.room.uid.asUid().isGroup()
+                                ? i18n.get("delete_group")
+                                : i18n.get("delete_channel")),
                           ]));
                 } else {
-                  return SizedBox.shrink();
+                  return const SizedBox.shrink();
                 }
-              },
-            ),
-            FutureBuilder<bool>(
-                future: _mucRepo.isMucOwner(
-                    _authRepo.currentUserUid.asString(), widget.room.uid),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return !snapshot.data!
-                        ? TextButton(
-                            onPressed: () async {
-                              onDeleteRoom("delete_room");
-                            },
-                            child: Row(children: [
-                              Icon(
-                                widget.room.uid.asUid().isMuc()
-                                    ? Icons.arrow_back_outlined
-                                    : Icons.delete,
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                !widget.room.uid.asUid().isMuc()
-                                    ? i18n.get("delete_chat")
-                                    : widget.room.uid.asUid().isGroup()
-                                        ? i18n.get("left_group")
-                                        : i18n.get("left_channel"),
-                              ),
-                            ]))
-                        : TextButton(
-                            onPressed: () {
-                              onDeleteRoom("deleteMuc");
-                            },
-                            child: Row(children: [
-                              Icon(
-                                Icons.delete,
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(widget.room.uid.asUid().isGroup()
-                                  ? i18n.get("delete_group")
-                                  : i18n.get("delete_channel")),
-                            ]));
-                  } else
-                    return SizedBox.shrink();
-                })
-          ],
-        ),
+              })
+        ],
       ),
     );
   }

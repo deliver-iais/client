@@ -15,7 +15,7 @@ import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../size_formater.dart';
-import '../timeAndSeenStatus.dart';
+import '../time_and_seen_status.dart';
 import 'download_video_widget.dart';
 
 class VideoMessage extends StatefulWidget {
@@ -38,7 +38,7 @@ class VideoMessage extends StatefulWidget {
 
 class _VideoMessageState extends State<VideoMessage> {
   bool showTime = true;
-  var _fileRepo = GetIt.I.get<FileRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
   bool startDownload = false;
   var fileServices = GetIt.I.get<FileService>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
@@ -94,7 +94,7 @@ class _VideoMessageState extends State<VideoMessage> {
                                 radius: 45.0,
                                 lineWidth: 4.0,
                                 percent: snapshot.data!,
-                                center: Icon(Icons.arrow_upward_rounded),
+                                center: const Icon(Icons.arrow_upward_rounded),
                                 progressColor: Colors.blue,
                               );
                             } else {
@@ -102,7 +102,7 @@ class _VideoMessageState extends State<VideoMessage> {
                                 radius: 45.0,
                                 lineWidth: 4.0,
                                 percent: 0.1,
-                                center: Icon(Icons.arrow_upward_rounded),
+                                center: const Icon(Icons.arrow_upward_rounded),
                                 progressColor: Colors.blue,
                               );
                             }
@@ -150,7 +150,7 @@ class _VideoMessageState extends State<VideoMessage> {
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       padding:
           const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: Colors.black87,
       ),
@@ -161,11 +161,11 @@ class _VideoMessageState extends State<VideoMessage> {
         children: [
           Text(
             len,
-            style: TextStyle(color: Colors.white, fontSize: 10),
+            style: const TextStyle(color: Colors.white, fontSize: 10),
           ),
           Text(
-            sizeFormater(size),
-            style: TextStyle(color: Colors.white, fontSize: 10),
+            sizeFormatter(size),
+            style: const TextStyle(color: Colors.white, fontSize: 10),
           ),
         ],
       ),
@@ -180,7 +180,7 @@ class _VideoMessageState extends State<VideoMessage> {
         size(videoLength, video.size.toInt()),
         video.caption.isEmpty
             ? (!isDesktop()) | (isDesktop() & false)
-                ? SizedBox.shrink()
+                ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
                     widget.message, widget.isSender, widget.isSeen,
                     needsBackground: true)

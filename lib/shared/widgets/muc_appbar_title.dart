@@ -13,10 +13,12 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class MucAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
+  final i18n = GetIt.I.get<I18N>();
+
   final String mucUid;
 
   MucAppbarTitle({Key? key, required this.mucUid}) : super(key: key);
-  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -28,14 +30,14 @@ class MucAppbarTitle extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatarWidget(mucUid.asUid(), 23),
-                SizedBox(
+                const SizedBox(
                   width: 16,
                 ),
                 Expanded(
                   child: StreamBuilder<Muc?>(
                       stream: _mucRepo.watchMuc(mucUid),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData)
+                        if (snapshot.hasData) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -59,7 +61,7 @@ class MucAppbarTitle extends StatelessWidget {
                               )
                             ],
                           );
-                        else
+                        } else {
                           return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -71,7 +73,7 @@ class MucAppbarTitle extends StatelessWidget {
                                                 Brightness.light
                                             ? Colors.grey[200]
                                             : Colors.grey[800])),
-                                SizedBox(height: 6),
+                                const SizedBox(height: 6),
                                 Container(
                                     width: 100,
                                     height: 11,
@@ -81,6 +83,7 @@ class MucAppbarTitle extends StatelessWidget {
                                             ? Colors.grey[200]
                                             : Colors.grey[800])),
                               ]);
+                        }
                       }),
                 )
               ],
