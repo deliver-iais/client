@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

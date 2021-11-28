@@ -1,12 +1,14 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/dao/contact_dao.dart';
-import 'package:deliver/box/contact.dart' as DB;
+import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 
-import 'package:contacts_service/contacts_service.dart' as OsContact;
+import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
@@ -36,7 +38,7 @@ class ContactRepo {
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
-  final Map<PhoneNumber, String> _contactsDisplayName = Map();
+  final Map<PhoneNumber, String> _contactsDisplayName = {};
 
   syncContacts() async {
     requestLock.synchronized(() async {
@@ -45,14 +47,14 @@ class ContactRepo {
           isIOS()) {
         List<Contact> contacts = [];
         if (!isDesktop()) {
-          Iterable<OsContact.Contact> phoneContacts =
-              await OsContact.ContactsService.getContacts(
+          Iterable<contacts_service_pb.Contact> phoneContacts =
+              await contacts_service_pb.ContactsService.getContacts(
                   withThumbnails: false,
                   photoHighResolution: false,
                   orderByGivenName: false,
                   iOSLocalizedLabels: false);
 
-          for (OsContact.Contact phoneContact in phoneContacts) {
+          for (contacts_service_pb.Contact phoneContact in phoneContacts) {
             for (var p in phoneContact.phones!) {
               try {
                 String contactPhoneNumber = p.value.toString();
@@ -106,9 +108,9 @@ class ContactRepo {
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       var sendContacts = SaveContactsReq();
-      contacts.forEach((element) {
+      for (var element in contacts) {
         sendContacts.contactList.add(element);
-      });
+      }
       await _contactServices.saveContacts(sendContacts);
       return true;
     } catch (e) {
@@ -117,16 +119,16 @@ class ContactRepo {
     }
   }
 
-  Stream<List<DB.Contact>> watchAll() => _contactDao.watchAll();
+  Stream<List<contact_pb.Contact>> watchAll() => _contactDao.watchAll();
 
-  Future<List<DB.Contact>> getAll() => _contactDao.getAll();
+  Future<List<contact_pb.Contact>> getAll() => _contactDao.getAll();
 
   Future getContacts() async {
     var result =
         await _contactServices.getContactListUsers(GetContactListUsersReq());
 
     for (var contact in result.userList) {
-      _contactDao.save(DB.Contact(
+      _contactDao.save(contact_pb.Contact(
           uid: contact.uid.asString(),
           countryCode: contact.phoneNumber.countryCode.toString(),
           nationalNumber: contact.phoneNumber.nationalNumber.toString(),
@@ -178,8 +180,8 @@ class ContactRepo {
   }
 
   // TODO needs to be refactored!
-  Future<DB.Contact?> getContact(Uid userUid) async {
-    DB.Contact? contact = await _contactDao.getByUid(userUid.asString());
+  Future<contact_pb.Contact?> getContact(Uid userUid) async {
+    contact_pb.Contact? contact = await _contactDao.getByUid(userUid.asString());
     return contact;
   }
 

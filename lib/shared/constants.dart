@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -70,7 +72,7 @@ const MEDIA_TYPE_TRACK_ID = 18;
 const LIVE_LOCATION_TRACK_ID = 19;
 
 // Animation
-const ANIMATION_DURATION = const Duration(milliseconds: 100);
+const ANIMATION_DURATION = Duration(milliseconds: 100);
 
 // UI
 const MAIN_BORDER_RADIUS = 10.0;

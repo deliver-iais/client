@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 

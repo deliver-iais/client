@@ -1,6 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ class BotButtonsWidget extends StatelessWidget {
   final Message message;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  BotButtonsWidget({required this.message});
+  BotButtonsWidget({Key? key, required this.message}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class BotButtonsWidget extends StatelessWidget {
           children: [
             for (final btn in buttons.buttons)
               Container(
-                constraints: BoxConstraints(minHeight: 35),
+                constraints: const BoxConstraints(minHeight: 35),
                 width: 240,
                 margin: const EdgeInsets.only(bottom: 5),
                 child: OutlinedButton(

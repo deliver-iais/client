@@ -12,9 +12,9 @@ class ActivityStatus extends StatelessWidget {
   final TextStyle style;
   final Uid roomUid;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
 
-  ActivityStatus({required this.activity, required this.style,required this.roomUid});
+  ActivityStatus({Key? key, required this.activity, required this.style,required this.roomUid}) : super(key: key);
   
   TextStyle textStyle(BuildContext context) {
     return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
@@ -30,19 +30,19 @@ class ActivityStatus extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "${s.data} ${i18n.get('is_typing')}",
+                  "${s.data} ${_i18n.get('is_typing')}",
                   style: textStyle(context),
                 );
               } else {
                 return Text(
-                  "unKnown ${i18n.get("is_typing")}",
+                  "unKnown ${_i18n.get("is_typing")}",
                   style: textStyle(context),
                 );
               }
             });
       } else {
         return Text(
-          i18n.get("is_typing"),
+          _i18n.get("is_typing"),
           style: textStyle(context),
         );
       }
@@ -53,19 +53,19 @@ class ActivityStatus extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "${s.data} ${i18n.get('record_audio_activity')} ",
+                  "${s.data} ${_i18n.get('record_audio_activity')} ",
                   style: textStyle(context),
                 );
               } else {
                 return Text(
-                  "unKnown ${i18n.get("record_audio_activity")}",
+                  "unKnown ${_i18n.get("record_audio_activity")}",
                   style: textStyle(context),
                 );
               }
             });
       }
       return Text(
-        i18n.get("record_audio_activity"),
+        _i18n.get("record_audio_activity"),
         style: textStyle(context),
       );
     } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
@@ -75,24 +75,24 @@ class ActivityStatus extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "${s.data} ${i18n.get('sending_file_activity')} ",
+                  "${s.data} ${_i18n.get('sending_file_activity')} ",
                   style: textStyle(context),
                 );
               } else {
                 return Text(
-                  "unKnown ${i18n.get("sending_file_activity")}",
+                  "unKnown ${_i18n.get("sending_file_activity")}",
                   style: textStyle(context),
                 );
               }
             });
       } else {
         return Text(
-          i18n.get("sending_file_activity"),
+          _i18n.get("sending_file_activity"),
           style: textStyle(context),
         );
       }
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 }

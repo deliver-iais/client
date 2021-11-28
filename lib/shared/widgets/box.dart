@@ -10,13 +10,13 @@ class Box extends StatelessWidget {
   final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
-  Box({
+  const Box({Key? key,
     this.child,
     this.margin,
     this.largePageMargin = const EdgeInsets.symmetric(horizontal: 24),
     this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +41,13 @@ class BoxList extends StatelessWidget {
   final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
-  BoxList({
+  const BoxList({Key? key,
     required this.children,
     this.padding,
     this.largePagePadding = const EdgeInsets.symmetric(horizontal: 24),
     this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

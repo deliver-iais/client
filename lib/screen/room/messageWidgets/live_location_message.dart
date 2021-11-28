@@ -2,7 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/livelocation.dart' as box;
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,7 +19,7 @@ class LiveLocationMessageWidget extends StatefulWidget {
   final bool isSeen;
   final bool isSender;
 
-  LiveLocationMessageWidget(this.message, this.isSeen, this.isSender);
+  const LiveLocationMessageWidget(this.message, this.isSeen, this.isSender, {Key? key}) : super(key: key);
 
   @override
   _LiveLocationMessageWidgetState createState() =>
@@ -27,8 +27,8 @@ class LiveLocationMessageWidget extends StatefulWidget {
 }
 
 class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
-  var _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
-  I18N _i18n = GetIt.I.get<I18N>();
+  final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
+  final I18N _i18n = GetIt.I.get<I18N>();
 
   late LiveLocation liveLocation;
 
@@ -56,63 +56,58 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
         });
   }
 
-  Container liveLocationMessageWidgetBuilder(
+  Widget liveLocationMessageWidgetBuilder(
       Location location, I18N _i18n, int duration) {
-    return Container(
-      child: Stack(
-        children: [
-          SizedBox(
-            width: 270,
-            height: 270,
-            child: FlutterMap(
-              options: MapOptions(
-                center: LatLng(location.latitude, location.longitude),
-                zoom: 15.0,
-              ),
-              layers: [
-                TileLayerOptions(
-                    tileProvider: NetworkTileProvider(),
-                    urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a', 'b', 'c']),
-                MarkerLayerOptions(
-                  markers: [
-                    Marker(
-                      width: 30.0,
-                      height: 30.0,
-                      point: LatLng(location.latitude, location.longitude),
-                      builder: (ctx) => Container(
-                          child: CircleAvatarWidget(
-                              widget.message.from.asUid(), 20)),
-                    ),
-                  ],
-                ),
-              ],
+    return Stack(
+      children: [
+        SizedBox(
+          width: 270,
+          height: 270,
+          child: FlutterMap(
+            options: MapOptions(
+              center: LatLng(location.latitude, location.longitude),
+              zoom: 15.0,
             ),
-          ),
-          Row(
-            children: [
-              ListView(
-                children: [
-                  Text(_i18n.get("live_location")),
-                  Text("${_i18n.get(
-                    "last_update",
-                  )}")
+            layers: [
+              TileLayerOptions(
+                  tileProvider: NetworkTileProvider(),
+                  urlTemplate:
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c']),
+              MarkerLayerOptions(
+                markers: [
+                  Marker(
+                    width: 30.0,
+                    height: 30.0,
+                    point: LatLng(location.latitude, location.longitude),
+                    builder: (ctx) =>
+                        CircleAvatarWidget(widget.message.from.asUid(), 20),
+                  ),
                 ],
               ),
-              CircularPercentIndicator(
-                radius: 40.0,
-                lineWidth: 5.0,
-                percent: 1.0,
-                center: new Text(Duration(milliseconds: duration).toString()),
-                progressColor: Colors.blueAccent,
-              )
             ],
           ),
-          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-              needsBackground: true),
-        ],
-      ),
+        ),
+        Row(
+          children: [
+            ListView(
+              children: [
+                Text(_i18n.get("live_location")),
+                Text(_i18n.get("last_update"))
+              ],
+            ),
+            CircularPercentIndicator(
+              radius: 40.0,
+              lineWidth: 5.0,
+              percent: 1.0,
+              center: Text(Duration(milliseconds: duration).toString()),
+              progressColor: Colors.blueAccent,
+            )
+          ],
+        ),
+        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+            needsBackground: true),
+      ],
     );
   }
 }

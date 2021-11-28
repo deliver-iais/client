@@ -110749,6 +110749,7 @@ enum fitzpatrick {
   medium,
   mediumDark,
   dark,
+  // ignore: constant_identifier_names
   None
 }
 
@@ -110763,6 +110764,7 @@ const skinToneEmojiChars = [
 const _skinToneCharCodes = [127995, 127996, 127997, 127998, 127999];
 
 /// List of chars with zero width
+// ignore: constant_identifier_names
 const ZeroWidthCharCodes = [65039, 8205];
 const _modifiableCharCodes = [
   127877,
@@ -110888,6 +110890,7 @@ final emojiRegex = RegExp(
 
 class Emoji {
   static const variationSelector16 = 65039;
+  // ignore: constant_identifier_names
   static const ZWJ = 8205;
 
   final String name;

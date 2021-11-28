@@ -1,11 +1,13 @@
-import 'package:deliver/models/stickerPacket.dart';
+// ignore_for_file: file_names
+
+import 'package:deliver/models/sticker_packet.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart' as proto;
 
 import 'package:get_it/get_it.dart';
 
 class StickerRepo {
-  var _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
+  final _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
 
   StickerRepo() {
     //   getTrendPacks();

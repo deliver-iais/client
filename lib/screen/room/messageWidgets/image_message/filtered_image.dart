@@ -16,14 +16,14 @@ class FilteredImage extends StatefulWidget {
   final double height;
   final Function onPressed;
 
-  FilteredImage(
-      {required this.uuid,
+  const FilteredImage(
+      {Key? key, required this.uuid,
       required this.name,
       required this.path,
       required this.sended,
       required this.width,
       required this.height,
-      required this.onPressed});
+      required this.onPressed}) : super(key: key);
 
   @override
   _FilteredImageState createState() => _FilteredImageState();
@@ -49,7 +49,7 @@ class _FilteredImageState extends State<FilteredImage> {
                   height: widget.height,
                   fit: BoxFit.fill,
                 ),
-                SendingFileCircularIndicator(
+                const SendingFileCircularIndicator(
                   loadProgress: 0.8,
                   isMedia: true,
                 )
@@ -80,7 +80,7 @@ class _FilteredImageState extends State<FilteredImage> {
                   ),
                 ),
                 !widget.sended
-                    ? SendingFileCircularIndicator(
+                    ? const SendingFileCircularIndicator(
                         loadProgress: 0.8,
                         isMedia: true,
                       )
@@ -93,8 +93,8 @@ class _FilteredImageState extends State<FilteredImage> {
                         ),
                         child: IconButton(
                           icon: startDownload
-                              ? CircularProgressIndicator()
-                              : Icon(Icons.file_download),
+                              ? const CircularProgressIndicator()
+                              : const Icon(Icons.file_download),
                           onPressed: () {
                             startDownload = true;
                             widget.onPressed.call();

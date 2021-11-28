@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 
 import 'package:deliver/box/muc.dart';
@@ -5,7 +7,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message.dart' as DB;
+import 'package:deliver/box/message.dart' as message_pb;
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -28,7 +30,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
-    as ProtocolSeen;
+    as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
@@ -79,7 +81,7 @@ class CoreServices {
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-  BehaviorSubject<ConnectionStatus> _connectionStatus =
+  final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   //TODO test
@@ -110,7 +112,7 @@ class CoreServices {
     }
     sendPing();
     responseChecked = false;
-    _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
+    _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
@@ -185,7 +187,7 @@ class CoreServices {
       _clientPacketStream.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
-      new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
           () => checkPendingStatus(message.packetId));
     } else {
       startStream();
@@ -198,8 +200,9 @@ class CoreServices {
       await _messageDao.savePendingMessage(pm.copyWith(
         failed: true,
       ));
-      if (_connectionStatus.value == ConnectionStatus.Connected)
+      if (_connectionStatus.value == ConnectionStatus.Connected) {
         connectionStatus.add(ConnectionStatus.Connected);
+      }
     }
   }
 
@@ -214,7 +217,7 @@ class CoreServices {
     }
   }
 
-  sendSeen(ProtocolSeen.SeenByClient seen) {
+  sendSeen(seen_pb.SeenByClient seen) {
     if (!_clientPacketStream.isClosed) {
       _clientPacketStream.add(ClientPacket()
         ..seen = seen
@@ -226,16 +229,16 @@ class CoreServices {
 
   sendActivity(ActivityByClient activity, String id) {
     if (!_clientPacketStream.isClosed &&
-        !_authRepo.isCurrentUser(activity.to.asString()))
+        !_authRepo.isCurrentUser(activity.to.asString())) {
       _clientPacketStream.add(ClientPacket()
         ..activity = activity
         ..id = id);
-    else {
+    } else {
       startStream();
     }
   }
 
-  _saveSeen(ProtocolSeen.Seen seen) {
+  _saveSeen(seen_pb.Seen seen) {
     Uid? roomId;
     switch (seen.to.category) {
       case Categories.USER:
@@ -352,6 +355,12 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
               _avatarRepo.fetchAvatar(message.from, true);
               break;
+            case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+              // TODO: Handle this case.
+              break;
+            case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+              // TODO: Handle this case.
+              break;
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
@@ -391,9 +400,10 @@ class CoreServices {
         (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
       showNotification(roomUid, message);
     }
-    if (message.from.category == Categories.USER)
+    if (message.from.category == Categories.USER) {
       updateLastActivityTime(
           _lastActivityDao, message.from, message.time.toInt());
+    }
   }
 
   getEditedMsg(Uid roomUid, int id) async {
@@ -405,14 +415,15 @@ class CoreServices {
     var msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
-    if (room!.lastMessageId != id)
+    if (room!.lastMessageId != id) {
       _roomDao.updateRoom(
           room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
-    else
+    } else {
       _roomDao.updateRoom(room.copyWith(
         lastMessage: msg,
         lastUpdatedMessageId: res.messages.first.id.toInt(),
       ));
+    }
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -487,14 +498,13 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
 }
 
 // TODO, refactor this!!!, we don't need this be functional
-Future<DB.Message?> saveMessageInMessagesDB(
+Future<message_pb.Message?> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
   try {
     final msg = extractMessage(authRepo, message);
     await messageDao.saveMessage(msg);
     return msg;
   } catch (e) {
-    print(e.toString());
     return null;
   }
 }

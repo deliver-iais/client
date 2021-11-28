@@ -95,7 +95,7 @@ class IOSNotifier implements Notifier {
 
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  ToastService _windowsNotificationServices = new ToastService(
+  final ToastService _windowsNotificationServices = ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
     productName: "deliver",
@@ -116,7 +116,7 @@ class WindowsNotifier implements Notifier {
         File? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        Toast toast = new Toast(
+        Toast toast = Toast(
             type: ToastType.imageAndText02,
             title: message.roomName!,
             subtitle: createNotificationTextFromMessageBrief(message),
@@ -130,7 +130,7 @@ class WindowsNotifier implements Notifier {
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          Toast toast = new Toast(
+          Toast toast = Toast(
             type: ToastType.imageAndText02,
             title: message.roomName!,
             image: deliverIcon,
@@ -166,7 +166,7 @@ class LinuxNotifier implements Notifier {
 
   LinuxNotifier() {
     var notificationSetting =
-        new LinuxInitializationSettings(defaultActionName: "");
+        const LinuxInitializationSettings(defaultActionName: "");
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
@@ -231,7 +231,7 @@ class AndroidNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  AndroidNotificationChannel channel = AndroidNotificationChannel(
+  AndroidNotificationChannel channel = const AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
       description: 'All notifications of application.', // description
@@ -242,7 +242,7 @@ class AndroidNotifier implements Notifier {
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     var notificationSetting =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: androidOnSelectNotification);
@@ -288,7 +288,7 @@ class AndroidNotifier implements Notifier {
     }
 
     InboxStyleInformation inboxStyleInformation =
-        InboxStyleInformation([], contentTitle: 'new messages');
+        const InboxStyleInformation([], contentTitle: 'new messages');
 
     AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
@@ -309,7 +309,7 @@ class AndroidNotifier implements Notifier {
       channelDescription: channel.description,
       groupKey: channel.groupId,
       largeIcon: largeIcon,
-      styleInformation: BigTextStyleInformation(''),
+      styleInformation: const BigTextStyleInformation(''),
       playSound: true,
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
@@ -327,8 +327,9 @@ class AndroidNotifier implements Notifier {
       List<ActiveNotification>? activeNotification =
           await _flutterLocalNotificationsPlugin.getActiveNotifications();
       for (var element in activeNotification!) {
-        if (element.channelId!.contains(roomId) && element.id != 0)
+        if (element.channelId!.contains(roomId) && element.id != 0) {
           await _flutterLocalNotificationsPlugin.cancel(element.id);
+        }
       }
     } catch (e) {
       _logger.e(e);
@@ -354,7 +355,7 @@ class MacOSNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
   MacOSNotifier() {
-    var macNotificationSetting = new MacOSInitializationSettings();
+    var macNotificationSetting = const MacOSInitializationSettings();
 
     _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
         onSelectNotification: (room) {

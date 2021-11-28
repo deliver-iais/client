@@ -16,7 +16,7 @@ import 'package:deliver/shared/widgets/tgs.dart';
 
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
+import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as contact_pb;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -33,7 +33,7 @@ class ScanQrCode extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ScanQrCode();
 
-  ScanQrCode({Key? key}) : super(key: key);
+  const ScanQrCode({Key? key}) : super(key: key);
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
@@ -145,7 +145,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     bool verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
-      Timer(Duration(milliseconds: 500), () {
+      Timer(const Duration(milliseconds: 500), () {
         controller.pauseCamera();
         showFloatingModalBottomSheet(
             context: context,
@@ -153,7 +153,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             builder: (BuildContext ctx) {
               return Container(
                   padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: TGS.asset(
+                  child: const TGS.asset(
                     'assets/animations/done.tgs',
                     width: 150,
                     height: 150,
@@ -161,7 +161,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                   ));
             });
       });
-      Timer(Duration(seconds: 5), () {
+      Timer(const Duration(seconds: 5), () {
         Navigator.of(context).pop();
         _routingServices.pop();
       });
@@ -196,7 +196,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                   fontSize: 20,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Text(
@@ -209,7 +209,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 style: TextStyle(
                     color: ExtraTheme.of(context).textField, fontSize: 20),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               Row(
@@ -220,7 +220,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var res = await _contactRepo.addContact(C.Contact()
+                      var res = await _contactRepo.addContact(contact_pb.Contact()
                         ..firstName = firstName!
                         ..lastName = lastName!
                         ..phoneNumber = PhoneNumber(
@@ -265,7 +265,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 fontSize: 20,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             Text(
@@ -273,7 +273,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               style: TextStyle(
                   color: ExtraTheme.of(context).username, fontSize: 25),
             ),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             Row(
@@ -351,7 +351,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 fontSize: 20,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             Row(

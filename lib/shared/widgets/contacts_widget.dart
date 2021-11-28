@@ -14,12 +14,12 @@ class ContactWidget extends StatelessWidget {
   final bool isSelected;
   final bool currentMember;
 
-  ContactWidget(
-      {required this.contact,
+  const ContactWidget(
+      {Key? key, required this.contact,
       this.circleIcon,
       this.isSelected = false,
       this.currentMember = false,
-      this.onCircleIcon});
+      this.onCircleIcon}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class ContactWidget extends StatelessWidget {
         children: <Widget>[
           CircleAvatarWidget(contact.uid.asUid(), 23,
               showSavedMessageLogoIfNeeded: true),
-          SizedBox(
+          const SizedBox(
             width: 15,
           ),
           Expanded(

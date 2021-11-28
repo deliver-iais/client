@@ -1,3 +1,5 @@
+// ignore_for_file: no_logic_in_create_state
+
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -122,7 +124,8 @@ class IntroSlider extends StatefulWidget {
   final Function? onAnimationChange;
 
   // Constructor
-  IntroSlider({
+  const IntroSlider({
+    Key? key,
     // Slides
     required this.slides,
     this.backgroundColorAllSlides,
@@ -174,61 +177,62 @@ class IntroSlider extends StatefulWidget {
 
     // Behavior
     this.onAnimationChange,
-  });
+  }) : super(key: key);
 
   @override
   IntroSliderState createState() {
-    return new IntroSliderState(
+    return IntroSliderState(
         // Slides
-        slides: this.slides,
-        backgroundColorAllSlides: this.backgroundColorAllSlides,
+        slides: slides,
+        backgroundColorAllSlides: backgroundColorAllSlides,
 
         // Skip
-        renderSkipBtn: this.renderSkipBtn,
-        widthSkipBtn: this.widthSkipBtn,
-        onSkipPress: this.onSkipPress,
-        nameSkipBtn: this.nameSkipBtn,
-        styleNameSkipBtn: this.styleNameSkipBtn,
-        isShowSkipBtn: this.isShowSkipBtn,
+        renderSkipBtn: renderSkipBtn,
+        widthSkipBtn: widthSkipBtn,
+        onSkipPress: onSkipPress,
+        nameSkipBtn: nameSkipBtn,
+        styleNameSkipBtn: styleNameSkipBtn,
+        isShowSkipBtn: isShowSkipBtn,
 
         // Prev
-        renderPrevBtn: this.renderPrevBtn,
-        widthPrevBtn: this.widthPrevBtn,
-        namePrevBtn: this.namePrevBtn,
-        isShowPrevBtn: this.isShowPrevBtn,
-        styleNamePrevBtn: this.styleNamePrevBtn,
+        renderPrevBtn: renderPrevBtn,
+        widthPrevBtn: widthPrevBtn,
+        namePrevBtn: namePrevBtn,
+        isShowPrevBtn: isShowPrevBtn,
+        styleNamePrevBtn: styleNamePrevBtn,
 
         // Done
-        renderDoneBtn: this.renderDoneBtn,
-        widthDoneBtn: this.widthDoneBtn,
-        onDonePress: this.onDonePress,
-        nameDoneBtn: this.nameDoneBtn,
-        styleNameDoneBtn: this.styleNameDoneBtn,
-        isShowDoneBtn: this.isShowDoneBtn,
+        renderDoneBtn: renderDoneBtn,
+        widthDoneBtn: widthDoneBtn,
+        onDonePress: onDonePress,
+        nameDoneBtn: nameDoneBtn,
+        styleNameDoneBtn: styleNameDoneBtn,
+        isShowDoneBtn: isShowDoneBtn,
 
         // Next
-        renderNextBtn: this.renderNextBtn,
-        nameNextBtn: this.nameNextBtn,
-        isShowNextBtn: this.isShowNextBtn,
+        renderNextBtn: renderNextBtn,
+        nameNextBtn: nameNextBtn,
+        isShowNextBtn: isShowNextBtn,
 
         // Dots
-        isShowDotIndicator: this.isShowDotIndicator,
-        colorDot: this.colorDot,
-        colorActiveDot: this.colorActiveDot,
-        sizeDot: this.sizeDot,
+        isShowDotIndicator: isShowDotIndicator,
+        colorDot: colorDot,
+        colorActiveDot: colorActiveDot,
+        sizeDot: sizeDot,
 
         // Tabs
-        listCustomTabs: this.listCustomTabs,
+        listCustomTabs: listCustomTabs,
 
         // Behavior
-        onAnimationChange: this.onAnimationChange);
+        onAnimationChange: onAnimationChange);
   }
 }
 
 class IntroSliderState extends State<IntroSlider>
     with SingleTickerProviderStateMixin {
   /// Default values
-  static TextStyle defaultBtnNameTextStyle = TextStyle(color: Colors.white);
+  static TextStyle defaultBtnNameTextStyle =
+      const TextStyle(color: Colors.white);
 
   static double defaultBtnBorderRadius = 30.0;
 
@@ -388,7 +392,7 @@ class IntroSliderState extends State<IntroSlider>
 
   @override
   void initState() {
-    tabController = new TabController(length: slides.length, vsync: this);
+    tabController = TabController(length: slides.length, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging) {
         currentTabIndex = tabController.previousIndex;
@@ -399,9 +403,7 @@ class IntroSliderState extends State<IntroSlider>
     });
 
     // Dot animation
-    if (sizeDot == null) {
-      sizeDot = 8.0;
-    }
+    sizeDot ??= 8.0;
 
     for (int i = 0; i < slides.length; i++) {
       if (i == 0) {
@@ -414,7 +416,7 @@ class IntroSliderState extends State<IntroSlider>
     }
 
     tabController.animation!.addListener(() {
-      this.setState(() {
+      setState(() {
         onAnimationChange!.call(tabController.animation!.value);
         if (tabController.animation!.value == currentAnimationValue) {
           return;
@@ -461,15 +463,9 @@ class IntroSliderState extends State<IntroSlider>
     });
 
     // Dot indicator
-    if (isShowDotIndicator == null) {
-      isShowDotIndicator = true;
-    }
-    if (colorDot == null) {
-      colorDot = Color(0x80000000);
-    }
-    if (colorActiveDot == null) {
-      colorActiveDot = colorDot;
-    }
+    isShowDotIndicator ??= true;
+    colorDot ??= const Color(0x80000000);
+    colorActiveDot ??= colorDot;
 
     setupButtonDefaultValues();
     super.initState();
@@ -477,80 +473,48 @@ class IntroSliderState extends State<IntroSlider>
 
   void setupButtonDefaultValues() {
     // Skip button
-    if (onSkipPress == null) {
-      onSkipPress = () {
-        if (!this.isAnimating(tabController.animation!.value)) {
-          tabController.animateTo(slides.length - 1);
-        }
-      };
-    }
-    if (isShowSkipBtn == null) {
-      isShowSkipBtn = true;
-    }
-    if (styleNameSkipBtn == null) {
-      styleNameSkipBtn = defaultBtnNameTextStyle;
-    }
-    if (nameSkipBtn == null) {
-      nameSkipBtn = "SKIP";
-    }
-    if (renderSkipBtn == null) {
-      renderSkipBtn = Text(
-        nameSkipBtn!,
-        style: styleNameSkipBtn,
-      );
-    }
+    onSkipPress ??= () {
+      if (!isAnimating(tabController.animation!.value)) {
+        tabController.animateTo(slides.length - 1);
+      }
+    };
+    isShowSkipBtn ??= true;
+    styleNameSkipBtn ??= defaultBtnNameTextStyle;
+    nameSkipBtn ??= "SKIP";
+    renderSkipBtn ??= Text(
+      nameSkipBtn!,
+      style: styleNameSkipBtn,
+    );
 
     // Prev button
     if (isShowPrevBtn == null || isShowSkipBtn!) {
       isShowPrevBtn = false;
     }
-    if (styleNamePrevBtn == null) {
-      styleNamePrevBtn = defaultBtnNameTextStyle;
-    }
-    if (namePrevBtn == null) {
-      namePrevBtn = "PREV";
-    }
-    if (renderPrevBtn == null) {
-      renderPrevBtn = Text(
-        namePrevBtn!,
-        style: styleNamePrevBtn,
-      );
-    }
-    if (isShowDoneBtn == null) {
-      isShowDoneBtn = true;
-    }
+    styleNamePrevBtn ??= defaultBtnNameTextStyle;
+    namePrevBtn ??= "PREV";
+    renderPrevBtn ??= Text(
+      namePrevBtn!,
+      style: styleNamePrevBtn,
+    );
+    isShowDoneBtn ??= true;
 
-    if (isShowNextBtn == null) {
-      isShowNextBtn = true;
-    }
+    isShowNextBtn ??= true;
 
     // Done button
-    if (onDonePress == null) {
-      onDonePress = () {};
-    }
-    if (styleNameDoneBtn == null) {
-      styleNameDoneBtn = defaultBtnNameTextStyle;
-    }
-    if (nameDoneBtn == null) {
-      nameDoneBtn = "DONE";
-    }
-    if (renderDoneBtn == null) {
-      renderDoneBtn = Text(
-        nameDoneBtn!,
-        style: styleNameDoneBtn,
-      );
-    }
+    onDonePress ??= () {};
+    styleNameDoneBtn ??= defaultBtnNameTextStyle;
+    nameDoneBtn ??= "DONE";
+    renderDoneBtn ??= Text(
+      nameDoneBtn!,
+      style: styleNameDoneBtn,
+    );
 
     // Next button
-    if (nameNextBtn == null) {
-      nameNextBtn = "NEXT";
-    }
-    if (renderNextBtn == null) {
-      renderNextBtn = Text(
-        nameNextBtn!,
-        style: styleNameDoneBtn,
-      );
-    }
+    nameNextBtn ??= "NEXT";
+    renderNextBtn ??= Text(
+      nameNextBtn!,
+      style: styleNameDoneBtn,
+    );
   }
 
   void goToTab(index) {
@@ -579,10 +543,10 @@ class IntroSliderState extends State<IntroSlider>
 
   @override
   Widget build(BuildContext context) {
-    if (this.listCustomTabs == null) {
+    if (listCustomTabs == null) {
       tabs = renderListTabs().cast<Widget>();
     } else {
-      tabs = this.listCustomTabs;
+      tabs = listCustomTabs;
     }
     return Scaffold(
       body: DefaultTabController(
@@ -592,13 +556,13 @@ class IntroSliderState extends State<IntroSlider>
             TabBarView(
               children: tabs!,
               controller: tabController,
-              physics: ScrollPhysics(),
+              physics: const ScrollPhysics(),
             ),
             renderBottom(),
           ],
         ),
       ),
-      backgroundColor: this.backgroundColorAllSlides,
+      backgroundColor: backgroundColorAllSlides,
     );
   }
 
@@ -607,7 +571,7 @@ class IntroSliderState extends State<IntroSlider>
       return Container();
     } else {
       return TextButton(
-        onPressed: (){
+        onPressed: () {
           onSkipPress!();
         },
         child: renderSkipBtn!,
@@ -628,7 +592,7 @@ class IntroSliderState extends State<IntroSlider>
     } else {
       return TextButton(
         onPressed: () {
-          if (!this.isAnimating(tabController.animation!.value)) {
+          if (!isAnimating(tabController.animation!.value)) {
             tabController.animateTo(tabController.index - 1);
           }
         },
@@ -640,7 +604,7 @@ class IntroSliderState extends State<IntroSlider>
   Widget buildNextButton() {
     return TextButton(
       onPressed: () {
-        if (!this.isAnimating(tabController.animation!.value)) {
+        if (!isAnimating(tabController.animation!.value)) {
           tabController.animateTo(tabController.index + 1);
         }
       },
@@ -663,18 +627,16 @@ class IntroSliderState extends State<IntroSlider>
           // Dot indicator
           Flexible(
             child: isShowDotIndicator!
-                ? Container(
-                    child: Stack(
-                      children: <Widget>[
-                        Row(
-                          children: (tabController.index + 1 == slides.length)
-                              ? [Container()]
-                              : this.renderListDots(),
-                          mainAxisAlignment: MainAxisAlignment.center,
-                        ),
-                        Container()
-                      ],
-                    ),
+                ? Stack(
+                    children: <Widget>[
+                      Row(
+                        children: (tabController.index + 1 == slides.length)
+                            ? [Container()]
+                            : renderListDots(),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      Container()
+                    ],
                   )
                 : Container(),
           ),
@@ -811,17 +773,18 @@ class IntroSliderState extends State<IntroSlider>
             Text(
               title ?? "",
               style: styleTitle ??
-                  TextStyle(
+                  const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 30.0,
                   ),
-              maxLines: maxLineTitle != null ? maxLineTitle : 1,
+              maxLines: maxLineTitle ?? 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
             ),
         margin: marginTitle ??
-            EdgeInsets.only(top: 20.0, bottom: 60.0, left: 20.0, right: 20.0),
+            const EdgeInsets.only(
+                top: 20.0, bottom: 60.0, left: 20.0, right: 20.0),
       ),
     );
   }

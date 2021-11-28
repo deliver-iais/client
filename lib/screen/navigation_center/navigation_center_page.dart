@@ -6,7 +6,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
-import 'package:deliver/screen/navigation_center/chats/widgets/chatsPage.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
@@ -37,13 +37,10 @@ class NavigationCenter extends StatefulWidget {
       : super(key: key);
 
   @override
-  _NavigationCenterState createState() => _NavigationCenterState(
-      this.tapOnSelectChat, this.tapOnCurrentUserAvatar);
+  _NavigationCenterState createState() => _NavigationCenterState();
 }
 
 class _NavigationCenterState extends State<NavigationCenter> {
-  final void Function(String)? tapOnSelectChat;
-
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _i18n = GetIt.I.get<I18N>();
@@ -53,16 +50,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _botRepo = GetIt.I.get<BotRepo>();
 
   final ScrollController _scrollController = ScrollController();
-  final Function? tapOnCurrentUserAvatar;
   bool _searchMode = false;
 
   String? query;
 
-  BehaviorSubject<String> subject = new BehaviorSubject<String>();
+  BehaviorSubject<String> subject = BehaviorSubject<String>();
 
   @override
   void initState() {
-    subject.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
+    subject.stream
+        .debounceTime(const Duration(milliseconds: 250))
+        .listen((text) {
       setState(() {
         query = text;
       });
@@ -70,13 +68,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
     super.initState();
   }
 
-  _NavigationCenterState(this.tapOnSelectChat, this.tapOnCurrentUserAvatar);
+  _NavigationCenterState();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56),
+        preferredSize: const Size.fromHeight(56),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: GestureDetector(
@@ -91,19 +89,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
               backgroundColor: Colors.transparent,
               leading: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   GestureDetector(
-                    child: Container(
-                      child: Center(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: CircleAvatarWidget(
-                            _authRepo.currentUserUid,
-                            20,
-                            showAsStreamOfAvatar: true,
-                          ),
+                    child: Center(
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: CircleAvatarWidget(
+                          _authRepo.currentUserUid,
+                          20,
+                          showAsStreamOfAvatar: true,
                         ),
                       ),
                     ),
@@ -131,15 +127,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         onPressed: () {
                           _routingService.openScanQrCode(context);
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.qr_code,
                         )),
                   ),
-                SizedBox(
+                const SizedBox(
                   width: 8,
                 ),
                 buildMenu(context),
-                SizedBox(
+                const SizedBox(
                   width: 8,
                 )
               ],
@@ -152,7 +148,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: SearchBox(onChange: (str) {
-              if (str.length > 0) {
+              if (str.isNotEmpty) {
                 setState(() {
                   _searchMode = true;
                 });
@@ -186,15 +182,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
           color: ExtraTheme.of(context).menuIconButton,
         ),
         child: PopupMenuButton(
-            icon: Icon(Icons.create),
+            icon: const Icon(Icons.create),
             onSelected: selectChatMenu,
             itemBuilder: (context) => [
                   PopupMenuItem<String>(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.group),
-                        SizedBox(width: 8),
+                        const Icon(Icons.group),
+                        const SizedBox(width: 8),
                         Text(i18n.get("newGroup")),
                       ],
                     ),
@@ -204,8 +200,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.rss_feed_rounded),
-                        SizedBox(width: 8),
+                        const Icon(Icons.rss_feed_rounded),
+                        const SizedBox(width: 8),
                         Text(
                           i18n.get("newChannel"),
                         )
@@ -219,10 +215,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-        Navigator.push(context, MaterialPageRoute(builder: (v){
-         return MemberSelectionPage(isChannel: false,);
+        Navigator.push(context, MaterialPageRoute(builder: (v) {
+          return MemberSelectionPage(
+            isChannel: false,
+          );
         }));
-      //  _routingService.openMemberSelection(context, isChannel: false);
+        //  _routingService.openMemberSelection(context, isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(context, isChannel: true);
@@ -239,37 +237,35 @@ class _NavigationCenterState extends State<NavigationCenter> {
             FutureBuilder<List<Uid>>(
                 future: _contactRepo.searchUser(query!),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
-                  if (snaps.data != null && snaps.data!.length > 0) {
-                    return Container(
-                        child: Expanded(
-                            child: SingleChildScrollView(
+                  if (snaps.data != null && snaps.data!.isNotEmpty) {
+                    return Expanded(
+                        child: SingleChildScrollView(
                       child: Column(
                         children: [
                           Text(_i18n.get("global_search")),
                           //    searchResultWidget(snaps, c),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                         ],
                       ),
-                    )));
+                    ));
                   } else {
-                    return SizedBox.shrink();
+                    return const SizedBox.shrink();
                   }
                 }),
             FutureBuilder<List<Uid>>(
                 future: _botRepo.searchBotByName(query!),
                 builder: (c, bot) {
-                  if (bot.hasData && bot.data != null && bot.data!.length > 0) {
+                  if (bot.hasData && bot.data != null && bot.data!.isNotEmpty) {
                     return Column(
                       children: [
                         Text(_i18n.get("bots")),
-                        Container(
-                            height: 200, child: searchResultWidget(bot, c))
+                        SizedBox(height: 200, child: searchResultWidget(bot, c))
                       ],
                     );
                   } else {
-                    return SizedBox.shrink();
+                    return const SizedBox.shrink();
                   }
                 }),
             FutureBuilder<List<Uid>>(
@@ -277,24 +273,23 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.hasData &&
                       snaps.data != null &&
-                      snaps.data!.length > 0) {
-                    return Container(
-                        child: Expanded(
-                            child: SingleChildScrollView(
-                                child: Column(
+                      snaps.data!.isNotEmpty) {
+                    return Expanded(
+                        child: SingleChildScrollView(
+                            child: Column(
                       children: [
                         Text(
                           _i18n.get("local_search"),
                           style: Theme.of(context).primaryTextTheme.caption,
                         ),
-                        Container(
+                        SizedBox(
                           height: MediaQuery.of(context).size.height,
                           child: searchResultWidget(snaps, c),
                         )
                       ],
-                    ))));
+                    )));
                   } else {
-                    return SizedBox.shrink();
+                    return const SizedBox.shrink();
                   }
                 })
           ],
@@ -327,7 +322,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatarWidget(uid, 23),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             FutureBuilder(
@@ -340,7 +335,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 }),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         )
       ],

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
@@ -6,9 +8,9 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
-    as ProtocolAvatar;
+    as avatar_pb;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as ProtocolFile;
+    as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query;
 
@@ -163,8 +165,8 @@ class AvatarRepo {
     return avatar;
   }
 
-  _setAvatarAtServer(ProtocolFile.File fileInfo, int createOn, Uid uid) async {
-    var avatar = ProtocolAvatar.Avatar()
+  _setAvatarAtServer(file_pb.File fileInfo, int createOn, Uid uid) async {
+    var avatar = avatar_pb.Avatar()
       ..createdOn = Int64.parseInt(createOn.toString())
       ..category = uid.category
       ..node = uid.node
@@ -176,9 +178,10 @@ class AvatarRepo {
     try {
       if (uid.isBot()) {
         setAvatarReqAccepted = await _botRepo.addBotAvatar(avatar);
-      } else
+      } else {
         setAvatarReqAccepted = await addAvatarRequest(addAvatarReq);
-      if (setAvatarReqAccepted!)
+      }
+      if (setAvatarReqAccepted!) {
         await _avatarDao.saveAvatars(uid.asString(), [
           Avatar(
               uid: uid.asString(),
@@ -186,6 +189,7 @@ class AvatarRepo {
               fileId: fileInfo.uuid,
               fileName: fileInfo.name)
         ]);
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -201,24 +205,25 @@ class AvatarRepo {
   }
 
   Future<bool?> deleteAvatar(Avatar avatar) async {
-    ProtocolAvatar.Avatar deleteAvatar = ProtocolAvatar.Avatar();
-    deleteAvatar..fileUuid = avatar.fileId!;
-    deleteAvatar..fileName = avatar.fileName!;
+    avatar_pb.Avatar deleteAvatar = avatar_pb.Avatar();
+    deleteAvatar.fileUuid = avatar.fileId!;
+    deleteAvatar.fileName = avatar.fileName!;
     deleteAvatar
-      ..node = avatar.uid.isBot()
+      .node = avatar.uid.isBot()
           ? avatar.uid.asUid().node
           : _authRepo.currentUserUid.node;
     deleteAvatar
-      ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
+      .createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
     deleteAvatar
-      ..category = avatar.uid.isBot()
+      .category = avatar.uid.isBot()
           ? avatar.uid.asUid().category
           : _authRepo.currentUserUid.category;
     var removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
     if (avatar.uid.isBot()) {
       _botRepo.removeBotAvatar(deleteAvatar);
-    } else
+    } else {
       await _queryServices.removeAvatar(removeAvatarReq);
+    }
     await _avatarDao.removeAvatar(avatar);
   }
 }

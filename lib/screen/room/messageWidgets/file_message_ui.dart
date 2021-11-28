@@ -44,7 +44,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
       children: <Widget>[
         _buildMainUi(type),
         if (caption.isNotEmpty)
-          Container(
+          SizedBox(
             width: width,
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),

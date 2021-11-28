@@ -57,7 +57,7 @@ class MemberSelectionPage extends StatelessWidget {
                     stream: _createMucService.selectedLengthStream(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                       int members = snapshot.data!;
                       return Text(

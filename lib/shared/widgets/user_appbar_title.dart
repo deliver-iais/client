@@ -33,7 +33,7 @@ class UserAppbarTitle extends StatelessWidget {
                 23,
                 showSavedMessageLogoIfNeeded: true,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 16,
               ),
               _authRepo.isCurrentUser(userUid.asString())
@@ -90,7 +90,7 @@ class UserAppbarTitle extends StatelessWidget {
                                                   Brightness.light
                                               ? Colors.grey[200]
                                               : Colors.grey[800])),
-                                  SizedBox(height: 6),
+                                  const SizedBox(height: 6),
                                   Container(
                                       width: 100,
                                       height: 11,

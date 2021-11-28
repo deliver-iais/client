@@ -31,14 +31,14 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Function onDelete;
   final int roomLastMessageId;
 
-  OperationOnMessageEntry(
-    this.message, {
+  const OperationOnMessageEntry(
+    this.message, {Key? key,
     this.hasPermissionInChannel = true,
     this.hasPermissionInGroup = true,
     this.isPinned = false,
     this.onDelete = empty,
     this.roomLastMessageId = 1,
-  });
+  }) : super(key: key);
 
   static empty() {}
 
@@ -66,12 +66,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onCopy() {
-    if (widget.message.type == MessageType.TEXT)
+    if (widget.message.type == MessageType.TEXT) {
       Clipboard.setData(
           ClipboardData(text: widget.message.json!.toText().text));
-    else
+    } else {
       Clipboard.setData(
           ClipboardData(text: widget.message.json!.toFile().caption));
+    }
     ToastDisplay.showToast(
         toastText: _i18n.get("copied"), tostContext: context);
     Navigator.pop(context);
@@ -96,11 +97,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
       var result = await _fileRepo.getFileIfExist(
           widget.message.json!.toFile().uuid,
           widget.message.json!.toFile().name);
-      if (result!.path.isNotEmpty)
-        Share.shareFiles(['${result.path}'],
+      if (result!.path.isNotEmpty) {
+        Share.shareFiles([(result.path)],
             text: widget.message.json!.toFile().caption.isNotEmpty
                 ? widget.message.json!.toFile().caption
                 : 'Deliver');
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -164,7 +166,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         context, OperationOnMessage.SHOW_IN_FOLDER);
   }
 
-  BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
   bool _hasPermissionToDeleteMsg = false;
 
   @override
@@ -178,241 +180,240 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            if (widget.hasPermissionInChannel && widget.message.id != null)
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          if (widget.hasPermissionInChannel && widget.message.id != null)
+            TextButton(
+                onPressed: () {
+                  onReply();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.reply,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("Reply")),
+                ])),
+          if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
+                  widget.hasPermissionInGroup) ||
+              (widget.message.roomUid.asUid().category ==
+                      Categories.CHANNEL &&
+                  widget.hasPermissionInChannel))
+            if (!widget.isPinned)
               TextButton(
                   onPressed: () {
-                    onReply();
+                    onPinMessage();
                   },
                   child: Row(children: [
-                    Icon(
-                      Icons.reply,
+                    const Icon(
+                      Icons.push_pin,
                       size: 20,
                     ),
-                    SizedBox(width: 8),
-                    Text(_i18n.get("Reply")),
-                  ])),
-            if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
-                    widget.hasPermissionInGroup) ||
-                (widget.message.roomUid.asUid().category ==
-                        Categories.CHANNEL &&
-                    widget.hasPermissionInChannel))
-              if (!widget.isPinned)
-                TextButton(
-                    onPressed: () {
-                      onPinMessage();
-                    },
-                    child: Row(children: [
-                      Icon(
-                        Icons.push_pin,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(_i18n.get("pin")),
-                    ]))
-              else
-                TextButton(
-                    onPressed: () {
-                      onUnPinMessage();
-                    },
-                    child: Row(children: [
-                      Icon(
-                        Icons.remove,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(_i18n.get("unpin")),
-                    ])),
-            if (widget.message.type == MessageType.TEXT ||
-                (widget.message.type == MessageType.FILE &&
-                    widget.message.json!.toFile().caption.isNotEmpty))
+                    const SizedBox(width: 8),
+                    Text(_i18n.get("pin")),
+                  ]))
+            else
               TextButton(
                   onPressed: () {
-                    onCopy();
+                    onUnPinMessage();
                   },
                   child: Row(children: [
-                    Icon(
-                      Icons.content_copy,
+                    const Icon(
+                      Icons.remove,
                       size: 20,
                     ),
-                    SizedBox(width: 8),
-                    Text(_i18n.get("copy")),
+                    const SizedBox(width: 8),
+                    Text(_i18n.get("unpin")),
                   ])),
-            if (widget.message.type == MessageType.FILE)
-              FutureBuilder(
-                  future: _fileRepo.getFileIfExist(
-                      widget.message.json!.toFile().uuid,
-                      widget.message.json!.toFile().name),
-                  builder: (c, fe) {
-                    if (fe.hasData && fe.data != null) {
-                      _fileIsExist.add(true);
-                      model.File f = widget.message.json!.toFile();
-                      return TextButton(
-                          onPressed: () {
-                            if (f.type.contains("image")) {
-                              onSaveTOGallery();
-                            } else if (f.type.contains("audio") ||
-                                f.type.contains("mp3")) {
-                              // TODO ?????
-                              onSaveToMusic();
-                            } else {
-                              onSaveTODownloads();
-                            }
-                          },
-                          child: Row(children: [
-                            Icon(
-                              f.type.contains("image")
-                                  ? Icons.image
-                                  : f.type.contains("audio") ||
-                                          f.type.contains("mp3")
-                                      ? Icons.queue_music_rounded
-                                      : Icons.download_rounded,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
+          if (widget.message.type == MessageType.TEXT ||
+              (widget.message.type == MessageType.FILE &&
+                  widget.message.json!.toFile().caption.isNotEmpty))
+            TextButton(
+                onPressed: () {
+                  onCopy();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.content_copy,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("copy")),
+                ])),
+          if (widget.message.type == MessageType.FILE)
+            FutureBuilder(
+                future: _fileRepo.getFileIfExist(
+                    widget.message.json!.toFile().uuid,
+                    widget.message.json!.toFile().name),
+                builder: (c, fe) {
+                  if (fe.hasData && fe.data != null) {
+                    _fileIsExist.add(true);
+                    model.File f = widget.message.json!.toFile();
+                    return TextButton(
+                        onPressed: () {
+                          if (f.type.contains("image")) {
+                            onSaveTOGallery();
+                          } else if (f.type.contains("audio") ||
+                              f.type.contains("mp3")) {
+                            // TODO ?????
+                            onSaveToMusic();
+                          } else {
+                            onSaveTODownloads();
+                          }
+                        },
+                        child: Row(children: [
+                          Icon(
                             f.type.contains("image")
-                                ? Text(_i18n.get("save_to_gallery"))
+                                ? Icons.image
                                 : f.type.contains("audio") ||
                                         f.type.contains("mp3")
-                                    ? Text(_i18n.get("save_in_music"))
-                                    : Text(_i18n.get("save_to_downloads")),
-                          ]));
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  }),
-            if (widget.message.type == MessageType.FILE && !isDesktop())
-              StreamBuilder<bool>(
-                  stream: _fileIsExist.stream,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!) {
-                      _fileIsExist.add(true);
-                      return TextButton(
-                          onPressed: () {
-                            onShare();
-                          },
-                          child: Row(children: [
-                            Icon(
-                              Icons.share,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(_i18n.get("share")),
-                          ]));
-                    } else
-                      return SizedBox.shrink();
-                  }),
-            if (widget.message.roomUid.isMuc())
-              TextButton(
-                  onPressed: () {
-                    onReportMessage();
-                  },
-                  child: Row(children: [
-                    Icon(
-                      Icons.report,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(_i18n.get("report")),
-                  ])),
-            if (widget.message.id != null &&
-                widget.message.type != MessageType.PERSISTENT_EVENT)
-              TextButton(
-                  onPressed: () {
-                    onForward();
-                  },
-                  child: Row(children: [
-                    Icon(
-                      Icons.forward,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(_i18n.get("forward")),
-                  ])),
-            if (widget.message.id == null)
-              FutureBuilder<PendingMessage?>(
-                  future:
-                      _messageRepo.getPendingMessage(widget.message.packetId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data!.failed) {
-                      return TextButton(
-                          onPressed: () {
-                            onResend();
-                          },
-                          child: Row(children: [
-                            Icon(
-                              Icons.refresh,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(_i18n.get("resend")),
-                          ]));
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  }),
-            if (_hasPermissionToDeleteMsg)
-              widget.message.id != null
-                  ? deleteMenuWidget()
-                  : FutureBuilder<PendingMessage?>(
-                      future: _messageRepo
-                          .getPendingMessage(widget.message.packetId),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!.failed) {
-                          return deleteMenuWidget();
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
-            if (widget.message.id != null &&
-                (widget.message.type == MessageType.TEXT ||
-                    widget.message.type == MessageType.FILE) &&
-                _autRepo.isCurrentUserSender(widget.message) &&
-                checkMessageTime(widget.message))
-              TextButton(
-                  onPressed: () {
-                    onEditMessage();
-                  },
-                  child: Row(children: [
-                    Icon(
-                      Icons.edit,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(_i18n.get("edit")),
-                  ])),
-            if (isDesktop() && widget.message.type == MessageType.FILE)
-              FutureBuilder<File?>(
-                  future: _fileRepo.getFileIfExist(
-                      widget.message.json!.toFile().uuid,
-                      widget.message.json!.toFile().name),
-                  builder: (c, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return TextButton(
-                          onPressed: () async {
-                            await onShowInFolder(snapshot, context);
-                          },
-                          child: Row(children: [
-                            Icon(
-                              Icons.folder_open_rounded,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(_i18n.get("show_in_folder")),
-                          ]));
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  }),
-          ],
-        ),
+                                    ? Icons.queue_music_rounded
+                                    : Icons.download_rounded,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          f.type.contains("image")
+                              ? Text(_i18n.get("save_to_gallery"))
+                              : f.type.contains("audio") ||
+                                      f.type.contains("mp3")
+                                  ? Text(_i18n.get("save_in_music"))
+                                  : Text(_i18n.get("save_to_downloads")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          if (widget.message.type == MessageType.FILE && !isDesktop())
+            StreamBuilder<bool>(
+                stream: _fileIsExist.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    _fileIsExist.add(true);
+                    return TextButton(
+                        onPressed: () {
+                          onShare();
+                        },
+                        child: Row(children: [
+                          const Icon(
+                            Icons.share,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("share")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          if (widget.message.roomUid.isMuc())
+            TextButton(
+                onPressed: () {
+                  onReportMessage();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.report,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("report")),
+                ])),
+          if (widget.message.id != null &&
+              widget.message.type != MessageType.PERSISTENT_EVENT)
+            TextButton(
+                onPressed: () {
+                  onForward();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.forward,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("forward")),
+                ])),
+          if (widget.message.id == null)
+            FutureBuilder<PendingMessage?>(
+                future:
+                    _messageRepo.getPendingMessage(widget.message.packetId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!.failed) {
+                    return TextButton(
+                        onPressed: () {
+                          onResend();
+                        },
+                        child: Row(children: [
+                          const Icon(
+                            Icons.refresh,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("resend")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          if (_hasPermissionToDeleteMsg)
+            widget.message.id != null
+                ? deleteMenuWidget()
+                : FutureBuilder<PendingMessage?>(
+                    future: _messageRepo
+                        .getPendingMessage(widget.message.packetId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!.failed) {
+                        return deleteMenuWidget();
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+          if (widget.message.id != null &&
+              (widget.message.type == MessageType.TEXT ||
+                  widget.message.type == MessageType.FILE) &&
+              _autRepo.isCurrentUserSender(widget.message) &&
+              checkMessageTime(widget.message))
+            TextButton(
+                onPressed: () {
+                  onEditMessage();
+                },
+                child: Row(children: [
+                  const Icon(
+                    Icons.edit,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("edit")),
+                ])),
+          if (isDesktop() && widget.message.type == MessageType.FILE)
+            FutureBuilder<File?>(
+                future: _fileRepo.getFileIfExist(
+                    widget.message.json!.toFile().uuid,
+                    widget.message.json!.toFile().name),
+                builder: (c, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return TextButton(
+                        onPressed: () async {
+                          await onShowInFolder(snapshot, context);
+                        },
+                        child: Row(children: [
+                          const Icon(
+                            Icons.folder_open_rounded,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("show_in_folder")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+        ],
       ),
     );
   }
@@ -425,11 +426,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               : onDeletePendingMessage();
         },
         child: Row(children: [
-          Icon(
+          const Icon(
             Icons.delete,
             size: 20,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(_i18n.get("delete")),
         ]));
   }
@@ -449,7 +450,7 @@ void showDeleteMsgDialog(List<Message> messages, BuildContext context,
       builder: (c) => AlertDialog(
             title: Text(
               "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+              style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
             ),
             content: Text(messages.length > 1
                 ? _i18n.get("sure_delete_messages")
@@ -458,7 +459,7 @@ void showDeleteMsgDialog(List<Message> messages, BuildContext context,
               GestureDetector(
                   child: Text(
                     _i18n.get("cancel"),
-                    style: TextStyle(color: Colors.blue),
+                    style: const TextStyle(color: Colors.blue),
                   ),
                   onTap: () {
                     onDelete!();
@@ -467,7 +468,7 @@ void showDeleteMsgDialog(List<Message> messages, BuildContext context,
               GestureDetector(
                 child: Text(
                   _i18n.get("delete"),
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                 ),
                 onTap: () {
                   _messageRepo.deleteMessage(messages, roomLastMessageId!);

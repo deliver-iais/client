@@ -25,16 +25,16 @@ class BotAppbarTitle extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatarWidget(botUid, 23),
-              SizedBox(
+              const SizedBox(
                 width: 16,
               ),
               Expanded(
                 child: FutureBuilder<String>(
                     future: _roomRepo.getName(botUid),
                     builder: (c, name) {
-                      if (name.hasData && name.data != null)
+                      if (name.hasData && name.data != null) {
                         return buildColumn(name.data!, context);
-                      else {
+                      } else {
                         return buildColumn(botUid.node, context);
                       }
                     }),

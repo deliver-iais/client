@@ -8,9 +8,9 @@ import 'package:get_it/get_it.dart';
 class BotStartWidget extends StatelessWidget {
   final Uid botUid;
   final _messageRepo = GetIt.I.get<MessageRepo>();
-  final i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
 
-  BotStartWidget({required this.botUid});
+  BotStartWidget({Key? key, required this.botUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,8 @@ class BotStartWidget extends StatelessWidget {
       child: Center(
         child: GestureDetector(
           child: Text(
-            i18n.get("start"),
-            style: TextStyle(
+            _i18n.get("start"),
+            style: const TextStyle(
               fontSize: 18,
             ),
           ),

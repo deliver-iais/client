@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
@@ -7,7 +9,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as Pb;
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as platform_pb;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -45,9 +47,9 @@ class AuthRepo {
   late PhoneNumber _tmpPhoneNumber;
 
   Future<bool> isTestUser() async {
-    if (currentUserUid.node.isNotEmpty)
+    if (currentUserUid.node.isNotEmpty) {
       return currentUserUid.isSameEntity(TEST_USER_UID.asString());
-    else {
+    } else {
       currentUserUid =
           (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
       return currentUserUid.isSameEntity(TEST_USER_UID.asString());
@@ -73,10 +75,10 @@ class AuthRepo {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   Future getVerificationCode(PhoneNumber p) async {
-    Pb.Platform platform = await getPlatformDetails();
+    platform_pb.Platform platform = await getPlatformDetails();
 
     try {
-      this._tmpPhoneNumber = p;
+      _tmpPhoneNumber = p;
       var verificationCode =
           await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
             ..phoneNumber = p
@@ -89,7 +91,7 @@ class AuthRepo {
     }
   }
 
-  Future<Pb.Platform> getPlatformDetails() async {
+  Future<platform_pb.Platform> getPlatformDetails() async {
     String version;
     try {
       var info = await PackageInfo.fromPlatform();
@@ -97,38 +99,38 @@ class AuthRepo {
     } catch (e) {
       version = VERSION;
     }
-    Pb.Platform platform = Pb.Platform()..clientVersion = version;
+    platform_pb.Platform platform = platform_pb.Platform()..clientVersion = version;
     return await getPlatForm(platform);
   }
 
-  getPlatForm(Pb.Platform platform) async {
+  getPlatForm(platform_pb.Platform platform) async {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
       platform
-        ..platformType = Pb.PlatformsType.ANDROID
+        ..platformType = platform_pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
       platform
-        ..platformType = Pb.PlatformsType.IOS
+        ..platformType = platform_pb.PlatformsType.IOS
         ..osVersion = iosInfo.systemVersion;
     } else if (Platform.isLinux) {
       platform
-        ..platformType = Pb.PlatformsType.LINUX
+        ..platformType = platform_pb.PlatformsType.LINUX
         ..osVersion = Platform.operatingSystemVersion;
     } else if (Platform.isMacOS) {
       platform
-        ..platformType = Pb.PlatformsType.MAC_OS
+        ..platformType = platform_pb.PlatformsType.MAC_OS
         ..osVersion = Platform.operatingSystemVersion;
     } else if (Platform.isWindows) {
       platform
-        ..platformType = Pb.PlatformsType.WINDOWS
+        ..platformType = platform_pb.PlatformsType.WINDOWS
         ..osVersion = Platform.operatingSystemVersion;
     } else {
       platform
-        ..platformType = Pb.PlatformsType.ANDROID
+        ..platformType = platform_pb.PlatformsType.ANDROID
         ..osVersion = Platform.operatingSystemVersion;
     }
     return platform;
@@ -156,12 +158,12 @@ class AuthRepo {
   }
 
   Future<AccessTokenRes> sendVerificationCode(String code) async {
-    Pb.Platform platform = await getPlatformDetails();
+    platform_pb.Platform platform = await getPlatformDetails();
 
     String device = await getDeviceName();
 
     var res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = this._tmpPhoneNumber
+      ..phoneNumber = _tmpPhoneNumber
       ..code = code
       ..device = device
       ..platform = platform
@@ -176,7 +178,7 @@ class AuthRepo {
   }
 
   Future<AccessTokenRes> checkQrCodeToken(String token) async {
-    Pb.Platform platform = await getPlatformDetails();
+    platform_pb.Platform platform = await getPlatformDetails();
 
     String device = await getDeviceName();
 
@@ -228,7 +230,7 @@ class AuthRepo {
 
   bool localPasswordIsCorrect(String pass) => _password == pass;
 
-  String getLocalPassword() => this._password;
+  String getLocalPassword() => _password;
 
   void setLocalPassword(String pass) {
     _password = pass;
@@ -306,7 +308,7 @@ class DeliverClientInterceptor implements ClientInterceptor {
   ResponseFuture<R> interceptUnary<Q, R>(ClientMethod<Q, R> method, Q request,
       CallOptions options, ClientUnaryInvoker<Q, R> invoker) {
     return invoker(method, request,
-        options.mergedWith(CallOptions(providers: [this.metadataProvider])));
+        options.mergedWith(CallOptions(providers: [metadataProvider])));
   }
 
   @override
@@ -316,6 +318,6 @@ class DeliverClientInterceptor implements ClientInterceptor {
       CallOptions options,
       ClientStreamingInvoker<Q, R> invoker) {
     return invoker(method, requests,
-        options.mergedWith(CallOptions(providers: [this.metadataProvider])));
+        options.mergedWith(CallOptions(providers: [metadataProvider])));
   }
 }

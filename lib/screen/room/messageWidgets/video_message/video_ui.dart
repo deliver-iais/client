@@ -11,7 +11,7 @@ class VideoUi extends StatefulWidget {
   final pb.File video;
   final double duration;
 
-  VideoUi(
+  const VideoUi(
       {Key? key,
       required this.videoFile,
       required this.duration,
@@ -42,7 +42,7 @@ class _VideoUiState extends State<VideoUi> {
               OpenFile.open(widget.videoFile.path);
             } else {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return new VideoPlayerWidget(
+                return VideoPlayerWidget(
                   duration: widget.duration,
                   videoFile: widget.videoFile,
                   video: widget.video,
@@ -50,7 +50,7 @@ class _VideoUiState extends State<VideoUi> {
               }));
             }
           },
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: 100,
             child: FittedBox(
@@ -69,7 +69,7 @@ class _VideoUiState extends State<VideoUi> {
         ),
         Center(
           child: IconButton(
-            icon: Icon(Icons.play_circle_fill),
+            icon: const Icon(Icons.play_circle_fill),
             iconSize: 40,
             color: Colors.cyanAccent,
             onPressed: () {
@@ -77,7 +77,7 @@ class _VideoUiState extends State<VideoUi> {
                 OpenFile.open(widget.videoFile.path);
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return new VideoPlayerWidget(
+                  return VideoPlayerWidget(
                     duration: widget.duration,
                     videoFile: widget.videoFile,
                     video: widget.video,

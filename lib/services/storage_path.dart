@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class StoragePath {
-  static const MethodChannel _channel = const MethodChannel('storage_path');
+  static const MethodChannel _channel = MethodChannel('storage_path');
 
   static Future<String> get imagesPath async {
     final String data = await _channel.invokeMethod('getImagesPath');

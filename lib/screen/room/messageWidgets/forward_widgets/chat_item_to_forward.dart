@@ -24,16 +24,16 @@ class ChatItemToForward extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-      child: Container(
+      child: SizedBox(
         height: 50,
         child: Row(
           children: <Widget>[
-            SizedBox(
+            const SizedBox(
               width: 12,
             ),
-            CircleAvatarWidget(this.uid, 30),
+            CircleAvatarWidget(uid, 30),
             // ContactPic(true, uid),
-            SizedBox(
+            const SizedBox(
               width: 12,
             ),
             GestureDetector(
@@ -68,7 +68,7 @@ class ChatItemToForward extends StatelessWidget {
               },
             ),
 
-            Spacer(),
+            const Spacer(),
           ],
         ),
       ),

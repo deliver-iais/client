@@ -28,7 +28,7 @@ class _SendingFileCircularIndicatorState
   @override
   void initState() {
     _controller =
-        AnimationController(duration: Duration(seconds: 1), vsync: this)
+        AnimationController(duration: const Duration(seconds: 1), vsync: this)
           ..repeat();
     super.initState();
   }
@@ -56,11 +56,11 @@ class _SendingFileCircularIndicatorState
                     progressColor: ExtraTheme.of(context).fileMessageDetails,
                   );
                 } else {
-                  return SizedBox.shrink();
+                  return const SizedBox.shrink();
                 }
               }),
           IconButton(
-            padding: EdgeInsets.only(top: 8, left: 5),
+            padding: const EdgeInsets.only(top: 8, left: 5),
             alignment: Alignment.center,
             icon: Icon(
               Icons.close,
@@ -74,7 +74,7 @@ class _SendingFileCircularIndicatorState
         ],
       );
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 }

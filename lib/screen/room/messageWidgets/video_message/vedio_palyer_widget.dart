@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:deliver/services/vlc_video_progressIndicator.dart';
+import 'package:deliver/services/vlc_video_progress_indicator.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,23 +13,23 @@ class VideoPlayerWidget extends StatefulWidget {
   final File videoFile;
   final pb.File video;
 
-  VideoPlayerWidget({required this.duration,required  this.videoFile, required this.video});
+  const VideoPlayerWidget({Key? key, required this.duration,required  this.videoFile, required this.video}) : super(key: key);
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  BehaviorSubject<bool> _isPlaySubject = BehaviorSubject.seeded(true);
+  final BehaviorSubject<bool> _isPlaySubject = BehaviorSubject.seeded(true);
 
-  BehaviorSubject<bool> _showIconPlayer = BehaviorSubject.seeded(true);
+  final BehaviorSubject<bool> _showIconPlayer = BehaviorSubject.seeded(true);
   late VlcPlayerController _vlcPlayerController;
 
   @override
   void initState() {
     _vlcPlayerController =
         VlcPlayerController.file(widget.videoFile, autoPlay: true);
-    Timer(Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 2), () {
       _showIconPlayer.add(false);
     });
     super.initState();
@@ -74,7 +74,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   StreamBuilder<bool>(
                       stream: _showIconPlayer.stream,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data!)
+                        if (snapshot.hasData && snapshot.data!) {
                           return Center(
                             child: StreamBuilder<bool>(
                               stream: _isPlaySubject.stream,
@@ -83,13 +83,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                   return Container(
                                     width: 40,
                                     height: 40,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                       //  color: Colors.black.withOpacity(0.5),
                                     ),
                                     child: s.data!
                                         ? IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.pause_circle_filled,
                                               color: Colors.blue,
                                               size: 50,
@@ -100,7 +100,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                               _showIconPlayer.add(true);
                                             })
                                         : IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.play_circle_fill,
                                               size: 50,
                                               color: Colors.blue,
@@ -108,7 +108,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                             onPressed: () {
                                               _vlcPlayerController.play();
                                               _isPlaySubject.add(true);
-                                              Timer(Duration(seconds: 1), () {
+                                              Timer(const Duration(seconds: 1), () {
                                                 _showIconPlayer.add(false);
                                               });
                                             }),
@@ -119,8 +119,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                               },
                             ),
                           );
-                        else
-                          return SizedBox.shrink();
+                        } else {
+                          return const SizedBox.shrink();
+                        }
                       }),
                 ],
               ),

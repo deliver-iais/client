@@ -16,15 +16,15 @@ class FloatingModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       heightFactor: 1,
-      child: Container(
+      child: SizedBox(
         width: min(MediaQuery.of(context).size.width, 400),
         // height: 100,
         child: Material(
           color: backgroundColor,
           clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(20),
-              topRight: const Radius.circular(20)),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20)),
           child: child,
         ),
       ),
@@ -50,7 +50,6 @@ Future<T> showFloatingModalBottomSheet<T>(
 }
 
 void showQrCode(BuildContext context, String url) {
-  print(url);
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) => Container(

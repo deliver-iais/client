@@ -13,7 +13,7 @@ class IntroAnimationController extends FlareController {
   FlutterActorArtboard ? _artboard;
 
   /// The current [ActorAnimation].
-  String _animationName = "Steps";
+  final String _animationName = "Steps";
   final double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.

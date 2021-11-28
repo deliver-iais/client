@@ -12,7 +12,7 @@ import 'package:get_it/get_it.dart';
 
 // TODO, change accessibility and improve UI
 class NewContact extends StatefulWidget {
-  NewContact({Key? key}) : super(key: key);
+  const NewContact({Key? key}) : super(key: key);
 
   @override
   _NewContactState createState() => _NewContactState();
@@ -21,9 +21,9 @@ class NewContact extends StatefulWidget {
 class _NewContactState extends State<NewContact> {
   PhoneNumber? _phoneNumber;
 
-  I18N _i18n = GetIt.I.get<I18N>();
-  var _routingServices = GetIt.I.get<RoutingService>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
   String _firstName = "";
   String _lastName = "";
@@ -40,7 +40,7 @@ class _NewContactState extends State<NewContact> {
               padding: const EdgeInsets.only(right: 20),
               child: !_isLoading
                   ? IconButton(
-                      icon: Icon(Icons.check),
+                      icon: const Icon(Icons.check),
                       iconSize: 40,
                       onPressed: () async {
                         if (_phoneNumber != null) {
@@ -48,59 +48,53 @@ class _NewContactState extends State<NewContact> {
                             _isLoading = true;
                           });
                           bool addContact =
-                          await _contactRepo.addContact(Contact()
-                            ..phoneNumber = _phoneNumber!
-                            ..firstName = _firstName
-                            ..lastName = _lastName);
+                              await _contactRepo.addContact(Contact()
+                                ..phoneNumber = _phoneNumber!
+                                ..firstName = _firstName
+                                ..lastName = _lastName);
                           if (addContact) {
                             await showResult(_phoneNumber!);
                             _routingServices.pop();
                           }
                         }
                       })
-                  : Center(child: CircularProgressIndicator()))
+                  : const Center(child: CircularProgressIndicator()))
         ],
       ),
       body: FluidContainerWidget(
         child: Column(
           children: [
-            SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Container(
-              padding: EdgeInsets.only(left: 12),
+              padding: const EdgeInsets.only(left: 12),
               child: TextField(
                 onChanged: (firstName) {
                   _firstName = firstName;
                 },
                 style: Theme.of(context).textTheme.bodyText1,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     labelText: _i18n.get("firstName")),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.only(left: 12),
+              padding: const EdgeInsets.only(left: 12),
               child: TextField(
                 onChanged: (lastName) {
                   _lastName = lastName;
                 },
                 style: Theme.of(context).textTheme.bodyText1,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     labelText: _i18n.get("lastName")),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             IntlPhoneField(
               controller: TextEditingController(),
               validator: (value) =>
-                  value!.length != 10 || (value.length > 0 && value[0] == '0')
+                  value!.length != 10 || (value.isNotEmpty && value[0] == '0')
                       ? _i18n.get("invalid_mobile_number")
                       : null,
               style: Theme.of(context).textTheme.bodyText1!,
@@ -120,8 +114,7 @@ class _NewContactState extends State<NewContact> {
 
   Future<void> showResult(PhoneNumber pn) async {
     var result = await _contactRepo.contactIsExist(
-        pn.countryCode.toString(),
-        pn.nationalNumber.toString());
+        pn.countryCode.toString(), pn.nationalNumber.toString());
     if (result) {
       setState(() {
         _isLoading = false;

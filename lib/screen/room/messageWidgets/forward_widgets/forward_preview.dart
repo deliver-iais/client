@@ -33,7 +33,7 @@ class ForwardPreview extends StatelessWidget {
               color: Theme.of(context).primaryColor,
               size: 25,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             shareUid != null
                 ? Text(
                     shareUid!.name,
@@ -43,12 +43,12 @@ class ForwardPreview extends StatelessWidget {
                   )
                 : Text(
                     '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
-            Spacer(),
+            const Spacer(),
             IconButton(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               alignment: Alignment.center,
-              icon: Icon(Icons.close, size: 18),
-              onPressed: this.onClick,
+              icon: const Icon(Icons.close, size: 18),
+              onPressed: onClick,
             ),
           ],
         ),

@@ -22,7 +22,7 @@ import 'package:settings_ui/settings_ui.dart';
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
 
-  AccountSettings({Key? key, this.forceToSetUsernameAndName = true})
+  const AccountSettings({Key? key, this.forceToSetUsernameAndName = true})
       : super(key: key);
 
   @override
@@ -31,7 +31,7 @@ class AccountSettings extends StatefulWidget {
 
 class _AccountSettingsState extends State<AccountSettings> {
   final _i18n = GetIt.I.get<I18N>();
-  final subject = new BehaviorSubject<String>();
+  final subject = BehaviorSubject<String>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -77,7 +77,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   void initState() {
     _accountRepo.getProfile();
     subject.stream
-        .debounceTime(Duration(milliseconds: 250))
+        .debounceTime(const Duration(milliseconds: 250))
         .listen((username) async {
       _usernameFormKey.currentState?.validate();
       if (_userNameCorrect) {
@@ -86,10 +86,11 @@ class _AccountSettingsState extends State<AccountSettings> {
           setState(() {
             usernameIsAvailable = validUsername;
           });
-        } else
+        } else {
           setState(() {
             usernameIsAvailable = true;
           });
+        }
       }
     });
     super.initState();
@@ -131,11 +132,12 @@ class _AccountSettingsState extends State<AccountSettings> {
             future: _accountRepo.getAccount(),
             builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
               _account = snapshot.data!;
-              if (snapshot.data!.userName != null)
+              if (snapshot.data!.userName != null) {
                 _lastUserName = snapshot.data!.userName!;
+              }
               return ListView(
                 children: [
                   SettingsSection(title: _i18n.get("avatar"), tiles: [
@@ -152,12 +154,12 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     height: 50.0,
                                     width: 50.0,
                                     child: _uploadNewAvatar
-                                        ? CircularProgressIndicator(
+                                        ? const CircularProgressIndicator(
                                             valueColor: AlwaysStoppedAnimation(
                                                 Colors.blue),
                                             strokeWidth: 6.0,
                                           )
-                                        : SizedBox.shrink()),
+                                        : const SizedBox.shrink()),
                               ),
                             ),
                             // Spacer(),
@@ -172,7 +174,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 color: Colors.white,
                                 splashRadius: 40,
                                 iconSize: 40,
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.add_a_photo,
                                 ),
                                 onPressed: () => attachFile(),
@@ -211,7 +213,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       decoration: buildInputDecoration(
                                           _i18n.get("username"), true)),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 5,
                                 ),
                                 _newUsername.isEmpty
@@ -223,27 +225,27 @@ class _AccountSettingsState extends State<AccountSettings> {
                                               textAlign: TextAlign.justify,
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 2,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 14,
                                                   color: Colors.blueAccent),
                                             ),
                                           ),
                                         ],
                                       )
-                                    : SizedBox.shrink(),
+                                    : const SizedBox.shrink(),
                                 !usernameIsAvailable
                                     ? Row(
                                         children: [
                                           Text(
                                             _i18n.get("username_already_exist"),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontSize: 10,
                                                 color: Colors.red),
                                           ),
                                         ],
                                       )
-                                    : SizedBox.shrink(),
-                                SizedBox(
+                                    : const SizedBox.shrink(),
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 TextFormField(
@@ -261,7 +263,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   decoration: buildInputDecoration(
                                       _i18n.get("firstName"), true),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 TextFormField(
@@ -278,7 +280,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     },
                                     decoration: buildInputDecoration(
                                         _i18n.get("lastName"), false)),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 TextFormField(
@@ -298,7 +300,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                         _i18n.get("email"), false)),
                               ],
                             )),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -322,32 +324,32 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   InputDecoration buildInputDecoration(label, bool isOptional) {
     return InputDecoration(
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
+          borderSide: const BorderSide(
             color: Colors.red,
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
         suffixIcon: isOptional
-            ? Padding(
-                padding: const EdgeInsets.only(top: 20, left: 25),
+            ? const Padding(
+                padding: EdgeInsets.only(top: 20, left: 25),
                 child: Text(
                   "*",
                   style: TextStyle(color: Colors.red),
                 ),
               )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
         labelText: label,
-        labelStyle: TextStyle(color: Colors.blue));
+        labelStyle: const TextStyle(color: Colors.blue));
   }
 
   String? validateFirstName(String? value) {
@@ -361,7 +363,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   String? validateUsername(String? value) {
     Pattern? pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp? regex = new RegExp(pattern.toString());
+    RegExp? regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       setState(() {
         _userNameCorrect = false;
@@ -385,7 +387,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   String? validateEmail(String? value) {
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern.toString());
+    RegExp regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       return null;
     } else if (!regex.hasMatch(value)) {

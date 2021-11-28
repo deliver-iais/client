@@ -7,6 +7,8 @@ class ForwardAppbar extends StatelessWidget {
   final _routingServices = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
 
+  ForwardAppbar({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return AppBar(

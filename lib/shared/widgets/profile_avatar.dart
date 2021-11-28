@@ -18,7 +18,7 @@ class ProfileAvatar extends StatefulWidget {
   final Uid roomUid;
   final bool canSetAvatar;
 
-  ProfileAvatar({required this.roomUid, this.canSetAvatar = false});
+  const ProfileAvatar({Key? key, required this.roomUid, this.canSetAvatar = false}) : super(key: key);
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -29,7 +29,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   final _routingService = GetIt.I.get<RoutingService>();
   String _uploadAvatarPath = "";
   bool _showProgressBar = false;
-  final _selectedImages = Map<int, bool>();
+  final _selectedImages = <int, bool>{};
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ? CircleAvatar(
               radius: 40,
               backgroundImage: Image.file(File(_uploadAvatarPath)).image,
-              child: Center(
+              child: const Center(
                 child: SizedBox(
                     height: 20.0,
                     width: 20.0,
@@ -53,34 +53,32 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Center(
-                  child: Container(
-                    child: GestureDetector(
-                      child: CircleAvatarWidget(
-                        widget.roomUid,
-                        40,
-                        showAsStreamOfAvatar: true,
-                        showSavedMessageLogoIfNeeded: true,
-                      ),
-                      onTap: () async {
-                        var lastAvatar = await _avatarRepo.getLastAvatar(
-                            widget.roomUid, false);
-                        if (lastAvatar?.createdOn != null) {
-                          _routingService.openShowAllAvatars(context,
-                              uid: widget.roomUid,
-                              hasPermissionToDeleteAvatar: widget.canSetAvatar,
-                              heroTag: "avatar");
-                        }
-                      },
+                  child: GestureDetector(
+                    child: CircleAvatarWidget(
+                      widget.roomUid,
+                      40,
+                      showAsStreamOfAvatar: true,
+                      showSavedMessageLogoIfNeeded: true,
                     ),
+                    onTap: () async {
+                      var lastAvatar = await _avatarRepo.getLastAvatar(
+                          widget.roomUid, false);
+                      if (lastAvatar?.createdOn != null) {
+                        _routingService.openShowAllAvatars(context,
+                            uid: widget.roomUid,
+                            hasPermissionToDeleteAvatar: widget.canSetAvatar,
+                            heroTag: "avatar");
+                      }
+                    },
                   ),
                 ),
-                if (widget.canSetAvatar) SizedBox(width: 8),
+                if (widget.canSetAvatar) const SizedBox(width: 8),
                 if (widget.canSetAvatar)
                   Align(
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
                         onPressed: () => selectAvatar(),
-                        child: Text("select an image")),
+                        child: const Text("select an image")),
                   )
               ],
             ),
@@ -109,7 +107,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       if (result!.files.isNotEmpty) {
         _setAvatar(result.files.first.path!);
       }
-    } else if ((await ImageItem.getImages()).length < 1) {
+    } else if ((await ImageItem.getImages()).isEmpty) {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.custom,

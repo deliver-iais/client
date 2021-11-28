@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -111,7 +111,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
                   ..forward();
                 return GestureDetector(
                   onTap: () => _controller.forward(from: 0),
-                  child: Container(
+                  child: SizedBox(
                       child: Lottie(
                           composition: composition,
                           controller: _controller,
@@ -121,8 +121,9 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
                       width: 120,
                       height: 120),
                 );
-              } else
-                return Container(width: 120, height: 120);
+              } else {
+                return const SizedBox(width: 120, height: 120);
+              }
             }),
         Container(
           decoration: BoxDecoration(

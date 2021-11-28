@@ -2,7 +2,7 @@ import 'package:deliver/box/contact.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CreateMucService {
-  BehaviorSubject<int> _membersLength = BehaviorSubject.seeded(0);
+  final BehaviorSubject<int> _membersLength = BehaviorSubject.seeded(0);
   List<Contact> contacts = [];
 
   void reset() {

@@ -29,7 +29,7 @@ class ReplyPreview extends StatelessWidget {
               color: Theme.of(context).primaryColor,
               size: 25,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -39,9 +39,9 @@ class ReplyPreview extends StatelessWidget {
               ),
             ),
             IconButton(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               alignment: Alignment.center,
-              icon: Icon(Icons.close, size: 18),
+              icon: const Icon(Icons.close, size: 18),
               onPressed: resetRoomPageDetails,
             ),
           ],
