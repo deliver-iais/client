@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 import 'dart:io';
 
@@ -146,12 +148,12 @@ class AudioService {
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
-  AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
-  AudioCache _fastAudioPlayer =
+  final AudioCache _fastAudioPlayer =
       AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
-  AudioCache _callFastAudioPlayer =
-  AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
+  final AudioCache _callFastAudioPlayer =
+      AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -163,16 +165,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
         switch (event) {
           case PlayerState.STOPPED:
             return AudioPlayerState.STOPPED;
-            break;
           case PlayerState.PLAYING:
             return AudioPlayerState.PLAYING;
-            break;
           case PlayerState.PAUSED:
             return AudioPlayerState.PAUSED;
-            break;
           case PlayerState.COMPLETED:
             return AudioPlayerState.COMPLETED;
-            break;
           default:
             return AudioPlayerState.STOPPED;
         }
@@ -220,8 +218,9 @@ class NormalAudioPlayer implements AudioPlayerModule {
     );
   }
 
+  @override
   void stopPlayBeepSound() {
-    _callFastAudioPlayer.fixedPlayer.stop();
+    _callFastAudioPlayer.fixedPlayer!.stop();
   }
 
   @override
@@ -233,15 +232,15 @@ class NormalAudioPlayer implements AudioPlayerModule {
 }
 
 class VlcAudioPlayer implements AudioPlayerModule {
-  Player _audioPlayer = Player(id: 0);
-  Player _fastAudioPlayerOut = Player(id: 1);
-  Player _fastAudioPlayerIn = Player(id: 1);
-  Player _fastAudioPlayerBeep = Player(id: 2);
-  Player _fastAudioPlayerBusy = Player(id: 2);
+  final Player _audioPlayer = Player(id: 0);
+  final Player _fastAudioPlayerOut = Player(id: 1);
+  final Player _fastAudioPlayerIn = Player(id: 1);
+  final Player _fastAudioPlayerBeep = Player(id: 2);
+  final Player _fastAudioPlayerBusy = Player(id: 2);
 
   @override
-  Stream<Duration> get audioCurrentPosition =>
-      _audioPlayer.positionStream.map((event) => event.position);
+  Stream<Duration> get audioCurrentPosition => _audioPlayer.positionStream
+      .map((event) => event.position ?? Duration.zero);
 
   @override
   Stream<AudioPlayerState> get audioCurrentState =>
@@ -304,6 +303,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
     _fastAudioPlayerBeep.play();
   }
 
+  @override
   void stopPlayBeepSound() {
     _fastAudioPlayerBeep.stop();
   }

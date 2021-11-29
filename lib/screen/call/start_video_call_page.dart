@@ -1,4 +1,3 @@
-import 'package:deliver/services/audio_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -10,13 +9,16 @@ import 'center_avatar_image-in-call.dart';
 
 class StartVideoCallPage extends StatefulWidget {
   final Uid roomUid;
-  RTCVideoRenderer localRenderer;
+  final RTCVideoRenderer localRenderer;
+  final String text;
+  final RTCVideoRenderer remoteRenderer;
 
-  String text;
-  RTCVideoRenderer remoteRenderer;
-
-  StartVideoCallPage(
-      {Key key, this.text, this.roomUid, this.localRenderer, this.remoteRenderer})
+  const StartVideoCallPage(
+      {Key? key,
+      required this.text,
+      required this.roomUid,
+      required this.localRenderer,
+      required this.remoteRenderer})
       : super(key: key);
 
   @override
@@ -25,7 +27,6 @@ class StartVideoCallPage extends StatefulWidget {
 
 class _StartVideoCallPageState extends State<StartVideoCallPage> {
   final _logger = GetIt.I.get<Logger>();
-  final _audioService = GetIt.I.get<AudioService>();
 
   @override
   void dispose() async {
@@ -56,7 +57,7 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
           alignment: Alignment.topCenter,
           child: Text(
             widget.text,
-            style: TextStyle(fontSize: 16, color: Colors.white70),
+            style: const TextStyle(fontSize: 16, color: Colors.white70),
           ),
         ),
       )

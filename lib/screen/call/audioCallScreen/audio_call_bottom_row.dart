@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AudioCallBottomRow extends StatefulWidget {
-  const AudioCallBottomRow({Key key}) : super(key: key);
+  const AudioCallBottomRow({Key? key}) : super(key: key);
 
   @override
   _AudioCallBottomRowState createState() => _AudioCallBottomRowState();
@@ -16,27 +16,29 @@ class _AudioCallBottomRowState extends State<AudioCallBottomRow> {
             alignment: Alignment.bottomCenter,
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Container(
+                children: const <Widget>[
+                  SizedBox(
                       width: 60,
                       height: 60,
                       child: FloatingActionButton(
                         elevation: 0,
                         backgroundColor: Color(0xff4a5460),
-                        child: const Icon(
+                        onPressed: null,
+                        child: Icon(
                           Icons.volume_up,
                           color: Colors.white70,
                           size: 35,
                         ),
                       )),
                   DialIcon(),
-                  Container(
+                  SizedBox(
                       width: 60,
                       height: 60,
                       child: FloatingActionButton(
                         elevation: 0,
                         backgroundColor: Color(0xff4a5460),
-                        child: const Icon(
+                        onPressed: null,
+                        child: Icon(
                           Icons.mic_off,
                           size: 35,
                           color: Colors.white70,
@@ -47,9 +49,9 @@ class _AudioCallBottomRowState extends State<AudioCallBottomRow> {
 }
 
 class DialIcon extends StatelessWidget {
+  final double size = 90;
 
-
-  final double size=90;
+  const DialIcon({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +66,17 @@ class DialIcon extends StatelessWidget {
             Colors.white.withOpacity(0.07),
             Colors.white.withOpacity(0.05)
           ],
-          stops: [.5, 1],
+          stops: const [.5, 1],
         ),
       ),
-      child: FloatingActionButton(
-            backgroundColor: Color(0xffcf6869),
-            elevation: 0, child: const Icon(Icons.call_end,size: 50,)),
-
+      child: const FloatingActionButton(
+          backgroundColor: Color(0xffcf6869),
+          elevation: 0,
+          onPressed: null,
+          child: Icon(
+            Icons.call_end,
+            size: 50,
+          )),
     );
   }
 }

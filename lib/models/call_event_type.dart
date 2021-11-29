@@ -1,35 +1,39 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart'
-    as CallProto;
+    as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
-enum CallTypes {Answer , Event, Offer}
+enum CallTypes { None, Answer, Event, Offer }
 
-class CallEvents{
+class CallEvents {
+  final call_pb.CallEvent? callEvent;
+  final call_pb.CallAnswer? callAnswer;
+  final call_pb.CallOffer? callOffer;
+  final CallTypes callType;
+  final Uid? roomUid;
 
-  CallEvents(this._callAnswer, this._callEvent, this._callOffer, this._callTypes, {this.roomUid});
+  static CallEvents none = const CallEvents._none();
 
-  CallProto.CallAnswer _callAnswer;
-  CallProto.CallEvent _callEvent;
-  CallProto.CallOffer _callOffer;
+  const CallEvents._none()
+      : callEvent = null,
+        callOffer = null,
+        callAnswer = null,
+        roomUid = null,
+        callType = CallTypes.None;
 
-  Uid roomUid;
+  const CallEvents.callAnswer(this.callAnswer, {required this.roomUid})
+      : callEvent = null,
+        callOffer = null,
+        callType = CallTypes.Answer;
 
-  CallTypes _callTypes;
+  const CallEvents.callEvent(this.callEvent, {required this.roomUid})
+      : callAnswer = null,
+        callOffer = null,
+        callType = CallTypes.Event;
 
-  get callTypes{
-    return _callTypes;
-  }
-
-  get callAnswer{
-    return _callAnswer;
-  }
-
-  get callEvent{
-    return _callEvent;
-  }
-
-  get callOffer{
-    return _callOffer;
-  }
-
+  const CallEvents.callOffer(this.callOffer, {required this.roomUid})
+      : callEvent = null,
+        callAnswer = null,
+        callType = CallTypes.Offer;
 }

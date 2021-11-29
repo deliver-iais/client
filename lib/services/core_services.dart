@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -29,9 +30,9 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
-    as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -65,7 +66,6 @@ class CoreServices {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
-  final _autRepo = GetIt.I.get<AuthRepo>();
 
   Timer? _connectionTimer;
   var _lastPongTime = 0;
@@ -85,9 +85,11 @@ class CoreServices {
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-  BehaviorSubject<CallEvents> callEvents = BehaviorSubject.seeded(null);
+  final BehaviorSubject<CallEvents> callEvents =
+      BehaviorSubject.seeded(CallEvents.none);
 
-  BehaviorSubject<CallEvents> _callEvents = BehaviorSubject.seeded(null);
+  final BehaviorSubject<CallEvents> _callEvents =
+      BehaviorSubject.seeded(CallEvents.none);
 
   //TODO test
   initStreamConnection() async {
@@ -176,13 +178,13 @@ class CoreServices {
             _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
             break;
           case ServerPacket_Type.callOffer:
-            var callEvents = CallEvents(serverPacket.callAnswer, null,
-                serverPacket.callOffer, CallTypes.Offer);
+            var callEvents = CallEvents.callOffer(serverPacket.callOffer,
+                roomUid: getRoomUid(_authRepo, serverPacket.message));
             _callEvents.add(callEvents);
             break;
           case ServerPacket_Type.callAnswer:
-            var callEvents = CallEvents(serverPacket.callAnswer, null,
-                serverPacket.callOffer, CallTypes.Answer);
+            var callEvents = CallEvents.callAnswer(serverPacket.callAnswer,
+                roomUid: getRoomUid(_authRepo, serverPacket.message));
             _callEvents.add(callEvents);
             break;
         }
@@ -239,7 +241,7 @@ class CoreServices {
     }
   }
 
-  sendCallAnswer(CallProto.CallAnswerByClient callAnswerByClient) {
+  sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
     if (!_clientPacketStream.isClosed) {
       _clientPacketStream.add(ClientPacket()
         ..callAnswer = callAnswerByClient
@@ -249,7 +251,7 @@ class CoreServices {
     }
   }
 
-  sendCallOffer(CallProto.CallOfferByClient callOfferByClient) {
+  sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     if (!_clientPacketStream.isClosed) {
       _clientPacketStream.add(ClientPacket()
         ..callOffer = callOfferByClient
@@ -423,11 +425,13 @@ class CoreServices {
         case PersistentEvent_Type.notSet:
           // TODO: Handle this case.
           break;
+        case PersistentEvent_Type.botSpecificPersistentEvent:
+          // TODO: Handle this case.
+          break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-      var callEvents = CallEvents(
-          null, message.callEvent, null, CallTypes.Event,
-          roomUid: message.from);
+      var callEvents =
+          CallEvents.callEvent(message.callEvent, roomUid: message.from);
       _callEvents.add(callEvents);
     }
     saveMessage(message, roomUid);

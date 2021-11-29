@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:deliver/box/avatar.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_bottom_row.dart';
@@ -10,7 +13,7 @@ import 'package:get_it/get_it.dart';
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
 
-  AudioCallScreen({Key key, this.roomUid}) : super(key: key);
+  const AudioCallScreen({Key? key, required this.roomUid}) : super(key: key);
 
   @override
   _AudioCallScreenState createState() => _AudioCallScreenState();
@@ -20,43 +23,44 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(
       children: [
-        FutureBuilder(
+        FutureBuilder<Avatar?>(
             future: _avatarRepo.getLastAvatar(widget.roomUid, false),
             builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null)
-                return FutureBuilder(
+              if (snapshot.hasData) {
+                return FutureBuilder<File?>(
                     future: _fileRepo.getFile(
-                        snapshot.data.fileId, snapshot.data.fileName),
+                        snapshot.data!.fileId!, snapshot.data!.fileName!),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null)
+                      if (snapshot.hasData) {
                         return FadeAudioCallBackground(
-                          image: FileImage(snapshot.data),
+                          image: FileImage(snapshot.data!),
                         );
-                      else
-                        return FadeAudioCallBackground(
+                      } else {
+                        return const FadeAudioCallBackground(
                           image: AssetImage("assets/images/no-profile-pic.png"),
                         );
+                      }
                     });
-              else
-                return FadeAudioCallBackground(
+              } else {
+                return const FadeAudioCallBackground(
                   image: AssetImage("assets/images/no-profile-pic.png"),
                 );
+              }
             }),
         Column(
           children: [
             CenterAvatarInCall(
               roomUid: widget.roomUid,
             ),
-            Text("Calling", style: TextStyle(color: Colors.white70)),
-
+            const Text("Calling", style: TextStyle(color: Colors.white70)),
           ],
-
         ),
-        AudioCallBottomRow()
+        const AudioCallBottomRow()
       ],
     ));
   }

@@ -31,6 +31,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
@@ -384,8 +385,8 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(CallProto.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, CallProto.CallEvent_CallType callType ) async {
-    String json = (CallProto.CallEvent()
+  sendCallMessage(call_pb.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, call_pb.CallEvent_CallType callType ) async {
+    String json = (call_pb.CallEvent()
       ..newStatus = newStatus
       ..id = callId
       ..callDuration = Int64(callDuration)
@@ -570,7 +571,7 @@ class MessageRepo {
         byClient.form = message.json!.toForm();
         break;
       case MessageType.CALL:
-        byClient.callEvent = CallEvent.fromJson(message.json);
+        byClient.callEvent = CallEvent.fromJson(message.json!);
         break;
       default:
         break;

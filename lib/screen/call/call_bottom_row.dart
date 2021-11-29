@@ -7,10 +7,11 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 
 class CallBottomRow extends StatefulWidget {
-  final localRenderer;
-  RTCVideoRenderer remoteRenderer;
+  final RTCVideoRenderer localRenderer;
+  final RTCVideoRenderer remoteRenderer;
 
-  CallBottomRow({Key key, this.localRenderer, this.remoteRenderer})
+  const CallBottomRow(
+      {Key? key, required this.localRenderer, required this.remoteRenderer})
       : super(key: key);
 
   @override
@@ -53,13 +54,15 @@ class _CallBottomRowState extends State<CallBottomRow> {
               ),
               FloatingActionButton(
                 backgroundColor: _muteMicIcon,
-                child: (isAndroid()) ? Icon(Icons.mobile_screen_share) : Icon(Icons.screen_share_outlined ),
+                child: (isAndroid())
+                    ? const Icon(Icons.mobile_screen_share)
+                    : const Icon(Icons.screen_share_outlined),
                 onPressed: _shareScreen,
               ),
               FloatingActionButton(
                 onPressed: _hangUp,
                 tooltip: 'Hangup',
-                child: Icon(Icons.call_end),
+                child: const Icon(Icons.call_end),
                 backgroundColor: Colors.red,
               ),
             ]),
@@ -78,8 +81,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
   _switchCamera() {
     callRepo.switchCamera();
     indexSwitchCamera++;
-    _switchCameraIcon =
-        indexSwitchCamera.isOdd ? Colors.grey : Colors.black45;
+    _switchCameraIcon = indexSwitchCamera.isOdd ? Colors.grey : Colors.black45;
     setState(() {});
   }
 

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class HasCallRow extends StatefulWidget {
-  const HasCallRow({Key key}) : super(key: key);
+  const HasCallRow({Key? key}) : super(key: key);
 
   @override
   _HasCallRowState createState() => _HasCallRowState();
@@ -21,12 +21,13 @@ class _HasCallRowState extends State<HasCallRow> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot != null && snapshot.data == CallStatus.CREATED) {
+          if (snapshot.hasData && snapshot.data == CallStatus.CREATED) {
             return GestureDetector(
               onTap: () {
-                if (snapshot.data == CallStatus.CREATED &&
-                    callRepo.roomUid != null)
-                  _routingService.openInComingCallPage(callRepo.roomUid,false);
+                if (snapshot.data == CallStatus.CREATED) {
+                  _routingService.openInComingCallPage(
+                      callRepo.roomUid!, false);
+                }
                 //Todo handel other
               },
               child: Container(
@@ -35,18 +36,19 @@ class _HasCallRowState extends State<HasCallRow> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      FutureBuilder<Object>(
-                          future: _roomRepo.getName(callRepo.roomUid),
+                      FutureBuilder<String>(
+                          future: _roomRepo.getName(callRepo.roomUid!),
                           builder: (context, name) {
-                            if (name.hasData && name != null)
+                            if (name.hasData) {
                               return Text(
-                                name.data,
-                                style: TextStyle(color: Colors.white),
+                                name.data!,
+                                style: const TextStyle(color: Colors.white),
                               );
-                            else
-                              return SizedBox.shrink();
+                            } else {
+                              return const SizedBox.shrink();
+                            }
                           }),
-                      Icon(Icons.videocam, color: Colors.white),
+                      const Icon(Icons.videocam, color: Colors.white),
                     ],
                   ),
                 ),
@@ -56,7 +58,7 @@ class _HasCallRowState extends State<HasCallRow> {
               ),
             );
           } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         });
   }

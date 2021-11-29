@@ -22,6 +22,7 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:desktoasts/desktoasts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -69,7 +70,7 @@ class NotificationServices {
       final mb =
           (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
               .copyWith(roomName: roomName);
-      if (mb.ignoreNotification) return;
+      if (mb.ignoreNotification ?? false) return;
 
       // TODO change place of synthesizer if we want more styled texts in android
       _notifier.notify(synthesize(mb));
@@ -250,7 +251,7 @@ class AndroidNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-  AndroidNotificationChannel channel = AndroidNotificationChannel(
+  AndroidNotificationChannel channel = const AndroidNotificationChannel(
       'notifications', // id
       'Notifications', // title
       description: 'All notifications of application.', // description
@@ -259,17 +260,17 @@ class AndroidNotifier implements Notifier {
 
   AndroidNotifier() {
     ConnectycubeFlutterCallKit.instance
-        .init(onCallAccepted: onCallAccepted, onCallRejected: onCallREjected);
+        .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
   }
 
-  Future<dynamic> onCallREjected(
+  Future<dynamic> onCallRejected(
     String sessionId,
     int callType,
     int callerId,
     String callerName,
     Set<int> opponentsIds,
-    Map<String, String> userInfo,
-  ) {
+    Map<String, String>? userInfo,
+  ) async {
     final callRepo = GetIt.I.get<CallRepo>();
     callRepo.declineCall();
     _routingService.pop();
@@ -281,21 +282,21 @@ class AndroidNotifier implements Notifier {
     int callerId,
     String callerName,
     Set<int> opponentsIds,
-    Map<String, String> userInfo,
-  ) {
-    _routingService.openInComingCallPage(userInfo["uid"].asUid(), true);
+    Map<String, String>? userInfo,
+  ) async {
+    _routingService.openInComingCallPage(userInfo!["uid"]!.asUid(), true);
   }
 
   @override
   notify(MessageBrief message) async {
     if (message.ignoreNotification!) return;
-    String finalFilePath;
-    Room room = await _roomRepo.getRoom(message.roomUid.asString());
+    String? finalFilePath;
+    Room? room = await _roomRepo.getRoom(message.roomUid!.asString());
     String selectedNotificationSound = "that_was_quick";
     var selectedSound =
-        await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
+        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
     if (la != null) {
       var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
@@ -314,9 +315,10 @@ class AndroidNotifier implements Notifier {
     if (message.type == MessageType.CALL) {
       final messageRepo = GetIt.I.get<MessageRepo>();
       var lastMessages = await messageRepo.fetchLastMessages(
-          message.roomUid, room.lastMessageId, room.firstMessageId, room);
+          message.roomUid!, room!.lastMessageId!, room.firstMessageId, room,
+          limit: 10, type: FetchMessagesReq_Type.BACKWARD_FETCH);
       ConnectycubeFlutterCallKit.showCallNotification(
-          sessionId:lastMessages.id.toString() ,
+          sessionId: lastMessages!.id.toString(),
           callType: 1,
           callerId: lastMessages.id,
           callerName: message.roomName,
@@ -329,27 +331,27 @@ class AndroidNotifier implements Notifier {
         NotificationChannel(
             channelKey: message.roomUid.toString() + selectedNotificationSound,
             channelName: channel.name,
-            channelDescription: channel.description,
+            channelDescription: channel.description!,
             ledColor: Colors.white,
             playSound: true,
             defaultColor: Colors.blueAccent,
-            soundSource: 'resource://raw/${selectedNotificationSound}',
-            groupKey: message.roomUid.node.toString()),
+            soundSource: 'resource://raw/$selectedNotificationSound',
+            groupKey: message.roomUid!.node.toString()),
       );
       AwesomeNotifications().createNotification(
           content: NotificationContent(
-            id: message.roomUid.asString().hashCode +
+            id: message.roomUid!.asString().hashCode +
                 message.text.toString().hashCode +
                 Random().nextInt(10000),
             channelKey: message.roomUid.toString() + selectedNotificationSound,
             title: message.roomName,
             summary: message.roomName,
-            groupKey: message.roomUid.node.toString(),
+            groupKey: message.roomUid!.node.toString(),
             body: createNotificationTextFromMessageBrief(message),
             largeIcon: finalFilePath,
             notificationLayout: NotificationLayout.Messaging,
-            customSound: 'resource://raw/${selectedNotificationSound}',
-            payload: {'uid': room.uid, 'id': room.lastMessage.id.toString()},
+            customSound: 'resource://raw/$selectedNotificationSound',
+            payload: {'uid': room!.uid, 'id': room.lastMessage!.id.toString()},
           ),
           actionButtons: [
             NotificationActionButton(
@@ -427,7 +429,7 @@ class MacOSNotifier implements Notifier {
 
     var macOSPlatformChannelSpecifics =
         MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
-    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
+    _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
         notificationDetails: macOSPlatformChannelSpecifics,
         payload: message.roomUid!.asString());

@@ -4,7 +4,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -56,8 +57,8 @@ class MessageBrief {
   }
 }
 
-Future<MessageBrief> extractMessageBrief(
-    I18N i18n, RoomRepo roomRepo, AuthRepo authRepo, message_pb.Message msg) async {
+Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
+    AuthRepo authRepo, message_pb.Message msg) async {
   Uid roomUid = getRoomUid(authRepo, msg);
   String? roomName = await roomRepo.getSlangName(roomUid);
   String? sender = await roomRepo.getSlangName(msg.from);
@@ -130,7 +131,7 @@ Future<MessageBrief> extractMessageBrief(
         ignoreNotification = true;
       }
       break;
-    case PB.Message_Type.callEvent:
+    case message_pb.Message_Type.callEvent:
       typeDetails = i18n.get("call");
       break;
     default:
@@ -316,7 +317,7 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
           message.json!.toSharePrivateDataAcceptance();
       break;
     case MessageType.CALL:
-      msg.callEvent = message.json.toCallEvent();
+      msg.callEvent = message.json!.toCallEvent();
       break;
     case MessageType.NOT_SET:
       break;
@@ -384,6 +385,8 @@ String messageBodyToJson(message_pb.Message message) {
 
         case PersistentEvent_Type.notSet:
           return "{}";
+        default:
+          return "{}";
       }
 
     case MessageType.BUTTONS:
@@ -402,7 +405,6 @@ String messageBodyToJson(message_pb.Message message) {
       return message.sharePrivateDataAcceptance.writeToJson();
     case MessageType.CALL:
       return message.callEvent.writeToJson();
-      break;
     case MessageType.NOT_SET:
       return "{}";
   }
@@ -436,7 +438,7 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.SHARE_PRIVATE_DATA_REQUEST;
     case message_pb.Message_Type.sharePrivateDataAcceptance:
       return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
-    case PB.Message_Type.callEvent:
+    case message_pb.Message_Type.callEvent:
       return MessageType.CALL;
     default:
       return MessageType.NOT_SET;
@@ -444,7 +446,11 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
 }
 
 Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) {
-  return authRepo.isCurrentUser(message.from.asString())
-      ? message.to
-      : (message.to.isUser() ? message.from : message.to);
+  return getRoomUidOf(authRepo, message.from, message.to);
+}
+
+Uid getRoomUidOf(AuthRepo authRepo, Uid from, Uid to) {
+  return authRepo.isCurrentUser(from.asString())
+      ? to
+      : (to.isUser() ? from : to);
 }

@@ -64,7 +64,7 @@ class RoomRepo {
     }
   }
 
-  Future<String>? getName(Uid uid) async {
+  Future<String> getName(Uid uid) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -147,9 +147,12 @@ class RoomRepo {
     }
 
     String? username = await getIdByUid(uid);
-    roomNameCache.set(uid.asString(), username!);
-    _uidIdNameDao.update(uid.asString(), id: username);
-    return username;
+    if (username != null) {
+      roomNameCache.set(uid.asString(), username);
+      _uidIdNameDao.update(uid.asString(), id: username);
+    }
+
+    return username ?? "";
   }
 
   Future<String?>? getId(Uid uid) async {

@@ -49,7 +49,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
           return OnDeletePopupDialog(
             roomUid: widget.room.uid.asUid(),
             selected: selected,
-            roomName: roomName!,
+            roomName: roomName,
           );
         });
   }

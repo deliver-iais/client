@@ -13,7 +13,7 @@ import 'in_video_call_page.dart';
 class VideoCallPage extends StatefulWidget {
   final Uid roomUid;
 
-  VideoCallPage({Key key, this.roomUid}) : super(key: key);
+  const VideoCallPage({Key? key, required this.roomUid}) : super(key: key);
 
   @override
   _VideoCallPageState createState() => _VideoCallPageState();
@@ -25,8 +25,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _logger = GetIt.I.get<Logger>();
 
-  RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
-  RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
+  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
 
   @override
   void initState() {
@@ -41,20 +41,20 @@ class _VideoCallPageState extends State<VideoCallPage> {
   }
 
   void startCall() async {
-    callRepo?.onLocalStream = ((stream) {
+    callRepo.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
     });
 
-    callRepo?.onAddRemoteStream = ((stream) {
+    callRepo.onAddRemoteStream = ((stream) {
       _remoteRenderer.srcObject = stream;
     });
 
-    callRepo?.onRemoveRemoteStream = ((stream) {
+    callRepo.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
     });
 
     //True means its VideoCall and false means AudioCall
-    await callRepo.startCall(widget.roomUid, true);
+    callRepo.startCall(widget.roomUid, true);
   }
 
   @override
@@ -62,8 +62,9 @@ class _VideoCallPageState extends State<VideoCallPage> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot != null) {
-            if (snapshot.data == CallStatus.ACCEPTED || snapshot.data == CallStatus.CONNECTED) {
+          if (snapshot.hasData) {
+            if (snapshot.data == CallStatus.ACCEPTED ||
+                snapshot.data == CallStatus.CONNECTED) {
               _logger.i("CallSTATUS : " + snapshot.data.toString());
               _audioService.stopPlayBeepSound();
               return InVideoCallPage(
@@ -78,14 +79,14 @@ class _VideoCallPageState extends State<VideoCallPage> {
               _routingService.pop();
               _remoteRenderer.dispose();
               _localRenderer.dispose();
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             } else if (snapshot.data == CallStatus.BUSY ||
                 snapshot.data == CallStatus.DECLINED ||
                 snapshot.data == CallStatus.DECLINED ||
                 snapshot.data == CallStatus.CREATED ||
                 snapshot.data == CallStatus.IS_RINGING) {
-              _logger.i("we got busy / reject / ringing /conecting");
-              String text;
+              _logger.i("we got busy / reject / ringing / connecting");
+              late String text;
               switch (snapshot.data) {
                 case CallStatus.IS_RINGING:
                   text = "Ringing";
@@ -101,7 +102,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
                   _audioService.playBusySound();
                   break;
                 case CallStatus.CREATED:
-                  text = "Conecting";
+                  text = "Connecting";
                   break;
               }
               return StartVideoCallPage(
@@ -114,10 +115,11 @@ class _VideoCallPageState extends State<VideoCallPage> {
               return Container(
                 color: Colors.green,
               );
-            } else
-              return SizedBox.shrink();
+            } else {
+              return const SizedBox.shrink();
+            }
           } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         });
   }

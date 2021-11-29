@@ -1,13 +1,10 @@
 import 'package:deliver/box/message.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/screen/room/widgets/msgTime.dart';
+import 'package:deliver/screen/room/widgets/msg_time.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -15,18 +12,16 @@ import 'package:get_it/get_it.dart';
 
 class CallMessageWidget extends StatelessWidget {
   final Message message;
+  final CallEvent _callEvent;
+  final _autRepo = GetIt.I.get<AuthRepo>();
 
-  CallMessageWidget({Key key, this.message}) : super(key: key);
-  CallEvent _callEvent;
-  var time;
-  var _i18n = GetIt.I.get<I18N>();
-  var _autRepo = GetIt.I.get<AuthRepo>();
+  CallMessageWidget({Key? key, required this.message})
+      : _callEvent = message.json!.toCallEvent(),
+        super(key: key);
 
   //todo :
   @override
   Widget build(BuildContext context) {
-    _callEvent = message.json.toCallEvent();
-     time=message.json;
     return Align(
       alignment: _autRepo.isCurrentUser(message.from)
           ? Alignment.centerRight
@@ -50,9 +45,9 @@ class CallMessageWidget extends StatelessWidget {
                 children: [
                   Text(
                     _callEvent.newStatus.toString(),
-                    style: TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.black),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                   Row(
@@ -80,7 +75,7 @@ class CallMessageWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              Align(
+              const Align(
                 alignment: Alignment.centerRight,
                 child: Icon(
                   Icons.call,

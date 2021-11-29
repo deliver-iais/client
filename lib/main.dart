@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, constant_identifier_names
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -34,62 +36,68 @@ class CallRepo {
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
 
-  MediaStream _localStream;
-  MediaStream _localStreamShare;
-  RTCRtpSender _audioSender;
-  RTCRtpSender _videoSender;
-  RTCDataChannel _dataChannel;
-  List<Map<String, Object>> _candidate = [];
+  MediaStream? _localStream;
+  MediaStream? _localStreamShare;
+  RTCRtpSender? _videoSender;
+  RTCDataChannel? _dataChannel;
+  List<Map<String, Object>>? _candidate = [];
 
-  String _offerSdp;
-  String _answerSdp;
-  String _callId;
+  String? _offerSdp;
+  String? _answerSdp;
+  String? _callId;
 
-  RTCPeerConnection _peerConnection;
-  Map<String, dynamic> _sdpConstraints;
+  RTCPeerConnection? _peerConnection;
+  Map<String, dynamic>? _sdpConstraints;
 
   bool _onCalling = false;
   bool _isSharing = false;
   bool _isCaller = false;
   bool _isVideo = false;
 
-  Uid _roomUid;
+  Uid? _roomUid;
 
-  Uid get roomUid => _roomUid;
+  Uid? get roomUid => _roomUid;
 
-  Function(MediaStream stream) onLocalStream;
-  Function(MediaStream stream) onAddRemoteStream;
-  Function(MediaStream stream) onRemoveRemoteStream;
+  bool get isVideo => _isVideo;
+  Function(MediaStream stream)? onLocalStream;
+  Function(MediaStream stream)? onAddRemoteStream;
+  Function(MediaStream stream)? onRemoveRemoteStream;
 
-  int startCallTime;
-  int endCallTime;
+  int? startCallTime;
+  int? endCallTime;
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
-      switch (event?.callTypes) {
+      switch (event.callType) {
         case CallTypes.Answer:
-          _receivedCallAnswer(event.callAnswer);
+          _receivedCallAnswer(event.callAnswer!);
           break;
         case CallTypes.Offer:
-          _receivedCallOffer(event.callOffer);
+          _receivedCallOffer(event.callOffer!);
           break;
         case CallTypes.Event:
           var callEvent = event.callEvent;
-          switch (callEvent.newStatus) {
+          switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
               callingStatus.add(CallStatus.IS_RINGING);
               break;
             case CallEvent_CallStatus.CREATED:
               if (!_onCalling) {
                 _callId = callEvent.id;
-                if(callEvent.callType == CallEvent_CallType.VIDEO){
+                if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
                 }
-                incomingCall(event.roomUid);
+                incomingCall(event.roomUid!);
               } else {
                 messageRepo.sendCallMessage(
-                    CallEvent_CallStatus.BUSY, event.roomUid, callEvent.id, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+                    CallEvent_CallStatus.BUSY,
+                    event.roomUid!,
+                    callEvent.id,
+                    0,
+                    _isVideo
+                        ? CallEvent_CallType.VIDEO
+                        : CallEvent_CallType.AUDIO);
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -102,6 +110,9 @@ class CallRepo {
               receivedEndCall(callEvent.callDuration.toInt());
               break;
           }
+          break;
+        case CallTypes.None:
+          // TODO: Handle this case.
           break;
       }
     });
@@ -139,14 +150,11 @@ class CallRepo {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-        await createPeerConnection(configuration, _sdpConstraints);
+        await createPeerConnection(configuration, _sdpConstraints!);
 
-    var camAudioTrack = _localStream.getAudioTracks()[0];
-    _audioSender = await pc.addTrack(camAudioTrack, _localStream);
-
-    if(_isVideo) {
-      var camVideoTrack = _localStream.getVideoTracks()[0];
-      _videoSender = await pc.addTrack(camVideoTrack, _localStream);
+    if (_isVideo) {
+      var camVideoTrack = _localStream!.getVideoTracks()[0];
+      _videoSender = await pc.addTrack(camVideoTrack, _localStream!);
     }
 
     pc.onIceConnectionState = (e) {
@@ -187,23 +195,34 @@ class CallRepo {
           startCallTime = DateTime.now().millisecondsSinceEpoch;
           _logger.i("Start Call" + startCallTime.toString());
           callingStatus.add(CallStatus.CONNECTED);
-          _dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
+          _dataChannel!
+              .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-          _dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_DISCONNECTED));
+          _dataChannel!
+              .send(RTCDataChannelMessage(STATUS_CONNECTION_DISCONNECTED));
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
           //_dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_FAILED));
+          break;
+        case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
+          // TODO: Handle this case.
+          break;
+        case RTCPeerConnectionState.RTCPeerConnectionStateNew:
+          // TODO: Handle this case.
+          break;
+        case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
+          // TODO: Handle this case.
           break;
       }
     };
 
     pc.onIceCandidate = (e) {
       if (e.candidate != null) {
-        _candidate.add({
+        _candidate!.add({
           'candidate': e.candidate.toString(),
           'sdpMid': e.sdpMid.toString(),
-          'sdpMlineIndex': e.sdpMlineIndex,
+          'sdpMlineIndex': e.sdpMlineIndex!,
         });
       }
     };
@@ -239,7 +258,7 @@ class CallRepo {
 
     pc.onDataChannel = (channel) {
       _dataChannel = channel;
-      _dataChannel.onMessage = (RTCDataChannelMessage data) async {
+      _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
         var status = data.text;
         _logger.i(status);
         // we need Decision making by state
@@ -294,8 +313,8 @@ class CallRepo {
     RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
       ..maxRetransmits = 15;
 
-    RTCDataChannel dataChannel = await _peerConnection.createDataChannel(
-        "stateTransfer", dataChannelDict);
+    RTCDataChannel dataChannel = await _peerConnection!
+        .createDataChannel("stateTransfer", dataChannelDict);
 
     dataChannel.onMessage = (RTCDataChannelMessage data) async {
       var status = data.text;
@@ -321,19 +340,19 @@ class CallRepo {
         case STATUS_CONNECTION_DISCONNECTED:
           break;
         case STATUS_CONNECTION_CONNECTED:
-        //when connection Connected Status we Set some limit on bitRate
-        // var params = _videoSender.parameters;
-        // if (params.encodings.isEmpty) {
-        //   params.encodings = [];
-        //   params.encodings.add(new RTCRtpEncoding());
-        // }
-        //
-        // params.encodings[0].maxBitrate =
-        //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-        // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-        // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-        //     params.encodings[0].scaleResolutionDownBy = 2;
-        // await _videoSender.setParameters(params);
+          //when connection Connected Status we Set some limit on bitRate
+          // var params = _videoSender.parameters;
+          // if (params.encodings.isEmpty) {
+          //   params.encodings = [];
+          //   params.encodings.add(new RTCRtpEncoding());
+          // }
+          //
+          // params.encodings[0].maxBitrate =
+          //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+          // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+          // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+          //     params.encodings[0].scaleResolutionDownBy = 2;
+          // await _videoSender.setParameters(params);
           callingStatus.add(CallStatus.CONNECTED);
           break;
         case STATUS_CONNECTION_CONNECTING:
@@ -351,43 +370,47 @@ class CallRepo {
     // Provide your own width, height and frame rate here
     Map<String, dynamic> mediaConstraints;
     if (isWindows()) {
-        mediaConstraints = {
-          'video': _isVideo ? {
-            'mandatory': {
-              'minWidth': '640',
-              'maxWidth': '720',
-              'minHeight': '360',
-              'maxHeight': '405',
-              'minFrameRate': '15',
-              'maxFrameRate': '25',
-            },
-            'facingMode': 'user',
-            'optional': [],
-          } : false ,
-          'audio': {
-            'sampleSize': '16',
-            'channelCount': '2',
-          }
-        };
+      mediaConstraints = {
+        'video': _isVideo
+            ? {
+                'mandatory': {
+                  'minWidth': '640',
+                  'maxWidth': '720',
+                  'minHeight': '360',
+                  'maxHeight': '405',
+                  'minFrameRate': '15',
+                  'maxFrameRate': '25',
+                },
+                'facingMode': 'user',
+                'optional': [],
+              }
+            : false,
+        'audio': {
+          'sampleSize': '16',
+          'channelCount': '2',
+        }
+      };
     } else {
-        mediaConstraints = {
-          'video': _isVideo ? {
-            'mandatory': {
-              'minWidth': '480',
-              'maxWidth': '640',
-              'minHeight': '270',
-              'maxHeight': '360',
-              'minFrameRate': '15',
-              'maxFrameRate': '25',
-            },
-            'facingMode': 'user',
-            'optional': [],
-          } : false,
-          'audio': {
-            'sampleSize': '16',
-            'channelCount': '2',
-          }
-        };
+      mediaConstraints = {
+        'video': _isVideo
+            ? {
+                'mandatory': {
+                  'minWidth': '480',
+                  'maxWidth': '640',
+                  'minHeight': '270',
+                  'maxHeight': '360',
+                  'minFrameRate': '15',
+                  'maxFrameRate': '25',
+                },
+                'facingMode': 'user',
+                'optional': [],
+              }
+            : false,
+        'audio': {
+          'sampleSize': '16',
+          'channelCount': '2',
+        }
+      };
     }
 
     var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
@@ -409,20 +432,18 @@ class CallRepo {
 
   shareScreen() async {
     if (!_isSharing) {
-      if(_localStreamShare == null) { //get Access for first time
-        _localStreamShare = await _getUserDisplay();
-      }
-      var screenVideoTrack = _localStreamShare.getVideoTracks()[0];
-      _videoSender.replaceTrack(screenVideoTrack);
-      onLocalStream?.call(_localStreamShare);
+      _localStreamShare ??= await _getUserDisplay();
+      var screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
+      _videoSender!.replaceTrack(screenVideoTrack);
+      onLocalStream?.call(_localStreamShare!);
       _isSharing = true;
-      _dataChannel.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+      _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
     } else {
-      var camVideoTrack = _localStream.getVideoTracks()[0];
-      _videoSender.replaceTrack(camVideoTrack);
-      onLocalStream?.call(_localStream);
+      var camVideoTrack = _localStream!.getVideoTracks()[0];
+      _videoSender!.replaceTrack(camVideoTrack);
+      onLocalStream?.call(_localStream!);
       _isSharing = false;
-      _dataChannel.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+      _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
     }
   }
 
@@ -431,13 +452,13 @@ class CallRepo {
   * */
   bool muteMicrophone() {
     if (_localStream != null) {
-      bool enabled = _localStream.getAudioTracks()[0].enabled;
+      bool enabled = _localStream!.getAudioTracks()[0].enabled;
       if (enabled) {
-        _dataChannel.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
       } else {
-        _dataChannel.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
       }
-      _localStream.getAudioTracks()[0].enabled = !enabled;
+      _localStream!.getAudioTracks()[0].enabled = !enabled;
       return enabled;
     }
     return false;
@@ -445,7 +466,7 @@ class CallRepo {
 
   switchCamera() {
     if (_localStream != null) {
-      Helper.switchCamera(_localStream.getVideoTracks()[0]);
+      Helper.switchCamera(_localStream!.getVideoTracks()[0]);
     }
   }
 
@@ -454,13 +475,13 @@ class CallRepo {
   * */
   bool muteCamera() {
     if (_localStream != null) {
-      bool enabled = _localStream.getVideoTracks()[0].enabled;
+      bool enabled = _localStream!.getVideoTracks()[0].enabled;
       if (enabled) {
-        _dataChannel.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
       } else {
-        _dataChannel.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
       }
-      _localStream.getVideoTracks()[0].enabled = !enabled;
+      _localStream!.getVideoTracks()[0].enabled = !enabled;
       return enabled;
     }
     return false;
@@ -471,7 +492,11 @@ class CallRepo {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.IS_RINGING, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+        CallEvent_CallStatus.IS_RINGING,
+        _roomUid!,
+        _callId!,
+        0,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
   void startCall(Uid roomId, bool isVideo) async {
@@ -481,7 +506,7 @@ class CallRepo {
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
-      Timer(Duration(seconds: 50), () {
+      Timer(const Duration(seconds: 50), () {
         if (callingStatus.value == CallStatus.IS_RINGING) {
           callingStatus.add(CallStatus.ENDED);
           endCall();
@@ -498,7 +523,11 @@ class CallRepo {
   _sendStartCallEvent() {
     _callIdGenerator();
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.CREATED, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+        CallEvent_CallStatus.CREATED,
+        _roomUid!,
+        _callId!,
+        0,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
   _callIdGenerator() {
@@ -520,7 +549,11 @@ class CallRepo {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     messageRepo.sendCallMessage(
-        CallEvent_CallStatus.DECLINED, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+        CallEvent_CallStatus.DECLINED,
+        _roomUid!,
+        _callId!,
+        0,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     _dispose();
   }
 
@@ -554,7 +587,7 @@ class CallRepo {
 
   void receivedBusyCall() {
     callingStatus.add(CallStatus.BUSY);
-    Timer(Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 4), () {
       callingStatus.add(CallStatus.ENDED);
       _dispose();
     });
@@ -563,7 +596,7 @@ class CallRepo {
   void receivedDeclinedCall() async {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
-    Timer(Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 4), () {
       callingStatus.add(CallStatus.ENDED);
       _dispose();
     });
@@ -571,36 +604,40 @@ class CallRepo {
 
   Future<void> receivedEndCall(int callDuration) async {
     //TODO callDuration on ms shouldBe Save on DB
-    String sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
+    String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     callingStatus.add(CallStatus.ENDED);
-    if(_isCaller) {
+    if (_isCaller) {
       int time = calculateCallEndTime();
-      messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED, _roomUid, _callId, time, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      messageRepo.sendCallMessage(CallEvent_CallStatus.ENDED, _roomUid!, _callId!,
+          time, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     }
     await _dispose();
   }
 
   endCall() async {
-    if(_isCaller) {
+    if (_isCaller) {
       int callDuration = calculateCallEndTime();
       messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED, _roomUid, _callId, callDuration, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+          CallEvent_CallStatus.ENDED,
+          _roomUid!,
+          _callId!,
+          callDuration,
+          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
       //TODO callDuration shouldBe Save on DB
     }
-    messageRepo.sendCallMessage(
-        CallEvent_CallStatus.ENDED, _roomUid, _callId, 0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+    messageRepo.sendCallMessage(CallEvent_CallStatus.ENDED, _roomUid!, _callId!,
+        0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     await _dispose();
   }
 
   int calculateCallEndTime() {
-    endCallTime = DateTime
-        .now()
-        .millisecondsSinceEpoch;
-    var time = endCallTime - startCallTime;
-    print(time);
+    var time = 0;
+    if (startCallTime != null) {
+      endCallTime = DateTime.now().millisecondsSinceEpoch;
+      time = endCallTime! - startCallTime!;
+    }
     return time;
   }
 
@@ -611,7 +648,7 @@ class CallRepo {
 
     RTCSessionDescription description = RTCSessionDescription(sdp, 'offer');
 
-    await _peerConnection.setRemoteDescription(description);
+    await _peerConnection!.setRemoteDescription(description);
   }
 
   _setRemoteDescriptionAnswer(String remoteSdp) async {
@@ -621,68 +658,68 @@ class CallRepo {
 
     RTCSessionDescription description = RTCSessionDescription(sdp, 'answer');
 
-    await _peerConnection.setRemoteDescription(description);
+    await _peerConnection!.setRemoteDescription(description);
   }
 
   _createAnswer() async {
     RTCSessionDescription description =
-        await _peerConnection.createAnswer(_sdpConstraints);
+        await _peerConnection!.createAnswer(_sdpConstraints!);
 
     var session = parse(description.sdp.toString());
     var answerSdp = json.encode(session);
     _logger.i("Answer: \n" + answerSdp);
 
-    _peerConnection.setLocalDescription(description);
+    _peerConnection!.setLocalDescription(description);
 
     return answerSdp;
   }
 
   _createOffer() async {
     RTCSessionDescription description =
-        await _peerConnection.createOffer(_sdpConstraints);
+        await _peerConnection!.createOffer(_sdpConstraints!);
     //get SDP as String
     var session = parse(description.sdp.toString());
     var offerSdp = json.encode(session);
     _logger.i("Offer: \n" + offerSdp);
-    _peerConnection.setLocalDescription(description);
+    _peerConnection!.setLocalDescription(description);
     return offerSdp;
   }
 
   _calculateCandidateAndSendOffer() async {
     //w8 about 3 Sec for received Candidate
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 3));
     // Send Candidate to Receiver
     var jsonCandidates = jsonEncode(_candidate);
-    _logger.i(_candidate.length);
+    _logger.i(_candidate!.length);
     //Send offer and Candidate as message to Receiver
     var callOfferByClient = (CallOfferByClient()
-      ..id = _callId
-      ..body = _offerSdp
+      ..id = _callId!
+      ..body = _offerSdp!
       ..candidates = jsonCandidates
-      ..to = _roomUid);
+      ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
   }
 
   _calculateCandidateAndSendAnswer() async {
     //w8 about 3 Sec for received Candidate
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 3));
     // Send Candidate back to Sender
     var jsonCandidates = jsonEncode(_candidate);
     //Send Answer and Candidate as message to Sender
     var callAnswerByClient = (CallAnswerByClient()
-      ..id = _callId
-      ..body = _answerSdp
+      ..id = _callId!
+      ..body = _answerSdp!
       ..candidates = jsonCandidates
-      ..to = _roomUid);
+      ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
-    candidates.forEach((candidate) async {
-      await _peerConnection.addCandidate(candidate);
-    });
+    for (var candidate in candidates) {
+      await _peerConnection!.addCandidate(candidate);
+    }
   }
 
   _dispose() async {
@@ -690,7 +727,7 @@ class CallRepo {
     await _peerConnection?.close();
     await _cleanLocalStream();
     _candidate = [];
-    Timer(Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
     _offerSdp = null;
@@ -705,21 +742,22 @@ class CallRepo {
 
   _cleanLocalStream() async {
     if (_localStream != null) {
-      _localStream.getTracks().forEach((element) async {
+      _localStream!.getTracks().forEach((element) async {
         await element.stop();
       });
-      await _localStream.dispose();
+      await _localStream!.dispose();
       _localStream = null;
     }
     if (_localStreamShare != null) {
-      _localStreamShare.getTracks().forEach((element) async {
+      _localStreamShare!.getTracks().forEach((element) async {
         await element.stop();
       });
-      await _localStreamShare.dispose();
+      await _localStreamShare!.dispose();
       _localStreamShare = null;
     }
   }
 
+  // ignore: non_constant_identifier_names
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus =
       BehaviorSubject.seeded(CallStatus.NO_CALL);

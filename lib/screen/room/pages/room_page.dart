@@ -17,7 +17,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -132,6 +131,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  Message? currentSearchResultMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -742,31 +742,31 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           },
         ),
         actions: [
-          if (_currentRoom.value.uid.asUid().isUser())
+          if (_currentRoom.value!.uid.asUid().isUser())
             IconButton(
                 onPressed: () {
                   _routingService
-                      .openRequestVideoCallPage(_currentRoom.value.uid.asUid());
+                      .openRequestVideoCallPage(_currentRoom.value!.uid.asUid());
                 },
-                icon: Icon(Icons.videocam)),
-          if (_currentRoom.value.uid.asUid().isUser())
-            SizedBox(
+                icon: const Icon(Icons.videocam)),
+          if (_currentRoom.value!.uid.asUid().isUser())
+            const SizedBox(
               width: 10,
             ),
-          StreamBuilder(
+          StreamBuilder<bool>(
               stream: _searchMode.stream,
               builder: (c, s) {
-                if (s.hasData && s.data) {
+                if (s.hasData & s.data!) {
                   return IconButton(
-                      icon: Icon(Icons.close),
+                      icon: const Icon(Icons.close),
                       onPressed: () {
                         _searchMode.add(false);
                       });
                 } else {
                   return PopupMenuButton(
-                    icon: Icon(Icons.more_vert),
+                    icon: const Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
-                      new PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                           child: Text(_i18n.get("search")), value: "search"),
                     ],
                     onSelected: (search) {
@@ -776,7 +776,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 }
               }),
         ],
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           child: Divider(),
           preferredSize: Size.fromHeight(1),
         ),
@@ -971,11 +971,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ? CallMessageWidget(message: msg)
         : msg.type != MessageType.PERSISTENT_EVENT
             ? AnimatedContainer(
-                duration: Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 200),
                 color: _selectedMessages.containsKey(msg.id) ||
                         (msg.id != null && msg.id == _replyMessageId) ||
                         currentSearchResultMessage != null &&
-                            currentSearchResultMessage.id == msg.id
+                            currentSearchResultMessage!.id == msg.id
                     ? Theme.of(context).disabledColor
                     : Colors.transparent,
                 child: _createWidget(msg, currentRoom, pendingMessages),
@@ -1260,45 +1260,5 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   openRoomSearchBox() {
     _searchMode.add(true);
-  }
-
-  void _showDeleteMsgDialog(List<Message> messages) {
-    showDialog(
-        context: context,
-        builder: (c) => AlertDialog(
-              title: Text(
-                "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
-              ),
-              content: Text(messages.length > 1
-                  ? _i18n.get("sure_delete_messages")
-                  : _i18n.get("sure_delete_message")),
-              actions: [
-                GestureDetector(
-                    child: Text(
-                      _i18n.get("cancel"),
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                    onTap: () {
-                      setState(() {
-                        _selectMultiMessageSubject.add(false);
-                        _selectedMessages.clear();
-                      });
-
-                      Navigator.pop(context);
-                    }),
-                GestureDetector(
-                  child: Text(
-                    _i18n.get("delete"),
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  onTap: () {
-                    _messageRepo.deleteMessage(
-                        messages, _currentRoom.value.lastMessageId);
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ));
   }
 }

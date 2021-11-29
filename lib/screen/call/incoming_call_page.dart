@@ -14,7 +14,9 @@ class InComingCallPage extends StatefulWidget {
   final Uid roomuid;
   final bool isAccepted;
 
-  InComingCallPage({Key key, this.roomuid, this.isAccepted}) : super(key: key);
+  const InComingCallPage(
+      {Key? key, required this.roomuid, required this.isAccepted})
+      : super(key: key);
 
   @override
   _InComingCallPageState createState() => _InComingCallPageState();
@@ -26,8 +28,8 @@ class _InComingCallPageState extends State<InComingCallPage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _logger = GetIt.I.get<Logger>();
 
-  RTCVideoRenderer _localRenderer = new RTCVideoRenderer();
-  RTCVideoRenderer _remoteRenderer = new RTCVideoRenderer();
+  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
 
   @override
   void initState() {
@@ -42,24 +44,24 @@ class _InComingCallPageState extends State<InComingCallPage> {
   }
 
   void acceptCall(Uid roomId) async {
-    await callRepo.acceptCall(roomId);
+    callRepo.acceptCall(roomId);
   }
 
   addStream() async {
-    callRepo?.onLocalStream = ((stream) {
+    callRepo.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
     });
 
-    callRepo?.onAddRemoteStream = ((stream) {
+    callRepo.onAddRemoteStream = ((stream) {
       _remoteRenderer.srcObject = stream;
     });
 
-    callRepo?.onRemoveRemoteStream = ((stream) {
+    callRepo.onRemoveRemoteStream = ((stream) {
       _remoteRenderer.srcObject = null;
     });
 
-    await callRepo?.initCall(true);
-    if(widget.isAccepted)acceptCall(widget.roomuid);
+    await callRepo.initCall(true);
+    if (widget.isAccepted) acceptCall(widget.roomuid);
     setState(() {});
   }
 
@@ -69,7 +71,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot != null) {
+          if (snapshot.hasData) {
             if (snapshot.data == CallStatus.CREATED) {
               _logger.i("incoming call page open ");
               return Scaffold(
@@ -86,26 +88,28 @@ class _InComingCallPageState extends State<InComingCallPage> {
                       alignment: Alignment.topCenter,
                       child: Column(
                         children: [
-                         if(!widget.isAccepted || widget.roomuid==null) CircleAvatarWidget(widget.roomuid, 60),
-                          FutureBuilder(
+                          if (!widget.isAccepted)
+                            CircleAvatarWidget(widget.roomuid, 60),
+                          FutureBuilder<String>(
                               future: _roomRepo.getName(widget.roomuid),
                               builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot != null) {
+                                if (snapshot.hasData) {
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 20),
                                     child: Text(
-                                      snapshot.data,
-                                      style: TextStyle(
+                                      snapshot.data!,
+                                      style: const TextStyle(
                                           fontSize: 25,
                                           color: Colors.white,
                                           fontWeight: FontWeight.w500),
                                     ),
                                   );
-                                } else
-                                  return Text("");
+                                } else {
+                                  return const Text("");
+                                }
                               }),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
                             child: Text(
                               "Deliver Call",
                               style: TextStyle(
@@ -129,7 +133,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
                                     callRepo.declineCall();
                                     _routingService.pop();
                                   },
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.call_end,
                                     color: Colors.red,
                                   ),
@@ -158,7 +162,8 @@ class _InComingCallPageState extends State<InComingCallPage> {
                             ]))),
               ]));
             } else if (snapshot.data == CallStatus.ACCEPTED ||
-                snapshot.data == CallStatus.IN_CALL || snapshot.data == CallStatus.CONNECTED) {
+                snapshot.data == CallStatus.IN_CALL ||
+                snapshot.data == CallStatus.CONNECTED) {
               return InVideoCallPage(
                 localRenderer: _localRenderer,
                 remoteRenderer: _remoteRenderer,
@@ -169,14 +174,14 @@ class _InComingCallPageState extends State<InComingCallPage> {
               _routingService.pop();
               _localRenderer.dispose();
               _remoteRenderer.dispose();
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             } else {
               _logger.i("we got else ${snapshot.data}");
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             }
           } else {
             _logger.i("we got null");
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         });
   }

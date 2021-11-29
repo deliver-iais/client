@@ -64,6 +64,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.20.1"
+  awesome_notifications:
+    dependency: "direct main"
+    description:
+      name: awesome_notifications
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.18+2"
   badges:
     dependency: "direct main"
     description:
@@ -183,6 +190,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  connectycube_flutter_call_kit:
+    dependency: "direct main"
+    description:
+      name: connectycube_flutter_call_kit
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-dev.2"
   contacts_service:
     dependency: "direct main"
     description:
@@ -278,11 +292,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.9.9"
-      resolved-ref: "666ebbf3377e876088f1a57390ff7d24a03c6de4"
+      ref: "tags/v1.10.8"
+      resolved-ref: "0f3e54050001cf5c6f2cfde6d62a1474515b7f87"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.9.9"
+    version: "1.10.8"
   desktoasts:
     dependency: "direct main"
     description:
@@ -524,6 +538,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_webrtc:
+    dependency: "direct main"
+    description:
+      name: flutter_webrtc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.7.1"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -1196,6 +1217,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.3"
+  sdp_transform:
+    dependency: "direct main"
+    description:
+      name: sdp_transform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.2"
   settings_ui:
     dependency: "direct main"
     description:
@@ -1432,6 +1460,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.1"
+  universal_io:
+    dependency: transitive
+    description:
+      name: universal_io
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.4"
   url_launcher:
     dependency: "direct main"
     description:
