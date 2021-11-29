@@ -4,11 +4,11 @@ import 'package:hive/hive.dart';
 
 abstract class LiveLocationDao {
 
-  Future<LiveLocation> getLiveLocation(String uuid);
+  Future<LiveLocation?> getLiveLocation(String uuid);
 
   Future<void> saveLiveLocation(LiveLocation liveLocation);
 
-  Stream<LiveLocation> watchLiveLocation(String uuid);
+  Stream<LiveLocation?> watchLiveLocation(String uuid);
 
 
 }
@@ -16,6 +16,7 @@ abstract class LiveLocationDao {
 class LiveLocationDaoImpl implements LiveLocationDao {
 
 
+  @override
   Future<void> saveLiveLocation(LiveLocation liveLocation) async {
     var box = await _open();
     box.put(liveLocation.uuid, liveLocation);
@@ -24,12 +25,14 @@ class LiveLocationDaoImpl implements LiveLocationDao {
   }
 
 
-  Future<LiveLocation> getLiveLocation(String uuid) async {
+  @override
+  Future<LiveLocation?> getLiveLocation(String uuid) async {
     var box = await _open();
     return box.get(uuid);
   }
 
-  Stream<LiveLocation> watchLiveLocation(String uuid) async* {
+  @override
+  Stream<LiveLocation?> watchLiveLocation(String uuid) async* {
     var box = await _open();
 
     yield box.get(uuid);

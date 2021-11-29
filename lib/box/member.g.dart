@@ -19,7 +19,7 @@ class MemberAdapter extends TypeAdapter<Member> {
     return Member(
       mucUid: fields[0] as String,
       memberUid: fields[1] as String,
-      role: fields[2] as MucRole,
+      role: fields[2] as MucRole?,
     );
   }
 

@@ -16,20 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatefulWidget {
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-
-  ContactsPage({Key key}) : super(key: key) {
-    _syncContacts();
-  }
-
-  _syncContacts() async {
-    bool isAlreadyContactAccessTipShowed =
-        await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed || isDesktop()) {
-      _contactRepo.syncContacts();
-    }
-  }
+  const ContactsPage({Key? key}) : super(key: key);
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
@@ -46,13 +33,16 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   void initState() {
-    widget._syncContacts();
+    _syncContacts();
     super.initState();
+  }
+
+  _syncContacts() {
+    _showSyncContactDialog(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    _showSyncContactDialog(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -61,10 +51,10 @@ class _ContactsPageState extends State<ContactsPage> {
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(
-              I18N.of(context).get("contacts"),
+              I18N.of(context)!.get("contacts"),
               style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
       ),
@@ -81,7 +71,7 @@ class _ContactsPageState extends State<ContactsPage> {
                   AsyncSnapshot<List<Contact>> snapshot) {
                 List<Contact> contacts = snapshot.data ?? [];
                 if (!snapshot.hasData) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
@@ -115,51 +105,51 @@ class _ContactsPageState extends State<ContactsPage> {
                         child: ListView.separated(
                           separatorBuilder: (BuildContext context, int index) {
                             if (_authRepo.isCurrentUser(contacts[index].uid) ||
-                                searchHasResult(contacts[index]))
-                              return SizedBox.shrink();
-                            else
-                              return Divider();
+                                searchHasResult(contacts[index])) {
+                              return const SizedBox.shrink();
+                            } else {
+                              return const Divider();
+                            }
                           },
-                          itemCount: snapshot.data.length,
+                          itemCount: snapshot.data!.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (searchHasResult(c)) return SizedBox.shrink();
-                            return _authRepo.isCurrentUser(c.uid)
-                                ? SizedBox.shrink()
-                                : GestureDetector(
-                                    onTap: () {
-                                      if (c.uid != null) {
-                                        _rootingServices.openRoom(c.uid);
-                                      } else {
-                                        // todo invite contact
-                                      }
-                                    },
-                                    child: ContactWidget(
-                                        contact: c,
-                                        circleIcon: Icons.qr_code_rounded,
-                                        onCircleIcon: () => showQrCode(
-                                            context,
-                                            buildShareUserUrl(
-                                                c.countryCode,
-                                                c.nationalNumber,
-                                                c.firstName,
-                                                c.lastName))),
-                                  );
+                            if (searchHasResult(c)) return const SizedBox.shrink();
+                            if (_authRepo.isCurrentUser(c.uid)) {
+                              return const SizedBox.shrink();
+                            } else {
+                              return GestureDetector(
+                                onTap: () {
+                                  _rootingServices.openRoom(c.uid,
+                                      context: context);
+                                },
+                                child: ContactWidget(
+                                    contact: c,
+                                    circleIcon: Icons.qr_code_rounded,
+                                    onCircleIcon: () => showQrCode(
+                                        context,
+                                        buildShareUserUrl(
+                                            c.countryCode,
+                                            c.nationalNumber,
+                                            c.firstName!,
+                                            c.lastName!))),
+                              );
+                            }
                           },
                         ),
                       )),
-                      Divider(),
-                      Container(
+                      const Divider(),
+                      SizedBox(
                         height: 40,
                         width: double.infinity,
                         child: TextButton.icon(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.add,
                           ),
                           onPressed: () {
-                            _routingService.openCreateNewContactPage();
+                            _routingService.openCreateNewContactPage(context);
                           },
-                          label: Text(I18N.of(context).get("add_new_contact")),
+                          label: Text(I18N.of(context)!.get("add_new_contact")),
                         ),
                       ),
                     ],
@@ -174,26 +164,26 @@ class _ContactsPageState extends State<ContactsPage> {
   _showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed == null && !isDesktop()) {
-      showDialog(
+    if (!isAlreadyContactAccessTipShowed && !isDesktop()) {
+      return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-              actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+              titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+              actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
               backgroundColor: Colors.white,
               title: Container(
                 height: 80,
                 color: Colors.blue,
-                child: Icon(
+                child: const Icon(
                   Icons.contacts,
                   color: Colors.white,
                   size: 40,
                 ),
               ),
-              content: Container(
+              content: SizedBox(
                 width: 200,
-                child: Text(I18N.of(context).get("send_contacts_message"),
+                child: Text(I18N.of(context)!.get("send_contacts_message"),
                     style: Theme.of(context).textTheme.subtitle1),
               ),
               actions: <Widget>[
@@ -202,19 +192,21 @@ class _ContactsPageState extends State<ContactsPage> {
                       _sharedDao.putBoolean(
                           SHARED_DAO_SHOW_CONTACT_DIALOG, true);
                       Navigator.pop(context);
-                      widget._syncContacts();
+                      _contactRepo.syncContacts();
                     },
                     child: Text(
-                      I18N.of(context).get("continue"),
+                      I18N.of(context)!.get("continue"),
                     ))
               ],
             );
           });
+    } else if (isAlreadyContactAccessTipShowed) {
+      _contactRepo.syncContacts();
     }
   }
 
   bool searchHasResult(Contact contact) {
-    var name = contact.firstName + contact.lastName;
+    var name = contact.firstName! + contact.lastName!;
     return _searchMode && !name.toLowerCase().contains(_query.toLowerCase());
   }
 }

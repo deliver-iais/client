@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -5,7 +7,7 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as FileProto;
+    as file_pb;
 
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
@@ -21,14 +23,14 @@ class FileRepo {
     await _saveFileInfo(uploadKey, file, name, "real");
   }
 
-  Future<FileProto.File> uploadClonedFile(String uploadKey, String name,
-      {Function sendActivity}) async {
+  Future<file_pb.File> uploadClonedFile(String uploadKey, String name,
+      {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    var value = await _fileService.uploadFile(clonedFilePath.path,
-        uploadKey: uploadKey, sendActivity: sendActivity);
+    var value = await _fileService.uploadFile(clonedFilePath!.path!,
+        uploadKey: uploadKey, sendActivity: sendActivity!);
 
     var json = jsonDecode(value.toString());
-    var uploadedFile = FileProto.File()
+    var uploadedFile = file_pb.File()
       ..uuid = json["uuid"]
       ..size = Int64.parseInt(json["size"])
       ..type = json["type"]
@@ -38,7 +40,6 @@ class FileRepo {
       ..duration = json["duration"] ?? 0
       ..blurHash = json["blurHash"] ?? ""
       ..hash = json["hash"] ?? "";
-
     _logger.v(uploadedFile);
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
@@ -46,22 +47,22 @@ class FileRepo {
   }
 
   Future<bool> isExist(String uuid, String filename,
-      {ThumbnailSize thumbnailSize}) async {
-    FileInfo fileInfo = await _getFileInfoInDB(
+      {ThumbnailSize? thumbnailSize}) async {
+    FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = new File(fileInfo.path);
+      File file = File(fileInfo.path!);
       return await file.exists();
     }
     return false;
   }
 
-  Future<File> getFileIfExist(String uuid, String filename,
-      {ThumbnailSize thumbnailSize}) async {
-    FileInfo fileInfo = await _getFileInfoInDB(
+  Future<File?> getFileIfExist(String uuid, String filename,
+      {ThumbnailSize? thumbnailSize}) async {
+    FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = new File(fileInfo.path);
+      File file = File(fileInfo.path!);
       if (await file.exists()) {
         return file;
       }
@@ -69,9 +70,9 @@ class FileRepo {
     return null;
   }
 
-  Future<File> getFile(String uuid, String filename,
-      {ThumbnailSize thumbnailSize}) async {
-    File file =
+  Future<File?> getFile(String uuid, String filename,
+      {ThumbnailSize? thumbnailSize}) async {
+    File? file =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (file != null) {
       return file;
@@ -85,7 +86,7 @@ class FileRepo {
   }
 
   Future<File> downloadFile(String uuid, String fileName,
-      {ThumbnailSize thumbnailSize}) async {
+      {ThumbnailSize? thumbnailSize}) async {
     var downloadedFile =
         await _fileService.getFile(uuid, fileName, size: thumbnailSize);
     await _saveFileInfo(uuid, downloadedFile, fileName,
@@ -110,7 +111,7 @@ class FileRepo {
     var real = await _getFileInfoInDB("real", uploadKey);
     var medium = await _getFileInfoInDB("medium", uploadKey);
 
-    await _fileDao.remove(real);
+    await _fileDao.remove(real!);
     if (medium != null) {
       await _fileDao.remove(medium);
     }
@@ -122,7 +123,7 @@ class FileRepo {
     }
   }
 
-  Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
+  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async {
     return await _fileDao.get(uuid, enumToString(size));
   }
 
@@ -132,7 +133,7 @@ class FileRepo {
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
     var file = await getFileIfExist(uuid, name);
-    _fileService.saveFileInDownloadFolder(file, name, dir);
+    _fileService.saveFileInDownloadFolder(file!, name, dir);
   }
 }
 

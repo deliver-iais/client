@@ -18,11 +18,11 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class SelectiveContactsList extends StatefulWidget {
-  final Uid mucUid;
+  final Uid? mucUid;
 
   final bool isChannel;
 
-  SelectiveContactsList({Key key, this.isChannel, this.mucUid})
+  const SelectiveContactsList({Key? key, required this.isChannel, this.mucUid})
       : super(key: key);
 
   @override
@@ -30,19 +30,19 @@ class SelectiveContactsList extends StatefulWidget {
 }
 
 class _SelectiveContactsListState extends State<SelectiveContactsList> {
-  TextEditingController editingController;
+  late TextEditingController editingController;
 
   List<Contact> selectedList = [];
 
-  List<Contact> items;
+  List<Contact>? items;
 
-  var _contactRepo = GetIt.I.get<ContactRepo>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
-  var _routingService = GetIt.I.get<RoutingService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
-  var _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
 
-  var _createMucService = GetIt.I.get<CreateMucService>();
+  final _createMucService = GetIt.I.get<CreateMucService>();
 
   final _authRepo = GetIt.I.get<AuthRepo>();
 
@@ -59,48 +59,49 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   }
 
   getMembers() async {
-    var res = await _mucRepo.getAllMembers(widget.mucUid.asString());
-    res.forEach((element) {
-      members.add(element.memberUid);
-    });
+    var res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
+    for (var element in res) {
+      members.add(element!.memberUid);
+    }
   }
 
   void filterSearchResults(String query) {
-    query = query.replaceAll(new RegExp(r"\s\b|\b\s"), "").toLowerCase();
+    query = query.replaceAll(RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
       List<Contact> dummyListData = [];
-      contacts.forEach((item) {
+      for (var item in contacts) {
         var searchTerm = '${item.firstName}${item.lastName}'
-            .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+            .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
-            item.firstName
-                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+            item.firstName!
+                .replaceAll(RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
             (item.lastName != null &&
-                item.lastName
-                    .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                item.lastName!
+                    .replaceAll(RegExp(r"\s\b|\b\s"), "")
                     .toLowerCase()
                     .contains(query))) {
           dummyListData.add(item);
         }
-      });
+      }
       setState(() {
-        items.clear();
-        items.addAll(dummyListData);
+        items!.clear();
+        items!.addAll(dummyListData);
       });
     } else {
       setState(() {
-        items.clear();
-        items.addAll(contacts);
+        items!.clear();
+        items!.addAll(contacts);
       });
     }
   }
 
+  I18N i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Stack(
       children: [
         Column(
@@ -120,23 +121,21 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
-                          snapshot.data.length > 0) {
-                        snapshot.data.removeWhere((element) => element.uid
+                          snapshot.data!.isNotEmpty) {
+                        snapshot.data!.removeWhere((element) => element.uid
                             .contains(_authRepo.currentUserUid.asString()));
-                        contacts = snapshot.data;
-                        if (items == null) {
-                          items = contacts;
-                        }
+                        contacts = snapshot.data!;
+                        items ??= contacts;
 
-                        if (items.length > 0) {
+                        if (items!.isNotEmpty) {
                           return StreamBuilder<int>(
                               stream: _createMucService.selectedLengthStream(),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
-                                  return SizedBox.shrink();
+                                  return const SizedBox.shrink();
                                 }
                                 return ListView.builder(
-                                  itemCount: items.length,
+                                  itemCount: items!.length,
                                   itemBuilder: _getListItemTile,
                                 );
                               });
@@ -146,13 +145,13 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               i18n.get("no_results"),
                               style: Theme.of(context)
                                   .textTheme
-                                  .subtitle1
+                                  .subtitle1!
                                   .copyWith(color: Colors.red),
                             ),
                           );
                         }
                       } else {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                     })),
           ],
@@ -161,9 +160,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             stream: _createMucService.selectedLengthStream(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
-              if (snapshot.data > 0)
+              if (snapshot.data! > 0) {
                 return Positioned(
                   bottom: 0,
                   right: 0,
@@ -176,9 +175,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                     ),
                     child: widget.mucUid != null
                         ? IconButton(
-                            icon: Icon(Icons.check),
+                            icon: const Icon(Icons.check),
                             alignment: Alignment.center,
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             onPressed: () async {
                               List<Uid> users = [];
                               for (Contact contact
@@ -186,35 +185,39 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                 users.add(contact.uid.asUid());
                               }
                               bool usersAdd = await _mucRepo.sendMembers(
-                                  widget.mucUid, users);
+                                  widget.mucUid!, users);
                               if (usersAdd) {
-                                _routingService
-                                    .openRoom(widget.mucUid.asString());
+                                _routingService.openRoom(
+                                    widget.mucUid!.asString(),
+                                    context: context);
                                 // _routingService.reset();
                                 // _createMucService.reset();
 
                               } else {
                                 ToastDisplay.showToast(
-                                    toastText: i18n.get("error_occurred"),tostContext: context);
+                                    toastText: i18n.get("error_occurred"),
+                                    tostContext: context);
                                 // _routingService.pop();
                               }
                             })
                         : IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.arrow_forward,
                               color: Colors.white,
                             ),
                             alignment: Alignment.center,
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             onPressed: () {
                               _routingService.openGroupInfoDeterminationPage(
+                                  context,
                                   isChannel: widget.isChannel);
                             },
                           ),
                   ),
                 );
-              else
-                return SizedBox.shrink();
+              } else {
+                return const SizedBox.shrink();
+              }
             })
       ],
     );
@@ -223,20 +226,20 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
         onTap: () {
-          if (!members.contains(items[index].uid)) {
-            if (!_createMucService.isSelected(items[index])) {
-              _createMucService.addContact(items[index]);
+          if (!members.contains(items![index].uid)) {
+            if (!_createMucService.isSelected(items![index])) {
+              _createMucService.addContact(items![index]);
               editingController.clear();
             } else {
-              _createMucService.deleteContact(items[index]);
+              _createMucService.deleteContact(items![index]);
               editingController.clear();
             }
           }
         },
         child: SelectiveContact(
-          contact: items[index],
-          isSelected: _createMucService.isSelected(items[index]),
-          cureentMember: members.contains(items[index].uid),
+          contact: items![index],
+          isSelected: _createMucService.isSelected(items![index]),
+          cureentMember: members.contains(items![index].uid),
         ));
   }
 }

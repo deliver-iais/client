@@ -11,7 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class LogSettingsPage extends StatefulWidget {
-  LogSettingsPage({Key key}) : super(key: key);
+  const LogSettingsPage({Key? key}) : super(key: key);
 
   @override
   _LogSettingsPageState createState() => _LogSettingsPageState();
@@ -30,8 +30,8 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
-              title: Text("Log Level"),
-              leading: _routingService.backButtonLeading(),
+              title: const Text("Log Level"),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),
@@ -45,8 +45,8 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
                           title: level,
                           trailing: LogLevelHelper.stringToLevel(level) ==
                                   GetIt.I.get<DeliverLogFilter>().level
-                              ? Icon(Icons.done)
-                              : SizedBox.shrink(),
+                              ? const Icon(Icons.done)
+                              : const SizedBox.shrink(),
                           onPressed: (BuildContext context) {
                             setState(() {
                               _uxService.changeLogLevel(level);

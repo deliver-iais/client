@@ -14,7 +14,7 @@ class BotAppbarTitle extends StatelessWidget {
 
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  BotAppbarTitle({Key key, this.botUid}) : super(key: key);
+  BotAppbarTitle({Key? key, required this.botUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +25,16 @@ class BotAppbarTitle extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatarWidget(botUid, 23),
-              SizedBox(
+              const SizedBox(
                 width: 16,
               ),
               Expanded(
                 child: FutureBuilder<String>(
                     future: _roomRepo.getName(botUid),
                     builder: (c, name) {
-                      if (name.hasData && name.data != null)
-                        return buildColumn(name.data, context);
-                      else {
+                      if (name.hasData && name.data != null) {
+                        return buildColumn(name.data!, context);
+                      } else {
                         return buildColumn(botUid.node, context);
                       }
                     }),
@@ -42,7 +42,7 @@ class BotAppbarTitle extends StatelessWidget {
             ],
           ),
           onTap: () {
-            _routingService.openProfile(botUid.asString());
+            _routingService.openProfile(context, botUid.asString());
           },
         ));
   }
@@ -60,9 +60,9 @@ class BotAppbarTitle extends StatelessWidget {
         ),
         TitleStatus(
           currentRoomUid: botUid,
-          style: Theme.of(context).textTheme.caption,
+          style: Theme.of(context).textTheme.caption!,
           normalConditionWidget: Text(
-            I18N.of(context).get("bot"),
+            I18N.of(context)!.get("bot"),
             maxLines: 1,
             overflow: TextOverflow.fade,
             softWrap: false,

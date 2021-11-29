@@ -10,6 +10,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -19,19 +20,21 @@ enum ThumbnailSize { medium }
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _logger = GetIt.I.get<Logger>();
 
-  var _dio = Dio();
-  Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
+  final _dio = Dio();
+  Map<String, BehaviorSubject<double>> filesUploadStatus = {};
 
-  Map<String, BehaviorSubject<double>> filesDownloadStatus = Map();
+  Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() ||
         isDesktop() ||
         isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists())
+      if (!await Directory('${directory.path}/Deliver').exists()) {
         await Directory('${directory.path}/Deliver').create(recursive: true);
+      }
       return directory.path + "/Deliver";
     }
     throw Exception("There is no Storage Permission!");
@@ -68,7 +71,7 @@ class FileService {
   }
 
   Future<File> getFile(String uuid, String filename,
-      {ThumbnailSize size}) async {
+      {ThumbnailSize? size}) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -82,19 +85,21 @@ class FileService {
       filesDownloadStatus[uuid] = d;
     }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      filesDownloadStatus[uuid].add((i / j));
+      filesDownloadStatus[uuid]!.add((i / j));
     }, options: Options(responseType: ResponseType.bytes));
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
   }
-  Future<File> getDeliverIcon()async {
-    var file =   await localFile("deliver-icon","png");
-    if(file.existsSync()){
+
+  Future<File?> getDeliverIcon() async {
+    var file = await localFile("deliver-icon", "png");
+    if (file.existsSync()) {
       return file;
-    }else{
-      var res =await rootBundle.load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      File f = File("${ await _localPath}/deliver-icon.png");
+    } else {
+      var res = await rootBundle
+          .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+      File f = File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -110,7 +115,7 @@ class FileService {
     File f = File('$downloadDir/$name');
     try {
       await f.writeAsBytes(file.readAsBytesSync());
-    } catch (e) {}
+    } catch (_) {}
   }
 
   Future<File> _getFileThumbnail(
@@ -129,29 +134,33 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      options.onSendProgress = (int i, int j) {
-        if (sendActivity != null) sendActivity();
-        if (filesUploadStatus[uploadKey] == null) {
-          BehaviorSubject<double> d = BehaviorSubject();
-          filesUploadStatus[uploadKey] = d;
-        }
-        filesUploadStatus[uploadKey].add((i / j));
-      };
-      handler.next(options);
-    }));
+  uploadFile(String filePath, {required String uploadKey, Function ? sendActivity}) async {
+    try {
+      _dio.interceptors.add(InterceptorsWrapper(onRequest:
+          (RequestOptions options, RequestInterceptorHandler handler) async {
+        options.onSendProgress = (int i, int j) {
+          if (sendActivity != null) sendActivity();
+          if (filesUploadStatus[uploadKey] == null) {
+            BehaviorSubject<double> d = BehaviorSubject();
+            filesUploadStatus[uploadKey] = d;
+          }
+          filesUploadStatus[uploadKey]!.add((i / j));
+        };
+        handler.next(options);
+      }));
 
-    var formData = FormData.fromMap({
-      "file": MultipartFile.fromFileSync(filePath,
-          contentType:
-              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-    });
+      var formData = FormData.fromMap({
+        "file": MultipartFile.fromFileSync(filePath,
+            contentType:
+                MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+      });
 
-    return _dio.post(
-      "/upload",
-      data: formData,
-    );
+      return _dio.post(
+        "/upload",
+        data: formData,
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 }

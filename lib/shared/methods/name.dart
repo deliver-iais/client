@@ -1,6 +1,6 @@
-String buildName(String firstName, String lastName) {
+String buildName(String? firstName, String? lastName) {
   var res = "";
-  if (firstName != null && firstName.isNotEmpty) res += firstName;
-  if (lastName != null && lastName.isNotEmpty) res += lastName;
+  if ( firstName!.isNotEmpty) res += firstName;
+  if (lastName!.isNotEmpty) res += lastName;
   return res.trim();
 }

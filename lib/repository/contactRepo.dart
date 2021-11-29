@@ -1,13 +1,16 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/dao/contact_dao.dart';
-import 'package:deliver/box/contact.dart' as DB;
+import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 
-import 'package:contacts_service/contacts_service.dart' as OsContact;
+import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -22,6 +25,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
+import 'package:synchronized/synchronized.dart';
 
 class ContactRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -30,47 +34,50 @@ class ContactRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _contactServices = GetIt.I.get<ContactServiceClient>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
+  var requestLock = Lock();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
-  final Map<PhoneNumber, String> _contactsDisplayName = Map();
+  final Map<PhoneNumber, String> _contactsDisplayName = {};
 
   syncContacts() async {
-    if (await _checkPermission.checkContactPermission() ||
-        isDesktop() ||
-        isIOS()) {
-      List<Contact> contacts = [];
-      if (!isDesktop()) {
-        Iterable<OsContact.Contact> phoneContacts =
-            await OsContact.ContactsService.getContacts(
-                withThumbnails: false,
-                photoHighResolution: false,
-                orderByGivenName: false,
-                iOSLocalizedLabels: false);
+    requestLock.synchronized(() async {
+      if (await _checkPermission.checkContactPermission() ||
+          isDesktop() ||
+          isIOS()) {
+        List<Contact> contacts = [];
+        if (!isDesktop()) {
+          Iterable<contacts_service_pb.Contact> phoneContacts =
+              await contacts_service_pb.ContactsService.getContacts(
+                  withThumbnails: false,
+                  photoHighResolution: false,
+                  orderByGivenName: false,
+                  iOSLocalizedLabels: false);
 
-        for (OsContact.Contact phoneContact in phoneContacts) {
-          for (var p in phoneContact.phones) {
-            try {
-              String contactPhoneNumber = p.value.toString();
-              PhoneNumber phoneNumber =
-                  _getPhoneNumber(contactPhoneNumber, phoneContact.displayName);
-              _contactsDisplayName[phoneNumber] = phoneContact.displayName;
-              Contact contact = Contact()
-                ..lastName = phoneContact.displayName
-                ..phoneNumber = phoneNumber;
-              contacts.add(contact);
-            } catch (e) {
-              _logger.e(e);
+          for (contacts_service_pb.Contact phoneContact in phoneContacts) {
+            for (var p in phoneContact.phones!) {
+              try {
+                String contactPhoneNumber = p.value.toString();
+                PhoneNumber phoneNumber = _getPhoneNumber(
+                    contactPhoneNumber, phoneContact.displayName!);
+                _contactsDisplayName[phoneNumber] = phoneContact.displayName!;
+                Contact contact = Contact()
+                  ..lastName = phoneContact.displayName!
+                  ..phoneNumber = phoneNumber;
+                contacts.add(contact);
+              } catch (e) {
+                _logger.e(e);
+              }
             }
           }
         }
+        sendContacts(contacts);
       }
-      sendContacts(contacts);
-    }
+    });
   }
 
   PhoneNumber _getPhoneNumber(String phone, String name) {
-    PhoneNumber p = getPhoneNumber(phone);
+    PhoneNumber? p = getPhoneNumber(phone);
 
     if (p == null) {
       throw Exception("Not Valid Number  $name ***** $phone");
@@ -101,9 +108,9 @@ class ContactRepo {
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       var sendContacts = SaveContactsReq();
-      contacts.forEach((element) {
+      for (var element in contacts) {
         sendContacts.contactList.add(element);
-      });
+      }
       await _contactServices.saveContacts(sendContacts);
       return true;
     } catch (e) {
@@ -112,32 +119,30 @@ class ContactRepo {
     }
   }
 
-  Stream<List<DB.Contact>> watchAll() => _contactDao.watchAll();
+  Stream<List<contact_pb.Contact>> watchAll() => _contactDao.watchAll();
 
-  Future<List<DB.Contact>> getAll() => _contactDao.getAll();
+  Future<List<contact_pb.Contact>> getAll() => _contactDao.getAll();
 
   Future getContacts() async {
     var result =
         await _contactServices.getContactListUsers(GetContactListUsersReq());
 
     for (var contact in result.userList) {
-      _contactDao.save(DB.Contact(
+      _contactDao.save(contact_pb.Contact(
           uid: contact.uid.asString(),
           countryCode: contact.phoneNumber.countryCode.toString(),
           nationalNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
           lastName: contact.lastName));
 
-      if (contact.uid != null) {
-        roomNameCache.set(contact.uid.asString(), contact.firstName);
-        _uidIdNameDao.update(contact.uid.asString(),
-            name: "${contact.firstName} ${contact.lastName ?? ""}");
-        _roomDao.updateRoom(Room(uid: contact.uid.asString()));
-      }
+      roomNameCache.set(contact.uid.asString(), contact.firstName);
+      _uidIdNameDao.update(contact.uid.asString(),
+          name: "${contact.firstName} ${contact.lastName}");
+      _roomDao.updateRoom(Room(uid: contact.uid.asString()));
     }
   }
 
-  Future<String> getUserIdByUid(Uid uid) async {
+  Future<String?> getUserIdByUid(Uid uid) async {
     try {
       // For now, Group and Bot not supported in server side!!
       var result =
@@ -170,17 +175,31 @@ class ContactRepo {
       return searchResult;
     } catch (e) {
       _logger.e(e);
+      return [];
     }
   }
 
   // TODO needs to be refactored!
-  Future<DB.Contact> getContact(Uid userUid) async {
-    DB.Contact contact = await _contactDao.getByUid(userUid.asString());
+  Future<contact_pb.Contact?> getContact(Uid userUid) async {
+    contact_pb.Contact? contact = await _contactDao.getByUid(userUid.asString());
     return contact;
   }
 
   Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
     var result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
+  }
+
+  Future<String?> getContactFromServer(Uid contactUid) async {
+    try {
+      var contact = await _contactServices
+          .getUserByUid(GetUserByUidReq()..uid = contactUid);
+      var name = buildName(contact.user.firstName, contact.user.lastName);
+      _uidIdNameDao.update(contactUid.asString(), name: name);
+      return name;
+    } catch (e) {
+      _logger.e(e);
+      return null;
+    }
   }
 }

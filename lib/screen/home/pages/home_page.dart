@@ -16,7 +16,7 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -28,12 +28,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  BehaviorSubject<bool> _logOut = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _logOut = BehaviorSubject.seeded(false);
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
-      final initialLink = await getInitialLink();
-      if (initialLink.isNotEmpty) await handleJoinUri(context, initialLink);
+      String? initialLink = await getInitialLink();
+      if (initialLink != null && initialLink.isNotEmpty) {
+        await handleJoinUri(context, initialLink);
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -57,20 +59,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   checkLogOutApp() {
     _logOut.stream.listen((event) {
-      if (event)
-        Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) => IntroPage()));
+      if (event) {
+        Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (context) => const IntroPage()), (e) => false);
+      }
     });
   }
 
   checkShareFile(BuildContext context) {
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-      if (value.length > 0) {
+      if (value.isNotEmpty) {
         List<String> paths = [];
         for (var path in value) {
           paths.add(path.path);
         }
-        _routingService.openShareFile(path: paths);
+        _routingService.openShareFile(context, path: paths);
       }
     });
   }
@@ -89,7 +92,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             if (snapshot.hasData && snapshot.data == LOG_OUT) {
               _logOut.add(true);
               _routingService.reset();
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             }
             return _routingService.routerOutlet(context);
           }),
@@ -98,7 +101,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void checkIfUsernameIsSet() async {
     if (!await _accountRepo.getProfile(retry: true)) {
-      _routingService.openAccountSettings(forceToSetUsernameAndName: true);
+      _routingService.openAccountSettings(context,
+          forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();
     }

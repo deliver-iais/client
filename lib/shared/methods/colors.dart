@@ -44,18 +44,14 @@ class RandomColor {
   /// Constructor for random generator
   /// [seed] Random seed to use for generating colors
   RandomColor(Random random) {
-    if (random != null) {
-      _random = random;
-    }
-
-    _random ??= new Random();
+    _random = random;
   }
 
   bool debug = false;
 
   final int minBrightness = 16;
   final int maxBrightness = 84;
-  Random _random;
+  late Random _random;
 
   ///
   /// Get random color
@@ -130,19 +126,19 @@ class RandomColor {
   /// Calls [randomColor] for [count] number of times.
   /// [count] Number of colors
   List<Color> randomColors({
-    @required int count,
-    ColorHue colorHue,
-    ColorSaturation colorSaturation,
-    ColorBrightness colorBrightness,
+    required int count,
+    ColorHue? colorHue,
+    ColorSaturation? colorSaturation,
+    ColorBrightness? colorBrightness,
     bool debug = false,
   }) {
     final List<Color> colors = <Color>[];
 
     for (int i = 0; i < count; i++) {
       colors.add(randomColor(
-          colorHue: colorHue,
-          colorSaturation: colorSaturation,
-          colorBrightness: colorBrightness,
+          colorHue: colorHue!,
+          colorSaturation: colorSaturation!,
+          colorBrightness: colorBrightness!,
           debug: debug));
     }
 
@@ -223,7 +219,8 @@ class ColorBrightness {
   }
 
   static ColorBrightness multiple(
-      {@required List<ColorBrightness> colorBrightnessList, Random random}) {
+      {required List<ColorBrightness> colorBrightnessList,
+      required Random random}) {
     colorBrightnessList.shuffle(random);
     return colorBrightnessList.first;
   }
@@ -307,7 +304,7 @@ class ColorHue {
   }
 
   static ColorHue multiple(
-      {@required List<ColorHue> colorHues, Random random}) {
+      {required List<ColorHue> colorHues, required Random random}) {
     colorHues.shuffle(random);
     return colorHues.first;
   }
@@ -375,7 +372,8 @@ class ColorSaturation {
   }
 
   static ColorSaturation multiple(
-      {@required List<ColorSaturation> colorSaturations, Random random}) {
+      {required List<ColorSaturation> colorSaturations,
+      required Random random}) {
     colorSaturations.shuffle(random);
     return colorSaturations.first;
   }

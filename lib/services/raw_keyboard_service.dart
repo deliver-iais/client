@@ -1,7 +1,8 @@
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/widgets/inputMessage.dart';
+import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -10,9 +11,9 @@ class RawKeyboardService {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  Function _openSearchBox;
+  late Function _openSearchBox;
 
-  var _currentRoom;
+  Uid? _currentRoom;
 
   set currentRoom(value) {
     _currentRoom = value;
@@ -22,35 +23,35 @@ class RawKeyboardService {
     _openSearchBox = value;
   }
 
-  void controllFHandle() {
-    if (_openSearchBox != null) _openSearchBox();
+  void controlFHandle() {
+    _openSearchBox();
   }
 
-  Future<void> controllCHandle(TextEditingController controller) {
+  void controlCHandle(TextEditingController controller) {
     Clipboard.setData(
         ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  Future<void> controllVHandle(TextEditingController controller) async {
-    ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
-    controller.text = data.text;
+  void controlVHandle(TextEditingController controller) async {
+    ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+    controller.text = data!.text!;
   }
 
-  Future<void> controllXHandle(TextEditingController controller) {
+  void controlXHandle(TextEditingController controller) {
     Clipboard.setData(
         ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  void controllAHandle(TextEditingController controller) {
+  void controlAHandle(TextEditingController controller) {
     controller.selection = TextSelection(
         baseOffset: 0, extentOffset: controller.value.text.length);
   }
 
   void escapeHandle(int replyMessageId, Function resetRoomPageDetails) {
-    if (InputMessage.inputMessegeFocusNode == null) {
+    if (InputMessage.inputMessageFocusNode == null) {
       if (_routingService.isAnyRoomOpen()) _routingService.pop();
     } else {
-      if (InputMessage.inputMessegeFocusNode?.hasFocus == true) {
+      if (InputMessage.inputMessageFocusNode?.hasFocus == true) {
         if (replyMessageId == 0) {
           _routingService.pop();
         }
@@ -63,7 +64,7 @@ class RawKeyboardService {
     }
   }
 
-  void scrollUpInRoom() {
+  void scrollUpInRoom(BuildContext context) {
     int index = -1;
     _roomDao
         .getAllRooms()
@@ -71,14 +72,15 @@ class RawKeyboardService {
               for (var element in value)
                 {
                   index++,
-                  if (element.node == _currentRoom.node)
+                  if (element.node == _currentRoom?.node)
                     if (index - 1 >= 0)
-                      _routingService.openRoom(room[index - 1].uid)
+                      _routingService.openRoom(room[index - 1].uid,
+                          context: context)
                 }
             }));
   }
 
-  void scrollDownInRoom() {
+  void scrollDownInRoom(BuildContext context) {
     int index = -1;
     _roomDao
         .getAllRooms()
@@ -86,9 +88,10 @@ class RawKeyboardService {
               for (var element in value)
                 {
                   index++,
-                  if (element.node == _currentRoom.node)
+                  if (element.node == _currentRoom?.node)
                     if (index + 1 < room.length)
-                      _routingService.openRoom(room[index + 1].uid)
+                      _routingService.openRoom(room[index + 1].uid,
+                          context: context)
                 }
             }));
   }
@@ -118,14 +121,17 @@ class RawKeyboardService {
   }
 
   void searchHandeling({event}) {
-    if (event.physicalKey == PhysicalKeyboardKey.keyF && event.isControlPressed)
-      controllFHandle();
+    if (event.physicalKey == PhysicalKeyboardKey.keyF &&
+        event.isControlPressed) {
+      controlFHandle();
+    }
   }
 
   void escapeHandeling(
-      {event, int replyMessageId, Function resetRoomPageDetails}) {
-    if (event.isKeyPressed(LogicalKeyboardKey.escape))
-      escapeHandle(replyMessageId, resetRoomPageDetails);
+      {event, int? replyMessageId, Function? resetRoomPageDetails}) {
+    if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
+      escapeHandle(replyMessageId!, resetRoomPageDetails!);
+    }
   }
 
   navigateInMentions(
@@ -169,24 +175,28 @@ class RawKeyboardService {
   }
 
   void handleCopyPastKeyPress(TextEditingController controller, event) {
-    if (event.isKeyPressed(LogicalKeyboardKey.keyA) && event.isControlPressed)
-      controllAHandle(controller);
-    if (event.isKeyPressed(LogicalKeyboardKey.keyC) && event.isControlPressed)
-      controllCHandle(controller);
+    if (event.isKeyPressed(LogicalKeyboardKey.keyA) && event.isControlPressed) {
+      controlAHandle(controller);
+    }
+    if (event.isKeyPressed(LogicalKeyboardKey.keyC) && event.isControlPressed) {
+      controlCHandle(controller);
+    }
 
-    if (event.isKeyPressed(LogicalKeyboardKey.keyX) && event.isControlPressed)
-      controllXHandle(controller);
-    if (event.isKeyPressed(LogicalKeyboardKey.keyV) && event.isControlPressed)
-      controllVHandle(controller);
+    if (event.isKeyPressed(LogicalKeyboardKey.keyX) && event.isControlPressed) {
+      controlXHandle(controller);
+    }
+    if (event.isKeyPressed(LogicalKeyboardKey.keyV) && event.isControlPressed) {
+      controlVHandle(controller);
+    }
   }
 
-  navigateInRooms({event}) {
+  navigateInRooms({event, required BuildContext context}) {
     if (event.isAltPressed) {
       if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-        scrollUpInRoom();
+        scrollUpInRoom(context);
       }
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-        scrollDownInRoom();
+        scrollDownInRoom(context);
       }
     }
   }

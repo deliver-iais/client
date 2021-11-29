@@ -2,7 +2,7 @@ import 'package:deliver/box/file_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class FileDao {
-  Future<FileInfo> get(String uuid, String sizeType);
+  Future<FileInfo?> get(String uuid, String sizeType);
 
   Future<void> save(FileInfo fileInfo);
 
@@ -10,22 +10,25 @@ abstract class FileDao {
 }
 
 class FileDaoImpl implements FileDao {
-  Future<FileInfo> get(String uuid, String sizeType) async {
+  @override
+  Future<FileInfo?> get(String uuid, String sizeType) async {
     var box = await _open(sizeType);
 
-    if (uuid == null || uuid.isEmpty) {
+    if (uuid.isEmpty) {
       return null;
     }
 
     return box.get(uuid);
   }
 
+  @override
   Future<void> save(FileInfo fileInfo) async {
     var box = await _open(fileInfo.sizeType);
 
     box.put(fileInfo.uuid, fileInfo);
   }
 
+  @override
   Future<void> remove(FileInfo fileInfo) async {
     var box = await _open(fileInfo.sizeType);
 

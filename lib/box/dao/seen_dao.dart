@@ -2,13 +2,13 @@ import 'package:deliver/box/seen.dart';
 import 'package:hive/hive.dart';
 
 abstract class SeenDao {
-  Future<Seen> getOthersSeen(String uid);
+  Future<Seen?> getOthersSeen(String uid);
 
-  Stream<Seen> watchOthersSeen(String uid);
+  Stream<Seen?> watchOthersSeen(String uid);
 
-  Future<Seen> getMySeen(String uid);
+  Future<Seen?> getMySeen(String uid);
 
-  Stream<Seen> watchMySeen(String uid);
+  Stream<Seen?> watchMySeen(String uid);
 
   Future<void> saveOthersSeen(Seen seen);
 
@@ -16,13 +16,15 @@ abstract class SeenDao {
 }
 
 class SeenDaoImpl implements SeenDao {
-  Future<Seen> getOthersSeen(String uid) async {
+  @override
+  Future<Seen?> getOthersSeen(String uid) async {
     var box = await _openOthersSeen();
 
     return box.get(uid);
   }
 
-  Stream<Seen> watchOthersSeen(String uid) async* {
+  @override
+  Stream<Seen?> watchOthersSeen(String uid) async* {
     var box = await _openOthersSeen();
 
     yield box.get(uid);
@@ -30,13 +32,15 @@ class SeenDaoImpl implements SeenDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
-  Future<Seen> getMySeen(String uid) async {
+  @override
+  Future<Seen?> getMySeen(String uid) async {
     var box = await _openMySeen();
 
     return box.get(uid);
   }
 
-  Stream<Seen> watchMySeen(String uid) async* {
+  @override
+  Stream<Seen?> watchMySeen(String uid) async* {
     var box = await _openMySeen();
 
     yield box.get(uid);
@@ -44,6 +48,7 @@ class SeenDaoImpl implements SeenDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
+  @override
   Future<void> saveOthersSeen(Seen seen) async {
     var box = await _openOthersSeen();
 
@@ -54,15 +59,13 @@ class SeenDaoImpl implements SeenDao {
     }
   }
 
+  @override
   Future<void> saveMySeen(Seen seen) async {
-    if (seen == null || seen.messageId == null) return;
-
     var box = await _openMySeen();
 
     var mySeen = box.get(seen.uid);
 
-    if (mySeen == null ||
-        (mySeen != null && mySeen.messageId < seen.messageId)) {
+    if (mySeen == null || mySeen.messageId < seen.messageId) {
       box.put(seen.uid, seen);
     }
   }

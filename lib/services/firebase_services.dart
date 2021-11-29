@@ -9,7 +9,6 @@ import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/core_services.dart';
 
-
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
@@ -17,7 +16,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -32,7 +31,7 @@ class FireBaseServices {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
 
-  FirebaseMessaging _firebaseMessaging;
+  late FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
     if (!isDesktop()) {
@@ -47,11 +46,11 @@ class FireBaseServices {
     _firebaseMessaging.deleteToken();
   }
 
-  _sendFireBaseToken(String fireBaseToken) async {
+  _sendFireBaseToken(String? fireBaseToken) async {
     if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices
-            .registration(RegistrationReq()..tokenId = fireBaseToken);
+            .registration(RegistrationReq()..tokenId = fireBaseToken!);
         _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
       } catch (e) {
         _logger.e(e);
@@ -73,9 +72,9 @@ class FireBaseServices {
   }
 }
 
-M.Message _decodeMessage(String notificationBody) {
+message_pb.Message _decodeMessage(String notificationBody) {
   final dataTitle64 = base64.decode(notificationBody);
-  M.Message m = M.Message.fromBuffer(dataTitle64);
+  message_pb.Message m = message_pb.Message.fromBuffer(dataTitle64);
   return m;
 }
 
@@ -93,8 +92,8 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var _muteDao = GetIt.I.get<MuteDao>();
 
   if (message.data.containsKey('body')) {
-    M.Message msg = _decodeMessage(message.data["body"]);
-    String roomName = message.data['title'];
+    message_pb.Message msg = _decodeMessage(message.data["body"]);
+    String? roomName = message.data['title'];
     Uid roomUid = getRoomUid(_authRepo, msg);
 
     try {
@@ -103,7 +102,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
           !showNotifyForThisMessage(msg, _authRepo)) {
         return;
       }
-    } catch (e) {}
+    } catch (_) {}
 
     if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;
@@ -111,18 +110,19 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       roomName = msg.from.node;
     } else if (msg.to.category == Categories.USER) {
       var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-      if (uidName != null)
-        roomName = uidName.name != null && uidName.name.isNotEmpty
+      if (uidName != null) {
+        roomName = uidName.name != null && uidName.name!.isNotEmpty
             ? uidName.name
-            : uidName.id != null && uidName.id.isNotEmpty
+            : uidName.id != null && uidName.id!.isNotEmpty
                 ? uidName.id
                 : msg.from.isGroup()
                     ? "Group"
                     : msg.from.isChannel()
                         ? "Channel"
                         : "UnKnown";
+      }
     }
 
-    _notificationServices.showNotification(msg, roomName: roomName);
+    _notificationServices.showNotification(msg, roomName: roomName!);
   }
 }

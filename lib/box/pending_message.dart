@@ -23,27 +23,27 @@ class PendingMessage {
   SendingStatus status;
 
   PendingMessage(
-      {this.roomUid,
-      this.packetId,
-      this.msg,
+      {required this.roomUid,
+      required this.packetId,
+      required this.msg,
       this.failed = false,
-      this.status});
+      required this.status});
 
   PendingMessage copy(PendingMessage pm) => PendingMessage(
-        roomUid: pm.roomUid ?? this.roomUid,
-        packetId: pm.packetId ?? this.packetId,
-        msg: pm.msg ?? this.msg,
-        failed: pm.failed ?? this.failed,
-        status: pm.status ?? this.status,
+        roomUid: pm.roomUid,
+        packetId: pm.packetId,
+        msg: pm.msg,
+        failed: pm.failed,
+        status: pm.status,
       );
 
   PendingMessage copyWith(
-          {String roomUid,
-          String packetId,
-          Message msg,
-          bool failed,
-          int retries,
-          SendingStatus status}) =>
+          {String? roomUid,
+          String? packetId,
+          Message? msg,
+          bool? failed,
+          int? retries,
+          SendingStatus? status}) =>
       PendingMessage(
         roomUid: roomUid ?? this.roomUid,
         packetId: packetId ?? this.packetId,

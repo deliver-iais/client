@@ -3,14 +3,15 @@ import 'dart:math';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;
@@ -18,15 +19,15 @@ class TextUI extends StatelessWidget {
   final double minWidth;
   final bool isSender;
   final bool isSeen;
-  final String searchTerm;
-  final Function onUsernameClick;
+  final String? searchTerm;
+  final Function? onUsernameClick;
   final bool isBotMessage;
-  final Function onBotCommandClick;
+  final Function? onBotCommandClick;
 
   const TextUI(
-      {Key key,
-      this.message,
-      this.maxWidth,
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
       this.minWidth = 0,
       this.isSender = false,
       this.isSeen = false,
@@ -45,12 +46,15 @@ class TextUI extends StatelessWidget {
           text: b.text,
           style: b.style,
           recognizer: (b.onTap != null)
-              ? (TapGestureRecognizer()..onTap = () => b.onTap(b.text))
+              ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
               : null);
     }).toList();
-
-    String link =
-        blocks.firstWhere((b) => b.type == "url", orElse: () => null)?.text;
+    String link;
+    try {
+      link = blocks.firstWhere((b) => b.type == "url").text;
+    } catch (e) {
+      link = "";
+    }
 
     double linkPreviewMaxWidth = min(
         blocks
@@ -89,9 +93,9 @@ class TextUI extends StatelessWidget {
 
   String extractText(Message msg) {
     if (msg.type == MessageType.TEXT) {
-      return msg.json.toText().text.trim();
+      return msg.json!.toText().text.trim();
     } else if (msg.type == MessageType.FILE) {
-      return msg.json.toFile().caption.trim();
+      return msg.json!.toFile().caption.trim();
     } else {
       return "";
     }
@@ -101,11 +105,11 @@ class TextUI extends StatelessWidget {
     List<Block> blocks = [Block(text: text)];
     List<Parser> parsers = [
       EmojiParser(),
-      if (searchTerm != null && searchTerm.isNotEmpty)
-        SearchTermParser(searchTerm),
+      if (searchTerm != null && searchTerm!.isNotEmpty)
+        SearchTermParser(searchTerm!),
       UrlParser(),
-      IdParser(onUsernameClick),
-      if (isBotMessage) BotCommandParser(onBotCommandClick),
+      if (onUsernameClick != null) IdParser(onUsernameClick!),
+      if (isBotMessage) BotCommandParser(onBotCommandClick!),
       BoldTextParser(),
       ItalicTextParser()
     ];
@@ -131,8 +135,9 @@ class UrlParser implements Parser {
       parseBlocks(blocks, regex, "url", onTap: (uri) async {
         if (uri.toString().contains(APPLICATION_DOMAIN)) {
           handleJoinUri(context, uri);
-        } else
+        } else {
           await launch(uri);
+        }
       },
           style:
               TextStyle(inherit: true, color: Theme.of(context).primaryColor));
@@ -162,7 +167,7 @@ class BoldTextParser implements Parser {
         regex,
         "bold",
         transformer: BoldTextParser.transformer,
-        style: TextStyle(inherit: true, fontWeight: FontWeight.w800),
+        style: const TextStyle(inherit: true, fontWeight: FontWeight.w800),
       );
 }
 
@@ -175,7 +180,7 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "italic",
           transformer: ItalicTextParser.transformer,
-          style: TextStyle(inherit: true, fontStyle: FontStyle.italic));
+          style: const TextStyle(inherit: true, fontStyle: FontStyle.italic));
 }
 
 class EmojiParser implements Parser {
@@ -190,11 +195,7 @@ class EmojiParser implements Parser {
         blocks,
         regex,
         "emoji",
-        style: TextStyle(
-            inherit: true,
-            fontSize: fontSize,
-            fontFamily: "NotoColorEmoji",
-            fontFamilyFallback: ["NotoColorEmoji"]),
+        style: GoogleFonts.notoColorEmojiCompat(fontSize: fontSize),
       );
 }
 
@@ -205,10 +206,10 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "bot",
-          onTap: (id) => onBotCommandClick(id),
-          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+      blocks, regex, "bot",
+      onTap: (id) => onBotCommandClick(id),
+      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class SearchTermParser implements Parser {
@@ -217,34 +218,39 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, RegExp(searchTerm), "search",
-          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+      blocks, RegExp(searchTerm), "search",
+      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class Block {
   final String text;
   final bool locked;
-  final Function onTap;
-  final TextStyle style;
-  final String type;
+  final Function? onTap;
+  final TextStyle? style;
+  final String? type;
 
-  Block({this.text, this.locked = false, this.onTap, this.style, this.type});
+  Block(
+      {required this.text,
+      this.locked = false,
+      this.onTap,
+      this.style,
+      this.type});
 }
 
 List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
-        {Function onTap, TextStyle style, Function transformer = same}) =>
+        {Function? onTap, TextStyle? style, Function transformer = same}) =>
     flatten(blocks.map<Iterable<Block>>((b) {
       if (b.locked) {
         return [b];
       } else {
-        return parseText(b.text, regex, onTap, style, type,
+        return parseText(b.text, regex, onTap, style!, type,
             transformer: transformer);
       }
     })).toList();
 
 List<Block> parseText(
-    String text, RegExp regex, Function onTap, TextStyle style, String type,
+    String text, RegExp regex, Function? onTap, TextStyle style, String type,
     {Function transformer = same}) {
   var start = 0;
 

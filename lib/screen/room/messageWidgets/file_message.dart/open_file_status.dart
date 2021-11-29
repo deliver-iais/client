@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 
 class OpenFileStatus extends StatelessWidget {
-  final filePb.File file;
+  final file_pb.File file;
 
-  const OpenFileStatus({Key key, this.file}) : super(key: key);
+  const OpenFileStatus({Key? key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +23,11 @@ class OpenFileStatus extends StatelessWidget {
         shape: BoxShape.circle,
         color: ExtraTheme.of(context).circularFileStatus,
       ),
-      child: FutureBuilder<File>(
+      child: FutureBuilder<File?>(
           future: fileRepo.getFile(file.uuid, file.name),
           builder: (context, snapshot) {
             return IconButton(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               alignment: Alignment.center,
               icon: Icon(
                 Icons.insert_drive_file,
@@ -36,7 +36,7 @@ class OpenFileStatus extends StatelessWidget {
               ),
               onPressed: () {
                 if (snapshot.hasData) {
-                  OpenFile.open(snapshot.data.path);
+                  OpenFile.open(snapshot.data!.path);
                 }
               },
             );

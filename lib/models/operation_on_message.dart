@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 enum OperationOnMessage {
   REPLY,
   COPY,
@@ -12,5 +14,6 @@ enum OperationOnMessage {
   DELETE_PENDING_MESSAGE,
   PIN_MESSAGE,
   UN_PIN_MESSAGE,
-  SHOW_IN_FOLDER
+  SHOW_IN_FOLDER,
+  REPORT
 }

@@ -6,7 +6,7 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
-import 'package:deliver/screen/room/messageWidgets/load-file-status.dart';
+import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
@@ -21,7 +21,11 @@ class MusicAndAudioUi extends StatefulWidget {
   final int mediaCount;
   final FetchMediasReq_MediaType type;
 
-  MusicAndAudioUi({Key key, this.userUid, this.type, this.mediaCount})
+  const MusicAndAudioUi(
+      {Key? key,
+      required this.userUid,
+      required this.type,
+      required this.mediaCount})
       : super(key: key);
 
   @override
@@ -47,27 +51,26 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
           if (!media.hasData ||
               media.data == null ||
               media.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
+            return const SizedBox(width: 0.0, height: 0.0);
           } else {
-            return Container(
+            return SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
                 child: ListView.builder(
                   itemCount: widget.mediaCount,
                   itemBuilder: (BuildContext ctx, int index) {
-
-                    var fileId = jsonDecode(media.data[index].json)["uuid"];
-                    var fileName = jsonDecode(media.data[index].json)["name"];
-                    var dur = jsonDecode(media.data[index].json)["duration"];
-                    _logger.d(media.data[index].json);
+                    var fileId = jsonDecode(media.data![index].json)["uuid"];
+                    var fileName = jsonDecode(media.data![index].json)["name"];
+                    var dur = jsonDecode(media.data![index].json)["duration"];
+                    _logger.d(media.data![index].json);
                     _logger.d(dur.toString());
 
-                    var messageId = media.data[index].messageId;
+                    var messageId = media.data![index].messageId;
                     return FutureBuilder<bool>(
                         future: fileRepo.isExist(fileId, fileName),
                         builder: (context, isExist) {
-                          if (isExist.hasData && isExist.data) {
+                          if (isExist.hasData && isExist.data!) {
                             return Column(
                               children: [
                                 ListTile(
@@ -82,27 +85,33 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 left: 15.0, top: 10),
-                                            child: Text(fileName,
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.bold, color: ExtraTheme.of(context).textMessage),overflow: TextOverflow.ellipsis,),
+                                            child: Text(
+                                              fileName,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: ExtraTheme.of(context)
+                                                      .textMessage),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
                                           MusicPlayProgress(
                                             audioUuid: fileId,
-                                            duration: double.parse(dur.toString()).toDouble() ,
+                                            duration:
+                                                double.parse(dur.toString())
+                                                    .toDouble(),
                                           ),
                                         ],
                                       ),
                                     ),
                                   ]),
                                 ),
-                                Divider(
+                                const Divider(
                                   color: Colors.grey,
                                 ),
                               ],
                             );
-                          } else if (isExist.hasData && !isExist.data) {
+                          } else if (isExist.hasData && !isExist.data!) {
                             return Column(
                               children: [
                                 ListTile(
@@ -124,11 +133,16 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
+                                                          FontWeight.bold,
+                                                      color:
+                                                          ExtraTheme.of(context)
+                                                              .textMessage)),
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,
-                                              duration: double.parse(dur.toString()).toDouble(),
+                                              duration:
+                                                  double.parse(dur.toString())
+                                                      .toDouble(),
                                             ),
                                           ],
                                         ),
@@ -136,13 +150,13 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     ],
                                   ),
                                 ),
-                                Divider(
+                                const Divider(
                                   color: Colors.grey,
                                 ),
                               ],
                             );
                           } else {
-                            return Container(
+                            return const SizedBox(
                               width: 0,
                               height: 0,
                             );

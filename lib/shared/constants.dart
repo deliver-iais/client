@@ -1,12 +1,24 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
-    "1.4.9"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+    "1.5.3"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT = "log_out";
+const String TEST_USER_ACCESS_TOKEN =
+    "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
+// ignore: non_constant_identifier_names
+final Uid TEST_USER_UID = Uid.create()
+  ..category = Categories.USER
+  ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
+
+const TEST_USER_PHONE_NUMBER ="1234567890";
 
 const STUN_SERVER_URL = "stun:217.218.7.16:3478";
 const TURN_SERVER_URL = "turn:217.218.7.16:3478";
@@ -42,6 +54,7 @@ const SHARED_DAO_LAST_NAME = "SHARED_DAO_LAST_NAME";
 const SHARED_DAO_USERNAME = "SHARED_DAO_USERNAME";
 const SHARED_DAO_ACCESS_TOKEN_KEY = "SHARED_DAO_ACCESS_TOKEN_KEY";
 const SHARED_DAO_REFRESH_TOKEN_KEY = "SHARED_DAO_REFRESH_TOKEN_KEY";
+const SHARED_DAO_LOCAL_PASSWORD = "SHARED_DAO_LOCAL_PASSWORD";
 const SHARED_DAO_FETCH_ALL_ROOM = "SHARED_DAO_FETCH_ALL_ROOM";
 const SHARED_DAO_LOG_LEVEL = "SHARED_DAO_LOG_LEVEL";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
@@ -77,7 +90,7 @@ const MEDIA_TYPE_TRACK_ID = 18;
 const LIVE_LOCATION_TRACK_ID = 19;
 
 // Animation
-const ANIMATION_DURATION = const Duration(milliseconds: 100);
+const ANIMATION_DURATION = Duration(milliseconds: 100);
 
 // UI
 const MAIN_BORDER_RADIUS = 10.0;

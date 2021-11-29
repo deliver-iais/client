@@ -12,20 +12,20 @@ import 'package:rxdart/rxdart.dart';
 class I18N {
   final _sharedDao = GetIt.I.get<SharedDao>();
 
-  final _language = BehaviorSubject.seeded(DefaultLanguage);
+  final _language = BehaviorSubject.seeded(defaultLanguage);
 
-  Map<String, String> _values;
+  Map<String, String>? _values;
 
   I18N() {
-    _loadLanguageResource(DefaultLanguage);
+    _loadLanguageResource(defaultLanguage);
     _sharedDao
         .getStream(SHARED_DAO_LANGUAGE,
-            defaultValue: DefaultLanguage.countryCode)
+            defaultValue: defaultLanguage.countryCode)
         .map((code) {
-          if (code != null && code.contains(Farsi.countryCode)) {
-            return Farsi;
+          if (code != null && code.contains(farsi.countryCode)) {
+            return farsi;
           }
-          return English;
+          return english;
         })
         .distinct()
         .listen((lang) async {
@@ -43,25 +43,26 @@ class I18N {
     _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
 
-  bool get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
+  bool get isPersian => _language.value.countryCode.contains(farsi.countryCode);
 
   Stream get localeStream => _language.stream.distinct().map((e) => e.locale);
 
   Locale get locale => _language.value.locale;
 
   String get(String key) {
-    return _values[key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "");
+    return _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "");
   }
 
   String verb(String key, {isFirstPerson = false}) {
-    return get(key) + (isFirstPerson ? (_values["_first_person_verb_extra_"] ?? "") : "");
+    return get(key) +
+        (isFirstPerson ? (_values!["_first_person_verb_extra_"] ?? "") : "");
   }
 
   changeLanguage(Language language) {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
   }
 
-  static I18N of(BuildContext context) {
+  static I18N? of(BuildContext context) {
     return Localizations.of<I18N>(context, I18N);
   }
 

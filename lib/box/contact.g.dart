@@ -20,8 +20,8 @@ class ContactAdapter extends TypeAdapter<Contact> {
       countryCode: fields[0] as String,
       nationalNumber: fields[1] as String,
       uid: fields[2] as String,
-      firstName: fields[3] as String,
-      lastName: fields[4] as String,
+      firstName: fields[3] as String?,
+      lastName: fields[4] as String?,
     );
   }
 

@@ -2,10 +2,10 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/header_details.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,8 +15,12 @@ class UnknownFileUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
 
-  UnknownFileUi(
-      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
+  const UnknownFileUi(
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -33,7 +37,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
 
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json.toFile();
+    var file = widget.message.json!.toFile();
     return FutureBuilder<bool>(
         future: fileRepo.isExist(file.uuid, file.name),
         builder: (context, isExist) {
@@ -55,13 +59,13 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(left: 20.0),
-                      child: Container(
+                      child: SizedBox(
                         width: 175,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 155,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 10.0),
@@ -84,8 +88,9 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                     ),
                     HeaderDetails(file: file),
                     file.caption.isEmpty
-                        ? TimeAndSeenStatus(widget.message, widget.isSender,
-                            widget.isSeen, needsBackground: true)
+                        ? TimeAndSeenStatus(
+                            widget.message, widget.isSender, widget.isSeen,
+                            needsBackground: true)
                         : Container(),
                   ],
                 ),

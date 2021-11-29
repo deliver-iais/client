@@ -11,13 +11,13 @@ class ShareBoxMusic extends StatefulWidget {
   final Function playMusic;
   final Map<int, IconData> icons;
 
-  ShareBoxMusic(
-      {Key key,
-      @required this.scrollController,
-      @required this.onClick,
-      @required this.playMusic,
-      @required this.icons,
-      @required this.selectedAudio})
+  const ShareBoxMusic(
+      {Key? key,
+      required this.scrollController,
+      required this.onClick,
+      required this.playMusic,
+      required this.icons,
+      required this.selectedAudio})
       : super(key: key);
 
   @override
@@ -25,7 +25,7 @@ class ShareBoxMusic extends StatefulWidget {
 }
 
 class _ShareBoxMusicState extends State<ShareBoxMusic> {
-  var _future;
+  late Future<List<File>> _future;
 
   @override
   void initState() {
@@ -35,17 +35,15 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<File>>(
+    return FutureBuilder<List<File>?>(
         future: _future,
         builder: (context, audios) {
           if (audios.hasData) {
             return ListView.builder(
                 controller: widget.scrollController,
-                itemCount: audios.data.length,
+                itemCount: audios.data!.length,
                 itemBuilder: (ctx, index) {
-                  var fileItem = audios.data[index];
-                  var onTap = () => widget.onClick(index, fileItem.path);
-
+                  var fileItem = audios.data![index];
                   var selected = widget.selectedAudio[index] ?? false;
                   return GestureDetector(
                     child: Container(
@@ -60,16 +58,17 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                               color: Colors.blue,
                               size: 40,
                             ),
-                            onPressed: () => widget.playMusic(index, fileItem.path),
+                            onPressed: () =>
+                                widget.playMusic(index, fileItem.path),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                           ),
                           Flexible(
                             child: Text(
                               fileItem.path.split("/").last,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 14,
                               ),
@@ -79,11 +78,11 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                         ],
                       ),
                     ),
-                    onTap: onTap,
+                    onTap: () => widget.onClick(index, fileItem.path),
                   );
                 });
           }
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         });
   }
 }

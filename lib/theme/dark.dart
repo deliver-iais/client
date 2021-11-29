@@ -1,10 +1,11 @@
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
+// ignore: constant_identifier_names
 const DarkThemeName = "Dark";
 
-final primary = Color(0xFF2699FB);
-final secondary = Color(0xFF182731);
+const primary = Color(0xFF2699FB);
+const secondary = Color(0xFF182731);
 
 final primaryTextTheme = Typography.whiteCupertino
     .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
@@ -21,27 +22,27 @@ ThemeData DarkTheme = ThemeData(
 ).copyWith(
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: primary,
-    scaffoldBackgroundColor: Color(0xFF021a25),
-    bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
-    backgroundColor: Color(0xFF00101A),
+    scaffoldBackgroundColor: const Color(0xFF021a25),
+    bottomAppBarColor: const Color.fromRGBO(255, 255, 255, 0.2),
+    backgroundColor: const Color(0xFF00101A),
     dividerTheme:
-        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xff313131)),
+        const DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xff313131)),
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
     appBarTheme: AppBarTheme(
-        color: Color(0xFF03151d),
+        color: const Color(0xFF03151d),
         elevation: 0,
         titleTextStyle: textTheme.headline5,
         toolbarTextStyle: textTheme.headline6),
-    popupMenuTheme: PopupMenuThemeData(color: Color(0xFF032738)),
-    sliderTheme: SliderThemeData(
+    popupMenuTheme: const PopupMenuThemeData(color: Color(0xFF032738)),
+    sliderTheme: const SliderThemeData(
       thumbColor: Colors.white,
       trackHeight: 2.25,
       activeTrackColor: Colors.white,
       inactiveTrackColor: Color(0xFFBCE0FD),
       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: const TabBarTheme(
         indicator: UnderlineTabIndicator(
             borderSide: BorderSide(width: 2.0, color: Colors.blue),
             insets: EdgeInsets.zero),
@@ -50,19 +51,19 @@ ThemeData DarkTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
-    centerPageDetails: Color(0xFF9D9D9D),
-    boxOuterBackground: Color(0xFF03151d),
-    boxBackground: Color(0xFF032738),
+    centerPageDetails: const Color(0xFF9D9D9D),
+    boxOuterBackground: const Color(0xFF03151d),
+    boxBackground: const Color(0xFF032738),
     textDetails: DarkTheme.primaryColor,
     menuIconButton: secondary.withAlpha(50),
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
-    sentMessageBox: Color(0xFF0674A1),
-    receivedMessageBox: Color(0xFF182731),
+    sentMessageBox: const Color(0xFF0674A1),
+    receivedMessageBox: const Color(0xFF182731),
     textMessage: Colors.white,
-    messageDetails: Color(0xFF00396C),
+    messageDetails: const Color(0xFF00396C),
     persistentEventMessage: secondary.withAlpha(50),
-    circularFileStatus: Color(0xFFBCE0FD),
+    circularFileStatus: const Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,
     textField: Colors.white,
     username: Colors.yellowAccent,

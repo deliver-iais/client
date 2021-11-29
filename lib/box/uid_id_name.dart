@@ -10,19 +10,20 @@ class UidIdName {
   String uid;
 
   @HiveField(1)
-  String id;
+  String? id;
 
   @HiveField(2)
-  String name;
+  String? name;
 
   @HiveField(4)
-  int lastUpdate;
+  int? lastUpdate;
 
-  UidIdName({this.uid, this.id, this.name, this.lastUpdate});
+  UidIdName({required this.uid, this.id, this.name, this.lastUpdate});
 
-  UidIdName copyWith({String uid, String id, String name, int lastUpdate}) =>
+  UidIdName copyWith(
+          {required String uid, String? id, String? name, int? lastUpdate}) =>
       UidIdName(
-        uid: uid ?? this.uid,
+        uid: uid,
         id: id ?? this.id,
         name: name ?? this.name,
         lastUpdate: lastUpdate ?? this.lastUpdate,

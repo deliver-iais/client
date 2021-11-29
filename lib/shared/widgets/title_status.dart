@@ -18,12 +18,12 @@ import 'package:random_string/random_string.dart';
 class TitleStatus extends StatefulWidget {
   final TextStyle style;
   final Widget normalConditionWidget;
-  final Uid currentRoomUid;
+  final Uid? currentRoomUid;
 
-  TitleStatus(
-      {this.style,
+  const TitleStatus(
+      {Key? key, required this.style,
       this.normalConditionWidget = const SizedBox.shrink(),
-      this.currentRoomUid});
+      this.currentRoomUid}) : super(key: key);
 
   @override
   _TitleStatusState createState() => _TitleStatusState();
@@ -34,28 +34,28 @@ class _TitleStatusState extends State<TitleStatus> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
 
-  I18N i18n;
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
     if (widget.currentRoomUid != null) {
-      if (widget.currentRoomUid.category == Categories.USER)
-        _lastActivityRepo.updateLastActivity(widget.currentRoomUid);
-      _roomRepo.initActivity(widget.currentRoomUid.node);
+      if (widget.currentRoomUid!.category == Categories.USER) {
+        _lastActivityRepo.updateLastActivity(widget.currentRoomUid!);
+      }
+      _roomRepo.initActivity(widget.currentRoomUid!.node);
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    i18n = I18N.of(context);
     return StreamBuilder<TitleStatusConditions>(
         stream: _messageRepo.updatingStatus.stream,
         builder: (context, snapshot) {
           return AnimatedSwitcher(
               layoutBuilder: (currentChild, previousChildren) {
-                return Container(
-                  height: widget.style.fontSize * 1.5,
+                return SizedBox(
+                  height: widget.style.fontSize! * 1.5,
                   child: Stack(
                     children: <Widget>[
                       ...previousChildren,
@@ -70,8 +70,8 @@ class _TitleStatusState extends State<TitleStatus> {
                     opacity: animation,
                     child: SizeTransition(sizeFactor: animation, child: child));
               },
-              duration: Duration(milliseconds: 150),
-              reverseDuration: Duration(milliseconds: 150),
+              duration: const Duration(milliseconds: 150),
+              reverseDuration: const Duration(milliseconds: 150),
               child: buildTitle(snapshot));
         });
   }
@@ -82,18 +82,19 @@ class _TitleStatusState extends State<TitleStatus> {
         case TitleStatusConditions.Updating:
         case TitleStatusConditions.Disconnected:
         case TitleStatusConditions.Connecting:
-          return Text(title(i18n, snapshot.data),
+          return Text(title(i18n, snapshot.data!),
               maxLines: 1,
               key: ValueKey(randomString(10)),
               overflow: TextOverflow.fade,
               softWrap: false,
               style: widget.style);
-          break;
         case TitleStatusConditions.Normal:
-          if (widget.currentRoomUid != null)
+          if (widget.currentRoomUid != null) {
             return activityWidget();
-          else
-            return this.widget.normalConditionWidget;
+          } else {
+            return widget.normalConditionWidget;
+          }
+        default:
           break;
       }
     }
@@ -116,17 +117,18 @@ class _TitleStatusState extends State<TitleStatus> {
   Widget activityWidget() {
     return StreamBuilder<Activity>(
         key: ValueKey(randomString(10)),
-        stream: _roomRepo.activityObject[widget.currentRoomUid.node],
+        stream: _roomRepo.activityObject[widget.currentRoomUid!.node],
         builder: (c, activity) {
           if (activity.hasData && activity.data != null) {
-            if (activity.data.typeOfActivity == ActivityType.NO_ACTIVITY) {
+            if (activity.data!.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return normalActivity();
-            } else
+            } else {
               return ActivityStatus(
-                activity: activity.data,
-                roomUid: widget.currentRoomUid,
+                activity: activity.data!,
+                roomUid: widget.currentRoomUid!,
                 style: widget.style,
               );
+            }
           } else {
             return normalActivity();
           }
@@ -134,14 +136,13 @@ class _TitleStatusState extends State<TitleStatus> {
   }
 
   Widget normalActivity() {
-    if (widget.currentRoomUid.category == Categories.USER) {
-      return StreamBuilder<LastActivity>(
-          stream: _lastActivityRepo.watch(widget.currentRoomUid.asString()),
+    if (widget.currentRoomUid!.category == Categories.USER) {
+      return StreamBuilder<LastActivity?>(
+          stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
           builder: (c, userInfo) {
             if (userInfo.hasData &&
-                userInfo.data != null &&
-                userInfo.data.time != null) {
-              if (isOnline(userInfo.data.time)) {
+                userInfo.data != null) {
+              if (isOnline(userInfo.data!.time)) {
                 return Text(
                   i18n.get("online"),
                   maxLines: 1,
@@ -153,7 +154,7 @@ class _TitleStatusState extends State<TitleStatus> {
                 );
               } else {
                 String lastActivityTime =
-                    dateTimeFormat(date(userInfo.data.time));
+                    dateTimeFormat(date(userInfo.data!.time));
                 return Text(
                     "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
                     maxLines: 1,
@@ -164,7 +165,7 @@ class _TitleStatusState extends State<TitleStatus> {
                         .copyWith(color: Theme.of(context).primaryColor));
               }
             }
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           });
     } else {
       return widget.normalConditionWidget;

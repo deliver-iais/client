@@ -3,9 +3,9 @@ import 'package:deliver/box/muc.dart';
 import 'package:hive/hive.dart';
 
 abstract class MucDao {
-  Future<Muc> get(String uid);
+  Future<Muc?> get(String uid);
 
-  Stream<Muc> watch(String uid);
+  Stream<Muc?> watch(String uid);
 
   Future<void> save(Muc muc);
 
@@ -13,11 +13,11 @@ abstract class MucDao {
 
   Future<void> delete(String uid);
 
-  Future<Member> getMember(String mucUid, String memberUid);
+  Future<Member?> getMember(String mucUid, String memberUid);
 
-  Future<List<Member>> getAllMembers(String mucUid);
+  Future<List<Member?>> getAllMembers(String mucUid);
 
-  Stream<List<Member>> watchAllMembers(String mucUid);
+  Stream<List<Member?>> watchAllMembers(String mucUid);
 
   Future<void> saveMember(Member member);
 
@@ -27,34 +27,37 @@ abstract class MucDao {
 }
 
 class MucDaoImpl implements MucDao {
+  @override
   Future<void> delete(String uid) async {
     var box = await _openMuc();
 
     box.delete(uid);
   }
 
-  Future<Muc> get(String uid) async {
+  @override
+  Future<Muc?> get(String uid) async {
     var box = await _openMuc();
 
     return box.get(uid);
   }
 
-
+  @override
   Future<void> save(Muc muc) async {
     var box = await _openMuc();
 
     return box.put(muc.uid, muc);
   }
 
+  @override
   Future<void> update(Muc muc) async {
     var box = await _openMuc();
 
-    var m = box.get(muc.uid) ?? Muc();
-
-    return box.put(muc.uid, m.copy(muc));
+    var m = box.get(muc.uid);
+    return box.put(muc.uid, m!.copy(muc));
   }
 
-  Stream<Muc> watch(String uid) async* {
+  @override
+  Stream<Muc?> watch(String uid) async* {
     var box = await _openMuc();
 
     yield box.get(uid);
@@ -62,35 +65,41 @@ class MucDaoImpl implements MucDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
+  @override
   Future<void> deleteAllMembers(String mucUid) async {
     var box = await _openMembers(mucUid);
 
     await box.clear();
   }
 
+  @override
   Future<void> deleteMember(Member member) async {
     var box = await _openMembers(member.mucUid);
 
     return box.delete(member.memberUid);
   }
 
-  Future<List<Member>> getAllMembers(String mucUid) async {
+  @override
+  Future<List<Member?>> getAllMembers(String mucUid) async {
     var box = await _openMembers(mucUid);
 
     return box.values.toList();
   }
 
-  Future<Member> getMember(String memberUid, String mucUid ) async {
+  @override
+  Future<Member?> getMember(String memberUid, String mucUid) async {
     var box = await _openMembers(mucUid);
-     return  box.get(memberUid);
+    return box.get(memberUid);
   }
 
+  @override
   Future<void> saveMember(Member member) async {
     var box = await _openMembers(member.mucUid);
 
     box.put(member.memberUid, member);
   }
 
+  @override
   Stream<List<Member>> watchAllMembers(String mucUid) async* {
     var box = await _openMembers(mucUid);
 
@@ -107,5 +116,4 @@ class MucDaoImpl implements MucDao {
 
   static Future<Box<Member>> _openMembers(String uid) =>
       Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-")));
-
 }

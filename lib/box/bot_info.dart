@@ -10,13 +10,16 @@ class BotInfo {
   String uid;
 
   @HiveField(1)
-  String description;
+  String? description;
 
   @HiveField(2)
-  String name;
+  String? name;
 
   @HiveField(3)
-  Map<String, String> commands;
+  Map<String, String>? commands;
 
-  BotInfo({this.uid, this.description, this.name, this.commands});
+  @HiveField(4)
+  bool? isOwner;
+
+  BotInfo({required this.uid, this.description, this.name, this.commands, this.isOwner});
 }

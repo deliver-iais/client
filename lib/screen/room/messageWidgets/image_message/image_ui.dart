@@ -4,12 +4,13 @@ import 'dart:ui';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/screen/room/widgets/image_swiper.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -20,7 +21,11 @@ class ImageUi extends StatefulWidget {
   final bool isSeen;
 
   const ImageUi(
-      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -29,21 +34,19 @@ class ImageUi extends StatefulWidget {
 
 class _ImageUiState extends State<ImageUi> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  var _routingServices = GetIt.I.get<RoutingService>();
-  filePb.File image;
-  BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
-  bool showTime;
+  late file_pb.File image;
+  final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
 
-    const radius = const Radius.circular(12);
-    const border = const BorderRadius.all(radius);
+    const radius = Radius.circular(12);
+    const border = BorderRadius.all(radius);
 
     try {
-      image = widget.message.json.toFile();
+      image = widget.message.json!.toFile();
 
       var dimensions =
           getImageDimensions(image.width.toDouble(), image.height.toDouble());
@@ -52,7 +55,7 @@ class _ImageUiState extends State<ImageUi> {
 
       return ClipRRect(
         borderRadius: border,
-        child: FutureBuilder<File>(
+        child: FutureBuilder<File?>(
             future: fileRepo.getFileIfExist(image.uuid, image.name),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
@@ -61,14 +64,29 @@ class _ImageUiState extends State<ImageUi> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _routingServices.showImageInRoom(
-                            message: widget.message);
+                        if (isDesktop()) {
+                          _showImageInDesktop(s.data!);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ImageSwiper(
+                                  message: widget.message,
+                                );
+                              },
+                            ),
+                          );
+                        }
                       },
-                      child: Image.file(
-                        s.data,
-                        width: width,
-                        height: height,
-                        fit: BoxFit.fill,
+                      child: Hero(
+                        tag: image.uuid,
+                        child: Image.file(
+                          s.data!,
+                          width: width,
+                          height: height,
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                     if (image.caption.isEmpty)
@@ -77,7 +95,7 @@ class _ImageUiState extends State<ImageUi> {
                           needsBackground: true)
                   ],
                 );
-              } else
+              } else {
                 return GestureDetector(
                   onTap: () async {
                     _startDownload.add(true);
@@ -88,24 +106,24 @@ class _ImageUiState extends State<ImageUi> {
                     _startDownload.add(false);
                     setState(() {});
                   },
-                  child: Container(
+                  child: SizedBox(
                     width: width,
                     height: height,
                     child: Stack(
                       children: [
-                        Container(
+                        SizedBox(
                             width: width,
                             height: height,
                             child: BlurHash(hash: image.blurHash)),
                         Center(
-                          child: StreamBuilder(
+                          child: StreamBuilder<bool>(
                             stream: _startDownload.stream,
                             builder: (c, s) {
-                              if (s.hasData && s.data) {
-                                return CircularProgressIndicator(
+                              if (s.hasData && s.data!) {
+                                return const CircularProgressIndicator(
                                   strokeWidth: 4,
                                 );
-                              } else
+                              } else {
                                 return MaterialButton(
                                   color: Theme.of(context).primaryColor,
                                   onPressed: () async {
@@ -116,10 +134,11 @@ class _ImageUiState extends State<ImageUi> {
                                       _startDownload.add(false);
                                     });
                                   },
-                                  shape: CircleBorder(),
-                                  child: Icon(Icons.arrow_downward),
+                                  shape: const CircleBorder(),
+                                  child: const Icon(Icons.arrow_downward),
                                   padding: const EdgeInsets.all(20),
                                 );
+                              }
                             },
                           ),
                         ),
@@ -131,10 +150,11 @@ class _ImageUiState extends State<ImageUi> {
                     ),
                   ),
                 );
+              }
             }),
       );
     } catch (e) {
-      return Container(
+      return SizedBox(
         width: width,
         height: height,
       );
@@ -143,7 +163,7 @@ class _ImageUiState extends State<ImageUi> {
 
   Size getImageDimensions(double width, double height) {
     double maxWidth = widget.maxWidth;
-    if (width == null || width == 0 || height == null || height == 0) {
+    if (width == 0 || height == 0) {
       width = maxWidth;
       height = maxWidth;
     }
@@ -157,7 +177,20 @@ class _ImageUiState extends State<ImageUi> {
       h = min(height, maxWidth);
       w = h * aspect;
     }
-
     return Size(w, h);
+  }
+
+  _showImageInDesktop(File file) {
+    return showDialog(
+        context: context,
+        builder: (c) {
+          return AlertDialog(
+            backgroundColor: Colors.white12,
+            content: InteractiveViewer(
+                child: Hero(
+                    tag: widget.message.json!.toFile().uuid,
+                    child: Image.file(file))),
+          );
+        });
   }
 }

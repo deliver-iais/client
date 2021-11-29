@@ -16,14 +16,14 @@ class FilteredImage extends StatefulWidget {
   final double height;
   final Function onPressed;
 
-  FilteredImage(
-      {this.uuid,
-      this.name,
-      this.path,
-      this.sended,
-      this.width,
-      this.height,
-      this.onPressed});
+  const FilteredImage(
+      {Key? key, required this.uuid,
+      required this.name,
+      required this.path,
+      required this.sended,
+      required this.width,
+      required this.height,
+      required this.onPressed}) : super(key: key);
 
   @override
   _FilteredImageState createState() => _FilteredImageState();
@@ -31,14 +31,15 @@ class FilteredImage extends StatefulWidget {
 
 class _FilteredImageState extends State<FilteredImage> {
   bool startDownload = false;
+
   @override
   Widget build(BuildContext context) {
     var fileRepo = GetIt.I.get<FileRepo>();
-    return FutureBuilder<File>(
-        future:
-            fileRepo.getFile(widget.uuid, widget.name, thumbnailSize: ThumbnailSize.medium),
+    return FutureBuilder<File?>(
+        future: fileRepo.getFile(widget.uuid, widget.name,
+            thumbnailSize: ThumbnailSize.medium),
         builder: (context, file) {
-          if (file.hasData == false && widget.path != null) {
+          if (file.hasData == false) {
             return Stack(
               alignment: Alignment.center,
               children: [
@@ -48,7 +49,7 @@ class _FilteredImageState extends State<FilteredImage> {
                   height: widget.height,
                   fit: BoxFit.fill,
                 ),
-                SendingFileCircularIndicator(
+                const SendingFileCircularIndicator(
                   loadProgress: 0.8,
                   isMedia: true,
                 )
@@ -59,7 +60,7 @@ class _FilteredImageState extends State<FilteredImage> {
               alignment: Alignment.center,
               children: [
                 Image.file(
-                  file.data,
+                  file.data!,
                   width: widget.width,
                   height: widget.height,
                   fit: BoxFit.fill,
@@ -79,7 +80,7 @@ class _FilteredImageState extends State<FilteredImage> {
                   ),
                 ),
                 !widget.sended
-                    ? SendingFileCircularIndicator(
+                    ? const SendingFileCircularIndicator(
                         loadProgress: 0.8,
                         isMedia: true,
                       )
@@ -91,9 +92,11 @@ class _FilteredImageState extends State<FilteredImage> {
                           color: Colors.black.withOpacity(0.5),
                         ),
                         child: IconButton(
-                          icon: startDownload? CircularProgressIndicator():Icon(Icons.file_download),
+                          icon: startDownload
+                              ? const CircularProgressIndicator()
+                              : const Icon(Icons.file_download),
                           onPressed: () {
-                            startDownload  = true;
+                            startDownload = true;
                             widget.onPressed.call();
                           },
                         ),

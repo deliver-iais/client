@@ -8,11 +8,11 @@ class UnreadMessageCounterWidget extends StatelessWidget {
   final int lastMessageId;
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  UnreadMessageCounterWidget(this.roomUid, this.lastMessageId);
+  UnreadMessageCounterWidget(this.roomUid, this.lastMessageId, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Seen>(
+    return StreamBuilder<Seen?>(
       stream: _roomRepo.watchMySeen(roomUid),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
@@ -25,17 +25,17 @@ class UnreadMessageCounterWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(2.0),
                   child: Text(
                     "${unreadCount >= 100 ? "+99" : unreadCount}",
-                    style: TextStyle(fontSize: 11),
+                    style: const TextStyle(fontSize: 11),
                   ),
                   alignment: Alignment.center,
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                     shape: BoxShape.circle,
                   ),
                 )
-              : SizedBox.shrink();
+              : const SizedBox.shrink();
         } else {
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         }
       },
     );
