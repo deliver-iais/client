@@ -1,10 +1,10 @@
-
+package ir.we.deliver;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import anedroid.net.Uri;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -14,6 +14,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.nabinbhandari.android.permissions.PermissionHandler;
 import com.nabinbhandari.android.permissions.Permissions;
+
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -28,10 +34,11 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * StoragePathPlugin
  */
-public class StoragePathPlugin implements MethodCallHandler {
+public class StoragePathPlugin  {
     /**
      * Plugin registration.
      */
+
     public static ArrayList<FileModel> filesModelArrayList;
     boolean hasFolder = false;
     Activity activity;
@@ -42,68 +49,7 @@ public class StoragePathPlugin implements MethodCallHandler {
         this.activity = activity;
     }
 
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "storage_path");
-        channel.setMethodCallHandler(new StoragePathPlugin(registrar.activity()));
-    }
-
-    @Override
-    public void onMethodCall(MethodCall call, final Result result) {
-        if (call.method.equals("getImagesPath")) {
-            Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
-                @Override
-                public void onGranted() {
-                    getImagePaths(result);
-                }
-
-                @Override
-                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                    result.error("1", "Permission denied", null);
-                }
-            });
-        } else if (call.method.equals("getVideosPath")) {
-            Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
-                @Override
-                public void onGranted() {
-                    getVideoPath(result);
-                }
-
-                @Override
-                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                    result.error("1", "Permission denied", null);
-                }
-            });
-        } else if (call.method.equals("getFilesPath")) {
-            Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
-                @Override
-                public void onGranted() {
-                    getFilesPath(result);
-                }
-
-                @Override
-                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                    result.error("1", "Permission denied", null);
-                }
-            });
-        } else if (call.method.equals("getAudioPath")) {
-            Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
-                @Override
-                public void onGranted() {
-                    getAudioPath(result);
-                }
-
-                @Override
-                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                    result.error("1", "Permission denied", null);
-                }
-            });
-        } else {
-            result.notImplemented();
-        }
-    }
-
-
-    private void getImagePaths(Result result) {
+    public void getImagePaths(Result result) {
         filesModelArrayList = new ArrayList<>();
         boolean hasFolder = false;
         int position = 0;
@@ -140,8 +86,6 @@ public class StoragePathPlugin implements MethodCallHandler {
 
 
             if (hasFolder) {
-
-
                 ArrayList<String> arrayList = new ArrayList<>();
                 arrayList.addAll(filesModelArrayList.get(position).getFiles());
                 arrayList.add(absolutePathOfImage);

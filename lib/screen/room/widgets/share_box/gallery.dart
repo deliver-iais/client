@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -34,27 +35,15 @@ class ShareBoxGallery extends StatefulWidget {
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   var _routingServices = GetIt.I.get<RoutingService>();
+  var _checkPer = GetIt.I.get<CheckPermissionsService>();
   var _future;
 
   @override
   void initState() {
-    call();
     _future = ImageItem.getImages();
     super.initState();
   }
 
-  call() async {
-    const platform = const MethodChannel('get_media');
-
-    String response = "";
-    try {
-      final String result = await platform.invokeMethod('1');
-      response = result;
-      print(response.toString());
-    } on PlatformException catch (e) {
-      response = "Failed to Invoke: '${e.message}'.";
-    }
-  }
 
   void cropAvatar(String imagePath) async {
     File? croppedFile = await ImageCropper.cropImage(
