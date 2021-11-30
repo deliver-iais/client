@@ -4,7 +4,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -23,7 +22,7 @@ class SelectiveContactsList extends StatefulWidget {
 
   final bool isChannel;
 
-  SelectiveContactsList({Key? key, required this.isChannel, this.mucUid})
+  const SelectiveContactsList({Key? key, required this.isChannel, this.mucUid})
       : super(key: key);
 
   @override
@@ -37,13 +36,13 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact>? items;
 
-  var _contactRepo = GetIt.I.get<ContactRepo>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
-  var _routingService = GetIt.I.get<RoutingService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
-  var _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
 
-  var _createMucService = GetIt.I.get<CreateMucService>();
+  final _createMucService = GetIt.I.get<CreateMucService>();
 
   final _authRepo = GetIt.I.get<AuthRepo>();
 
@@ -61,32 +60,32 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   getMembers() async {
     var res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
-    res.forEach((element) {
+    for (var element in res) {
       members.add(element!.memberUid);
-    });
+    }
   }
 
   void filterSearchResults(String query) {
-    query = query.replaceAll(new RegExp(r"\s\b|\b\s"), "").toLowerCase();
+    query = query.replaceAll(RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
       List<Contact> dummyListData = [];
-      contacts.forEach((item) {
+      for (var item in contacts) {
         var searchTerm = '${item.firstName}${item.lastName}'
-            .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+            .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
             item.firstName!
-                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                .replaceAll(RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
             (item.lastName != null &&
                 item.lastName!
-                    .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                    .replaceAll(RegExp(r"\s\b|\b\s"), "")
                     .toLowerCase()
                     .contains(query))) {
           dummyListData.add(item);
         }
-      });
+      }
       setState(() {
         items!.clear();
         items!.addAll(dummyListData);
@@ -122,20 +121,18 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
-                          snapshot.data!.length > 0) {
+                          snapshot.data!.isNotEmpty) {
                         snapshot.data!.removeWhere((element) => element.uid
                             .contains(_authRepo.currentUserUid.asString()));
                         contacts = snapshot.data!;
-                        if (items == null) {
-                          items = contacts;
-                        }
+                        items ??= contacts;
 
-                        if (items!.length > 0) {
+                        if (items!.isNotEmpty) {
                           return StreamBuilder<int>(
                               stream: _createMucService.selectedLengthStream(),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
-                                  return SizedBox.shrink();
+                                  return const SizedBox.shrink();
                                 }
                                 return ListView.builder(
                                   itemCount: items!.length,
@@ -154,7 +151,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           );
                         }
                       } else {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                     })),
           ],
@@ -163,9 +160,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             stream: _createMucService.selectedLengthStream(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
-              if (snapshot.data! > 0)
+              if (snapshot.data! > 0) {
                 return Positioned(
                   bottom: 0,
                   right: 0,
@@ -178,9 +175,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                     ),
                     child: widget.mucUid != null
                         ? IconButton(
-                            icon: Icon(Icons.check),
+                            icon: const Icon(Icons.check),
                             alignment: Alignment.center,
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             onPressed: () async {
                               List<Uid> users = [];
                               for (Contact contact
@@ -204,12 +201,12 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               }
                             })
                         : IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.arrow_forward,
                               color: Colors.white,
                             ),
                             alignment: Alignment.center,
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             onPressed: () {
                               _routingService.openGroupInfoDeterminationPage(
                                   context,
@@ -218,8 +215,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           ),
                   ),
                 );
-              else
-                return SizedBox.shrink();
+              } else {
+                return const SizedBox.shrink();
+              }
             })
       ],
     );

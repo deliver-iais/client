@@ -10,7 +10,7 @@ class DBManager {
     // TODO - read all files in db directory with *.hive pattern and open it, then call delete
     try {
       await Hive.deleteFromDisk();
-    } catch (e) {}
+    } catch (_) {}
 
     var documentPath = await getApplicationDocumentsDirectory();
 
@@ -24,11 +24,9 @@ class DBManager {
         .forEach((db) async {
       try {
         await Hive.deleteBoxFromDisk(db);
-      } catch (e) {
-        print("########" + e.toString());
-      }
+      } catch (_) {}
     });
   }
 
-  Future<void> migrate(String ? previousVersion) async {}
+  Future<void> migrate(String? previousVersion) async {}
 }

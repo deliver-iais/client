@@ -56,16 +56,16 @@ class Room {
 
   Room copy(Room r) => Room(
       uid: r.uid,
-      lastMessage: r.lastMessage ?? this.lastMessage,
-      deleted: r.deleted ?? this.deleted,
-      draft: r.draft ?? this.draft,
-      lastUpdateTime: r.lastUpdateTime ?? this.lastUpdateTime,
-      mentioned: r.mentioned ?? this.mentioned,
-      lastMessageId: r.lastMessageId ?? this.lastMessageId,
-      firstMessageId: r.firstMessageId ?? this.firstMessageId,
-      pinned: r.pinned ?? this.pinned,
-      lastUpdatedMessageId: r.lastUpdatedMessageId ?? this.lastUpdatedMessageId,
-      hiddenMessageCount: r.hiddenMessageCount ?? this.hiddenMessageCount);
+      lastMessage: r.lastMessage ?? lastMessage,
+      deleted: r.deleted ?? deleted,
+      draft: r.draft ?? draft,
+      lastUpdateTime: r.lastUpdateTime ?? lastUpdateTime,
+      mentioned: r.mentioned ?? mentioned,
+      lastMessageId: r.lastMessageId ?? lastMessageId,
+      firstMessageId: r.firstMessageId ?? firstMessageId,
+      pinned: r.pinned ?? pinned,
+      lastUpdatedMessageId: r.lastUpdatedMessageId ?? lastUpdatedMessageId,
+      hiddenMessageCount: r.hiddenMessageCount ?? hiddenMessageCount);
 
   Room copyWith(
           {String? uid,

@@ -16,6 +16,7 @@ abstract class LiveLocationDao {
 class LiveLocationDaoImpl implements LiveLocationDao {
 
 
+  @override
   Future<void> saveLiveLocation(LiveLocation liveLocation) async {
     var box = await _open();
     box.put(liveLocation.uuid, liveLocation);
@@ -24,11 +25,13 @@ class LiveLocationDaoImpl implements LiveLocationDao {
   }
 
 
+  @override
   Future<LiveLocation?> getLiveLocation(String uuid) async {
     var box = await _open();
     return box.get(uuid);
   }
 
+  @override
   Stream<LiveLocation?> watchLiveLocation(String uuid) async* {
     var box = await _open();
 

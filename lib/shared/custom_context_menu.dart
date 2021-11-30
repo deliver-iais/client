@@ -10,6 +10,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
       _tapPosition = details.globalPosition;
 
   /// Use this method to show the menu.
+  // ignore: avoid_shadowing_type_parameters
   Future<T?> showMenu<T>({
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,

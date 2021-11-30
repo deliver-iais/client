@@ -32,7 +32,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(60),
         child: ForwardAppbar(),
       ),
       body: Column(
@@ -64,12 +64,12 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&
-                    snapshot.data!.length > 0) {
+                    snapshot.data!.isNotEmpty) {
                   return Container(
                     child: buildListView(snapshot.data!),
                   );
                 } else {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(
                       backgroundColor: Colors.blue,
                     ),

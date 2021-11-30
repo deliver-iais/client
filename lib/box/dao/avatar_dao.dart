@@ -18,6 +18,7 @@ abstract class AvatarDao {
 }
 
 class AvatarDaoImpl implements AvatarDao {
+  @override
   Stream<List<Avatar>> watchAvatars(String uid) async* {
     var box = await _open(uid);
 
@@ -26,6 +27,7 @@ class AvatarDaoImpl implements AvatarDao {
     yield* box.watch().map((event) => box.values.toList());
   }
 
+  @override
   Future<void> saveAvatars(String uid, List<Avatar> avatars) async {
     if (avatars.isEmpty) return;
 
@@ -72,6 +74,7 @@ class AvatarDaoImpl implements AvatarDao {
             lastUpdate: DateTime.now().millisecondsSinceEpoch));
   }
 
+  @override
   Future<void> removeAvatar(Avatar avatar) async {
     var box = await _open(avatar.uid);
 
@@ -84,7 +87,7 @@ class AvatarDaoImpl implements AvatarDao {
     if (avatar.createdOn == lastAvatar!.createdOn) {
       await box2.delete(lastAvatar.uid);
 
-      if (box.values.length > 0) {
+      if (box.values.isNotEmpty) {
         var lastAvatarOfList = box.values.fold<Avatar?>(
             null,
             (value, element) => value == null ? element
@@ -100,12 +103,14 @@ class AvatarDaoImpl implements AvatarDao {
     }
   }
 
+  @override
   Future<Avatar?>  getLastAvatar(String uid) async {
     var box = await _open2();
 
     return  box.get(uid);
   }
 
+  @override
   Stream<Avatar?> watchLastAvatar(String uid) async* {
     var box = await _open2();
 
@@ -121,6 +126,7 @@ class AvatarDaoImpl implements AvatarDao {
   static Future<Box<Avatar>> _open(String uid) =>
       Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-")));
 
+  @override
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();
 

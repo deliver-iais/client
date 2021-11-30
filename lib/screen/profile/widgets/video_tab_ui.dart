@@ -16,7 +16,7 @@ class VideoTabUi extends StatefulWidget {
   final Uid userUid;
   final int videoCount;
 
-  VideoTabUi({Key? key, required this.userUid, required this.videoCount})
+  const VideoTabUi({Key? key, required this.userUid, required this.videoCount})
       : super(key: key);
 
   @override
@@ -29,7 +29,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
   final fileRepo = GetIt.I.get<FileRepo>();
   late Duration duration;
   late String videoLength;
-  Map<int, String> totalDuration = Map();
+  Map<int, String> totalDuration = {};
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +40,15 @@ class _VideoTabUiState extends State<VideoTabUi> {
           if (!snaps.hasData ||
               snaps.data == null ||
               snaps.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
+            return const SizedBox(width: 0.0, height: 0.0);
           } else {
             return GridView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
                 itemCount: widget.videoCount,
                 scrollDirection: Axis.vertical,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3),
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
@@ -93,7 +92,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                     videoLength: totalDuration[position]!,
                                   );
                                 } else {
-                                  return Container(
+                                  return const SizedBox(
                                     width: 0,
                                     height: 0,
                                   );
@@ -121,7 +120,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   videoLength: totalDuration[position]!,
                                 );
                               } else {
-                                return Container(
+                                return const SizedBox(
                                   width: 0,
                                   height: 0,
                                 );
@@ -129,7 +128,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             },
                           );
                         } else {
-                          return Container(
+                          return const SizedBox(
                             width: 0,
                             height: 0,
                           );

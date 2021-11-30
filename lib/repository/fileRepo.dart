@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -5,7 +7,7 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as FileProto;
+    as file_pb;
 
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
@@ -21,14 +23,14 @@ class FileRepo {
     await _saveFileInfo(uploadKey, file, name, "real");
   }
 
-  Future<FileProto.File> uploadClonedFile(String uploadKey, String name,
+  Future<file_pb.File> uploadClonedFile(String uploadKey, String name,
       {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     var value = await _fileService.uploadFile(clonedFilePath!.path!,
         uploadKey: uploadKey, sendActivity: sendActivity!);
 
     var json = jsonDecode(value.toString());
-    var uploadedFile = FileProto.File()
+    var uploadedFile = file_pb.File()
       ..uuid = json["uuid"]
       ..size = Int64.parseInt(json["size"])
       ..type = json["type"]
@@ -39,7 +41,6 @@ class FileRepo {
       ..blurHash = json["blurHash"] ?? ""
       ..hash = json["hash"] ?? "";
     _logger.v(uploadedFile);
-    print(uploadedFile.blurHash);
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;
@@ -50,7 +51,7 @@ class FileRepo {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = new File(fileInfo.path!);
+      File file = File(fileInfo.path!);
       return await file.exists();
     }
     return false;
@@ -61,7 +62,7 @@ class FileRepo {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = new File(fileInfo.path!);
+      File file = File(fileInfo.path!);
       if (await file.exists()) {
         return file;
       }

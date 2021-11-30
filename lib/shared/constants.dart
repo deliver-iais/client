@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -11,11 +13,12 @@ const VERSION =
 const LOG_OUT = "log_out";
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
+// ignore: non_constant_identifier_names
 final Uid TEST_USER_UID = Uid.create()
   ..category = Categories.USER
   ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
 
-const TEST_USER_PHONENUMBER ="1234567890";
+const TEST_USER_PHONE_NUMBER ="1234567890";
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";
@@ -69,7 +72,7 @@ const MEDIA_TYPE_TRACK_ID = 18;
 const LIVE_LOCATION_TRACK_ID = 19;
 
 // Animation
-const ANIMATION_DURATION = const Duration(milliseconds: 100);
+const ANIMATION_DURATION = Duration(milliseconds: 100);
 
 // UI
 const MAIN_BORDER_RADIUS = 10.0;

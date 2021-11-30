@@ -12,11 +12,6 @@ import 'package:rxdart/rxdart.dart';
 
 class DeliverLogFilter extends LogFilter {
   @override
-  set level(Level? _level) {
-    super.level = _level;
-  }
-
-  @override
   bool shouldLog(LogEvent event) {
     return event.level != Level.nothing && event.level.index >= level!.index;
   }
@@ -150,7 +145,7 @@ class UxService {
   }
 
   // TODO ???
-  Map _tabIndexMap = new Map<String, int>();
+  final Map _tabIndexMap = <String, int>{};
 
   int ? getTabIndex(String fileId) {
     return _tabIndexMap[fileId];

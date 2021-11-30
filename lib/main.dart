@@ -270,13 +270,15 @@ void main() async {
 }
 
 _setWindowSize() {
-  setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
 }
 
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -305,14 +307,14 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-                supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
+                supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate
                 ],
-                home: SplashScreen(),
+                home: const SplashScreen(),
                 localeResolutionCallback: (deviceLocale, supportedLocale) {
                   for (var locale in supportedLocale) {
                     if (locale.languageCode == deviceLocale!.languageCode &&

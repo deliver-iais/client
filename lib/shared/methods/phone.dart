@@ -6,7 +6,7 @@ String buildPhoneNumber(String countryCode, String nationalNumber) =>
 
 PhoneNumber? getPhoneNumber(String pStr) {
   final phone = pStr
-      .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
+      .replaceAll(RegExp(r"\s+\b|\b\s"), '')
       .replaceAll('+', '')
       .replaceAll('(', '')
       .replaceAll(')', '')
@@ -18,7 +18,6 @@ PhoneNumber? getPhoneNumber(String pStr) {
       phoneNumber.countryCode = 98;
       phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
       return phoneNumber;
-      break;
     case 12:
       phoneNumber.countryCode = int.parse(phone.substring(0, 2));
       phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));

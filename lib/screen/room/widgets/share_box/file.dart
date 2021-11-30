@@ -20,7 +20,8 @@ class ShareBoxFile extends StatefulWidget {
 }
 
 class _ShareBoxFileState extends State<ShareBoxFile> {
-  var _future;
+  // ignore: prefer_typing_uninitialized_variables
+  late var _future;
 
   @override
   void initState() {
@@ -49,21 +50,21 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.insert_drive_file,
                               color: Colors.deepOrange,
                               size: 33,
                             ),
-                            onPressed: onTap,
+                            onPressed: () => widget.onClick(index, fileItem.path),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 22,
                           ),
                           Flexible(
                             child: Text(
                               fileItem.split("/").last,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
                               ),
@@ -73,11 +74,11 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                         ],
                       ),
                     ),
-                    onTap: onTap,
+                    onTap: () => widget.onClick(index, fileItem.path),
                   );
                 });
           }
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         });
   }
 }

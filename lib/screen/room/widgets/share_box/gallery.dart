@@ -33,8 +33,10 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  var _routingServices = GetIt.I.get<RoutingService>();
-  var _future;
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final i18n = GetIt.I.get<I18N>();
+
+  late Future<List<ImageItem>> _future;
 
   @override
   void initState() {
@@ -68,8 +70,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }
   }
 
-  I18N i18n = GetIt.I.get<I18N>();
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ImageItem>?>(
@@ -77,11 +77,11 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
         builder: (context, images) {
           if (images.hasData &&
               images.data != null &&
-              images.data!.length > 0) {
+              images.data!.isNotEmpty) {
             return GridView.builder(
                 controller: widget.scrollController,
                 itemCount: images.data!.length + 1,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
                 itemBuilder: (context, index) {
                   ImageItem? image = index > 0 ? images.data![index - 1] : null;
@@ -89,13 +89,14 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     return Container(
                       width: 50,
                       height: 50,
-                      margin: EdgeInsets.all(4.0),
+                      margin: const EdgeInsets.all(4.0),
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5)),
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.photo_camera,
+                        icon: const Icon(Icons.photo_camera,
                             color: Colors.white, size: 40),
                         onPressed: () async {
                           try {
@@ -108,7 +109,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                     roomUid: widget.roomUid,
                                     file: File(pickedFile!.path))
                                 : cropAvatar(image!.path);
-                          } catch (e) {}
+                          } catch (_) {}
                         },
                       ),
                     );
@@ -132,7 +133,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 Navigator.pop(context);
                               },
                         child: AnimatedPadding(
-                          duration: Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 200),
                           padding: EdgeInsets.all(selected ? 8.0 : 4.0),
                           child: Hero(
                             tag: image!,
@@ -141,7 +142,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                               height: 50,
                               decoration: BoxDecoration(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
+                                    const BorderRadius.all(Radius.circular(5)),
                                 image: DecorationImage(
                                     image: Image.file(File(image.path)).image,
                                     fit: BoxFit.cover),
@@ -160,14 +161,14 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                         ),
                                       ),
                                     )
-                                  : SizedBox.shrink(),
+                                  : const SizedBox.shrink(),
                             ),
                           ),
                         ));
                   }
                 });
           }
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         });
   }
 }

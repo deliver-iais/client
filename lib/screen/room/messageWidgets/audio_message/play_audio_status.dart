@@ -27,7 +27,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         future: fileRepo.getFileIfExist(widget.fileId, widget.fileName),
         builder: (context, audio) {
           return Padding(
-            padding: EdgeInsets.only(left: 2),
+            padding: const EdgeInsets.only(left: 2),
             child: Container(
               width: 50,
               height: 50,
@@ -44,9 +44,9 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                           builder: (context, uuid) {
                             if (uuid.hasData &&
                                 uuid.data.toString().isNotEmpty &&
-                                uuid.data.toString().contains(widget.fileId))
+                                uuid.data.toString().contains(widget.fileId)) {
                               return IconButton(
-                                padding: EdgeInsets.all(0),
+                                padding: const EdgeInsets.all(0),
                                 alignment: Alignment.center,
                                 icon: Icon(
                                   Icons.pause,
@@ -58,8 +58,9 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                                   audioPlayerService.pause();
                                 },
                               );
-                            else
+                            } else {
                               return buildPlay(context, audio);
+                            }
                           });
                     } else {
                       return buildPlay(context, audio);
@@ -72,7 +73,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
 
   IconButton buildPlay(BuildContext context, AsyncSnapshot<File?> audio) {
     return IconButton(
-        padding: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
         alignment: Alignment.center,
         icon: Icon(
           Icons.play_arrow,

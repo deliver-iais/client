@@ -24,7 +24,7 @@ class ReplyBrief extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.all(4),
               child: Container(
-                constraints: BoxConstraints.loose(Size.fromWidth(200)),
+                constraints: BoxConstraints.loose(const Size.fromWidth(200)),
                 padding: const EdgeInsets.only(left: 6.0),
                 margin: const EdgeInsets.only(left: 2.0),
                 decoration: BoxDecoration(
@@ -38,10 +38,11 @@ class ReplyBrief extends StatelessWidget {
                 ),
               ),
             );
-          } else
-            return SizedBox(
+          } else {
+            return const SizedBox(
               width: 200,
             );
+          }
         });
   }
 }

@@ -3,7 +3,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
 import 'package:deliver/screen/home/pages/home_page.dart';
-import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -15,6 +14,8 @@ import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class VerificationPage extends StatefulWidget {
+  const VerificationPage({Key? key}) : super(key: key);
+
   @override
   _VerificationPageState createState() => _VerificationPageState();
 }
@@ -29,7 +30,7 @@ class _VerificationPageState extends State<VerificationPage> {
   String? _verificationCode;
 
   // TODO ???
-  I18N _i18n = GetIt.I.get<I18N>();
+  final I18N _i18n = GetIt.I.get<I18N>();
 
   _sendVerificationCode() {
     if ((_verificationCode!.length) < 5) {
@@ -63,7 +64,7 @@ class _VerificationPageState extends State<VerificationPage> {
   _navigationToHome() async {
     _contactRepo.getContacts();
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-      return HomePage();
+      return const HomePage();
     }), (r) => false);
   }
 
@@ -84,7 +85,7 @@ class _VerificationPageState extends State<VerificationPage> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Theme.of(context).buttonTheme.colorScheme!.onPrimary,
-          child: Icon(Icons.arrow_forward),
+          child: const Icon(Icons.arrow_forward),
           onPressed: () {
             _sendVerificationCode();
           },
@@ -107,32 +108,21 @@ class _VerificationPageState extends State<VerificationPage> {
             children: <Widget>[
               Column(
                 children: <Widget>[
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Icon(
-                    Icons.message,
-                    size: 50,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 30),
+                  const Icon(Icons.message, size: 50),
+                  const SizedBox(height: 10),
                   Text(
                     _i18n.get("enter_code"),
                     style: TextStyle(
                         fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  const SizedBox(height: 30),
                   Text(
                     _i18n.get("we_have_send_a_code"),
                     style: TextStyle(
                         fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  const SizedBox(height: 30),
                   Padding(
                     padding:
                         const EdgeInsets.only(left: 30, right: 30, bottom: 30),

@@ -12,18 +12,18 @@ class BotCommands extends StatefulWidget {
   final Function onCommandClick;
   final int botCommandSelectedIndex;
 
-  BotCommands(
-      {required this.botUid,
+  const BotCommands(
+      {Key? key, required this.botUid,
       required this.onCommandClick,
       this.query,
-      required this.botCommandSelectedIndex});
+      required this.botCommandSelectedIndex}) : super(key: key);
 
   @override
   _BotCommandsState createState() => _BotCommandsState();
 }
 
 class _BotCommandsState extends State<BotCommands> {
-  var _botRepo = GetIt.I.get<BotRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +31,14 @@ class _BotCommandsState extends State<BotCommands> {
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
-          Map<String, String> botCommands = Map();
+          Map<String, String> botCommands = {};
           botInfo.data!.commands!.forEach((key, value) {
-            if (key.contains(widget.query!))
+            if (key.contains(widget.query!)) {
               botCommands.putIfAbsent(key, () => value);
+            }
           });
           return AnimatedContainer(
-            duration: Duration(milliseconds: 100),
+            duration: const Duration(milliseconds: 100),
             color: ExtraTheme.of(context).boxBackground,
             height: botCommands.keys.length * (26.0 + 16),
             child: Scrollbar(
@@ -46,8 +47,9 @@ class _BotCommandsState extends State<BotCommands> {
               itemBuilder: (c, index) {
                 Color _botCommandItemColor = Colors.transparent;
                 if (widget.botCommandSelectedIndex == index &&
-                    widget.botCommandSelectedIndex != -1)
+                    widget.botCommandSelectedIndex != -1) {
                   _botCommandItemColor = Theme.of(context).focusColor;
+                }
                 return Container(
                   color: _botCommandItemColor,
                   child: Padding(
@@ -64,7 +66,7 @@ class _BotCommandsState extends State<BotCommands> {
                               "/" + botCommands.keys.toList()[index],
                               style: Theme.of(context).textTheme.subtitle1,
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Opacity(
                                 opacity: 0.6,
@@ -90,7 +92,7 @@ class _BotCommandsState extends State<BotCommands> {
             )),
           );
         } else {
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         }
       },
     );

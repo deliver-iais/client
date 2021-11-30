@@ -12,18 +12,21 @@ abstract class UidIdNameDao {
 }
 
 class UidIdNameDaoImpl implements UidIdNameDao {
+  @override
   Future<UidIdName?> getByUid(String uid) async {
     var box = await _open();
 
     return box.get(uid);
   }
 
+  @override
   Future<String?> getUidById(String id) async {
     var box = await _open2();
 
     return box.get(id);
   }
 
+  @override
   Future<void> update(String uid, {String? id, String? name}) async {
     var box = await _open();
     var box2 = await _open2();

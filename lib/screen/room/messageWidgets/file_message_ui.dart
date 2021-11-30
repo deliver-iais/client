@@ -44,7 +44,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
       children: <Widget>[
         _buildMainUi(type),
         if (caption.isNotEmpty)
-          Container(
+          SizedBox(
             width: width,
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -87,7 +87,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
 
   Size getImageDimensions(double width, double height) {
     double maxWidth = widget.maxWidth;
-    if (width == null || width == 0 || height == null || height == 0) {
+    if (width == 0 || height == 0) {
       width = maxWidth;
       height = maxWidth;
     }

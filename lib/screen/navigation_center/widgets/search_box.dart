@@ -9,18 +9,18 @@ class SearchBox extends StatefulWidget {
   final Function? onCancel;
   final BorderRadius borderRadius;
 
-  SearchBox(
-      {required this.onChange,
+  const SearchBox(
+      {Key? key, required this.onChange,
       this.onCancel,
-      this.borderRadius = const BorderRadius.all(const Radius.circular(25.0))});
+      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))}) : super(key: key);
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
 }
 
 class _SearchBoxState extends State<SearchBox> {
-  BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
-  TextEditingController _controller = TextEditingController();
+  final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  final TextEditingController _controller = TextEditingController();
   I18N i18n = GetIt.I.get<I18N>();
 
   @override
@@ -36,25 +36,25 @@ class _SearchBoxState extends State<SearchBox> {
         autofocus: false,
         maxLines: 1,
         onChanged: (str) {
-          if (str.isNotEmpty)
+          if (str.isNotEmpty) {
             _hasText.add(true);
-          else {
+          } else {
             _hasText.add(false);
           }
-          this.widget.onChange(str);
+          widget.onChange(str);
         },
         cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius,
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Colors.transparent,
               width: 2.0,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius,
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Colors.transparent,
               width: 0.0,
             ),
@@ -83,8 +83,9 @@ class _SearchBoxState extends State<SearchBox> {
                     widget.onCancel!();
                   },
                 );
-              } else
-                return SizedBox.shrink();
+              } else {
+                return const SizedBox.shrink();
+              }
             },
           ),
           hintText: i18n.get("search"),

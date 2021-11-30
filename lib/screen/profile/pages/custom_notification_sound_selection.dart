@@ -10,7 +10,7 @@ import 'package:lottie/lottie.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
-  AudioCache _player =
+  final AudioCache _player =
       AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
 
   CustomNotificationSoundSelection({Key? key, required this.roomUid})
@@ -47,10 +47,10 @@ class _CustomNotificationSoundSelectionState
         title: Center(
             child: Text(
           i18n.get("choose_a_song"),
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         )),
         leading: InkWell(
-          child: Icon(Icons.clear),
+          child: const Icon(Icons.clear),
           onTap: () {
             _routingService.pop();
           },
@@ -88,14 +88,14 @@ class _CustomNotificationSoundSelectionState
                 return ListTile(
                   onLongPress: () => onLongPress(isSelected, index),
                   onTap: () => onTap(isSelected, index),
-                  title: Text("$data"),
+                  title: Text(data),
                   trailing: _buildSelectIcon(isSelected, data),
                 );
               },
               itemCount: staticData.length,
             );
           } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         },
       ),
@@ -123,7 +123,7 @@ class _CustomNotificationSoundSelectionState
     return StreamBuilder<Object>(
         stream: widget._player.fixedPlayer!.onPlayerStateChanged,
         builder: (context, snapshot) {
-          return Container(
+          return SizedBox(
               width: 80,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -131,7 +131,7 @@ class _CustomNotificationSoundSelectionState
                   if (isSelected && snapshot.data == PlayerState.PLAYING)
                     ShakeWidget(
                         controller: _shakeController,
-                        child: TGS.asset(
+                        child: const TGS.asset(
                           'assets/animations/audio_wave.tgs',
                           autoPlay: true,
                           width: 60,

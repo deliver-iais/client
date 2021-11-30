@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
@@ -24,7 +26,6 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -48,27 +49,22 @@ class RoomRepo {
   final _botRepo = GetIt.I.get<BotRepo>();
   final _customNotifDao = GetIt.I.get<CustomNotificatonDao>();
 
-  final Map<String, BehaviorSubject<Activity>> activityObject = Map();
+  final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
   insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
 
   updateRoom(Room room) => _roomDao.updateRoom(room);
 
   Future<String?> getSlangName(Uid uid) async {
-    if (uid == null) return "";
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
-    if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
+    if (uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       return _i18n.get("you");
-    else {
+    } else {
       return getName(uid);
     }
   }
 
   Future<String>? getName(Uid uid) async {
-    if (uid == null) {
-      return "";
-    }
-
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -205,14 +201,15 @@ class RoomRepo {
       activityObject[roomUid.node] = subject;
     } else {
       activityObject[roomUid.node]!.add(activity);
-      if (activity.typeOfActivity != ActivityType.NO_ACTIVITY)
-        Timer(Duration(seconds: 10), () {
+      if (activity.typeOfActivity != ActivityType.NO_ACTIVITY) {
+        Timer(const Duration(seconds: 10), () {
           Activity noActivity = Activity()
             ..from = activity.from
             ..typeOfActivity = ActivityType.NO_ACTIVITY
             ..to = activity.to;
           activityObject[roomUid.node]!.add(noActivity);
         });
+      }
     }
   }
 
@@ -286,7 +283,7 @@ class RoomRepo {
   }
 
   Future<List<Uid>> getAllRooms() async {
-    Map<Uid, Uid> finalList = Map();
+    Map<Uid, Uid> finalList = {};
     var res = await _roomDao.getAllRooms();
     for (var room in res) {
       Uid uid = room.uid.asUid();
@@ -298,12 +295,12 @@ class RoomRepo {
   Future<List<Uid>> searchInRoomAndContacts(String text) async {
     List<Uid> searchResult = [];
     var res = await _uidIdNameDao.search(text);
-    res.forEach((element) {
+    for (var element in res) {
       if (!element.uid.isUser() ||
           (element.uid.isUser() &&
               element.name != null &&
               element.name!.isNotEmpty)) searchResult.add(element.uid.asUid());
-    });
+    }
 
     return searchResult;
   }
@@ -320,7 +317,7 @@ class RoomRepo {
       return uid;
     } else {
       var uid = await fetchUidById(id);
-      if (uid != null) _uidIdNameDao.update(uid.asString(), id: id);
+      _uidIdNameDao.update(uid.asString(), id: id);
       return uid.asString();
     }
   }

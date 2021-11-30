@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
-  LanguageSettingsPage({Key? key}) : super(key: key);
+  const LanguageSettingsPage({Key? key}) : super(key: key);
 
   @override
   _LanguageSettingsPageState createState() => _LanguageSettingsPageState();
@@ -46,27 +46,27 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                   tiles: [
                     SettingsTile(
                       title: 'English',
-                      leading: Icon(Icons.language),
+                      leading: const Icon(Icons.language),
                       trailing: I18N.of(context)!.locale.languageCode ==
-                              English.languageCode
-                          ? Icon(Icons.done)
-                          : SizedBox.shrink(),
+                              english.languageCode
+                          ? const Icon(Icons.done)
+                          : const SizedBox.shrink(),
                       onPressed: (BuildContext context) {
                         setState(() {
-                          I18N.of(context)!.changeLanguage(English);
+                          I18N.of(context)!.changeLanguage(english);
                         });
                       },
                     ),
                     SettingsTile(
                       title: 'فارسی',
-                      leading: Icon(Icons.language),
+                      leading: const Icon(Icons.language),
                       trailing: I18N.of(context)!.locale.languageCode ==
-                              Farsi.languageCode
-                          ? Icon(Icons.done)
-                          : SizedBox.shrink(),
+                              farsi.languageCode
+                          ? const Icon(Icons.done)
+                          : const SizedBox.shrink(),
                       onPressed: (BuildContext context) {
                         setState(() {
-                          I18N.of(context)!.changeLanguage(Farsi);
+                          I18N.of(context)!.changeLanguage(farsi);
                         });
                       },
                     ),

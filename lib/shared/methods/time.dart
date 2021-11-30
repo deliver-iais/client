@@ -6,7 +6,6 @@ bool isOnline(int time) {
 }
 
 DateTime date(int time) {
-  if (time == null) time = 0;
   return DateTime.fromMillisecondsSinceEpoch(time);
 }
 
@@ -24,8 +23,9 @@ String dateTimeFormat(DateTime time, {String weekFormat = 'D'}) {
     return "just now";
   } else if (difference.inDays < 1 && time.day == now.day) {
     return DateTimeFormat.format(time, format: 'H:i');
-  } else if (difference.inDays <= 7)
+  } else if (difference.inDays <= 7) {
     return DateTimeFormat.format(time, format: weekFormat);
-  else
+  } else {
     return DateTimeFormat.format(time, format: 'M j');
+  }
 }

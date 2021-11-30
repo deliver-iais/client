@@ -9,7 +9,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -22,74 +21,79 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
-  String? heroTag;
-  int? mediaPosition;
-  int? mediasLength;
-  Uid userUid;
-  bool isAvatar = false;
-  bool isVideo = false;
-  bool hasPermissionToDeletePic = false;
+  final String? heroTag;
+  final int mediaPosition;
+  final int mediasLength;
+  final Uid userUid;
+  final bool isAvatar;
+  final bool isVideo;
+  final bool hasPermissionToDeletePic;
 
-  MediaDetailsPage.showMedia(
+  const MediaDetailsPage.showMedia(
       {Key? key,
       required this.hasPermissionToDeletePic,
       required this.userUid,
       required this.mediaPosition,
-      this.mediasLength,
+      required this.mediasLength,
       this.heroTag})
-      : super(key: key);
+      : isVideo = false,
+        isAvatar = false,
+        super(key: key);
 
-  MediaDetailsPage.showAvatar(
+  const MediaDetailsPage.showAvatar(
       {Key? key,
       required this.userUid,
       required this.hasPermissionToDeletePic,
-      this.heroTag,
-      this.mediaPosition})
-      : super(key: key) {
-    this.isAvatar = true;
-  }
+      required this.heroTag})
+      : mediaPosition = 0,
+        mediasLength = 0,
+        isVideo = false,
+        isAvatar = true,
+        super(key: key);
 
-  MediaDetailsPage.showVideo(
+  const MediaDetailsPage.showVideo(
       {Key? key,
       required this.userUid,
       required this.mediaPosition,
       required this.mediasLength})
-      : super(key: key) {
-    this.isVideo = true;
-  }
+      : isVideo = true,
+        isAvatar = false,
+        hasPermissionToDeletePic = false,
+        heroTag = null,
+        super(key: key);
 
   @override
   _MediaDetailsPageState createState() => _MediaDetailsPageState();
 }
 
 class _MediaDetailsPageState extends State<MediaDetailsPage> {
-  var fileId;
-  var fileName;
+  late String fileId;
+  late String fileName;
   Uid? mediaSender;
   DateTime? createdOn;
   double? duration;
-  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
-  var _avatarRepo = GetIt.I.get<AvatarRepo>();
-  var _routingService = GetIt.I.get<RoutingService>();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
   var fileServices = GetIt.I.get<FileService>();
 
-  var _fileCache = LruCache<String, File>(storage: InMemoryStorage(5));
-  var _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
-  var _mediaSenderCache =
+  final _fileCache = LruCache<String, File>(storage: InMemoryStorage(5));
+  final _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
+  final _mediaSenderCache =
       LruCache<String, String>(storage: InMemoryStorage(50));
-  var _thumnailChache = LruCache<String, File>(storage: InMemoryStorage(5));
+  final _thumbnailCache = LruCache<String, File>(storage: InMemoryStorage(5));
   var isDeleting = false;
   List<Avatar?> _allAvatars = [];
   var swipePosition = 0;
-  BehaviorSubject<int> _swipePositionSubject = BehaviorSubject.seeded(0);
+  final BehaviorSubject<int> _swipePositionSubject = BehaviorSubject.seeded(0);
   String _senderName = "";
 
   download(String uuid, String name) async {
     await _fileRepo.getFile(uuid, name);
     setState(() {
-      _thumnailChache.clear();
+      _thumbnailCache.clear();
     });
   }
 
@@ -97,7 +101,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   void dispose() {
     super.dispose();
     _fileCache.clear();
-    _thumnailChache.clear();
+    _thumbnailCache.clear();
   }
 
   @override
@@ -105,10 +109,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
     } else if (widget.isVideo == true) {
-      _swipePositionSubject.add(widget.mediaPosition!);
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, true);
     } else {
-      _swipePositionSubject.add(widget.mediaPosition!);
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, false);
     }
   }
@@ -118,16 +122,16 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         stream: _avatarRepo.getAvatar(widget.userUid, false),
         builder: (cont, snapshot) {
           if (!snapshot.hasData || snapshot.data == null) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(
                 backgroundColor: Colors.blue,
               ),
             );
           } else {
             _allAvatars = snapshot.data!.reversed.toList();
-            if (_allAvatars.length <= 0) {
+            if (_allAvatars.isEmpty) {
               _routingService.pop();
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(
                   backgroundColor: Colors.blue,
                 ),
@@ -160,21 +164,19 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
     return Scaffold(
-      appBar: buildAppBar(widget.mediaPosition!, widget.mediasLength),
-      body: Container(
-        child: Swiper(
-          scrollDirection: Axis.horizontal,
-          index: widget.mediaPosition,
-          itemBuilder: (context, i) {
-            _swipePositionSubject.add(i);
-            if (isVideo) return vedioSwiper(i, context);
-            return mediaSuper(i, context);
-          },
-          itemCount: widget.mediasLength!,
-          viewportFraction: 1.0,
-          scale: 0.9,
-          loop: false,
-        ),
+      appBar: buildAppBar(widget.mediaPosition, widget.mediasLength),
+      body: Swiper(
+        scrollDirection: Axis.horizontal,
+        index: widget.mediaPosition,
+        itemBuilder: (context, i) {
+          _swipePositionSubject.add(i);
+          if (isVideo) return vedioSwiper(i, context);
+          return mediaSuper(i, context);
+        },
+        itemCount: widget.mediasLength,
+        viewportFraction: 1.0,
+        scale: 0.9,
+        loop: false,
       ),
     );
   }
@@ -182,33 +184,31 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget mediaSuper(int i, BuildContext context) {
     var media = _mediaCache.get("$i");
     if (media == null) {
-      widget.heroTag = "btn$i";
       return FutureBuilder<List<Media>>(
           future: _mediaQueryRepo.getMedia(
             widget.userUid,
             MediaType.IMAGE,
-            widget.mediasLength!,
+            widget.mediasLength,
           ),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(
                   color: Colors.blueAccent,
                 ),
               );
             } else {
               setMediaUrlCache(i, snapshot.data!);
-              buildMediaPropertise(snapshot.data![i]);
+              buildMediaProperties(snapshot.data![i]);
               return buildFutureMediaBuilder(fileId, fileName, context, i);
             }
           });
     } else {
-      widget.heroTag = "btn$i";
-      buildMediaPropertise(media);
+      buildMediaProperties(media);
       var mediaFile = _fileCache.get(fileId);
-      if (mediaFile != null)
+      if (mediaFile != null) {
         return buildMediaCenter(context, i, mediaFile, fileId, widget.heroTag!);
-      else {
+      } else {
         return buildFutureMediaBuilder(fileId, fileName, context, i);
       }
     }
@@ -226,7 +226,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           return buildMediaCenter(
               context, i, snaps.data!, fileId, widget.heroTag!);
         } else {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               color: Colors.blue,
             ),
@@ -239,7 +239,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Center buildMediaCenter(
       BuildContext context, int i, File mediaFile, fileId, Object tag) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Stack(
@@ -267,26 +267,26 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               widget.userUid.asString(), i, MediaType.VIDEO),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
-              return Center();
+              return const Center();
             } else {
               setMediaUrlCache(i, snapshot.data!);
-              if (i == widget.mediasLength! - 1) {
-                buildMediaPropertise(snapshot.data![snapshot.data!.length - 1]);
+              if (i == widget.mediasLength - 1) {
+                buildMediaProperties(snapshot.data![snapshot.data!.length - 1]);
               } else {
-                buildMediaPropertise(snapshot.data![snapshot.data!.length - 2]);
+                buildMediaProperties(snapshot.data![snapshot.data!.length - 2]);
               }
               return buildFutureBuilder(context, i);
             }
           });
     } else {
-      buildMediaPropertise(media);
+      buildMediaProperties(media);
       var videoFile = _fileCache.get(fileId);
-      var thumnailFile = _thumnailChache.get(fileId);
-      if (videoFile == null && thumnailFile == null)
+      var thumnailFile = _thumbnailCache.get(fileId);
+      if (videoFile == null && thumnailFile == null) {
         return buildFutureBuilder(context, i);
-      else if (videoFile != null) {
+      } else if (videoFile != null) {
         return Center(
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: buildVeidoWidget(i, videoFile, duration!, mediaSender!,
@@ -296,10 +296,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         // }
       } else if (thumnailFile != null) {
         return Center(
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            child: thumbnsilVedioWidget(
+            child: thumbnailVideoWidget(
                 i: i,
                 fileId: fileId,
                 senderName: _senderName,
@@ -311,13 +311,13 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         );
       }
     }
-    return Container(
+    return const SizedBox(
       width: 0,
       height: 0,
     );
   }
 
-  void buildMediaPropertise(Media media) {
+  void buildMediaProperties(Media media) {
     fileId = jsonDecode(media.json)["uuid"];
     fileName = jsonDecode(media.json)["name"];
     mediaSender = media.createdBy.asUid();
@@ -335,7 +335,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               snaps.connectionState == ConnectionState.done) {
             _fileCache.set(fileId, snaps.data);
             return Center(
-              child: Container(
+              child: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 child: buildVeidoWidget(i, snaps.data, duration!, mediaSender!,
@@ -350,12 +350,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   if (snaps.hasData &&
                       snaps.data != null &&
                       snaps.connectionState == ConnectionState.done) {
-                    _thumnailChache.set(fileId, snaps.data);
+                    _thumbnailCache.set(fileId, snaps.data);
                     return Center(
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,
-                        child: thumbnsilVedioWidget(
+                        child: thumbnailVideoWidget(
                             i: i,
                             fileId: fileId,
                             senderName: _senderName,
@@ -366,11 +366,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       ),
                     );
                   } else {
-                    return Center();
+                    return const Center();
                   }
                 });
           } else {
-            return Container(
+            return const SizedBox(
               width: 0,
               height: 0,
             );
@@ -378,7 +378,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         });
   }
 
-  Stack thumbnsilVedioWidget(
+  Stack thumbnailVideoWidget(
       {required int i,
       required File snaps,
       required var fileName,
@@ -400,8 +400,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           child: Stack(
             children: [
               Container(
-                decoration: new BoxDecoration(
-                  image: new DecorationImage(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
                     image: Image.file(
                       snaps,
                     ).image,
@@ -452,26 +452,28 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildBottomAppBar(
-      Uid ? mediaSender, DateTime? createdOn, var name, var fileId) {
-    if (name == null && mediaSender!= null) {
+      Uid? mediaSender, DateTime? createdOn, var name, var fileId) {
+    if (name == null && mediaSender != null) {
       return FutureBuilder<String>(
         future: _roomRepo.getName(mediaSender),
         builder: (BuildContext c, AsyncSnapshot s) {
           if (!s.hasData ||
               s.data == null ||
               s.connectionState == ConnectionState.waiting) {
-            return Center();
-          } else if(createdOn!= null) {
+            return const Center();
+          } else if (createdOn != null) {
             _mediaSenderCache.set(fileId, s.data);
             return buildNameWidget(s.data, createdOn);
-          }else
-            return SizedBox.shrink();
+          } else {
+            return const SizedBox.shrink();
+          }
         },
       );
-    } else  if(createdOn!=null){
+    } else if (createdOn != null) {
       return buildNameWidget(name, createdOn);
-    }else
-      return SizedBox.shrink();
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Positioned buildNameWidget(String name, DateTime createdOn) {
@@ -485,7 +487,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           runSpacing: 40,
           children: [
             Text(name),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text("$createdOn"),
           ],
         ),
@@ -501,13 +503,13 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           child: StreamBuilder<int>(
             stream: _swipePositionSubject.stream,
             builder: (c, position) {
-              if (position.hasData && position.data != null)
+              if (position.hasData && position.data != null) {
                 return Text(
                   "${position.data! + 1} of $totalLength",
                   style: TextStyle(color: ExtraTheme.of(context).textField),
                 );
-              else {
-                return SizedBox.shrink();
+              } else {
+                return const SizedBox.shrink();
               }
             },
           )),
@@ -524,7 +526,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       if (widget.hasPermissionToDeletePic && widget.isAvatar)
                         PopupMenuItem(
                             child: GestureDetector(
-                          child: Text("delete"),
+                          child: const Text("delete"),
                           onTap: () async {
                             await _avatarRepo.deleteAvatar(
                                 _allAvatars[_swipePositionSubject.value]!);
@@ -534,11 +536,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       if (widget.hasPermissionToDeletePic && !widget.isAvatar)
                         PopupMenuItem(
                             child: GestureDetector(
-                          child: Text("delete"),
+                          child: const Text("delete"),
                           onTap: () {},
                         )),
                     ])
-            : SizedBox.shrink()
+            : const SizedBox.shrink()
       ],
     );
   }

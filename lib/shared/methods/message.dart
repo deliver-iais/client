@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as PB;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -59,7 +57,7 @@ class MessageBrief {
 }
 
 Future<MessageBrief> extractMessageBrief(
-    I18N i18n, RoomRepo roomRepo, AuthRepo authRepo, PB.Message msg) async {
+    I18N i18n, RoomRepo roomRepo, AuthRepo authRepo, message_pb.Message msg) async {
   Uid roomUid = getRoomUid(authRepo, msg);
   String? roomName = await roomRepo.getSlangName(roomUid);
   String? sender = await roomRepo.getSlangName(msg.from);
@@ -69,61 +67,63 @@ Future<MessageBrief> extractMessageBrief(
   bool ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
 
   switch (msg.whichType()) {
-    case PB.Message_Type.text:
+    case message_pb.Message_Type.text:
       text = msg.text.text;
       break;
-    case PB.Message_Type.file:
+    case message_pb.Message_Type.file:
       var type = msg.file.type.split("/").first;
-      if (type == "application")
+      if (type == "application") {
         typeDetails = msg.file.name;
-      else
+      } else {
         typeDetails = i18n.get(type);
+      }
       text = msg.file.caption;
       break;
-    case PB.Message_Type.sticker:
+    case message_pb.Message_Type.sticker:
       typeDetails = i18n.get("sticker");
       text = msg.file.caption;
       break;
-    case PB.Message_Type.liveLocation:
+    case message_pb.Message_Type.liveLocation:
       typeDetails = i18n.get("live_location");
       break;
-    case PB.Message_Type.location:
+    case message_pb.Message_Type.location:
       typeDetails = i18n.get("location");
       break;
-    case PB.Message_Type.poll:
+    case message_pb.Message_Type.poll:
       typeDetails = i18n.get("poll");
       break;
-    case PB.Message_Type.buttons:
+    case message_pb.Message_Type.buttons:
       typeDetails = i18n.get("actions");
       break;
-    case PB.Message_Type.form:
+    case message_pb.Message_Type.form:
       typeDetails = i18n.get("form");
       text = msg.form.title;
       break;
-    case PB.Message_Type.shareUid:
-      if (msg.shareUid.uid.isUser())
+    case message_pb.Message_Type.shareUid:
+      if (msg.shareUid.uid.isUser()) {
         typeDetails = i18n.get("contact_information");
-      else
+      } else {
         typeDetails = i18n.get("join_link");
+      }
       text = msg.shareUid.name;
       break;
-    case PB.Message_Type.formResult:
+    case message_pb.Message_Type.formResult:
       typeDetails = i18n.get("form_result");
       break;
-    case PB.Message_Type.sharePrivateDataRequest:
+    case message_pb.Message_Type.sharePrivateDataRequest:
       typeDetails =
           "${i18n.get("spdr")} ${i18n.get(msg.sharePrivateDataRequest.data.name).toLowerCase()}";
       break;
-    case PB.Message_Type.sharePrivateDataAcceptance:
+    case message_pb.Message_Type.sharePrivateDataAcceptance:
       typeDetails =
           "${i18n.get("spda")} ${i18n.get(msg.sharePrivateDataRequest.data.name).toLowerCase()}";
       break;
-    case PB.Message_Type.paymentTransaction:
+    case message_pb.Message_Type.paymentTransaction:
       typeDetails = i18n.get("payment_transaction");
       text =
           msg.paymentTransaction.description; // TODO needs more details maybe
       break;
-    case PB.Message_Type.persistEvent:
+    case message_pb.Message_Type.persistEvent:
       typeDetails = await getPersistentEventText(
           i18n, roomRepo, authRepo, msg.persistEvent, msg.to.isChannel());
       if (typeDetails == null) {
@@ -233,6 +233,9 @@ Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
                     pe.mucSpecificPersistentEvent.issuer.asString())),
             assignee
           ].join(" ").trim();
+        case MucSpecificPersistentEvent_Issue.DELETED:
+          // TODO: Handle this case.
+          break;
       }
       break;
     case PersistentEvent_Type.messageManipulationPersistentEvent:
@@ -253,8 +256,8 @@ Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
   return null;
 }
 
-PB.Message extractProtocolBufferMessage(Message message) {
-  final msg = PB.Message()
+message_pb.Message extractProtocolBufferMessage(Message message) {
+  final msg = message_pb.Message()
     ..id = Int64(message.id ?? 0)
     ..packetId = message.packetId
     ..from = message.from.asUid()
@@ -264,8 +267,9 @@ PB.Message extractProtocolBufferMessage(Message message) {
     ..edited = message.edited ?? false
     ..encrypted = message.encrypted ?? false;
 
-  if (message.forwardedFrom != null)
-    msg..forwardFrom = message.forwardedFrom!.asUid();
+  if (message.forwardedFrom != null) {
+    msg.forwardFrom = message.forwardedFrom!.asUid();
+  }
 
   switch (message.type) {
     case MessageType.TEXT:
@@ -310,17 +314,19 @@ PB.Message extractProtocolBufferMessage(Message message) {
       break;
     case MessageType.NOT_SET:
       break;
+    default:
+      break;
   }
 
   return msg;
 }
 
-Message extractMessage(AuthRepo authRepo, PB.Message message) {
+Message extractMessage(AuthRepo authRepo, message_pb.Message message) {
   var body = "{}";
 
   try {
     body = messageBodyToJson(message);
-  } catch (ignore) {}
+  } catch (_) {}
 
   return Message(
       id: message.id.toInt(),
@@ -337,9 +343,8 @@ Message extractMessage(AuthRepo authRepo, PB.Message message) {
       type: getMessageType(message.whichType()));
 }
 
-String messageBodyToJson(PB.Message message) {
+String messageBodyToJson(message_pb.Message message) {
   var type = getMessageType(message.whichType());
-  var jsonString = Object();
   switch (type) {
     case MessageType.TEXT:
       return message.text.writeToJson();
@@ -395,40 +400,40 @@ String messageBodyToJson(PB.Message message) {
   }
 }
 
-MessageType getMessageType(PB.Message_Type messageType) {
+MessageType getMessageType(message_pb.Message_Type messageType) {
   switch (messageType) {
-    case PB.Message_Type.text:
+    case message_pb.Message_Type.text:
       return MessageType.TEXT;
-    case PB.Message_Type.file:
+    case message_pb.Message_Type.file:
       return MessageType.FILE;
-    case PB.Message_Type.sticker:
+    case message_pb.Message_Type.sticker:
       return MessageType.STICKER;
-    case PB.Message_Type.location:
+    case message_pb.Message_Type.location:
       return MessageType.LOCATION;
-    case PB.Message_Type.liveLocation:
+    case message_pb.Message_Type.liveLocation:
       return MessageType.LIVE_LOCATION;
-    case PB.Message_Type.poll:
+    case message_pb.Message_Type.poll:
       return MessageType.POLL;
-    case PB.Message_Type.form:
+    case message_pb.Message_Type.form:
       return MessageType.FORM;
-    case PB.Message_Type.persistEvent:
+    case message_pb.Message_Type.persistEvent:
       return MessageType.PERSISTENT_EVENT;
-    case PB.Message_Type.formResult:
+    case message_pb.Message_Type.formResult:
       return MessageType.FORM_RESULT;
-    case PB.Message_Type.buttons:
+    case message_pb.Message_Type.buttons:
       return MessageType.BUTTONS;
-    case PB.Message_Type.shareUid:
+    case message_pb.Message_Type.shareUid:
       return MessageType.SHARE_UID;
-    case PB.Message_Type.sharePrivateDataRequest:
+    case message_pb.Message_Type.sharePrivateDataRequest:
       return MessageType.SHARE_PRIVATE_DATA_REQUEST;
-    case PB.Message_Type.sharePrivateDataAcceptance:
+    case message_pb.Message_Type.sharePrivateDataAcceptance:
       return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
     default:
       return MessageType.NOT_SET;
   }
 }
 
-Uid getRoomUid(AuthRepo authRepo, PB.Message message) {
+Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) {
   return authRepo.isCurrentUser(message.from.asString())
       ? message.to
       : (message.to.isUser() ? message.from : message.to);

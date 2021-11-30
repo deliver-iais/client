@@ -16,7 +16,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -72,9 +72,9 @@ class FireBaseServices {
   }
 }
 
-M.Message _decodeMessage(String notificationBody) {
+message_pb.Message _decodeMessage(String notificationBody) {
   final dataTitle64 = base64.decode(notificationBody);
-  M.Message m = M.Message.fromBuffer(dataTitle64);
+  message_pb.Message m = message_pb.Message.fromBuffer(dataTitle64);
   return m;
 }
 
@@ -92,7 +92,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var _muteDao = GetIt.I.get<MuteDao>();
 
   if (message.data.containsKey('body')) {
-    M.Message msg = _decodeMessage(message.data["body"]);
+    message_pb.Message msg = _decodeMessage(message.data["body"]);
     String? roomName = message.data['title'];
     Uid roomUid = getRoomUid(_authRepo, msg);
 
@@ -102,7 +102,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
           !showNotifyForThisMessage(msg, _authRepo)) {
         return;
       }
-    } catch (e) {}
+    } catch (_) {}
 
     if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;
@@ -110,7 +110,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       roomName = msg.from.node;
     } else if (msg.to.category == Categories.USER) {
       var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-      if (uidName != null)
+      if (uidName != null) {
         roomName = uidName.name != null && uidName.name!.isNotEmpty
             ? uidName.name
             : uidName.id != null && uidName.id!.isNotEmpty
@@ -120,6 +120,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
                     : msg.from.isChannel()
                         ? "Channel"
                         : "UnKnown";
+      }
     }
 
     _notificationServices.showNotification(msg, roomName: roomName!);

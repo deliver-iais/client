@@ -10,10 +10,10 @@ class StorageFile {
   final List files;
   final String folderName;
 
-  StorageFile({required this.files, required this.folderName});
+  const StorageFile({required this.files, required this.folderName});
 
   factory StorageFile.fromJson(Map<String, dynamic> json) {
-    return new StorageFile(
+    return StorageFile(
         files: json['files'] as List,
         folderName: json['folderName'].toString());
   }

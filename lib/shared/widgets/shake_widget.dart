@@ -29,9 +29,7 @@ class _ShakeWidgetState extends State<ShakeWidget>
     animationController =
         AnimationController(duration: widget.animationDuration, vsync: this);
 
-    if (widget.controller != null) {
-      widget.controller.setState(this);
-    }
+    widget.controller.setState(this);
 
     super.initState();
   }

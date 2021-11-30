@@ -5,15 +5,15 @@ import 'package:get_it/get_it.dart';
 
 class ForwardAppbar extends StatelessWidget {
   final _routingServices = GetIt.I.get<RoutingService>();
-  I18N i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
+
+  ForwardAppbar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       leading: _routingServices.backButtonLeading(context),
-      title: Text(
-        i18n.get("forward_to"),
-      ),
+      title: Text(_i18n.get("forward_to")),
     );
   }
 }

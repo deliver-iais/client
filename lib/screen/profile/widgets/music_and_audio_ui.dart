@@ -6,7 +6,7 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
-import 'package:deliver/screen/room/messageWidgets/load-file-status.dart';
+import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
@@ -21,7 +21,7 @@ class MusicAndAudioUi extends StatefulWidget {
   final int mediaCount;
   final FetchMediasReq_MediaType type;
 
-  MusicAndAudioUi(
+  const MusicAndAudioUi(
       {Key? key,
       required this.userUid,
       required this.type,
@@ -51,9 +51,9 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
           if (!media.hasData ||
               media.data == null ||
               media.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
+            return const SizedBox(width: 0.0, height: 0.0);
           } else {
-            return Container(
+            return SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
@@ -106,7 +106,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     ),
                                   ]),
                                 ),
-                                Divider(
+                                const Divider(
                                   color: Colors.grey,
                                 ),
                               ],
@@ -150,13 +150,13 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     ],
                                   ),
                                 ),
-                                Divider(
+                                const Divider(
                                   color: Colors.grey,
                                 ),
                               ],
                             );
                           } else {
-                            return Container(
+                            return const SizedBox(
                               width: 0,
                               height: 0,
                             );

@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 import 'dart:io';
 
@@ -128,9 +130,9 @@ class AudioService {
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
-  AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
-  AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
+  final AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -142,16 +144,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
         switch (event) {
           case PlayerState.STOPPED:
             return AudioPlayerState.STOPPED;
-            break;
           case PlayerState.PLAYING:
             return AudioPlayerState.PLAYING;
-            break;
           case PlayerState.PAUSED:
             return AudioPlayerState.PAUSED;
-            break;
           case PlayerState.COMPLETED:
             return AudioPlayerState.COMPLETED;
-            break;
           default:
             return AudioPlayerState.STOPPED;
         }
@@ -194,9 +192,9 @@ class NormalAudioPlayer implements AudioPlayerModule {
 }
 
 class VlcAudioPlayer implements AudioPlayerModule {
-  Player _audioPlayer = Player(id: 0);
-  Player _fastAudioPlayerOut = Player(id: 1);
-  Player _fastAudioPlayerIn = Player(id: 1);
+  final Player _audioPlayer = Player(id: 0);
+  final Player _fastAudioPlayerOut = Player(id: 1);
+  final Player _fastAudioPlayerIn = Player(id: 1);
 
   @override
   Stream<Duration> get audioCurrentPosition =>

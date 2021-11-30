@@ -18,14 +18,14 @@ class VideoThumbnail extends StatelessWidget {
   final bool isExist;
 
   VideoThumbnail(
-      {required this.userUid,
+      {Key? key, required this.userUid,
       required this.mediaPosition,
       required this.videoLength,
       required this.thumbnail,
       required this.videoCount,
         this.onClick,
       this.showPlayIcon = false,
-      required this.isExist});
+      required this.isExist}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +44,8 @@ class VideoThumbnail extends StatelessWidget {
                 ? ImageFiltered(
                     imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                     child: Container(
-                        decoration: new BoxDecoration(
-                      image: new DecorationImage(
+                        decoration: BoxDecoration(
+                      image: DecorationImage(
                         image: Image.file(thumbnail).image,
                         fit: BoxFit.cover,
                       ),
@@ -56,8 +56,8 @@ class VideoThumbnail extends StatelessWidget {
                     )),
                   )
                 : Container(
-                    decoration: new BoxDecoration(
-                    image: new DecorationImage(
+                    decoration: BoxDecoration(
+                    image: DecorationImage(
                       image: Image.file(thumbnail).image,
                       fit: BoxFit.cover,
                     ),
@@ -73,8 +73,8 @@ class VideoThumbnail extends StatelessWidget {
                   onPressed: () async {
                     onClick!();
                   },
-                  shape: CircleBorder(),
-                  child: Icon(
+                  shape: const CircleBorder(),
+                  child: const Icon(
                     Icons.play_arrow_rounded,
                     color: Colors.white,
                     size: 30,
