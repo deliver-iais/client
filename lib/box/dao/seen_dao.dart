@@ -65,7 +65,9 @@ class SeenDaoImpl implements SeenDao {
 
     var mySeen = box.get(seen.uid);
 
-    if (mySeen == null || mySeen.messageId! < seen.messageId!) {
+    if (mySeen == null ||
+        mySeen.messageId! < seen.messageId! ||
+        seen.hiddenMessageCount != null) {
       box.put(seen.uid, seen);
     }
   }

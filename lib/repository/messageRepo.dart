@@ -220,9 +220,12 @@ class MessageRepo {
       var res = await _queryServiceClient
           .countIsHiddenMessages(CountIsHiddenMessagesReq()
             ..roomUid = roomUid
-            ..messageId = Int64(id));
-      _seenDao.saveMySeen(
-          Seen(uid: roomUid.asString(), hiddenMessageCount: res.count));
+            ..messageId = Int64(id+1));
+      var s = await _seenDao.getMySeen(roomUid.asString());
+      if (s != null) {
+        _seenDao.saveMySeen(s.copy(
+            Seen(uid: roomUid.asString(), hiddenMessageCount: res.count)));
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -273,7 +276,7 @@ class MessageRepo {
         uid: roomUid.asString(),
         firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
         lastUpdateTime: lastMessage!.time,
-        lastMessageId: lastMessage.id!,
+        lastMessageId: lastMessageId,
         lastMessage: lastMessage,
       ));
       return lastMessage;
@@ -364,6 +367,7 @@ class MessageRepo {
                   room.lastCurrentUserSentMessageId.toInt())) return;
       _seenDao.saveMySeen(Seen(
           uid: room.roomUid.asString(),
+          hiddenMessageCount: lastSeen!.hiddenMessageCount??0,
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {
