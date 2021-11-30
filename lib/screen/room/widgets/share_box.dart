@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/localization/i18n.dart';
@@ -11,6 +12,7 @@ import 'package:deliver/screen/room/widgets/share_box/music.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -19,7 +21,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -71,10 +72,16 @@ class _ShareBoxState extends State<ShareBox> {
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
   var currentPage = Page.Gallery;
-
-  FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
+  AudioPlayer _audioPlayer = AudioPlayer();
 
   I18N i18n = GetIt.I.get<I18N>();
+
+
+  @override
+  void dispose() {
+    _audioPlayer.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +118,11 @@ class _ShareBoxState extends State<ShareBox> {
                                   playMusic: (index, path) {
                                     setState(() {
                                       if (playAudioIndex == index) {
-                                        _audioPlayer.pausePlayer();
+                                        _audioPlayer.pause();
                                         icons[index] = Icons.play_arrow;
                                         playAudioIndex = -1;
                                       } else {
-                                        _audioPlayer.startPlayer(fromURI: path);
+                                        _audioPlayer.play(path);
                                         icons.remove(playAudioIndex);
                                         icons[index] = Icons.pause;
                                         playAudioIndex = index;
@@ -175,7 +182,9 @@ class _ShareBoxState extends State<ShareBox> {
                                     children: <Widget>[
                                       Container(
                                         child: circleButton(() {
-                                          if (widget.replyMessageId != null) {
+                                          _audioPlayer.stop();
+                                          Navigator.pop(co);
+                                          if (widget.replyMessageId!>0) {
                                             messageRepo
                                                 .sendMultipleFilesMessages(
                                                     widget.currentRoomId,
@@ -184,14 +193,14 @@ class _ShareBoxState extends State<ShareBox> {
                                                     replyToId:
                                                         widget.replyMessageId);
                                           } else {
-                                            messageRepo
-                                                .sendMultipleFilesMessages(
-                                              widget.currentRoomId,
-                                              finalSelected.values.toList(),
-                                            );
+                                              showCaptionDialog(
+                                                  type: "file",
+                                                  paths: finalSelected.values.toList(),
+                                                  roomUid: widget.currentRoomId,
+                                                  context: context);
                                           }
 
-                                          Navigator.pop(co);
+
                                           Timer(Duration(seconds: 2), () {
                                             widget.scrollToLastSentMessage();
                                           });
@@ -221,7 +230,7 @@ class _ShareBoxState extends State<ShareBox> {
                                                 finalSelected.values.length
                                                     .toString(),
                                                 style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: ExtraTheme.of(context).textField,
                                                     fontSize: 12),
                                               ),
                                             ],
@@ -281,37 +290,17 @@ class _ShareBoxState extends State<ShareBox> {
                                           }
                                         } else
                                           setState(() {
-                                            _audioPlayer.stopPlayer();
+                                            _audioPlayer.stop();
                                             currentPage = Page.Gallery;
                                           });
                                       }, Icons.insert_drive_file,
                                           i18n.get("gallery"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult? result =
-                                            await FilePicker.platform.pickFiles(
-                                                allowMultiple: true,
-                                                type: FileType.custom,
-                                                allowedExtensions: [
-                                              "pdf",
-                                              "mp4",
-                                              "pptx",
-                                              "docx",
-                                              "xlsx",
-                                              'png',
-                                              'jpg',
-                                              'jpeg',
-                                              'gif',
-                                              'rar'
-                                            ]);
-                                        if (result != null) {
-                                          Navigator.pop(co);
-                                          showCaptionDialog(
-                                              type: "file",
-                                              paths: result.paths,
-                                              roomUid: widget.currentRoomId,
-                                              context: context);
-                                        }
+                                        setState(() {
+                                          _audioPlayer.stop();
+                                          currentPage = Page.Files;
+                                        });
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
                                           context: co),
@@ -329,6 +318,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             await intent.launch();
                                           } else {
                                             setState(() {
+                                              _audioPlayer.stop();
                                               currentPage = Page.Location;
                                               initialChildSize.add(0.5);
                                             });
@@ -338,19 +328,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           i18n.get("location"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult? result =
-                                            await FilePicker.platform.pickFiles(
-                                                allowMultiple: true,
-                                                type: FileType.custom,
-                                                allowedExtensions: ["mp3"]);
-                                        if (result != null) {
-                                          Navigator.pop(co);
-                                          showCaptionDialog(
-                                              roomUid: widget.currentRoomId,
-                                              type: "music",
-                                              context: context,
-                                              paths: result.paths);
-                                        }
+                                        setState(() {
+                                          currentPage = Page.Music;
+                                        });
+
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
                                           context: co),

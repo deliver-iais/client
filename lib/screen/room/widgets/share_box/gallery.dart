@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -35,7 +34,6 @@ class ShareBoxGallery extends StatefulWidget {
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   var _routingServices = GetIt.I.get<RoutingService>();
-  var _checkPer = GetIt.I.get<CheckPermissionsService>();
   var _future;
 
   @override

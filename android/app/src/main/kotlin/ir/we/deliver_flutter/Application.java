@@ -22,7 +22,6 @@ import com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin;
 import io.flutter.plugins.pathprovider.PathProviderPlugin;
 
 public class Application extends FlutterActivity implements PluginRegistrantCallback {
-    private static final String CHANNEL = "flutter.native/helper";
     private static final String GET_MEDIA_CHANNEL = "read_external";
     Activity activity;
 
@@ -38,7 +37,6 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                             storagePathPlugin.getImagePaths(result);
                         } else if (call.method.equals("get_all_music")) {
                             storagePathPlugin.getAudioPath(result);
-
                         } else if (call.method.equals("get_all_file")) {
                             storagePathPlugin.getFilesPath(result);
                         }

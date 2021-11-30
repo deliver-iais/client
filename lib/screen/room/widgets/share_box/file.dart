@@ -1,5 +1,6 @@
-import 'dart:io';
 
+
+import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:flutter/material.dart';
 
 class ShareBoxFile extends StatefulWidget {
@@ -23,13 +24,13 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
 
   @override
   void initState() {
-    //_future = FileItem.getFiles();
+    _future = FileItem.getFiles();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<File>>(
+    return FutureBuilder<List<String>>(
         future: _future,
         builder: (context, files) {
           if (files.hasData) {
@@ -38,7 +39,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                 itemCount: files.data!.length,
                 itemBuilder: (ctx, index) {
                   var fileItem = files.data![index];
-                  var onTap = () => widget.onClick(index, fileItem.path);
+                  var onTap = () => widget.onClick(index, fileItem);
                   var selected = widget.selectedFiles[index] ?? false;
                   return GestureDetector(
                     child: Container(
@@ -60,7 +61,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                           ),
                           Flexible(
                             child: Text(
-                              fileItem.path.split("/").last,
+                              fileItem.split("/").last,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Colors.black,

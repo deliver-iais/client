@@ -16,7 +16,7 @@ class StoragePath {
   }
 
   static Future<String> get audioPath async {
-    final String data = await _channel.invokeMethod('get_all_audio');
+    final String data = await _channel.invokeMethod('get_all_music');
     return data;
   }
   static Future<String> get filePath async {

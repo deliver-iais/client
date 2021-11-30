@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:date_time_format/date_time_format.dart';
 import 'package:deliver/services/storage_path.dart';
-
-
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class StorageFile {
   final List files;
@@ -36,23 +37,22 @@ class AudioItem extends FileBasic {
   AudioItem({required String path, required this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
-    return[];
-    //Todo read all audio file
-    // List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-    // List<File> files = [];
-    // for (var s in storageInfo) {
-    //   var root =
-    //       s.rootDir; //storageInfo[1] for SD card, geting the root directory
-    //   var fm = FileManager(root: Directory(root)); //
-    //   List<File> f = await fm.filesTree(extensions: ["mp3"]);
-    //   files.addAll(f);
-    // }
-    // return files;
+    var storageFiles = _storageFiles(await StoragePath.audioPath);
+    List<File> files = [];
+    for (var storageFile in storageFiles) {
+      for (var audio in storageFile.files) {
+        try {
+          files.add(File(audio["path"]));
+        } catch (e) {
+          GetIt.I.get<Logger>().e(e);
+        }
+      }
+    }
+    return files;
   }
 }
 
 class ImageItem extends FileBasic {
-
   ImageItem({required String path}) : super(path);
 
   static Future<List<ImageItem>> getImages() async {
@@ -66,5 +66,25 @@ class ImageItem extends FileBasic {
       }
     }
     return items;
+  }
+}
+
+class FileItem extends FileBasic {
+  FileItem({required String path}) : super(path);
+
+  static Future<List<String>> getFiles() async {
+    try {
+      var storageFiles = _storageFiles(await StoragePath.filePath);
+      List<String> filesPath = [];
+      for (var folder in storageFiles) {
+        for (var file in folder.files) {
+          filesPath.add(file["path"]);
+        }
+      }
+      return filesPath;
+    } catch (e) {
+      GetIt.I.get<Logger>().e(e);
+      return [];
+    }
   }
 }
