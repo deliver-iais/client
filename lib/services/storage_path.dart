@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class StoragePath {
-  static const MethodChannel _channel = const MethodChannel('get_media');
+  static const MethodChannel _channel = const MethodChannel('read_external');
 
   static Future<String> get imagesPath async {
     final String data = await _channel.invokeMethod('get_all_image');
@@ -11,16 +11,16 @@ class StoragePath {
   }
 
   static Future<String> get videoPath async {
-    final String data = await _channel.invokeMethod('getVideosPath');
+    final String data = await _channel.invokeMethod('get_all_video');
     return data;
   }
 
   static Future<String> get audioPath async {
-    final String data = await _channel.invokeMethod('getAudioPath');
+    final String data = await _channel.invokeMethod('get_all_audio');
     return data;
   }
   static Future<String> get filePath async {
-    final String data = await _channel.invokeMethod('getFilesPath');
+    final String data = await _channel.invokeMethod('get_all_file');
     return data;
   }
 }

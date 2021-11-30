@@ -5,7 +5,7 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 

@@ -25,19 +25,10 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-
 /**
  * StoragePathPlugin
  */
-public class StoragePathPlugin  {
-    /**
-     * Plugin registration.
-     */
+public class StoragePathPlugin {
 
     public static ArrayList<FileModel> filesModelArrayList;
     boolean hasFolder = false;
@@ -50,6 +41,21 @@ public class StoragePathPlugin  {
     }
 
     public void getImagePaths(Result result) {
+        Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
+            @Override
+            public void onGranted() {
+                getAllImage(result);
+            }
+
+            @Override
+            public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                result.error("1", "Permission denied", null);
+            }
+        });
+
+    }
+
+    private void getAllImage(Result result) {
         filesModelArrayList = new ArrayList<>();
         boolean hasFolder = false;
         int position = 0;
@@ -194,8 +200,22 @@ public class StoragePathPlugin  {
         result.success(json);
     }
 
-    private void getAudioPath(Result result) {
+    public void getAudioPath(Result result) {
+        Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
+            @Override
+            public void onGranted() {
+                getAllAudio(result);
+            }
 
+            @Override
+            public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                result.error("1", "Permission denied", null);
+            }
+        });
+
+    }
+
+    private void getAllAudio(Result result) {
         mediaModelArrayList = new ArrayList<>();
         boolean hasFolder = false;
         int position = 0;
@@ -273,7 +293,22 @@ public class StoragePathPlugin  {
         result.success(json);
     }
 
-    private void getFilesPath(Result result) {
+    public void getFilesPath(Result result) {
+        Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
+            @Override
+            public void onGranted() {
+                getAllFile(result);
+            }
+
+            @Override
+            public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                result.error("1", "Permission denied", null);
+            }
+        });
+
+    }
+
+    private void getAllFile(Result result) {
         fileModelArrayList = new ArrayList<>();
         boolean hasFolder = false;
         int position = 0;
