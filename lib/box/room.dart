@@ -38,6 +38,9 @@ class Room {
   @HiveField(9)
   int? lastUpdatedMessageId;
 
+  @HiveField(10)
+  int? hiddenMessageCount;
+
   Room(
       {required this.uid,
       this.lastMessage,
@@ -48,7 +51,8 @@ class Room {
       this.lastMessageId,
       this.firstMessageId,
       this.pinned,
-      this.lastUpdatedMessageId});
+      this.lastUpdatedMessageId,
+      this.hiddenMessageCount});
 
   Room copy(Room r) => Room(
       uid: r.uid,
@@ -60,8 +64,8 @@ class Room {
       lastMessageId: r.lastMessageId ?? this.lastMessageId,
       firstMessageId: r.firstMessageId ?? this.firstMessageId,
       pinned: r.pinned ?? this.pinned,
-      lastUpdatedMessageId:
-          r.lastUpdatedMessageId ?? this.lastUpdatedMessageId);
+      lastUpdatedMessageId: r.lastUpdatedMessageId ?? this.lastUpdatedMessageId,
+      hiddenMessageCount: r.hiddenMessageCount ?? this.hiddenMessageCount);
 
   Room copyWith(
           {String? uid,
@@ -73,7 +77,8 @@ class Room {
           int? firstMessageId,
           int? lastUpdatedMessageId,
           bool? mentioned,
-          bool? pinned}) =>
+          bool? pinned,
+          int? hiddenMessageCount}) =>
       Room(
           uid: uid ?? this.uid,
           lastMessage: lastMessage ?? this.lastMessage,
@@ -85,5 +90,6 @@ class Room {
           lastMessageId: lastMessageId ?? this.lastMessageId,
           pinned: pinned ?? this.pinned,
           lastUpdatedMessageId:
-              lastUpdatedMessageId ?? this.lastUpdatedMessageId);
+              lastUpdatedMessageId ?? this.lastUpdatedMessageId,
+          hiddenMessageCount: hiddenMessageCount ?? this.hiddenMessageCount);
 }

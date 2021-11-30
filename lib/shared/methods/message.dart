@@ -361,11 +361,11 @@ String messageBodyToJson(PB.Message message) {
 
     case MessageType.FORM:
       return message.form.writeToJson();
-
     case MessageType.PERSISTENT_EVENT:
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.adminSpecificPersistentEvent:
         case PersistentEvent_Type.mucSpecificPersistentEvent:
+        case PersistentEvent_Type.botSpecificPersistentEvent:
           return message.persistEvent.writeToJson();
 
         case PersistentEvent_Type.messageManipulationPersistentEvent:
