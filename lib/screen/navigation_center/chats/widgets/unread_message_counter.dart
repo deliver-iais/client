@@ -8,7 +8,8 @@ class UnreadMessageCounterWidget extends StatelessWidget {
   final int lastMessageId;
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  UnreadMessageCounterWidget(this.roomUid, this.lastMessageId, {Key? key}) : super(key: key);
+  UnreadMessageCounterWidget(this.roomUid, this.lastMessageId, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,9 @@ class UnreadMessageCounterWidget extends StatelessWidget {
         if (snapshot.hasData) {
           int lastSeen = snapshot.data?.messageId ?? 0;
           int unreadCount = lastMessageId - lastSeen;
+          if (snapshot.data?.hiddenMessageCount != null) {
+            unreadCount = unreadCount - snapshot.data!.hiddenMessageCount!;
+          }
           return (unreadCount > 0)
               ? Container(
                   width: 24,

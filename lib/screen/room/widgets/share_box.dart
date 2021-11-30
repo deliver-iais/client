@@ -71,11 +71,10 @@ class _ShareBoxState extends State<ShareBox> {
 
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
-  var currentPage = Page.Gallery;
+  var currentPage = Page.gallery;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   I18N i18n = GetIt.I.get<I18N>();
-
 
   @override
   void dispose() {
@@ -175,30 +174,28 @@ class _ShareBoxState extends State<ShareBox> {
                         children: <Widget>[
                           if (isSelected())
                             Container(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Stack(
-                                    children: <Widget>[
-                                      Container(
-                                        child: circleButton(() {
-                                          _audioPlayer.stop();
-                                          Navigator.pop(co);
-                                          if (widget.replyMessageId!>0) {
-                                            messageRepo
-                                                .sendMultipleFilesMessages(
-                                                    widget.currentRoomId,
-                                                    finalSelected.values
-                                                        .toList(),
-                                                    replyToId:
-                                                        widget.replyMessageId);
-                                          } else {
-                                              showCaptionDialog(
-                                                  type: "file",
-                                                  paths: finalSelected.values.toList(),
-                                                  roomUid: widget.currentRoomId,
-                                                  context: context);
-                                          }
+                                child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      child: circleButton(() {
+                                        _audioPlayer.stop();
+                                        Navigator.pop(co);
+                                        if (widget.replyMessageId! > 0) {
+                                          messageRepo.sendMultipleFilesMessages(
+                                              widget.currentRoomId,
+                                              finalSelected.values.toList(),
+                                              replyToId: widget.replyMessageId);
+                                        } else {
+                                          showCaptionDialog(
+                                              type: "file",
+                                              paths:
+                                                  finalSelected.values.toList(),
+                                              roomUid: widget.currentRoomId,
+                                              context: context);
+                                        }
 
                                         Navigator.pop(co);
                                         Timer(const Duration(seconds: 2), () {
@@ -257,7 +254,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   width: 30,
                                 )
                               ],
-                            )
+                            ))
                           else
                             Container(
                               padding:
@@ -290,7 +287,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         } else {
                                           setState(() {
                                             _audioPlayer.stop();
-                                            currentPage = Page.Gallery;
+                                            currentPage = Page.gallery;
                                           });
                                         }
                                       }, Icons.insert_drive_file,
@@ -299,7 +296,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       circleButton(() async {
                                         setState(() {
                                           _audioPlayer.stop();
-                                          currentPage = Page.Files;
+                                          currentPage = Page.files;
                                         });
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
@@ -319,7 +316,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           } else {
                                             setState(() {
                                               _audioPlayer.stop();
-                                              currentPage = Page.Location;
+                                              currentPage = Page.location;
                                               initialChildSize.add(0.5);
                                             });
                                           }
@@ -329,9 +326,8 @@ class _ShareBoxState extends State<ShareBox> {
                                           context: co),
                                       circleButton(() async {
                                         setState(() {
-                                          currentPage = Page.Music;
+                                          currentPage = Page.music;
                                         });
-
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
                                           context: co),
@@ -361,93 +357,93 @@ class _ShareBoxState extends State<ShareBox> {
           if (position.hasData && position.data != null) {
             return ListView(
               children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height / 3 - 40,
-              child: FlutterMap(
-                options: MapOptions(
-                  center: LatLng(
-                      position.data!.latitude, position.data!.longitude),
-                  zoom: 14.0,
-                ),
-                layers: [
-                  TileLayerOptions(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(
-                    markers: [
-                      Marker(
-                        width: 170.0,
-                        height: 170.0,
-                        point: LatLng(position.data!.latitude,
-                            position.data!.longitude),
-                        builder: (ctx) => const Icon(
-                          Icons.location_pin,
-                          color: Colors.red,
-                          size: 28,
-                        ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 3 - 40,
+                  child: FlutterMap(
+                    options: MapOptions(
+                      center: LatLng(
+                          position.data!.latitude, position.data!.longitude),
+                      zoom: 14.0,
+                    ),
+                    layers: [
+                      TileLayerOptions(
+                          urlTemplate:
+                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c']),
+                      MarkerLayerOptions(
+                        markers: [
+                          Marker(
+                            width: 170.0,
+                            height: 170.0,
+                            point: LatLng(position.data!.latitude,
+                                position.data!.longitude),
+                            builder: (ctx) => const Icon(
+                              Icons.location_pin,
+                              color: Colors.red,
+                              size: 28,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 40,
-                    child: Icon(
-                      Icons.location_on_sharp,
-                      color: Colors.blueAccent,
-                      size: 28,
-                    ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 40,
+                        child: Icon(
+                          Icons.location_on_sharp,
+                          color: Colors.blueAccent,
+                          size: 28,
+                        ),
+                      ),
+                      Text(
+                        i18n.get(
+                          "send_this_location",
+                        ),
+                        style: const TextStyle(fontSize: 18),
+                      )
+                    ],
                   ),
-                  Text(
-                    i18n.get(
-                      "send_this_location",
-                    ),
-                    style: const TextStyle(fontSize: 18),
-                  )
-                ],
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                messageRepo.sendLocationMessage(
-                    position.data!, widget.currentRoomId);
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            const Divider(),
-            //todo  liveLocation
-            // GestureDetector(
-            //   behavior: HitTestBehavior.translucent,
-            //   onTap: () {
-            //     liveLocation(i18n, context,position.data);
-            //   },
-            //   child: Row(
-            //     children: [
-            //       Container(
-            //           child: l.Lottie.asset(
-            //             'assets/animations/liveLocation.json',
-            //             width: 40,
-            //             height: 40,
-            //           )),
-            //       Text(
-            //         i18n.get(
-            //           "send_live_location",
-            //         ),
-            //         style: TextStyle(fontSize: 18),
-            //       )
-            //     ],
-            //   ),
-            // )
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    messageRepo.sendLocationMessage(
+                        position.data!, widget.currentRoomId);
+                  },
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                const Divider(),
+                //todo  liveLocation
+                // GestureDetector(
+                //   behavior: HitTestBehavior.translucent,
+                //   onTap: () {
+                //     liveLocation(i18n, context,position.data);
+                //   },
+                //   child: Row(
+                //     children: [
+                //       Container(
+                //           child: l.Lottie.asset(
+                //             'assets/animations/liveLocation.json',
+                //             width: 40,
+                //             height: 40,
+                //           )),
+                //       Text(
+                //         i18n.get(
+                //           "send_live_location",
+                //         ),
+                //         style: TextStyle(fontSize: 18),
+                //       )
+                //     ],
+                //   ),
+                // )
               ],
             );
           } else {

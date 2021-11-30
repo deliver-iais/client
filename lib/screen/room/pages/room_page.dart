@@ -498,8 +498,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _getLastSeen() async {
     Seen? seen = await _roomRepo.getOthersSeen(widget.roomId);
-    if (seen != null) {
-      _lastSeenMessageId = seen.messageId;
+    if (seen != null && seen.messageId!= null) {
+      _lastSeenMessageId = seen.messageId!;
     }
   }
 
@@ -508,8 +508,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     var room = await _roomRepo.getRoom(widget.roomId);
 
-    if (seen != null) {
-      _lastShowedMessageId = seen.messageId;
+    if (seen != null && seen.messageId!= null) {
+      _lastShowedMessageId = seen.messageId!;
       if (room!.firstMessageId != null) {
         _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId!;
       }

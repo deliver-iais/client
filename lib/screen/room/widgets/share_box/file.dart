@@ -1,5 +1,3 @@
-
-
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +53,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                               color: Colors.deepOrange,
                               size: 33,
                             ),
-                            onPressed: () => widget.onClick(index, fileItem.path),
+                            onPressed: () => widget.onClick(index, fileItem),
                           ),
                           const SizedBox(
                             width: 22,
@@ -74,7 +72,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                         ],
                       ),
                     ),
-                    onTap: () => widget.onClick(index, fileItem.path),
+                    onTap: () => widget.onClick(index, fileItem),
                   );
                 });
           }
