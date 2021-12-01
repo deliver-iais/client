@@ -87,6 +87,8 @@ class CallRepo {
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
+                }else{
+                  _isVideo = false;
                 }
                 incomingCall(event.roomUid!);
               } else {
@@ -499,10 +501,12 @@ class CallRepo {
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-  void startCall(Uid roomId, bool isVideo) async {
+   startCall(Uid roomId, bool isVideo) async {
     _isCaller = true;
     _isVideo = isVideo;
     if (!_onCalling) {
+      _roomUid = roomId;
+      _onCalling = true;
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
@@ -512,8 +516,6 @@ class CallRepo {
           endCall();
         }
       });
-      _roomUid = roomId;
-      _onCalling = true;
       _sendStartCallEvent();
     } else {
       _logger.i("User on Call ... !");
@@ -725,6 +727,7 @@ class CallRepo {
   _dispose() async {
     _logger.i("end call in service");
     await _peerConnection?.close();
+    await _peerConnection?.dispose();
     await _cleanLocalStream();
     _candidate = [];
     Timer(const Duration(seconds: 3), () {
@@ -737,6 +740,7 @@ class CallRepo {
     _onCalling = false;
     _isSharing = false;
     _isCaller = false;
+    _isVideo = false;
     _sdpConstraints = {};
   }
 

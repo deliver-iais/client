@@ -1,8 +1,9 @@
-import 'dart:math';
 import 'dart:io';
-import 'package:deliver/box/avatar.dart';
+import 'dart:math';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -284,13 +285,19 @@ class AndroidNotifier implements Notifier {
     Set<int> opponentsIds,
     Map<String, String>? userInfo,
   ) async {
-    _routingService.openInComingCallPage(userInfo!["uid"]!.asUid(), true);
+    final callRepo = GetIt.I.get<CallRepo>();
+    if (callRepo.isVideo) {
+      _routingService.openInComingCallPage(userInfo!["uid"]!.asUid(), true);
+    } else {
+      _routingService.openRequestAudioCallPage(callRepo.roomUid!, true);
+    }
   }
 
   @override
   notify(MessageBrief message) async {
     if (message.ignoreNotification!) return;
     String? finalFilePath;
+    String? filePath;
     Room? room = await _roomRepo.getRoom(message.roomUid!.asString());
     String selectedNotificationSound = "that_was_quick";
     var selectedSound =
@@ -302,7 +309,7 @@ class AndroidNotifier implements Notifier {
           thumbnailSize: ThumbnailSize.medium);
 
       if (f != null && f.path.isNotEmpty) {
-        String filePath = f.path;
+        filePath = f.path;
         filePath = filePath.replaceFirst('/', '');
         finalFilePath = 'file://' + (filePath);
       }
@@ -314,16 +321,18 @@ class AndroidNotifier implements Notifier {
     }
     if (message.type == MessageType.CALL) {
       final messageRepo = GetIt.I.get<MessageRepo>();
+      final callRepo = GetIt.I.get<CallRepo>();
       var lastMessages = await messageRepo.fetchLastMessages(
           message.roomUid!, room!.lastMessageId!, room.firstMessageId, room,
           limit: 10, type: FetchMessagesReq_Type.BACKWARD_FETCH);
       ConnectycubeFlutterCallKit.showCallNotification(
           sessionId: lastMessages!.id.toString(),
-          callType: 1,
+          callType: callRepo.isVideo ? 1 : 2,
           callerId: lastMessages.id,
           callerName: message.roomName,
           userInfo: {"uid": room.uid},
-          opponentsIds: {1});
+          opponentsIds: {1},
+          path: filePath);
       ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     } else {
       AwesomeNotifications().setChannel(

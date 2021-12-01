@@ -193,9 +193,11 @@ packages:
   connectycube_flutter_call_kit:
     dependency: "direct main"
     description:
-      name: connectycube_flutter_call_kit
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: "0eab6089f96678a9306a2d3288146908673182ba"
+      url: "https://github.com/androidwoman/connectycube_flutter_call_kit-0.1.0-dev.2.git"
+    source: git
     version: "0.1.0-dev.2"
   contacts_service:
     dependency: "direct main"
