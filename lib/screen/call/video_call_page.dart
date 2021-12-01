@@ -54,7 +54,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
     });
 
     //True means its VideoCall and false means AudioCall
-    callRepo.startCall(widget.roomUid, true);
+    await callRepo.startCall(widget.roomUid, true);
   }
 
   @override

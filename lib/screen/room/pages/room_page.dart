@@ -17,6 +17,8 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
+import 'package:deliver/screen/call/video_call_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -747,13 +749,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _routingService
                       .openRequestVideoCallPage(_currentRoom.value!.uid.asUid());
+                  //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
                 },
                 icon: const Icon(Icons.videocam)),
           if (_currentRoom.value!.uid.asUid().isUser())
             IconButton(
                 onPressed: () {
-                  _routingService
-                      .openRequestAudioCallPage(_currentRoom.value!.uid.asUid(),false);
+                   _routingService
+                       .openRequestAudioCallPage(_currentRoom.value!.uid.asUid(),false);
+                  //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  AudioCallScreen(roomUid:_currentRoom.value!.uid.asUid(), isAccepted: false,)));
                 },
                 icon: Icon(Icons.call)),
 
