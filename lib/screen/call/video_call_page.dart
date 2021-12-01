@@ -2,6 +2,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -75,8 +76,12 @@ class _VideoCallPageState extends State<VideoCallPage> {
             } else if (snapshot.data == CallStatus.ENDED) {
               _logger.i("call ended status");
               _audioService.stopPlayBeepSound();
-              //TODO discussion
-              _routingService.pop();
+              if (isDesktop()) {
+                _routingService.pop();
+              } else {
+                Navigator.of(context);
+              }
+
               _remoteRenderer.dispose();
               _localRenderer.dispose();
               return const SizedBox.shrink();

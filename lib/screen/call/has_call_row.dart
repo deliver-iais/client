@@ -27,7 +27,7 @@ class _HasCallRowState extends State<HasCallRow> {
               onTap: () {
                 if (snapshot.data == CallStatus.CREATED) {
                   _routingService.openInComingCallPage(
-                      callRepo.roomUid!, false);
+                      callRepo.roomUid!, false,context);
                 }
                 //Todo handel other
               },
