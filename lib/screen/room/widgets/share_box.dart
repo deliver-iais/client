@@ -135,6 +135,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   ? ShareBoxFile(
                                       scrollController: scrollController,
                                       onClick: (index, path) {
+                                        messageRepo.sendTextMessage(widget.currentRoomId,path);
                                         setState(() {
                                           selectedFiles[index] =
                                               !(selectedFiles[index] ?? false);

@@ -109,9 +109,9 @@ class RoutingService {
           smallPageMain: widget,
           path: "/room/$roomId"));
     } else {
-      Navigator.push(context,
-          EnterExitRoute(exitPage: const HomePage(), enterPage: widget));
-      //_rootInMobileState(widget, context);
+      // Navigator.push(context,
+      //     EnterExitRoute(exitPage: const HomePage(), enterPage: widget));
+      _rootInMobileState(widget, context);
     }
   }
 

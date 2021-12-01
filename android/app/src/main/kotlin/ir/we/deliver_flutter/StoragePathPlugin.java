@@ -1,25 +1,24 @@
-package ir.we.deliver;
+package ir.we.deliver_flutter;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.RequiresApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.nabinbhandari.android.permissions.PermissionHandler;
 import com.nabinbhandari.android.permissions.Permissions;
 
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
+
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -36,7 +35,7 @@ public class StoragePathPlugin {
     public static ArrayList<MediaModel> mediaModelArrayList;
     public static ArrayList<DocumentModel> fileModelArrayList;
 
-    StoragePathPlugin(Activity activity) {
+    public  StoragePathPlugin(Activity activity) {
         this.activity = activity;
     }
 
@@ -55,6 +54,7 @@ public class StoragePathPlugin {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void getAllImage(Result result) {
         filesModelArrayList = new ArrayList<>();
         boolean hasFolder = false;
@@ -63,7 +63,7 @@ public class StoragePathPlugin {
         Cursor cursor;
         int column_index_data, column_index_folder_name;
 
-        String absolutePathOfImage = null;
+        String absolutePathOfImage;
         uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
         String[] projection = {
@@ -216,81 +216,85 @@ public class StoragePathPlugin {
     }
 
     private void getAllAudio(Result result) {
-        mediaModelArrayList = new ArrayList<>();
-        boolean hasFolder = false;
-        int position = 0;
-        Uri uri;
-        Cursor cursor;
-        int column_index_data;
+        try {
+            mediaModelArrayList = new ArrayList<>();
+            boolean hasFolder = false;
+            int position = 0;
+            Uri uri;
+            Cursor cursor;
+            int column_index_data;
 
-        String absolutePathOfImage;
-        uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String absolutePathOfImage;
+            uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
-        String[] projection = {
-                MediaStore.Audio.AudioColumns.DATA,
-                MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.DATE_ADDED,
-                MediaStore.Audio.Media.SIZE,
-                MediaStore.Audio.Media.DURATION
-        };
+            String[] projection = {
+                    MediaStore.Audio.AudioColumns.DATA,
+                    MediaStore.Audio.Media.DISPLAY_NAME,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.DATE_ADDED,
+                    MediaStore.Audio.Media.SIZE,
+                    MediaStore.Audio.Media.DURATION
+            };
 
-        final String orderBy = MediaStore.Audio.Media.DATE_ADDED;
-        cursor = activity.getContentResolver().query(uri, projection, null, null, orderBy + " DESC");
+            final String orderBy = MediaStore.Audio.Media.DATE_ADDED;
+            cursor = activity.getContentResolver().query(uri, projection, null, null, orderBy + " DESC");
 
-        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA);
-        while (cursor.moveToNext()) {
-            absolutePathOfImage = cursor.getString(column_index_data);
-            for (int i = 0; i < mediaModelArrayList.size(); i++) {
-                if (mediaModelArrayList.get(i) != null &&
-                        mediaModelArrayList.get(i).getFolder() != null &&
-                        mediaModelArrayList.get(i).getFolder().equals(new File(absolutePathOfImage).getParentFile().getName())) {
-                    hasFolder = true;
-                    position = i;
-                    break;
-                } else {
-                    hasFolder = false;
+            column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA);
+            while (cursor.moveToNext()) {
+                absolutePathOfImage = cursor.getString(column_index_data);
+                for (int i = 0; i < mediaModelArrayList.size(); i++) {
+                    if (mediaModelArrayList.get(i) != null &&
+                            mediaModelArrayList.get(i).getFolder() != null &&
+                            mediaModelArrayList.get(i).getFolder().equals(new File(absolutePathOfImage).getParentFile().getName())) {
+                        hasFolder = true;
+                        position = i;
+                        break;
+                    } else {
+                        hasFolder = false;
+                    }
                 }
+
+                MetaData metaData = new MetaData();
+                metaData.setDuration(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)));
+                metaData.setData(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA)));
+                metaData.setAlbum(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM)));
+                metaData.setArtist(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ARTIST)));
+                metaData.setDateAdded(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATE_ADDED)));
+                metaData.setSize(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.SIZE)));
+                metaData.setDisplayName(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DISPLAY_NAME)));
+
+                if (hasFolder) {
+
+                    ArrayList<MetaData> metaDataArrayList = new ArrayList<>();
+                    metaDataArrayList.addAll(mediaModelArrayList.get(position).getFiles());
+                    metaDataArrayList.add(metaData);
+
+                    mediaModelArrayList.get(position).setFiles(metaDataArrayList);
+
+                } else {
+
+                    ArrayList<MetaData> metaDataArrayList = new ArrayList<>();
+                    metaDataArrayList.add(metaData);
+                    MediaModel audioModel = new MediaModel();
+                    audioModel.setFolder(new File(absolutePathOfImage).getParentFile().getName());
+                    audioModel.setFiles(metaDataArrayList);
+                    mediaModelArrayList.add(audioModel);
+
+                }
+
             }
-
-            MetaData metaData = new MetaData();
-            metaData.setDuration(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)));
-            metaData.setData(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA)));
-            metaData.setAlbum(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM)));
-            metaData.setArtist(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ARTIST)));
-            metaData.setDateAdded(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATE_ADDED)));
-            metaData.setSize(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.SIZE)));
-            metaData.setDisplayName(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DISPLAY_NAME)));
-
-            if (hasFolder) {
-
-                ArrayList<MetaData> metaDataArrayList = new ArrayList<>();
-                metaDataArrayList.addAll(mediaModelArrayList.get(position).getFiles());
-                metaDataArrayList.add(metaData);
-
-                mediaModelArrayList.get(position).setFiles(metaDataArrayList);
-
-            } else {
-
-                ArrayList<MetaData> metaDataArrayList = new ArrayList<>();
-                metaDataArrayList.add(metaData);
-                MediaModel audioModel = new MediaModel();
-                audioModel.setFolder(new File(absolutePathOfImage).getParentFile().getName());
-                audioModel.setFiles(metaDataArrayList);
-                mediaModelArrayList.add(audioModel);
-
+            Gson gson = new GsonBuilder().create();
+            Type listType = new TypeToken<ArrayList<MediaModel>>() {
+            }.getType();
+            String json = gson.toJson(mediaModelArrayList, listType);
+            if (cursor != null) {
+                cursor.close();
             }
-
+            result.success(json);
+        } catch (Exception e) {
+            result.error("1", e.toString(), null);
         }
-        Gson gson = new GsonBuilder().create();
-        Type listType = new TypeToken<ArrayList<MediaModel>>() {
-        }.getType();
-        String json = gson.toJson(mediaModelArrayList, listType);
-        if (cursor != null) {
-            cursor.close();
-        }
-        result.success(json);
     }
 
     public void getFilesPath(Result result) {
@@ -309,99 +313,106 @@ public class StoragePathPlugin {
     }
 
     private void getAllFile(Result result) {
-        fileModelArrayList = new ArrayList<>();
-        boolean hasFolder = false;
-        int position = 0;
-        Uri uri;
-        Cursor cursor;
-        int column_index_data;
+        try {
+            fileModelArrayList = new ArrayList<>();
+            boolean hasFolder = false;
+            int position = 0;
+            Uri uri;
+            Cursor cursor;
+            int column_index_data;
 
-        String absolutePathOfImage;
-        uri = MediaStore.Files.getContentUri("external");
+            String absolutePathOfImage;
+            uri = MediaStore.Files.getContentUri("external");
 
-        String[] projection = {
-                MediaStore.Files.FileColumns.DATA,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.MIME_TYPE,
-                MediaStore.Files.FileColumns.SIZE,
-                MediaStore.Files.FileColumns.TITLE
-        };
-        String pdf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf");
-        String doc = MimeTypeMap.getSingleton().getMimeTypeFromExtension("doc");
-        String docx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("docx");
-        String xls = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xls");
-        String xlsx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xlsx");
-        String ppt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("ppt");
-        String pptx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pptx");
-        String txt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt");
-        String rtx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtx");
-        String rtf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf");
-        String html = MimeTypeMap.getSingleton().getMimeTypeFromExtension("html");
-        String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-        String[] args = new String[]{pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtx, rtf, html};
-        final String orderBy = MediaStore.Files.FileColumns.DATE_ADDED;
-        cursor = activity.getContentResolver().query(uri, projection, where, args, orderBy + " DESC");
+            String[] projection = {
+                    MediaStore.Files.FileColumns.DATA,
+                    MediaStore.Files.FileColumns.DISPLAY_NAME,
+                    MediaStore.Files.FileColumns.MIME_TYPE,
+                    MediaStore.Files.FileColumns.SIZE,
+                    MediaStore.Files.FileColumns.TITLE
+            };
+            String pdf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf");
+            String doc = MimeTypeMap.getSingleton().getMimeTypeFromExtension("doc");
+            String docx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("docx");
+            String xls = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xls");
+            String xlsx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xlsx");
+            String ppt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("ppt");
+            String pptx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pptx");
+            String txt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt");
+            String rtx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtx");
+            String rtf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf");
+            String html = MimeTypeMap.getSingleton().getMimeTypeFromExtension("html");
+            String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
+            String[] args = new String[]{pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtx, rtf, html};
+            final String orderBy = MediaStore.Files.FileColumns.DATE_ADDED;
+            cursor = activity.getContentResolver().query(uri, projection, where, args, orderBy + " DESC");
 
-        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
-        while (cursor.moveToNext()) {
-            absolutePathOfImage = cursor.getString(column_index_data);
-            for (int i = 0; i < fileModelArrayList.size(); i++) {
-                if (fileModelArrayList.get(i) != null &&
-                        fileModelArrayList.get(i).getFolderName() != null &&
-                        fileModelArrayList.get(i).getFolderName().equals(new File(absolutePathOfImage).getParentFile().getName())) {
-                    hasFolder = true;
-                    position = i;
-                    break;
-                } else {
-                    hasFolder = false;
+            column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+            while (cursor.moveToNext()) {
+                absolutePathOfImage = cursor.getString(column_index_data);
+                for (int i = 0; i < fileModelArrayList.size(); i++) {
+                    if (fileModelArrayList.get(i) != null &&
+                            fileModelArrayList.get(i).getFolderName() != null &&
+                            fileModelArrayList.get(i).getFolderName().equals(new File(absolutePathOfImage).getParentFile().getName())) {
+                        hasFolder = true;
+                        position = i;
+                        break;
+                    } else {
+                        hasFolder = false;
+                    }
                 }
+
+                FileMetaData metaData = new FileMetaData();
+                metaData.setData(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)));
+                metaData.setSize(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)));
+                metaData.setDisplayName(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)));
+                metaData.setMimeType(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)));
+                metaData.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE)));
+
+                if (hasFolder) {
+
+                    ArrayList<FileMetaData> metaDataArrayList = new ArrayList<>();
+                    metaDataArrayList.addAll(fileModelArrayList.get(position).getFileMetaData());
+                    metaDataArrayList.add(metaData);
+
+                    fileModelArrayList.get(position).setFileMetaData(metaDataArrayList);
+
+                } else {
+
+                    ArrayList<FileMetaData> metaDataArrayList = new ArrayList<>();
+                    metaDataArrayList.add(metaData);
+
+                    DocumentModel fileModel = new DocumentModel();
+                    fileModel.setFolderName(new File(absolutePathOfImage).getParentFile().getName());
+                    fileModel.setFileMetaData(metaDataArrayList);
+                    fileModelArrayList.add(fileModel);
+
+                }
+
             }
-
-            FileMetaData metaData = new FileMetaData();
-            metaData.setData(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)));
-            metaData.setSize(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)));
-            metaData.setDisplayName(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)));
-            metaData.setMimeType(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)));
-            metaData.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE)));
-
-            if (hasFolder) {
-
-                ArrayList<FileMetaData> metaDataArrayList = new ArrayList<>();
-                metaDataArrayList.addAll(fileModelArrayList.get(position).getFileMetaData());
-                metaDataArrayList.add(metaData);
-
-                fileModelArrayList.get(position).setFileMetaData(metaDataArrayList);
-
-            } else {
-
-                ArrayList<FileMetaData> metaDataArrayList = new ArrayList<>();
-                metaDataArrayList.add(metaData);
-
-                DocumentModel fileModel = new DocumentModel();
-                fileModel.setFolderName(new File(absolutePathOfImage).getParentFile().getName());
-                fileModel.setFileMetaData(metaDataArrayList);
-                fileModelArrayList.add(fileModel);
-
+            Gson gson = new GsonBuilder().create();
+            Type listType = new TypeToken<ArrayList<FileModel>>() {
+            }.getType();
+            String json = gson.toJson(fileModelArrayList, listType);
+            if (cursor != null) {
+                cursor.close();
             }
-
+            if(json == null){
+                json = "fileNotfouner";
+            }
+            result.success(json);
+        } catch (Exception e) {
+            result.error("1", "eror"+e.toString(), e.toString());
         }
-        Gson gson = new GsonBuilder().create();
-        Type listType = new TypeToken<ArrayList<FileModel>>() {
-        }.getType();
-        String json = gson.toJson(fileModelArrayList, listType);
-        if (cursor != null) {
-            cursor.close();
-        }
-        result.success(json);
     }
 }

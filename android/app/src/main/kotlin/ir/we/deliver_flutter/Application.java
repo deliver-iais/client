@@ -1,4 +1,4 @@
-package ir.we.deliver;
+package ir.we.deliver_flutter;
 
 import android.app.Activity;
 import io.flutter.plugin.common.PluginRegistry;

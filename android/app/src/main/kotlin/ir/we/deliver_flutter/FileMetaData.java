@@ -1,4 +1,4 @@
-package ir.we.deliver;
+package ir.we.deliver_flutter;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

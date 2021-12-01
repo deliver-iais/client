@@ -23,7 +23,8 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
 
   @override
   void initState() {
-    _future = FileItem.getFiles();
+    _future = FileItem.getFiles()
+    ;
     super.initState();
   }
 
@@ -38,7 +39,6 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                 itemCount: files.data!.length,
                 itemBuilder: (ctx, index) {
                   var fileItem = files.data![index];
-                  var onTap = () => widget.onClick(index, fileItem);
                   var selected = widget.selectedFiles[index] ?? false;
                   return GestureDetector(
                     child: Container(
@@ -72,7 +72,8 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                         ],
                       ),
                     ),
-                    onTap: () => widget.onClick(index, fileItem),
+                    onTap: () =>
+                        widget.onClick(index, fileItem),
                   );
                 });
           }

@@ -74,17 +74,19 @@ class FileItem extends FileBasic {
 
   static Future<List<String>> getFiles() async {
     try {
-      var storageFiles = _storageFiles(await StoragePath.filePath);
-      List<String> filesPath = [];
-      for (var folder in storageFiles) {
-        for (var file in folder.files) {
-          filesPath.add(file["path"]);
-        }
-      }
-      return filesPath;
+       var res = await StoragePath.filePath;
+       return [res];
+      // var storageFiles = _storageFiles(await StoragePath.filePath);
+      // List<String> filesPath = [];
+      // for (var folder in storageFiles) {
+      //   for (var file in folder.files) {
+      //     filesPath.add(file["path"]);
+      //   }
+      // }
+      // return filesPath;
     } catch (e) {
       GetIt.I.get<Logger>().e(e);
-      return [];
+      return [e.toString()];
     }
   }
 }
