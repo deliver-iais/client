@@ -499,7 +499,7 @@ class CallRepo {
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-  void startCall(Uid roomId, bool isVideo) async {
+   startCall(Uid roomId, bool isVideo) async {
     _isCaller = true;
     _isVideo = isVideo;
     if (!_onCalling) {

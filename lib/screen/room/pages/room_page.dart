@@ -750,13 +750,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 },
                 icon: const Icon(Icons.videocam)),
           if (_currentRoom.value!.uid.asUid().isUser())
+            IconButton(
+                onPressed: () {
+                  _routingService
+                      .openRequestAudioCallPage(_currentRoom.value!.uid.asUid(),false);
+                },
+                icon: Icon(Icons.call)),
+
+          if (_currentRoom.value!.uid.asUid().isUser())
             const SizedBox(
               width: 10,
             ),
           StreamBuilder<bool>(
               stream: _searchMode.stream,
               builder: (c, s) {
-                if (s.hasData & s.data!) {
+                if (s.hasData && s.data!) {
                   return IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () {

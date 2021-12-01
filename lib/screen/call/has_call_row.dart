@@ -11,6 +11,7 @@ class HasCallRow extends StatefulWidget {
   _HasCallRowState createState() => _HasCallRowState();
 }
 
+//TODO SHOW AUDIO CALL
 class _HasCallRowState extends State<HasCallRow> {
   final callRepo = GetIt.I.get<CallRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -48,7 +49,9 @@ class _HasCallRowState extends State<HasCallRow> {
                               return const SizedBox.shrink();
                             }
                           }),
-                      const Icon(Icons.videocam, color: Colors.white),
+                      callRepo.isVideo
+                          ? Icon(Icons.videocam, color: Colors.white)
+                          : Icon(Icons.call, color: Colors.white)
                     ],
                   ),
                 ),

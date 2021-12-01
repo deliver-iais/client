@@ -125,7 +125,11 @@ dependencies:
   sdp_transform: ^0.3.2
   flutter_webrtc: ^0.7.1
   awesome_notifications: ^0.6.17
-  connectycube_flutter_call_kit: ^0.1.0-dev.2
+  connectycube_flutter_call_kit:
+    git:
+      url: https://github.com/androidwoman/connectycube_flutter_call_kit-0.1.0-dev.2.git
+      ref: master
+
 
 
 dev_dependencies:
