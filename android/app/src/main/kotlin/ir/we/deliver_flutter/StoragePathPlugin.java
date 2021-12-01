@@ -1,4 +1,4 @@
-package ir.we.deliver_flutter;
+package ir.we.deliver;
 
 import android.Manifest;
 import android.app.Activity;
@@ -6,8 +6,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.RequiresApi;
@@ -39,8 +39,10 @@ public class StoragePathPlugin {
         this.activity = activity;
     }
 
+
     public void getImagePaths(Result result) {
         Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
+
             @Override
             public void onGranted() {
                 getAllImage(result);
@@ -54,7 +56,6 @@ public class StoragePathPlugin {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void getAllImage(Result result) {
         filesModelArrayList = new ArrayList<>();
         boolean hasFolder = false;
@@ -217,6 +218,7 @@ public class StoragePathPlugin {
 
     private void getAllAudio(Result result) {
         try {
+
             mediaModelArrayList = new ArrayList<>();
             boolean hasFolder = false;
             int position = 0;
@@ -228,8 +230,6 @@ public class StoragePathPlugin {
             uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
             String[] projection = {
-                    MediaStore.Audio.AudioColumns.DATA,
-                    MediaStore.Audio.Media.DISPLAY_NAME,
                     MediaStore.Audio.Media.ALBUM,
                     MediaStore.Audio.Media.ARTIST,
                     MediaStore.Audio.Media.DATE_ADDED,
@@ -301,7 +301,7 @@ public class StoragePathPlugin {
         Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
             @Override
             public void onGranted() {
-                getAllFile(result);
+                getAllFile1(result);
             }
 
             @Override
@@ -311,8 +311,40 @@ public class StoragePathPlugin {
         });
 
     }
+    private void getAllFile1(Result result){
+        File dir= new File(Environment.getExternalStorageDirectory().getPath());
+        ArrayList<String> res = walkdir(dir);
+        Gson gson = new GsonBuilder().create();
+//        Type listType = new TypeToken<ArrayList<FileModel>>() {
+//        }.getType();
+        String json = gson.toJson(res);
+        if(json == null){
+            json = "fileNotfouner";
+        }
+        result.success(json);
 
-    private void getAllFile(Result result) {
+    }
+    public ArrayList<String> walkdir(File dir) {
+        ArrayList<String> filepath= new ArrayList<String>();
+        File listFile[] = dir.listFiles();
+        if (listFile != null) {
+            for (int i = 0; i < listFile.length; i++) {
+
+                if (listFile[i].isDirectory()) {// if its a directory need to get the files under that directory
+                    walkdir(listFile[i]);
+                } else {// add path of  files to your arraylist for later use
+
+                    //Dowhat ever u want
+                    filepath.add(listFile[i].getAbsolutePath());
+                    return  filepath;
+                }
+            }
+        }
+        return null;
+    }
+
+
+        private void getAllFile(Result result) {
         try {
             fileModelArrayList = new ArrayList<>();
             boolean hasFolder = false;
@@ -325,8 +357,6 @@ public class StoragePathPlugin {
             uri = MediaStore.Files.getContentUri("external");
 
             String[] projection = {
-                    MediaStore.Files.FileColumns.DATA,
-                    MediaStore.Files.FileColumns.DISPLAY_NAME,
                     MediaStore.Files.FileColumns.MIME_TYPE,
                     MediaStore.Files.FileColumns.SIZE,
                     MediaStore.Files.FileColumns.TITLE

@@ -75,6 +75,7 @@ class FileItem extends FileBasic {
   static Future<List<String>> getFiles() async {
     try {
        var res = await StoragePath.filePath;
+       print(res.toString());
        return [res];
       // var storageFiles = _storageFiles(await StoragePath.filePath);
       // List<String> filesPath = [];
