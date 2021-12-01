@@ -39,6 +39,7 @@ class CallRepo {
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
+  RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
   List<Map<String, Object>>? _candidate = [];
 
@@ -153,6 +154,9 @@ class CallRepo {
 
     RTCPeerConnection pc =
         await createPeerConnection(configuration, _sdpConstraints!);
+
+    var camAudioTrack = _localStream!.getAudioTracks()[0];
+      _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
 
     if (_isVideo) {
       var camVideoTrack = _localStream!.getVideoTracks()[0];
