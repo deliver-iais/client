@@ -8,9 +8,11 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +29,10 @@ class PersistentEventMessage extends StatelessWidget {
   final _messageDao = GetIt.I.get<MessageDao>();
   final Function? onPinMessageClick;
   final PersistentEvent persistentEventMessage;
+  final double maxWidth;
 
   PersistentEventMessage(
-      {Key? key, required this.message, this.onPinMessageClick})
+      {Key? key, required this.message, this.onPinMessageClick,required this.maxWidth})
       : persistentEventMessage = message.json!.toPersistentEvent(),
         super(key: key);
 
@@ -39,61 +42,86 @@ class PersistentEventMessage extends StatelessWidget {
         ? Container(
             height: 0.0,
           )
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.all(4.0),
-                padding: const EdgeInsets.only(
-                    top: 5, left: 8.0, right: 8.0, bottom: 4.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(20),
+        : persistentEventMessage.whichType() ==
+                PersistentEvent_Type.botSpecificPersistentEvent
+            ? Padding(
+                padding: const EdgeInsets.only(left: 1),
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: maxWidth,),
+                  color: ExtraTheme.of(context).receivedMessageBox,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_i18n.get("bot_not_responding"),
+                          style: Theme.of(context).textTheme.bodyText2),
+                      if (persistentEventMessage
+                          .botSpecificPersistentEvent.errorMessage.isNotEmpty)
+                        Text(
+                            persistentEventMessage
+                                .botSpecificPersistentEvent.errorMessage,
+                            style: Theme.of(context).textTheme.bodyText2),
+                      TimeAndSeenStatus(message, false, false),
+                    ],
+                  ),
                 ),
-                child: FutureBuilder<List<Widget>?>(
-                  future: getPersistentMessage(persistentEventMessage,
-                      message.roomUid.isChannel(), context),
-                  builder: (c, s) {
-                    if (s.hasData && s.data != null) {
-                      return Directionality(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
-                          child: Row(
-                            children: s.data!,
-                          ));
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              ),
-              if (message.json!.toPersistentEvent().whichType() ==
-                      PersistentEvent_Type.mucSpecificPersistentEvent &&
-                  message.json!
-                          .toPersistentEvent()
-                          .mucSpecificPersistentEvent
-                          .issue ==
-                      MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
-                FutureBuilder<File?>(
-                    future: _fileRepo.getFile(
-                        persistentEventMessage
-                            .mucSpecificPersistentEvent.avatar.fileUuid,
-                        persistentEventMessage
-                            .mucSpecificPersistentEvent.avatar.fileName),
-                    builder: (context, fileSnapshot) {
-                      if (fileSnapshot.hasData && fileSnapshot.data != null) {
-                        return CircleAvatar(
-                          backgroundImage:
-                              Image.file(File(fileSnapshot.data!.path)).image,
-                          radius: 35,
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    }),
-            ],
-          );
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(4.0),
+                    padding: const EdgeInsets.only(
+                        top: 5, left: 8.0, right: 8.0, bottom: 4.0),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).dividerColor.withOpacity(0.25),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: FutureBuilder<List<Widget>?>(
+                      future: getPersistentMessage(persistentEventMessage,
+                          message.roomUid.isChannel(), context),
+                      builder: (c, s) {
+                        if (s.hasData && s.data != null) {
+                          return Directionality(
+                              textDirection: _i18n.isPersian
+                                  ? TextDirection.rtl
+                                  : TextDirection.ltr,
+                              child: Row(
+                                children: s.data!,
+                              ));
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  ),
+                  if (message.json!.toPersistentEvent().whichType() ==
+                          PersistentEvent_Type.mucSpecificPersistentEvent &&
+                      message.json!
+                              .toPersistentEvent()
+                              .mucSpecificPersistentEvent
+                              .issue ==
+                          MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
+                    FutureBuilder<File?>(
+                        future: _fileRepo.getFile(
+                            persistentEventMessage
+                                .mucSpecificPersistentEvent.avatar.fileUuid,
+                            persistentEventMessage
+                                .mucSpecificPersistentEvent.avatar.fileName),
+                        builder: (context, fileSnapshot) {
+                          if (fileSnapshot.hasData &&
+                              fileSnapshot.data != null) {
+                            return CircleAvatar(
+                              backgroundImage:
+                                  Image.file(File(fileSnapshot.data!.path))
+                                      .image,
+                              radius: 35,
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        }),
+                ],
+              );
   }
 
   Future<List<Widget>?> getPersistentMessage(
@@ -109,7 +137,8 @@ class PersistentEventMessage extends StatelessWidget {
             issuer!,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+            style:
+                const TextStyle(fontSize: 14, height: 1, color: Colors.white),
           ),
           onTap: () => _routingServices.openRoom(
               persistentEventMessage.mucSpecificPersistentEvent.issuer
@@ -129,7 +158,8 @@ class PersistentEventMessage extends StatelessWidget {
               assignee!,
               overflow: TextOverflow.ellipsis,
               softWrap: false,
-              style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+              style:
+                  const TextStyle(fontSize: 14, height: 1, color: Colors.white),
             ),
             onTap: () => _routingServices.openRoom(
                 persistentEventMessage.mucSpecificPersistentEvent.assignee
@@ -146,7 +176,8 @@ class PersistentEventMessage extends StatelessWidget {
               "<<${content!.substring(0, min(content.length, 15))} >>",
               overflow: TextOverflow.ellipsis,
               softWrap: false,
-              style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+              style:
+                  const TextStyle(fontSize: 14, height: 1, color: Colors.white),
             ),
             onTap: () => onPinMessageClick!(persistentEventMessage
                 .mucSpecificPersistentEvent.messageId

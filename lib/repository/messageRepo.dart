@@ -174,8 +174,8 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
-              fetchHiddenMessageCount(roomMetadata.roomUid,
-                  max(room.lastUpdatedMessageId ?? 0, room.lastMessageId!));
+              fetchHiddenMessageCount(
+                  roomMetadata.roomUid, room.lastMessageId!);
             }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               getMentions(room);
@@ -220,7 +220,7 @@ class MessageRepo {
       var res = await _queryServiceClient
           .countIsHiddenMessages(CountIsHiddenMessagesReq()
             ..roomUid = roomUid
-            ..messageId = Int64(id+1));
+            ..messageId = Int64(id + 1));
       var s = await _seenDao.getMySeen(roomUid.asString());
       if (s != null) {
         _seenDao.saveMySeen(s.copy(
@@ -362,12 +362,14 @@ class MessageRepo {
 
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
+          lastSeen.messageId != null &&
           lastSeen.messageId! >
               max(fetchCurrentUserSeenData.seen.id.toInt(),
                   room.lastCurrentUserSentMessageId.toInt())) return;
       _seenDao.saveMySeen(Seen(
           uid: room.roomUid.asString(),
-          hiddenMessageCount: lastSeen!.hiddenMessageCount??0,
+          hiddenMessageCount:
+              lastSeen != null ? lastSeen.hiddenMessageCount ?? 0 : 0,
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {
