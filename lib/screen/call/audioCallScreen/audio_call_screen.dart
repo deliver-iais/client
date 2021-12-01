@@ -82,7 +82,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         FutureBuilder<Avatar?>(
             future: _avatarRepo.getLastAvatar(widget.roomUid, false),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.data != null &&   snapshot.data!.fileId != null) {
                 return FutureBuilder<File?>(
                     future: _fileRepo.getFile(
                         snapshot.data!.fileId!, snapshot.data!.fileName!),

@@ -159,7 +159,7 @@ class RoutingService {
 
   void openRequestAudioCallPage(Uid roomUid, bool isAccepted) {
     var widget = AudioCallScreen(
-        key: ValueKey("/audiocall"), roomUid: roomUid, isAccepted: isAccepted);
+        key: const ValueKey("/audiocall"), roomUid: roomUid, isAccepted: isAccepted);
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,

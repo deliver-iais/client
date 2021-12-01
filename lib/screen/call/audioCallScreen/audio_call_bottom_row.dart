@@ -34,8 +34,8 @@ class _AudioCallBottomRowState extends State<AudioCallBottomRow> {
                       )),
                   Container(
                     padding: EdgeInsets.all(10),
-                    height: MediaQuery.of(context).size.width * 0.3,
-                    width: MediaQuery.of(context).size.width * 0.3,
+                    height:150,
+                    width: 150,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
