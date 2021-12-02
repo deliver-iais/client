@@ -236,7 +236,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
   final Player _fastAudioPlayerOut = Player(id: 1);
   final Player _fastAudioPlayerIn = Player(id: 1);
   final Player _fastAudioPlayerBeep = Player(id: 2);
-  final Player _fastAudioPlayerBusy = Player(id: 2);
+  final Player _fastAudioPlayerBusy = Player(id: 3);
 
   @override
   Stream<Duration> get audioCurrentPosition => _audioPlayer.positionStream
@@ -257,9 +257,6 @@ class VlcAudioPlayer implements AudioPlayerModule {
   VlcAudioPlayer() {
     _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
     _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
-    _fastAudioPlayerBeep
-        .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
-    _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
   }
 
   @override
@@ -300,6 +297,8 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBeepSound() {
+    _fastAudioPlayerBeep
+        .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
     _fastAudioPlayerBeep.play();
   }
 
@@ -310,6 +309,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBusySound() {
+    _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
     _fastAudioPlayerBusy.play();
   }
 }

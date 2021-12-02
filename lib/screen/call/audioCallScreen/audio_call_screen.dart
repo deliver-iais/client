@@ -8,6 +8,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_bottom_row.dart';
 import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,6 +35,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   final callRepo = GetIt.I.get<CallRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   int seconds = 0;
@@ -53,7 +55,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   }
 
   void startCall() async {
-     callRepo.onLocalStream = ((stream) {
+    callRepo.onLocalStream = ((stream) {
       _localRenderer.srcObject = stream;
     });
 
@@ -71,7 +73,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       await callRepo.initCall(true);
       callRepo.acceptCall(widget.roomUid);
     } else {
-       await callRepo.startCall(widget.roomUid, false);
+      await callRepo.startCall(widget.roomUid, false);
     }
   }
 
@@ -113,20 +115,36 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
                 builder: (context, snapshot) {
                   switch (snapshot.data) {
                     case CallStatus.IS_RINGING:
+                      if (!widget.isAccepted) {
+                        _audioService.stopPlayBeepSound();
+                      }
                       return const Text("Ringing...",
                           style: TextStyle(color: Colors.white70));
                       break;
                     case CallStatus.CONNECTING:
+                      return const Text("Calling....",
+                          style: TextStyle(color: Colors.white70));
+                      break;
                     case CallStatus.CREATED:
                       return const Text("Calling....",
                           style: TextStyle(color: Colors.white70));
                       break;
                     case CallStatus.ENDED:
+                      _audioService.stopPlayBeepSound();
                       _routingService.pop();
-                      return SizedBox.shrink();
-
+                      return const SizedBox.shrink();
+                      break;
+                    case CallStatus.BUSY:
+                      _audioService.playBusySound();
+                      return const Text("Busy....",
+                          style: TextStyle(color: Colors.white70));
+                      break;
+                    case CallStatus.DECLINED:
+                      return const Text("Declined....",
+                          style: TextStyle(color: Colors.white70));
                       break;
                     case CallStatus.CONNECTED:
+                      _audioService.stopPlayBeepSound();
                       return Text("$hours:$minutes:$seconds",
                           style: TextStyle(color: Colors.white70));
                       break;
