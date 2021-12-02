@@ -64,8 +64,9 @@ class CallRepo {
   Function(MediaStream stream)? onAddRemoteStream;
   Function(MediaStream stream)? onRemoveRemoteStream;
 
-  int? startCallTime;
-  int? endCallTime;
+  int? _startCallTime;
+  int? _callDuration;
+  int? _endCallTime;
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
@@ -88,7 +89,7 @@ class CallRepo {
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
-                }else{
+                } else {
                   _isVideo = false;
                 }
                 incomingCall(event.roomUid!);
@@ -156,7 +157,7 @@ class CallRepo {
         await createPeerConnection(configuration, _sdpConstraints!);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
-      _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
+    _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
 
     if (_isVideo) {
       var camVideoTrack = _localStream!.getVideoTracks()[0];
@@ -208,7 +209,6 @@ class CallRepo {
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
           _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_FAILED));
-          endCall();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
           // TODO: Handle this case.
@@ -316,8 +316,8 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() {
-    startCallTime = DateTime.now().millisecondsSinceEpoch;
-    _logger.i("Start Call" + startCallTime.toString());
+    _startCallTime = DateTime.now().millisecondsSinceEpoch;
+    _logger.i("Start Call" + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
   }
 
@@ -511,7 +511,7 @@ class CallRepo {
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-   startCall(Uid roomId, bool isVideo) async {
+  startCall(Uid roomId, bool isVideo) async {
     _isCaller = true;
     _isVideo = isVideo;
     if (!_onCalling) {
@@ -575,6 +575,13 @@ class CallRepo {
     await _setCallCandidate(callAnswer.candidates);
 
     callingStatus.add(CallStatus.IN_CALL);
+    //Set Timer 30 sec for end call if Call doesn't Connected
+    Timer(const Duration(seconds: 30), () {
+      if (callingStatus.value != CallStatus.CONNECTED) {
+        callingStatus.add(CallStatus.ENDED);
+        endCall();
+      }
+    });
   }
 
   //here we have accepted Call
@@ -616,45 +623,60 @@ class CallRepo {
 
   Future<void> receivedEndCall(int callDuration) async {
     //TODO callDuration on ms shouldBe Save on DB
+    _logger.i("Call Duration Received: " + callDuration.toString());
     String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     callingStatus.add(CallStatus.ENDED);
     if (_isCaller) {
-      int time = calculateCallEndTime();
-      messageRepo.sendCallMessage(CallEvent_CallStatus.ENDED, _roomUid!, _callId!,
-          time, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      _callDuration = calculateCallEndTime();
+      _logger.i("Call Duration on Caller: " + callDuration.toString());
+      messageRepo.sendCallMessage(
+          CallEvent_CallStatus.ENDED,
+          _roomUid!,
+          _callId!,
+          _callDuration!,
+          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+    }else{
+      _callDuration = callDuration;
     }
     await _dispose();
   }
 
   endCall() async {
-    if (_isCaller) {
-      int callDuration = calculateCallEndTime();
-      messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED,
-          _roomUid!,
-          _callId!,
-          callDuration,
-          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-      //TODO callDuration shouldBe Save on DB
-    }
     try {
-      messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED, _roomUid!, _callId!,
-          0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-    } catch(e){
+      if (_isCaller) {
+        _callDuration = calculateCallEndTime();
+        _logger.i("Call Duration on Caller: " + _callDuration.toString());
+        messageRepo.sendCallMessage(
+            CallEvent_CallStatus.ENDED,
+            _roomUid!,
+            _callId!,
+            _callDuration!,
+            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+        //TODO callDuration shouldBe Save on DB
+      } else {
+        messageRepo.sendCallMessage(
+            CallEvent_CallStatus.ENDED,
+            _roomUid!,
+            _callId!,
+            0,
+            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      }
+    } catch (e) {
       _logger.e(e);
-    } finally{
+    } finally {
+      //we need 2 sec delay before dispose Connection to Send EndCall Event
+      await Future.delayed(const Duration(seconds: 2));
       await _dispose();
     }
   }
 
   int calculateCallEndTime() {
     var time = 0;
-    if (startCallTime != null) {
-      endCallTime = DateTime.now().millisecondsSinceEpoch;
-      time = endCallTime! - startCallTime!;
+    if (_startCallTime != null) {
+      _endCallTime = DateTime.now().millisecondsSinceEpoch;
+      time = _endCallTime! - _startCallTime!;
     }
     return time;
   }
@@ -742,9 +764,9 @@ class CallRepo {
   _dispose() async {
     callingStatus.add(CallStatus.NO_CALL);
     _logger.i("end call in service");
+    await _cleanLocalStream();
     await _peerConnection?.close();
     await _peerConnection?.dispose();
-    await _cleanLocalStream();
     _candidate = [];
     Timer(const Duration(seconds: 3), () {
       callingStatus.add(CallStatus.NO_CALL);
@@ -757,6 +779,9 @@ class CallRepo {
     _isSharing = false;
     _isCaller = false;
     _isVideo = false;
+    _callDuration = 0;
+    _startCallTime = 0;
+    _callDuration = 0;
     _sdpConstraints = {};
   }
 
