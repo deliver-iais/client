@@ -198,9 +198,7 @@ class CallRepo {
           // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
-          startCallTime = DateTime.now().millisecondsSinceEpoch;
-          _logger.i("Start Call" + startCallTime.toString());
-          callingStatus.add(CallStatus.CONNECTED);
+          _startCallTimerAndChangeStatus();
           _dataChannel!
               .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
           break;
@@ -266,7 +264,7 @@ class CallRepo {
     pc.onDataChannel = (channel) {
       _logger.i("data Channel Received!!");
       //it means Connection is Connected
-      callingStatus.add(CallStatus.CONNECTED);
+      _startCallTimerAndChangeStatus();
       _dataChannel = channel;
       _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
         var status = data.text;
@@ -305,9 +303,7 @@ class CallRepo {
             // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
             //     params.encodings[0].scaleResolutionDownBy = 2;
             // await _videoSender.setParameters(params);
-            startCallTime = DateTime.now().millisecondsSinceEpoch;
-            _logger.i("Start Call" + startCallTime.toString());
-            callingStatus.add(CallStatus.CONNECTED);
+            _startCallTimerAndChangeStatus();
             break;
           case STATUS_CONNECTION_CONNECTING:
             callingStatus.add(CallStatus.CONNECTING);
@@ -317,6 +313,12 @@ class CallRepo {
     };
 
     return pc;
+  }
+
+  void _startCallTimerAndChangeStatus() {
+    startCallTime = DateTime.now().millisecondsSinceEpoch;
+    _logger.i("Start Call" + startCallTime.toString());
+    callingStatus.add(CallStatus.CONNECTED);
   }
 
   _createDataChannel() async {
