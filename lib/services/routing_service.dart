@@ -161,38 +161,38 @@ class RoutingService {
     }
   }
 
-  void openRequestAudioCallPage(Uid roomUid, bool isAccepted,BuildContext context) {
+  void openRequestAudioCallPage(Uid roomUid, bool isAccepted,
+      {BuildContext? context}) {
     var widget = AudioCallScreen(
         key: const ValueKey("/audiocall"),
         roomUid: roomUid,
         isAccepted: isAccepted);
-    if(isDesktop()){
+    if (isDesktop()) {
       _popAllAndPush(Page(
           largePageNavigator: _navigationCenter,
           largePageMain: widget,
           smallPageMain: widget,
           path: "/audiocall"));
-    }else{
-      _rootInMobileState(widget, context);
+    } else {
+      _rootInMobileState(widget, context!);
     }
-
   }
 
-  void openInComingCallPage(Uid roomUid, bool isAccepted,BuildContext context) {
+  void openInComingCallPage(Uid roomUid, bool isAccepted,
+      {BuildContext? context}) {
     var widget = InComingCallPage(
         key: const ValueKey("/Incomingcallpage"),
         roomuid: roomUid,
         isAccepted: isAccepted);
-    if(isDesktop()){
+    if (isDesktop()) {
       _popAllAndPush(Page(
           largePageNavigator: _navigationCenter,
           largePageMain: widget,
           smallPageMain: widget,
           path: "/Incomingcallpage"));
-    }else{
-      _rootInMobileState(widget, context);
+    } else {
+      _rootInMobileState(widget, context!);
     }
-
   }
 
   void openInVideoCallPage(Uid roomUid, RTCVideoRenderer localRenderer,

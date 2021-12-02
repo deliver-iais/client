@@ -13,6 +13,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -20,6 +21,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
@@ -287,9 +289,19 @@ class AndroidNotifier implements Notifier {
   ) async {
     final callRepo = GetIt.I.get<CallRepo>();
     if (callRepo.isVideo) {
-      _routingService.openInComingCallPage(userInfo!["uid"]!.asUid(), true);
+      if(isDesktop()){
+        _routingService.openInComingCallPage(userInfo!["uid"]!.asUid(), true);
+      }else{
+        modifyRoutingByNotificationVideoCall.add({userInfo!["uid"]!:true});
+      }
+
     } else {
-      _routingService.openRequestAudioCallPage(callRepo.roomUid!, true);
+      if(isDesktop()){
+        _routingService.openRequestAudioCallPage(callRepo.roomUid!, true);
+      }else{
+        modifyRoutingByNotificationAudioCall.add({callRepo.roomUid!.asString():true});
+      }
+
     }
   }
 

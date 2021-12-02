@@ -31,6 +31,12 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
+BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationVideoCall =
+    BehaviorSubject.seeded({"": true});
+
+BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationAudioCall =
+    BehaviorSubject.seeded({"": true});
+
 class NavigationCenter extends StatefulWidget {
   final void Function(String)? tapOnSelectChat;
 
@@ -63,7 +69,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
-    if(isAndroid()){
+    if (isAndroid()) {
       AwesomeNotifications().actionStream.listen((receivedNotification) {
         int messageId = int.parse(receivedNotification.payload!['id']!);
         Uid uid = receivedNotification.payload!['uid']!.asUid();
@@ -79,14 +85,31 @@ class _NavigationCenterState extends State<NavigationCenter> {
         if (receivedNotification.buttonKeyPressed == "READ") {
           messageRepo.sendSeen(messageId, uid);
           _roomRepo.saveMySeen(Seen(
-              uid: receivedNotification.payload!['uid']!, messageId: messageId));
+              uid: receivedNotification.payload!['uid']!,
+              messageId: messageId));
         }
-
-      });}
-    subject.stream.debounceTime(const Duration(milliseconds: 250)).listen((text) {
+      });
+    }
+    subject.stream
+        .debounceTime(const Duration(milliseconds: 250))
+        .listen((text) {
       setState(() {
         query = text;
       });
+    });
+    modifyRoutingByNotificationVideoCall.stream.listen((event) {
+      if (event.keys.elementAt(0).isNotEmpty) {
+        _routingService.openInComingCallPage(
+            event.keys.elementAt(0).asUid(), true,
+            context: context);
+      }
+    });
+    modifyRoutingByNotificationAudioCall.stream.listen((event) {
+      if (event.keys.elementAt(0).isNotEmpty) {
+        _routingService.openRequestAudioCallPage(
+            event.keys.elementAt(0).asUid(), true,
+            context: context);
+      }
     });
     super.initState();
   }
@@ -169,7 +192,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
       body: Column(
         children: <Widget>[
           const HasCallRow(),
-          const SizedBox(height: 4,),
+          const SizedBox(
+            height: 4,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: SearchBox(onChange: (str) {
