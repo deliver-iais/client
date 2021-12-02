@@ -17,8 +17,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
-import 'package:deliver/screen/call/video_call_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -34,7 +32,6 @@ import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
-
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -157,8 +154,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 pinMessageWidget(),
                 Expanded(
                   child: StreamBuilder<List<PendingMessage>>(
-                      stream:
-                          _messageRepo.watchPendingMessages(widget.roomId),
+                      stream: _messageRepo.watchPendingMessages(widget.roomId),
                       builder: (context, pendingMessagesStream) {
                         List<PendingMessage> pendingMessages =
                             pendingMessagesStream.data ?? [];
@@ -185,8 +181,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                       alignment:
                                           AlignmentDirectional.bottomStart,
                                       children: [
-                                        buildMessagesListView(
-                                            pendingMessages),
+                                        buildMessagesListView(pendingMessages),
                                         StreamBuilder<int>(
                                             stream: _positionSubject.stream,
                                             builder: (c, position) {
@@ -698,8 +693,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       onChanged: (s) {
                         checkSearchResult.add(false);
                       },
-                      style:
-                          TextStyle(color: ExtraTheme.of(context).textField),
+                      style: TextStyle(color: ExtraTheme.of(context).textField),
                       textInputAction: TextInputAction.search,
                       onSubmitted: (str) async {
                         searchMessage(str, checkSearchResult);
@@ -730,7 +724,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   } else {
                     if (widget.roomId.isMuc()) {
                       return MucAppbarTitle(mucUid: widget.roomId);
-                    } else if (widget.roomId.asUid().category == Categories.BOT) {
+                    } else if (widget.roomId.asUid().category ==
+                        Categories.BOT) {
                       return BotAppbarTitle(botUid: widget.roomId.asUid());
                     } else {
                       return UserAppbarTitle(
@@ -747,20 +742,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           if (_currentRoom.value!.uid.asUid().isUser())
             IconButton(
                 onPressed: () {
-                  _routingService
-                      .openRequestVideoCallPage(_currentRoom.value!.uid.asUid(),context);
+                  _routingService.openCallScreen(
+                      _currentRoom.value!.uid.asUid(), true, false,
+                      context: context);
                   //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
                 },
                 icon: const Icon(Icons.videocam)),
           if (_currentRoom.value!.uid.asUid().isUser())
             IconButton(
                 onPressed: () {
-                   _routingService
-                       .openRequestAudioCallPage(_currentRoom.value!.uid.asUid(),false,context: context);
+                  _routingService.openCallScreen(
+                      _currentRoom.value!.uid.asUid(), false, false,
+                      context: context);
                   //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  AudioCallScreen(roomUid:_currentRoom.value!.uid.asUid(), isAccepted: false,)));
                 },
                 icon: Icon(Icons.call)),
-
           if (_currentRoom.value!.uid.asUid().isUser())
             const SizedBox(
               width: 10,

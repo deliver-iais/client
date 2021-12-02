@@ -7,9 +7,9 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
+import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/call/in_video_call_page.dart';
 import 'package:deliver/screen/call/incoming_call_page.dart';
-import 'package:deliver/screen/call/video_call_page.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
@@ -145,28 +145,15 @@ class RoutingService {
     }
   }
 
-  void openRequestVideoCallPage(Uid roomUid, BuildContext context) {
-    var widget = VideoCallPage(
-      key: const ValueKey("/videocall"),
-      roomUid: roomUid,
-    );
-    if (isDesktop()) {
-      _popAllAndPush(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/videocall"));
-    } else {
-      _rootInMobileState(widget, context);
-    }
-  }
 
-  void openRequestAudioCallPage(Uid roomUid, bool isAccepted,
+  void openCallScreen(Uid roomUid, bool isVideoCall, bool isAccepted,
       {BuildContext? context}) {
-    var widget = AudioCallScreen(
-        key: const ValueKey("/audiocall"),
-        roomUid: roomUid,
-        isAccepted: isAccepted);
+    var widget = CallScreen(
+      key: const ValueKey("/callscreen"),
+      roomUid: roomUid,
+      isVideoCall: isVideoCall,
+      isAccepted: isAccepted,
+    );
     if (isDesktop()) {
       _popAllAndPush(Page(
           largePageNavigator: _navigationCenter,
@@ -195,25 +182,6 @@ class RoutingService {
     }
   }
 
-  void openInVideoCallPage(Uid roomUid, RTCVideoRenderer localRenderer,
-      RTCVideoRenderer remoteRenderer,
-      {required BuildContext context}) {
-    var widget = InVideoCallPage(
-      key: const ValueKey("/invideocallpage"),
-      localRenderer: localRenderer,
-      remoteRenderer: remoteRenderer,
-      roomUid: roomUid,
-    );
-    if (isDesktop()) {
-      _popAllAndPush(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/invideocallpage"));
-    } else {
-      _rootInMobileState(widget, context);
-    }
-  }
 
   bool isAnyRoomOpen() {
     if (_stack!.length == 1) {

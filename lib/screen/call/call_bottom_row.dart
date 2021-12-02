@@ -1,18 +1,12 @@
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 
 class CallBottomRow extends StatefulWidget {
-  final RTCVideoRenderer localRenderer;
-  final RTCVideoRenderer remoteRenderer;
+  final Function hangUp;
 
-  const CallBottomRow(
-      {Key? key, required this.localRenderer, required this.remoteRenderer})
-      : super(key: key);
+  const CallBottomRow({Key? key, required this.hangUp}) : super(key: key);
 
   @override
   _CallBottomRowState createState() => _CallBottomRowState();
@@ -21,12 +15,13 @@ class CallBottomRow extends StatefulWidget {
 class _CallBottomRowState extends State<CallBottomRow> {
   Color _switchCameraIcon = Colors.black45;
   Color _offVideoCamIcon = Colors.black45;
+  Color _speakerIcon = Colors.black45;
+  Color _screenShareIcon = Colors.black45;
   Color _muteMicIcon = Colors.black45;
-  final _routingService = GetIt.I.get<RoutingService>();
   final callRepo = GetIt.I.get<CallRepo>();
-  final _audioService = GetIt.I.get<AudioService>();
   int indexSwitchCamera = 0;
-  int indexSpeaker = 0;
+  int screenShareIndex = 0;
+  int SpeakerIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +48,16 @@ class _CallBottomRowState extends State<CallBottomRow> {
                 onPressed: _muteMic,
               ),
               FloatingActionButton(
-                backgroundColor: _muteMicIcon,
+                backgroundColor: _screenShareIcon,
                 child: (isAndroid())
                     ? const Icon(Icons.mobile_screen_share)
                     : const Icon(Icons.screen_share_outlined),
                 onPressed: _shareScreen,
               ),
               FloatingActionButton(
-                onPressed: _hangUp,
+                onPressed: () {
+                  widget.hangUp();
+                },
                 tooltip: 'Hangup',
                 child: const Icon(Icons.call_end),
                 backgroundColor: Colors.red,
@@ -68,14 +65,6 @@ class _CallBottomRowState extends State<CallBottomRow> {
             ]),
       ),
     );
-  }
-
-  _hangUp() async {
-    _audioService.stopPlayBeepSound();
-    _routingService.pop();
-    await callRepo.endCall();
-    await widget.localRenderer.dispose();
-    await widget.remoteRenderer.dispose();
   }
 
   _switchCamera() {
@@ -97,5 +86,9 @@ class _CallBottomRowState extends State<CallBottomRow> {
 
   _shareScreen() {
     callRepo.shareScreen();
+    screenShareIndex++;
+    _screenShareIcon = screenShareIndex.isOdd ? Colors.grey : Colors.black45;
+    setState(() {});
   }
+
 }

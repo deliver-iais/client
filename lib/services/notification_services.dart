@@ -289,19 +289,19 @@ class AndroidNotifier implements Notifier {
   ) async {
     final callRepo = GetIt.I.get<CallRepo>();
     if (callRepo.isVideo) {
-      if(isDesktop()){
+      if (isDesktop()) {
         _routingService.openInComingCallPage(userInfo!["uid"]!.asUid(), true);
-      }else{
-        modifyRoutingByNotificationVideoCall.add({userInfo!["uid"]!:true});
+      } else {
+        modifyRoutingByNotificationVideoCall.add({userInfo!["uid"]!: true});
       }
-
     } else {
-      if(isDesktop()){
-        _routingService.openRequestAudioCallPage(callRepo.roomUid!, true);
-      }else{
-        modifyRoutingByNotificationAudioCall.add({callRepo.roomUid!.asString():true});
+      if (isDesktop()) {
+        _routingService.openCallScreen(
+            userInfo!["uid"]!.asUid(), callRepo.isVideo, true);
+      } else {
+        modifyRoutingByNotificationAudioCall
+            .add({callRepo.roomUid!.asString(): true});
       }
-
     }
   }
 
@@ -316,7 +316,7 @@ class AndroidNotifier implements Notifier {
         await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
-    if (la != null && la.fileId !=null) {
+    if (la != null && la.fileId != null) {
       var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 

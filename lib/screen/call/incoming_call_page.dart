@@ -169,6 +169,7 @@ class _InComingCallPageState extends State<InComingCallPage> {
                 localRenderer: _localRenderer,
                 remoteRenderer: _remoteRenderer,
                 roomUid: widget.roomuid,
+                hangUp:(){} ,
               );
             } else if (snapshot.data == CallStatus.ENDED) {
               _logger.i("we got end");

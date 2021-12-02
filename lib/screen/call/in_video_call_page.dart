@@ -10,13 +10,15 @@ import 'call_bottom_row.dart';
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final RTCVideoRenderer remoteRenderer;
+  final Function hangUp;
   final Uid roomUid;
 
   const InVideoCallPage(
       {Key? key,
       required this.localRenderer,
       required this.remoteRenderer,
-      required this.roomUid})
+      required this.roomUid,
+      required this.hangUp})
       : super(key: key);
 
   @override
@@ -104,8 +106,7 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
               }
             }),
         CallBottomRow(
-          remoteRenderer: widget.remoteRenderer,
-          localRenderer: widget.localRenderer,
+          hangUp: widget.hangUp,
         ),
       ],
     );
