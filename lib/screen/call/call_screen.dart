@@ -1,6 +1,6 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
-import 'package:deliver/screen/call/start_video_call_page.dart';
+import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 
-import 'in_video_call_page.dart';
+import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
   final Uid roomUid;

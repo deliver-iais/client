@@ -4,8 +4,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-import 'call_bottom_row.dart';
-import 'center_avatar_image-in-call.dart';
+import '../call_bottom_row.dart';
+import '../center_avatar_image-in-call.dart';
 
 class StartVideoCallPage extends StatefulWidget {
   final Uid roomUid;
@@ -50,6 +50,7 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
       ),
       CallBottomRow(
         hangUp: widget.hangUp,
+        isVideoCall: true,
       ),
       Padding(
         padding:
