@@ -209,7 +209,8 @@ class CallRepo {
               .send(RTCDataChannelMessage(STATUS_CONNECTION_DISCONNECTED));
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-          //_dataChannel.send(RTCDataChannelMessage(STATUS_CONNECTION_FAILED));
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_FAILED));
+          endCall();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
           // TODO: Handle this case.
@@ -263,6 +264,9 @@ class CallRepo {
     };
 
     pc.onDataChannel = (channel) {
+      _logger.i("data Channel Received!!");
+      //it means Connection is Connected
+      callingStatus.add(CallStatus.CONNECTED);
       _dataChannel = channel;
       _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
         var status = data.text;
@@ -633,9 +637,15 @@ class CallRepo {
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
       //TODO callDuration shouldBe Save on DB
     }
-    messageRepo.sendCallMessage(CallEvent_CallStatus.ENDED, _roomUid!, _callId!,
-        0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-    await _dispose();
+    try {
+      messageRepo.sendCallMessage(
+          CallEvent_CallStatus.ENDED, _roomUid!, _callId!,
+          0, _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+    } catch(e){
+      _logger.e(e);
+    } finally{
+      await _dispose();
+    }
   }
 
   int calculateCallEndTime() {
