@@ -740,6 +740,7 @@ class CallRepo {
   }
 
   _dispose() async {
+    callingStatus.add(CallStatus.NO_CALL);
     _logger.i("end call in service");
     await _peerConnection?.close();
     await _peerConnection?.dispose();
@@ -756,7 +757,6 @@ class CallRepo {
     _isSharing = false;
     _isCaller = false;
     _isVideo = false;
-    callingStatus.add(CallStatus.NO_CALL);
     _sdpConstraints = {};
   }
 
