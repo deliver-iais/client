@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 
-import 'call_bottom_row.dart';
+import '../call_bottom_row.dart';
 
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
@@ -107,6 +107,7 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
             }),
         CallBottomRow(
           hangUp: widget.hangUp,
+          isVideoCall: true,
         ),
       ],
     );

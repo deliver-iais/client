@@ -71,7 +71,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
           Text(widget.callStatus, style: TextStyle(color: Colors.white70)),
         ],
       ),
-      CallBottomRow(hangUp: widget.hangUp)
+      CallBottomRow(hangUp: widget.hangUp,isVideoCall: false,)
     ]));
   }
 }

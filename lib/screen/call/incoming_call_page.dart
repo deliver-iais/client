@@ -1,6 +1,6 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/in_video_call_page.dart';
+import 'package:deliver/screen/call/videoCallScreen/in_video_call_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';

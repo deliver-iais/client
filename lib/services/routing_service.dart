@@ -8,7 +8,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/call_screen.dart';
-import 'package:deliver/screen/call/in_video_call_page.dart';
+import 'package:deliver/screen/call/videoCallScreen/in_video_call_page.dart';
 import 'package:deliver/screen/call/incoming_call_page.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
