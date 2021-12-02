@@ -748,7 +748,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             IconButton(
                 onPressed: () {
                   _routingService
-                      .openRequestVideoCallPage(_currentRoom.value!.uid.asUid(),context);
+                      .openRequestVideoCallPage(_currentRoom.value!.uid.asUid(), context);
                   //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
                 },
                 icon: const Icon(Icons.videocam)),
@@ -756,7 +756,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             IconButton(
                 onPressed: () {
                    _routingService
-                       .openRequestAudioCallPage(_currentRoom.value!.uid.asUid(),false,context);
+                       .openRequestAudioCallPage(_currentRoom.value!.uid.asUid(), false, context: context);
                   //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  AudioCallScreen(roomUid:_currentRoom.value!.uid.asUid(), isAccepted: false,)));
                 },
                 icon: Icon(Icons.call)),
