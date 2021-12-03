@@ -135,7 +135,6 @@ class _ShareBoxState extends State<ShareBox> {
                                   ? ShareBoxFile(
                                       scrollController: scrollController,
                                       onClick: (index, path) {
-                                        messageRepo.sendTextMessage(widget.currentRoomId,path);
                                         setState(() {
                                           selectedFiles[index] =
                                               !(selectedFiles[index] ?? false);
@@ -174,88 +173,82 @@ class _ShareBoxState extends State<ShareBox> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
                           if (isSelected())
-                            Container(
-                                child: Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      child: circleButton(() {
-                                        _audioPlayer.stop();
-                                        Navigator.pop(co);
-                                        if (widget.replyMessageId! > 0) {
-                                          messageRepo.sendMultipleFilesMessages(
-                                              widget.currentRoomId,
+                            Stack(
+                              children: <Widget>[
+                                Container(
+                                  child: circleButton(() {
+                                    _audioPlayer.stop();
+                                    Navigator.pop(co);
+                                    if (widget.replyMessageId! > 0) {
+                                      messageRepo.sendMultipleFilesMessages(
+                                          widget.currentRoomId,
+                                          finalSelected.values.toList(),
+                                          replyToId: widget.replyMessageId);
+                                    } else {
+                                      showCaptionDialog(
+                                          type: "file",
+                                          paths:
                                               finalSelected.values.toList(),
-                                              replyToId: widget.replyMessageId);
-                                        } else {
-                                          showCaptionDialog(
-                                              type: "file",
-                                              paths:
-                                                  finalSelected.values.toList(),
-                                              roomUid: widget.currentRoomId,
-                                              context: context);
-                                        }
-
-                                        Navigator.pop(co);
-                                        Timer(const Duration(seconds: 2), () {
-                                          widget.scrollToLastSentMessage();
-                                        });
-                                        setState(() {
-                                          finalSelected.clear();
-                                          selectedAudio.clear();
-                                          selectedImages.clear();
-                                          selectedFiles.clear();
-                                        });
-                                      }, Icons.send, "", 50, context: co),
-                                      decoration: const BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 20.0,
-                                              spreadRadius: 0.0)
-                                        ],
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      child: Container(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text(
-                                              finalSelected.values.length
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            ),
-                                          ],
-                                        ),
-                                        width: 16.0,
-                                        height: 16.0,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(co)
-                                              .dialogBackgroundColor,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      top: 35.0,
-                                      right: 0.0,
-                                      left: 31,
-                                    ),
-                                  ],
+                                          roomUid: widget.currentRoomId,
+                                          context: context);
+                                    }
+                                    setState(() {
+                                      finalSelected.clear();
+                                      selectedAudio.clear();
+                                      selectedImages.clear();
+                                      selectedFiles.clear();
+                                    });
+                                  }, Icons.send, "", 50, context: co),
+                                  decoration: const BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 20.0,
+                                          spreadRadius: 0.0)
+                                    ],
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
-                                const SizedBox(
-                                  width: 30,
-                                )
+                                Positioned(
+                                  child: Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text(
+                                          finalSelected.values.length
+                                              .toString(),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                    width: 16.0,
+                                    height: 16.0,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(co)
+                                          .dialogBackgroundColor,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  top: 35.0,
+                                  right: 0.0,
+                                  left: 31,
+                                ),
                               ],
-                            ))
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            )
+                              ],
+                            )
                           else
                             Container(
                               padding:

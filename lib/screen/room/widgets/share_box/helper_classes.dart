@@ -37,15 +37,15 @@ class AudioItem extends FileBasic {
   AudioItem({required String path, required this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
-    var storageFiles = _storageFiles(await StoragePath.audioPath);
+    var storageFiles = await StoragePath.audioPath;
+    List<dynamic> paths = json.decode(storageFiles);
+
     List<File> files = [];
-    for (var storageFile in storageFiles) {
-      for (var audio in storageFile.files) {
-        try {
-          files.add(File(audio["path"]));
-        } catch (e) {
-          GetIt.I.get<Logger>().e(e);
-        }
+    for (var path in paths) {
+      try {
+        files.add(File(path.toString()));
+      } catch (e) {
+        GetIt.I.get<Logger>().e(e);
       }
     }
     return files;
@@ -74,17 +74,14 @@ class FileItem extends FileBasic {
 
   static Future<List<String>> getFiles() async {
     try {
-       var res = await StoragePath.filePath;
-       print(res.toString());
-       return [res];
-      // var storageFiles = _storageFiles(await StoragePath.filePath);
-      // List<String> filesPath = [];
-      // for (var folder in storageFiles) {
-      //   for (var file in folder.files) {
-      //     filesPath.add(file["path"]);
-      //   }
-      // }
-      // return filesPath;
+      var storageFiles = await StoragePath.filePath;
+      List<dynamic> filesPath = json.decode(storageFiles);
+      List<String> result = [];
+      for (var path in filesPath) {
+        result.add(path.toString());
+
+      }
+      return result;
     } catch (e) {
       GetIt.I.get<Logger>().e(e);
       return [e.toString()];
