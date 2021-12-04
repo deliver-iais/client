@@ -23,7 +23,6 @@ import io.flutter.plugins.pathprovider.PathProviderPlugin;
 
 public class Application extends FlutterActivity implements PluginRegistrantCallback {
     private static final String GET_MEDIA_CHANNEL = "read_external";
-    Activity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
