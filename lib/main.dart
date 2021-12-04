@@ -1,4 +1,3 @@
-import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -202,14 +201,18 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux() || isWindows()) {
-    DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   }
-  GetIt.I.registerSingleton<AudioService>(AudioService());
-
-  if (isMacOS()) {
+  try {
+    GetIt.I.registerSingleton<AudioService>(AudioService());
+  } catch (e) {
+    print(e.toString());
+  }
+  if (kIsWeb) {
+    GetIt.I.registerSingleton<Notifier>(WebNotifier());
+  } else if (isMacOS()) {
     GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
   } else if (isAndroid()) {
     GetIt.I.registerSingleton<Notifier>(AndroidNotifier());
@@ -223,7 +226,11 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
   }
 
-  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+  try {
+    GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+  } catch (e) {
+    print(e.toString());
+  }
 
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
@@ -241,7 +248,7 @@ void main() async {
 
   Logger().i("Application has been started.");
 
-  if (isDesktop()) {
+  if (isDesktop() && !kIsWeb) {
     try {
       _setWindowSize();
 
@@ -307,7 +314,10 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-                supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
+                supportedLocales: const [
+                  Locale('en', 'US'),
+                  Locale('fa', 'IR')
+                ],
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,

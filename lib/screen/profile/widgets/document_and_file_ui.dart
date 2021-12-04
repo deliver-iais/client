@@ -68,7 +68,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                       ListTile(
                                         title: GestureDetector(
                                           onTap: () {
-                                            OpenFile.open(file.data);
+                                            OpenFile.open(file.data!);
                                           },
                                           child: Row(children: <Widget>[
                                             Padding(

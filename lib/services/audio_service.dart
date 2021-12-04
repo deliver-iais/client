@@ -5,7 +5,7 @@ import 'dart:io';
 
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:dart_vlc/dart_vlc.dart';
+// import 'package:dart_vlc/dart_vlc.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -198,65 +198,65 @@ class NormalAudioPlayer implements AudioPlayerModule {
   }
 }
 
-class VlcAudioPlayer implements AudioPlayerModule {
-  final Player _audioPlayer = Player(id: 0);
-  final Player _fastAudioPlayerOut = Player(id: 1);
-  final Player _fastAudioPlayerIn = Player(id: 1);
-
-  @override
-  Stream<Duration> get audioCurrentPosition =>
-      _audioPlayer.positionStream.map((event) => event.position!);
-
-  @override
-  Stream<AudioPlayerState> get audioCurrentState =>
-      _audioPlayer.playbackStream.map((event) {
-        if (event.isCompleted) {
-          return AudioPlayerState.COMPLETED;
-        }
-        if (event.isPlaying) {
-          return AudioPlayerState.PLAYING;
-        }
-        return AudioPlayerState.PAUSED;
-      });
-
-  VlcAudioPlayer() {
-    _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
-    _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
-  }
-
-  @override
-  play(String path) {
-    _audioPlayer.open(Media.file(File(path)));
-    _audioPlayer.play();
-  }
-
-  @override
-  void seek(Duration duration) {
-    _audioPlayer.seek(duration);
-  }
-
-  @override
-  void pause() {
-    _audioPlayer.pause();
-  }
-
-  @override
-  void stop() {
-    _audioPlayer.stop();
-  }
-
-  @override
-  void playSoundOut() {
-    _fastAudioPlayerOut.play();
-  }
-
-  @override
-  void playSoundIn() {
-    _fastAudioPlayerIn.play();
-  }
-
-  @override
-  void resume() {
-    _audioPlayer.play();
-  }
+class VlcAudioPlayer  {
+  // // final Player _audioPlayer = Player(id: 0);
+  // // final Player _fastAudioPlayerOut = Player(id: 1);
+  // // final Player _fastAudioPlayerIn = Player(id: 1);
+  //
+  // @override
+  // Stream<Duration> get audioCurrentPosition =>null;
+  //   //  _audioPlayer.positionStream.map((event) => event.position!);
+  //
+  // @override
+  // Stream<AudioPlayerState> get audioCurrentState =>
+  //     // _audioPlayer.playbackStream.map((event) {
+  //     //   if (event.isCompleted) {
+  //     //     return AudioPlayerState.COMPLETED;
+  //     //   }
+  //     //   if (event.isPlaying) {
+  //     //     return AudioPlayerState.PLAYING;
+  //     //   }
+  //     //   return AudioPlayerState.PAUSED;
+  //     // });
+  //
+  // // VlcAudioPlayer() {
+  // //   _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
+  // //   _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
+  // // }
+  //
+  // @override
+  // play(String path) {
+  //   // _audioPlayer.open(Media.file(File(path)));
+  //   // _audioPlayer.play();
+  // }
+  //
+  // @override
+  // void seek(Duration duration) {
+  //  //_audioPlayer.seek(duration);
+  // }
+  //
+  // @override
+  // void pause() {
+  //  // _audioPlayer.pause();
+  // }
+  //
+  // @override
+  // void stop() {
+  //   //_audioPlayer.stop();
+  // }
+  //
+  // @override
+  // void playSoundOut() {
+  //  // _fastAudioPlayerOut.play();
+  // }
+  //
+  // @override
+  // void playSoundIn() {
+  //  // _fastAudioPlayerIn.play();
+  // }
+  //
+  // @override
+  // void resume() {
+  //  // _audioPlayer.play();
+  // }
 }

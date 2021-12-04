@@ -4,9 +4,8 @@ import 'package:deliver/box/avatar.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 
-import 'package:desktoasts/desktoasts.dart' if (kIsWeb) "";
+import 'package:desktoasts/desktoasts.dart' if (dart.library.html) 'package:deliver/services/web_desktoasts.dart' as windowNotify;
 
-import 'package:desktoasts/desktoasts.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
@@ -99,7 +98,7 @@ class IOSNotifier implements Notifier {
 
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  final ToastService _windowsNotificationServices = ToastService(
+  final windowNotify.ToastService _windowsNotificationServices = windowNotify.ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
     productName: "deliver",
@@ -120,29 +119,29 @@ class WindowsNotifier implements Notifier {
         String? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        Toast toast = Toast(
-            type: ToastType.imageAndText02,
+        windowNotify.Toast toast = windowNotify.Toast(
+            type: windowNotify.ToastType.imageAndText02,
             title: message.roomName!,
             subtitle: createNotificationTextFromMessageBrief(message),
             image: File(file!));
         _windowsNotificationServices.show(toast);
         _windowsNotificationServices.stream.listen((event) {
-          if (event is ToastActivated) {
+          if (event is windowNotify.ToastActivated) {
             _routingService.openRoom(lastAvatar.uid);
           }
         });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          Toast toast = Toast(
-            type: ToastType.imageAndText02,
+          windowNotify.Toast toast = windowNotify.Toast(
+            type: windowNotify.ToastType.imageAndText02,
             title: message.roomName!,
             image: deliverIcon,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
           _windowsNotificationServices.stream.listen((event) {
-            if (event is ToastActivated) {
+            if (event is windowNotify.ToastActivated) {
               if (lastAvatar != null) _routingService.openRoom(lastAvatar.uid);
             }
           });
