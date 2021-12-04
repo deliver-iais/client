@@ -64,9 +64,12 @@ class CallRepo {
   Function(MediaStream stream)? onAddRemoteStream;
   Function(MediaStream stream)? onRemoveRemoteStream;
 
-  int? _startCallTime;
-  int? _callDuration;
-  int? _endCallTime;
+  int? _startCallTime = 0;
+  int? _callDuration = 0;
+  int? _endCallTime = 0;
+
+  Timer? timerDeclined;
+  Timer? timerConnectionFailed;
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
@@ -524,7 +527,7 @@ class CallRepo {
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
-      Timer(const Duration(seconds: 50), () {
+      timerDeclined = Timer(const Duration(seconds: 50), () {
         if (callingStatus.value == CallStatus.IS_RINGING) {
           callingStatus.add(CallStatus.ENDED);
           endCall();
@@ -580,7 +583,7 @@ class CallRepo {
 
     callingStatus.add(CallStatus.IN_CALL);
     //Set Timer 30 sec for end call if Call doesn't Connected
-    Timer(const Duration(seconds: 30), () {
+    timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
         callingStatus.add(CallStatus.ENDED);
         endCall();
@@ -634,7 +637,7 @@ class CallRepo {
     callingStatus.add(CallStatus.ENDED);
     if (_isCaller) {
       _callDuration = calculateCallEndTime();
-      _logger.i("Call Duration on Caller: " + callDuration.toString());
+      _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
@@ -651,13 +654,16 @@ class CallRepo {
     try {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
-        _logger.i("Call Duration on Caller: " + _callDuration.toString());
+        _logger.i("Call Duration on Caller(2): " + _callDuration.toString());
         messageRepo.sendCallMessage(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
             _callId!,
             _callDuration!,
             _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+        //we need 2 sec delay before dispose Connection to Send EndCall Event
+        await Future.delayed(const Duration(seconds: 2));
+        await _dispose();
         //TODO callDuration shouldBe Save on DB
       } else {
         messageRepo.sendCallMessage(
@@ -669,10 +675,6 @@ class CallRepo {
       }
     } catch (e) {
       _logger.e(e);
-    } finally {
-      //we need 2 sec delay before dispose Connection to Send EndCall Event
-      await Future.delayed(const Duration(seconds: 2));
-      await _dispose();
     }
   }
 
@@ -767,6 +769,11 @@ class CallRepo {
 
   _dispose() async {
     callingStatus.add(CallStatus.NO_CALL);
+    if(!_isCaller) {
+      timerConnectionFailed!.cancel();
+    }else{
+      timerDeclined!.cancel();
+    }
     _logger.i("end call in service");
     await _cleanLocalStream();
     await _peerConnection?.close();
