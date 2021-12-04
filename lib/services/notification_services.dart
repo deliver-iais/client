@@ -4,7 +4,9 @@ import 'package:deliver/box/avatar.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 
-import 'package:desktoasts/desktoasts.dart' if (dart.library.html) 'package:deliver/services/web_desktoasts.dart' as windowNotify;
+import 'package:desktoasts/desktoasts.dart'
+    if (dart.library.html) 'package:deliver/services/web_desktoasts.dart'
+    as windowNotify;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
@@ -13,7 +15,8 @@ import 'package:logger/logger.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'dart:js' as js;
+import "package:deliver/copyed_class/js.dart" if (dart.library.html) 'dart:js'
+as js;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
@@ -98,7 +101,8 @@ class IOSNotifier implements Notifier {
 
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  final windowNotify.ToastService _windowsNotificationServices = windowNotify.ToastService(
+  final windowNotify.ToastService _windowsNotificationServices =
+      windowNotify.ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
     productName: "deliver",

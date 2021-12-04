@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import "package:deliver/copyed_class/html.dart" if (dart.library.html) 'dart.html' as html;
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/foundation.dart';

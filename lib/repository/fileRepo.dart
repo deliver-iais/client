@@ -2,7 +2,8 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:html' as html;
+
+import "package:deliver/copyed_class/html.dart" if (dart.library.html) 'dart.html' as html;
 
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';

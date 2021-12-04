@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import "package:deliver/copyed_class/html.dart" if (dart.library.html) 'dart.html' as html;
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:deliver/repository/authRepo.dart';
@@ -116,7 +116,7 @@ class FileService {
 
   saveDownloadedFile(String url, String filename) async {
     html.AnchorElement(
-      href: url,
+    herf: url
     )
       ..download = url
       ..setAttribute("download", filename)
