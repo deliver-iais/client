@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:flutter/foundation.dart';
@@ -49,9 +50,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     _coreServices.initStreamConnection();
-    _notificationServices.cancelAllNotifications();
-    checkIfUsernameIsSet();
+    if(isAndroid() || isIOS()) {
+      _notificationServices.cancelAllNotifications();
+    }
 
+    //todo .. check username is set
+   // checkIfUsernameIsSet();
     if (isAndroid()) {
       checkShareFile(context);
     }
@@ -66,7 +70,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
   }
   checkAddToHomeInWeb(BuildContext context)async {
-    Timer(Duration(seconds: 3),(){
+    Timer(const Duration(seconds: 3),(){
       try{
         final bool isDeferredNotNull =
         ujs.context.callMethod("isDeferredNotNull") as bool;

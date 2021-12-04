@@ -139,48 +139,51 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.registerSingleton<AuthServiceClient>(
-      AuthServiceClient(ProfileServicesClientChannel));
+  GetIt.I.registerSingleton<AuthServiceClient>(AuthServiceClient(
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
   GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
-      ProfileServicesClientChannel,
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
-      ProfileServicesClientChannel,
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
-      QueryClientChannel,
+      kIsWeb ? webQueryClientChannel : QueryClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
-      CoreServicesClientChannel,
+      kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
-      StickerClientChannel,
+      kIsWeb ? webStickerClientChannel : StickerClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
-      MucServicesClientChannel,
+      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
-      MucServicesClientChannel,
+      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
-      AvatarServicesClientChannel,
+      kIsWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
-      FirebaseServicesClientChannel,
+      kIsWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
-      ProfileServicesClientChannel,
+      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<LiveLocationServiceClient>(
-      LiveLocationServiceClient(LiveLocationServiceClientChannel,
+      LiveLocationServiceClient(
+          kIsWeb
+              ? webLiveLocationClientChannel
+              : LiveLocationServiceClientChannel,
           interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());

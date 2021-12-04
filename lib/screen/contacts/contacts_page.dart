@@ -114,7 +114,8 @@ class _ContactsPageState extends State<ContactsPage> {
                           itemCount: snapshot.data!.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (searchHasResult(c)) return const SizedBox.shrink();
+                            if (searchHasResult(c))
+                              return const SizedBox.shrink();
                             if (_authRepo.isCurrentUser(c.uid)) {
                               return const SizedBox.shrink();
                             } else {
@@ -200,7 +201,7 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
-    } else if (isAlreadyContactAccessTipShowed) {
+    } else if (isAlreadyContactAccessTipShowed || true) {
       _contactRepo.syncContacts();
     }
   }

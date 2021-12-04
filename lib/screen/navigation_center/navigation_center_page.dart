@@ -216,12 +216,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-        Navigator.push(context, MaterialPageRoute(builder: (v) {
-          return MemberSelectionPage(
-            isChannel: false,
-          );
-        }));
-        //  _routingService.openMemberSelection(context, isChannel: false);
+         _routingService.openMemberSelection(context, isChannel: false);
         break;
       case "newChannel":
         _routingService.openMemberSelection(context, isChannel: true);
