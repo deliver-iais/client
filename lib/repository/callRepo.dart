@@ -316,7 +316,11 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() {
-    _startCallTime = DateTime.now().millisecondsSinceEpoch;
+    if(_startCallTime == 0) {
+      _startCallTime = DateTime
+          .now()
+          .millisecondsSinceEpoch;
+    }
     _logger.i("Start Call" + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
   }
