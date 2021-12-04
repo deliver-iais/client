@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -20,7 +22,8 @@ import 'package:rxdart/rxdart.dart';
 class MucInfoDeterminationPage extends StatefulWidget {
   final bool isChannel;
 
-  const MucInfoDeterminationPage({Key key, this.isChannel}) : super(key: key);
+  const MucInfoDeterminationPage({Key? key, required this.isChannel})
+      : super(key: key);
 
   @override
   _MucInfoDeterminationPageState createState() =>
@@ -28,19 +31,19 @@ class MucInfoDeterminationPage extends StatefulWidget {
 }
 
 class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
-  TextEditingController controller;
-  TextEditingController idController;
-  TextEditingController infoController;
+  late TextEditingController controller;
+  late TextEditingController idController;
+  late TextEditingController infoController;
 
   String mucName = '';
   String channelId = "";
   bool autofocus = false;
   bool _showIcon = true;
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _createMucService = GetIt.I.get<CreateMucService>();
-  MucRepo _mucRepo = GetIt.I.get<MucRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _createMucService = GetIt.I.get<CreateMucService>();
+  final MucRepo _mucRepo = GetIt.I.get<MucRepo>();
   bool idIsAvailable = false;
-  I18N _i18n;
+  final I18N _i18n = GetIt.I.get<I18N>();
   final mucNameKey = GlobalKey<FormState>();
   final _channelIdKey = GlobalKey<FormState>();
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -55,17 +58,17 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   Future<bool> checkChannelD(String id) async {
     var res = await _mucRepo.channelIdIsAvailable(id);
-    if (res != null && res) {
+    if (res) {
       showChannelIdError.add(false);
       return res;
-    } else
+    } else {
       showChannelIdError.add(true);
+    }
     return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         // TODO, use some constant variable
@@ -73,10 +76,13 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         child: FluidContainerWidget(
           child: AppBar(
             backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(),
-            title: Text(widget.isChannel
-                ? _i18n.get("newChannel")
-                : _i18n.get("newGroup"),style: TextStyle(color:ExtraTheme.of(context).textField),),
+            leading: _routingService.backButtonLeading(context),
+            title: Text(
+              widget.isChannel
+                  ? _i18n.get("newChannel")
+                  : _i18n.get("newGroup"),
+              style: TextStyle(color: ExtraTheme.of(context).textField),
+            ),
           ),
         ),
       ),
@@ -118,9 +124,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     widget.isChannel
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -148,23 +152,23 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               )),
                             ],
                           )
-                        : SizedBox.shrink(),
-                    StreamBuilder(
+                        : const SizedBox.shrink(),
+                    StreamBuilder<bool>(
                         stream: showChannelIdError.stream,
                         builder: (c, e) {
-                          if (e.hasData && e.data) {
+                          if (e.hasData && e.data!) {
                             return Text(
                               _i18n.get("channel_id_is_exist"),
                               style: Theme.of(context)
                                   .textTheme
-                                  .overline
+                                  .overline!
                                   .copyWith(color: Colors.red),
                             );
                           } else {
-                            return SizedBox.shrink();
+                            return const SizedBox.shrink();
                           }
                         }),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Row(
@@ -193,14 +197,14 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         )),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     StreamBuilder<int>(
                         stream: _createMucService.selectedLengthStream(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            return SizedBox.shrink();
+                            return const SizedBox.shrink();
                           }
                           return Text(
                               '${snapshot.data} ${_i18n.get("members")}',
@@ -215,7 +219,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           stream: _createMucService.selectedLengthStream(),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
-                              return SizedBox.shrink();
+                              return const SizedBox.shrink();
                             }
                             return ListView.builder(
                                 itemCount: snapshot.data,
@@ -242,18 +246,19 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             ),
                             child: IconButton(
                               alignment: Alignment.center,
-                              padding: EdgeInsets.all(0),
-                              icon: Icon(Icons.check, color: Colors.white),
+                              padding: const EdgeInsets.all(0),
+                              icon:
+                                  const Icon(Icons.check, color: Colors.white),
                               onPressed: () async {
                                 bool res =
-                                    mucNameKey?.currentState?.validate() ??
+                                    mucNameKey.currentState?.validate() ??
                                         false;
                                 if (res) {
                                   setState(() {
                                     _showIcon = false;
                                   });
                                   List<Uid> memberUidList = [];
-                                  Uid micUid;
+                                  Uid? mucUid;
                                   for (var i = 0;
                                       i < _createMucService.contacts.length;
                                       i++) {
@@ -262,31 +267,46 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                         .asUid());
                                   }
                                   if (widget.isChannel) {
-                                    bool result = _channelIdKey?.currentState
+                                    bool result = _channelIdKey.currentState
                                             ?.validate() ??
                                         false;
                                     if (result) {
-                                      if (await checkChannelD(channelId))
-                                        micUid =
+                                      if (await checkChannelD(channelId)) {
+                                        mucUid =
                                             await _mucRepo.createNewChannel(
                                                 idController.text,
                                                 memberUidList,
                                                 controller.text,
                                                 ChannelType.PUBLIC,
                                                 infoController.text);
+                                      }
                                     }
                                   } else {
-                                    micUid = await _mucRepo.createNewGroup(
+                                    mucUid = await _mucRepo.createNewGroup(
                                         memberUidList,
                                         controller.text,
                                         infoController.text);
                                   }
-                                  if (micUid != null) {
+                                  if (mucUid != null) {
                                     _createMucService.reset();
-                                    _routingService.openRoom(micUid.asString());
+                                    if (isDesktop()) {
+                                      _routingService.openRoom(
+                                          mucUid.asString(),
+                                          context: context);
+                                    } else {
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (c) => RoomPage(
+                                                  roomId: mucUid!.asString())),
+                                          (t) {
+                                        return t.isFirst;
+                                      });
+                                    }
                                   } else {
                                     ToastDisplay.showToast(
-                                        toastText: _i18n.get("error_occurred"),tostContext: context);
+                                        toastText: _i18n.get("error_occurred"),
+                                        tostContext: context);
                                     setState(() {
                                       _showIcon = true;
                                     });
@@ -295,7 +315,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               },
                             ),
                           )
-                        : CircularProgressIndicator(
+                        : const CircularProgressIndicator(
                             color: Colors.blueAccent,
                           )),
                 Positioned(
@@ -310,8 +330,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     ),
                     child: IconButton(
                       alignment: Alignment.center,
-                      padding: EdgeInsets.all(0),
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      padding: const EdgeInsets.all(0),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: () async {
                         _routingService.pop();
                       },
@@ -329,36 +349,40 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   InputDecoration buildInputDecoration(
       label, bool isOptional, BuildContext context) {
     return InputDecoration(
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-        disabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
+            borderRadius:
+                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
+        focusedBorder: const OutlineInputBorder(
+            borderRadius:
+                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
+        border: const OutlineInputBorder(
+            borderRadius:
+                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
+        disabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
-            borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
+            borderRadius:
+                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
         suffixIcon: isOptional
-            ? Padding(
-                padding: const EdgeInsets.only(top: 20, left: 25),
+            ? const Padding(
+                padding: EdgeInsets.only(top: 20, left: 25),
                 child: Text("*"),
               )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
         labelText: label);
   }
 
-  String checkMucNameIsSet(String value) {
-    if (value.length < 1) {
+  String? checkMucNameIsSet(String? value) {
+    if (value!.isEmpty) {
       return _i18n.get("inter_muc_name");
     } else {
       return null;
     }
   }
 
-  String validateUsername(String value) {
+  String? validateUsername(String? value) {
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = new RegExp(pattern);
-    if (value.isEmpty) {
+    RegExp regex = RegExp(pattern.toString());
+    if (value!.isEmpty) {
       return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
       return _i18n.get("channel_id_length");

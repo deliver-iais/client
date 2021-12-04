@@ -12,10 +12,11 @@ import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
+import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as contact_pb;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -25,7 +26,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -33,17 +33,18 @@ class ScanQrCode extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ScanQrCode();
 
-  ScanQrCode({Key key}) : super(key: key);
+  const ScanQrCode({Key? key}) : super(key: key);
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
-  QRViewController controller;
+  late QRViewController controller;
   final _logger = GetIt.I.get<Logger>();
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final _routingServices = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   void reassemble() {
@@ -56,11 +57,11 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
+    I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n.get("scan_qr_code")),
-        leading: _routingServices.backButtonLeading(),
+        leading: _routingServices.backButtonLeading(context),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -99,13 +100,13 @@ class _ScanQrCode extends State<ScanQrCode> {
         .map((event) => event.code)
         .distinct()
         .listen((scanData) {
-      _parseQrCode(scanData, context);
+      _parseQrCode(scanData!, context);
     });
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -122,20 +123,20 @@ class _ScanQrCode extends State<ScanQrCode> {
     if (segments.first == "ac") {
       handleAddContact(
           context: context,
-          countryCode: uri.queryParameters["cc"],
-          nationalNumber: uri.queryParameters["nn"],
-          firstName: uri.queryParameters["fn"],
-          lastName: uri.queryParameters["ln"]);
+          countryCode: uri.queryParameters["cc"]!,
+          nationalNumber: uri.queryParameters["nn"]!,
+          firstName: uri.queryParameters["fn"]!,
+          lastName: uri.queryParameters["ln"]!);
     } else if (segments.first == "spda") {
-      handleSendPrivateDateAcceptance(context, uri.queryParameters["type"],
-          uri.queryParameters["botId"], uri.queryParameters["token"]);
+      handleSendPrivateDateAcceptance(context, uri.queryParameters["type"]!,
+          uri.queryParameters["botId"]!, uri.queryParameters["token"]!);
     } else if (segments.first == "text") {
       handleSendMsgToBot(
-          context, uri.queryParameters["botId"], uri.queryParameters["text"]);
+          context, uri.queryParameters["botId"]!, uri.queryParameters["text"]!);
     } else if (segments.first == "join") {
       handleJoinUri(context, url);
     } else if (segments.first == "login") {
-      handleLogin(context, uri.queryParameters["token"]);
+      handleLogin(context, uri.queryParameters["token"]!);
     }
   }
 
@@ -144,7 +145,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     bool verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
-      Timer(Duration(milliseconds: 500), () {
+      Timer(const Duration(milliseconds: 500), () {
         controller.pauseCamera();
         showFloatingModalBottomSheet(
             context: context,
@@ -152,15 +153,15 @@ class _ScanQrCode extends State<ScanQrCode> {
             builder: (BuildContext ctx) {
               return Container(
                   padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Lottie.asset(
-                    'assets/animations/done.json',
+                  child: const TGS.asset(
+                    'assets/animations/done.tgs',
                     width: 150,
                     height: 150,
                     repeat: false,
                   ));
             });
       });
-      Timer(Duration(seconds: 5), () {
+      Timer(const Duration(seconds: 5), () {
         Navigator.of(context).pop();
         _routingServices.pop();
       });
@@ -168,15 +169,17 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   Future<void> handleAddContact(
-      {String firstName,
-      String lastName,
-      String countryCode,
-      String nationalNumber,
-      BuildContext context}) async {
-    var res = await _contactRepo.contactIsExist(countryCode, nationalNumber);
+      {String? firstName,
+      String? lastName,
+      String? countryCode,
+      String? nationalNumber,
+      required BuildContext context}) async {
+    var res = await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
-          toastText: "$firstName $lastName ${I18N.of(context).get("contact_exist")}",tostContext: context);
+          toastText:
+              "$firstName $lastName ${I18N.of(context)!.get("contact_exist")}",
+          tostContext: context);
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -186,14 +189,14 @@ class _ScanQrCode extends State<ScanQrCode> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                I18N.of(context).get("sure_add_contact"),
+                _i18n.get("sure_add_contact"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Text(
@@ -206,7 +209,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 style: TextStyle(
                     color: ExtraTheme.of(context).textField, fontSize: 20),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               Row(
@@ -214,12 +217,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                 children: [
                   TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(I18N.of(context).get("skip"))),
+                      child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var res = await _contactRepo.addContact(C.Contact()
-                        ..firstName = firstName
-                        ..lastName = lastName
+                      var res = await _contactRepo.addContact(contact_pb.Contact()
+                        ..firstName = firstName!
+                        ..lastName = lastName!
                         ..phoneNumber = PhoneNumber(
                             countryCode: int.parse(countryCode),
                             nationalNumber: Int64(int.parse(nationalNumber))));
@@ -227,11 +230,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                       if (res) {
                         ToastDisplay.showToast(
                             toastText:
-                                "$firstName$lastName ${I18N.of(context).get("contact_add")}",tostContext: context);
+                                "$firstName$lastName ${_i18n.get("contact_add")}",
+                            tostContext: context);
                         Navigator.of(context).pop();
                       }
                     },
-                    child: Text(I18N.of(context).get("add_contact")),
+                    child: Text(_i18n.get("add_contact")),
                   ),
                 ],
               ),
@@ -254,14 +258,14 @@ class _ScanQrCode extends State<ScanQrCode> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Text(
-              "${I18N.of(context).get("send_msg_to")} $botId",
+              "${_i18n.get("send_msg_to")} $botId",
               style: TextStyle(
                 color: ExtraTheme.of(context).textField,
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             Text(
@@ -269,7 +273,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               style: TextStyle(
                   color: ExtraTheme.of(context).username, fontSize: 25),
             ),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             Row(
@@ -280,21 +284,23 @@ class _ScanQrCode extends State<ScanQrCode> {
                       controller.resumeCamera();
                       Navigator.of(context).pop();
                     },
-                    child: Text(I18N.of(context).get("skip"))),
+                    child: Text(_i18n.get("skip"))),
                 TextButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-                    _routingServices.openRoom((Uid.create()
-                          ..node = botId
-                          ..category = Categories.BOT)
-                        .asString());
+                    _routingServices.openRoom(
+                        (Uid.create()
+                              ..node = botId
+                              ..category = Categories.BOT)
+                            .asString(),
+                        context: context);
                     _messageRepo.sendTextMessage(
                         Uid()
                           ..category = Categories.BOT
                           ..node = botId,
                         text);
                   },
-                  child: Text(I18N.of(context).get("send")),
+                  child: Text(_i18n.get("send")),
                 ),
               ],
             ),
@@ -312,7 +318,6 @@ class _ScanQrCode extends State<ScanQrCode> {
   ) async {
     controller.pauseCamera();
 
-    I18N i18n = I18N.of(context);
     PrivateDataType privateDataType;
     String type = pdType;
     type.contains("PHONE_NUMBER")
@@ -339,14 +344,14 @@ class _ScanQrCode extends State<ScanQrCode> {
               ),
             ),
             Text(
-              i18n.get("get_private_data_access_${privateDataType.name}"),
+              _i18n.get("get_private_data_access_${privateDataType.name}"),
               style: TextStyle(
                 color: ExtraTheme.of(context).textField,
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             Row(
@@ -357,7 +362,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       controller.resumeCamera();
                       Navigator.of(context).pop();
                     },
-                    child: Text(I18N.of(context).get("skip"))),
+                    child: Text(_i18n.get("skip"))),
                 TextButton(
                   onPressed: () async {
                     _messageRepo.sendPrivateMessageAccept(
@@ -366,13 +371,15 @@ class _ScanQrCode extends State<ScanQrCode> {
                           ..node = botId,
                         privateDataType,
                         token);
-                    _routingServices.openRoom((Uid.create()
-                          ..node = botId
-                          ..category = Categories.BOT)
-                        .asString());
+                    _routingServices.openRoom(
+                        (Uid.create()
+                              ..node = botId
+                              ..category = Categories.BOT)
+                            .asString(),
+                        context: context);
                     Navigator.of(context).pop();
                   },
-                  child: Text(I18N.of(context).get("ok")),
+                  child: Text(_i18n.get("ok")),
                 ),
               ],
             ),

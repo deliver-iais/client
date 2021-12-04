@@ -17,7 +17,8 @@ abstract class MediaDao {
 }
 
 class MediaDaoImpl implements MediaDao {
-     get(String roomId, MediaType type, int limit, int offset) async {
+     @override
+  get(String roomId, MediaType type, int limit, int offset) async {
     var box = await _open(roomId);
     var res = SortedList<Media>((a, b) => a.createdOn.compareTo(b.createdOn));
     var medias = box.values.where((element) => element.roomId.contains(roomId)&& element.type == type).toList().sublist(offset,offset+limit);
@@ -25,6 +26,7 @@ class MediaDaoImpl implements MediaDao {
     return res;
   }
 
+  @override
   Future<void> save(Media media) async {
 
     var box = await _open(media.roomId);

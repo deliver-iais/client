@@ -7,30 +7,31 @@ extension UidExtension on Uid {
     if (list.length != 2) {
       return false;
     } else {
-      return this.category.value == int.parse(list[0]) && this.node == list[1];
+      return category.value == int.parse(list[0]) && node == list[1];
     }
   }
 
-  String asString() => "${this.category.value}:${this.node}";
+  String asString() => "${category.value}:$node";
 
-  bool isUser() => this.category == Categories.USER;
+  bool isUser() => category == Categories.USER;
 
-  bool isBot() => this.category == Categories.BOT;
+  bool isBot() => category == Categories.BOT;
 
-  bool isGroup() => this.category == Categories.GROUP;
+  bool isGroup() => category == Categories.GROUP;
 
-  bool isChannel() => this.category == Categories.CHANNEL;
+  bool isChannel() => category == Categories.CHANNEL;
 
-  bool isSystem() => this.category == Categories.SYSTEM;
+  bool isSystem() => category == Categories.SYSTEM;
 
-  bool isMuc() => this.isGroup() || this.isChannel();
+  bool isMuc() => isGroup() || isChannel();
 }
 
-const _ALL_SESSIONS = "*";
+// ignore: constant_identifier_names
+const String _ALL_SESSIONS = "*";
 
 extension StringUidExtension on String {
   bool isSameEntity(Uid uid) {
-    var list = this.split(":");
+    var list = split(":");
     if (list.length != 2) {
       return false;
     } else {
@@ -39,26 +40,26 @@ extension StringUidExtension on String {
   }
 
   Uid asUid() {
-    var list = this.split(":");
+    var list = split(":");
     if (list.length != 2) {
       throw AssertionError("Uid is incorrect");
     } else {
       return Uid()
-        ..category = Categories.valueOf(int.parse(list[0]))
+        ..category = Categories.valueOf(int.parse(list[0]))!
         ..node = list[1]
         ..sessionId = _ALL_SESSIONS;
     }
   }
 
-  bool isUser() => this.asUid().isUser();
+  bool isUser() => asUid().isUser();
 
-  bool isBot() => this.asUid().isBot();
+  bool isBot() => asUid().isBot();
 
-  bool isGroup() => this.asUid().isGroup();
+  bool isGroup() => asUid().isGroup();
 
-  bool isChannel() => this.asUid().isChannel();
+  bool isChannel() => asUid().isChannel();
 
-  bool isSystem() => this.asUid().isSystem();
+  bool isSystem() => asUid().isSystem();
 
-  bool isMuc() => this.isGroup() || this.isChannel();
+  bool isMuc() => isGroup() || isChannel();
 }

@@ -13,7 +13,7 @@ class AudioPlayProgress extends StatelessWidget {
   final String audioUuid;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
+  AudioPlayProgress({Key? key, required this.audioUuid, required this.audio}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +35,14 @@ class AudioPlayProgress extends StatelessWidget {
                             builder: (c, uuid) {
                               if (uuid.hasData &&
                                   uuid.data.toString().isNotEmpty &&
-                                  uuid.data.toString().contains(audioUuid))
+                                  uuid.data.toString().contains(audioUuid)) {
                                 return AudioProgressIndicator(
                                   duration: audio.duration,
                                   audioUuid: audioUuid,
                                 );
-                              else
+                              } else {
                                 return buildPadding(context);
+                              }
                             });
                       } else {
                         return buildPadding(context);
@@ -64,7 +65,7 @@ class AudioPlayProgress extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 26.0, left: 20),
       child: Text(
-        sizeFormater(audio.size.toInt()) + " " + findFileType(audio.name),
+        sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
         style: TextStyle(fontSize: 10, color: ExtraTheme.of(context).textField),
       ),
     );

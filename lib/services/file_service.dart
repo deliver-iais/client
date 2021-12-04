@@ -1,8 +1,6 @@
-
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'dart:io';
-import 'package:deliver/network_cache/file_resource.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -10,7 +8,6 @@ import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
-
 
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -28,18 +25,19 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
 
-  var _dio = Dio();
-  Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
+  final _dio = Dio();
+  Map<String, BehaviorSubject<double>> filesUploadStatus = {};
 
-  Map<String, BehaviorSubject<double>> filesDownloadStatus = Map();
+  Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() ||
         isDesktop() ||
         isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists())
+      if (!await Directory('${directory.path}/Deliver').exists()) {
         await Directory('${directory.path}/Deliver').create(recursive: true);
+      }
       return directory.path + "/Deliver";
     }
     throw Exception("There is no Storage Permission!");
@@ -75,14 +73,15 @@ class FileService {
       options.headers["Access-Control-Allow-Credentials"] = true;
       options.headers["Access-Control-Allow-Headers"] =
           "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
-      options.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, HEAD";
+      options.headers["Access-Control-Allow-Methods"] =
+          "GET, POST, OPTIONS, HEAD";
 
       return handler.next(options); //continue
     }));
   }
 
-  Future<String> getFile(String uuid, String filename,
-      {ThumbnailSize size}) async {
+  Future<String?> getFile(String uuid, String filename,
+      {ThumbnailSize? size}) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -90,14 +89,14 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  Future<String> _getFile(String uuid, String filename) async {
+  Future<String?> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
     try {
       var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-        filesDownloadStatus[uuid].add((i / j));
+        filesDownloadStatus[uuid]!.add((i / j));
       }, options: Options(responseType: ResponseType.bytes));
       if (kIsWeb) {
         var blob = html.Blob(
@@ -124,7 +123,7 @@ class FileService {
       ..click();
   }
 
-  Future<File> getDeliverIcon() async {
+  Future<File?> getDeliverIcon() async {
     var file = await localFile("deliver-icon", "png");
     if (file.existsSync()) {
       return file;
@@ -150,7 +149,7 @@ class FileService {
       File f = File('$downloadDir/$name');
       try {
         await f.writeAsBytes(File(path).readAsBytesSync());
-      } catch (e) {}
+      } catch (_) {}
     }
   }
 
@@ -171,7 +170,7 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, String filename,
-      {String uploadKey, Function sendActivity}) async {
+      {String? uploadKey, Function? sendActivity}) async {
     try {
       http.Response response = await http.get(
         Uri.parse(filePath),
@@ -182,9 +181,9 @@ class FileService {
           if (sendActivity != null) sendActivity();
           if (filesUploadStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
-            filesUploadStatus[uploadKey] = d;
+            filesUploadStatus[uploadKey!] = d;
           }
-          filesUploadStatus[uploadKey].add((i / j));
+          filesUploadStatus[uploadKey]!.add((i / j));
         };
         handler.next(options);
       }));

@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 
 class OnEditMessageWidget extends StatelessWidget {
   final Message message;
-  final Function resetRoomPageDetails;
+  final Function() resetRoomPageDetails;
 
-  const OnEditMessageWidget({Key key, this.message, this.resetRoomPageDetails})
+  const OnEditMessageWidget(
+      {Key? key, required this.message, required this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -28,7 +29,7 @@ class OnEditMessageWidget extends StatelessWidget {
               color: Theme.of(context).primaryColor,
               size: 25,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -38,9 +39,9 @@ class OnEditMessageWidget extends StatelessWidget {
               ),
             ),
             IconButton(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               alignment: Alignment.center,
-              icon: Icon(Icons.close, size: 18),
+              icon: const Icon(Icons.close, size: 18),
               onPressed: resetRoomPageDetails,
             ),
           ],

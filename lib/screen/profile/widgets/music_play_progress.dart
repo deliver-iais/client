@@ -9,7 +9,8 @@ class MusicPlayProgress extends StatelessWidget {
   final double duration;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  MusicPlayProgress({Key key, this.audioUuid, this.duration}) : super(key: key);
+  MusicPlayProgress({Key? key, required this.audioUuid, required this.duration})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +23,23 @@ class MusicPlayProgress extends StatelessWidget {
               builder: (c, state) {
                 if (state.data != null &&
                     state.data == AudioPlayerState.PLAYING) {
-                  return StreamBuilder(
+                  return StreamBuilder<String>(
                       stream: _audioPlayerService.audioUuid,
                       builder: (c, uuid) {
-                        if (uuid.hasData && uuid.data.contains(audioUuid))
+                        if (uuid.hasData && uuid.data!.contains(audioUuid)) {
                           return AudioProgressIndicator(
                             audioUuid: audioUuid,
                             duration: duration,
                           );
-                        else
-                          return Container(
+                        } else {
+                          return const SizedBox(
                             width: 0,
                             height: 0,
                           );
+                        }
                       });
                 } else {
-                  return Container(
+                  return const SizedBox(
                     width: 0,
                     height: 0,
                   );

@@ -10,12 +10,14 @@ abstract class MediaMetaDataDao{
 
 }
 class MediaMetaDataDaoImpl implements MediaMetaDataDao {
+  @override
   Stream<MediaMetaData>get(String roomUid) async* {
     var box = await _open();
     yield box.values.where((element) => element.roomId.contains(roomUid)).first;
 
   }
 
+  @override
   Future<void> save(MediaMetaData mediaMetaData) async {
 
     var box = await _open();

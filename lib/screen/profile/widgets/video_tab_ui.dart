@@ -16,7 +16,8 @@ class VideoTabUi extends StatefulWidget {
   final Uid userUid;
   final int videoCount;
 
-  VideoTabUi({Key key, this.userUid, this.videoCount}) : super(key: key);
+  const VideoTabUi({Key? key, required this.userUid, required this.videoCount})
+      : super(key: key);
 
   @override
   _VideoTabUiState createState() => _VideoTabUiState();
@@ -26,10 +27,9 @@ class _VideoTabUiState extends State<VideoTabUi> {
   final _logger = GetIt.I.get<Logger>();
   final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final fileRepo = GetIt.I.get<FileRepo>();
-  Duration duration;
-  String videoLength;
-  bool isExist;
-  Map<int, String> totalDuration = Map();
+  late Duration duration;
+  late String videoLength;
+  Map<int, String> totalDuration = {};
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +40,15 @@ class _VideoTabUiState extends State<VideoTabUi> {
           if (!snaps.hasData ||
               snaps.data == null ||
               snaps.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
+            return const SizedBox(width: 0.0, height: 0.0);
           } else {
             return GridView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
                 itemCount: widget.videoCount,
                 scrollDirection: Axis.vertical,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3),
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
@@ -74,26 +73,26 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == true) {
-                          return FutureBuilder<String>(
+                          return FutureBuilder<String?>(
                               future: fileRepo.getFile(
                                   fileId, fileName + ".png",
                                   thumbnailSize: ThumbnailSize.medium),
                               builder: (BuildContext buildContext,
-                                  AsyncSnapshot<String> thumbFile) {
+                                  AsyncSnapshot thumbFile) {
                                 if (thumbFile.data != null &&
                                     thumbFile.hasData &&
                                     thumbFile.connectionState ==
                                         ConnectionState.done) {
                                   return VideoThumbnail(
                                     userUid: widget.userUid,
-                                    thumbnail: File(thumbFile.data),
+                                    thumbnail: thumbFile.data,
                                     videoCount: widget.videoCount,
                                     isExist: true,
                                     mediaPosition: position,
-                                    videoLength: totalDuration[position],
+                                    videoLength: totalDuration[position]!,
                                   );
                                 } else {
-                                  return Container(
+                                  return const SizedBox(
                                     width: 0,
                                     height: 0,
                                   );
@@ -102,11 +101,11 @@ class _VideoTabUiState extends State<VideoTabUi> {
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
-                          return FutureBuilder<String>(
+                          return FutureBuilder<String?>(
                             future: fileRepo.getFile(fileId, fileName + ".png",
                                 thumbnailSize: ThumbnailSize.medium),
-                            builder: (BuildContext c,
-                                AsyncSnapshot<String> thumbnailFile) {
+                            builder:
+                                (BuildContext c, AsyncSnapshot thumbnailFile) {
                               if (thumbnailFile.hasData &&
                                   thumbnailFile.data != null &&
                                   thumbnailFile.connectionState ==
@@ -114,14 +113,14 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                 _logger.d("FilevideoooooooPosition$position");
                                 return VideoThumbnail(
                                   userUid: widget.userUid,
-                                  thumbnail: File(thumbnailFile.data),
+                                  thumbnail: thumbnailFile.data,
                                   videoCount: widget.videoCount,
                                   isExist: false,
                                   mediaPosition: position,
-                                  videoLength: totalDuration[position],
+                                  videoLength: totalDuration[position]!,
                                 );
                               } else {
-                                return Container(
+                                return const SizedBox(
                                   width: 0,
                                   height: 0,
                                 );
@@ -129,7 +128,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             },
                           );
                         } else {
-                          return Container(
+                          return const SizedBox(
                             width: 0,
                             height: 0,
                           );

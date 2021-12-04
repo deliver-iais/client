@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
+import 'package:deliver/box/message.dart';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -28,61 +29,62 @@ import 'share_box/helper_classes.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
-  final int replyMessageId;
+  final int? replyMessageId;
   final Function resetRoomPageDetails;
   final Function scrollToLastSentMessage;
 
   const ShareBox(
-      {Key key,
-      this.currentRoomId,
+      {Key? key,
+      required this.currentRoomId,
       this.replyMessageId,
-      this.resetRoomPageDetails,
-      this.scrollToLastSentMessage})
+      required this.resetRoomPageDetails,
+      required this.scrollToLastSentMessage})
       : super(key: key);
 
   @override
   _ShareBoxState createState() => _ShareBoxState();
 }
 
-enum Page { Gallery, Files, Location, Music }
+enum Page { gallery, files, location, music }
 
 class _ShareBoxState extends State<ShareBox> {
   final messageRepo = GetIt.I.get<MessageRepo>();
 
-  final selectedImages = Map<int, bool>();
+  final selectedImages = <int, bool>{};
 
-  final selectedAudio = Map<int, bool>();
+  final selectedAudio = <int, bool>{};
 
-  final selectedFiles = Map<int, bool>();
+  final selectedFiles = <int, bool>{};
 
-  final icons = Map<int, IconData>();
+  final icons = <int, IconData>{};
 
-  final finalSelected = Map<int, String>();
+  final finalSelected = <int, String>{};
 
-  CheckPermissionsService _checkPermissionsService =
+  final CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
 
-  int playAudioIndex;
+  int playAudioIndex = -1;
 
   bool selected = false;
   TextEditingController captionTextController = TextEditingController();
 
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
-  var currentPage = Page.Gallery;
+  var currentPage = Page.gallery;
 
-  FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
+  final FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
+
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return StreamBuilder<double>(
         stream: initialChildSize.stream,
         builder: (c, initialSize) {
-          if (initialSize.hasData && initialSize.data != null)
+          if (initialSize.hasData && initialSize.data != null) {
             return DraggableScrollableSheet(
-              initialChildSize: initialSize.data,
-              minChildSize: initialSize.data,
+              initialChildSize: initialSize.data!,
+              minChildSize: initialSize.data!,
               maxChildSize: 1,
               expand: true,
               builder: (co, scrollController) {
@@ -94,14 +96,14 @@ class _ShareBoxState extends State<ShareBox> {
                           padding: !isSelected()
                               ? const EdgeInsetsDirectional.only(bottom: 80)
                               : const EdgeInsets.all(0),
-                          child: currentPage == Page.Music
+                          child: currentPage == Page.music
                               ? ShareBoxMusic(
                                   scrollController: scrollController,
                                   onClick: (index, path) {
                                     setState(() {
                                       selectedAudio[index] =
                                           !(selectedAudio[index] ?? false);
-                                      selectedAudio[index]
+                                      selectedAudio[index]!
                                           ? finalSelected[index] = path
                                           : finalSelected.remove(index);
                                     });
@@ -123,20 +125,20 @@ class _ShareBoxState extends State<ShareBox> {
                                   selectedAudio: selectedAudio,
                                   icons: icons,
                                 )
-                              : currentPage == Page.Files
+                              : currentPage == Page.files
                                   ? ShareBoxFile(
                                       scrollController: scrollController,
                                       onClick: (index, path) {
                                         setState(() {
                                           selectedFiles[index] =
                                               !(selectedFiles[index] ?? false);
-                                          selectedFiles[index]
+                                          selectedFiles[index]!
                                               ? finalSelected[index] = path
                                               : finalSelected.remove(index);
                                         });
                                       },
                                       selectedFiles: selectedFiles)
-                                  : currentPage == Page.Gallery
+                                  : currentPage == Page.gallery
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
                                           onClick: (index, path) async {
@@ -145,7 +147,7 @@ class _ShareBoxState extends State<ShareBox> {
                                                   !(selectedImages[index - 1] ??
                                                       false);
 
-                                              selectedImages[index - 1]
+                                              selectedImages[index - 1]!
                                                   ? finalSelected[index - 1] =
                                                       path
                                                   : finalSelected
@@ -156,101 +158,94 @@ class _ShareBoxState extends State<ShareBox> {
                                           selectGallery: true,
                                           roomUid: widget.currentRoomId,
                                         )
-                                      : currentPage == Page.Location
+                                      : currentPage == Page.location
                                           ? showLocation(
                                               scrollController, i18n, co)
-                                          : SizedBox.shrink()),
+                                          : const SizedBox.shrink()),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
                           if (isSelected())
-                            Container(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Stack(
-                                    children: <Widget>[
-                                      Container(
-                                        child: circleButton(() {
-                                          Map<String, String> res = Map();
-                                          finalSelected.values
-                                              .forEach((element) {
-                                            res[element.split(".").last] =
-                                                element;
-                                          });
-                                          if (widget.replyMessageId != null) {
-                                            messageRepo
-                                                .sendMultipleFilesMessages(
-                                                    widget.currentRoomId, res,
-                                                    replyToId:
-                                                        widget.replyMessageId);
-                                          } else {
-                                            messageRepo
-                                                .sendMultipleFilesMessages(
-                                              widget.currentRoomId,
-                                              res,
-                                            );
-                                          }
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      child: circleButton(() {
+                                        Map<String, String> res = {};
+                                        finalSelected.forEach((key, value) {
+                                          res[value] = value;
+                                        });
+                                        if (widget.replyMessageId != null) {
+                                          messageRepo.sendMultipleFilesMessages(
+                                              widget.currentRoomId, res,
+                                              replyToId: widget.replyMessageId);
+                                        } else {
+                                          messageRepo.sendMultipleFilesMessages(
+                                            widget.currentRoomId,
+                                            res,
+                                          );
+                                        }
 
-                                          Navigator.pop(co);
-                                          Timer(Duration(seconds: 2), () {
-                                            widget.scrollToLastSentMessage();
-                                          });
-                                          setState(() {
-                                            finalSelected.clear();
-                                            selectedAudio.clear();
-                                            selectedImages.clear();
-                                            selectedFiles.clear();
-                                          });
-                                        }, Icons.send, "", 50, context: co),
-                                        decoration: BoxDecoration(
-                                          boxShadow: [
-                                            new BoxShadow(
-                                                blurRadius: 20.0,
-                                                spreadRadius: 0.0)
-                                          ],
-                                          shape: BoxShape.circle,
-                                        ),
+                                        Navigator.pop(co);
+                                        Timer(const Duration(seconds: 2), () {
+                                          widget.scrollToLastSentMessage();
+                                        });
+                                        setState(() {
+                                          finalSelected.clear();
+                                          selectedAudio.clear();
+                                          selectedImages.clear();
+                                          selectedFiles.clear();
+                                        });
+                                      }, Icons.send, "", 50, context: co),
+                                      decoration: const BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 20.0,
+                                              spreadRadius: 0.0)
+                                        ],
+                                        shape: BoxShape.circle,
                                       ),
-                                      Positioned(
-                                        child: Container(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              Text(
-                                                finalSelected.values.length
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12),
-                                              ),
-                                            ],
-                                          ),
-                                          width: 16.0,
-                                          height: 16.0,
-                                          decoration: new BoxDecoration(
-                                            color: Theme.of(co)
-                                                .dialogBackgroundColor,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 2,
+                                    ),
+                                    Positioned(
+                                      child: Container(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Text(
+                                              finalSelected.values.length
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
                                             ),
+                                          ],
+                                        ),
+                                        width: 16.0,
+                                        height: 16.0,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(co)
+                                              .dialogBackgroundColor,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
                                           ),
                                         ),
-                                        top: 35.0,
-                                        right: 0.0,
-                                        left: 31,
                                       ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    width: 30,
-                                  )
-                                ],
-                              ),
+                                      top: 35.0,
+                                      right: 0.0,
+                                      left: 31,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                )
+                              ],
                             )
                           else
                             Container(
@@ -266,35 +261,36 @@ class _ShareBoxState extends State<ShareBox> {
                                     children: <Widget>[
                                       circleButton(() async {
                                         var res = await ImageItem.getImages();
-                                        if (res == null || res.length < 1) {
-                                          FilePickerResult result =
+                                        if (res.isEmpty) {
+                                          FilePickerResult? result =
                                               await FilePicker.platform
                                                   .pickFiles(
                                             allowMultiple: true,
                                             type: FileType.custom,
                                           );
                                           if (result != null) {
-                                            Map<String, String> res = Map();
-                                            result.files.forEach((element) {
-                                              res[element.name] = element.path;
-                                            });
+                                            Map<String, String> res = {};
+                                            for (var element in result.files) {
+                                              res[element.name] = element.path!;
+                                            }
                                             Navigator.pop(co);
                                             showCaptionDialog(
                                                 type: "image",
-                                                paths: res,
+                                                files: res,
                                                 roomUid: widget.currentRoomId,
                                                 context: context);
                                           }
-                                        } else
+                                        } else {
                                           setState(() {
                                             _audioPlayer.stopPlayer();
-                                            currentPage = Page.Gallery;
+                                            currentPage = Page.gallery;
                                           });
+                                        }
                                       }, Icons.insert_drive_file,
                                           i18n.get("gallery"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult result =
+                                        FilePickerResult? result =
                                             await FilePicker.platform.pickFiles(
                                                 allowMultiple: true,
                                                 type: FileType.custom,
@@ -311,14 +307,14 @@ class _ShareBoxState extends State<ShareBox> {
                                               'rar'
                                             ]);
                                         if (result != null) {
-                                          Map<String, String> res = Map();
-                                          result.files.forEach((element) {
-                                            res[element.name] = element.path;
-                                          });
+                                          Map<String, String> res = {};
+                                          for (var element in result.files) {
+                                            res[element.name] = element.path!;
+                                          }
                                           Navigator.pop(co);
                                           showCaptionDialog(
                                               type: "file",
-                                              paths: res,
+                                              files: res,
                                               roomUid: widget.currentRoomId,
                                               context: context);
                                         }
@@ -331,15 +327,15 @@ class _ShareBoxState extends State<ShareBox> {
                                             isIOS()) {
                                           if (!await Geolocator
                                               .isLocationServiceEnabled()) {
-                                            final AndroidIntent intent =
-                                                new AndroidIntent(
+                                            const AndroidIntent intent =
+                                                AndroidIntent(
                                               action:
                                                   'android.settings.LOCATION_SOURCE_SETTINGS',
                                             );
                                             await intent.launch();
                                           } else {
                                             setState(() {
-                                              currentPage = Page.Location;
+                                              currentPage = Page.location;
                                               initialChildSize.add(0.5);
                                             });
                                           }
@@ -348,7 +344,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           i18n.get("location"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult result =
+                                        FilePickerResult? result =
                                             await FilePicker.platform.pickFiles(
                                                 allowMultiple: true,
                                                 type: FileType.custom,
@@ -356,13 +352,14 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (result != null) {
                                           Map<String, String> res = Map();
                                           result.files.forEach((element) {
-                                            res[element.name] = element.path;
+                                            res[element.name] = element.path!;
                                           });
                                           Navigator.pop(co);
                                           showCaptionDialog(
+                                              roomUid: widget.currentRoomId,
                                               type: "music",
                                               context: context,
-                                              paths: res);
+                                              files: res);
                                         }
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
@@ -379,8 +376,9 @@ class _ShareBoxState extends State<ShareBox> {
                 );
               },
             );
-          else
-            return SizedBox.shrink();
+          } else {
+            return const SizedBox.shrink();
+          }
         });
   }
 
@@ -390,35 +388,32 @@ class _ShareBoxState extends State<ShareBox> {
         future: Geolocator.getCurrentPosition(),
         builder: (c, position) {
           if (position.hasData && position.data != null) {
-            return Container(
-                child: ListView(
+            return ListView(
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 3 - 40,
                   child: FlutterMap(
-                    options: new MapOptions(
+                    options: MapOptions(
                       center: LatLng(
-                          position.data.latitude, position.data.longitude),
+                          position.data!.latitude, position.data!.longitude),
                       zoom: 14.0,
                     ),
                     layers: [
-                      new TileLayerOptions(
+                      TileLayerOptions(
                           urlTemplate:
                               "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                           subdomains: ['a', 'b', 'c']),
-                      new MarkerLayerOptions(
+                      MarkerLayerOptions(
                         markers: [
-                          new Marker(
+                          Marker(
                             width: 170.0,
                             height: 170.0,
-                            point: LatLng(position.data.latitude,
-                                position.data.longitude),
-                            builder: (ctx) => Container(
-                              child: Icon(
-                                Icons.location_pin,
-                                color: Colors.red,
-                                size: 28,
-                              ),
+                            point: LatLng(position.data!.latitude,
+                                position.data!.longitude),
+                            builder: (ctx) => const Icon(
+                              Icons.location_pin,
+                              color: Colors.red,
+                              size: 28,
                             ),
                           ),
                         ],
@@ -426,14 +421,14 @@ class _ShareBoxState extends State<ShareBox> {
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   child: Row(
                     children: [
-                      Container(
+                      const SizedBox(
                         width: 40,
                         child: Icon(
                           Icons.location_on_sharp,
@@ -445,20 +440,20 @@ class _ShareBoxState extends State<ShareBox> {
                         i18n.get(
                           "send_this_location",
                         ),
-                        style: TextStyle(fontSize: 18),
+                        style: const TextStyle(fontSize: 18),
                       )
                     ],
                   ),
                   onTap: () {
                     Navigator.of(context).pop();
-                    messageRepo.sendLocationMessage(position.data.longitude,
-                        position.data.latitude, widget.currentRoomId);
+                    messageRepo.sendLocationMessage(
+                        position.data!, widget.currentRoomId);
                   },
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
-                Divider(),
+                const Divider(),
                 //todo  liveLocation
                 // GestureDetector(
                 //   behavior: HitTestBehavior.translucent,
@@ -483,14 +478,14 @@ class _ShareBoxState extends State<ShareBox> {
                 //   ),
                 // )
               ],
-            ));
+            );
           } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         });
   }
 
-  isSelected() => finalSelected.values.length > 0;
+  isSelected() => finalSelected.values.isNotEmpty;
 
   liveLocation(I18N i18n, BuildContext context, Position position) {
     BehaviorSubject<String> time = BehaviorSubject.seeded("10");
@@ -508,7 +503,7 @@ class _ShareBoxState extends State<ShareBox> {
                         Container(
                           height: 50,
                           color: Colors.blue,
-                          child: Icon(
+                          child: const Icon(
                             Icons.location_on,
                             color: Colors.greenAccent,
                             size: 40,
@@ -518,7 +513,7 @@ class _ShareBoxState extends State<ShareBox> {
                             color: Colors.white,
                             child: Text(
                               i18n.get("choose_livelocation_time"),
-                              style: TextStyle(fontSize: 20),
+                              style: const TextStyle(fontSize: 20),
                             )),
                         Container(
                           color: Colors.white,
@@ -529,13 +524,13 @@ class _ShareBoxState extends State<ShareBox> {
                               sections: [
                                 SettingsSection(
                                   tiles: [
-                                    settingsTile(snapshot.data, "10", () {
+                                    settingsTile(snapshot.data!, "10", () {
                                       time.add("10");
                                     }),
-                                    settingsTile(snapshot.data, "15", () {
+                                    settingsTile(snapshot.data!, "15", () {
                                       time.add("15");
                                     }),
-                                    settingsTile(snapshot.data, "30", () {
+                                    settingsTile(snapshot.data!, "30", () {
                                       time.add("30");
                                     }),
                                   ],
@@ -552,7 +547,7 @@ class _ShareBoxState extends State<ShareBox> {
                               GestureDetector(
                                 child: Text(
                                   i18n.get("cancel"),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 20, color: Colors.blue),
                                 ),
                                 onTap: () {
@@ -562,21 +557,21 @@ class _ShareBoxState extends State<ShareBox> {
                               GestureDetector(
                                   child: Text(
                                     i18n.get("share"),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 20, color: Colors.red),
                                   ),
                                   onTap: () {
                                     Navigator.pop(context);
                                     messageRepo.sendLiveLocationMessage(
                                       widget.currentRoomId,
-                                      int.parse(time.valueWrapper.value),
+                                      int.parse(time.value),
                                       position,
                                     );
                                   }),
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         )
                       ],
@@ -590,16 +585,16 @@ class _ShareBoxState extends State<ShareBox> {
   SettingsTile settingsTile(String data, String t, Function on) {
     return SettingsTile(
       title: t,
-      leading: Icon(
+      leading: const Icon(
         Icons.alarm,
         color: Colors.blueAccent,
       ),
       trailing: data == t
-          ? Icon(
+          ? const Icon(
               Icons.done,
               color: Colors.blueAccent,
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
       onPressed: (BuildContext context) {
         on();
       },
@@ -608,24 +603,26 @@ class _ShareBoxState extends State<ShareBox> {
 }
 
 showCaptionDialog(
-    {String type,
-    Map<String, String> paths,
-    Uid roomUid,
-    BuildContext context}) async {
-  if (paths.length <= 0) return;
+    {String? type,
+    Map<String, String>? files,
+    required Uid roomUid,
+    Message? editableMessage,
+    required BuildContext context}) async {
+  if (files!.isEmpty && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {
         return ShowCaptionDialog(
           type: type,
+          editableMessage: editableMessage,
           currentRoom: roomUid,
-          paths: paths,
+          paths: files,
         );
       });
 }
 
-Widget circleButton(Function onTap, IconData icon, String text, double size,
-    {BuildContext context}) {
+Widget circleButton(Function() onTap, IconData icon, String text, double size,
+    {required BuildContext context}) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/models/account.dart';
@@ -39,15 +41,17 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
-        return true;
-      } else
+        return await getUsername();
+      } else {
         return getUsername();
+      }
     } catch (e) {
       _logger.e(e);
-      if (retry)
+      if (retry) {
         return getProfile();
-      else
+      } else {
         return false;
+      }
     }
   }
 
@@ -55,7 +59,7 @@ class AccountRepo {
     try {
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
-      if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
+      if (getIdRequest.id.isNotEmpty) {
         _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
         return true;
       } else {
@@ -69,8 +73,8 @@ class AccountRepo {
 
   Future<Account> getAccount() async {
     return Account()
-      ..countryCode = await _sharedDao.get(SHARED_DAO_COUNTRY_CODE)
-      ..nationalNumber = await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER)
+      ..countryCode = (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE))
+      ..nationalNumber = (await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER))
       ..userName = await _sharedDao.get(SHARED_DAO_USERNAME)
       ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME)
       ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
@@ -86,13 +90,13 @@ class AccountRepo {
   }
 
   Future<bool> setAccountDetails(
-    String username,
-    String firstName,
-    String lastName,
-    String email,
+    String? username,
+    String? firstName,
+    String? lastName,
+    String? email,
   ) async {
     try {
-      _queryServiceClient.setId(SetIdReq()..id = username);
+      _queryServiceClient.setId(SetIdReq()..id = username!);
 
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
@@ -125,14 +129,14 @@ class AccountRepo {
   }
 
   _saveProfilePrivateData(
-      {String username, String firstName, String lastName, String email}) {
+      {String? username, String? firstName, String? lastName, String? email}) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
-    _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName);
-    _sharedDao.put(SHARED_DAO_LAST_NAME, lastName);
-    _sharedDao.put(SHARED_DAO_EMAIL, email);
+    _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName!);
+    _sharedDao.put(SHARED_DAO_LAST_NAME, lastName!);
+    _sharedDao.put(SHARED_DAO_EMAIL, email!);
   }
 
-  Future<String> get notification =>
+  Future<String?> get notification =>
       _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
 
   Future<void> fetchProfile() async {
@@ -149,33 +153,34 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    var pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    if (pv != null) {
+      // Migrations
+      if (shouldRemoveDB(pv)) {
+        //  await _dbManager.deleteDB();
+      }
 
-    // Migrations
-    if (shouldRemoveDB(pv)) {
-  //  await _dbManager.deleteDB();
+      if (shouldMigrateDB(pv)) {
+        await _dbManager.migrate(pv);
+      }
+
+      if (shouldUpdateSessionPlatformInformation(pv)) {
+        Platform platform = Platform()..clientVersion = VERSION;
+        platform = await _authRepo.getPlatForm(platform);
+        _sessionServicesClient.updateSessionPlatformInformation(
+            UpdateSessionPlatformInformationReq()..platform = platform);
+      }
+
+      // Update version in DB
+      _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
     }
-
-    if (shouldMigrateDB(pv)) {
-      await _dbManager.migrate(pv);
-    }
-
-    if (shouldUpdateSessionPlatformInformation(pv)) {
-      Platform platform = Platform()..clientVersion = VERSION;
-      platform = await _authRepo.getPlatForm(platform);
-      _sessionServicesClient.updateSessionPlatformInformation(
-          UpdateSessionPlatformInformationReq()..platform = platform);
-    }
-
-    // Update version in DB
-    _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
   }
 
-  shouldRemoveDB(String previousVersion) {
+  shouldRemoveDB(String? previousVersion) {
     return previousVersion == null || previousVersion != VERSION;
   }
 
-  shouldMigrateDB(String previousVersion) {
+  shouldMigrateDB(String? previousVersion) {
     return false;
   }
 

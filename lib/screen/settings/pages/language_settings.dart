@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
-  LanguageSettingsPage({Key key}) : super(key: key);
+  const LanguageSettingsPage({Key? key}) : super(key: key);
 
   @override
   _LanguageSettingsPageState createState() => _LanguageSettingsPageState();
@@ -20,7 +20,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
+    I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -28,8 +28,11 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
             child: AppBar(
               backgroundColor: ExtraTheme.of(context).boxBackground,
               titleSpacing: 8,
-              title: Text(i18n.get("language"),style: TextStyle(color: ExtraTheme.of(context).textField),),
-              leading: _routingService.backButtonLeading(),
+              title: Text(
+                i18n.get("language"),
+                style: TextStyle(color: ExtraTheme.of(context).textField),
+              ),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),
@@ -43,27 +46,27 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                   tiles: [
                     SettingsTile(
                       title: 'English',
-                      leading: Icon(Icons.language),
-                      trailing: I18N.of(context).locale.languageCode ==
-                              English.languageCode
-                          ? Icon(Icons.done)
-                          : SizedBox.shrink(),
+                      leading: const Icon(Icons.language),
+                      trailing: I18N.of(context)!.locale.languageCode ==
+                              english.languageCode
+                          ? const Icon(Icons.done)
+                          : const SizedBox.shrink(),
                       onPressed: (BuildContext context) {
                         setState(() {
-                          I18N.of(context).changeLanguage(English);
+                          I18N.of(context)!.changeLanguage(english);
                         });
                       },
                     ),
                     SettingsTile(
                       title: 'فارسی',
-                      leading: Icon(Icons.language),
-                      trailing: I18N.of(context).locale.languageCode ==
-                              Farsi.languageCode
-                          ? Icon(Icons.done)
-                          : SizedBox.shrink(),
+                      leading: const Icon(Icons.language),
+                      trailing: I18N.of(context)!.locale.languageCode ==
+                              farsi.languageCode
+                          ? const Icon(Icons.done)
+                          : const SizedBox.shrink(),
                       onPressed: (BuildContext context) {
                         setState(() {
-                          I18N.of(context).changeLanguage(Farsi);
+                          I18N.of(context)!.changeLanguage(farsi);
                         });
                       },
                     ),

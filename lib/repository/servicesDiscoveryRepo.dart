@@ -1,3 +1,7 @@
+// ignore_for_file: file_names
+
+import 'dart:core';
+
 import 'package:grpc/grpc.dart';
 import 'package:grpc/grpc_web.dart';
 
@@ -7,7 +11,8 @@ final QueryClientChannel = ClientChannel("query.deliver-co.ir",
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const  Duration(seconds: 2)));
+
 final webQueryClientChannel =
     GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
 
@@ -16,14 +21,14 @@ final BotClientChannel = ClientChannel("ms-bot.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const  Duration(seconds: 2)));
 final webBotClientChannel = GrpcWebClientChannel.xhr(
     Uri(scheme: "https", host: "gwp-ms-bot.deliver-co.ir"));
 
 // ignore: non_constant_identifier_names
 final StickerClientChannel = ClientChannel("ms-sticker.deliver-co.ir",
     port: 8081,
-    options: ChannelOptions(
+    options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));
 
@@ -35,7 +40,7 @@ final MucServicesClientChannel = ClientChannel("query.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));
 
 final webMucServicesClientChannel =
     GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
@@ -45,20 +50,22 @@ final CoreServicesClientChannel = ClientChannel("core.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));
 
+// ignore: non_constant_identifier_names, constant_identifier_names
+const FileServiceBaseUrl = "https://ms-file.deliver-co.ir";
 final webCoreServicesClientChannel = GrpcWebClientChannel.xhr(
     Uri(scheme: "https", host: "gwp-core.deliver-co.ir"));
 
 // ignore: non_constant_identifier_names
-final FileServiceBaseUrl = "https://ms-file.deliver-co.ir";
+
 
 // ignore: non_constant_identifier_names
 final ProfileServicesClientChannel = ClientChannel("ms-profile.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));
 
 final webProfileServicesClientChannel =
     GrpcWebClientChannel.xhr(Uri.parse('https://gwp-ms-profile.deliver-co.ir'));
@@ -68,7 +75,7 @@ final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));
 
 final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
   Uri(scheme: "https", host: "gwp-ms-avatar.deliver-co.ir"),
@@ -79,7 +86,7 @@ final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));
 
 final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
     Uri(scheme: "https", host: "gwp-ms-firebase.deliver-co.ir"));
@@ -93,4 +100,4 @@ final LiveLocationServiceClientChannel = ClientChannel(
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));

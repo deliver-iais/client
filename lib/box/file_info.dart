@@ -17,19 +17,28 @@ class FileInfo {
   String name;
 
   @HiveField(3)
-  String path;
+  String? path;
 
   @HiveField(4)
-  List<int> bytes;
+  List<int>? bytes;
 
-  FileInfo({this.sizeType, this.uuid, this.name, this.path,this.bytes});
+  FileInfo(
+      {required this.sizeType,
+      required this.uuid,
+      required this.name,
+      this.path,
+      this.bytes});
 
-  FileInfo copyWith({String sizeType, String uuid, String name, String path,List<int> bytes }) =>
+  FileInfo copyWith(
+          {String? sizeType,
+          required String uuid,
+          String? name,
+          String? path}) =>
       FileInfo(
         sizeType: sizeType ?? this.sizeType,
-        uuid: uuid ?? this.uuid,
+        uuid: uuid,
         name: name ?? this.name,
         path: path ?? this.path,
-        bytes: bytes ?? this.bytes,
+        bytes: bytes ?? bytes,
       );
 }

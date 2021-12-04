@@ -1,58 +1,60 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
   final Function(String) onChange;
-  final Function onCancel;
+  final Function? onCancel;
   final BorderRadius borderRadius;
 
-  SearchBox(
-      {this.onChange,
+  const SearchBox(
+      {Key? key, required this.onChange,
       this.onCancel,
-      this.borderRadius = const BorderRadius.all(const Radius.circular(25.0))});
+      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))}) : super(key: key);
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
 }
 
 class _SearchBoxState extends State<SearchBox> {
-  BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
-  TextEditingController _controller = TextEditingController();
+  final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  final TextEditingController _controller = TextEditingController();
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: TextField(
         style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
+        focusNode: FocusNode(canRequestFocus: false),
         controller: _controller,
         autofocus: false,
         maxLines: 1,
         onChanged: (str) {
-          if (str.isNotEmpty)
+          if (str.isNotEmpty) {
             _hasText.add(true);
-          else {
+          } else {
             _hasText.add(false);
           }
-          this.widget.onChange(str);
+          widget.onChange(str);
         },
         cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius,
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Colors.transparent,
               width: 2.0,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius,
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Colors.transparent,
               width: 0.0,
             ),
@@ -65,10 +67,10 @@ class _SearchBoxState extends State<SearchBox> {
             color: ExtraTheme.of(context).centerPageDetails,
             size: 20,
           ),
-          suffixIcon: StreamBuilder(
+          suffixIcon: StreamBuilder<bool?>(
             stream: _hasText.stream,
             builder: (c, ht) {
-              if (ht.hasData && ht.data) {
+              if (ht.hasData && ht.data!) {
                 return IconButton(
                   icon: Icon(
                     Icons.close,
@@ -78,11 +80,12 @@ class _SearchBoxState extends State<SearchBox> {
                   onPressed: () {
                     _hasText.add(false);
                     _controller.clear();
-                    widget.onCancel();
+                    widget.onCancel!();
                   },
                 );
-              } else
-                return SizedBox.shrink();
+              } else {
+                return const SizedBox.shrink();
+              }
             },
           ),
           hintText: i18n.get("search"),

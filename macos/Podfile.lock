@@ -3,8 +3,6 @@ PODS:
     - FlutterMacOS
   - desktop_drop (0.0.1):
     - FlutterMacOS
-  - file_selector_macos (0.0.1):
-    - FlutterMacOS
   - Firebase/CoreOnly (8.0.0):
     - FirebaseCore (= 8.0.0)
   - Firebase/Messaging (8.0.0):
@@ -68,8 +66,6 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - package_info (0.0.1):
-    - FlutterMacOS
   - package_info_plus_macos (0.0.1):
     - FlutterMacOS
   - path_provider_macos (0.0.1):
@@ -83,12 +79,10 @@ PODS:
 DEPENDENCIES:
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
-  - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - package_info (from `Flutter/ephemeral/.symlinks/plugins/package_info/macos`)
   - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
@@ -111,8 +105,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
   desktop_drop:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
-  file_selector_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   firebase_core:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_core/macos
   firebase_messaging:
@@ -121,8 +113,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
-  package_info:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info/macos
   package_info_plus_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
   path_provider_macos:
@@ -135,7 +125,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
-  file_selector_macos: ff6dc948d4ddd34e8602a1f60b7d0b4cc6051a47
   Firebase: 73c3e3b216ec1ecbc54d2ffdd4670c65c749edb1
   firebase_core: 4623e421b8f97b44a02bb0ca8ae1249980149194
   firebase_messaging: e034fde96ee2cdce80ee5a3a1f7f2f536fe0cd2b
@@ -148,7 +137,6 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 04c3e9a480bbcaa2ec3f5d27f1cdeb6a92f20c8d
   GoogleUtilities: f8a43108b38a68eebe8b3540e1f4f2d28843ce20
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  package_info: 6eba2fd8d3371dda2d85c8db6fe97488f24b74b2
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97

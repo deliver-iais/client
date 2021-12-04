@@ -20,7 +20,7 @@ class FileInfoAdapter extends TypeAdapter<FileInfo> {
       sizeType: fields[0] as String,
       uuid: fields[1] as String,
       name: fields[2] as String,
-      path: fields[3] as String,
+      path: fields[3] as String?,
     );
   }
 

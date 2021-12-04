@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:storage_path/storage_path.dart';
+import 'package:deliver/services/storage_path.dart';
+
+
 
 class StorageFile {
   final List files;
   final String folderName;
 
-  StorageFile({this.files, this.folderName});
+  const StorageFile({required this.files, required this.folderName});
 
   factory StorageFile.fromJson(Map<String, dynamic> json) {
-    return new StorageFile(
+    return StorageFile(
         files: json['files'] as List,
         folderName: json['folderName'].toString());
   }
@@ -31,7 +33,7 @@ class FileBasic {
 class AudioItem extends FileBasic {
   final String title;
 
-  AudioItem({String path, this.title}) : super(path);
+  AudioItem({required String path, required this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
     return[];
@@ -50,7 +52,7 @@ class AudioItem extends FileBasic {
 }
 
 class ImageItem extends FileBasic {
-  ImageItem({String path}) : super(path);
+  ImageItem({required String path}) : super(path);
 
   static Future<List<ImageItem>> getImages() async {
     var storageFiles = _storageFiles(await StoragePath.imagesPath);

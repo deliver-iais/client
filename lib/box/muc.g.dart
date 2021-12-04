@@ -18,14 +18,14 @@ class MucAdapter extends TypeAdapter<Muc> {
     };
     return Muc(
       uid: fields[0] as String,
-      name: fields[1] as String,
-      token: fields[2] as String,
-      id: fields[3] as String,
-      info: fields[4] as String,
-      pinMessagesIdList: (fields[5] as List)?.cast<int>(),
-      population: fields[6] as int,
-      lastMessageId: fields[7] as int,
-      showPinMessage: fields[8] as bool,
+      name: fields[1] as String?,
+      token: fields[2] as String?,
+      id: fields[3] as String?,
+      info: fields[4] as String?,
+      pinMessagesIdList: (fields[5] as List?)?.cast<int>(),
+      population: fields[6] as int?,
+      lastMessageId: fields[7] as int?,
+      showPinMessage: fields[8] as bool?,
     );
   }
 

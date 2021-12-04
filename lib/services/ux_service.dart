@@ -12,13 +12,8 @@ import 'package:rxdart/rxdart.dart';
 
 class DeliverLogFilter extends LogFilter {
   @override
-  set level(Level _level) {
-    super.level = _level;
-  }
-
-  @override
   bool shouldLog(LogEvent event) {
-    return event.level != Level.nothing && event.level.index >= level.index;
+    return event.level != Level.nothing && event.level.index >= level!.index;
   }
 }
 
@@ -81,7 +76,7 @@ class UxService {
     _sharedDao
         .getStream(SHARED_DAO_LOG_LEVEL,
             defaultValue: kDebugMode ? "INFO" : "NOTHING")
-        .map((event) => LogLevelHelper.stringToLevel(event))
+        .map((event) => LogLevelHelper.stringToLevel(event!))
         .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
 
     _sharedDao
@@ -111,8 +106,6 @@ class UxService {
   }
 
   Stream get themeStream => _theme.stream.distinct().map((event) => event);
-
-
 
   ThemeData get theme => _theme.value;
 
@@ -152,9 +145,9 @@ class UxService {
   }
 
   // TODO ???
-  Map _tabIndexMap = new Map<String, int>();
+  final Map _tabIndexMap = <String, int>{};
 
-  int getTabIndex(String fileId) {
+  int ? getTabIndex(String fileId) {
     return _tabIndexMap[fileId];
   }
 

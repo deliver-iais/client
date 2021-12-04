@@ -1,15 +1,16 @@
+// ignore_for_file: file_names
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:html' as html;
-import 'package:deliver/network_cache/browser_resource.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-as FileProto;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
@@ -20,28 +21,29 @@ class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
-  var sessionResource = StorageEntry('token', type: StorageType.localStorage);
+  //var sessionResource = StorageEntry('token', type: StorageType.localStorage);
 
-
-
-  Future<void> cloneFileInLocalDirectory(File file, String uploadKey,
-      String name) async {
+  Future<void> cloneFileInLocalDirectory(
+      File file, String uploadKey, String name) async {
     await _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
-  Future<FileProto.File> uploadClonedFile(String uploadKey, String name,
-      {Function sendActivity}) async {
+  Future<file_pb.File> uploadClonedFile(String uploadKey, String name,
+      {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    var value = await _fileService.uploadFile(clonedFilePath.path,
-        clonedFilePath.name ?? clonedFilePath.path
-            .split(".")
-            .last,
-        uploadKey: uploadKey, sendActivity: sendActivity);
+    // var value = await _fileService.uploadFile(clonedFilePath.path,
+    //     clonedFilePath.name ?? clonedFilePath.path
+    //         .split(".")
+    //         .last,
+    //     uploadKey: uploadKey, sendActivity: sendActivity);
+    var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
+        uploadKey: uploadKey, sendActivity: sendActivity!);
 
     var json = jsonDecode(value.toString());
-    if (kIsWeb) _cloneFile(json["uuid"], clonedFilePath.path);
+    var uploadedFile = file_pb.File();
+    if (kIsWeb) _cloneFile(json["uuid"], clonedFilePath.path!);
 
-    var uploadedFile = FileProto.File()
+    uploadedFile = file_pb.File()
       ..uuid = json["uuid"]
       ..size = Int64.parseInt(json["size"])
       ..type = json["type"]
@@ -51,7 +53,6 @@ class FileRepo {
       ..duration = json["duration"] ?? 0
       ..blurHash = json["blurHash"] ?? ""
       ..hash = json["hash"] ?? "";
-
     _logger.v(uploadedFile);
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
@@ -62,21 +63,20 @@ class FileRepo {
     http.Response response = await http.get(
       Uri.parse(uri),
     );
-    try{
-      sessionResource.storage[uuid] = jsonEncode(response.bodyBytes);
-    }catch(e){
+    try {
+  //    sessionResource.storage[uuid] = jsonEncode(response.bodyBytes);
+    } catch (e) {
       print(e.toString());
     }
-
   }
 
   Future<bool> isExist(String uuid, String filename,
-      {ThumbnailSize thumbnailSize}) async {
-    FileInfo fileInfo = await _getFileInfoInDB(
+      {ThumbnailSize? thumbnailSize}) async {
+    FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       if (kIsWeb) return fileInfo.path != null;
-      File file = new File(fileInfo.path);
+      File file = File(fileInfo.path!);
       return await file.exists();
     }
     return false;
@@ -85,57 +85,61 @@ class FileRepo {
   saveDownloadedFile(String url, String filename) =>
       _fileService.saveDownloadedFile(url, filename);
 
-  Future<String> getFileIfExist(String uuid, String filename,
-      {ThumbnailSize thumbnailSize}) async {
+  Future<String?> getFileIfExist(String uuid, String filename,
+      {ThumbnailSize? thumbnailSize}) async {
     if (kIsWeb) {
-      var value = sessionResource.storage[uuid];
+      var  value = "no_data";
       if (value != null && value.isNotEmpty) {
         List bytes = jsonDecode(value);
         List<int> data = bytes.map((e) => int.parse(e.toString())).toList();
         var blob = html.Blob(<Object>[Uint8List.fromList(data)],
-            "application/${filename
-                .split(".")
-                .last}");
+            "application/${filename.split(".").last}");
         var url = html.Url.createObjectUrlFromBlob(blob);
         return url;
-      } else
-        return null;
+      } else {
+        return "";
+      }
     } else {
-      FileInfo fileInfo = await _getFileInfoInDB(
+      FileInfo? fileInfo = await _getFileInfoInDB(
           (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
       if (fileInfo != null) {
-        if (kIsWeb) {
-          return fileInfo.path;
-        } else {
-          File file = new File(fileInfo.path);
-          if (await file.exists()) {
-            return file.path;
-          }
+        File file = new File(fileInfo.path!);
+        if (await file.exists()) {
+          return file.path;
         }
       }
       return null;
     }
   }
 
-  Future<String> getFile(String uuid, String filename,
-      {ThumbnailSize thumbnailSize}) async {
-    String path =
-    await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
+  Future<String?> getFile(String uuid, String filename,
+      {ThumbnailSize? thumbnailSize}) async {
+    String? path =
+        await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
       return path;
     }
 
     var downloadedFileUri =
-    await _fileService.getFile(uuid, filename, size: thumbnailSize);
-    if (kIsWeb) await _cloneFile(uuid, downloadedFileUri);
+        await _fileService.getFile(uuid, filename, size: thumbnailSize);
+    if (kIsWeb) await _cloneFile(uuid, downloadedFileUri!);
 
-    await _saveFileInfo(uuid, downloadedFileUri, filename,
+    await _saveFileInfo(uuid, downloadedFileUri!, filename,
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
     return downloadedFileUri;
   }
 
-  Future<FileInfo> _saveFileInfo(String fileId, String filePath, String name,
-      String sizeType) async {
+  Future<String> downloadFile(String uuid, String fileName,
+      {ThumbnailSize? thumbnailSize}) async {
+    String? downloadedFileUri =
+        await _fileService.getFile(uuid, fileName, size: thumbnailSize);
+    await _saveFileInfo(uuid, downloadedFileUri!, fileName,
+        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+    return downloadedFileUri;
+  }
+
+  Future<FileInfo> _saveFileInfo(
+      String fileId, String filePath, String name, String sizeType) async {
     FileInfo fileInfo = FileInfo(
       uuid: fileId,
       name: name,
@@ -146,12 +150,12 @@ class FileRepo {
     return fileInfo;
   }
 
-  Future<void> _updateFileInfoWithRealUuid(String uploadKey,
-      String uuid) async {
+  Future<void> _updateFileInfoWithRealUuid(
+      String uploadKey, String uuid) async {
     var real = await _getFileInfoInDB("real", uploadKey);
     var medium = await _getFileInfoInDB("medium", uploadKey);
 
-    await _fileDao.remove(real);
+    await _fileDao.remove(real!);
     if (medium != null) {
       await _fileDao.remove(medium);
     }
@@ -163,7 +167,7 @@ class FileRepo {
     }
   }
 
-  Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
+  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async {
     return await _fileDao.get(uuid, enumToString(size));
   }
 
@@ -172,7 +176,7 @@ class FileRepo {
   }
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
-    var path = await getFileIfExist(uuid, name);
-    _fileService.saveFileInDownloadFolder(path, name, dir);
+    String? path = await getFileIfExist(uuid, name);
+    _fileService.saveFileInDownloadFolder(path!, name, dir);
   }
 }

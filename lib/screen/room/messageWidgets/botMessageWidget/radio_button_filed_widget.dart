@@ -1,25 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
-    as formModel;
+    as form_pb;
 
 class RadioButtonFieldWidget extends StatefulWidget {
-  final formModel.Form_Field formField;
+  final form_pb.Form_Field formField;
   final Function selected;
   final GlobalKey<FormState> formValidator;
 
-  RadioButtonFieldWidget({this.formField, this.selected, this.formValidator});
+  const RadioButtonFieldWidget({Key? key, required this.formField, required this.selected, required this.formValidator}) : super(key: key);
 
   @override
   _RadioButtonFieldWidgetState createState() => _RadioButtonFieldWidgetState();
 }
 
 class _RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
-  String selected;
+ late  String selected;
+
+ ///todo need check
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
 
     // return Padding(
     //   padding: const EdgeInsets.only(left: 7, right: 7),

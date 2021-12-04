@@ -3,7 +3,6 @@ import 'package:deliver/models/account.dart';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/avatarRepo.dart';
 
 import 'package:deliver/services/routing_service.dart';
 
@@ -30,7 +29,7 @@ import 'package:logger/logger.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class SettingsPage extends StatefulWidget {
-  SettingsPage({Key key}) : super(key: key);
+  const SettingsPage({Key? key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -40,15 +39,14 @@ class _SettingsPageState extends State<SettingsPage> {
   final _logger = GetIt.I.get<Logger>();
   final _uxService = GetIt.I.get<UxService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   bool isDeveloperMode = false || kDebugMode;
   int developerModeCounterCountDown = 10;
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -62,7 +60,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 style: TextStyle(color: ExtraTheme.of(context).textField),
               ),
-              leading: _routingService.backButtonLeading(),
+              leading: _routingService.backButtonLeading(context),
             ),
           ),
         ),
@@ -74,27 +72,22 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsSection(
                 tiles: [
                   NormalSettingsTitle(
-                      onTap: () => _routingService.openAccountSettings(),
+                      onTap: () => _routingService.openAccountSettings(context),
                       child: Row(
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                var lastAvatar =
-                                    await _avatarRepo.getLastAvatar(
-                                        _authRepo.currentUserUid, false);
-                                if (lastAvatar.createdOn != null) {
-                                  _routingService.openShowAllAvatars(
-                                      uid: _authRepo.currentUserUid,
-                                      hasPermissionToDeleteAvatar: true,
-                                      heroTag: "avatar");
-                                }
+                                _routingService.openShowAllAvatars(context,
+                                    uid: _authRepo.currentUserUid,
+                                    hasPermissionToDeleteAvatar: true,
+                                    heroTag: "avatar");
                               },
                               child: CircleAvatarWidget(
                                 _authRepo.currentUserUid,
                                 35,
                                 showAsStreamOfAvatar: true,
                               )),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: FutureBuilder<Account>(
                               future: _accountRepo.getAccount(),
@@ -106,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        "${snapshot.data.firstName ?? ""} ${snapshot.data.lastName ?? ""}"
+                                        "${snapshot.data!.firstName ?? ""} ${snapshot.data!.lastName ?? ""}"
                                             .trim(),
                                         overflow: TextOverflow.fade,
                                         // maxLines: 1,
@@ -116,18 +109,18 @@ class _SettingsPageState extends State<SettingsPage> {
                                             .textTheme
                                             .headline6,
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Text(
-                                        snapshot.data.userName ?? "",
+                                        snapshot.data!.userName ?? "",
                                         style: Theme.of(context)
                                             .primaryTextTheme
                                             .subtitle1,
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Text(
                                         buildPhoneNumber(
-                                            snapshot.data.countryCode,
-                                            snapshot.data.nationalNumber),
+                                            snapshot.data!.countryCode!,
+                                            snapshot.data!.nationalNumber!),
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle1,
@@ -135,14 +128,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                     ],
                                   );
                                 } else {
-                                  return SizedBox.shrink();
+                                  return const SizedBox.shrink();
                                 }
                               },
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.only(left: 4.0),
-                            child: Icon(Icons.navigate_next),
+                            child: const Icon(Icons.navigate_next),
                           )
                         ],
                       ))
@@ -152,31 +145,32 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                     title: i18n.get("qr_share"),
-                    leading: Icon(Icons.qr_code),
+                    leading: const Icon(Icons.qr_code),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
                       showQrCode(
                           context,
                           buildShareUserUrl(
-                              account.countryCode,
-                              account.nationalNumber,
-                              account.firstName,
-                              account.lastName));
+                              account.countryCode!,
+                              account.nationalNumber!,
+                              account.firstName!,
+                              account.lastName!));
                     },
                   ),
                   SettingsTile(
                     title: i18n.get("saved_message"),
-                    leading: Icon(Icons.bookmark),
+                    leading: const Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
-                      _routingService
-                          .openRoom(_authRepo.currentUserUid.asString());
+                      _routingService.openRoom(
+                          _authRepo.currentUserUid.asString(),
+                          context: context);
                     },
                   ),
                   SettingsTile(
                     title: i18n.get("contacts"),
-                    leading: Icon(Icons.contacts),
+                    leading: const Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
-                      _routingService.openContacts();
+                      _routingService.openContacts(context);
                     },
                   )
                 ],
@@ -186,22 +180,22 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile.switchTile(
                     title: i18n.get("notification"),
-                    leading: Icon(Icons.notifications_active),
+                    leading: const Icon(Icons.notifications_active),
                     switchValue: !_uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
                   ),
                   SettingsTile(
                     title: i18n.get("language"),
-                    subtitle: I18N.of(context).locale.language().name,
-                    leading: Icon(Icons.language),
+                    subtitle: I18N.of(context)!.locale.language().name,
+                    leading: const Icon(Icons.language),
                     onPressed: (BuildContext context) {
-                      _routingService.openLanguageSettings();
+                      _routingService.openLanguageSettings(context);
                     },
                   ),
                   SettingsTile.switchTile(
                     title: i18n.get("dark_mode"),
-                    leading: Icon(Icons.brightness_2),
+                    leading: const Icon(Icons.brightness_2),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
                       setState(() {
@@ -210,16 +204,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
+                    title: i18n.get("security"),
+                    leading: const Icon(Icons.security),
+                    onPressed: (BuildContext context) =>
+                        _routingService.openSecuritySettings(context),
+                    trailing: const SizedBox.shrink(),
+                  ),
+                  SettingsTile(
                     title: i18n.get("devices"),
-                    leading: Icon(Icons.devices),
+                    leading: const Icon(Icons.devices),
                     onPressed: (c) {
-                      _routingService.openDevicesPage();
+                      _routingService.openDevicesPage(context);
                     },
                   ),
                   if (isDesktop())
                     SettingsTile.switchTile(
                       title: i18n.get("send_by_shift_enter"),
-                      leading: Icon(Icons.keyboard),
+                      leading: const Icon(Icons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
                         setState(() => _uxService.toggleSendByEnter());
@@ -234,10 +235,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     SettingsTile(
                       title: 'Log Level',
                       subtitle: LogLevelHelper.levelToString(
-                          GetIt.I.get<DeliverLogFilter>().level),
-                      leading: Icon(Icons.bug_report_rounded),
+                          GetIt.I.get<DeliverLogFilter>().level!),
+                      leading: const Icon(Icons.bug_report_rounded),
                       onPressed: (BuildContext context) {
-                        _routingService.openLogSettings();
+                        _routingService.openLogSettings(context);
                       },
                     )
                   ],
@@ -246,25 +247,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      trailing: FutureBuilder(
+                      trailing: FutureBuilder<PackageInfo>(
                         future: PackageInfo.fromPlatform(),
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             return isDeveloperMode
-                                ? FutureBuilder<String>(
+                                ? FutureBuilder<String?>(
                                     future: SmsAutoFill().getAppSignature,
                                     builder: (c, sms) {
                                       return Text(
                                         sms.data ??
-                                            snapshot.data.version ??
-                                            VERSION,
+                                            snapshot.data!.version
+
                                       );
                                     })
                                 : Text(
-                                    snapshot.data.version ?? VERSION,
+                                    snapshot.data!.version,
                                   );
                           } else {
-                            return Text(
+                            return const Text(
                               VERSION,
                             );
                           }
@@ -281,10 +282,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                   SettingsTile(
                     title: i18n.get("logout"),
-                    leading: Icon(Icons.exit_to_app),
+                    leading: const Icon(Icons.exit_to_app),
                     onPressed: (BuildContext context) =>
                         openLogoutAlertDialog(context, i18n),
-                    trailing: SizedBox.shrink(),
+                    trailing: const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -298,15 +299,15 @@ class _SettingsPageState extends State<SettingsPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             // backgroundColor: Colors.white,
-            content: Container(child: Text(i18n.get("sure_exit_app"))),
+            content: Text(i18n.get("sure_exit_app")),
             actions: <Widget>[
               TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(i18n.get("cancel"))),
-              SizedBox(
+              const SizedBox(
                 width: 15,
               ),
               TextButton(
@@ -322,15 +323,18 @@ class _SettingsPageState extends State<SettingsPage> {
 
 class NormalSettingsTitle extends SettingsTile {
   final Widget child;
-  final VoidCallback onTap;
 
-  NormalSettingsTitle({this.onTap, this.child});
+  @override
+  // ignore: overridden_fields
+  final VoidCallback? onTap;
+
+  const NormalSettingsTitle({Key? key,  this.onTap, required this.child}) : super(key: key, title: "");
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => onTap?.call(),
+      onTap: () => onTap!.call(),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: child,

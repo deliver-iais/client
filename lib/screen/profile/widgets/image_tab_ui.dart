@@ -15,7 +15,7 @@ class ImageTabUi extends StatefulWidget {
   final int imagesCount;
   final Uid userUid;
 
-  ImageTabUi(this.imagesCount, this.userUid, {Key key}) : super(key: key);
+  const ImageTabUi(this.imagesCount, this.userUid, {Key? key}) : super(key: key);
 
   @override
   _ImageTabUiState createState() => _ImageTabUiState();
@@ -35,22 +35,20 @@ class _ImageTabUiState extends State<ImageTabUi> {
           if (!snaps.hasData &&
               snaps.data == null &&
               snaps.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
+            return const SizedBox(width: 0.0, height: 0.0);
           } else {
             return GridView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
-                itemCount: snaps.data.length,
+                itemCount: snaps.data!.length,
                 scrollDirection: Axis.vertical,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3),
                 itemBuilder: (context, position) {
-                  var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                  var fileName = jsonDecode(snaps.data[position].json)["name"];
+                  var fileId = jsonDecode(snaps.data![position].json)["uuid"];
+                  var fileName = jsonDecode(snaps.data![position].json)["name"];
                   return Container(
-                    decoration: new BoxDecoration(
+                    decoration: BoxDecoration(
                       border: Border.all(
                         width: 2,
                       ),
@@ -72,6 +70,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                     return GestureDetector(
                                       onTap: () {
                                         _routingService.openShowAllMedia(
+                                          context,
                                           uid: widget.userUid,
                                           hasPermissionToDeletePic: true,
                                           mediaPosition: position,
@@ -82,8 +81,8 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                       child: Hero(
                                         tag: "btn$position",
                                         child: Container(
-                                            decoration: new BoxDecoration(
-                                          image: new DecorationImage(
+                                            decoration: BoxDecoration(
+                                          image: DecorationImage(
                                             image: Image.file(
                                               snaps.data,
                                             ).image,
@@ -94,13 +93,15 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                       ),
                                     );
                                   } else {
-                                    return Container(width: 0.0, height: 0.0);
+                                    return const SizedBox(
+                                        width: 0.0, height: 0.0);
                                   }
                                 });
-                          } else
+                          } else {
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllMedia(
+                                  context,
                                   uid: widget.userUid,
                                   hasPermissionToDeletePic: true,
                                   mediaPosition: position,
@@ -108,14 +109,14 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                   mediasLength: widget.imagesCount,
                                 );
                               },
-                              child: Container(
+                              child: SizedBox(
                                   width: 100,
                                   height: 100,
                                   child: BlurHash(
-                                      hash:
-                                          jsonDecode(snaps.data[position].json)[
-                                              "blurHash"])),
+                                      hash: jsonDecode(snaps
+                                          .data![position].json)["blurHash"])),
                             );
+                          }
                         }),
                   );
                 });

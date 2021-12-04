@@ -4,8 +4,9 @@ import 'package:dcache/dcache.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:metadata_fetch/metadata_fetch.dart';
-import 'package:deliver/shared/methods/isPersian.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 
+// ignore: constant_identifier_names
 const APARAT = "https://www.aparat.com";
 
 class LinkPreview extends StatelessWidget {
@@ -16,7 +17,10 @@ class LinkPreview extends StatelessWidget {
   final double maxHeight;
 
   const LinkPreview(
-      {Key key, this.link, this.maxWidth, this.maxHeight = double.infinity})
+      {Key? key,
+      required this.link,
+      required this.maxWidth,
+      this.maxHeight = double.infinity})
       : super(key: key);
 
   Future<Metadata> _fetchFromHTML(String url) async {
@@ -39,7 +43,7 @@ class LinkPreview extends StatelessWidget {
 
     final uri = Uri.parse(url);
 
-    Metadata m;
+    Metadata? m;
     switch (uri.origin) {
       case APARAT:
         m = await _fetchFromHTML(url);
@@ -55,14 +59,15 @@ class LinkPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (link == null || link.isEmpty) return SizedBox.shrink();
-    return FutureBuilder<Metadata>(
+    if (link.isEmpty) return const SizedBox.shrink();
+    return FutureBuilder<Metadata?>(
         future: _fetchMetadata(link),
         builder: (context, snapshot) {
           if ((!snapshot.hasData || snapshot.data == null) ||
               ((snapshot.data?.description == null) &&
-                  (snapshot.data?.description == null)))
-            return SizedBox.shrink();
+                  (snapshot.data?.description == null))) {
+            return const SizedBox.shrink();
+          }
 
           return Container(
               margin: const EdgeInsets.only(top: 10),
@@ -79,10 +84,11 @@ class LinkPreview extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 2.0),
                     child: Text(
-                      snapshot.data.title,
-                      textDirection: snapshot.data.title.isPersian()
+                      snapshot.data!.title!,
+                      textDirection: snapshot.data!.title!.isPersian()
                           ? TextDirection.rtl
                           : TextDirection.ltr,
                       softWrap: false,
@@ -93,10 +99,11 @@ class LinkPreview extends StatelessWidget {
                   ),
                   if (snapshot.data?.description != null)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 2.0),
                       child: Text(
-                        snapshot.data.description,
-                        textDirection: snapshot.data.description.isPersian()
+                        snapshot.data!.description!,
+                        textDirection: snapshot.data!.description!.isPersian()
                             ? TextDirection.rtl
                             : TextDirection.ltr,
                         style: Theme.of(context).textTheme.bodyText2,

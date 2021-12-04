@@ -11,10 +11,11 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
-  final List<Message> forwardedMessages;
-  final proto.ShareUid shareUid;
+  final List<Message>? forwardedMessages;
+  final proto.ShareUid? shareUid;
 
-  ChatItemToForward({Key key, this.uid, this.forwardedMessages, this.shareUid})
+  ChatItemToForward(
+      {Key? key, required this.uid, this.forwardedMessages, this.shareUid})
       : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -23,16 +24,16 @@ class ChatItemToForward extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-      child: Container(
+      child: SizedBox(
         height: 50,
         child: Row(
           children: <Widget>[
-            SizedBox(
+            const SizedBox(
               width: 12,
             ),
-            CircleAvatarWidget(this.uid, 30),
+            CircleAvatarWidget(uid, 30),
             // ContactPic(true, uid),
-            SizedBox(
+            const SizedBox(
               width: 12,
             ),
             GestureDetector(
@@ -41,7 +42,7 @@ class ChatItemToForward extends StatelessWidget {
                   builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                     if (snaps.hasData && snaps.data != null) {
                       return Text(
-                        snaps.data,
+                        snaps.data!,
                         style: TextStyle(
                           color:
                               ExtraTheme.of(context).chatOrContactItemDetails,
@@ -61,15 +62,13 @@ class ChatItemToForward extends StatelessWidget {
                   }),
               onTap: () {
                 _routingService.openRoom(uid.asString(),
-                    forwardedMessages: forwardedMessages, shareUid: shareUid);
-//                ExtendedNavigator.of(context).push(Routes.roomPage,
-//                    arguments: RoomPageArguments(
-//                        roomId: uid.asString(),
-//                        forwardedMessages: forwardedMessages));
+                    context: context,
+                    forwardedMessages: forwardedMessages!,
+                    shareUid: shareUid!);
               },
             ),
 
-            Spacer(),
+            const Spacer(),
           ],
         ),
       ),

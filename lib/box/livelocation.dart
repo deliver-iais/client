@@ -12,27 +12,29 @@ class LiveLocation {
 
   // DbId
   @HiveField(1)
-  int duration;
+  int? duration;
 
   @HiveField(2)
-  int lastUpdate;
+  int? lastUpdate;
 
   @HiveField(3)
   List<Location> locations;
 
-
   LiveLocation(
-      {this.uuid, this.lastUpdate,this.locations,this.duration});
+      {required this.uuid,
+      this.lastUpdate,
+      required this.locations,
+      this.duration});
 
   LiveLocation copyWith(
-      {String uuid,
-        int lastUpdate,
-        List<Location> location,
-        int duration}) =>
+          {required String uuid,
+          int? lastUpdate,
+          required List<Location> location,
+          required int duration}) =>
       LiveLocation(
-        uuid: uuid ?? this.uuid,
-        duration: duration ?? this.duration,
-        locations: location ?? this.locations,
+        uuid: uuid,
+        duration: duration,
+        locations: location,
         lastUpdate: lastUpdate ?? this.lastUpdate,
       );
 }

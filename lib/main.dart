@@ -1,5 +1,4 @@
-import 'package:auto_route/auto_route.dart';
-
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -44,7 +43,8 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
-import 'package:deliver/routes/router.gr.dart' as R;
+import 'package:deliver/screen/splash/splash_screen.dart';
+
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -56,7 +56,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -77,12 +76,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:js/js.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:universal_html/js_util.dart';
-
-// import 'package:dart_vlc/dart_vlc.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
@@ -93,7 +88,6 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
-// import 'package:dart_vlc/dart_vlc.dart';
 
 Future<void> setupDI() async {
   // Setup Logger
@@ -146,52 +140,48 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.registerSingleton<AuthServiceClient>(kIsWeb
-      ? AuthServiceClient(webProfileServicesClientChannel)
-      : AuthServiceClient(ProfileServicesClientChannel));
+  GetIt.I.registerSingleton<AuthServiceClient>(
+      AuthServiceClient(ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
   GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
-      kIsWeb ? webQueryClientChannel : QueryClientChannel,
+      QueryClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
-      kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
+      CoreServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(
-      kIsWeb ? webBotClientChannel : BotClientChannel,
+  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
-      kIsWeb ? webStickerClientChannel : StickerClientChannel,
+      StickerClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
-      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
-      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      MucServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
-      kIsWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
+      AvatarServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
-      kIsWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
+      FirebaseServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      ProfileServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<LiveLocationServiceClient>(
-      LiveLocationServiceClient(
-          kIsWeb
-              ? webLiveLocationClientChannel
-              : LiveLocationServiceClientChannel,
+      LiveLocationServiceClient(LiveLocationServiceClientChannel,
           interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
@@ -211,11 +201,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
-
   if (isLinux() || isWindows()) {
-    //todo vlc???
-    //DartVLC.initialize();
+    DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
@@ -232,8 +219,6 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
   } else if (isWindows()) {
     GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
-  } else if (kIsWeb) {
-    GetIt.I.registerSingleton<Notifier>(WebNotifier());
   } else {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
   }
@@ -247,8 +232,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
 }
 
-Future setupFirebaseSetting() async {
-  Firebase.initializeApp();
+Future setupFlutterNotification() async {
+  await Firebase.initializeApp();
 }
 
 void main() async {
@@ -256,9 +241,10 @@ void main() async {
 
   Logger().i("Application has been started.");
 
-  if (isDesktop() &&!kIsWeb) {
+  if (isDesktop()) {
     try {
       _setWindowSize();
+
       setWindowTitle(APPLICATION_NAME);
     } catch (e) {
       Logger().e(e);
@@ -267,7 +253,7 @@ void main() async {
 
   // TODO add IOS and MacOS too
   if (isAndroid()) {
-    setupFirebaseSetting();
+    await setupFlutterNotification();
   }
 
   Logger().i("OS based setups done.");
@@ -284,13 +270,15 @@ void main() async {
 }
 
 _setWindowSize() {
-  setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
 }
 
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -308,7 +296,8 @@ class MyApp extends StatelessWidget {
                 _rawKeyboardService.escapeHandeling(
                     event: event, replyMessageId: -1);
                 _rawKeyboardService.searchHandeling(event: event);
-                _rawKeyboardService.navigateInRooms(event: event);
+                _rawKeyboardService.navigateInRooms(
+                    event: event, context: context);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
@@ -318,28 +307,26 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-                supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
+                supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate
                 ],
+                home: const SplashScreen(),
                 localeResolutionCallback: (deviceLocale, supportedLocale) {
                   for (var locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale.languageCode &&
+                    if (locale.languageCode == deviceLocale!.languageCode &&
                         locale.countryCode == deviceLocale.countryCode) {
                       return deviceLocale;
                     }
                   }
                   return supportedLocale.first;
                 },
-                onGenerateRoute: R.Router(),
                 builder: (x, c) => Directionality(
                   textDirection: TextDirection.ltr,
-                  child: ExtendedNavigator<R.Router>(
-                    router: R.Router(),
-                  ),
+                  child: c!,
                 ),
               )),
         );

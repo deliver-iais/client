@@ -2,16 +2,19 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
-  AudioCache _player =
+  final AudioCache _player =
       AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
 
-  CustomNotificationSoundSelection({Key key, this.roomUid}) : super(key: key);
+  CustomNotificationSoundSelection({Key? key, required this.roomUid})
+      : super(key: key);
 
   @override
   _CustomNotificationSoundSelectionState createState() =>
@@ -35,19 +38,19 @@ class _CustomNotificationSoundSelectionState
     "that_was_quick"
   ];
   Map<int, bool> selectedFlag = {};
+  I18N i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Center(
             child: Text(
           i18n.get("choose_a_song"),
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         )),
         leading: InkWell(
-          child: Icon(Icons.clear),
+          child: const Icon(Icons.clear),
           onTap: () {
             _routingService.pop();
           },
@@ -81,18 +84,18 @@ class _CustomNotificationSoundSelectionState
               itemBuilder: (builder, index) {
                 String data = staticData[index];
                 selectedFlag[index] = selectedFlag[index] ?? false;
-                bool isSelected = selectedFlag[index];
+                bool isSelected = selectedFlag[index]!;
                 return ListTile(
                   onLongPress: () => onLongPress(isSelected, index),
                   onTap: () => onTap(isSelected, index),
-                  title: Text("$data"),
+                  title: Text(data),
                   trailing: _buildSelectIcon(isSelected, data),
                 );
               },
               itemCount: staticData.length,
             );
           } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         },
       ),
@@ -104,7 +107,7 @@ class _CustomNotificationSoundSelectionState
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
     });
-    widget._player.fixedPlayer.stop();
+    widget._player.fixedPlayer!.stop();
     widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
   }
 
@@ -116,17 +119,26 @@ class _CustomNotificationSoundSelectionState
   }
 
   Widget _buildSelectIcon(bool isSelected, String data) {
+    final _shakeController = ShakeWidgetController();
     return StreamBuilder<Object>(
-        stream: widget._player.fixedPlayer.onPlayerStateChanged,
+        stream: widget._player.fixedPlayer!.onPlayerStateChanged,
         builder: (context, snapshot) {
-          return Container(
+          return SizedBox(
               width: 80,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (isSelected && snapshot.data == PlayerState.PLAYING)
-                    Lottie.asset('assets/animations/audio_wave.json',
-                        width: 40, height: 40),
+                    ShakeWidget(
+                        controller: _shakeController,
+                        child: const TGS.asset(
+                          'assets/animations/audio_wave.tgs',
+                          autoPlay: true,
+                          width: 60,
+                          height: 60,
+                        )),
+                  Lottie.asset('assets/animations/audio_wave.tgs',
+                      width: 40, height: 40),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Icon(

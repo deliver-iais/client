@@ -7,17 +7,18 @@ class MessageWrapper extends StatelessWidget {
   final Widget child;
   final bool isSent;
 
-  const MessageWrapper({Key key, this.child, this.isSent}) : super(key: key);
+  const MessageWrapper({Key? key, required this.child, required this.isSent})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const radius = const Radius.circular(14);
-    const border = const BorderRadius.all(radius);
+    const radius = Radius.circular(10);
+    const border = BorderRadius.all(radius);
     return Container(
       padding: const EdgeInsets.all(4.0),
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Container(
-        decoration: BoxDecoration(borderRadius: border, boxShadow: [
+        decoration: const BoxDecoration(borderRadius: border, boxShadow: [
           BoxShadow(
               color: Colors.black38, blurRadius: 0.5, offset: Offset(0, 0.5))
         ]),
@@ -28,28 +29,26 @@ class MessageWrapper extends StatelessWidget {
               right: !isSent ? null : 0,
               top: 0,
               child: !isSent
-                  ? Container(
-                // color: Colors.white,
-                  width: 20,
-                  height: 20,
-                  child: CustomPaint(
-                    foregroundPainter: OPainter(isSent
-                        ? ExtraTheme.of(context).sentMessageBox
-                        : ExtraTheme.of(context).receivedMessageBox),
-                  ))
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CustomPaint(
+                        foregroundPainter: OPainter(isSent
+                            ? ExtraTheme.of(context).sentMessageBox
+                            : ExtraTheme.of(context).receivedMessageBox),
+                      ))
                   : Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.rotationY(pi),
-                child: Container(
-                  // color: Colors.white,
-                    width: 20,
-                    height: 20,
-                    child: CustomPaint(
-                      foregroundPainter: OPainter(isSent
-                          ? ExtraTheme.of(context).sentMessageBox
-                          : ExtraTheme.of(context).receivedMessageBox),
-                    )),
-              ),
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(pi),
+                      child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CustomPaint(
+                            foregroundPainter: OPainter(isSent
+                                ? ExtraTheme.of(context).sentMessageBox
+                                : ExtraTheme.of(context).receivedMessageBox),
+                          )),
+                    ),
             ),
             ClipRRect(
                 borderRadius: border,
@@ -79,14 +78,14 @@ class OPainter extends CustomPainter {
     path.moveTo(10, 5);
 
     path.arcToPoint(
-      Offset(-4, 0),
-      radius: Radius.circular(20),
+      const Offset(-4, 0),
+      radius: const Radius.circular(20),
       clockwise: false,
     );
 
     path.arcToPoint(
-      Offset(0, 12),
-      radius: Radius.circular(15),
+      const Offset(0, 12),
+      radius: const Radius.circular(15),
       clockwise: true,
     );
 

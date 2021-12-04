@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class HeaderDetails extends StatelessWidget {
   final File file;
 
-  const HeaderDetails({Key key, this.file}) : super(key: key);
+  const HeaderDetails({Key? key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class HeaderDetails extends StatelessWidget {
         : Padding(
             padding: const EdgeInsets.only(top: 26.0, left: 20),
             child: Text(
-              sizeFormater(file.size.toInt()) + " " + findFileType(file.name),
+              sizeFormatter(file.size.toInt()) + " " + findFileType(file.name),
               style: TextStyle(
                   fontSize: 10, color: ExtraTheme.of(context).textMessage),
             ),

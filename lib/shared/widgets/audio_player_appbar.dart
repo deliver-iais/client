@@ -6,12 +6,14 @@ import 'package:marquee/marquee.dart';
 class AudioPlayerAppBar extends StatelessWidget {
   final audioPlayerService = GetIt.I.get<AudioService>();
 
+  AudioPlayerAppBar({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
         stream: audioPlayerService.audioCenterIsOn,
         builder: (c, s) {
-          if (s.hasData && s.data) {
+          if (s.hasData && s.data!) {
             return Container(
               height: 45,
               decoration: BoxDecoration(
@@ -20,7 +22,7 @@ class AudioPlayerAppBar extends StatelessWidget {
                   BoxShadow(
                     color: Theme.of(context).dividerColor,
                     blurRadius: 2,
-                    offset: Offset(1, 1), // Shadow position
+                    offset: const Offset(1, 1), // Shadow position
                   ),
                 ],
               ),
@@ -36,17 +38,18 @@ class AudioPlayerAppBar extends StatelessWidget {
                               onPressed: () {
                                 audioPlayerService.pause();
                               },
-                              icon: Icon(Icons.pause));
-                        } else
+                              icon: const Icon(Icons.pause));
+                        } else {
                           return IconButton(
                               onPressed: () async {
                                 audioPlayerService.resume();
                               },
-                              icon: Icon(Icons.play_arrow));
+                              icon: const Icon(Icons.play_arrow));
+                        }
                       }),
                   Expanded(
                     child: Center(
-                      child: Container(
+                      child: SizedBox(
                         height: 20,
                         child: LayoutBuilder(
                             builder: (BuildContext context,
@@ -56,28 +59,26 @@ class AudioPlayerAppBar extends StatelessWidget {
                                           (constraints.maxWidth / 10)
                                       ? Marquee(
                                           text: audioPlayerService.audioName,
-                                          style: TextStyle(fontSize: 16),
+                                          style: const TextStyle(fontSize: 16),
                                           scrollAxis: Axis.horizontal,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           blankSpace: constraints.maxWidth / 2,
                                           velocity: 100.0,
-                                          pauseAfterRound: Duration(seconds: 1),
+                                          pauseAfterRound: const Duration(seconds: 1),
                                           accelerationDuration:
-                                              Duration(seconds: 1),
-                                          // accelerationCurve: Curves.linear,
+                                              const Duration(seconds: 1),
                                           decelerationDuration:
-                                              Duration(milliseconds: 500),
-                                          // decelerationCurve: Curves.easeOut,
+                                              const Duration(milliseconds: 500),
                                         )
-                                      : Container(
+                                      : SizedBox(
                                           width: double.infinity,
                                           child: Text(
                                               audioPlayerService.audioName,
                                               maxLines: 1,
                                               overflow: TextOverflow.fade,
                                               softWrap: false,
-                                              style: TextStyle(fontSize: 16)),
+                                              style: const TextStyle(fontSize: 16)),
                                         ),
                                 )),
                       ),
@@ -87,12 +88,12 @@ class AudioPlayerAppBar extends StatelessWidget {
                       onPressed: () {
                         audioPlayerService.close();
                       },
-                      icon: Icon(Icons.close))
+                      icon: const Icon(Icons.close))
                 ],
               ),
             );
           } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           }
         });
   }

@@ -3,14 +3,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class ToastDisplay {
   static showToast(
-      {IconData toastIcon,
-      Color toastColor,
-      BuildContext tostContext,
-      String toastText}) {
+      {IconData ? toastIcon,
+      Color ? toastColor,
+      required BuildContext tostContext,
+     required String toastText}) {
     FToast fToast = FToast();
     fToast.init(tostContext);
-    if (toastColor == null)
-      toastColor = Theme.of(tostContext).scaffoldBackgroundColor;
+    toastColor ??= Theme.of(tostContext).scaffoldBackgroundColor;
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       decoration: BoxDecoration(
@@ -28,12 +27,12 @@ class ToastDisplay {
         children: [
           if (toastIcon != null) Icon(toastIcon),
           if (toastIcon != null)
-            SizedBox(
+            const SizedBox(
               width: 12.0,
             ),
           Text(
             toastText,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),
@@ -42,7 +41,7 @@ class ToastDisplay {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: Duration(seconds: 2),
+      toastDuration: const Duration(seconds: 2),
     );
 
   }

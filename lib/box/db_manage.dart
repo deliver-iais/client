@@ -10,25 +10,23 @@ class DBManager {
     // TODO - read all files in db directory with *.hive pattern and open it, then call delete
     try {
       await Hive.deleteFromDisk();
-    } catch (e) {}
+    } catch (_) {}
 
     var documentPath = await getApplicationDocumentsDirectory();
-//todo database dir
-    var myDir = Directory("web");
-    // myDir
-    //     .list()
-    //     .where((file) => !file.path.endsWith(".lock"))
-    //     .map((file) => file.path)
-    //     .map((path) => path.replaceAll(".hive", ""))
-    //     .map((path) => path_helper.basename(path))
-    //     .forEach((db) async {
-    //   try {
-    //     await Hive.deleteBoxFromDisk(db);
-    //   } catch (e) {
-    //     print("########" + e.toString());
-    //   }
-    // });
+
+    var myDir = Directory(path_helper.join(documentPath.path, "db"));
+    myDir
+        .list()
+        .where((file) => !file.path.endsWith(".lock"))
+        .map((file) => file.path)
+        .map((path) => path.replaceAll(".hive", ""))
+        .map((path) => path_helper.basename(path))
+        .forEach((db) async {
+      try {
+        await Hive.deleteBoxFromDisk(db);
+      } catch (_) {}
+    });
   }
 
-  Future<void> migrate(String previousVersion) async {}
+  Future<void> migrate(String? previousVersion) async {}
 }

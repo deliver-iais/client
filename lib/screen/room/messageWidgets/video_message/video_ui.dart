@@ -1,19 +1,21 @@
 import 'dart:io';
-
-import 'package:deliver/services/video_player_service.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
 import 'package:deliver/shared/methods/platform.dart';
-
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:open_file/open_file.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
-  final String videoPath;
+  final String videoFile;
+  final pb.File video;
   final double duration;
-  final bool showSlider;
 
-  VideoUi({Key key, this.videoPath, this.duration, this.showSlider})
+  const VideoUi(
+      {Key? key,
+      required this.videoFile,
+      required this.duration,
+      required this.video})
       : super(key: key);
 
   @override
@@ -21,27 +23,12 @@ class VideoUi extends StatefulWidget {
 }
 
 class _VideoUiState extends State<VideoUi> {
-  VideoPlayerService videoPlayerService = new VideoPlayerService();
-  BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
-  BehaviorSubject<double> _currentPositionSubject;
-  bool isPlaying = false;
-
-  @override
-  void dispose() {
-    videoPlayerService.videoPlayerController.dispose();
-    super.dispose();
-  }
+  late VlcPlayerController vlcPlayerController;
 
   @override
   void initState() {
-    _currentPositionSubject = BehaviorSubject.seeded(0.0);
-    videoPlayerService.videoControllerInitialization(File(widget.videoPath));
-    videoPlayerService.videoPlayerController.addListener(() async {
-      _currentPositionSubject.add(
-          (await videoPlayerService.videoPlayerController.position)
-              .inSeconds
-              .toDouble());
-    });
+    vlcPlayerController =
+        VlcPlayerController.file(File(widget.videoFile), autoPlay: false);
     super.initState();
   }
 
@@ -49,87 +36,57 @@ class _VideoUiState extends State<VideoUi> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: FittedBox(
-            fit: BoxFit.fitWidth,
-            child: Stack(
-              children: [
-                Center(
-                  child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height / 2,
-                      child: VideoPlayer(
-                          videoPlayerService.videoPlayerController)),
-                ),
-                if (isPlaying == true)
-                  Positioned(
-                    left: 0.0,
-                    bottom: 70,
-                    right: 0.0,
-                      child: StreamBuilder<double>(
-                        stream: _currentPositionSubject.stream,
-                        builder: (c, s) {
-
-                          if (s.hasData)
-                            return Slider(
-                                value: s.data,
-                                min: 0.0,
-                                max: widget.duration,
-                                onChanged: (double value) {
-                                  videoPlayerService.videoPlayerController
-                                      .seekTo(Duration(seconds: value.toInt()));
-                                });
-                          else
-                            return Container();
-                        },
-                      ),
-                  ),
-              ],
+        GestureDetector(
+          onTap: () {
+            if (isDesktop()) {
+              OpenFile.open(widget.videoFile);
+            } else {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return VideoPlayerWidget(
+                  duration: widget.duration,
+                  videoFile: widget.videoFile,
+                  video: widget.video,
+                );
+              }));
+            }
+          },
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 100,
+            child: FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Center(
+                child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height / 2,
+                    child: VlcPlayer(
+                      controller: vlcPlayerController,
+                      aspectRatio: widget.video.width / widget.video.height,
+                    )),
+              ),
             ),
           ),
         ),
-        if (widget.showSlider)
-          Center(
-              child: StreamBuilder<bool>(
-            stream: isPlaySubject.stream,
-            builder: (c, s) {
-              if (s.hasData) {
-                return Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                  child: s.data
-                      ? IconButton(
-                          icon: Icon(Icons.pause),
-                          onPressed: () {
-                            isPlaySubject.add(false);
-                            videoPlayerService.videoPlayerController.pause();
-                          })
-                      : IconButton(
-                          icon: Icon(Icons.play_arrow),
-                          onPressed: () async {
-                            if(isDesktop()){
-                              OpenFile.open(widget.videoPath);
-                            }else{
-                              setState(() {
-                                isPlaying = true;
-                              });
-                              isPlaySubject.add(true);
-                              videoPlayerService.videoPlayerController.play();
-                            }
-
-                          }),
-                );
+        Center(
+          child: IconButton(
+            icon: const Icon(Icons.play_circle_fill),
+            iconSize: 40,
+            color: Colors.cyanAccent,
+            onPressed: () {
+              if (isDesktop()) {
+                OpenFile.open(widget.videoFile);
               } else {
-                return Container();
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return VideoPlayerWidget(
+                    duration: widget.duration,
+                    videoFile: widget.videoFile,
+                    video: widget.video,
+                  );
+                }));
               }
             },
-          )),
+          ),
+        )
       ],
     );
   }

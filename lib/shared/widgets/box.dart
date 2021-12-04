@@ -4,25 +4,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Box extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry margin;
+  final Widget? child;
+  final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry largePageMargin;
-  final BorderRadius borderRadius;
+  final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
-  Box({
+  const Box({Key? key,
     this.child,
     this.margin,
     this.largePageMargin = const EdgeInsets.symmetric(horizontal: 24),
     this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
+      padding: margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
       child: ClipRRect(
         borderRadius: borderRadius ??
             (isLarge(context) ? largePageBorderRadius : BorderRadius.zero),
@@ -37,24 +36,24 @@ class Box extends StatelessWidget {
 
 class BoxList extends StatelessWidget {
   final List<Widget> children;
-  final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry largePagePadding;
-  final BorderRadius borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? largePagePadding;
+  final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
-  BoxList({
-    this.children,
+  const BoxList({Key? key,
+    required this.children,
     this.padding,
     this.largePagePadding = const EdgeInsets.symmetric(horizontal: 24),
     this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Box(
         margin: padding,
-        largePageMargin: largePagePadding,
+        largePageMargin: largePagePadding!,
         borderRadius: borderRadius,
         largePageBorderRadius: largePageBorderRadius,
         child: Column(children: children));

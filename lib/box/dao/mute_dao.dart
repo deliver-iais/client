@@ -11,6 +11,7 @@ abstract class MuteDao {
 }
 
 class MuteDaoImpl implements MuteDao {
+  @override
   Future<bool> isMuted(String uid) async {
       var box = await _open();
 
@@ -18,6 +19,7 @@ class MuteDaoImpl implements MuteDao {
 
   }
 
+  @override
   Stream<bool> watchIsMuted(String uid) async* {
     var box = await _open();
 
@@ -26,12 +28,14 @@ class MuteDaoImpl implements MuteDao {
     yield* box.watch(key: uid).map((event) => box.get(uid) ?? false);
   }
 
+  @override
   Future<void> mute(String uid) async {
     var box = await _open();
 
     box.put(uid, true);
   }
 
+  @override
   Future<void> unmute(String uid) async {
     var box = await _open();
 

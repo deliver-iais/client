@@ -12,9 +12,9 @@ abstract class RoomDao {
 
   Stream<List<Room>> watchAllRooms();
 
-  Future<Room> getRoom(String roomUid);
+  Future<Room?> getRoom(String roomUid);
 
-  Stream<Room> watchRoom(String roomUid);
+  Stream<Room?> watchRoom(String roomUid);
 
   Future<List<Room>> getAllGroups();
 }
@@ -55,13 +55,13 @@ class RoomDaoImpl implements RoomDao {
   List<Room> sorted(List<Room> list) {
     var l = list;
 
-    l.sort((a, b) => (b.lastUpdateTime?? 0) - (a.lastUpdateTime?? 0));
+    l.sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
 
     return l;
   }
 
   @override
-  Future<Room> getRoom(String roomUid) async {
+  Future<Room?> getRoom(String roomUid) async {
     var box = await _openRoom();
 
     return box.get(roomUid);
@@ -77,7 +77,7 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<Room> watchRoom(String roomUid) async* {
+  Stream<Room?> watchRoom(String roomUid) async* {
     var box = await _openRoom();
 
     yield box.get(roomUid);

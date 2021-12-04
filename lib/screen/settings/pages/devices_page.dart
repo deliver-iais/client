@@ -12,22 +12,21 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/methods/time.dart';
 
 class DevicesPage extends StatefulWidget {
-  DevicesPage({Key key}) : super(key: key);
+  const DevicesPage({Key? key}) : super(key: key);
 
   @override
   _DevicesPageState createState() => _DevicesPageState();
 }
 
 class _DevicesPageState extends State<DevicesPage> {
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-
-  I18N _i18n;
+  final I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -36,7 +35,7 @@ class _DevicesPageState extends State<DevicesPage> {
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(_i18n.get("devices")),
-            leading: _routingService.backButtonLeading(),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
       ),
@@ -44,13 +43,13 @@ class _DevicesPageState extends State<DevicesPage> {
         future: _accountRepo.getSessions(),
         builder: (c, sessionData) {
           if (sessionData.hasData && sessionData.data != null) {
-            Session currentSession = sessionData.data.firstWhere(
+            Session currentSession = sessionData.data!.firstWhere(
                 (s) => s.sessionId == _authRepo.currentUserUid.sessionId,
                 orElse: () => Session()
                   ..node = _authRepo.currentUserUid.node
                   ..sessionId = _authRepo.currentUserUid.sessionId);
 
-            List<Session> otherSessions = sessionData.data
+            List<Session> otherSessions = sessionData.data!
                 .where((s) => s.sessionId != _authRepo.currentUserUid.sessionId)
                 .toList();
 
@@ -91,8 +90,8 @@ class _DevicesPageState extends State<DevicesPage> {
                     },
                   ),
                 ),
-                Divider(),
-                if (otherSessions.length > 0)
+                const Divider(),
+                if (otherSessions.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 16.0, horizontal: 24.0),
@@ -101,7 +100,7 @@ class _DevicesPageState extends State<DevicesPage> {
                           style: Theme.of(context).primaryTextTheme.subtitle1),
                     ),
                   ),
-                if (otherSessions.length > 0)
+                if (otherSessions.isNotEmpty)
                   Expanded(
                     child: ListView.separated(
                       itemBuilder: (c, index) {
@@ -113,7 +112,7 @@ class _DevicesPageState extends State<DevicesPage> {
                       },
                       itemCount: otherSessions.length,
                       separatorBuilder: (c, i) {
-                        return SizedBox(
+                        return const SizedBox(
                           height: 8,
                         );
                       },
@@ -122,7 +121,7 @@ class _DevicesPageState extends State<DevicesPage> {
               ],
             ));
           } else {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(
                 color: Colors.blueAccent,
               ),
@@ -158,14 +157,14 @@ class _DevicesPageState extends State<DevicesPage> {
               Text(
                 session.ip.isEmpty
                     ? "No IP Provided"
-                    : session.ip ?? "No IP Provided",
+                    : session.ip,
                 style: Theme.of(context).textTheme.caption,
               ),
               DefaultTextStyle(
-                style: Theme.of(context).textTheme.caption,
+                style: Theme.of(context).textTheme.caption!,
                 child: Row(
                   children: [
-                    Text("Created On: "),
+                    const Text("Created On: "),
                     Text(session.createdOn.toInt() == 0
                         ? "No Time Provided"
                         : dateTimeFormat(date(session.createdOn.toInt()))),
@@ -184,21 +183,19 @@ class _DevicesPageState extends State<DevicesPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
-            content: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    sessions.length > 1
-                        ? _i18n.get("terminate_all_other_sessions")
-                        : _i18n.get("delete_session"),
-                    style: TextStyle(color: ExtraTheme.of(context).textField),
-                  ),
-                ],
-              ),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  sessions.length > 1
+                      ? _i18n.get("terminate_all_other_sessions")
+                      : _i18n.get("delete_session"),
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
+                ),
+              ],
             ),
             actions: <Widget>[
               Row(
@@ -208,15 +205,15 @@ class _DevicesPageState extends State<DevicesPage> {
                     child: Text(_i18n.get("cancel")),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   TextButton(
                     child: Text(_i18n.get("delete")),
                     style: TextButton.styleFrom(primary: Colors.red),
                     onPressed: () async {
                       List<String> sessionIds = [];
-                      sessions.forEach((element) {
+                      for (var element in sessions) {
                         sessionIds.add(element.sessionId.toString());
-                      });
+                      }
                       var res = await _accountRepo.deleteSessions(sessionIds);
                       Navigator.pop(context);
                       if (res) {
@@ -224,7 +221,7 @@ class _DevicesPageState extends State<DevicesPage> {
                       }
                     },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   )
                 ],

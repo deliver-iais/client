@@ -18,9 +18,9 @@ class UidIdNameAdapter extends TypeAdapter<UidIdName> {
     };
     return UidIdName(
       uid: fields[0] as String,
-      id: fields[1] as String,
-      name: fields[2] as String,
-      lastUpdate: fields[4] as int,
+      id: fields[1] as String?,
+      name: fields[2] as String?,
+      lastUpdate: fields[4] as int?,
     );
   }
 

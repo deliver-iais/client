@@ -7,24 +7,24 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class FloatingModal extends StatelessWidget {
   final Widget child;
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
-  const FloatingModal({Key key, this.child, this.backgroundColor})
+  const FloatingModal({Key? key, required this.child, this.backgroundColor})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
       heightFactor: 1,
-      child: Container(
+      child: SizedBox(
         width: min(MediaQuery.of(context).size.width, 400),
         // height: 100,
         child: Material(
           color: backgroundColor,
           clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(20),
-              topRight: const Radius.circular(20)),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20)),
           child: child,
         ),
       ),
@@ -32,12 +32,11 @@ class FloatingModal extends StatelessWidget {
   }
 }
 
-Future<T> showFloatingModalBottomSheet<T>({
-  BuildContext context,
-  WidgetBuilder builder,
-  Color backgroundColor,
-  bool isDismissible = true
-}) async {
+Future<T> showFloatingModalBottomSheet<T>(
+    {required BuildContext context,
+    required WidgetBuilder builder,
+    Color? backgroundColor,
+    bool isDismissible = true}) async {
   final result = await showCustomModalBottomSheet(
       context: context,
       builder: builder,
@@ -51,7 +50,6 @@ Future<T> showFloatingModalBottomSheet<T>({
 }
 
 void showQrCode(BuildContext context, String url) {
-  print(url);
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) => Container(
@@ -76,8 +74,7 @@ void showQrCode(BuildContext context, String url) {
               padding: const EdgeInsets.only(top: 10.0),
               child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child:
-                      Text(I18N.of(context).get("skip"))),
+                  child: Text(I18N.of(context)!.get("skip"))),
             ),
           ],
         ),
