@@ -30,11 +30,6 @@ class FileRepo {
   Future<file_pb.File> uploadClonedFile(String uploadKey, String name,
       {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    // var value = await _fileService.uploadFile(clonedFilePath.path,
-    //     clonedFilePath.name ?? clonedFilePath.path
-    //         .split(".")
-    //         .last,
-    //     uploadKey: uploadKey, sendActivity: sendActivity);
     var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
         uploadKey: uploadKey, sendActivity: sendActivity!);
 
