@@ -1,6 +1,6 @@
 class browser {
-  static String? name;
-  static Version? version;
+  static String name = "ew";
+  static Version version = Version();
 }
 
 class Version {

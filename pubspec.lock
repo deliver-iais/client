@@ -408,7 +408,7 @@ packages:
       name: flutter_dropzone
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.3"
   flutter_dropzone_platform_interface:
     dependency: transitive
     description:
@@ -614,7 +614,7 @@ packages:
       name: grpc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.0"
   hashcodes:
     dependency: transitive
     description:

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -320,8 +321,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 if (widget.paths != null) {
                   widget.paths!.remove(widget.paths!.keys.toList()[index]);
                 }
-                widget.paths![result.files.first.name] =
-                    result.files.first.path!;
+                widget.paths![result.files.first.name] = kIsWeb
+                    ? Uri.dataFromBytes(result.files.first.bytes!.toList())
+                        .toString()
+                    : result.files.first.path!;
 
                 // widget.paths!.isNotEmpty
                 //     ? widget.paths![index] = result.paths[0]!
@@ -356,21 +359,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   Future<FilePickerResult?> getFile({required bool allowMultiple}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: allowMultiple,
-        type: FileType.custom,
-        allowedExtensions: [
-          "pdf",
-          "mp4",
-          "pptx",
-          "docx",
-          "xlsx",
-          'png',
-          'jpg',
-          'jpeg',
-          'gif',
-          'rar',
-          'txt'
-        ]);
+      allowMultiple: allowMultiple,
+    );
     return result;
   }
 }

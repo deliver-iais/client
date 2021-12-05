@@ -27,6 +27,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -724,16 +725,20 @@ class _InputMessageWidget extends State<InputMessage> {
   showCaptionDialog(
       {IconData? icons, String? type, required FilePickerResult result}) async {
     if (result.files.isEmpty) return;
+
     Map<String, String> res = {};
     for (var file in result.files) {
-      res[file.name] = file.path!;
+      res[file.name] =
+          kIsWeb ? Uri.dataFromBytes(file.bytes!.toList()).toString() : file.path!;
     }
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
             paths: res,
-            type: result.files.first.path!.split(".").last,
+            type: kIsWeb
+                ? result.files.first.extension
+                : result.files.first.path!.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });

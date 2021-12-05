@@ -29,7 +29,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 
 import 'package:synchronized/synchronized.dart';
-import 'package:deliver/copied_classes/paltform_detect.dart' if(dart.library.html)  'package:platform_detect/platform_detect.dart' as plat_from_detect;
+import 'package:deliver/copied_classes/paltform_detect.dart' if(dart.library.html) 'package:platform_detect/platform_detect.dart' as plat_from_detect;
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -113,7 +113,7 @@ class AuthRepo {
     if (kIsWeb) {
       platform
         ..platformType = platform_pb.PlatformsType.WEB
-        ..osVersion = plat_from_detect.browser.version!.major.toString();
+        ..osVersion = plat_from_detect.browser.version.major.toString();
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -149,7 +149,7 @@ class AuthRepo {
   Future<String> getDeviceName() async {
     String device;
     if (kIsWeb) {
-      device = plat_from_detect.browser.name!;
+      device = plat_from_detect.browser.name;
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.model;

@@ -12,7 +12,7 @@ import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-// import 'package:universal_html/html.dart';
+import 'package:universal_html/html.dart';
 
 
 
@@ -37,19 +37,20 @@ class DragDropWidget extends StatelessWidget {
               child: DropzoneView(
                   operation: DragOperation.copy,
                   cursor: CursorType.grab,
-                  onCreated: (DropzoneViewController ctrl) => {},
+                  onCreated: (DropzoneViewController ctrl) {
+                  },
                   onHover: () {},
                   onDrop: (blob) async {
                     try {
-                      // File file = blob as File;
-                      // String  url = Url.createObjectUrlFromBlob(file.slice());
-                    ///  var m = {file.name: url};
+                      File file = blob as File;
+                      String  url = Url.createObjectUrlFromBlob(file.slice());
+                      var m = {file.name: url};
                       if (!roomUid.asUid().isChannel()) {
-                      //  showDialogInDesktop(m, context,file.type);
+                        showDialogInDesktop(m, context,file.type);
                       } else {
                         var res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
-                        // if (res) showDialogInDesktop(m, context,file.type);
+                         if (res) showDialogInDesktop(m, context,file.type);
                       }
                     } catch (e) {
                       _logger.e(e);

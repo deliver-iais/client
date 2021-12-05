@@ -102,7 +102,7 @@ class MessageRepo {
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
-          await updatingMessages();
+          // await updatingMessages();
           break;
         case ConnectionStatus.Connecting:
           updatingStatus.add(TitleStatusConditions.Connecting);

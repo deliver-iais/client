@@ -26,6 +26,7 @@ class AccountRepo {
   final _dbManager = GetIt.I.get<DBManager>();
 
   Future<bool> getProfile({bool retry = false}) async {
+    getUsername();
     if (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) != null) {
       return true;
     }
