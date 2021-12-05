@@ -75,5 +75,8 @@ extension JsonMapper on String {
   bool chatIsDeleted() {
     return this == "{DELETED}";
   }
+  int toCallDuration(){
+    return CallEvent.fromJson(this).callDuration.toInt();
+  }
 
 }

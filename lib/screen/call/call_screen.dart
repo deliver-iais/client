@@ -16,12 +16,14 @@ class CallScreen extends StatefulWidget {
   final Uid roomUid;
   final bool isAccepted;
   final bool isVideoCall;
+  final bool isInitial;
 
   const CallScreen(
       {Key? key,
       required this.roomUid,
       required this.isAccepted,
-      required this.isVideoCall})
+      required this.isVideoCall,
+      required this.isInitial})
       : super(key: key);
 
   @override
@@ -38,8 +40,10 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     modifyRoutingByNotificationAudioCall.add({"": false});
-    initRenderer();
-    startCall();
+    if (!widget.isInitial) {
+      initRenderer();
+      startCall();
+    }
     super.initState();
   }
 

@@ -145,14 +145,15 @@ class RoutingService {
     }
   }
 
-
-  void openCallScreen(Uid roomUid, bool isVideoCall, bool isAccepted,
+  void openCallScreen(
+      Uid roomUid, bool isVideoCall, bool isAccepted, bool isInitial,
       {BuildContext? context}) {
     var widget = CallScreen(
       key: const ValueKey("/callscreen"),
       roomUid: roomUid,
       isVideoCall: isVideoCall,
       isAccepted: isAccepted,
+      isInitial: isInitial,
     );
     if (isDesktop()) {
       _popAllAndPush(Page(
@@ -181,7 +182,6 @@ class RoutingService {
       _rootInMobileState(widget, context!);
     }
   }
-
 
   bool isAnyRoomOpen() {
     if (_stack!.length == 1) {

@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -13,10 +17,12 @@ import 'package:get_it/get_it.dart';
 class CallMessageWidget extends StatelessWidget {
   final Message message;
   final CallEvent _callEvent;
+  final int _callDuration;
   final _autRepo = GetIt.I.get<AuthRepo>();
 
   CallMessageWidget({Key? key, required this.message})
       : _callEvent = message.json!.toCallEvent(),
+        _callDuration = message.json!.toCallDuration(),
         super(key: key);
 
   //todo :
@@ -63,14 +69,8 @@ class CallMessageWidget extends StatelessWidget {
                         time: DateTime.fromMillisecondsSinceEpoch(message.time),
                         isSent: false,
                       ),
-                      Text(", 1 min 7 s",
-                          style: TextStyle(
-                              fontSize: 11,
-                              height: 1.1,
-                              fontStyle: FontStyle.italic,
-                              color: ExtraTheme.of(context)
-                                  .textMessage
-                                  .withAlpha(130))),
+                      const SizedBox(width: 10,),
+                      CallTime( time: DateTime.fromMicrosecondsSinceEpoch(_callDuration* 1000,isUtc: true),),
                     ],
                   ),
                 ],

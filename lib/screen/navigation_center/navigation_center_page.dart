@@ -104,7 +104,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     modifyRoutingByNotificationAudioCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
         _routingService.openCallScreen(
-            event.keys.elementAt(0).asUid(), false, true,
+            event.keys.elementAt(0).asUid(), false, true,false,
             context: context);
       }
     });

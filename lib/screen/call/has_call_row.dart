@@ -22,12 +22,17 @@ class _HasCallRowState extends State<HasCallRow> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data == CallStatus.CREATED) {
+          if (snapshot.data == CallStatus.CONNECTED ||
+              snapshot.data == CallStatus.ACCEPTED ||
+              snapshot.data == CallStatus.IN_CALL) {
             return GestureDetector(
               onTap: () {
-                if (snapshot.data == CallStatus.CREATED) {
-                  _routingService.openInComingCallPage(
-                      callRepo.roomUid!, false,context:context );
+                if (callRepo.isVideo) {
+                  //Todo handell this case
+                } else {
+                  _routingService.openCallScreen(
+                      callRepo.roomUid!, false, false, true,
+                      context: context);
                 }
                 //Todo handel other
               },

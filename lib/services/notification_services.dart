@@ -297,7 +297,7 @@ class AndroidNotifier implements Notifier {
     } else {
       if (isDesktop()) {
         _routingService.openCallScreen(
-            userInfo!["uid"]!.asUid(), callRepo.isVideo, true);
+            userInfo!["uid"]!.asUid(), callRepo.isVideo, true, false);
       } else {
         modifyRoutingByNotificationAudioCall
             .add({callRepo.roomUid!.asString(): true});
@@ -334,18 +334,24 @@ class AndroidNotifier implements Notifier {
     if (message.type == MessageType.CALL) {
       final messageRepo = GetIt.I.get<MessageRepo>();
       final callRepo = GetIt.I.get<CallRepo>();
-      var lastMessages = await messageRepo.fetchLastMessages(
-          message.roomUid!, room!.lastMessageId!, room.firstMessageId, room,
-          limit: 10, type: FetchMessagesReq_Type.BACKWARD_FETCH);
-      ConnectycubeFlutterCallKit.showCallNotification(
-          sessionId: lastMessages!.id.toString(),
-          callType: callRepo.isVideo ? 1 : 2,
-          callerId: lastMessages.id,
-          callerName: message.roomName,
-          userInfo: {"uid": room.uid},
-          opponentsIds: {1},
-          path: filePath);
-      ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+      CallStatus callState = callRepo.callingStatus.value;
+      print("*********************************************$callState");
+      if (callState != CallStatus.IN_CALL ||
+          callState != CallStatus.CONNECTED ||
+          callState != CallStatus.ACCEPTED ) {
+        var lastMessages = await messageRepo.fetchLastMessages(
+            message.roomUid!, room!.lastMessageId!, room.firstMessageId, room,
+            limit: 10, type: FetchMessagesReq_Type.BACKWARD_FETCH);
+        ConnectycubeFlutterCallKit.showCallNotification(
+            sessionId: lastMessages!.id.toString(),
+            callType: callRepo.isVideo ? 1 : 2,
+            callerId: lastMessages.id,
+            callerName: message.roomName,
+            userInfo: {"uid": room.uid},
+            opponentsIds: {1},
+            path: filePath);
+        ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+      }
     } else {
       AwesomeNotifications().setChannel(
         // set the icon to null if you want to use the default app icon

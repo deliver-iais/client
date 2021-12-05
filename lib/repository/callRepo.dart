@@ -68,6 +68,7 @@ class CallRepo {
   int? _callDuration = 0;
   int? _endCallTime = 0;
 
+  int? get callDuration => _callDuration;
   Timer? timerDeclined;
   Timer? timerConnectionFailed;
 
