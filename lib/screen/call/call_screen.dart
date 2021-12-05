@@ -1,6 +1,7 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -36,6 +37,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
+    modifyRoutingByNotificationAudioCall.add({"": false});
     initRenderer();
     startCall();
     super.initState();
