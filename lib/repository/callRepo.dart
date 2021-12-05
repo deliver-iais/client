@@ -768,7 +768,6 @@ class CallRepo {
   }
 
   _dispose() async {
-    callingStatus.add(CallStatus.NO_CALL);
     if(!_isCaller) {
       timerConnectionFailed!.cancel();
     }else{
