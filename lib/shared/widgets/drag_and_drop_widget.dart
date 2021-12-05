@@ -1,4 +1,3 @@
-import "package:deliver/copyed_class/html.dart" if (dart.library.html) 'dart.html' as html;
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +12,9 @@ import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:universal_html/html.dart';
+
+
 
 class DragDropWidget extends StatelessWidget {
   final Widget child;
@@ -30,8 +32,8 @@ class DragDropWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return kIsWeb
         ? Stack(children: [
-            Container(
-              height: this.height,
+            SizedBox(
+              height: height,
               child: DropzoneView(
                   operation: DragOperation.copy,
                   cursor: CursorType.grab,
@@ -39,8 +41,8 @@ class DragDropWidget extends StatelessWidget {
                   onHover: () {},
                   onDrop: (blob) async {
                     try {
-                      html.File file = blob as html.File;
-                      var url = html.Url.createObjectUrlFromBlob(file.slice());
+                      File file = blob as File;
+                      String  url = Url.createObjectUrlFromBlob(file.slice());
                       var m = {file.name: url};
                       if (!roomUid.asUid().isChannel()) {
                         showDialogInDesktop(m, context,file.type);

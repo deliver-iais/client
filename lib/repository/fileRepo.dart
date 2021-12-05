@@ -1,10 +1,7 @@
 // ignore_for_file: file_names
 
 import 'dart:convert';
-import 'dart:io';
-
-import "package:deliver/copyed_class/html.dart" if (dart.library.html) 'dart.html' as html;
-
+import 'dart:io' as io;
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -17,6 +14,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:universal_html/html.dart';
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -25,7 +23,7 @@ class FileRepo {
   //var sessionResource = StorageEntry('token', type: StorageType.localStorage);
 
   Future<void> cloneFileInLocalDirectory(
-      File file, String uploadKey, String name) async {
+      io.File file, String uploadKey, String name) async {
     await _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
@@ -77,7 +75,7 @@ class FileRepo {
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       if (kIsWeb) return fileInfo.path != null;
-      File file = File(fileInfo.path!);
+      io.File file = io.File(fileInfo.path!);
       return await file.exists();
     }
     return false;
@@ -93,9 +91,9 @@ class FileRepo {
       if (value != null && value.isNotEmpty) {
         List bytes = jsonDecode(value);
         List<int> data = bytes.map((e) => int.parse(e.toString())).toList();
-        var blob = html.Blob(<Object>[Uint8List.fromList(data)],
+        var blob = Blob(<Object>[Uint8List.fromList(data)],
             "application/${filename.split(".").last}");
-        var url = html.Url.createObjectUrlFromBlob(blob);
+        var url = Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
         return "";
@@ -104,7 +102,7 @@ class FileRepo {
       FileInfo? fileInfo = await _getFileInfoInDB(
           (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
       if (fileInfo != null) {
-        File file = new File(fileInfo.path!);
+        io.File file = io.File(fileInfo.path!);
         if (await file.exists()) {
           return file.path;
         }

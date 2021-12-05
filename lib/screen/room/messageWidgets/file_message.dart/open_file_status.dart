@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
+import 'package:universal_html/html.dart';
 
 class OpenFileStatus extends StatelessWidget {
   final file_pb.File file;

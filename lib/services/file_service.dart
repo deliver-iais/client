@@ -1,6 +1,5 @@
-import "package:deliver/copyed_class/html.dart" if (dart.library.html) 'dart.html' as html;
 import 'package:http/http.dart' as http;
-import 'dart:io';
+import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -17,6 +16,7 @@ import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:universal_html/html.dart' as html;
 
 enum ThumbnailSize { medium }
 
@@ -35,8 +35,8 @@ class FileService {
         isDesktop() ||
         isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists()) {
-        await Directory('${directory.path}/Deliver').create(recursive: true);
+      if (!await io.Directory('${directory.path}/Deliver').exists()) {
+        await io.Directory('${directory.path}/Deliver').create(recursive: true);
       }
       return directory.path + "/Deliver";
     }
@@ -54,14 +54,14 @@ class FileService {
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
 
-  Future<File> localFile(String fileUuid, String fileType) async {
+  Future<io.File> localFile(String fileUuid, String fileType) async {
     final path = await _localPath;
-    return File('$path/$fileUuid.$fileType');
+    return io.File('$path/$fileUuid.$fileType');
   }
 
-  Future<File> localThumbnailFile(
+  Future<io.File> localThumbnailFile(
       String fileUuid, String fileType, ThumbnailSize size) async {
-    return File(await localThumbnailFilePath(fileUuid, fileType, size));
+    return io.File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
   FileService() {
@@ -99,8 +99,8 @@ class FileService {
         filesDownloadStatus[uuid]!.add((i / j));
       }, options: Options(responseType: ResponseType.bytes));
       if (kIsWeb) {
-        var blob = html.Blob(
-            <Object>[res.data], "application/${filename.split(".").last}");
+        var blob =
+            html.Blob(<Object>[res.data], "application/${filename.split(".").last}");
         var url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
@@ -115,22 +115,20 @@ class FileService {
   }
 
   saveDownloadedFile(String url, String filename) async {
-    html.AnchorElement(
-    herf: url
-    )
+    html.AnchorElement(href: url)
       ..download = url
       ..setAttribute("download", filename)
       ..click();
   }
 
-  Future<File?> getDeliverIcon() async {
+  Future<io.File?> getDeliverIcon() async {
     var file = await localFile("deliver-icon", "png");
     if (file.existsSync()) {
       return file;
     } else {
       var res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      File f = File("${await _localPath}/deliver-icon.png");
+      io.File f = io.File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -146,9 +144,9 @@ class FileService {
     } else {
       var downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      File f = File('$downloadDir/$name');
+      io.File f = io.File('$downloadDir/$name');
       try {
-        await f.writeAsBytes(File(path).readAsBytesSync());
+        await f.writeAsBytes(io.File(path).readAsBytesSync());
       } catch (_) {}
     }
   }

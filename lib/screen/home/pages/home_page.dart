@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -17,9 +14,9 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
-import "package:deliver/copyed_class/js.dart" if (dart.library.html) 'dart:js'
+import "package:deliver/copied_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import "package:universal_html/js.dart" as ujs;
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -74,7 +71,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     Timer(const Duration(seconds: 3), () {
       try {
         final bool isDeferredNotNull =
-            ujs.context.callMethod("isDeferredNotNull") as bool;
+            js.context.callMethod("isDeferredNotNull",[]) as bool;
         if (isDeferredNotNull) {
           //   ujs.context.callMethod("presentAddToHome");
           // return true;

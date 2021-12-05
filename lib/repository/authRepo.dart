@@ -7,7 +7,6 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -28,8 +27,9 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
-import 'package:platform_detect/platform_detect.dart';
+
 import 'package:synchronized/synchronized.dart';
+import 'package:deliver/copied_classes/paltform_detect.dart' if(dart.library.html)  'package:platform_detect/platform_detect.dart' as plat_from_detect;
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -113,7 +113,7 @@ class AuthRepo {
     if (kIsWeb) {
       platform
         ..platformType = platform_pb.PlatformsType.WEB
-        ..osVersion = browser.version.major.toString();
+        ..osVersion = plat_from_detect.browser.version!.major.toString();
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -149,7 +149,7 @@ class AuthRepo {
   Future<String> getDeviceName() async {
     String device;
     if (kIsWeb) {
-      device = browser.name;
+      device = plat_from_detect.browser.name!;
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.model;

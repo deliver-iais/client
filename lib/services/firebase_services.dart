@@ -4,6 +4,7 @@ import 'package:deliver/box/dao/mute_dao.dart';
 
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
 
@@ -26,13 +27,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:js/js.dart';
+import 'package:deliver/copied_classes/js.dart' if(dart.library.html) 'package:js/js.dart' as js;
+
+
 import 'package:logger/logger.dart';
+
 
 import 'notification_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
-@JS('decodeMessageForCallFromJs')
+
+@js.JS('decodeMessageForCallFromJs')
 external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
 
 class FireBaseServices {
@@ -42,7 +47,7 @@ class FireBaseServices {
 
   Future<Map<String, String>?> _decodeMessageForWebNotification(
       dynamic notification) async {
-    Map<String, String> res = Map();
+    Map<String, String> res = {};
     try {
       await setupDI();
     } catch (e) {
@@ -98,7 +103,6 @@ class FireBaseServices {
     if (!isDesktop() || kIsWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
-      var res = await _firebaseMessaging.getToken();
       await _setFirebaseSetting();
       _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
@@ -123,9 +127,8 @@ class FireBaseServices {
   _setFirebaseSetting() async {
     if (kIsWeb) {
       _decodeMessageForCallFromJs =
-          allowInterop(_decodeMessageForWebNotification);
+          js.allowInterop(_decodeMessageForWebNotification);
     }
-
     //for web register in  firebase-messaging-sw.js in web folder;
     if (isAndroid()) {
       try {

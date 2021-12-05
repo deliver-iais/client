@@ -15,8 +15,8 @@ import 'package:logger/logger.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import "package:deliver/copyed_class/js.dart" if (dart.library.html) 'dart:js'
-as js;
+import "package:deliver/copied_classes/js.dart" if (dart.library.html) 'dart:js'
+    as js;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
