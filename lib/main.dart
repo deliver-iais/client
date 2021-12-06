@@ -185,8 +185,12 @@ Future<void> setupDI() async {
               ? webLiveLocationClientChannel
               : LiveLocationServiceClientChannel,
           interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  try {
+    GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
+  } catch (e) {
+    print(e.toString());
+  }
 
-  GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   GetIt.I.registerSingleton<UxService>(UxService());
   GetIt.I.registerSingleton<FileService>(FileService());

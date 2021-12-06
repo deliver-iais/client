@@ -3,7 +3,8 @@
 import 'dart:core';
 
 import 'package:grpc/grpc.dart';
-import 'package:deliver/copied_classes/grpc_web.dart' if(dart.library.html) 'package:grpc/grpc_web.dart';
+import 'package:deliver/copied_classes/grpc_web.dart'
+    if (dart.library.html) 'package:grpc/grpc_web.dart';
 
 // ignore: non_constant_identifier_names
 final QueryClientChannel = ClientChannel("query.deliver-co.ir",
@@ -11,7 +12,7 @@ final QueryClientChannel = ClientChannel("query.deliver-co.ir",
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: const  Duration(seconds: 2)));
+        connectionTimeout: const Duration(seconds: 2)));
 
 final webQueryClientChannel =
     GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
@@ -20,8 +21,9 @@ final webQueryClientChannel =
 final BotClientChannel = ClientChannel("ms-bot.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
-        connectionTimeout: const  Duration(seconds: 2)));
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        connectionTimeout: const Duration(seconds: 2)));
 final webBotClientChannel = GrpcWebClientChannel.xhr(
     Uri(scheme: "https", host: "gwp-ms-bot.deliver-co.ir"));
 
@@ -39,7 +41,8 @@ final webStickerClientChannel = GrpcWebClientChannel.xhr(
 final MucServicesClientChannel = ClientChannel("query.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
 final webMucServicesClientChannel =
@@ -49,22 +52,24 @@ final webMucServicesClientChannel =
 final CoreServicesClientChannel = ClientChannel("core.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
+
+final webCoreServicesClientChannel =
+    GrpcWebClientChannel.xhr(Uri.parse("https://gwp-core.deliver-co.ir"));
 
 // ignore: non_constant_identifier_names, constant_identifier_names
 const FileServiceBaseUrl = "https://ms-file.deliver-co.ir";
-final webCoreServicesClientChannel = GrpcWebClientChannel.xhr(
-    Uri(scheme: "https", host: "gwp-core.deliver-co.ir"));
 
 // ignore: non_constant_identifier_names
-
 
 // ignore: non_constant_identifier_names
 final ProfileServicesClientChannel = ClientChannel("ms-profile.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
 final webProfileServicesClientChannel =
@@ -74,7 +79,8 @@ final webProfileServicesClientChannel =
 final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
 final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
@@ -85,7 +91,8 @@ final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
 final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
 final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
@@ -99,5 +106,6 @@ final LiveLocationServiceClientChannel = ClientChannel(
     "ms-livelocation.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
-        credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+        credentials:
+            ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));

@@ -35,6 +35,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -104,13 +105,13 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
+    sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
-      await startStream();
-    }
-    sendPing();
+    // if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
+    //   await startStream();
+    // }
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
@@ -119,7 +120,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        _clientPacketStream.close();
+       // _clientPacketStream.close();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
       startCheckerTimer();
@@ -135,46 +136,52 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _clientPacketStream = StreamController<ClientPacket>();
-      _responseStream =
-          _grpcCoreService.establishStream(_clientPacketStream.stream);
-      _responseStream.listen((serverPacket) async {
-        _logger.d(serverPacket);
-        gotResponse();
-        switch (serverPacket.whichType()) {
-          case ServerPacket_Type.message:
-            _saveIncomingMessage(serverPacket.message);
-            break;
-          case ServerPacket_Type.messageDeliveryAck:
-            _saveAckMessage(serverPacket.messageDeliveryAck);
-            break;
-          case ServerPacket_Type.error:
-            break;
-          case ServerPacket_Type.seen:
-            _saveSeen(serverPacket.seen);
-            break;
-          case ServerPacket_Type.activity:
-            _saveActivity(serverPacket.activity);
-            break;
-          case ServerPacket_Type.liveLocationStatusChanged:
-            break;
-          case ServerPacket_Type.pong:
-            _lastPongTime = serverPacket.pong.serverTime.toInt();
-            break;
-          case ServerPacket_Type.notSet:
-            // TODO: Handle this case.
-            break;
-          case ServerPacket_Type.roomPresenceTypeChanged:
-            _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
-            break;
-          case ServerPacket_Type.callOffer:
-            // TODO: Handle this case.
-            break;
-          case ServerPacket_Type.callAnswer:
-            // TODO: Handle this case.
-            break;
-        }
+      _grpcCoreService.establishServerSideStream(EstablishServerSideStreamReq()).listen((value) {
+        print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+      }).onError((e){
+        print("webbbbbbbbbbbbb"+e.toString());
       });
+      // _clientPacketStream = StreamController<ClientPacket>();
+      // _responseStream =
+      //     _grpcCoreService.establishStream(_clientPacketStream.stream);
+      // _responseStream.listen((serverPacket) async {
+      //   _logger.d(serverPacket);
+      //
+      //   gotResponse();
+      //   switch (serverPacket.whichType()) {
+      //     case ServerPacket_Type.message:
+      //       _saveIncomingMessage(serverPacket.message);
+      //       break;
+      //     case ServerPacket_Type.messageDeliveryAck:
+      //       _saveAckMessage(serverPacket.messageDeliveryAck);
+      //       break;
+      //     case ServerPacket_Type.error:
+      //       break;
+      //     case ServerPacket_Type.seen:
+      //       _saveSeen(serverPacket.seen);
+      //       break;
+      //     case ServerPacket_Type.activity:
+      //       _saveActivity(serverPacket.activity);
+      //       break;
+      //     case ServerPacket_Type.liveLocationStatusChanged:
+      //       break;
+      //     case ServerPacket_Type.pong:
+      //       _lastPongTime = serverPacket.pong.serverTime.toInt();
+      //       break;
+      //     case ServerPacket_Type.notSet:
+      //       // TODO: Handle this case.
+      //       break;
+      //     case ServerPacket_Type.roomPresenceTypeChanged:
+      //       _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
+      //       break;
+      //     case ServerPacket_Type.callOffer:
+      //       // TODO: Handle this case.
+      //       break;
+      //     case ServerPacket_Type.callAnswer:
+      //       // TODO: Handle this case.
+      //       break;
+      //   }
+      // });
     } catch (e) {
       startStream();
       _logger.e(e);
@@ -207,14 +214,23 @@ class CoreServices {
   }
 
   sendPing() {
-    if (!_clientPacketStream.isClosed) {
+    try{
       var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _clientPacketStream.add(ClientPacket()
+      _grpcCoreService.sendClientPacket(ClientPacket()
         ..ping = ping
         ..id = DateTime.now().microsecondsSinceEpoch.toString());
-    } else {
-      startStream();
+    }catch(e){
+      print(e.toString());
     }
+
+    // if (!_clientPacketStream.isClosed) {
+    //   var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    //   _clientPacketStream.add(ClientPacket()
+    //     ..ping = ping
+    //     ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    // } else {
+    //   startStream();
+    // }
   }
 
   sendSeen(seen_pb.SeenByClient seen) {
