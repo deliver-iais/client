@@ -60,6 +60,7 @@ final webCoreServicesClientChannel =
     GrpcWebClientChannel.xhr(Uri.parse("https://gwp-core.deliver-co.ir"));
 
 // ignore: non_constant_identifier_names, constant_identifier_names
+
 const FileServiceBaseUrl = "https://ms-file.deliver-co.ir";
 
 // ignore: non_constant_identifier_names

@@ -735,7 +735,7 @@ class _InputMessageWidget extends State<InputMessage> {
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            paths: res,
+            files: res,
             type: kIsWeb
                 ? result.files.first.extension
                 : result.files.first.path!.split(".").last,

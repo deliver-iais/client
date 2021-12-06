@@ -616,7 +616,7 @@ showCaptionDialog(
           type: type,
           editableMessage: editableMessage,
           currentRoom: roomUid,
-          paths: files,
+          files: files,
         );
       });
 }

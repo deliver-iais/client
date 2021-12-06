@@ -16,6 +16,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -399,37 +400,42 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendMultipleFilesMessages(Uid room, Map<String,String>? files,
+  sendMultipleFilesMessages(Uid room, List<model.File> files,
       {String? caption, int? replyToId}) async {
-    for (var path in files!.values) {
-      if (files.values.last == path) {
-        await sendFileMessage(room, path,
+    for (var file in files) {
+      if (files.last.path == file.path) {
+        await sendFileMessage(room, file ,
             caption: caption!, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, path, caption: "", replyToId: replyToId);
+        await sendFileMessage(room, file , caption: "", replyToId: replyToId);
       }
     }
   }
 
-  sendFileMessage(Uid room, String path,
+  sendFileMessage(Uid room, model.File file ,
       {String? caption = "", int? replyToId = 0}) async {
     String packetId = _getPacketId();
-    _fileRepo.initUploadProgress(packetId);
-
-    // Create MessageCompanion
-    var file = dart_file.File(path);
-    final tempType = _findType(path);
     var tempDimension = Size.zero;
-    // Get size of image
-    if (tempType.split('/')[0] == 'image') {
-      tempDimension = ImageSizeGetter.getSize(FileInput(file));
-      if (tempDimension == Size.zero) {
-        tempDimension = Size(200, 200);
+    int tempFileSize;
+    final tempType = _findType(path);
+    _fileRepo.initUploadProgress(packetId);
+    if(!kIsWeb){
+      var f = dart_file.File(file.path);
+      // Get size of image
+      if (tempType.split('/')[0] == 'image') {
+        tempDimension = ImageSizeGetter.getSize(FileInput(file));
+        if (tempDimension == Size.zero) {
+          tempDimension = Size(200, 200);
+        }
       }
+       tempFileSize = file.statSync().size;
     }
 
+    // Create MessageCompanion
+
+
     // Get type with file name
-    final tempFileSize = file.statSync().size;
+
 
     file_pb.File sendingFakeFile = file_pb.File()
       ..uuid = packetId
@@ -438,7 +444,7 @@ class MessageRepo {
       ..height = tempDimension.height
       ..type = tempType
       ..size = Int64(tempFileSize)
-      ..name = path.split(".").last
+      ..name = file.name
       ..duration = 0;
 
     Message msg = _createMessage(room, replyId: replyToId).copyWith(
