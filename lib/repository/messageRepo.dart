@@ -420,15 +420,21 @@ class MessageRepo {
     final tempType = file.extention ?? _findType(file.path);
     _fileRepo.initUploadProgress(packetId);
 
+
     var f = dart_file.File(file.path);
     // Get size of image
-    if (tempType.split('/')[0] == 'image') {
-      tempDimension = ImageSizeGetter.getSize(FileInput(f));
-      if (tempDimension == Size.zero) {
-        tempDimension = Size(200, 200);
+    try{
+      if (tempType.split('/')[0] == 'image') {
+        tempDimension = ImageSizeGetter.getSize(FileInput(f));
+        if (tempDimension == Size.zero) {
+          tempDimension = Size(200, 200);
+        }
       }
+      tempFileSize = f.statSync().size;
+    }catch(_){
+
     }
-    tempFileSize = f.statSync().size;
+
 
     // Create MessageCompanion
 

@@ -70,9 +70,9 @@ class FileService {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
       options.headers["Access-Control-Allow-Origin"] = "*";
-      options.headers["Access-Control-Allow-Credentials"] = true;
+      options.headers["Access-Control-Allow-Credentials"] = false;
       options.headers["Access-Control-Allow-Headers"] =
-          "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
+          "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale";
       options.headers["Access-Control-Allow-Methods"] =
           "GET, POST, OPTIONS, HEAD";
 
@@ -99,8 +99,8 @@ class FileService {
         filesDownloadStatus[uuid]!.add((i / j));
       }, options: Options(responseType: ResponseType.bytes));
       if (kIsWeb) {
-        var blob =
-            html.Blob(<Object>[res.data], "application/${filename.split(".").last}");
+        var blob = html.Blob(
+            <Object>[res.data], "application/${filename.split(".").last}");
         var url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
@@ -173,19 +173,6 @@ class FileService {
       http.Response response = await http.get(
         Uri.parse(filePath),
       );
-      _dio.interceptors.add(InterceptorsWrapper(onRequest:
-          (RequestOptions options, RequestInterceptorHandler handler) async {
-        options.onSendProgress = (int i, int j) {
-          if (sendActivity != null) sendActivity();
-          if (filesUploadStatus[uploadKey] == null) {
-            BehaviorSubject<double> d = BehaviorSubject();
-            filesUploadStatus[uploadKey!] = d;
-          }
-          filesUploadStatus[uploadKey]!.add((i / j));
-        };
-        handler.next(options);
-      }));
-
       var formData = FormData.fromMap({
         "file": kIsWeb
             ? MultipartFile.fromBytes(response.bodyBytes,
@@ -197,10 +184,51 @@ class FileService {
                     mime(filePath) ?? "application/octet-stream")),
       });
 
-      return _dio.post(
-        "/upload",
-        data: formData,
-      );
+      try {
+        var request = http.MultipartRequest(
+            "POST", Uri.parse(FileServiceBaseUrl + "/upload"));
+        request.fields['Authorization"'] = await _authRepo.getAccessToken();
+        request.files.add(await http.MultipartFile.fromBytes(
+          'package',
+          response.bodyBytes,
+          contentType: new MediaType('application', 'image'),
+        ));
+        request.send().then((response) {
+          print(response.statusCode);
+          if (response.statusCode == 200) print("Uploaded!");
+        });
+      } catch (e) {
+        print("eeeee" + e.toString());
+      }
+      // _dio.interceptors.add(InterceptorsWrapper(onRequest:
+      //     (RequestOptions options, RequestInterceptorHandler handler) async {
+      //   options.onSendProgress = (int i, int j) {
+      //     print("ttt" + (i / j).toString());
+      //     // if (sendActivity != null) sendActivity();
+      //     //  if (filesUploadStatus[uploadKey] == null) {
+      //     //    BehaviorSubject<double> d = BehaviorSubject();
+      //     //    filesUploadStatus[uploadKey!] = d;
+      //     //  }
+      //     //  filesUploadStatus[uploadKey]!.add((i / j));
+      //   };
+      //   handler.next(options);
+      // }));
+
+      // var formData = FormData.fromMap({
+      //   "file": kIsWeb
+      //       ? MultipartFile.fromBytes(response.bodyBytes,
+      //           filename: filename,
+      //           contentType: MediaType.parse(
+      //               mime(filePath) ?? "application/octet-stream"))
+      //       : MultipartFile.fromFileSync(filePath,
+      //           contentType: MediaType.parse(
+      //               mime(filePath) ?? "application/octet-stream")),
+      // });
+
+      // return _dio.post(
+      //   "/upload",
+      //   data: formData,
+      // );
     } catch (e) {
       _logger.e(e);
     }

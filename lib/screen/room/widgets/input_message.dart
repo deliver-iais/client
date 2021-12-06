@@ -734,7 +734,7 @@ class _InputMessageWidget extends State<InputMessage> {
           kIsWeb
               ? Uri.dataFromBytes(file.bytes!.toList()).toString()
               : file.path!,
-          file.name));
+          file.name,size: file.size,extention: file.extension));
     }
     showDialog(
         context: context,
