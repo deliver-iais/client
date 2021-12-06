@@ -55,6 +55,7 @@ class CallRepo {
   bool _isCaller = false;
   bool _isVideo = false;
 
+  bool get isCaller => _isCaller;
   Uid? _roomUid;
 
   Uid? get roomUid => _roomUid;
@@ -630,7 +631,6 @@ class CallRepo {
   }
 
   Future<void> receivedEndCall(int callDuration) async {
-    //TODO callDuration on ms shouldBe Save on DB
     _logger.i("Call Duration Received: " + callDuration.toString());
     String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
@@ -645,7 +645,7 @@ class CallRepo {
           _callId!,
           _callDuration!,
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-    }else{
+    } else {
       _callDuration = callDuration;
     }
     await _dispose();
@@ -665,7 +665,6 @@ class CallRepo {
         //we need 2 sec delay before dispose Connection to Send EndCall Event
         await Future.delayed(const Duration(seconds: 2));
         await _dispose();
-        //TODO callDuration shouldBe Save on DB
       } else {
         messageRepo.sendCallMessage(
             CallEvent_CallStatus.ENDED,

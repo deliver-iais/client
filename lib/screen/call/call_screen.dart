@@ -39,7 +39,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
-    modifyRoutingByNotificationAudioCall.add({"": false});
+  //  modifyRoutingByNotificationAudioCall.add({"": false});
     if (!widget.isInitial) {
       initRenderer();
       startCall();
@@ -99,6 +99,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
               break;
             case CallStatus.IS_RINGING:
+              _audioService.playBeepSound();
               return widget.isVideoCall
                   ? StartVideoCallPage(
                       roomUid: widget.roomUid,

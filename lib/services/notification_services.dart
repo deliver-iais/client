@@ -45,7 +45,7 @@ MessageBrief synthesize(MessageBrief mb) {
   if (mb.text != null && mb.text!.isNotEmpty) {
     return mb.copyWith(
         text:
-            BoldTextParser.transformer(ItalicTextParser.transformer(mb.text!)));
+        BoldTextParser.transformer(ItalicTextParser.transformer(mb.text!)));
   }
 
   return mb;
@@ -62,8 +62,8 @@ class NotificationServices {
     if (message.whichType() == Message_Type.callEvent) {
       if (message.callEvent.newStatus == CallEvent_CallStatus.CREATED) {
         final mb =
-            (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
-                .copyWith(roomName: roomName);
+        (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+            .copyWith(roomName: roomName);
         if (mb.ignoreNotification!) return;
 
         // TODO change place of synthesizer if we want more styled texts in android
@@ -71,8 +71,8 @@ class NotificationServices {
       }
     } else {
       final mb =
-          (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
-              .copyWith(roomName: roomName);
+      (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+          .copyWith(roomName: roomName);
       if (mb.ignoreNotification ?? false) return;
 
       // TODO change place of synthesizer if we want more styled texts in android
@@ -137,7 +137,7 @@ class WindowsNotifier implements Notifier {
     final _logger = GetIt.I.get<Logger>();
     try {
       Avatar? lastAvatar =
-          await _avatarRepo.getLastAvatar(message.roomUid!, false);
+      await _avatarRepo.getLastAvatar(message.roomUid!, false);
       if (lastAvatar != null && lastAvatar.fileId != null) {
         File? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
@@ -185,22 +185,22 @@ class WindowsNotifier implements Notifier {
 class LinuxNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
   final _flutterLocalNotificationsPlugin =
-      LinuxFlutterLocalNotificationsPlugin();
+  LinuxFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
 
   LinuxNotifier() {
     var notificationSetting =
-        const LinuxInitializationSettings(defaultActionName: "");
+    const LinuxInitializationSettings(defaultActionName: "");
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {
-        _routingService.openRoom(room);
-      }
-      return;
-    });
+          if (room != null && room.isNotEmpty) {
+            _routingService.openRoom(room);
+          }
+          return;
+        });
   }
 
   @override
@@ -266,27 +266,23 @@ class AndroidNotifier implements Notifier {
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
   }
 
-  Future<dynamic> onCallRejected(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {
+  Future<dynamic> onCallRejected(String sessionId,
+      int callType,
+      int callerId,
+      String callerName,
+      Set<int> opponentsIds,
+      Map<String, String>? userInfo,) async {
     final callRepo = GetIt.I.get<CallRepo>();
     callRepo.declineCall();
     _routingService.pop();
   }
 
-  Future<dynamic> onCallAccepted(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {
+  Future<dynamic> onCallAccepted(String sessionId,
+      int callType,
+      int callerId,
+      String callerName,
+      Set<int> opponentsIds,
+      Map<String, String>? userInfo,) async {
     final callRepo = GetIt.I.get<CallRepo>();
     if (callRepo.isVideo) {
       if (isDesktop()) {
@@ -313,7 +309,7 @@ class AndroidNotifier implements Notifier {
     Room? room = await _roomRepo.getRoom(message.roomUid!.asString());
     String selectedNotificationSound = "that_was_quick";
     var selectedSound =
-        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
+    await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
     if (la != null && la.fileId != null) {
@@ -335,10 +331,9 @@ class AndroidNotifier implements Notifier {
       final messageRepo = GetIt.I.get<MessageRepo>();
       final callRepo = GetIt.I.get<CallRepo>();
       CallStatus callState = callRepo.callingStatus.value;
-      print("*********************************************$callState");
       if (callState != CallStatus.IN_CALL ||
           callState != CallStatus.CONNECTED ||
-          callState != CallStatus.ACCEPTED ) {
+          callState != CallStatus.ACCEPTED) {
         var lastMessages = await messageRepo.fetchLastMessages(
             message.roomUid!, room!.lastMessageId!, room.firstMessageId, room,
             limit: 10, type: FetchMessagesReq_Type.BACKWARD_FETCH);
@@ -351,151 +346,160 @@ class AndroidNotifier implements Notifier {
             opponentsIds: {1},
             path: filePath);
         ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+      }} else {
+        AwesomeNotifications().setChannel(
+          // set the icon to null if you want to use the default app icon
+          NotificationChannel(
+              channelKey: message.roomUid.toString() +
+                  selectedNotificationSound,
+              channelName: channel.name,
+              channelDescription: channel.description!,
+              ledColor: Colors.white,
+              playSound: true,
+              defaultColor: Colors.blueAccent,
+              soundSource: 'resource://raw/$selectedNotificationSound',
+              groupKey: message.roomUid!.node.toString()),
+        );
+        AwesomeNotifications().createNotification(
+            content: NotificationContent(
+              id: message.roomUid!.asString().hashCode +
+                  message.text
+                      .toString()
+                      .hashCode +
+                  Random().nextInt(10000),
+              channelKey: message.roomUid.toString() +
+                  selectedNotificationSound,
+              title: message.roomName,
+              summary: message.roomName,
+              groupKey: message.roomUid!.node.toString(),
+              body: createNotificationTextFromMessageBrief(message),
+              largeIcon: finalFilePath,
+              notificationLayout: NotificationLayout.Messaging,
+              customSound: 'resource://raw/$selectedNotificationSound',
+              payload: {
+                'uid': room!.uid,
+                'id': room.lastMessage!.id.toString()
+              },
+            ),
+            actionButtons: [
+              NotificationActionButton(
+                key: 'REPLY',
+                label: 'Reply',
+                autoDismissible: false,
+                showInCompactView: true,
+                buttonType: ActionButtonType.InputField,
+              ),
+              NotificationActionButton(
+                key: 'READ',
+                label: 'Mark as read',
+                autoDismissible: true,
+              ),
+            ]);
       }
-    } else {
-      AwesomeNotifications().setChannel(
-        // set the icon to null if you want to use the default app icon
-        NotificationChannel(
-            channelKey: message.roomUid.toString() + selectedNotificationSound,
-            channelName: channel.name,
-            channelDescription: channel.description!,
-            ledColor: Colors.white,
-            playSound: true,
-            defaultColor: Colors.blueAccent,
-            soundSource: 'resource://raw/$selectedNotificationSound',
-            groupKey: message.roomUid!.node.toString()),
-      );
-      AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: message.roomUid!.asString().hashCode +
-                message.text.toString().hashCode +
-                Random().nextInt(10000),
-            channelKey: message.roomUid.toString() + selectedNotificationSound,
-            title: message.roomName,
-            summary: message.roomName,
-            groupKey: message.roomUid!.node.toString(),
-            body: createNotificationTextFromMessageBrief(message),
-            largeIcon: finalFilePath,
-            notificationLayout: NotificationLayout.Messaging,
-            customSound: 'resource://raw/$selectedNotificationSound',
-            payload: {'uid': room!.uid, 'id': room.lastMessage!.id.toString()},
-          ),
-          actionButtons: [
-            NotificationActionButton(
-              key: 'REPLY',
-              label: 'Reply',
-              autoDismissible: false,
-              showInCompactView: true,
-              buttonType: ActionButtonType.InputField,
-            ),
-            NotificationActionButton(
-              key: 'READ',
-              label: 'Mark as read',
-              autoDismissible: true,
-            ),
-          ]);
+    }
+
+    @override
+    cancel(int id, String roomId) async {
+      try {
+        AwesomeNotifications()
+            .cancelNotificationsByGroupKey(roomId
+            .asUid()
+            .node
+            .toString());
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+
+    @override
+    cancelAll() async {
+      try {
+        AwesomeNotifications().cancelAll();
+      } catch (e) {
+        _logger.e(e);
+      }
     }
   }
 
-  @override
-  cancel(int id, String roomId) async {
-    try {
-      AwesomeNotifications()
-          .cancelNotificationsByGroupKey(roomId.asUid().node.toString());
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
-  @override
-  cancelAll() async {
-    try {
-      AwesomeNotifications().cancelAll();
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-}
-
-class MacOSNotifier implements Notifier {
+  class MacOSNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
   final _flutterLocalNotificationsPlugin =
-      MacOSFlutterLocalNotificationsPlugin();
+  MacOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
 
   MacOSNotifier() {
-    var macNotificationSetting = const MacOSInitializationSettings();
+  var macNotificationSetting = const MacOSInitializationSettings();
 
-    _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
-        onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {
-        _routingService.openRoom(room);
-      }
-      return;
-    });
+  _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
+  onSelectNotification: (room) {
+  if (room != null && room.isNotEmpty) {
+  _routingService.openRoom(room);
+  }
+  return;
+  });
   }
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification!) return;
+  if (message.ignoreNotification!) return;
 
-    List<MacOSNotificationAttachment> attachments = [];
+  List<MacOSNotificationAttachment> attachments = [];
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
+  var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
 
-    if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
-          thumbnailSize: ThumbnailSize.medium);
+  if (la != null) {
+  var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+  thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        attachments.add(MacOSNotificationAttachment(f.path));
-      }
-    }
+  if (f != null && f.path.isNotEmpty) {
+  attachments.add(MacOSNotificationAttachment(f.path));
+  }
+  }
 
-    var macOSPlatformChannelSpecifics =
-        MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
-    _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
-        message.roomName, createNotificationTextFromMessageBrief(message),
-        notificationDetails: macOSPlatformChannelSpecifics,
-        payload: message.roomUid!.asString());
+  var macOSPlatformChannelSpecifics =
+  MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
+  _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
+  message.roomName, createNotificationTextFromMessageBrief(message),
+  notificationDetails: macOSPlatformChannelSpecifics,
+  payload: message.roomUid!.asString());
   }
 
   @override
   cancel(int id, String roomId) async {
-    try {
-      await _flutterLocalNotificationsPlugin.cancel(id);
-    } catch (e) {
-      _logger.e(e);
-    }
+  try {
+  await _flutterLocalNotificationsPlugin.cancel(id);
+  } catch (e) {
+  _logger.e(e);
+  }
   }
 
   @override
   cancelAll() async {
-    try {
-      await _flutterLocalNotificationsPlugin.cancelAll();
-    } catch (e) {
-      _logger.e(e);
-    }
+  try {
+  await _flutterLocalNotificationsPlugin.cancelAll();
+  } catch (e) {
+  _logger.e(e);
   }
-}
+  }
+  }
 
-String createNotificationTextFromMessageBrief(MessageBrief mb) {
+  String createNotificationTextFromMessageBrief(MessageBrief mb) {
   var text = "";
   if (!(mb.roomUid!.isBot() || mb.roomUid!.isUser()) &&
-      mb.senderIsAUserOrBot!) {
-    text += "${mb.sender!.trim()}: ";
+  mb.senderIsAUserOrBot!) {
+  text += "${mb.sender!.trim()}: ";
   }
   if (mb.typeDetails!.isNotEmpty) {
-    text += mb.typeDetails!;
+  text += mb.typeDetails!;
   }
   if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty) {
-    text += ", ";
+  text += ", ";
   }
   if (mb.text!.isNotEmpty) {
-    text += mb.text!;
+  text += mb.text!;
   }
 
   return text;
-}
+  }

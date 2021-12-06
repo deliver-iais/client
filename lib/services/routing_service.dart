@@ -148,8 +148,9 @@ class RoutingService {
   void openCallScreen(
       Uid roomUid, bool isVideoCall, bool isAccepted, bool isInitial,
       {BuildContext? context}) {
+
     var widget = CallScreen(
-      key: const ValueKey("/callscreen"),
+      key: const ValueKey("/callScreen"),
       roomUid: roomUid,
       isVideoCall: isVideoCall,
       isAccepted: isAccepted,
@@ -160,7 +161,7 @@ class RoutingService {
           largePageNavigator: _navigationCenter,
           largePageMain: widget,
           smallPageMain: widget,
-          path: "/audiocall"));
+          path: "/callScreen"));
     } else {
       _rootInMobileState(widget, context!);
     }

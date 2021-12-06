@@ -80,6 +80,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                           width: 60,
                           height: 60,
                           child: FloatingActionButton(
+                            heroTag: "1",
                             elevation: 0,
                             backgroundColor: _speakerIcon,
                             onPressed: () {
@@ -107,6 +108,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         ),
                         child: FloatingActionButton(
                             backgroundColor: Color(0xffcf6869),
+                            heroTag: "2",
                             elevation: 0,
                             child: const Icon(
                               Icons.call_end,
@@ -116,10 +118,11 @@ class _CallBottomRowState extends State<CallBottomRow> {
                               widget.hangUp();
                             }),
                       ),
-                      Container(
+                      SizedBox(
                           width: 60,
                           height: 60,
                           child: FloatingActionButton(
+                            heroTag: "3",
                             elevation: 0,
                             backgroundColor: _muteMicIcon,
                             onPressed: _muteMic,
