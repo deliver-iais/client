@@ -10,6 +10,7 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -154,8 +155,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 pinMessageWidget(),
                 Expanded(
                   child: StreamBuilder<List<PendingMessage>>(
-                      stream:
-                          _messageRepo.watchPendingMessages(widget.roomId),
+                      stream: _messageRepo.watchPendingMessages(widget.roomId),
                       builder: (context, pendingMessagesStream) {
                         List<PendingMessage> pendingMessages =
                             pendingMessagesStream.data ?? [];
@@ -182,8 +182,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                       alignment:
                                           AlignmentDirectional.bottomStart,
                                       children: [
-                                        buildMessagesListView(
-                                            pendingMessages),
+                                        buildMessagesListView(pendingMessages),
                                         StreamBuilder<int>(
                                             stream: _positionSubject.stream,
                                             builder: (c, position) {
@@ -276,7 +275,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     });
 
     _roomRepo.resetMention(widget.roomId);
-    if(isAndroid()|| isIOS()) {
+    if (isAndroid() || isIOS()) {
       _notificationServices.cancelRoomNotifications(widget.roomId);
     }
     _waitingForForwardedMessage.add(widget.forwardedMessages != null
@@ -389,7 +388,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               showCaptionDialog(
                   roomUid: widget.roomId.asUid(),
                   editableMessage: message,
-                  files: {},
+                  files: [],
                   context: context);
               break;
             case MessageType.STICKER:
@@ -697,8 +696,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       onChanged: (s) {
                         checkSearchResult.add(false);
                       },
-                      style:
-                          TextStyle(color: ExtraTheme.of(context).textField),
+                      style: TextStyle(color: ExtraTheme.of(context).textField),
                       textInputAction: TextInputAction.search,
                       onSubmitted: (str) async {
                         searchMessage(str, checkSearchResult);
@@ -729,7 +727,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   } else {
                     if (widget.roomId.isMuc()) {
                       return MucAppbarTitle(mucUid: widget.roomId);
-                    } else if (widget.roomId.asUid().category == Categories.BOT) {
+                    } else if (widget.roomId.asUid().category ==
+                        Categories.BOT) {
                       return BotAppbarTitle(botUid: widget.roomId.asUid());
                     } else {
                       return UserAppbarTitle(
@@ -1046,7 +1045,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath!) {
-        _messageRepo.sendFileMessage(widget.roomId.asUid(), path);
+        _messageRepo.sendFileMessage(
+            widget.roomId.asUid(), File(path, path.split(".").last));
       }
     }
   }

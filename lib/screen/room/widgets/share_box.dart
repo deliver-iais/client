@@ -4,6 +4,7 @@ import 'package:android_intent/android_intent.dart';
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
@@ -174,9 +175,10 @@ class _ShareBoxState extends State<ShareBox> {
                                   children: <Widget>[
                                     Container(
                                       child: circleButton(() {
-                                        Map<String, String> res = {};
+                                        List<model.File> res = [];
                                         finalSelected.forEach((key, value) {
-                                          res[value] = value;
+                                          res.add(model.File(
+                                              value, value.split(".").last));
                                         });
                                         if (widget.replyMessageId != null) {
                                           messageRepo.sendMultipleFilesMessages(
@@ -274,11 +276,12 @@ class _ShareBoxState extends State<ShareBox> {
                                               res[element.name] = element.path!;
                                             }
                                             Navigator.pop(co);
-                                            showCaptionDialog(
-                                                type: "image",
-                                                files: res,
-                                                roomUid: widget.currentRoomId,
-                                                context: context);
+                                            //todo merge by get media
+                                            // showCaptionDialog(
+                                            //     type: "image",
+                                            //     files: res,
+                                            //     roomUid: widget.currentRoomId,
+                                            //     context: context);
                                           }
                                         } else {
                                           setState(() {
@@ -307,9 +310,10 @@ class _ShareBoxState extends State<ShareBox> {
                                               'rar'
                                             ]);
                                         if (result != null) {
-                                          Map<String, String> res = {};
+                                          List<model.File> res = [];
                                           for (var element in result.files) {
-                                            res[element.name] = element.path!;
+                                            res.add(model.File(
+                                                element.path!, element.name));
                                           }
                                           Navigator.pop(co);
                                           showCaptionDialog(
@@ -350,9 +354,12 @@ class _ShareBoxState extends State<ShareBox> {
                                                 type: FileType.custom,
                                                 allowedExtensions: ["mp3"]);
                                         if (result != null) {
-                                          Map<String, String> res = Map();
+                                          List<model.File> res = [];
                                           result.files.forEach((element) {
-                                            res[element.name] = element.path!;
+                                            res.add(model.File(
+                                                element.path!, element.name,
+                                                extention: element.extension,
+                                                size: element.size));
                                           });
                                           Navigator.pop(co);
                                           showCaptionDialog(
@@ -604,7 +611,7 @@ class _ShareBoxState extends State<ShareBox> {
 
 showCaptionDialog(
     {String? type,
-    Map<String, String>? files,
+    List<model.File>? files,
     required Uid roomUid,
     Message? editableMessage,
     required BuildContext context}) async {

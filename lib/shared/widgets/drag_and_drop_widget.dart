@@ -1,4 +1,4 @@
-
+import 'package:deliver/models/file.dart' as model;
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +14,17 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:universal_html/html.dart';
 
-
-
 class DragDropWidget extends StatelessWidget {
   final Widget child;
   final String roomUid;
   final double height;
 
-  DragDropWidget({Key? key, required this.child, required this.roomUid,required this.height}) : super(key: key);
+  DragDropWidget(
+      {Key? key,
+      required this.child,
+      required this.roomUid,
+      required this.height})
+      : super(key: key);
 
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
@@ -37,20 +40,21 @@ class DragDropWidget extends StatelessWidget {
               child: DropzoneView(
                   operation: DragOperation.copy,
                   cursor: CursorType.grab,
-                  onCreated: (DropzoneViewController ctrl) {
-                  },
+                  onCreated: (DropzoneViewController ctrl) {},
                   onHover: () {},
                   onDrop: (blob) async {
                     try {
                       File file = blob as File;
-                      String  url = Url.createObjectUrlFromBlob(file.slice());
-                      var m = {file.name: url};
+                      String url = Url.createObjectUrlFromBlob(file.slice());
+                      var modelFile = model.File(url, file.name,
+                          extention: file.type, size: file.size);
                       if (!roomUid.asUid().isChannel()) {
-                        showDialogInDesktop(m, context,file.type);
+                        showDialogInDesktop([modelFile], context, file.type);
                       } else {
                         var res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
-                         if (res) showDialogInDesktop(m, context,file.type);
+                        if (res)
+                          showDialogInDesktop([modelFile], context, file.type);
                       }
                     } catch (e) {
                       _logger.e(e);
@@ -63,29 +67,34 @@ class DragDropWidget extends StatelessWidget {
         : DropTarget(
             child: child,
             onDragDone: (d) async {
-              Map<String, String> files = Map();
-              d.urls.forEach((element) {
+              List<model.File> files = [];
+              for (var element in d.urls) {
                 String path = element.path.replaceAll("%20", " ");
-                files[path.split(".").last] =
-                    isWindows() ? path.substring(1) : path;
-              });
+                files.add(model.File(isWindows() ? path.substring(1) : path,
+                    path.split(".").last));
+              }
               if (!roomUid.asUid().isChannel()) {
-                showDialogInDesktop(files, context,mime(files.values.first) ?? files.values.first.split(".").last);
+                showDialogInDesktop(files, context,
+                    mime(files.first.path) ?? files.first.name.split(".").last);
               } else {
                 var res = await _mucRepo.isMucAdminOrOwner(
                     _authRepo.currentUserUid.asString(), roomUid);
-                if (res) showDialogInDesktop(files, context,mime(files.values.first) ?? files.values.first.split(".").last);
+                if (res) {
+                  showDialogInDesktop(
+                      files,
+                      context,
+                      mime(files.first.path) ??
+                          files.first.path.split(".").last);
+                }
               }
             },
           );
   }
 
-  void showDialogInDesktop(Map<String, String> files, BuildContext context,String type) {
+  void showDialogInDesktop(
+      List<model.File> files, BuildContext context, String type) {
     showCaptionDialog(
-        type: type,
-        context: context,
-        files: files,
-        roomUid: roomUid.asUid());
-    _routingServices.openRoom(roomUid,context:context);
+        type: type, context: context, files: files, roomUid: roomUid.asUid());
+    _routingServices.openRoom(roomUid, context: context);
   }
 }

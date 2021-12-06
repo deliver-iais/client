@@ -47,6 +47,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   late file_pb.File _editableFile;
   String _type = "";
   final FocusNode _captionFocusNode = FocusNode();
+  model.File? _editedFile;
 
   @override
   void initState() {
@@ -265,9 +266,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     widget.editableMessage != null
         ? _messageRepo.editFileMessage(
             widget.editableMessage!.roomUid.asUid(), widget.editableMessage!,
-            caption: _editingController.text,
-            newFileName: _fileNames.isNotEmpty ? _fileNames[0] : "",
-            newFilePath: widget.files!.isNotEmpty ? widget.files![0] : null)
+            caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
             caption: _editingController.text.toString());
@@ -317,17 +316,30 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
               FilePickerResult? result = await getFile(allowMultiple: false);
 
               if (result != null && result.files.isNotEmpty) {
-                widget.files![index] = model.File(
-                    kIsWeb
-                        ? Uri.dataFromBytes(
-                            result.files.first.bytes!.toList(),
-                          ).toString()
-                        : result.files.first.path!,
-                    result.files.first.name,
-                    extention: result.files.first.extension,
-                    size: result.files.first.size);
+                if (widget.editableMessage != null) {
+                  _editedFile = model.File(
+                      kIsWeb
+                          ? Uri.dataFromBytes(
+                              result.files.first.bytes!.toList(),
+                            ).toString()
+                          : result.files.first.path!,
+                      result.files.first.name,
+                      extention: result.files.first.extension,
+                      size: result.files.first.size);
+                } else {
+                  widget.files![index] = model.File(
+                      kIsWeb
+                          ? Uri.dataFromBytes(
+                              result.files.first.bytes!.toList(),
+                            ).toString()
+                          : result.files.first.path!,
+                      result.files.first.name,
+                      extention: result.files.first.extension,
+                      size: result.files.first.size);
 
-                _type = result.files.first.extension!;
+                  _type = result.files.first.extension!;
+                }
+
                 setState(() {});
               }
             },

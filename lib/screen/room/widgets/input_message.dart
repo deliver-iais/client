@@ -5,6 +5,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -505,7 +506,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(), res!);
+                                        widget.currentRoom.uid.asUid(),
+                                        File(res!, res));
                                   } catch (_) {}
                                 }
                               },
@@ -726,10 +728,13 @@ class _InputMessageWidget extends State<InputMessage> {
       {IconData? icons, String? type, required FilePickerResult result}) async {
     if (result.files.isEmpty) return;
 
-    Map<String, String> res = {};
+    List<File> res = [];
     for (var file in result.files) {
-      res[file.name] =
-          kIsWeb ? Uri.dataFromBytes(file.bytes!.toList()).toString() : file.path!;
+      res.add(File(
+          kIsWeb
+              ? Uri.dataFromBytes(file.bytes!.toList()).toString()
+              : file.path!,
+          file.name));
     }
     showDialog(
         context: context,

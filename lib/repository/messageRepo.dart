@@ -103,7 +103,7 @@ class MessageRepo {
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
-           // await updatingMessages();
+          // await updatingMessages();
           break;
         case ConnectionStatus.Connecting:
           updatingStatus.add(TitleStatusConditions.Connecting);
@@ -404,38 +404,35 @@ class MessageRepo {
       {String? caption, int? replyToId}) async {
     for (var file in files) {
       if (files.last.path == file.path) {
-        await sendFileMessage(room, file ,
+        await sendFileMessage(room, file,
             caption: caption!, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, file , caption: "", replyToId: replyToId);
+        await sendFileMessage(room, file, caption: "", replyToId: replyToId);
       }
     }
   }
 
-  sendFileMessage(Uid room, model.File file ,
+  sendFileMessage(Uid room, model.File file,
       {String? caption = "", int? replyToId = 0}) async {
     String packetId = _getPacketId();
     var tempDimension = Size.zero;
-    int tempFileSize;
-    final tempType = _findType(path);
+    int? tempFileSize;
+    final tempType = file.extention ?? _findType(file.path);
     _fileRepo.initUploadProgress(packetId);
-    if(!kIsWeb){
-      var f = dart_file.File(file.path);
-      // Get size of image
-      if (tempType.split('/')[0] == 'image') {
-        tempDimension = ImageSizeGetter.getSize(FileInput(file));
-        if (tempDimension == Size.zero) {
-          tempDimension = Size(200, 200);
-        }
+
+    var f = dart_file.File(file.path);
+    // Get size of image
+    if (tempType.split('/')[0] == 'image') {
+      tempDimension = ImageSizeGetter.getSize(FileInput(f));
+      if (tempDimension == Size.zero) {
+        tempDimension = Size(200, 200);
       }
-       tempFileSize = file.statSync().size;
     }
+    tempFileSize = f.statSync().size;
 
     // Create MessageCompanion
 
-
     // Get type with file name
-
 
     file_pb.File sendingFakeFile = file_pb.File()
       ..uuid = packetId
@@ -443,7 +440,7 @@ class MessageRepo {
       ..width = tempDimension.width
       ..height = tempDimension.height
       ..type = tempType
-      ..size = Int64(tempFileSize)
+      ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize!)
       ..name = file.name
       ..duration = 0;
 
@@ -452,8 +449,7 @@ class MessageRepo {
         type: MessageType.FILE,
         json: sendingFakeFile.writeToJson());
 
-    await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, path.split('.').last);
+    await _fileRepo.cloneFileInLocalDirectory(f, packetId, file.name);
 
     var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 
@@ -979,13 +975,13 @@ class MessageRepo {
   }
 
   editFileMessage(Uid roomUid, Message editableMessage,
-      {String? caption, String? newFilePath, String? newFileName}) async {
+      {String? caption, model.File? file}) async {
     file_pb.File updatedFile;
-    if (newFilePath != null) {
-      String u = DateTime.now().millisecondsSinceEpoch.toString();
+    if (file != null) {
+      String upload_key = DateTime.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
-          dart_file.File(newFilePath), u, newFileName!);
-      updatedFile = await _fileRepo.uploadClonedFile(u, newFileName);
+          dart_file.File(file.path), upload_key, file.name);
+      updatedFile = await _fileRepo.uploadClonedFile(upload_key, file.name);
       updatedFile.caption = caption!;
     } else {
       var preFile = editableMessage.json!.toFile();
