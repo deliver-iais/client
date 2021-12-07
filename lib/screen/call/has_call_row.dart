@@ -55,8 +55,8 @@ class _HasCallRowState extends State<HasCallRow> {
                             }
                           }),
                       callRepo.isVideo
-                          ? Icon(Icons.videocam, color: Colors.white)
-                          : Icon(Icons.call, color: Colors.white)
+                          ? const Icon(Icons.videocam, color: Colors.white)
+                          : const Icon(Icons.call, color: Colors.white)
                     ],
                   ),
                 ),

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:core';
+
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
@@ -131,14 +134,20 @@ class _CallScreenState extends State<CallScreen> {
               break;
             case CallStatus.ENDED:
               _audioService.stopPlayBeepSound();
-              if (isDesktop()) {
-                _routingService.pop();
-              } else {
-                Navigator.of(context).pop();
-              }
-              _remoteRenderer.dispose();
-              _localRenderer.dispose();
-              return const SizedBox.shrink();
+              isDesktop()
+                  ? _routingService.pop()
+                  : Timer.run(() {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    });
+              return const Text("end");
+
+              break;
+            case CallStatus.NO_CALL:
+              return Container(
+                color: Colors.green,
+              );
               break;
             case CallStatus.BUSY:
               _audioService.stopPlayBeepSound();
@@ -168,20 +177,24 @@ class _CallScreenState extends State<CallScreen> {
                       callStatus: "Declined....",
                       hangUp: _hangUp);
               break;
+            case CallStatus.ACCEPTED:
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                      roomUid: widget.roomUid,
+                      localRenderer: _localRenderer,
+                      text: "Accepted",
+                      remoteRenderer: _remoteRenderer,
+                      hangUp: _hangUp)
+                  : AudioCallScreen(
+                      roomUid: widget.roomUid,
+                      callStatus: "Accepted",
+                      hangUp: _hangUp);
 
             default:
               {
-                return widget.isVideoCall
-                    ? StartVideoCallPage(
-                        roomUid: widget.roomUid,
-                        localRenderer: _localRenderer,
-                        text: snapshot.data.toString(),
-                        remoteRenderer: _remoteRenderer,
-                        hangUp: _hangUp)
-                    : AudioCallScreen(
-                        roomUid: widget.roomUid,
-                        callStatus: snapshot.data.toString(),
-                        hangUp: _hangUp);
+                return Container(
+                  color: Colors.red,
+                );
               }
               break;
           }
@@ -195,8 +208,6 @@ class _CallScreenState extends State<CallScreen> {
     } else {
       Navigator.of(context).pop();
     }
-    await _localRenderer.dispose();
-    await _remoteRenderer.dispose();
     await callRepo.endCall();
   }
 }

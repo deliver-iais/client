@@ -1,5 +1,4 @@
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -28,7 +27,6 @@ class CallState extends StatelessWidget {
         time == 0) {
       return const Text("call declined");
     } else if (callStatus == CallEvent_CallStatus.BUSY &&
-        isCurrentUser &&
         time == 0) {
       return const Text("Busy");
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
