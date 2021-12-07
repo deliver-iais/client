@@ -84,7 +84,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                             elevation: 0,
                             backgroundColor: _speakerIcon,
                             onPressed: () {
-                              //TODO creat function
+                              _enableSpeaker();
                             },
                             child: const Icon(
                               Icons.volume_up,
@@ -156,6 +156,11 @@ class _CallBottomRowState extends State<CallBottomRow> {
     callRepo.shareScreen();
     screenShareIndex++;
     _screenShareIcon = screenShareIndex.isOdd ? Colors.grey : Colors.black45;
+    setState(() {});
+  }
+
+  _enableSpeaker(){
+    _speakerIcon = callRepo.enableSpeakerVoice() ? Colors.grey : Colors.black45;
     setState(() {});
   }
 }

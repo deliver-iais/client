@@ -55,6 +55,7 @@ class CallRepo {
   bool _isCaller = false;
   bool _isVideo = false;
   bool _isConnected = false;
+  bool _isSpeaker = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -163,6 +164,9 @@ class CallRepo {
         await createPeerConnection(configuration, _sdpConstraints!);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
+    if(!isWindows()) {
+      camAudioTrack.enableSpeakerphone(false);
+    }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
 
     if (_isVideo) {
@@ -483,6 +487,20 @@ class CallRepo {
       }
       _localStream!.getAudioTracks()[0].enabled = !enabled;
       return enabled;
+    }
+    return false;
+  }
+
+  bool enableSpeakerVoice(){
+    if(_localStream != null) {
+      var camAudioTrack = _localStream!.getAudioTracks()[0];
+      if(_isSpeaker){
+        camAudioTrack.enableSpeakerphone(false);
+      }else {
+        camAudioTrack.enableSpeakerphone(true);
+      }
+      _isSpeaker = !_isSpeaker;
+      return _isSpeaker;
     }
     return false;
   }
