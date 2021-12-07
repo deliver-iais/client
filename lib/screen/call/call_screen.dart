@@ -9,6 +9,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'videoCallScreen/in_video_call_page.dart';
 
@@ -34,12 +35,13 @@ class _CallScreenState extends State<CallScreen> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   final callRepo = GetIt.I.get<CallRepo>();
+  final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
-  //  modifyRoutingByNotificationAudioCall.add({"": false});
+    modifyRoutingByNotificationAudioCall.add({"": false});
     if (!widget.isInitial) {
       initRenderer();
       startCall();
@@ -48,6 +50,7 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   initRenderer() async {
+    _logger.i("Initialize Renderer");
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
   }
@@ -192,8 +195,8 @@ class _CallScreenState extends State<CallScreen> {
     } else {
       Navigator.of(context).pop();
     }
-    await callRepo.endCall();
     await _localRenderer.dispose();
     await _remoteRenderer.dispose();
+    await callRepo.endCall();
   }
 }

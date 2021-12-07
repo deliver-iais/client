@@ -54,6 +54,7 @@ class CallRepo {
   bool _isSharing = false;
   bool _isCaller = false;
   bool _isVideo = false;
+  bool _isConnected = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -328,6 +329,7 @@ class CallRepo {
     }
     _logger.i("Start Call" + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
+    _isConnected = true;
   }
 
   _createDataChannel() async {
@@ -530,7 +532,7 @@ class CallRepo {
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
       timerDeclined = Timer(const Duration(seconds: 50), () {
-        if (callingStatus.value == CallStatus.IS_RINGING) {
+        if (callingStatus.value == CallStatus.IS_RINGING || callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.ENDED);
           endCall();
         }
@@ -680,7 +682,7 @@ class CallRepo {
 
   int calculateCallEndTime() {
     var time = 0;
-    if (_startCallTime != null) {
+    if (_startCallTime != null && callingStatus.value == CallStatus.CONNECTED) {
       _endCallTime = DateTime.now().millisecondsSinceEpoch;
       time = _endCallTime! - _startCallTime!;
     }
@@ -769,7 +771,9 @@ class CallRepo {
 
   _dispose() async {
     if(!_isCaller) {
-      timerConnectionFailed!.cancel();
+      if(_isConnected) {
+        timerConnectionFailed!.cancel();
+      }
     }else{
       timerDeclined!.cancel();
     }
@@ -789,6 +793,7 @@ class CallRepo {
     _isSharing = false;
     _isCaller = false;
     _isVideo = false;
+    _isConnected = false;
     _callDuration = 0;
     _startCallTime = 0;
     _callDuration = 0;
