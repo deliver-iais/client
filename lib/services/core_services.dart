@@ -73,6 +73,7 @@ class CoreServices {
   @visibleForTesting
   bool responseChecked = false;
 
+
   late StreamController<ClientPacket> _clientPacketStream;
 
   late ResponseStream<ServerPacket> _responseStream;
@@ -123,6 +124,9 @@ class CoreServices {
        // _clientPacketStream.close();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
+
+     // await _responseStream.cancel();
+  //   startStream();
       startCheckerTimer();
     });
   }
@@ -136,69 +140,76 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _grpcCoreService.establishServerSideStream(EstablishServerSideStreamReq()).listen((value) {
-        print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
-      }).onError((e){
-        print("webbbbbbbbbbbbb"+e.toString());
+      _clientPacketStream = StreamController<ClientPacket>();
+      _responseStream = kIsWeb?_grpcCoreService.establishServerSideStream(EstablishServerSideStreamReq()):
+          _grpcCoreService.establishStream(_clientPacketStream.stream);
+      _responseStream.debounceTime(Duration()).listen((serverPacket) async {
+        _logger.d(serverPacket);
+        print(serverPacket.toString());
+
+        gotResponse();
+        switch (serverPacket.whichType()) {
+          case ServerPacket_Type.message:
+            _saveIncomingMessage(serverPacket.message);
+            break;
+          case ServerPacket_Type.messageDeliveryAck:
+            _saveAckMessage(serverPacket.messageDeliveryAck);
+            break;
+          case ServerPacket_Type.error:
+            break;
+          case ServerPacket_Type.seen:
+            _saveSeen(serverPacket.seen);
+            break;
+          case ServerPacket_Type.activity:
+            _saveActivity(serverPacket.activity);
+            break;
+          case ServerPacket_Type.liveLocationStatusChanged:
+            break;
+          case ServerPacket_Type.pong:
+            _lastPongTime = serverPacket.pong.serverTime.toInt();
+            break;
+          case ServerPacket_Type.notSet:
+            // TODO: Handle this case.
+            break;
+          case ServerPacket_Type.roomPresenceTypeChanged:
+            _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
+            break;
+          case ServerPacket_Type.callOffer:
+            // TODO: Handle this case.
+            break;
+          case ServerPacket_Type.callAnswer:
+            // TODO: Handle this case.
+            break;
+        }
       });
-      // _clientPacketStream = StreamController<ClientPacket>();
-      // _responseStream =
-      //     _grpcCoreService.establishStream(_clientPacketStream.stream);
-      // _responseStream.listen((serverPacket) async {
-      //   _logger.d(serverPacket);
-      //
-      //   gotResponse();
-      //   switch (serverPacket.whichType()) {
-      //     case ServerPacket_Type.message:
-      //       _saveIncomingMessage(serverPacket.message);
-      //       break;
-      //     case ServerPacket_Type.messageDeliveryAck:
-      //       _saveAckMessage(serverPacket.messageDeliveryAck);
-      //       break;
-      //     case ServerPacket_Type.error:
-      //       break;
-      //     case ServerPacket_Type.seen:
-      //       _saveSeen(serverPacket.seen);
-      //       break;
-      //     case ServerPacket_Type.activity:
-      //       _saveActivity(serverPacket.activity);
-      //       break;
-      //     case ServerPacket_Type.liveLocationStatusChanged:
-      //       break;
-      //     case ServerPacket_Type.pong:
-      //       _lastPongTime = serverPacket.pong.serverTime.toInt();
-      //       break;
-      //     case ServerPacket_Type.notSet:
-      //       // TODO: Handle this case.
-      //       break;
-      //     case ServerPacket_Type.roomPresenceTypeChanged:
-      //       _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
-      //       break;
-      //     case ServerPacket_Type.callOffer:
-      //       // TODO: Handle this case.
-      //       break;
-      //     case ServerPacket_Type.callAnswer:
-      //       // TODO: Handle this case.
-      //       break;
-      //   }
-      // });
     } catch (e) {
       startStream();
+      print("start stream ex");
       _logger.e(e);
     }
   }
 
   sendMessage(MessageByClient message) async {
-    if (!_clientPacketStream.isClosed &&
-        _connectionStatus.value == ConnectionStatus.Connected) {
-      _clientPacketStream.add(ClientPacket()
+    try{
+      print("send message");
+      _grpcCoreService.sendClientPacket(ClientPacket()
         ..message = message
-        ..id = message.packetId);
-      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => checkPendingStatus(message.packetId));
-    } else {
-      startStream();
+        ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    }catch(e){
+      print(e.toString());
     }
+
+    //
+    // if (!_clientPacketStream.isClosed &&
+    //     _connectionStatus.value == ConnectionStatus.Connected) {
+    //   _clientPacketStream.add(ClientPacket()
+    //     ..message = message
+    //     ..id = message.packetId);
+    //   Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+    //       () => checkPendingStatus(message.packetId));
+    // } else {
+    //   startStream();
+    // }
   }
 
   Future<void> checkPendingStatus(String packetId) async {
@@ -214,14 +225,15 @@ class CoreServices {
   }
 
   sendPing() {
-    try{
-      var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _grpcCoreService.sendClientPacket(ClientPacket()
-        ..ping = ping
-        ..id = DateTime.now().microsecondsSinceEpoch.toString());
-    }catch(e){
-      print(e.toString());
-    }
+    // try{
+    //   print("send ping");
+    //   var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    //   _grpcCoreService.sendClientPacket(ClientPacket()
+    //     ..ping = ping
+    //     ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    // }catch(e){
+    //   print(e.toString());
+    // }
 
     // if (!_clientPacketStream.isClosed) {
     //   var ping = Ping()..lastPongTime = Int64(_lastPongTime);
