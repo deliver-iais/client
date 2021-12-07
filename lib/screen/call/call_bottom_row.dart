@@ -39,29 +39,27 @@ class _CallBottomRowState extends State<CallBottomRow> {
                     FloatingActionButton(
                       backgroundColor: _switchCameraIcon,
                       child: const Icon(Icons.switch_camera),
-                      onPressed: _switchCamera,
+                      onPressed: () => _switchCamera(),
                     ),
                     FloatingActionButton(
                       backgroundColor: _offVideoCamIcon,
                       child: const Icon(Icons.videocam_off_sharp),
-                      onPressed: _offVideoCam,
+                      onPressed: () => _offVideoCam(),
                     ),
                     FloatingActionButton(
                       backgroundColor: _muteMicIcon,
                       child: const Icon(Icons.mic_off),
-                      onPressed: _muteMic,
+                      onPressed: () => _muteMic(),
                     ),
                     FloatingActionButton(
                       backgroundColor: _screenShareIcon,
                       child: (isAndroid())
                           ? const Icon(Icons.mobile_screen_share)
                           : const Icon(Icons.screen_share_outlined),
-                      onPressed: _shareScreen,
+                      onPressed: () => _shareScreen(),
                     ),
                     FloatingActionButton(
-                      onPressed: () {
-                        widget.hangUp();
-                      },
+                      onPressed: () => widget.hangUp(),
                       tooltip: 'Hangup',
                       child: const Icon(Icons.call_end),
                       backgroundColor: Colors.red,
@@ -83,9 +81,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                             heroTag: "1",
                             elevation: 0,
                             backgroundColor: _speakerIcon,
-                            onPressed: () {
-                              _enableSpeaker();
-                            },
+                            onPressed: () => _enableSpeaker(),
                             child: const Icon(
                               Icons.volume_up,
                               color: Colors.white70,
@@ -114,9 +110,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
                               Icons.call_end,
                               size: 50,
                             ),
-                            onPressed: () {
-                              widget.hangUp();
-                            }),
+                            onPressed: () => widget.hangUp(),
+                            ),
                       ),
                       SizedBox(
                           width: 60,
@@ -125,7 +120,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                             heroTag: "3",
                             elevation: 0,
                             backgroundColor: _muteMicIcon,
-                            onPressed: _muteMic,
+                            onPressed: () => _muteMic(),
                             child: const Icon(
                               Icons.mic_off,
                               size: 35,
