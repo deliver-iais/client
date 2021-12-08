@@ -29,8 +29,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
-    as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
@@ -45,7 +44,7 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 4;
+const MIN_BACKOFF_TIME = 10;
 const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
@@ -72,7 +71,6 @@ class CoreServices {
 
   @visibleForTesting
   bool responseChecked = false;
-
 
   late StreamController<ClientPacket> _clientPacketStream;
 
@@ -121,12 +119,13 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-       // _clientPacketStream.close();
+        // _clientPacketStream.close();
+
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
 
-     // await _responseStream.cancel();
-  //   startStream();
+      // await _responseStream.cancel();
+      //  startStream();
       startCheckerTimer();
     });
   }
@@ -141,11 +140,12 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
-      _responseStream = kIsWeb?_grpcCoreService.establishServerSideStream(EstablishServerSideStreamReq()):
-          _grpcCoreService.establishStream(_clientPacketStream.stream);
-      _responseStream.debounceTime(Duration()).listen((serverPacket) async {
+      _responseStream = kIsWeb
+          ? _grpcCoreService
+              .establishServerSideStream(EstablishServerSideStreamReq())
+          : _grpcCoreService.establishStream(_clientPacketStream.stream);
+      _responseStream.listen((serverPacket) async {
         _logger.d(serverPacket);
-        print(serverPacket.toString());
 
         gotResponse();
         switch (serverPacket.whichType()) {
@@ -166,6 +166,7 @@ class CoreServices {
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
           case ServerPacket_Type.pong:
+            print("pong");
             _lastPongTime = serverPacket.pong.serverTime.toInt();
             break;
           case ServerPacket_Type.notSet:
@@ -190,26 +191,26 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) async {
-    try{
-      print("send message");
-      _grpcCoreService.sendClientPacket(ClientPacket()
-        ..message = message
-        ..id = DateTime.now().microsecondsSinceEpoch.toString());
-    }catch(e){
-      print(e.toString());
+    if (kIsWeb) {
+      try {
+        _grpcCoreService.sendClientPacket(ClientPacket()
+          ..message = message
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      } catch (e) {
+        print(e.toString());
+      }
+    } else {
+      if (!_clientPacketStream.isClosed &&
+          _connectionStatus.value == ConnectionStatus.Connected) {
+        _clientPacketStream.add(ClientPacket()
+          ..message = message
+          ..id = message.packetId);
+        Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+            () => checkPendingStatus(message.packetId));
+      } else {
+        startStream();
+      }
     }
-
-    //
-    // if (!_clientPacketStream.isClosed &&
-    //     _connectionStatus.value == ConnectionStatus.Connected) {
-    //   _clientPacketStream.add(ClientPacket()
-    //     ..message = message
-    //     ..id = message.packetId);
-    //   Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-    //       () => checkPendingStatus(message.packetId));
-    // } else {
-    //   startStream();
-    // }
   }
 
   Future<void> checkPendingStatus(String packetId) async {
@@ -225,24 +226,28 @@ class CoreServices {
   }
 
   sendPing() {
-    // try{
-    //   print("send ping");
-    //   var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-    //   _grpcCoreService.sendClientPacket(ClientPacket()
-    //     ..ping = ping
-    //     ..id = DateTime.now().microsecondsSinceEpoch.toString());
-    // }catch(e){
-    //   print(e.toString());
-    // }
-
-    // if (!_clientPacketStream.isClosed) {
-    //   var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-    //   _clientPacketStream.add(ClientPacket()
-    //     ..ping = ping
-    //     ..id = DateTime.now().microsecondsSinceEpoch.toString());
-    // } else {
-    //   startStream();
-    // }
+    if (kIsWeb) {
+      try {
+        var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+        _grpcCoreService.sendClientPacket(ClientPacket()
+          ..ping = ping
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+        _grpcCoreService.sendClientPacket(ClientPacket()
+          ..ping = ping
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      } catch (e) {
+        _logger.e(e);
+      }
+    } else {
+      if (!_clientPacketStream.isClosed) {
+        var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+        _clientPacketStream.add(ClientPacket()
+          ..ping = ping
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      } else {
+        startStream();
+      }
+    }
   }
 
   sendSeen(seen_pb.SeenByClient seen) {

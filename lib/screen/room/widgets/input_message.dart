@@ -474,15 +474,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                     bitRate: 128000, // by default
                                     samplingRate: 16000, // by default
                                   );
-
-                                  // _soundRecorder.startRecorder(
-                                  //   toFile: path,
-                                  //   codec:Codec.aacMP4,
-                                  //   sampleRate: 16000,
-                                  //   numChannels: 1,
-                                  //   bitRate: 16000,
-                                  //   audioSource: AudioSource.microphone,
-                                  // );
                                   setState(() {
                                     startAudioRecorder = true;
                                     size = 2;

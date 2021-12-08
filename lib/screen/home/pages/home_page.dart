@@ -51,8 +51,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _notificationServices.cancelAllNotifications();
     }
 
-    //todo .. check username is set
-    // checkIfUsernameIsSet();
+    checkIfUsernameIsSet();
     if (isAndroid()) {
       checkShareFile(context);
     }

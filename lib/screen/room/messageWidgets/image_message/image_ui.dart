@@ -82,14 +82,21 @@ class _ImageUiState extends State<ImageUi> {
                       },
                       child: Hero(
                         tag: image.uuid,
-                        child: Image.file(
-                          File(
-                            s.data!,
-                          ),
-                          width: width,
-                          height: height,
-                          fit: BoxFit.fill,
-                        ),
+                        child: kIsWeb
+                            ? Image.network(
+                                s.data!,
+                                width: width,
+                                height: height,
+                                fit: BoxFit.fill,
+                              )
+                            : Image.file(
+                                File(
+                                  s.data!,
+                                ),
+                                width: width,
+                                height: height,
+                                fit: BoxFit.fill,
+                              ),
                       ),
                     ),
                     if (image.caption.isEmpty)
