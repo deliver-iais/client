@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
+
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as avatar_pb;
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query;
 
@@ -150,19 +150,21 @@ class AvatarRepo {
     });
   }
 
-  Future<Avatar> uploadAvatar(File file, Uid uid) async {
+  Future<Avatar?> uploadAvatar(File file, Uid uid) async {
     await _fileRepo.cloneFileInLocalDirectory(
         file, uid.node, file.path.split('/').last);
-    var fileInfo =
+    file_pb.File? fileInfo =
         await _fileRepo.uploadClonedFile(uid.node, file.path.split('/').last);
-    int createdOn = DateTime.now().millisecondsSinceEpoch;
-    _setAvatarAtServer(fileInfo, createdOn, uid);
-    Avatar avatar = Avatar(
-        uid: uid.asString(),
-        createdOn: createdOn,
-        fileId: fileInfo.uuid,
-        fileName: fileInfo.name);
-    return avatar;
+    if (fileInfo != null) {
+      int createdOn = DateTime.now().millisecondsSinceEpoch;
+      _setAvatarAtServer(fileInfo, createdOn, uid);
+      Avatar avatar = Avatar(
+          uid: uid.asString(),
+          createdOn: createdOn,
+          fileId: fileInfo.uuid,
+          fileName: fileInfo.name);
+      return avatar;
+    }
   }
 
   _setAvatarAtServer(file_pb.File fileInfo, int createOn, Uid uid) async {
@@ -208,16 +210,13 @@ class AvatarRepo {
     avatar_pb.Avatar deleteAvatar = avatar_pb.Avatar();
     deleteAvatar.fileUuid = avatar.fileId!;
     deleteAvatar.fileName = avatar.fileName!;
-    deleteAvatar
-      .node = avatar.uid.isBot()
-          ? avatar.uid.asUid().node
-          : _authRepo.currentUserUid.node;
-    deleteAvatar
-      .createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
-    deleteAvatar
-      .category = avatar.uid.isBot()
-          ? avatar.uid.asUid().category
-          : _authRepo.currentUserUid.category;
+    deleteAvatar.node = avatar.uid.isBot()
+        ? avatar.uid.asUid().node
+        : _authRepo.currentUserUid.node;
+    deleteAvatar.createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
+    deleteAvatar.category = avatar.uid.isBot()
+        ? avatar.uid.asUid().category
+        : _authRepo.currentUserUid.category;
     var removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
     if (avatar.uid.isBot()) {
       _botRepo.removeBotAvatar(deleteAvatar);

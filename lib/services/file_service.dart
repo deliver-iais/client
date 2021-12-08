@@ -25,6 +25,7 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
 
+
   final _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = {};
 
@@ -69,8 +70,8 @@ class FileService {
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
-      options.headers["Access-Control-Allow-Origin"] = "*";
-      options.headers["Access-Control-Allow-Credentials"] = true;
+      options.headers["Access-Control-Allow-Origin"] = FileServiceBaseUrl+"/upload";
+      options.headers["Access-Control-Allow-Credentials"] = false;
       options.headers["Access-Control-Allow-Headers"] =
           "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale";
       options.headers["Access-Control-Allow-Methods"] =
@@ -207,7 +208,7 @@ class FileService {
       );
     } catch (e) {
       _logger.e(e);
-      return null;
+      return "Error::::"+ e.toString();
     }
   }
 }

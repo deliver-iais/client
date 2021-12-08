@@ -3,7 +3,7 @@
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:http/http.dart' as http;
-import 'dart:typed_data';
+
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
@@ -29,29 +29,37 @@ class FileRepo {
     await _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
-  Future<file_pb.File> uploadClonedFile(String uploadKey, String name,
-      {Function? sendActivity}) async {
+  Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
+      {Function? sendActivity, Function? sendError}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
         uploadKey: uploadKey, sendActivity: sendActivity!);
+    if(sendError!=null){
+      sendError(value);
+    }
 
     var json = jsonDecode(value.toString());
-    var uploadedFile = file_pb.File();
+    try{
+      var uploadedFile = file_pb.File();
 
-    uploadedFile = file_pb.File()
-      ..uuid = json["uuid"]
-      ..size = Int64.parseInt(json["size"])
-      ..type = json["type"]
-      ..name = json["name"]
-      ..width = json["width"] ?? 0
-      ..height = json["height"] ?? 0
-      ..duration = json["duration"] ?? 0
-      ..blurHash = json["blurHash"] ?? ""
-      ..hash = json["hash"] ?? "";
-    _logger.v(uploadedFile);
+      uploadedFile = file_pb.File()
+        ..uuid = json["uuid"]
+        ..size = Int64.parseInt(json["size"])
+        ..type = json["type"]
+        ..name = json["name"]
+        ..width = json["width"] ?? 0
+        ..height = json["height"] ?? 0
+        ..duration = json["duration"] ?? 0
+        ..blurHash = json["blurHash"] ?? ""
+        ..hash = json["hash"] ?? "";
+      _logger.v(uploadedFile);
 
-    await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
-    return uploadedFile;
+      await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+      return uploadedFile;
+    }catch(e){
+
+    }
+
   }
 
   Future<bool> isExist(String uuid, String filename,

@@ -419,10 +419,9 @@ class MessageRepo {
     final tempType = file.extention ?? _findType(file.path);
     _fileRepo.initUploadProgress(packetId);
 
-
     var f = dart_file.File(file.path);
     // Get size of image
-    try{
+    try {
       if (tempType.split('/')[0] == 'image') {
         tempDimension = ImageSizeGetter.getSize(FileInput(f));
         if (tempDimension == Size.zero) {
@@ -430,10 +429,7 @@ class MessageRepo {
         }
       }
       tempFileSize = f.statSync().size;
-    }catch(_){
-
-    }
-
+    } catch (_) {}
 
     // Create MessageCompanion
 
@@ -461,8 +457,11 @@ class MessageRepo {
     await _savePendingMessage(pm);
 
     var m = await _sendFileToServerOfPendingMessage(pm);
+    if(m!=null){
+      await _sendMessageToServer(m);
+    }
 
-    await _sendMessageToServer(m);
+
   }
 
   sendStickerMessage(
@@ -485,30 +484,33 @@ class MessageRepo {
     // _saveAndSend(pm);
   }
 
-  Future<PendingMessage> _sendFileToServerOfPendingMessage(
+  Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
     var fakeFileInfo = file_pb.File.fromJson(pm.msg.json!);
 
     var packetId = pm.msg.packetId;
 
     // Upload to file server
-    file_pb.File fileInfo = await _fileRepo
+    file_pb.File? fileInfo = await _fileRepo
         .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
       sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
+    }, sendError: (e) {
+      sendTextMessage(pm.roomUid.asUid(), e.toString());
     });
+    if (fileInfo != null) {
+      fileInfo.caption = fakeFileInfo.caption;
 
-    fileInfo.caption = fakeFileInfo.caption;
+      var newJson = fileInfo.writeToJson();
 
-    var newJson = fileInfo.writeToJson();
+      var newPm = pm.copyWith(
+          msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
 
-    var newPm = pm.copyWith(
-        msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
+      // Update pending messages table
+      await _savePendingMessage(newPm);
 
-    // Update pending messages table
-    await _savePendingMessage(newPm);
-
-    _updateRoomLastMessage(newPm);
-    return newPm;
+      _updateRoomLastMessage(newPm);
+      return newPm;
+    }
   }
 
   _sendMessageToServer(PendingMessage pm) async {
@@ -981,13 +983,15 @@ class MessageRepo {
 
   editFileMessage(Uid roomUid, Message editableMessage,
       {String? caption, model.File? file}) async {
-    file_pb.File updatedFile;
+    file_pb.File? updatedFile;
     if (file != null) {
       String upload_key = DateTime.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
           dart_file.File(file.path), upload_key, file.name);
       updatedFile = await _fileRepo.uploadClonedFile(upload_key, file.name);
-      updatedFile.caption = caption!;
+      if(updatedFile!= null) {
+        updatedFile.caption = caption!;
+      }
     } else {
       var preFile = editableMessage.json!.toFile();
       updatedFile = file_pb.File.create()
@@ -1006,7 +1010,7 @@ class MessageRepo {
     }
     var updatedMessage = message_pb.MessageByClient()
       ..to = editableMessage.to.asUid()
-      ..file = updatedFile;
+      ..file = updatedFile!;
     await _queryServiceClient.updateMessage(UpdateMessageReq()
       ..message = updatedMessage
       ..messageId = Int64(editableMessage.id!));

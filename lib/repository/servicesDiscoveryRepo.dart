@@ -84,9 +84,8 @@ final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
-final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
-  Uri(scheme: "https", host: "gwp-ms-avatar.deliver-co.ir"),
-);
+final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(Uri.parse("https://gwp-ms-avatar.deliver-co.ir"));
+
 
 // ignore: non_constant_identifier_names
 final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
