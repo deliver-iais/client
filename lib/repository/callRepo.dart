@@ -79,6 +79,7 @@ class CallRepo {
     _coreServices.callEvents.listen((event) async {
       switch (event.callType) {
         case CallTypes.Answer:
+          callingStatus.add(CallStatus.IN_CALL);
           _receivedCallAnswer(event.callAnswer!);
           break;
         case CallTypes.Offer:
@@ -331,7 +332,7 @@ class CallRepo {
           .now()
           .millisecondsSinceEpoch;
     }
-    _logger.i("Start Call" + _startCallTime.toString());
+    _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
     _isConnected = true;
   }
@@ -602,11 +603,10 @@ class CallRepo {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
-
-    callingStatus.add(CallStatus.IN_CALL);
     //Set Timer 30 sec for end call if Call doesn't Connected
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
+        _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.ENDED);
         endCall();
       }
@@ -615,14 +615,13 @@ class CallRepo {
 
   //here we have accepted Call
   void _receivedCallOffer(CallOffer callOffer) async {
+    callingStatus.add(CallStatus.ACCEPTED);
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionOffer(callOffer.body);
     await _setCallCandidate(callOffer.candidates);
 
     //And Create Answer for Calle
     _answerSdp = await _createAnswer();
-
-    callingStatus.add(CallStatus.ACCEPTED);
   }
 
   _setCallCandidate(String candidatesJson) async {
@@ -700,7 +699,7 @@ class CallRepo {
 
   int calculateCallEndTime() {
     var time = 0;
-    if (_startCallTime != null && callingStatus.value == CallStatus.CONNECTED) {
+    if (_startCallTime != null && _isConnected) {
       _endCallTime = DateTime.now().millisecondsSinceEpoch;
       time = _endCallTime! - _startCallTime!;
     }
@@ -779,6 +778,7 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
+    callingStatus.add(CallStatus.IN_CALL);
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {

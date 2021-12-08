@@ -53,9 +53,15 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   initRenderer() async {
-    _logger.i("Initialize Renderer");
+    _logger.i("Initialize Renderers");
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
+  }
+
+  disposeRenderer() async {
+    _logger.i("Dispose Renderers");
+    await _localRenderer.dispose();
+    await _remoteRenderer.dispose();
   }
 
   void startCall() async {
@@ -90,6 +96,18 @@ class _CallScreenState extends State<CallScreen> {
         builder: (context, snapshot) {
           switch (snapshot.data) {
             case CallStatus.CONNECTED:
+              _audioService.stopPlayBeepSound();
+              return widget.isVideoCall
+                  ? InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                  roomUid: widget.roomUid,
+                  callStatus: "Connected",
+                  hangUp: _hangUp);
             case CallStatus.IN_CALL:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
@@ -101,7 +119,7 @@ class _CallScreenState extends State<CallScreen> {
                     )
                   : AudioCallScreen(
                       roomUid: widget.roomUid,
-                      callStatus: "Connected",
+                      callStatus: "Connecting",
                       hangUp: _hangUp);
               break;
             case CallStatus.IS_RINGING:
@@ -133,6 +151,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
               break;
             case CallStatus.ENDED:
+              disposeRenderer();
               _audioService.stopPlayBeepSound();
               isDesktop()
                   ? _routingService.pop()
@@ -142,7 +161,6 @@ class _CallScreenState extends State<CallScreen> {
                       }
                     });
               return const Text("end");
-
               break;
             case CallStatus.NO_CALL:
               return Container(
@@ -208,6 +226,7 @@ class _CallScreenState extends State<CallScreen> {
     } else {
       Navigator.of(context).pop();
     }
+    await disposeRenderer();
     await callRepo.endCall();
   }
 }
