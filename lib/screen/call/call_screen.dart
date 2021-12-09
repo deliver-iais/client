@@ -45,8 +45,8 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     modifyRoutingByNotificationAudioCall.add({"": false});
+    initRenderer();
     if (!widget.isInitial) {
-      initRenderer();
       startCall();
     }
     super.initState();
@@ -160,7 +160,7 @@ class _CallScreenState extends State<CallScreen> {
                         Navigator.of(context).pop();
                       }
                     });
-              return const Text("end");
+              return const SizedBox.shrink();
               break;
             case CallStatus.NO_CALL:
               return Container(
