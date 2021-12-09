@@ -129,7 +129,7 @@ class RawKeyboardService {
 
   void escapeHandeling(
       {event, int? replyMessageId, Function? resetRoomPageDetails}) {
-    if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
+    if (isKeyPressed(event, PhysicalKeyboardKey.escape)) {
       escapeHandle(replyMessageId!, resetRoomPageDetails!);
     }
   }
@@ -141,17 +141,17 @@ class RawKeyboardService {
       int mentionSelectedIndex,
       Function scrollUpInMention,
       Function sendMentionByEnter) {
-    if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
+    if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
       scrollUpInMentions(scrollUpInMention);
     }
-    if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) &&
+    if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown) &&
         !event.isAltPressed &&
         mentionData != "-") {
       scrollDownInMentions(scrollDownInMention);
     }
-    if (event.isKeyPressed(LogicalKeyboardKey.enter) &&
+    if (isKeyPressed(event, PhysicalKeyboardKey.enter) &&
         mentionData != "-" &&
         mentionSelectedIndex >= 0) {
       sendMention(sendMentionByEnter);
@@ -164,40 +164,47 @@ class RawKeyboardService {
       Function scrollUpInBotCommands,
       Function sendBotCommandByEnter,
       String botCommandData) {
-    if (event.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
+    if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
       scrollDownInBotCommand(scrollDownInBotCommands);
-    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
+    } else if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp)) {
       scrollUpInBotCommand(scrollUpInBotCommands);
-    } else if (event.isKeyPressed(LogicalKeyboardKey.enter) &&
+    } else if (isKeyPressed(event, PhysicalKeyboardKey.enter) &&
         botCommandData != "-") {
       sendBotCommandsByEnter(sendBotCommandByEnter);
     }
   }
 
   void handleCopyPastKeyPress(TextEditingController controller, event) {
-    if (event.isKeyPressed(LogicalKeyboardKey.keyA) && event.isControlPressed) {
+    if (isKeyPressed(event, PhysicalKeyboardKey.keyA) &&
+        event.isControlPressed) {
       controlAHandle(controller);
     }
-    if (event.isKeyPressed(LogicalKeyboardKey.keyC) && event.isControlPressed) {
+    if (isKeyPressed(event, PhysicalKeyboardKey.keyC) &&
+        event.isControlPressed) {
       controlCHandle(controller);
     }
-
-    if (event.isKeyPressed(LogicalKeyboardKey.keyX) && event.isControlPressed) {
+    if (isKeyPressed(event, PhysicalKeyboardKey.keyX) &&
+        event.isControlPressed) {
       controlXHandle(controller);
     }
-    if (event.isKeyPressed(LogicalKeyboardKey.keyV) && event.isControlPressed) {
+    if (isKeyPressed(event, PhysicalKeyboardKey.keyV) &&
+        event.isControlPressed) {
       controlVHandle(controller);
     }
   }
 
   navigateInRooms({event, required BuildContext context}) {
     if (event.isAltPressed) {
-      if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp)) {
         scrollUpInRoom(context);
       }
-      if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
         scrollDownInRoom(context);
       }
     }
+  }
+
+  isKeyPressed(event, PhysicalKeyboardKey key) {
+    return event is RawKeyDownEvent && event.physicalKey == key;
   }
 }
