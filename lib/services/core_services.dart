@@ -166,7 +166,6 @@ class CoreServices {
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
           case ServerPacket_Type.pong:
-            print("pong");
             _lastPongTime = serverPacket.pong.serverTime.toInt();
             break;
           case ServerPacket_Type.notSet:
@@ -185,31 +184,29 @@ class CoreServices {
       });
     } catch (e) {
       startStream();
-      print("start stream ex");
       _logger.e(e);
     }
   }
 
   sendMessage(MessageByClient message) async {
-    if (kIsWeb) {
-      try {
-        _grpcCoreService.sendClientPacket(ClientPacket()
-          ..message = message
-          ..id = DateTime.now().microsecondsSinceEpoch.toString());
-      } catch (e) {
-        print(e.toString());
-      }
-    } else {
-      if (!_clientPacketStream.isClosed &&
-          _connectionStatus.value == ConnectionStatus.Connected) {
-        _clientPacketStream.add(ClientPacket()
-          ..message = message
-          ..id = message.packetId);
-        Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-            () => checkPendingStatus(message.packetId));
+    try {
+      ClientPacket clientPacket = ClientPacket()
+        ..message = message
+        ..id = DateTime.now().microsecondsSinceEpoch.toString();
+      if (kIsWeb) {
+        _grpcCoreService.sendClientPacket(clientPacket);
       } else {
-        startStream();
+        if (!_clientPacketStream.isClosed &&
+            _connectionStatus.value == ConnectionStatus.Connected) {
+          _clientPacketStream.add(clientPacket);
+        } else {
+          startStream();
+        }
       }
+      Timer(const Duration(seconds: MIN_BACKOFF_TIME * 2 ~/ 2),
+          () => checkPendingStatus(message.packetId));
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -251,23 +248,33 @@ class CoreServices {
   }
 
   sendSeen(seen_pb.SeenByClient seen) {
-    if (!_clientPacketStream.isClosed) {
-      _clientPacketStream.add(ClientPacket()
-        ..seen = seen
-        ..id = seen.id.toString());
+    ClientPacket clientPacket = ClientPacket()
+      ..seen = seen
+      ..id = seen.id.toString();
+    if (kIsWeb) {
+      _grpcCoreService.sendClientPacket(clientPacket);
     } else {
-      startStream();
+      if (!_clientPacketStream.isClosed) {
+        _clientPacketStream.add(clientPacket);
+      } else {
+        startStream();
+      }
     }
   }
 
   sendActivity(ActivityByClient activity, String id) {
-    if (!_clientPacketStream.isClosed &&
-        !_authRepo.isCurrentUser(activity.to.asString())) {
-      _clientPacketStream.add(ClientPacket()
+    if (_authRepo.isCurrentUser(activity.to.toString())) {
+      ClientPacket clientPacket = ClientPacket()
         ..activity = activity
-        ..id = id);
-    } else {
-      startStream();
+        ..id = id;
+      if (kIsWeb) {
+        _grpcCoreService.sendClientPacket(clientPacket);
+      } else if (!_clientPacketStream.isClosed &&
+          !_authRepo.isCurrentUser(activity.to.asString())) {
+        _clientPacketStream.add(clientPacket);
+      } else {
+        startStream();
+      }
     }
   }
 
