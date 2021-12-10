@@ -32,8 +32,11 @@ class RoomDaoImpl implements RoomDao {
     try {
       var box = await _openRoom();
 
-      return sorted(
-          box.values.where((element) => element.lastMessage != null).toList());
+      return sorted(box.values
+          .where((element) =>
+              element.lastMessage != null &&
+              (element.deleted == null || !element.deleted!))
+          .toList());
     } catch (e) {
       return [];
     }
@@ -43,8 +46,11 @@ class RoomDaoImpl implements RoomDao {
   Stream<List<Room>> watchAllRooms() async* {
     var box = await _openRoom();
 
-    yield sorted(
-        box.values.where((element) => element.lastMessageId != null).toList());
+    yield sorted(box.values
+        .where((element) =>
+            (element.deleted == null || !element.deleted!) &&
+            element.lastMessageId != null)
+        .toList());
 
     yield* box.watch().map((event) => sorted(box.values
         .where((element) => (element.lastMessageId != null &&

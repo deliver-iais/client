@@ -109,9 +109,10 @@ class _InputMessageWidget extends State<InputMessage> {
   int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  var r = Record();
+  var record = Record();
 
-  String? path;
+  var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -162,11 +163,6 @@ class _InputMessageWidget extends State<InputMessage> {
         _showSendIcon.add(false);
       }
 
-      _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text);
-
-      var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
-      var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
-
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           _controller.text.isNotEmpty &&
           _controller.text[0] == "/" &&
@@ -214,6 +210,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void dispose() {
     inputMessagePrifix.close();
+    _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text);
     _controller.dispose();
     super.dispose();
   }
@@ -294,7 +291,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                           FocusScope.of(context).unfocus();
                                         } else if (!back.data!) {
                                           FocusScope.of(context).unfocus();
-                                          Timer(const Duration(milliseconds: 50), () {
+                                          Timer(
+                                              const Duration(milliseconds: 50),
+                                              () {
                                             backSubject.add(true);
                                           });
                                         }
@@ -302,53 +301,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                     );
                                   }),
                               Flexible(
-                                child: RawKeyboardListener(
-                                  focusNode: isDesktop()
-                                      ? keyboardRawFocusNode
-                                      : FocusNode(canRequestFocus: false),
-                                  onKey: handleKeyPress,
-                                  child: TextField(
-                                    focusNode: isDesktop()
-                                        ? InputMessage.inputMessageFocusNode
-                                        : FocusNode(canRequestFocus: false),
-                                    autofocus: widget.replyMessageId! > 0 ||
-                                        isDesktop(),
-                                    controller: _controller,
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 4, vertical: 8),
-                                      border: InputBorder.none,
-                                      hintText: i18n.get("message"),
-                                    ),
-                                    autocorrect: true,
-                                    textInputAction: TextInputAction.newline,
-                                    minLines: 1,
-                                    maxLines: 15,
-                                    textAlign: _controller.text.isNotEmpty &&
-                                            _controller.text.isPersian()
-                                        ? TextAlign.right
-                                        : TextAlign.left,
-                                    textDirection:
-                                        _controller.text.isNotEmpty &&
-                                                _controller.text.isPersian()
-                                            ? TextDirection.rtl
-                                            : TextDirection.ltr,
-                                    style:
-                                        Theme.of(context).textTheme.subtitle1,
-                                    onTap: () => backSubject.add(false),
-                                    onChanged: (str) {
-                                      _textSelection = _controller.selection;
-                                      if (str.isNotEmpty) {
-                                        isTypingActivitySubject
-                                            .add(ActivityType.TYPING);
-                                      } else {
-                                        noActivitySubject
-                                            .add(ActivityType.NO_ACTIVITY);
-                                      }
-                                    },
-                                  ),
-                                ),
+                                child: isDesktop()
+                                    ? RawKeyboardListener(
+                                        focusNode: keyboardRawFocusNode,
+                                        onKey: handleKeyPress,
+                                        child: buildTextField(),
+                                      )
+                                    : buildTextField(),
                               ),
                               if (currentRoom.uid.asUid().category ==
                                   Categories.BOT)
@@ -456,7 +415,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   var s =
                                       await getApplicationDocumentsDirectory();
-                                  path = s.path +
+                                  String path = s.path +
                                       "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   recordSubject.add(DateTime.now());
                                   setTime();
@@ -464,21 +423,12 @@ class _InputMessageWidget extends State<InputMessage> {
                                   Vibration.vibrate(duration: 200);
                                   await _soundRecorder.openAudioSession();
                                   // Start recording
-                                  await r.start(
+                                  await record.start(
                                     path: path,
                                     encoder: AudioEncoder.AAC, // by default
                                     bitRate: 128000, // by default
                                     samplingRate: 16000, // by default
                                   );
-
-                                  // _soundRecorder.startRecorder(
-                                  //   toFile: path,
-                                  //   codec:Codec.aacMP4,
-                                  //   sampleRate: 16000,
-                                  //   numChannels: 1,
-                                  //   bitRate: 16000,
-                                  //   audioSource: AudioSource.microphone,
-                                  // );
                                   setState(() {
                                     startAudioRecorder = true;
                                     size = 2;
@@ -489,7 +439,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               },
                               onLongPressEnd: (s) async {
                                 _tickTimer.cancel();
-                                var res = await r.stop();
+                                var res = await record.stop();
 
                                 // _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
@@ -541,6 +491,41 @@ class _InputMessageWidget extends State<InputMessage> {
               }
             }),
       ],
+    );
+  }
+
+  TextField buildTextField() {
+    return TextField(
+      focusNode: isDesktop()
+          ? InputMessage.inputMessageFocusNode
+          : FocusNode(canRequestFocus: false),
+      autofocus: widget.replyMessageId! > 0 || isDesktop(),
+      controller: _controller,
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        border: InputBorder.none,
+        hintText: i18n.get("message"),
+      ),
+      autocorrect: true,
+      textInputAction: TextInputAction.newline,
+      minLines: 1,
+      maxLines: 15,
+      textAlign: _controller.text.isNotEmpty && _controller.text.isPersian()
+          ? TextAlign.right
+          : TextAlign.left,
+      textDirection: _controller.text.isNotEmpty && _controller.text.isPersian()
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      style: Theme.of(context).textTheme.subtitle1,
+      onTap: () => backSubject.add(false),
+      onChanged: (str) {
+        _textSelection = _controller.selection;
+        if (str.isNotEmpty) {
+          isTypingActivitySubject.add(ActivityType.TYPING);
+        } else {
+          noActivitySubject.add(ActivityType.NO_ACTIVITY);
+        }
+      },
     );
   }
 
