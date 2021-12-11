@@ -30,20 +30,16 @@ class _InComingCallPageState extends State<InComingCallPage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _logger = GetIt.I.get<Logger>();
 
-  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
-  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  late final RTCVideoRenderer _localRenderer;
+  late final RTCVideoRenderer _remoteRenderer;
 
   @override
   void initState() {
     modifyRoutingByNotificationVideoCall.add({"":false});
-    _initRenderer();
+    _localRenderer = callRepo.getLocalRenderer;
+    _remoteRenderer = callRepo.getRemoteRenderer;
     addStream();
     super.initState();
-  }
-
-  _initRenderer() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
   }
 
   void acceptCall(Uid roomId) async {

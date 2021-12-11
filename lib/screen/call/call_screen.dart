@@ -35,8 +35,8 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
-  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  late final RTCVideoRenderer _localRenderer ;
+  late final RTCVideoRenderer _remoteRenderer;
   final callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
@@ -45,23 +45,13 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     modifyRoutingByNotificationAudioCall.add({"": false});
-    initRenderer();
+    callRepo.initRenderer();
+    _localRenderer = callRepo.getLocalRenderer;
+    _remoteRenderer = callRepo.getRemoteRenderer;
     if (!widget.isInitial) {
       startCall();
     }
     super.initState();
-  }
-
-  initRenderer() async {
-    _logger.i("Initialize Renderers");
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
-  }
-
-  disposeRenderer() async {
-    _logger.i("Dispose Renderers");
-    await _localRenderer.dispose();
-    await _remoteRenderer.dispose();
   }
 
   void startCall() async {
@@ -151,7 +141,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
               break;
             case CallStatus.ENDED:
-              disposeRenderer();
+              callRepo.disposeRenderer();
               _audioService.stopPlayBeepSound();
               isDesktop()
                   ? _routingService.pop()
@@ -226,7 +216,7 @@ class _CallScreenState extends State<CallScreen> {
     } else {
       Navigator.of(context).pop();
     }
-    await disposeRenderer();
+    await callRepo.disposeRenderer();
     await callRepo.endCall();
   }
 }

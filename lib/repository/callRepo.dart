@@ -35,20 +35,25 @@ class CallRepo {
   final messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
+  late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+
+  RTCVideoRenderer get getLocalRenderer => _localRenderer;
+  RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
 
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
-  List<Map<String, Object>>? _candidate = [];
+  List<Map<String, Object>> _candidate = [];
 
-  String? _offerSdp;
-  String? _answerSdp;
-  String? _callId;
+  String _offerSdp = "";
+  String _answerSdp = "";
+  String _callId = "";
 
   RTCPeerConnection? _peerConnection;
-  Map<String, dynamic>? _sdpConstraints;
+  Map<String, dynamic> _sdpConstraints = {};
 
   bool _onCalling = false;
   bool _isSharing = false;
@@ -56,6 +61,7 @@ class CallRepo {
   bool _isVideo = false;
   bool _isConnected = false;
   bool _isSpeaker = false;
+  bool _isInitRenderer = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -162,7 +168,7 @@ class CallRepo {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-        await createPeerConnection(configuration, _sdpConstraints!);
+        await createPeerConnection(configuration, _sdpConstraints);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
     if(!isWindows()) {
@@ -235,7 +241,7 @@ class CallRepo {
 
     pc.onIceCandidate = (e) {
       if (e.candidate != null) {
-        _candidate!.add({
+        _candidate.add({
           'candidate': e.candidate.toString(),
           'sdpMid': e.sdpMid.toString(),
           'sdpMlineIndex': e.sdpMlineIndex!,
@@ -536,7 +542,7 @@ class CallRepo {
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.IS_RINGING,
         _roomUid!,
-        _callId!,
+        _callId,
         0,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
@@ -567,7 +573,7 @@ class CallRepo {
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.CREATED,
         _roomUid!,
-        _callId!,
+        _callId,
         0,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
@@ -593,7 +599,7 @@ class CallRepo {
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
-        _callId!,
+        _callId,
         0,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     _dispose();
@@ -661,7 +667,7 @@ class CallRepo {
       messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
-          _callId!,
+          _callId,
           _callDuration!,
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     } else {
@@ -678,7 +684,7 @@ class CallRepo {
         messageRepo.sendCallMessage(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
-            _callId!,
+            _callId,
             _callDuration!,
             _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
         //we need 2 sec delay before dispose Connection to Send EndCall Event
@@ -688,7 +694,7 @@ class CallRepo {
         messageRepo.sendCallMessage(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
-            _callId!,
+            _callId,
             0,
             _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
       }
@@ -728,7 +734,7 @@ class CallRepo {
 
   _createAnswer() async {
     RTCSessionDescription description =
-        await _peerConnection!.createAnswer(_sdpConstraints!);
+        await _peerConnection!.createAnswer(_sdpConstraints);
 
     var session = parse(description.sdp.toString());
     var answerSdp = json.encode(session);
@@ -741,7 +747,7 @@ class CallRepo {
 
   _createOffer() async {
     RTCSessionDescription description =
-        await _peerConnection!.createOffer(_sdpConstraints!);
+        await _peerConnection!.createOffer(_sdpConstraints);
     //get SDP as String
     var session = parse(description.sdp.toString());
     var offerSdp = json.encode(session);
@@ -757,8 +763,8 @@ class CallRepo {
     var jsonCandidates = jsonEncode(_candidate);
     //Send offer and Candidate as message to Receiver
     var callOfferByClient = (CallOfferByClient()
-      ..id = _callId!
-      ..body = _offerSdp!
+      ..id = _callId
+      ..body = _offerSdp
       ..candidates = jsonCandidates
       ..to = _roomUid!);
     _logger.i(_candidate);
@@ -772,8 +778,8 @@ class CallRepo {
     var jsonCandidates = jsonEncode(_candidate);
     //Send Answer and Candidate as message to Sender
     var callAnswerByClient = (CallAnswerByClient()
-      ..id = _callId!
-      ..body = _answerSdp!
+      ..id = _callId
+      ..body = _answerSdp
       ..candidates = jsonCandidates
       ..to = _roomUid!);
     _logger.i(_candidate);
@@ -799,13 +805,14 @@ class CallRepo {
     await _cleanLocalStream();
     await _peerConnection?.close();
     await _peerConnection?.dispose();
+    await _dataChannel?.close();
     _candidate = [];
     Timer(const Duration(seconds: 3), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
-    _offerSdp = null;
-    _answerSdp = null;
-    _callId = null;
+    _offerSdp = "";
+    _answerSdp = "";
+    _callId = "";
     _roomUid = null;
     _onCalling = false;
     _isSharing = false;
@@ -816,6 +823,26 @@ class CallRepo {
     _startCallTime = 0;
     _callDuration = 0;
     _sdpConstraints = {};
+  }
+
+  initRenderer() async {
+    if(!_isInitRenderer) {
+      await _localRenderer.initialize();
+      await _remoteRenderer.initialize();
+      _logger.i("Initialize Renderers");
+      _isInitRenderer = true;
+    }
+  }
+
+  disposeRenderer() async {
+    if(_isInitRenderer) {
+      await _localRenderer.dispose();
+      await _remoteRenderer.dispose();
+      _isInitRenderer = false;
+      _logger.i("Dispose Renderers");
+      _localRenderer = RTCVideoRenderer();
+      _remoteRenderer = RTCVideoRenderer();
+    }
   }
 
   _cleanLocalStream() async {

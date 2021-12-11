@@ -741,14 +741,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
         actions: [
           if (_currentRoom.value!.uid.asUid().isUser())
-            IconButton(
-                onPressed: () {
-                  _routingService.openCallScreen(
-                      _currentRoom.value!.uid.asUid(), true, false,false,
-                      context: context);
-                  //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
-                },
-                icon: const Icon(Icons.videocam)),
+            //TODO we need fix and more test on videCall then disable it
+            // IconButton(
+            //     onPressed: () {
+            //       _routingService.openCallScreen(
+            //           _currentRoom.value!.uid.asUid(), true, false,false,
+            //           context: context);
+            //       //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
+            //     },
+            //     icon: const Icon(Icons.videocam)),
           if (_currentRoom.value!.uid.asUid().isUser())
             IconButton(
                 onPressed: () {
