@@ -4,6 +4,7 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -43,7 +44,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     _future = ImageItem.getImages();
     super.initState();
   }
-
 
   void cropAvatar(String imagePath) async {
     File? croppedFile = await ImageCropper.cropImage(

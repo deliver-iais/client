@@ -18,7 +18,9 @@ class ProfileAvatar extends StatefulWidget {
   final Uid roomUid;
   final bool canSetAvatar;
 
-  const ProfileAvatar({Key? key, required this.roomUid, this.canSetAvatar = false}) : super(key: key);
+  const ProfileAvatar(
+      {Key? key, required this.roomUid, this.canSetAvatar = false})
+      : super(key: key);
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -109,7 +111,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       }
     } else if ((await ImageItem.getImages()).isEmpty) {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
+        allowMultiple: false,
         type: FileType.custom,
       );
       if (result != null) {

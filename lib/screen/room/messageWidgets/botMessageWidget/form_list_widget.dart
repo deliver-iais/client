@@ -1,8 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
-    as form_pb;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:get_it/get_it.dart';
 
 class FormListWidget extends StatefulWidget {
@@ -11,9 +10,11 @@ class FormListWidget extends StatefulWidget {
   final Function setFormKey;
 
   const FormListWidget(
-      {Key? key, required this.formField,
+      {Key? key,
+      required this.formField,
       required this.selected,
-      required this.setFormKey}) : super(key: key);
+      required this.setFormKey})
+      : super(key: key);
 
   @override
   _FormListWidgetState createState() => _FormListWidgetState();

@@ -42,7 +42,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   @override
   Widget build(BuildContext context) {
-    var height = 64.0 * form.fields.length;
+    var height = 100.0 * form.fields.length;
 
     return Stack(
       children: [

@@ -86,7 +86,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   double dx = 150.0;
   bool recordAudioPermission = false;
-  final FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
   late String mentionQuery;
   late Timer recordAudioTimer;
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
@@ -301,13 +300,50 @@ class _InputMessageWidget extends State<InputMessage> {
                                     );
                                   }),
                               Flexible(
-                                child: isDesktop()
-                                    ? RawKeyboardListener(
-                                        focusNode: keyboardRawFocusNode,
-                                        onKey: handleKeyPress,
-                                        child: buildTextField(),
-                                      )
-                                    : buildTextField(),
+                                child: RawKeyboardListener(
+                                  focusNode: keyboardRawFocusNode,
+                                  onKey: handleKeyPress,
+                                  child: TextField(
+                                    focusNode:
+                                        InputMessage.inputMessageFocusNode,
+                                    autofocus: widget.replyMessageId! > 0 ||
+                                        isDesktop(),
+                                    controller: _controller,
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 4, vertical: 8),
+                                      border: InputBorder.none,
+                                      hintText: i18n.get("message"),
+                                    ),
+                                    autocorrect: true,
+                                    textInputAction: TextInputAction.newline,
+                                    minLines: 1,
+                                    maxLines: 15,
+                                    textAlign: _controller.text.isNotEmpty &&
+                                            _controller.text.isPersian()
+                                        ? TextAlign.right
+                                        : TextAlign.left,
+                                    textDirection:
+                                        _controller.text.isNotEmpty &&
+                                                _controller.text.isPersian()
+                                            ? TextDirection.rtl
+                                            : TextDirection.ltr,
+                                    style:
+                                        Theme.of(context).textTheme.subtitle1,
+                                    onTap: () => backSubject.add(false),
+                                    onChanged: (str) {
+                                      _textSelection = _controller.selection;
+                                      if (str.isNotEmpty) {
+                                        isTypingActivitySubject
+                                            .add(ActivityType.TYPING);
+                                      } else {
+                                        noActivitySubject
+                                            .add(ActivityType.NO_ACTIVITY);
+                                      }
+                                    },
+                                  ),
+                                ),
                               ),
                               if (currentRoom.uid.asUid().category ==
                                   Categories.BOT)
@@ -403,8 +439,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
-                                      _soundRecorder.closeAudioSession();
-                                      _soundRecorder.stopRecorder();
                                       x = 0;
                                       size = 1;
                                     });
@@ -421,7 +455,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                   setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
-                                  await _soundRecorder.openAudioSession();
                                   // Start recording
                                   await record.start(
                                     path: path,
@@ -494,40 +527,43 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  TextField buildTextField() {
-    return TextField(
-      focusNode: isDesktop()
-          ? InputMessage.inputMessageFocusNode
-          : FocusNode(canRequestFocus: false),
-      autofocus: widget.replyMessageId! > 0 || isDesktop(),
-      controller: _controller,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        border: InputBorder.none,
-        hintText: i18n.get("message"),
-      ),
-      autocorrect: true,
-      textInputAction: TextInputAction.newline,
-      minLines: 1,
-      maxLines: 15,
-      textAlign: _controller.text.isNotEmpty && _controller.text.isPersian()
-          ? TextAlign.right
-          : TextAlign.left,
-      textDirection: _controller.text.isNotEmpty && _controller.text.isPersian()
-          ? TextDirection.rtl
-          : TextDirection.ltr,
-      style: Theme.of(context).textTheme.subtitle1,
-      onTap: () => backSubject.add(false),
-      onChanged: (str) {
-        _textSelection = _controller.selection;
-        if (str.isNotEmpty) {
-          isTypingActivitySubject.add(ActivityType.TYPING);
-        } else {
-          noActivitySubject.add(ActivityType.NO_ACTIVITY);
-        }
-      },
-    );
-  }
+  // TextField buildTextField() {
+  //   return TextField(
+  //     focusNode: isDesktop()
+  //         ? InputMessage.inputMessageFocusNode
+  //         : FocusNode(canRequestFocus: true),
+  //     autofocus: widget.replyMessageId! > 0 || isDesktop(),
+  //     controller: _controller,
+  //     decoration: InputDecoration(
+  //       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+  //       border: InputBorder.none,
+  //       hintText: i18n.get("message"),
+  //     ),
+  //     autocorrect: true,
+  //     textInputAction: TextInputAction.newline,
+  //     minLines: 1,
+  //     maxLines: 15,
+  //     textAlign: _controller.text.isNotEmpty && _controller.text.isPersian()
+  //         ? TextAlign.right
+  //         : TextAlign.left,
+  //     textDirection: _controller.text.isNotEmpty && _controller.text.isPersian()
+  //         ? TextDirection.rtl
+  //         : TextDirection.ltr,
+  //     style: Theme.of(context).textTheme.subtitle1,
+  //     onTap: () {
+  //       backSubject.add(false);
+  //
+  //     },
+  //     onChanged: (str) {
+  //       _textSelection = _controller.selection;
+  //       if (str.isNotEmpty) {
+  //         isTypingActivitySubject.add(ActivityType.TYPING);
+  //       } else {
+  //         noActivitySubject.add(ActivityType.NO_ACTIVITY);
+  //       }
+  //     },
+  //   );
+  // }
 
   void onMentionSelected(s) {
     int start = _textSelection.base.offset;
