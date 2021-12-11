@@ -34,6 +34,7 @@ const STATUS_CONNECTION_CONNECTING = "connection-connecting";
 const STATUS_CONNECTION_CONNECTED = "connection-connected";
 const STATUS_CONNECTION_FAILED = "connection-failed";
 const STATUS_CONNECTION_DISCONNECTED = "connection-disconnected";
+const STATUS_CONNECTION_ENDED = "connection-ended";
 const WEBRTC_MAX_BITRATE = 256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
 const WEBRTC_MIN_BITRATE = 128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 const WEBRTC_MAX_FRAME_RATE = 30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate

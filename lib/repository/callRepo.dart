@@ -325,6 +325,10 @@ class CallRepo {
           case STATUS_CONNECTION_CONNECTING:
             callingStatus.add(CallStatus.CONNECTING);
             break;
+          case STATUS_CONNECTION_ENDED:
+            //received end from Calle
+            receivedEndCall(0);
+            break;
         }
       };
     };
@@ -559,6 +563,7 @@ class CallRepo {
       timerDeclined = Timer(const Duration(seconds: 50), () {
         if (callingStatus.value == CallStatus.IS_RINGING || callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.ENDED);
+          _logger.i("User Can't Answer!");
           endCall();
         }
       });
@@ -691,12 +696,7 @@ class CallRepo {
         await Future.delayed(const Duration(seconds: 2));
         await _dispose();
       } else {
-        messageRepo.sendCallMessage(
-            CallEvent_CallStatus.ENDED,
-            _roomUid!,
-            _callId,
-            0,
-            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
       }
     } catch (e) {
       _logger.e(e);
