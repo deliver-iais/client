@@ -297,6 +297,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
+  desktop_window:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "4d59ebdad7c6f95efca34882d23853bb881d1d55"
+      resolved-ref: "4d59ebdad7c6f95efca34882d23853bb881d1d55"
+      url: "https://github.com/androidwoman/desktop_window.git"
+    source: git
+    version: "0.4.0"
   device_info:
     dependency: "direct main"
     description:

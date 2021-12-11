@@ -15,6 +15,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktoasts/desktoasts.dart';
+import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
@@ -107,7 +108,6 @@ class WindowsNotifier implements Notifier {
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     final _fileServices = GetIt.I.get<FileService>();
-
     final _logger = GetIt.I.get<Logger>();
     try {
       Avatar? lastAvatar =
@@ -137,13 +137,14 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
-          _windowsNotificationServices.stream.listen((event) {
-            if (event is ToastActivated) {
-              if (lastAvatar != null) _routingService.openRoom(lastAvatar.uid);
-            }
-          });
         }
       }
+      _windowsNotificationServices.stream.listen((event) {
+        if (event is ToastActivated) {
+          _routingService.openRoom(message.roomUid!.asString());
+          DesktopWindow.focus();
+        }
+      });
     } catch (e) {
       _logger.e(e);
     }

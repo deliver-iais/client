@@ -122,6 +122,10 @@ dependencies:
   process_run: ^0.12.2+2
   google_fonts: ^2.1.0
   flutter_vlc_player: ^6.0.5
+  desktop_window: # CHANG TOP PAGE IN WINDOWS
+    git:
+      url: https://github.com/androidwoman/desktop_window.git
+      ref: 4d59ebdad7c6f95efca34882d23853bb881d1d55
 
 
 dev_dependencies:
