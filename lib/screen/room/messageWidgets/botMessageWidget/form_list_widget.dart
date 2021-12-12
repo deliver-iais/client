@@ -26,7 +26,7 @@ class FormListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     setFormKey(_formKey);
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
         child: Form(
             key: _formKey,
             child: BotRadioGroup(

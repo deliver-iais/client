@@ -50,16 +50,26 @@ class BotRadioGroup extends FormField<String> {
                               stream: _groupValue.stream,
                               builder: (c, s) {
                                 return ListTile(
-                                    title: Text(
-                                      f,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: s.hasData &&
-                                                  s.data != null &&
-                                                  s.data == f
-                                              ? Colors.green
-                                              : ExtraTheme.of(builder.context)
-                                                  .textField),
+                                    title: GestureDetector(
+                                      onTap: () {
+                                        if (_groupValue.value != null &&
+                                            _groupValue == f) {
+                                          _groupValue.add(null);
+                                        } else {
+                                          _groupValue.add(f);
+                                        }
+                                      },
+                                      child: Text(
+                                        f,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: s.hasData &&
+                                                    s.data != null &&
+                                                    s.data == f
+                                                ? Colors.green
+                                                : ExtraTheme.of(builder.context)
+                                                    .textField),
+                                      ),
                                     ),
                                     leading: Radio(
                                       value: f,
