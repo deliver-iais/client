@@ -34,7 +34,38 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final callRepo = GetIt.I.get<CallRepo>();
 
+  @override
+  void initState() {
+    callRepo.timerFunction = setCallTimerFunction;
+    callRepo.isCallInBackground=false;
+    super.initState();
+  }
+
+  setCallTimerFunction() {
+    setState(
+      () {
+        callRepo.seconds = callRepo.seconds + 1;
+        if (callRepo.seconds > 59) {
+          callRepo.minutes += 1;
+          callRepo.seconds = 0;
+          if (callRepo.minutes > 59) {
+            callRepo.hours += 1;
+            callRepo.minutes = 0;
+          }
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    callRepo.isCallInBackground=true;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    callRepo.isCallInBackground=false;
     return Scaffold(
         body: Stack(children: [
       FutureBuilder<Avatar?>(
@@ -68,10 +99,24 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
           CenterAvatarInCall(
             roomUid: widget.roomUid,
           ),
-          Text(widget.callStatus, style: TextStyle(color: Colors.white70)),
+          if (widget.callStatus == "Connected")
+            Text(
+              callRepo.hours.toString() +
+                  ":" +
+                  callRepo.minutes.toString() +
+                  ":" +
+                  callRepo.seconds.toString(),
+              style: const TextStyle(color: Colors.white54),
+            )
+          else
+            Text(widget.callStatus,
+                style: const TextStyle(color: Colors.white70))
         ],
       ),
-      CallBottomRow(hangUp: widget.hangUp,isVideoCall: false,)
+      CallBottomRow(
+        hangUp: widget.hangUp,
+        isVideoCall: false,
+      )
     ]));
   }
 }

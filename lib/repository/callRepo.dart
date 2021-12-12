@@ -81,6 +81,13 @@ class CallRepo {
   Timer? timerDeclined;
   Timer? timerConnectionFailed;
 
+  int seconds = 0;
+  int minutes = 0;
+  int hours = 0;
+  bool isCallInBackground = false;
+  Timer? timer;
+  late Function timerFunction;
+
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
       switch (event.callType) {
@@ -337,10 +344,9 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() {
-    if(_startCallTime == 0) {
-      _startCallTime = DateTime
-          .now()
-          .millisecondsSinceEpoch;
+    startCallTimer();
+    if (_startCallTime == 0) {
+      _startCallTime = DateTime.now().millisecondsSinceEpoch;
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
@@ -794,8 +800,13 @@ class CallRepo {
   }
 
   _dispose() async {
-    if(!_isCaller) {
-      if(_isConnected) {
+    if (timer != null) {
+      _logger.i("timer canceled");
+      timer!.cancel();
+    }
+    seconds = minutes = hours = 0;
+    if (!_isCaller) {
+      if (_isConnected) {
         timerConnectionFailed!.cancel();
       }
     }else{
@@ -843,6 +854,30 @@ class CallRepo {
       _localRenderer = RTCVideoRenderer();
       _remoteRenderer = RTCVideoRenderer();
     }
+  }
+
+  startCallTimer() {
+    if(timer != null && timer!.isActive){
+      timer!.cancel();
+    }
+    _logger.i(
+        "call connected and timer must be shown ++ is back $isCallInBackground");
+    const oneSec = Duration(seconds: 1);
+    timer = Timer.periodic(oneSec, (Timer timer) {
+      if (isCallInBackground) {
+        seconds = seconds + 1;
+        if (seconds > 59) {
+          minutes += 1;
+          seconds = 0;
+          if (minutes > 59) {
+            hours += 1;
+            minutes = 0;
+          }
+        }
+      } else {
+        timerFunction();
+      }
+    });
   }
 
   _cleanLocalStream() async {
