@@ -122,7 +122,6 @@ dependencies:
   process_run: ^0.12.2+2
   google_fonts: 2.1.0
   flutter_vlc_player: 6.0.5
-  flutter_form_builder: 7.0.0
 
 
 dev_dependencies:
