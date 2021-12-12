@@ -48,7 +48,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         proto_pb.Form_Field_Type.list,
         proto_pb.Form_Field_Type.radioButtonList
       }.contains(f.whichType())) {
-        height = height + f.list.values.length * 60;
+        height = height + f.list.values.length * 64;
       }
     }
 

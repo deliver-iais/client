@@ -46,32 +46,35 @@ class BotRadioGroup extends FormField<String> {
                                 form_pb.Form_Field_Type.list
                             ? formField.list.values
                             : formField.radioButtonList.values)
-                          ListTile(
-                              title: Text(
-                                f,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: ExtraTheme.of(builder.context)
-                                        .textField),
-                              ),
-                              leading: StreamBuilder<String?>(
-                                stream: _groupValue.stream,
-                                builder: (c, s) {
-                                  return Radio(
-                                    value: f,
-                                    groupValue: s.data,
-                                    toggleable: true,
-                                    onChanged: (d) {
-                                      if (s.data != null && s.data == f) {
-                                        _groupValue.add(null);
-                                      } else {
-                                        _groupValue.add(f);
-                                      }
-                                      onChange(d);
-                                    },
-                                  );
-                                },
-                              ))
+                          StreamBuilder<String?>(
+                              stream: _groupValue.stream,
+                              builder: (c, s) {
+                                return ListTile(
+                                    title: Text(
+                                      f,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: s.hasData &&
+                                                  s.data != null &&
+                                                  s.data == f
+                                              ? Colors.green
+                                              : ExtraTheme.of(builder.context)
+                                                  .textField),
+                                    ),
+                                    leading: Radio(
+                                      value: f,
+                                      groupValue: s.data,
+                                      toggleable: true,
+                                      onChanged: (d) {
+                                        if (s.data != null && s.data == f) {
+                                          _groupValue.add(null);
+                                        } else {
+                                          _groupValue.add(f);
+                                        }
+                                        onChange(d);
+                                      },
+                                    ));
+                              })
                       ],
                     ),
                   );
