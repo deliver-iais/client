@@ -6,11 +6,15 @@ import 'package:rxdart/rxdart.dart';
 class BotRadioGroup extends FormField<String> {
   final form_pb.Form_Field formField;
   final Function onChange;
-  FormFieldValidator<String>? validator;
+  final FormFieldValidator<String>? validator;
 
   BotRadioGroup(
-      {required this.formField, required this.onChange, this.validator})
+      {Key? key,
+      required this.formField,
+      required this.onChange,
+      this.validator})
       : super(
+            key: key,
             validator: validator,
             builder: (
               builder,
