@@ -157,8 +157,8 @@ class CallRepo {
 
   _createPeerConnection(bool isOffer) async {
     Map<String, dynamic> configuration = {
-      "iceServers": [
-        {"url": STUN_SERVER_URL},
+      'iceServers': [
+        {'url': STUN_SERVER_URL},
         {
           'url': TURN_SERVER_URL,
           'username': TURN_SERVER_USERNAME,

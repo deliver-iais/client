@@ -20,10 +20,10 @@ final Uid TEST_USER_UID = Uid.create()
 
 const TEST_USER_PHONE_NUMBER ="1234567890";
 
-const STUN_SERVER_URL = "stun:217.218.7.16:3478";
-const TURN_SERVER_URL = "turn:217.218.7.16:3478";
-const TURN_SERVER_USERNAME = "deliver";
-const TURN_SERVER_PASSWORD = "Deliver@123";
+const STUN_SERVER_URL = 'stun:stun.l.google.com:19302';
+const TURN_SERVER_URL = 'turn:217.218.7.16:3478?transport=udp';
+const TURN_SERVER_USERNAME = 'deliver';
+const TURN_SERVER_PASSWORD = 'Deliver@123';
 const STATUS_CAMERA_OPEN = "camera-open";
 const STATUS_CAMERA_CLOSE = "camera-close";
 const STATUS_MIC_OPEN = "mic-open";
