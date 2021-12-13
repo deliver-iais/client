@@ -327,7 +327,8 @@ class CallRepo {
             break;
           case STATUS_CONNECTION_ENDED:
             //received end from Calle
-            receivedEndCall(0);
+            //receivedEndCall(0);
+            endCall();
             break;
         }
       };
@@ -614,14 +615,6 @@ class CallRepo {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
-    //Set Timer 30 sec for end call if Call doesn't Connected
-    timerConnectionFailed = Timer(const Duration(seconds: 30), () {
-      if (callingStatus.value != CallStatus.CONNECTED) {
-        _logger.i("Call Can't Connected !!");
-        callingStatus.add(CallStatus.ENDED);
-        endCall();
-      }
-    });
   }
 
   //here we have accepted Call
@@ -665,7 +658,6 @@ class CallRepo {
     String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
-    callingStatus.add(CallStatus.ENDED);
     if (_isCaller) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
@@ -682,25 +674,11 @@ class CallRepo {
   }
 
   endCall() async {
-    try {
       if (_isCaller) {
-        _callDuration = calculateCallEndTime();
-        _logger.i("Call Duration on Caller(2): " + _callDuration.toString());
-        messageRepo.sendCallMessage(
-            CallEvent_CallStatus.ENDED,
-            _roomUid!,
-            _callId,
-            _callDuration!,
-            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-        //we need 2 sec delay before dispose Connection to Send EndCall Event
-        await Future.delayed(const Duration(seconds: 2));
-        await _dispose();
+        receivedEndCall(0);
       } else {
         _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
       }
-    } catch (e) {
-      _logger.e(e);
-    }
   }
 
   int calculateCallEndTime() {
@@ -785,6 +763,14 @@ class CallRepo {
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
     callingStatus.add(CallStatus.IN_CALL);
+    //Set Timer 30 sec for end call if Call doesn't Connected
+    timerConnectionFailed = Timer(const Duration(seconds: 30), () {
+      if (callingStatus.value != CallStatus.CONNECTED) {
+        _logger.i("Call Can't Connected !!");
+        callingStatus.add(CallStatus.ENDED);
+        endCall();
+      }
+    });
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
@@ -794,20 +780,20 @@ class CallRepo {
   }
 
   _dispose() async {
-    if(!_isCaller) {
+    if(_isCaller) {
       if(_isConnected) {
+        await _dataChannel?.close();
         timerConnectionFailed!.cancel();
       }
-    }else{
       timerDeclined!.cancel();
     }
     _logger.i("end call in service");
     await _cleanLocalStream();
     await _peerConnection?.close();
     await _peerConnection?.dispose();
-    await _dataChannel?.close();
     _candidate = [];
-    Timer(const Duration(seconds: 3), () {
+    callingStatus.add(CallStatus.ENDED);
+    Timer(const Duration(seconds: 4), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
     _offerSdp = "";
@@ -835,6 +821,7 @@ class CallRepo {
   }
 
   disposeRenderer() async {
+    _logger.i("Dispose!");
     if(_isInitRenderer) {
       await _localRenderer.dispose();
       await _remoteRenderer.dispose();

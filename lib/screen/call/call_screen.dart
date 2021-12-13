@@ -84,6 +84,7 @@ class _CallScreenState extends State<CallScreen> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
+          _logger.i("callStatus: " + snapshot.data.toString());
           switch (snapshot.data) {
             case CallStatus.CONNECTED:
               _audioService.stopPlayBeepSound();
@@ -141,7 +142,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
               break;
             case CallStatus.ENDED:
-              callRepo.disposeRenderer();
+              _logger.i("END!");
               _audioService.stopPlayBeepSound();
               isDesktop()
                   ? _routingService.pop()
@@ -150,6 +151,7 @@ class _CallScreenState extends State<CallScreen> {
                         Navigator.of(context).pop();
                       }
                     });
+              callRepo.disposeRenderer();
               return const SizedBox.shrink();
               break;
             case CallStatus.NO_CALL:
@@ -212,12 +214,11 @@ class _CallScreenState extends State<CallScreen> {
   _hangUp() async {
     _logger.i("Call hang Up ...!");
     _audioService.stopPlayBeepSound();
-    if (isDesktop()) {
-      _routingService.pop();
-    } else {
-      Navigator.of(context).pop();
-    }
-    await callRepo.disposeRenderer();
-    await callRepo.endCall();
+    // if (isDesktop()) {
+    //   _routingService.pop();
+    // } else {
+    //   Navigator.of(context).pop();
+    // }
+    callRepo.endCall();
   }
 }
