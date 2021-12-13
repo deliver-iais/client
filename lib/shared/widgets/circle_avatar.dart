@@ -29,10 +29,12 @@ class CircleAvatarWidget extends StatelessWidget {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
-      {Key? key, this.forceToUpdate = false,
+      {Key? key,
+      this.forceToUpdate = false,
       this.forceText = "",
       this.showAsStreamOfAvatar = false,
-      this.showSavedMessageLogoIfNeeded = false}) : super(key: key);
+      this.showSavedMessageLogoIfNeeded = false})
+      : super(key: key);
 
   Color colorFor(BuildContext context, String text) {
     var hash = 0;
@@ -65,7 +67,7 @@ class CircleAvatarWidget extends StatelessWidget {
     var color = colorFor(context, contactUid.asString());
 
     if (isSavedMessage()) color = Colors.blue;
-    if (isSystem()) color = Colors.blue;
+    if (isSystem()) color = Colors.white;
 
     var textColor =
         changeColor(color, saturation: 0.8, lightness: 0.5).computeLuminance() >
@@ -76,18 +78,31 @@ class CircleAvatarWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(colors: [
-            changeColor(color, saturation: 0.8, lightness: 0.4),
-            changeColor(color, saturation: 0.8, lightness: 0.5),
-            changeColor(color, saturation: 0.8, lightness: 0.7),
-          ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+          color: null,
+          gradient: !isSavedMessage() && !isSystem()
+              ? LinearGradient(colors: [
+                  changeColor(color, saturation: 0.8, lightness: 0.4),
+                  changeColor(color, saturation: 0.8, lightness: 0.5),
+                  changeColor(color, saturation: 0.8, lightness: 0.7),
+                ], begin: Alignment.bottomCenter, end: Alignment.topCenter)
+              : null),
       child: CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
-            ? const Image(
-                image: AssetImage(
-                    'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+            ? Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  border: Border.all(
+                    color: const Color(0xFF3259D7),
+                    width: 2,
+                  ),
+                ),
+                padding: const EdgeInsets.all(6),
+                child: const Image(
+                  image: AssetImage('assets/images/icon.jpg'),
+                ),
               )
             : isSavedMessage()
                 ? Icon(
