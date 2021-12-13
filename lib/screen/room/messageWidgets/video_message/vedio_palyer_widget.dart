@@ -5,15 +5,21 @@ import 'package:deliver/services/vlc_video_progress_indicator.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final double duration;
   final File videoFile;
   final pb.File video;
 
-  const VideoPlayerWidget({Key? key, required this.duration,required  this.videoFile, required this.video}) : super(key: key);
+  const VideoPlayerWidget(
+      {Key? key,
+      required this.duration,
+      required this.videoFile,
+      required this.video})
+      : super(key: key);
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -23,20 +29,28 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   final BehaviorSubject<bool> _isPlaySubject = BehaviorSubject.seeded(true);
 
   final BehaviorSubject<bool> _showIconPlayer = BehaviorSubject.seeded(true);
-  // late VlcPlayerController _vlcPlayerController;
+
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
-    // _vlcPlayerController =
-    //     VlcPlayerController.file(widget.videoFile, autoPlay: true);
+    _init();
     Timer(const Duration(seconds: 2), () {
       _showIconPlayer.add(false);
     });
     super.initState();
   }
 
+  _init() async {
+    _controller = VideoPlayerController.file(widget.videoFile);
+    await _controller.initialize();
+    _controller.play();
+    setState(() {});
+  }
+
   @override
   void dispose() {
+    //  _controller.dispose();
     super.dispose();
   }
 
@@ -56,18 +70,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               child: Stack(
                 children: [
                   Center(
-                    child:const SizedBox.shrink()
-                    // VlcPlayer(
-                    //   controller: _vlcPlayerController,
-                    //   aspectRatio: widget.video.width / widget.video.height,
-                    // ),
+                    child: _controller.value.isInitialized
+                        ? AspectRatio(
+                            aspectRatio: _controller.value.aspectRatio,
+                            child: VideoPlayer(_controller))
+                        : CircularPercentIndicator(
+                            radius: 10,
+                          ),
                   ),
                   Positioned(
                     bottom: 40,
                     left: 2,
                     right: 2,
                     child: VlcVideoProgressIndicator(
-                     // vlcPlayerController: null,
+                      videoPlayerController: _controller,
                       color: Colors.blue,
                       duration: widget.video.duration,
                     ),
@@ -97,7 +113,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                             ),
                                             onPressed: () {
                                               _isPlaySubject.add(false);
-                                         //     _vlcPlayerController.pause();
+                                              _controller.pause();
                                               _showIconPlayer.add(true);
                                             })
                                         : IconButton(
@@ -107,9 +123,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                               color: Colors.blue,
                                             ),
                                             onPressed: () {
-                                          //    _vlcPlayerController.play();
+                                              _controller.play();
                                               _isPlaySubject.add(true);
-                                              Timer(const Duration(seconds: 1), () {
+                                              Timer(const Duration(seconds: 1),
+                                                  () {
                                                 _showIconPlayer.add(false);
                                               });
                                             }),
