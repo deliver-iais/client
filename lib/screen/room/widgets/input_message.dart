@@ -29,8 +29,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';

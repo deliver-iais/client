@@ -3,7 +3,7 @@ import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_wi
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+// import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:open_file/open_file.dart';
 
 class VideoUi extends StatefulWidget {
@@ -23,12 +23,12 @@ class VideoUi extends StatefulWidget {
 }
 
 class _VideoUiState extends State<VideoUi> {
-  late VlcPlayerController vlcPlayerController;
+  // late VlcPlayerController vlcPlayerController;
 
   @override
   void initState() {
-    vlcPlayerController =
-        VlcPlayerController.file(widget.videoFile, autoPlay: false);
+    // vlcPlayerController =
+    //     VlcPlayerController.file(widget.videoFile, autoPlay: false);
     super.initState();
   }
 
@@ -59,10 +59,12 @@ class _VideoUiState extends State<VideoUi> {
                 child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height / 2,
-                    child: VlcPlayer(
-                      controller: vlcPlayerController,
-                      aspectRatio: widget.video.width / widget.video.height,
-                    )),
+                    child:SizedBox.shrink()
+                    // VlcPlayer(
+                    //   controller: vlcPlayerController,
+                    //   aspectRatio: widget.video.width / widget.video.height,
+                    // )
+                ),
               ),
             ),
           ),

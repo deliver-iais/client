@@ -63,7 +63,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:sorted_list/sorted_list.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
 
@@ -109,7 +108,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _currentMessageSearchId = -1;
   List<Message> searchResult = [];
 
-  final _pinMessages = SortedList<Message>((a, b) => a.id!.compareTo(b.id!));
+  final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(80));
 
@@ -535,6 +534,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           ? _currentRoom.value!.lastUpdatedMessageId!
                           : 0);
               _pinMessages.add(m!);
+              _pinMessages.sort((a, b) => a.time - b.time);
               _lastPinedMessage.add(_pinMessages.last.id!);
             } catch (e) {
               _logger.e(e);
@@ -995,7 +995,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           if (_selectMultiMessageSubject.stream.value) {
             _addForwardMessage(message);
           } else if (!isDesktop()) {
-            FocusScope.of(context).unfocus();;
+            FocusScope.of(context).unfocus();
+            ;
             _showCustomMenu(message, false);
           }
         },

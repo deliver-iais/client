@@ -5,7 +5,7 @@ import 'package:deliver/services/vlc_video_progress_indicator.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+// import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:rxdart/rxdart.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -23,12 +23,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   final BehaviorSubject<bool> _isPlaySubject = BehaviorSubject.seeded(true);
 
   final BehaviorSubject<bool> _showIconPlayer = BehaviorSubject.seeded(true);
-  late VlcPlayerController _vlcPlayerController;
+  // late VlcPlayerController _vlcPlayerController;
 
   @override
   void initState() {
-    _vlcPlayerController =
-        VlcPlayerController.file(widget.videoFile, autoPlay: true);
+    // _vlcPlayerController =
+    //     VlcPlayerController.file(widget.videoFile, autoPlay: true);
     Timer(const Duration(seconds: 2), () {
       _showIconPlayer.add(false);
     });
@@ -56,17 +56,18 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               child: Stack(
                 children: [
                   Center(
-                    child: VlcPlayer(
-                      controller: _vlcPlayerController,
-                      aspectRatio: widget.video.width / widget.video.height,
-                    ),
+                    child:const SizedBox.shrink()
+                    // VlcPlayer(
+                    //   controller: _vlcPlayerController,
+                    //   aspectRatio: widget.video.width / widget.video.height,
+                    // ),
                   ),
                   Positioned(
                     bottom: 40,
                     left: 2,
                     right: 2,
                     child: VlcVideoProgressIndicator(
-                      vlcPlayerController: _vlcPlayerController,
+                     // vlcPlayerController: null,
                       color: Colors.blue,
                       duration: widget.video.duration,
                     ),
@@ -96,7 +97,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                             ),
                                             onPressed: () {
                                               _isPlaySubject.add(false);
-                                              _vlcPlayerController.pause();
+                                         //     _vlcPlayerController.pause();
                                               _showIconPlayer.add(true);
                                             })
                                         : IconButton(
@@ -106,7 +107,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                                               color: Colors.blue,
                                             ),
                                             onPressed: () {
-                                              _vlcPlayerController.play();
+                                          //    _vlcPlayerController.play();
                                               _isPlaySubject.add(true);
                                               Timer(const Duration(seconds: 1), () {
                                                 _showIconPlayer.add(false);
