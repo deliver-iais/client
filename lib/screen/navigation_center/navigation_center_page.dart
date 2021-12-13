@@ -235,7 +235,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: [
             FutureBuilder<List<Uid>>(
-                future: _contactRepo.searchUser(query!),
+                future: _contactRepo.searchUser(query ?? ""),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.data != null && snaps.data!.isNotEmpty) {
                     return Expanded(
