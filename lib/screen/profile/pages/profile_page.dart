@@ -29,6 +29,7 @@ import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -448,10 +449,10 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return Text(
-                  _roomName,
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
-                );
+                return RoomName(
+                    uid: widget.roomUid,
+                    name: _roomName,
+                    style: TextStyle(color: ExtraTheme.of(context).textField));
               },
             ),
           ),

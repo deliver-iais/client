@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -14,32 +15,27 @@ class ActivityStatus extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  ActivityStatus({Key? key, required this.activity, required this.style,required this.roomUid}) : super(key: key);
-  
+  ActivityStatus(
+      {Key? key,
+      required this.activity,
+      required this.style,
+      required this.roomUid})
+      : super(key: key);
+
   TextStyle textStyle(BuildContext context) {
     return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (activity.typeOfActivity == ActivityType.TYPING) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
             future: _roomRepo.getName(activity.from),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return Text(
-                  "${s.data} ${_i18n.get('is_typing')}",
-                  style: textStyle(context),
-                );
-              } else {
-                return Text(
-                  "unKnown ${_i18n.get("is_typing")}",
-                  style: textStyle(context),
-                );
-              }
-            });
+            builder: (c, s) => RoomName(
+                uid: activity.from,
+                name: "${s.data ?? ""} ${_i18n.get('is_typing')}",
+                style: textStyle(context)));
       } else {
         return Text(
           _i18n.get("is_typing"),
@@ -50,19 +46,10 @@ class ActivityStatus extends StatelessWidget {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
             future: _roomRepo.getName(activity.from),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return Text(
-                  "${s.data} ${_i18n.get('record_audio_activity')} ",
-                  style: textStyle(context),
-                );
-              } else {
-                return Text(
-                  "unKnown ${_i18n.get("record_audio_activity")}",
-                  style: textStyle(context),
-                );
-              }
-            });
+            builder: (c, s) => RoomName(
+                uid: activity.from,
+                name: "${s.data ?? ""} ${_i18n.get("record_audio_activity")}",
+                style: textStyle(context)));
       }
       return Text(
         _i18n.get("record_audio_activity"),
@@ -72,19 +59,10 @@ class ActivityStatus extends StatelessWidget {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
             future: _roomRepo.getName(activity.from),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return Text(
-                  "${s.data} ${_i18n.get('sending_file_activity')} ",
-                  style: textStyle(context),
-                );
-              } else {
-                return Text(
-                  "unKnown ${_i18n.get("sending_file_activity")}",
-                  style: textStyle(context),
-                );
-              }
-            });
+            builder: (c, s) => RoomName(
+                uid: activity.from,
+                name: "${s.data ?? ""} ${_i18n.get('sending_file_activity')}",
+                style: textStyle(context)));
       } else {
         return Text(
           _i18n.get("sending_file_activity"),

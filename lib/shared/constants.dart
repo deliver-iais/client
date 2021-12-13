@@ -50,6 +50,8 @@ const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
 
 const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
 
+const DELIVER_COLOR = Color(0xff1a88f7);
+
 // Tables ID
 const AVATAR_TRACK_ID = 1;
 const LAST_ACTIVITY_TRACK_ID = 2;

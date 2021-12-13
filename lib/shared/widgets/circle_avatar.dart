@@ -7,6 +7,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -23,10 +24,10 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
 
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
       {Key? key,
@@ -79,7 +80,7 @@ class CircleAvatarWidget extends StatelessWidget {
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: null,
-          gradient: !isSavedMessage() && !isSystem()
+          gradient: !isSystem()
               ? LinearGradient(colors: [
                   changeColor(color, saturation: 0.8, lightness: 0.4),
                   changeColor(color, saturation: 0.8, lightness: 0.5),
@@ -93,10 +94,10 @@ class CircleAvatarWidget extends StatelessWidget {
             ? Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                   border: Border.all(
-                    color: const Color(0xFF3259D7),
-                    width: 2,
+                    color: DELIVER_COLOR,
+                    width: 3,
                   ),
                 ),
                 padding: const EdgeInsets.all(6),
