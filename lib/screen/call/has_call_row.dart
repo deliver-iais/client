@@ -26,45 +26,49 @@ class _HasCallRowState extends State<HasCallRow> {
               snapshot.data == CallStatus.ACCEPTED ||
               snapshot.data == CallStatus.IN_CALL) {
             return GestureDetector(
-              onTap: () {
-                if (callRepo.isVideo) {
-                  //Todo handell this case
-                } else {
-                  _routingService.openCallScreen(
-                      callRepo.roomUid!, false, false, true,
-                      context: context);
-                }
-                //Todo handel other
-              },
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      FutureBuilder<String>(
-                          future: _roomRepo.getName(callRepo.roomUid!),
-                          builder: (context, name) {
-                            if (name.hasData) {
-                              return Text(
-                                name.data!,
-                                style: const TextStyle(color: Colors.white),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          }),
-                      callRepo.isVideo
-                          ? const Icon(Icons.videocam, color: Colors.white)
-                          : const Icon(Icons.call, color: Colors.white)
-                    ],
-                  ),
-                ),
-                width: MediaQuery.of(context).size.width,
-                height: 30,
-                color: Colors.greenAccent[400],
-              ),
-            );
+                onTap: () {
+                  if (callRepo.isVideo) {
+                    //Todo handle this case
+                  } else {
+                    _routingService.openCallScreen(
+                        callRepo.roomUid!, false, false, true,
+                        context: context);
+                  }
+                  //Todo handle other
+                },
+                child: callRepo.roomUid != null
+                    ? Container(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              FutureBuilder<String>(
+                                  future: _roomRepo.getName(callRepo.roomUid!),
+                                  builder: (context, name) {
+                                    if (name.hasData) {
+                                      return Text(
+                                        name.data!,
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  }),
+
+                              callRepo.isVideo
+                                  ? const Icon(Icons.videocam,
+                                      color: Colors.white)
+                                  : const Icon(Icons.call, color: Colors.white)
+                            ],
+                          ),
+                        ),
+                        width: MediaQuery.of(context).size.width,
+                        height: 30,
+                        color: Colors.greenAccent[400],
+                      )
+                    : const SizedBox.shrink());
           } else {
             return const SizedBox.shrink();
           }

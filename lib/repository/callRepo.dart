@@ -28,7 +28,9 @@ enum CallStatus {
   ACCEPTED,
   IN_CALL,
   CONNECTING,
-  CONNECTED
+  CONNECTED,
+  DISCONNECTED,
+  FAILED
 }
 
 class CallRepo {
@@ -39,6 +41,7 @@ class CallRepo {
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
 
   RTCVideoRenderer get getLocalRenderer => _localRenderer;
+
   RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
 
   MediaStream? _localStream;
@@ -80,6 +83,13 @@ class CallRepo {
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
   Timer? timerConnectionFailed;
+
+  int seconds = 0;
+  int minutes = 0;
+  int hours = 0;
+  bool isCallInBackground = false;
+  Timer? timer;
+  late Function timerFunction;
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
@@ -171,7 +181,7 @@ class CallRepo {
         await createPeerConnection(configuration, _sdpConstraints);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
-    if(!isWindows()) {
+    if (!isWindows()) {
       camAudioTrack.enableSpeakerphone(false);
     }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
@@ -221,11 +231,10 @@ class CallRepo {
               .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-          _dataChannel!
-              .send(RTCDataChannelMessage(STATUS_CONNECTION_DISCONNECTED));
+          callingStatus.add(CallStatus.DISCONNECTED);
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-          _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_FAILED));
+          callingStatus.add(CallStatus.FAILED);
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
           // TODO: Handle this case.
@@ -338,10 +347,9 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() {
-    if(_startCallTime == 0) {
-      _startCallTime = DateTime
-          .now()
-          .millisecondsSinceEpoch;
+    startCallTimer();
+    if (_startCallTime == 0) {
+      _startCallTime = DateTime.now().millisecondsSinceEpoch;
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
@@ -503,12 +511,12 @@ class CallRepo {
     return false;
   }
 
-  bool enableSpeakerVoice(){
-    if(_localStream != null) {
+  bool enableSpeakerVoice() {
+    if (_localStream != null) {
       var camAudioTrack = _localStream!.getAudioTracks()[0];
-      if(_isSpeaker){
+      if (_isSpeaker) {
         camAudioTrack.enableSpeakerphone(false);
-      }else {
+      } else {
         camAudioTrack.enableSpeakerphone(true);
       }
       _isSpeaker = !_isSpeaker;
@@ -562,7 +570,8 @@ class CallRepo {
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
       timerDeclined = Timer(const Duration(seconds: 50), () {
-        if (callingStatus.value == CallStatus.IS_RINGING || callingStatus.value == CallStatus.CREATED) {
+        if (callingStatus.value == CallStatus.IS_RINGING ||
+            callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.ENDED);
           _logger.i("User Can't Answer!");
           endCall();
@@ -674,11 +683,11 @@ class CallRepo {
   }
 
   endCall() async {
-      if (_isCaller) {
-        receivedEndCall(0);
-      } else {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
-      }
+    if (_isCaller) {
+      receivedEndCall(0);
+    } else {
+      _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+    }
   }
 
   int calculateCallEndTime() {
@@ -780,8 +789,13 @@ class CallRepo {
   }
 
   _dispose() async {
-    if(_isCaller) {
-      if(_isConnected) {
+    if (timer != null) {
+      _logger.i("timer canceled");
+      timer!.cancel();
+    }
+    seconds = minutes = hours = 0;
+    if (_isCaller) {
+      if (_isConnected) {
         await _dataChannel?.close();
         timerConnectionFailed!.cancel();
       }
@@ -812,7 +826,7 @@ class CallRepo {
   }
 
   initRenderer() async {
-    if(!_isInitRenderer) {
+    if (!_isInitRenderer) {
       await _localRenderer.initialize();
       await _remoteRenderer.initialize();
       _logger.i("Initialize Renderers");
@@ -822,7 +836,7 @@ class CallRepo {
 
   disposeRenderer() async {
     _logger.i("Dispose!");
-    if(_isInitRenderer) {
+    if (_isInitRenderer) {
       await _localRenderer.dispose();
       await _remoteRenderer.dispose();
       _isInitRenderer = false;
@@ -830,6 +844,30 @@ class CallRepo {
       _localRenderer = RTCVideoRenderer();
       _remoteRenderer = RTCVideoRenderer();
     }
+  }
+
+  startCallTimer() {
+    if (timer != null && timer!.isActive) {
+      timer!.cancel();
+    }
+    _logger.i(
+        "call connected and timer must be shown ++ is back $isCallInBackground");
+    const oneSec = Duration(seconds: 1);
+    timer = Timer.periodic(oneSec, (Timer timer) {
+      if (isCallInBackground) {
+        seconds = seconds + 1;
+        if (seconds > 59) {
+          minutes += 1;
+          seconds = 0;
+          if (minutes > 59) {
+            hours += 1;
+            minutes = 0;
+          }
+        }
+      } else {
+        timerFunction();
+      }
+    });
   }
 
   _cleanLocalStream() async {
