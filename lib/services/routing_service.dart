@@ -146,15 +146,15 @@ class RoutingService {
   }
 
   void openCallScreen(
-      Uid roomUid, bool isVideoCall, bool isAccepted, bool isInitial,
-      {BuildContext? context}) {
+      Uid roomUid, bool isAccepted, bool isInitial,
+      {BuildContext? context, bool isIncomingCall=false}) {
 
     var widget = CallScreen(
       key: const ValueKey("/callScreen"),
       roomUid: roomUid,
-      isVideoCall: isVideoCall,
       isAccepted: isAccepted,
       isInitial: isInitial,
+      isIncomingCall:isIncomingCall
     );
     if (isDesktop()) {
       _popAllAndPush(Page(

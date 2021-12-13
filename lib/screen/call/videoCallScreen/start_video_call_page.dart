@@ -50,7 +50,6 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
       ),
       CallBottomRow(
         hangUp: widget.hangUp,
-        isVideoCall: true,
       ),
       Padding(
         padding:
