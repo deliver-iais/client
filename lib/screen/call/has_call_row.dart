@@ -22,19 +22,24 @@ class _HasCallRowState extends State<HasCallRow> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
-          if (snapshot.data == CallStatus.CONNECTED ||
-              snapshot.data == CallStatus.ACCEPTED ||
-              snapshot.data == CallStatus.IN_CALL) {
+          if (snapshot.data != CallStatus.ENDED ||
+              snapshot.data != CallStatus.NO_CALL) {
             return GestureDetector(
                 onTap: () {
                   if (callRepo.isVideo) {
                     //Todo handle this case
                   } else {
-                    _routingService.openCallScreen(
-                        callRepo.roomUid!, false, false, true,
-                        context: context);
+                    if (snapshot.data == CallStatus.CREATED &&
+                        !callRepo.isCaller) {
+                      _routingService.openCallScreen(
+                          callRepo.roomUid!, false, false,
+                          isIncomingCall: true, context: context);
+                    } else {
+                      _routingService.openCallScreen(
+                          callRepo.roomUid!, false, true,
+                          context: context);
+                    }
                   }
-                  //Todo handle other
                 },
                 child: callRepo.roomUid != null
                     ? Container(
@@ -56,7 +61,6 @@ class _HasCallRowState extends State<HasCallRow> {
                                       return const SizedBox.shrink();
                                     }
                                   }),
-
                               callRepo.isVideo
                                   ? const Icon(Icons.videocam,
                                       color: Colors.white)

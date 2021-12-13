@@ -16,18 +16,19 @@ class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
   final String callStatus;
   final Function hangUp;
+  final bool isIncomingCall;
 
   const AudioCallScreen(
       {Key? key,
       required this.roomUid,
       required this.callStatus,
-      required this.hangUp})
+      required this.hangUp,
+      this.isIncomingCall = false})
       : super(key: key);
 
   @override
   _AudioCallScreenState createState() => _AudioCallScreenState();
 }
-//TODO 1.BEEP SOUND 2.MUTE SOUND AND SPEAKER 3.TIMER PROBLEM 4.REFACTOR MY CODE 5.OPEN ROOM WHEN CALL END
 
 class _AudioCallScreenState extends State<AudioCallScreen> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -37,7 +38,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   @override
   void initState() {
     callRepo.timerFunction = setCallTimerFunction;
-    callRepo.isCallInBackground=false;
+    callRepo.isCallInBackground = false;
     super.initState();
   }
 
@@ -59,13 +60,13 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
 
   @override
   void dispose() {
-    callRepo.isCallInBackground=true;
+    callRepo.isCallInBackground = true;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    callRepo.isCallInBackground=false;
+    callRepo.isCallInBackground = false;
     return Scaffold(
         body: Stack(children: [
       FutureBuilder<Avatar?>(
@@ -115,7 +116,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       ),
       CallBottomRow(
         hangUp: widget.hangUp,
-        isVideoCall: false,
+        isIncomingCall: widget.isIncomingCall,
       )
     ]));
   }

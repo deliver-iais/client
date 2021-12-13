@@ -196,7 +196,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: "0eab6089f96678a9306a2d3288146908673182ba"
-      url: "https://github.com/androidwoman/connectycube_flutter_call_kit-0.1.0-dev.2.git"
+      url: "https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git"
     source: git
     version: "0.1.0-dev.2"
   contacts_service:
@@ -313,6 +313,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
+  desktop_window:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "4d59ebdad7c6f95efca34882d23853bb881d1d55"
+      url: "https://github.com/deliver-iais/desktop_window.git"
+    source: git
+    version: "0.4.0"
   device_info:
     dependency: "direct main"
     description:

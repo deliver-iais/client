@@ -23,7 +23,6 @@ class CallState extends StatelessWidget {
         time == 0) {
       return const Text("canceled call");
     } else if (callStatus == CallEvent_CallStatus.DECLINED &&
-        isCurrentUser &&
         time == 0) {
       return const Text("call declined");
     } else if (callStatus == CallEvent_CallStatus.BUSY &&

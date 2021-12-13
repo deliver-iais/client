@@ -293,7 +293,7 @@ class AndroidNotifier implements Notifier {
     } else {
       if (isDesktop()) {
         _routingService.openCallScreen(
-            userInfo!["uid"]!.asUid(), callRepo.isVideo, true, false);
+            userInfo!["uid"]!.asUid(), true, false);
       } else {
         modifyRoutingByNotificationAudioCall
             .add({callRepo.roomUid!.asString(): true});

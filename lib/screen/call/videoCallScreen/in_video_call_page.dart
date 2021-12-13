@@ -107,7 +107,6 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
             }),
         CallBottomRow(
           hangUp: widget.hangUp,
-          isVideoCall: true,
         ),
       ],
     );

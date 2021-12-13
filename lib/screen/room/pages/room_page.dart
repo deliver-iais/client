@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:badges/badges.dart';
@@ -750,15 +749,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             //       //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
             //     },
             //     icon: const Icon(Icons.videocam)),
-          if (_currentRoom.value!.uid.asUid().isUser())
-            IconButton(
-                onPressed: () {
-                  _routingService.openCallScreen(
-                      _currentRoom.value!.uid.asUid(), false, false,false,
-                      context: context);
-                  //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  AudioCallScreen(roomUid:_currentRoom.value!.uid.asUid(), isAccepted: false,)));
-                },
-                icon: Icon(Icons.call)),
+            if (_currentRoom.value!.uid.asUid().isUser())
+              IconButton(
+                  onPressed: () {
+                    _routingService.openCallScreen(
+                        _currentRoom.value!.uid.asUid(), false, false,
+                        context: context);
+                    //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  AudioCallScreen(roomUid:_currentRoom.value!.uid.asUid(), isAccepted: false,)));
+                  },
+                  icon: const Icon(Icons.call)),
           if (_currentRoom.value!.uid.asUid().isUser())
             const SizedBox(
               width: 10,
