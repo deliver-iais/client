@@ -176,77 +176,77 @@ class _ShareBoxState extends State<ShareBox> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                            Stack(
-                              children: <Widget>[
-                                Container(
-                                  child: circleButton(() {
-                                    _audioPlayer.stop();
-                                    Navigator.pop(co);
-                                    if (widget.replyMessageId! > 0) {
-                                      messageRepo.sendMultipleFilesMessages(
-                                          widget.currentRoomId,
-                                          finalSelected.values.toList(),
-                                          replyToId: widget.replyMessageId);
-                                    } else {
-                                      showCaptionDialog(
-                                          type: "file",
-                                          paths:
+                                Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      child: circleButton(() {
+                                        _audioPlayer.stop();
+                                        Navigator.pop(co);
+                                        if (widget.replyMessageId! > 0) {
+                                          messageRepo.sendMultipleFilesMessages(
+                                              widget.currentRoomId,
                                               finalSelected.values.toList(),
-                                          roomUid: widget.currentRoomId,
-                                          context: context);
-                                    }
-                                    setState(() {
-                                      finalSelected.clear();
-                                      selectedAudio.clear();
-                                      selectedImages.clear();
-                                      selectedFiles.clear();
-                                    });
-                                  }, Icons.send, "", 50, context: co),
-                                  decoration: const BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 20.0,
-                                          spreadRadius: 0.0)
-                                    ],
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                Positioned(
-                                  child: Container(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text(
-                                          finalSelected.values.length
-                                              .toString(),
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12),
-                                        ),
-                                      ],
-                                    ),
-                                    width: 16.0,
-                                    height: 16.0,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(co)
-                                          .dialogBackgroundColor,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2,
+                                              replyToId: widget.replyMessageId);
+                                        } else {
+                                          showCaptionDialog(
+                                              type: "file",
+                                              paths:
+                                                  finalSelected.values.toList(),
+                                              roomUid: widget.currentRoomId,
+                                              context: context);
+                                        }
+                                        setState(() {
+                                          finalSelected.clear();
+                                          selectedAudio.clear();
+                                          selectedImages.clear();
+                                          selectedFiles.clear();
+                                        });
+                                      }, Icons.send, "", 50, context: co),
+                                      decoration: const BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 20.0,
+                                              spreadRadius: 0.0)
+                                        ],
+                                        shape: BoxShape.circle,
                                       ),
                                     ),
-                                  ),
-                                  top: 35.0,
-                                  right: 0.0,
-                                  left: 31,
+                                    Positioned(
+                                      child: Container(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Text(
+                                              finalSelected.values.length
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                        width: 16.0,
+                                        height: 16.0,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(co)
+                                              .dialogBackgroundColor,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                      top: 35.0,
+                                      right: 0.0,
+                                      left: 31,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(
-                              width: 30,
-                            )
+                                const SizedBox(
+                                  width: 30,
+                                )
                               ],
                             )
                           else
@@ -568,13 +568,15 @@ showCaptionDialog(
     List<String?>? paths,
     required Uid roomUid,
     Message? editableMessage,
-    required BuildContext context}) async {
+    required BuildContext context,
+    bool showSelectedImage = false}) async {
   if (paths!.isEmpty && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {
         return ShowCaptionDialog(
           type: type,
+          showSelectedImage: showSelectedImage,
           editableMessage: editableMessage,
           currentRoom: roomUid,
           paths: paths,

@@ -14,7 +14,7 @@ class StorageFile {
 
   factory StorageFile.fromJson(Map<String, dynamic> json) {
     return StorageFile(
-        files: json['files'] as List,
+        files: json['files'] as List ,
         folderName: json['folderName'].toString());
   }
 }
@@ -55,17 +55,8 @@ class AudioItem extends FileBasic {
 class ImageItem extends FileBasic {
   ImageItem({required String path}) : super(path);
 
-  static Future<List<ImageItem>> getImages() async {
-    var storageFiles = _storageFiles(await StoragePath.imagesPath);
-    List<ImageItem> items = [];
-    for (int i = 0; i < storageFiles.length; i++) {
-      for (int j = 0; j < storageFiles[i].files.length; j++) {
-        var f = storageFiles[i].files[j];
-        ImageItem item = ImageItem(path: f);
-        items.add(item);
-      }
-    }
-    return items;
+  static Future<List<StorageFile>> getImages() async {
+    return _storageFiles(await StoragePath.imagesPath);
   }
 }
 
@@ -79,7 +70,6 @@ class FileItem extends FileBasic {
       List<String> result = [];
       for (var path in filesPath) {
         result.add(path.toString());
-
       }
       return result;
     } catch (e) {

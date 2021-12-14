@@ -101,7 +101,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   selectAvatar() async {
-    if (isDesktop()) {
+    //todo select image from showModalBottomSheet as select image in inputMessage
+    if (isDesktop() || true) {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowMultiple: false,

@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/screen/room/widgets/share_box/image_folder.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -34,10 +36,9 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  final _routingServices = GetIt.I.get<RoutingService>();
   final i18n = GetIt.I.get<I18N>();
 
-  late Future<List<ImageItem>> _future;
+  late Future<List<StorageFile>> _future;
 
   @override
   void initState() {
@@ -72,19 +73,20 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ImageItem>?>(
+    return FutureBuilder<List<StorageFile>?>(
         future: _future,
-        builder: (context, images) {
-          if (images.hasData &&
-              images.data != null &&
-              images.data!.isNotEmpty) {
+        builder: (context, folders) {
+          if (folders.hasData &&
+              folders.data != null &&
+              folders.data!.isNotEmpty) {
             return GridView.builder(
                 controller: widget.scrollController,
-                itemCount: images.data!.length + 1,
+                itemCount: folders.data!.length + 1,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3),
+                    crossAxisCount: 2),
                 itemBuilder: (context, index) {
-                  ImageItem? image = index > 0 ? images.data![index - 1] : null;
+                  StorageFile? folder =
+                      index > 0 ? folders.data![index - 1] : null;
                   if (index <= 0) {
                     return Container(
                       width: 50,
@@ -102,67 +104,68 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           try {
                             Navigator.pop(context);
                             final picker = ImagePicker();
-                            final pickedFile = await picker.pickImage(
+                            XFile? pickedFile = await picker.pickImage(
                                 source: ImageSource.camera);
-                            widget.selectGallery
-                                ? _routingServices.openImagePage(context,
-                                    roomUid: widget.roomUid,
-                                    file: File(pickedFile!.path))
-                                : cropAvatar(image!.path);
+                            if (pickedFile != null) {
+                              widget.selectGallery
+                                  ? showCaptionDialog(
+                                      roomUid: widget.roomUid,
+                                      context: context,
+                                      paths: [pickedFile.path],
+                                      type: pickedFile.path.split(".").last)
+                                  : cropAvatar("");
+                            }
                           } catch (_) {}
                         },
                       ),
                     );
                   } else {
-                    var selected = widget.selectedImages[index - 1] ?? false;
                     return GestureDetector(
-                        onTap: widget.selectGallery
-                            ? () {
-                                if (!widget.selectedImages
-                                    .containsValue(true)) {
-                                  Navigator.pop(context);
-                                  _routingServices.openImagePage(context,
-                                      roomUid: widget.roomUid,
-                                      file: File(image!.path));
-                                } else {
-                                  widget.onClick(index, image!.path);
-                                }
-                              }
-                            : () {
-                                cropAvatar(image!.path);
-                                Navigator.pop(context);
-                              },
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (c) {
+                            return ImageFolderWidget(folder!, widget.roomUid,
+                                () {
+                              Navigator.pop(context);
+                            });
+                          }));
+                        },
                         child: AnimatedPadding(
                           duration: const Duration(milliseconds: 200),
-                          padding: EdgeInsets.all(selected ? 8.0 : 4.0),
+                          padding: const EdgeInsets.all(10),
                           child: Hero(
-                            tag: image!,
+                            tag: folder!.folderName,
                             child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5)),
-                                image: DecorationImage(
-                                    image: Image.file(File(image.path)).image,
-                                    fit: BoxFit.cover),
-                              ),
-                              child: widget.selectGallery
-                                  ? Align(
-                                      alignment: Alignment.topRight,
-                                      child: IconButton(
-                                        onPressed: () =>
-                                            widget.onClick(index, image.path),
-                                        icon: Icon(
-                                          selected
-                                              ? Icons.check_circle_outline
-                                              : Icons.panorama_fish_eye,
-                                          color: Colors.white,
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
+                                  image: DecorationImage(
+                                      image: Image.file(
+                                        File(
+                                          folder.files.first,
                                         ),
+                                        cacheWidth: 300,
+                                        cacheHeight: 300,
+                                      ).image,
+                                      fit: BoxFit.cover),
+                                ),
+                                child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    widthFactor: 200,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
+                                      child: Text(
+                                        folder.folderName,
+                                        style: const TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.black),
+                                      ),
+                                    ))),
                           ),
                         ));
                   }
