@@ -4,7 +4,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -56,8 +57,8 @@ class MessageBrief {
   }
 }
 
-Future<MessageBrief> extractMessageBrief(
-    I18N i18n, RoomRepo roomRepo, AuthRepo authRepo, message_pb.Message msg) async {
+Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
+    AuthRepo authRepo, message_pb.Message msg) async {
   Uid roomUid = getRoomUid(authRepo, msg);
   String? roomName = await roomRepo.getSlangName(roomUid);
   String? sender = await roomRepo.getSlangName(msg.from);
@@ -239,7 +240,11 @@ Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
       }
       break;
     case PersistentEvent_Type.messageManipulationPersistentEvent:
-      return null;
+      return "";
+    case PersistentEvent_Type.botSpecificPersistentEvent:
+      return pe.botSpecificPersistentEvent.errorMessage.isNotEmpty
+          ? pe.botSpecificPersistentEvent.errorMessage
+          : i18n.get("bot_not_responding");
 
     case PersistentEvent_Type.adminSpecificPersistentEvent:
       switch (pe.adminSpecificPersistentEvent.event) {
@@ -247,7 +252,7 @@ Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
           return [i18n.get("joined_to_app"), APPLICATION_NAME].join(" ").trim();
 
         default:
-          return null;
+          return "";
       }
 
     default:
