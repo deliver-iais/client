@@ -1,18 +1,29 @@
 import 'dart:io';
 
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class ImageFolderWidget extends StatefulWidget {
   final StorageFile storageFile;
   final Uid roomUid;
   final Function pop;
+  final bool selectAvatar;
+  final Function? setAvatar;
 
-  const ImageFolderWidget(this.storageFile, this.roomUid, this.pop);
+  const ImageFolderWidget(
+    this.storageFile,
+    this.roomUid,
+    this.pop, {
+    this.selectAvatar = false,
+    this.setAvatar,
+  });
 
   @override
   State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
@@ -20,13 +31,14 @@ class ImageFolderWidget extends StatefulWidget {
 
 class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   final List<String> _selectedImage = [];
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          _selectedImage.isNotEmpty
+          !widget.selectAvatar && _selectedImage.isNotEmpty
               ? IconButton(
                   onPressed: () {
                     _selectedImage.clear();
@@ -35,13 +47,15 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   icon: const Icon(Icons.clear))
               : const SizedBox.shrink()
         ],
-        title: Text(
-          _selectedImage.isNotEmpty
-              ? "selected: ${_selectedImage.length}"
-              : widget.storageFile.folderName,
-          style:
-              TextStyle(color: ExtraTheme.of(context).textField, fontSize: 19),
-        ),
+        title: !widget.selectAvatar
+            ? Text(
+                _selectedImage.isNotEmpty
+                    ? "selected: ${_selectedImage.length}"
+                    : widget.storageFile.folderName,
+                style: TextStyle(
+                    color: ExtraTheme.of(context).textField, fontSize: 19),
+              )
+            : const SizedBox.shrink(),
       ),
       body: Stack(
         children: [
@@ -53,14 +67,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             itemBuilder: (c, index) {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
-                  onTap: () {
-                    if (_selectedImage.contains(imagePath)) {
-                      _selectedImage.remove(imagePath);
-                    } else {
-                      _selectedImage.add(imagePath);
-                    }
-                    setState(() {});
-                  },
+                  onTap: () => onTap(imagePath),
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsets.all(
@@ -81,28 +88,25 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                 ).image,
                                 fit: BoxFit.cover),
                           ),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: IconButton(
-                              onPressed: () {
-                                _selectedImage.contains(imagePath)
-                                    ? _selectedImage.remove(imagePath)
-                                    : _selectedImage.add(imagePath);
-                                setState(() {});
-                              },
-                              icon: Icon(
-                                _selectedImage.contains(imagePath)
-                                    ? Icons.check_circle_outline
-                                    : Icons.panorama_fish_eye,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )),
+                          child: widget.selectAvatar
+                              ? const SizedBox.shrink()
+                              : Align(
+                                  alignment: Alignment.topRight,
+                                  child: IconButton(
+                                    onPressed: () => onTap(imagePath),
+                                    icon: Icon(
+                                      _selectedImage.contains(imagePath)
+                                          ? Icons.check_circle_outline
+                                          : Icons.panorama_fish_eye,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )),
                     ),
                   ));
             },
           ),
-          _selectedImage.isNotEmpty
+          _selectedImage.isNotEmpty && !widget.selectAvatar
               ? Padding(
                   padding: const EdgeInsets.only(right: 20, bottom: 40),
                   child: Align(
@@ -181,5 +185,44 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
         ],
       ),
     );
+  }
+
+  void onTap(String imagePath) {
+    if (widget.selectAvatar) {
+      cropAvatar(imagePath);
+    } else {
+      if (_selectedImage.contains(imagePath)) {
+        _selectedImage.remove(imagePath);
+      } else {
+        _selectedImage.add(imagePath);
+      }
+      setState(() {});
+    }
+  }
+
+  void cropAvatar(String imagePath) async {
+    File? croppedFile = await ImageCropper.cropImage(
+        sourcePath: imagePath,
+        aspectRatioPresets: Platform.isAndroid
+            ? [CropAspectRatioPreset.square]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        cropStyle: CropStyle.rectangle,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: _i18n.get("avatar"),
+            toolbarColor: Colors.blueAccent,
+            hideBottomControls: true,
+            showCropGrid: false,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: _i18n.get("avatar"),
+        ));
+    if (croppedFile != null) {
+      Navigator.pop(context);
+      widget.setAvatar!(croppedFile);
+    }
   }
 }

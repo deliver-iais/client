@@ -147,21 +147,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   : currentPage == Page.gallery
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
-                                          onClick: (index, path) async {
-                                            setState(() {
-                                              selectedImages[index - 1] =
-                                                  !(selectedImages[index - 1] ??
-                                                      false);
-
-                                              selectedImages[index - 1]!
-                                                  ? finalSelected[index - 1] =
-                                                      path
-                                                  : finalSelected
-                                                      .remove(index - 1);
-                                            });
-                                          },
-                                          selectedImages: selectedImages,
-                                          selectGallery: true,
+                                          selectAvatar: false,
                                           roomUid: widget.currentRoomId,
                                         )
                                       : currentPage == Page.location

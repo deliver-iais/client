@@ -2,8 +2,6 @@ import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -17,17 +15,15 @@ import 'helper_classes.dart';
 
 class ShareBoxGallery extends StatefulWidget {
   final ScrollController scrollController;
-  final Function onClick;
-  final Map<int, bool> selectedImages;
-  final bool selectGallery;
+  final Function? setAvatar;
+  final bool selectAvatar;
   final Uid roomUid;
 
   const ShareBoxGallery(
       {Key? key,
-      required this.selectGallery,
+      required this.selectAvatar,
       required this.scrollController,
-      required this.onClick,
-      required this.selectedImages,
+      this.setAvatar,
       required this.roomUid})
       : super(key: key);
 
@@ -44,31 +40,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   void initState() {
     _future = ImageItem.getImages();
     super.initState();
-  }
-
-  void cropAvatar(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
-        sourcePath: imagePath,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square]
-            : [
-                CropAspectRatioPreset.square,
-              ],
-        cropStyle: CropStyle.rectangle,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: i18n.get("avatar"),
-            toolbarColor: Colors.blueAccent,
-            hideBottomControls: true,
-            showCropGrid: false,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: i18n.get("avatar"),
-        ));
-    if (croppedFile != null) {
-      widget.onClick(croppedFile);
-    }
   }
 
   @override
@@ -107,13 +78,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             XFile? pickedFile = await picker.pickImage(
                                 source: ImageSource.camera);
                             if (pickedFile != null) {
-                              widget.selectGallery
+                              !widget.selectAvatar
                                   ? showCaptionDialog(
                                       roomUid: widget.roomUid,
                                       context: context,
                                       paths: [pickedFile.path],
                                       type: pickedFile.path.split(".").last)
-                                  : cropAvatar("");
+                                  : widget.setAvatar!(pickedFile.path);
                             }
                           } catch (_) {}
                         },
@@ -124,10 +95,15 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         onTap: () {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (c) {
-                            return ImageFolderWidget(folder!, widget.roomUid,
-                                () {
-                              Navigator.pop(context);
-                            });
+                            return ImageFolderWidget(
+                              folder!,
+                              widget.roomUid,
+                              () {
+                                Navigator.pop(context);
+                              },
+                              selectAvatar: widget.selectAvatar,
+                              setAvatar: widget.setAvatar,
+                            );
                           }));
                         },
                         child: AnimatedPadding(
@@ -162,8 +138,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       child: Text(
                                         folder.folderName,
                                         style: const TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.black),
+                                            fontSize: 15, color: Colors.black),
                                       ),
                                     ))),
                           ),
