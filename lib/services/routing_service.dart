@@ -106,13 +106,11 @@ class RoutingService {
           smallPageMain: widget,
           path: "/room/$roomId"));
     } else {
-      // Navigator.push(context,
-      //     EnterExitRoute(exitPage: const HomePage(), enterPage: widget));
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
-  _rootInMobileState(Widget widget, BuildContext context) {
+  _routeInMobileState(Widget widget, BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -132,7 +130,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/settings"));
     } else {
-      _rootInMobileState(widget, context!);
+      _routeInMobileState(widget, context!);
     }
   }
 
@@ -153,7 +151,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/language_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -167,7 +165,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/security_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -180,7 +178,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/language_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -193,7 +191,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/log_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -206,7 +204,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/contacts"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -228,7 +226,7 @@ class RoutingService {
         path: "/media-details",
       ));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -250,7 +248,7 @@ class RoutingService {
         path: "/media-details",
       ));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -276,7 +274,7 @@ class RoutingService {
         path: "/media-details",
       ));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -289,7 +287,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/profile/$roomId"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -305,7 +303,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/custom_notification_sound_selection"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -325,7 +323,7 @@ class RoutingService {
           lockBackButton: forceToSetUsernameAndName,
           path: "/account-settings"));
     } else {
-      _rootInMobileState(accountSettingsWidget, context);
+      _routeInMobileState(accountSettingsWidget, context);
     }
   }
 
@@ -344,7 +342,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/member-selection-page"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -359,7 +357,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/new-contact"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -377,7 +375,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/new-contact"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -394,7 +392,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/group-info-determination-page"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -408,7 +406,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/share_file_page"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -423,7 +421,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/scan_qr_code"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
