@@ -16,7 +16,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -81,10 +81,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                         padding: const EdgeInsets.all(0),
                         child: ShareBoxGallery(
                           scrollController: scrollController,
-                          setAvatar: (File croppedFile) async {
-                            Navigator.pop(context);
-                            String path = croppedFile.path;
-                            await setAvatar(path);
+                          setAvatar: (String filePath) async {
+                            cropAvatar(filePath);
                           },
                           selectAvatar: true,
                           roomUid: _authRepo.currentUserUid,
@@ -94,6 +92,32 @@ class _AccountSettingsState extends State<AccountSettings> {
               },
             );
           });
+    }
+  }
+
+  void cropAvatar(String imagePath) async {
+    File? croppedFile = await ImageCropper.cropImage(
+        sourcePath: imagePath,
+        aspectRatioPresets: Platform.isAndroid
+            ? [CropAspectRatioPreset.square]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        cropStyle: CropStyle.rectangle,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: _i18n.get("avatar"),
+            toolbarColor: Colors.blueAccent,
+            hideBottomControls: true,
+            showCropGrid: false,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: _i18n.get("avatar"),
+        ));
+    if (croppedFile != null) {
+  //    Navigator.pop(context);
+      setAvatar(croppedFile.path);
     }
   }
 

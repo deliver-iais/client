@@ -6,7 +6,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
 
 class ImageFolderWidget extends StatefulWidget {
   final StorageFile storageFile;
@@ -68,7 +67,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
                   onTap: () => widget.selectAvatar
-                      ? cropAvatar(imagePath)
+                      ? widget.setAvatar!(imagePath)
                       : openImage(imagePath),
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 200),
@@ -217,7 +216,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
 
   void onTap(String imagePath) {
     if (widget.selectAvatar) {
-      cropAvatar(imagePath);
+      widget.setAvatar!(imagePath);
     } else {
       if (_selectedImage.contains(imagePath)) {
         _selectedImage.remove(imagePath);
@@ -279,31 +278,5 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             ));
       });
     }));
-  }
-
-  void cropAvatar(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
-        sourcePath: imagePath,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square]
-            : [
-                CropAspectRatioPreset.square,
-              ],
-        cropStyle: CropStyle.rectangle,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: _i18n.get("avatar"),
-            toolbarColor: Colors.blueAccent,
-            hideBottomControls: true,
-            showCropGrid: false,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: _i18n.get("avatar"),
-        ));
-    if (croppedFile != null) {
-      Navigator.pop(context);
-      widget.setAvatar!(croppedFile);
-    }
   }
 }

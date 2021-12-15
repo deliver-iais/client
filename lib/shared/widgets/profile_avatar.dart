@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
@@ -11,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 
 // TODO Move to profile folder, it is not shared widget
@@ -30,6 +32,7 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
   String _uploadAvatarPath = "";
   BehaviorSubject<bool> _showProgressBar = BehaviorSubject.seeded(false);
 
@@ -131,9 +134,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         padding: const EdgeInsets.all(0),
                         child: ShareBoxGallery(
                           scrollController: scrollController,
-                          setAvatar: (File croppedFile) async {
+                          setAvatar: (String imagePath) async {
                             Navigator.pop(context);
-                            _setAvatar(croppedFile.path);
+                            cropAvatar(imagePath);
                           },
                           selectAvatar: true,
                           roomUid: widget.roomUid,
@@ -143,6 +146,31 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               },
             );
           });
+    }
+  }
+
+  void cropAvatar(String imagePath) async {
+    File? croppedFile = await ImageCropper.cropImage(
+        sourcePath: imagePath,
+        aspectRatioPresets: Platform.isAndroid
+            ? [CropAspectRatioPreset.square]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        cropStyle: CropStyle.rectangle,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: _i18n.get("avatar"),
+            toolbarColor: Colors.blueAccent,
+            hideBottomControls: true,
+            showCropGrid: false,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: _i18n.get("avatar"),
+        ));
+    if (croppedFile != null) {
+      _setAvatar(croppedFile.path);
     }
   }
 }

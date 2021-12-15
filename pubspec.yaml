@@ -79,7 +79,6 @@ dependencies:
       url: https://github.com/deliver-iais/pub-dart-artifactory
       ref: tags/v1.10.8
   grpc: 3.0.2 # (WEB NOT SUPPORTED BI-Directional Streaming)
-  image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.4.0
@@ -120,6 +119,7 @@ dependencies:
   dependency_validator: ^3.1.2  # flutter pub run dependency_validator
   video_player: ^2.2.7
   chewie: ^1.2.2
+  camera: 0.9.4+5
 
 #  flutter_vlc_player: 6.0.5
 
