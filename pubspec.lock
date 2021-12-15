@@ -284,7 +284,7 @@ packages:
     source: git
     version: "1.11.4"
   dependency_validator:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: dependency_validator
       url: "https://pub.dartlang.org"
