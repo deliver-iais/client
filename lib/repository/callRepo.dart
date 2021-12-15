@@ -161,11 +161,17 @@ class CallRepo {
     Map<String, dynamic> _iceServers = {
       'iceServers': [
         {'url': STUN_SERVER_URL},
+        {'url': STUN_SERVER_URL_2},
         {
            'url': TURN_SERVER_URL,
            'username': TURN_SERVER_USERNAME,
            'credential': TURN_SERVER_PASSWORD
          },
+        {
+          'url': TURN_SERVER_URL_2,
+          'username': TURN_SERVER_USERNAME_2,
+          'credential': TURN_SERVER_PASSWORD_2
+        },
       ]
     };
 
