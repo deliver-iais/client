@@ -33,6 +33,7 @@ BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationVideoCall =
 
 BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationAudioCall =
     BehaviorSubject.seeded({"": true});
+BehaviorSubject<String> notificationRoomUid = BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
   final void Function(String)? tapOnSelectChat;
