@@ -61,14 +61,12 @@ class RoutingService {
   final _dbManager = GetIt.I.get<DBManager>();
   final BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
-  late Widget _navigationCenter;
+  final _navigationCenter = const NavigationCenter(key: ValueKey("navigator"));
   static const Widget _empty = Empty();
 
   ListQueue<Page>? _stack;
 
   RoutingService() {
-    _navigationCenter = const NavigationCenter(key: ValueKey("navigator"));
-
     reset();
   }
 

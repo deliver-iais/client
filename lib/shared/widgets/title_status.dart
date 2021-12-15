@@ -21,9 +21,11 @@ class TitleStatus extends StatefulWidget {
   final Uid? currentRoomUid;
 
   const TitleStatus(
-      {Key? key, required this.style,
+      {Key? key,
+      required this.style,
       this.normalConditionWidget = const SizedBox.shrink(),
-      this.currentRoomUid}) : super(key: key);
+      this.currentRoomUid})
+      : super(key: key);
 
   @override
   _TitleStatusState createState() => _TitleStatusState();
@@ -140,8 +142,7 @@ class _TitleStatusState extends State<TitleStatus> {
       return StreamBuilder<LastActivity?>(
           stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
           builder: (c, userInfo) {
-            if (userInfo.hasData &&
-                userInfo.data != null) {
+            if (userInfo.hasData && userInfo.data != null) {
               if (isOnline(userInfo.data!.time)) {
                 return Text(
                   i18n.get("online"),

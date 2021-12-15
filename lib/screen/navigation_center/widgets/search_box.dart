@@ -47,11 +47,11 @@ class _SearchBoxState extends State<SearchBox> {
   Widget build(BuildContext context) {
     return AnimatedPadding(
       padding: EdgeInsets.symmetric(
-          horizontal: _focusNode.hasFocus ? 0 : 8,
-          vertical: _focusNode.hasFocus ? 0 : 4),
+          horizontal: _focusNode.hasFocus ? 0 : 8, vertical: 4),
       duration: ANIMATION_DURATION,
       child: TextField(
-        style: TextStyle(color: ExtraTheme.of(context).textField, fontSize: 16, height: 1.2),
+        style: TextStyle(
+            color: ExtraTheme.of(context).textField, fontSize: 16, height: 1.2),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
         focusNode: _focusNode,
@@ -79,7 +79,7 @@ class _SearchBoxState extends State<SearchBox> {
               width: 0.0,
             ),
           ),
-          contentPadding: EdgeInsets.all(_focusNode.hasFocus ? 18 : 10),
+          contentPadding: const EdgeInsets.all(12),
           filled: true,
           isDense: true,
           prefixIcon: Icon(
