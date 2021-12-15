@@ -7,6 +7,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -23,16 +24,18 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
 
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  CircleAvatarWidget(this.contactUid, this.radius,
-      {Key? key, this.forceToUpdate = false,
+  const CircleAvatarWidget(this.contactUid, this.radius,
+      {Key? key,
+      this.forceToUpdate = false,
       this.forceText = "",
       this.showAsStreamOfAvatar = false,
-      this.showSavedMessageLogoIfNeeded = false}) : super(key: key);
+      this.showSavedMessageLogoIfNeeded = false})
+      : super(key: key);
 
   Color colorFor(BuildContext context, String text) {
     var hash = 0;
@@ -65,7 +68,7 @@ class CircleAvatarWidget extends StatelessWidget {
     var color = colorFor(context, contactUid.asString());
 
     if (isSavedMessage()) color = Colors.blue;
-    if (isSystem()) color = Colors.blue;
+    if (isSystem()) color = Colors.white;
 
     var textColor =
         changeColor(color, saturation: 0.8, lightness: 0.5).computeLuminance() >
@@ -76,18 +79,23 @@ class CircleAvatarWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(colors: [
-            changeColor(color, saturation: 0.8, lightness: 0.4),
-            changeColor(color, saturation: 0.8, lightness: 0.5),
-            changeColor(color, saturation: 0.8, lightness: 0.7),
-          ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+          color: null,
+          gradient: !isSystem()
+              ? LinearGradient(colors: [
+                  changeColor(color, saturation: 0.8, lightness: 0.4),
+                  changeColor(color, saturation: 0.8, lightness: 0.5),
+                  changeColor(color, saturation: 0.8, lightness: 0.7),
+                ], begin: Alignment.bottomCenter, end: Alignment.topCenter)
+              : null),
       child: CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
-            ? const Image(
-                image: AssetImage(
-                    'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+            ? const ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: Image(
+                  image: AssetImage('assets/images/logo.png'),
+                ),
               )
             : isSavedMessage()
                 ? Icon(

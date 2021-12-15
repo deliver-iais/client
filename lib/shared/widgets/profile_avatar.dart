@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
-import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -34,7 +33,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   String _uploadAvatarPath = "";
-  BehaviorSubject<bool> _showProgressBar = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _showProgressBar = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {

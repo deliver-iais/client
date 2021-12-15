@@ -8,6 +8,7 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -29,6 +30,7 @@ import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -63,6 +65,7 @@ class _ProfilePageState extends State<ProfilePage>
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
@@ -71,6 +74,7 @@ class _ProfilePageState extends State<ProfilePage>
   final I18N _i18n = GetIt.I.get<I18N>();
 
   bool _isMucAdminOrOwner = false;
+  bool _isBotOwner = false;
   bool _isMucOwner = false;
   String _roomName = "";
   bool _roomIsBlocked = false;
@@ -276,7 +280,7 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 ProfileAvatar(
                   roomUid: widget.roomUid,
-                  canSetAvatar: _isMucAdminOrOwner,
+                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
                 ),
                 // _buildMenu(context)
               ],
@@ -448,10 +452,10 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return Text(
-                  _roomName,
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
-                );
+                return RoomName(
+                    uid: widget.roomUid,
+                    name: _roomName,
+                    style: TextStyle(color: ExtraTheme.of(context).textField));
               },
             ),
           ),
@@ -572,13 +576,22 @@ class _ProfilePageState extends State<ProfilePage>
   Future<void> _setupRoomSettings() async {
     if (widget.roomUid.isMuc()) {
       try {
-        final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
+        final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         final mucOwner = await _mucRepo.isMucOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         setState(() {
-          _isMucAdminOrOwner = settingAvatarPermission;
+          _isMucAdminOrOwner = isMucAdminOrAdmin;
           _isMucOwner = mucOwner;
+        });
+      } catch (e) {
+        _logger.e(e);
+      }
+    } else if (widget.roomUid.isBot()) {
+      try {
+        final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
+        setState(() {
+          _isBotOwner = botAvatarPermission.isOwner;
         });
       } catch (e) {
         _logger.e(e);
@@ -925,7 +938,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                rootTomHomePage: true,
+                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -937,7 +950,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                rootTomHomePage: true,
+                shouldRouteToHomePage: true,
               );
             });
         break;

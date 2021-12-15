@@ -13,14 +13,14 @@ class OnDeletePopupDialog extends StatefulWidget {
   final String selected;
   final Uid roomUid;
   final String roomName;
-  final bool rootTomHomePage;
+  final bool shouldRouteToHomePage;
 
   const OnDeletePopupDialog(
       {Key? key,
       required this.selected,
       required this.roomUid,
       required this.roomName,
-      required this.rootTomHomePage})
+      required this.shouldRouteToHomePage})
       : super(key: key);
 
   @override
@@ -174,25 +174,25 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   _leftMuc() async {
     var result = await _mucRepo.leaveMuc(widget.roomUid);
     if (result) _navigateHomePage();
-    if (!widget.rootTomHomePage) Navigator.pop(context);
+    if (!widget.shouldRouteToHomePage) Navigator.pop(context);
   }
 
   _deleteRoom() async {
     var res = await _roomRepo.deleteRoom(widget.roomUid);
     if (res) _navigateHomePage();
-    if (!widget.rootTomHomePage) Navigator.pop(context);
+    if (!widget.shouldRouteToHomePage) Navigator.pop(context);
   }
 
   _deleteMuc() async {
     var result = await _mucRepo.removeMuc(widget.roomUid);
     if (result) {
       _navigateHomePage();
-      if (!widget.rootTomHomePage) Navigator.pop(context);
+      if (!widget.shouldRouteToHomePage) Navigator.pop(context);
     }
   }
 
   _navigateHomePage() {
-    if (widget.rootTomHomePage) {
+    if (widget.shouldRouteToHomePage) {
       _routingService.reset();
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
         return const HomePage();

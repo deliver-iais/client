@@ -19,7 +19,7 @@ class BotInfo {
   Map<String, String>? commands;
 
   @HiveField(4)
-  bool? isOwner;
+  bool isOwner;
 
-  BotInfo({required this.uid, this.description, this.name, this.commands, this.isOwner});
+  BotInfo({required this.uid, this.description, this.name, this.commands, required this.isOwner});
 }

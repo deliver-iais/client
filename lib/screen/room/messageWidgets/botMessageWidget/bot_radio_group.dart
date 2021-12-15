@@ -6,13 +6,9 @@ import 'package:rxdart/rxdart.dart';
 class BotRadioGroup extends FormField<String> {
   final form_pb.Form_Field formField;
   final Function onChange;
-  final FormFieldValidator<String>? validator;
 
   BotRadioGroup(
-      {Key? key,
-      required this.formField,
-      required this.onChange,
-      this.validator})
+      {Key? key, required this.formField, required this.onChange, validator})
       : super(
             key: key,
             validator: validator,
@@ -57,7 +53,7 @@ class BotRadioGroup extends FormField<String> {
                                     title: GestureDetector(
                                       onTap: () {
                                         if (_groupValue.value != null &&
-                                            _groupValue == f) {
+                                            _groupValue.value == f) {
                                           _groupValue.add(null);
                                         } else {
                                           _groupValue.add(f);
