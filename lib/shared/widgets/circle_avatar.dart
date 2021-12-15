@@ -91,18 +91,10 @@ class CircleAvatarWidget extends StatelessWidget {
         radius: radius,
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
-            ? Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  border: Border.all(
-                    color: DELIVER_COLOR,
-                    width: 3,
-                  ),
-                ),
-                padding: const EdgeInsets.all(6),
-                child: const Image(
-                  image: AssetImage('assets/images/icon.jpg'),
+            ? const ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: Image(
+                  image: AssetImage('assets/images/logo.png'),
                 ),
               )
             : isSavedMessage()

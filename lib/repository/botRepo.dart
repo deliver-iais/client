@@ -16,7 +16,7 @@ class BotRepo {
   final _botServiceClient = GetIt.I.get<BotServiceClient>();
   final _botDao = GetIt.I.get<BotDao>();
 
-  Future<BotInfo?> fetchBotInfo(Uid botUid) async {
+  Future<BotInfo> fetchBotInfo(Uid botUid) async {
     GetInfoRes result =
         await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
     var botInfo = BotInfo(
