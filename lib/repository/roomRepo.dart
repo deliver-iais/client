@@ -302,6 +302,10 @@ class RoomRepo {
   }
 
   Future<List<Uid>> searchInRoomAndContacts(String text) async {
+    if (text.isEmpty) {
+      return [];
+    }
+
     List<Uid> searchResult = [];
     var res = await _uidIdNameDao.search(text);
     for (var element in res) {

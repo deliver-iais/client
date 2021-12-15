@@ -63,6 +63,10 @@ class BotRepo {
   }
 
   Future<List<Uid>> searchBotByName(String name) async {
+    if (name.isEmpty) {
+      return [];
+    }
+
     //Todo complete search in bot
     // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name);
     List<Uid> searchInBots = [];

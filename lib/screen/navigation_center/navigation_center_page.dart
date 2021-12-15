@@ -27,43 +27,48 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NavigationCenter extends StatefulWidget {
-  final void Function(String)? tapOnSelectChat;
-
-  final Function? tapOnCurrentUserAvatar;
-
-  const NavigationCenter(
-      {Key? key, this.tapOnSelectChat, required this.tapOnCurrentUserAvatar})
-      : super(key: key);
+  const NavigationCenter({Key? key}) : super(key: key);
 
   @override
   _NavigationCenterState createState() => _NavigationCenterState();
 }
 
 class _NavigationCenterState extends State<NavigationCenter> {
-  final _rootingServices = GetIt.I.get<RoutingService>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _botRepo = GetIt.I.get<BotRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _botRepo = GetIt.I.get<BotRepo>();
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
+  final BehaviorSubject<String> _queryTermDebouncedSubject =
+      BehaviorSubject<String>.seeded("");
 
-  String? query = "";
-
-  BehaviorSubject<String> subject = BehaviorSubject<String>();
+  String _query = "";
 
   @override
   void initState() {
-    subject.stream
+    _queryTermDebouncedSubject.stream
+        .map((text) {
+          _searchMode.add(text.isNotEmpty);
+          return text;
+        })
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) {
-      query = text;
-      _searchMode.add(true);
-    });
+          _query = text;
+        });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchMode.close();
+    _queryTermDebouncedSubject.close();
+    super.dispose();
   }
 
   _NavigationCenterState();
@@ -77,11 +82,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: GestureDetector(
             onTap: () {
-              _scrollController.animateTo(
-                0.0,
-                curve: Curves.easeOut,
-                duration: const Duration(milliseconds: 300),
-              );
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  0.0,
+                  curve: Curves.easeOut,
+                  duration: ANIMATION_DURATION * 3,
+                );
+              }
             },
             child: AppBar(
               backgroundColor: Colors.transparent,
@@ -102,7 +109,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       ),
                     ),
                     onTap: () {
-                      _rootingServices.openSettings(context: context);
+                      _routingServices.openSettings(context: context);
                     },
                   ),
                 ],
@@ -143,11 +150,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
       ),
       body: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          RepaintBoundary(
             child: SearchBox(onChange: (str) {
               if (str.isNotEmpty) {
-                subject.add(str);
+                _queryTermDebouncedSubject.add(str);
               } else {
                 _searchMode.add(false);
               }
@@ -171,8 +177,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  I18N i18n = GetIt.I.get<I18N>();
-
   Widget buildMenu(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
@@ -189,7 +193,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         const Icon(Icons.group),
                         const SizedBox(width: 8),
-                        Text(i18n.get("newGroup")),
+                        Text(_i18n.get("newGroup")),
                       ],
                     ),
                     value: "newGroup",
@@ -201,7 +205,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         const Icon(Icons.rss_feed_rounded),
                         const SizedBox(width: 8),
                         Text(
-                          i18n.get("newChannel"),
+                          _i18n.get("newChannel"),
                         )
                       ],
                     ),
@@ -228,7 +232,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: [
             FutureBuilder<List<Uid>>(
-                future: _contactRepo.searchUser(query ?? ""),
+                future: _contactRepo.searchUser(_query),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.data != null && snaps.data!.isNotEmpty) {
                     return Expanded(
@@ -248,7 +252,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   }
                 }),
             FutureBuilder<List<Uid>>(
-                future: _botRepo.searchBotByName(query!),
+                future: _botRepo.searchBotByName(_query),
                 builder: (c, bot) {
                   if (bot.hasData && bot.data != null && bot.data!.isNotEmpty) {
                     return Column(
@@ -262,10 +266,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   }
                 }),
             FutureBuilder<List<Uid>>(
-                future: _roomRepo.searchInRoomAndContacts(query!),
+                future: _roomRepo.searchInRoomAndContacts(_query),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.hasData &&
-                      snaps.data != null &&
                       snaps.data!.isNotEmpty) {
                     return Expanded(
                         child: SingleChildScrollView(
@@ -298,7 +301,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         return GestureDetector(
           onTap: () {
             _roomRepo.insertRoom(snaps.data![index].asString());
-            _rootingServices.openRoom(snaps.data![index].asString(),
+            _routingServices.openRoom(snaps.data![index].asString(),
                 context: c);
           },
           child: _contactResultWidget(uid: snaps.data![index], context: c),

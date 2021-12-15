@@ -67,13 +67,7 @@ class RoutingService {
   ListQueue<Page>? _stack;
 
   RoutingService() {
-    _navigationCenter = NavigationCenter(
-      key: const ValueKey("navigator"),
-      tapOnCurrentUserAvatar: () {
-        // this.openContacts();
-        openSettings();
-      },
-    );
+    _navigationCenter = const NavigationCenter(key: ValueKey("navigator"));
 
     reset();
   }
