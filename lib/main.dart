@@ -1,4 +1,3 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -238,7 +237,6 @@ Future<void> setupDI() async {
 
 Future setupFlutterNotification() async {
   await Firebase.initializeApp();
-  AwesomeNotifications().initialize(null, []);
 }
 
 void main() async {
@@ -259,7 +257,6 @@ void main() async {
   // TODO add IOS and MacOS too
   if (isAndroid()) {
     await setupFlutterNotification();
-
   }
 
   Logger().i("OS based setups done.");
@@ -313,7 +310,10 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-                supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
+                supportedLocales: const [
+                  Locale('en', 'US'),
+                  Locale('fa', 'IR')
+                ],
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,

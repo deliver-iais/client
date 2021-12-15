@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -796,6 +797,7 @@ class CallRepo {
   }
 
   _dispose() async {
+    notificationRoomUid.add("");
     if (timer != null) {
       _logger.i("timer canceled");
       timer!.cancel();
