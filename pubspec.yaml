@@ -124,7 +124,6 @@ dependencies:
   flutter_vlc_player: ^6.0.5
   sdp_transform: ^0.3.2
   flutter_webrtc: ^0.7.1
-  awesome_notifications: ^0.6.17
   connectycube_flutter_call_kit:
     git:
       url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git

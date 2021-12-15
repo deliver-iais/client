@@ -1,7 +1,4 @@
 import 'dart:ui';
-
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -67,27 +64,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
-    if (isAndroid()) {
-      AwesomeNotifications().actionStream.listen((receivedNotification) {
-        int messageId = int.parse(receivedNotification.payload!['id']!);
-        Uid uid = receivedNotification.payload!['uid']!.asUid();
-
-        if (!StringUtils.isNullOrEmpty(receivedNotification.buttonKeyInput)) {
-          AwesomeNotifications().cancel(receivedNotification.id!);
-          messageRepo.sendTextMessage(
-            uid,
-            receivedNotification.buttonKeyInput,
-            replyId: messageId,
-          );
-        }
-        if (receivedNotification.buttonKeyPressed == "READ") {
-          messageRepo.sendSeen(messageId, uid);
-          _roomRepo.saveMySeen(Seen(
-              uid: receivedNotification.payload!['uid']!,
-              messageId: messageId));
-        }
-      });
-    }
     subject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) {
@@ -105,7 +81,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     modifyRoutingByNotificationAudioCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
         _routingService.openCallScreen(
-            event.keys.elementAt(0).asUid(), true,false,
+            event.keys.elementAt(0).asUid(), true, false,
             context: context);
       }
     });
