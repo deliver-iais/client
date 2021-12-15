@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io';
-import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
@@ -17,7 +15,6 @@ import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
-import 'package:deliver/screen/room/widgets/show_image_widget.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -418,24 +415,6 @@ class RoutingService {
   void openScanQrCode(BuildContext context) {
     var widget = const ScanQrCode(
       key: ValueKey("/scan_qr_code"),
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/scan_qr_code"));
-    } else {
-      _rootInMobileState(widget, context);
-    }
-  }
-
-  void openImagePage(BuildContext context,
-      {required Uid roomUid, required File file}) {
-    var widget = ShowImagePage(
-      roomUid: roomUid,
-      imageFile: file,
-      key: const ValueKey("/show_image_page"),
     );
     if (isDesktop()) {
       _push(Page(

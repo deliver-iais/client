@@ -275,7 +275,7 @@
   "access_name": "Do you allow access to your name ?",
   "access_username" : "Do you allow access to your username?",
   "report_message": "Thank you for this report",
-  "bot_not_responding": "No response received from bot."
+  "bot_not_responding": "bot not responding"
 
 
 }

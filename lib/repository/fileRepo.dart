@@ -27,7 +27,7 @@ class FileRepo {
       {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     var value = await _fileService.uploadFile(clonedFilePath!.path!,
-        uploadKey: uploadKey, sendActivity: sendActivity!);
+        uploadKey: uploadKey, sendActivity: sendActivity);
 
     var json = jsonDecode(value.toString());
     var uploadedFile = file_pb.File()

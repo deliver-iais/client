@@ -32,7 +32,10 @@ class PersistentEventMessage extends StatelessWidget {
   final double maxWidth;
 
   PersistentEventMessage(
-      {Key? key, required this.message, this.onPinMessageClick,required this.maxWidth})
+      {Key? key,
+      required this.message,
+      this.onPinMessageClick,
+      required this.maxWidth})
       : persistentEventMessage = message.json!.toPersistentEvent(),
         super(key: key);
 
@@ -47,20 +50,26 @@ class PersistentEventMessage extends StatelessWidget {
             ? Padding(
                 padding: const EdgeInsets.only(left: 1),
                 child: Container(
-                  constraints: BoxConstraints(maxWidth: maxWidth,),
-                  color: ExtraTheme.of(context).receivedMessageBox,
+                  constraints: BoxConstraints(
+                    maxWidth: maxWidth,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).dividerColor.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(_i18n.get("bot_not_responding"),
-                          style: Theme.of(context).textTheme.bodyText2),
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: ExtraTheme.of(context).textField)),
                       if (persistentEventMessage
                           .botSpecificPersistentEvent.errorMessage.isNotEmpty)
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style: Theme.of(context).textTheme.bodyText2),
-                      TimeAndSeenStatus(message, false, false),
+                            style: Theme.of(context).textTheme.headline5),
                     ],
                   ),
                 ),

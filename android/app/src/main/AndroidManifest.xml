@@ -25,6 +25,7 @@
         android:allowBackup="false"
         android:launchMode="singleTask"
         android:fullBackupOnly="false"
+        android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".Application"
@@ -132,6 +133,11 @@
 
 <!--        <meta-data android:name="com.google.android.geo.API_KEY"-->
 <!--            android:value="AIzaSyDdqjmHzKFHvMMJBAYPpDNEMW8yRYUYuYk"/>-->
+
+        <activity
+                android:name="com.yalantis.ucrop.UCropActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

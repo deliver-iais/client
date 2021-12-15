@@ -533,7 +533,6 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "addBotToGroup"),
-        if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: Row(
                 children: [

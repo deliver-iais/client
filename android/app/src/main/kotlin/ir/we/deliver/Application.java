@@ -42,7 +42,6 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                     }
                 });
 
-
     }
 
 
