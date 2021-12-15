@@ -7,9 +7,6 @@ import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
-
 import 'helper_classes.dart';
 
 class ShareBoxGallery extends StatefulWidget {
@@ -31,7 +28,6 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  final _i18n = GetIt.I.get<I18N>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late Future<List<StorageFile>> _future;
@@ -112,16 +108,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 },
                                 child: CameraPreview(
                                   controller,
-                                  child: IconButton(
-                                    onPressed: () async {
-                                      openCamera();
-                                    },
-                                    icon: const Icon(
-                                      Icons.photo_camera,
-                                      color: Colors.blue,
-                                      size: 30,
-                                    ),
-                                  ),
+                                  child: const Icon(Icons.photo_camera),
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -202,11 +189,14 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                 Navigator.pop(context);
                 widget.selectAvatar
                     ? widget.setAvatar!(file.path)
-                    : showCaptionDialog(
-                        roomUid: widget.roomUid,
-                        context: context,
-                        paths: [file.path],
-                        type: file.path.split(".").last);
+                    : () {
+                        Navigator.pop(context);
+                        showCaptionDialog(
+                            roomUid: widget.roomUid,
+                            context: context,
+                            paths: [file.path],
+                            type: file.path.split(".").last);
+                      };
               },
               icon: const Icon(
                 Icons.photo_camera,

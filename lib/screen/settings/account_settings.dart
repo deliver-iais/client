@@ -116,7 +116,6 @@ class _AccountSettingsState extends State<AccountSettings> {
           title: _i18n.get("avatar"),
         ));
     if (croppedFile != null) {
-  //    Navigator.pop(context);
       setAvatar(croppedFile.path);
     }
   }
@@ -124,7 +123,6 @@ class _AccountSettingsState extends State<AccountSettings> {
   Future<void> setAvatar(String path) async {
     _uploadNewAvatar.add(true);
     _newAvatarPath = path;
-
     await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
     _uploadNewAvatar.add(false);
   }

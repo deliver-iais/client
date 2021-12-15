@@ -248,28 +248,10 @@ class _ShareBoxState extends State<ShareBox> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: <Widget>[
                                       circleButton(() async {
-                                        var res = await ImageItem.getImages();
-                                        if (res.isEmpty) {
-                                          FilePickerResult? result =
-                                              await FilePicker.platform
-                                                  .pickFiles(
-                                            allowMultiple: true,
-                                            type: FileType.custom,
-                                          );
-                                          if (result != null) {
-                                            Navigator.pop(co);
-                                            showCaptionDialog(
-                                                type: "image",
-                                                paths: result.paths,
-                                                roomUid: widget.currentRoomId,
-                                                context: context);
-                                          }
-                                        } else {
-                                          setState(() {
-                                            _audioPlayer.stop();
-                                            currentPage = Page.gallery;
-                                          });
-                                        }
+                                        setState(() {
+                                          _audioPlayer.stop();
+                                          currentPage = Page.gallery;
+                                        });
                                       }, Icons.insert_drive_file,
                                           i18n.get("gallery"), 40,
                                           context: co),
