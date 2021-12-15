@@ -996,7 +996,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _addForwardMessage(message);
           } else if (!isDesktop()) {
             FocusScope.of(context).unfocus();
-            ;
             _showCustomMenu(message, false);
           }
         },

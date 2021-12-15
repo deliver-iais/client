@@ -119,10 +119,10 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
       typeDetails =
           "${i18n.get("spda")} ${i18n.get(msg.sharePrivateDataRequest.data.name).toLowerCase()}";
       break;
-    case message_pb.Message_Type.paymentTransaction:
+    case message_pb.Message_Type.transaction:
       typeDetails = i18n.get("payment_transaction");
       text =
-          msg.paymentTransaction.description; // TODO needs more details maybe
+          msg.transaction.description; // TODO needs more details maybe
       break;
     case message_pb.Message_Type.persistEvent:
       typeDetails = await getPersistentEventText(

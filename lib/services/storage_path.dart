@@ -10,7 +10,6 @@ class StoragePath {
       final String data = await _channel.invokeMethod('get_all_image');
       return data;
     }catch(e){
-      print(e.toString());
       return "";
     }
 

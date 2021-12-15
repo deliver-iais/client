@@ -20,10 +20,10 @@ class ImageFolderWidget extends StatefulWidget {
   const ImageFolderWidget(
     this.storageFile,
     this.roomUid,
-    this.pop, {
+    this.pop, {Key? key,
     this.selectAvatar = false,
     this.setAvatar,
-  });
+  }) : super(key: key);
 
   @override
   State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
