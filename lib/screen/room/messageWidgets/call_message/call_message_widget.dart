@@ -1,13 +1,10 @@
-import 'dart:convert';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -26,79 +23,61 @@ class CallMessageWidget extends StatelessWidget {
         _callDuration = message.json!.toCallDuration(),
         super(key: key);
 
-  //todo :
   @override
   Widget build(BuildContext context) {
-    return _callEvent == CallEvent_CallStatus.ENDED ||
-            _callEvent == CallEvent_CallStatus.BUSY ||
-            _callEvent == CallEvent_CallStatus.DECLINED
-        ? Align(
-            alignment: _autRepo.isCurrentUser(message.from)
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
-            child: Container(
-                width: 280,
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.only(
-                    top: 16, left: 16, right: 16, bottom: 16),
-                decoration: BoxDecoration(
-                  color: _autRepo.isCurrentUser(message.from)
-                      ? ExtraTheme.of(context).sentMessageBox
-                      : ExtraTheme.of(context).receivedMessageBox,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+            width: 200,
+            margin: const EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    CallState(
+                      time: _callDuration,
+                      callStatus: _callEvent,
+                      isCurrentUser: _autRepo.isCurrentUser(message.from),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Row(
                       children: [
-                        CallState(
-                          time: _callDuration,
-                          callStatus: _callEvent,
-                          isCurrentUser: _autRepo.isCurrentUser(message.from),
+                        Icon(
+                          _autRepo.isCurrentUser(message.from)
+                              ? Icons.call_made
+                              : Icons.call_received,
+                          color: Colors.green,
+                          size: 14,
+                        ),
+                        MsgTime(
+                          time:
+                              DateTime.fromMillisecondsSinceEpoch(message.time),
+                          isSent: false,
                         ),
                         const SizedBox(
-                          height: 5,
+                          width: 10,
                         ),
-                        Row(
-                          children: [
-                            Icon(
-                              _autRepo.isCurrentUser(message.from)
-                                  ? Icons.call_made
-                                  : Icons.call_received,
-                              color: Colors.green,
-                              size: 14,
-                            ),
-                            MsgTime(
-                              time: DateTime.fromMillisecondsSinceEpoch(
-                                  message.time),
-                              isSent: false,
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            CallTime(
-                                    time: DateTime.fromMicrosecondsSinceEpoch(
-                                        _callDuration * 1000,
-                                        isUtc: true),
-                                  )
-
-                          ],
-                        ),
+                        CallTime(
+                          time: DateTime.fromMicrosecondsSinceEpoch(
+                              _callDuration * 1000,
+                              isUtc: true),
+                        )
                       ],
                     ),
-                    const Align(
-                      alignment: Alignment.centerRight,
-                      child: Icon(
-                        Icons.call,
-                        color: Colors.cyan,
-                        size: 35,
-                      ),
-                    ),
                   ],
-                )),
-          )
-        : const SizedBox.shrink();
+                ),
+                const Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(
+                    Icons.call,
+                    color: Colors.cyan,
+                    size: 35,
+                  ),
+                ),
+              ],
+            ));
+
   }
 }
