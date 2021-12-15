@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   dart_vlc
   desktoasts
   desktop_drop
+  desktop_window
   flutter_webrtc
   url_launcher_windows
   window_size

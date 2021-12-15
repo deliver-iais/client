@@ -156,14 +156,21 @@ class CallRepo {
   }
 
   _createPeerConnection(bool isOffer) async {
-    Map<String, dynamic> configuration = {
+    Map<String, dynamic> _iceServers = {
       'iceServers': [
         {'url': STUN_SERVER_URL},
         {
-          'url': TURN_SERVER_URL,
-          'username': TURN_SERVER_USERNAME,
-          'credential': TURN_SERVER_PASSWORD
-        },
+           'url': TURN_SERVER_URL,
+           'username': TURN_SERVER_USERNAME,
+           'credential': TURN_SERVER_PASSWORD
+         },
+      ]
+    };
+
+    final Map<String, dynamic> _config = {
+      'mandatory': {},
+      'optional': [
+        {'DtlsSrtpKeyAgreement': true},
       ]
     };
 
@@ -178,7 +185,7 @@ class CallRepo {
     _localStream = await _getUserMedia();
 
     RTCPeerConnection pc =
-        await createPeerConnection(configuration, _sdpConstraints);
+        await createPeerConnection(_iceServers, _config);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isWindows()) {
@@ -783,9 +790,9 @@ class CallRepo {
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
-    for (var candidate in candidates) {
+     for (var candidate in candidates) {
       await _peerConnection!.addCandidate(candidate);
-    }
+     }
   }
 
   _dispose() async {
