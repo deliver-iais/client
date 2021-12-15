@@ -29,7 +29,7 @@ class CircleAvatarWidget extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  CircleAvatarWidget(this.contactUid, this.radius,
+  const CircleAvatarWidget(this.contactUid, this.radius,
       {Key? key,
       this.forceToUpdate = false,
       this.forceText = "",
