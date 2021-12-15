@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -69,7 +67,9 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             itemBuilder: (c, index) {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
-                  onTap: () => openImage(imagePath),
+                  onTap: () => widget.selectAvatar
+                      ? cropAvatar(imagePath)
+                      : openImage(imagePath),
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsets.all(
@@ -94,9 +94,9 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                               ? const SizedBox.shrink()
                               : Align(
                                   alignment: Alignment.topRight,
-                                  child: IconButton(
-                                    onPressed: () => onTap(imagePath),
-                                    icon: Icon(
+                                  child: GestureDetector(
+                                    onTap: () => onTap(imagePath),
+                                    child: Icon(
                                       _selectedImage.contains(imagePath)
                                           ? Icons.check_circle_outline
                                           : Icons.panorama_fish_eye,
