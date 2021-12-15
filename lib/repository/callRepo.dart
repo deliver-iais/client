@@ -66,6 +66,7 @@ class CallRepo {
   bool _isConnected = false;
   bool _isSpeaker = false;
   bool _isInitRenderer = false;
+  bool _isDCRecived = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -235,8 +236,6 @@ class CallRepo {
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
           _startCallTimerAndChangeStatus();
-          _dataChannel!
-              .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
           callingStatus.add(CallStatus.DISCONNECTED);
@@ -297,9 +296,10 @@ class CallRepo {
 
     pc.onDataChannel = (channel) {
       _logger.i("data Channel Received!!");
+      _dataChannel = channel;
+      _isDCRecived = true;
       //it means Connection is Connected
       _startCallTimerAndChangeStatus();
-      _dataChannel = channel;
       _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
         var status = data.text;
         _logger.i(status);
@@ -358,6 +358,10 @@ class CallRepo {
     startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
+    }
+    if(_isDCRecived) {
+      _dataChannel!
+          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
