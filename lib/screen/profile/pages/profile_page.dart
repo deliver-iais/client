@@ -926,7 +926,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                rootTomHomePage: true,
+                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -938,7 +938,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                rootTomHomePage: true,
+                shouldRouteToHomePage: true,
               );
             });
         break;

@@ -50,7 +50,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             roomUid: widget.room.uid.asUid(),
             selected: selected,
             roomName: roomName!,
-            rootTomHomePage: false,
+            shouldRouteToHomePage: false,
           );
         });
   }
