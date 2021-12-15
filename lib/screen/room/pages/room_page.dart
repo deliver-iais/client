@@ -18,7 +18,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
-import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
@@ -51,6 +50,7 @@ import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -131,6 +131,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
   Message? currentSearchResultMessage;
+  CallEvent_CallStatus? _callEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -976,30 +977,37 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget _buildMessageBox(Message msg, BuildContext context, Room? currentRoom,
       List<PendingMessage> pendingMessages) {
-    return msg.type == MessageType.CALL
-        ? CallMessageWidget(message: msg)
-        : msg.type != MessageType.PERSISTENT_EVENT
-            ? AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                color: _selectedMessages.containsKey(msg.id) ||
-                        (msg.id != null && msg.id == _replyMessageId) ||
-                        currentSearchResultMessage != null &&
-                            currentSearchResultMessage!.id == msg.id
-                    ? Theme.of(context).disabledColor
-                    : Colors.transparent,
-                child: _createWidget(msg, currentRoom, pendingMessages),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: msg.json == "{}" ? 0.0 : 4.0),
-                    child: PersistentEventMessage(message: msg),
-                  ),
-                ],
-              );
+    if (msg.type == MessageType.CALL) {
+      _callEvent = msg.json!.toCallEvent().newStatus;
+      if (_callEvent != CallEvent_CallStatus.BUSY &&
+          _callEvent != CallEvent_CallStatus.DECLINED &&
+          _callEvent != CallEvent_CallStatus.ENDED) {
+        return const SizedBox.shrink();
+      }
+    }
+
+    return msg.type != MessageType.PERSISTENT_EVENT
+        ? AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            color: _selectedMessages.containsKey(msg.id) ||
+                    (msg.id != null && msg.id == _replyMessageId) ||
+                    currentSearchResultMessage != null &&
+                        currentSearchResultMessage!.id == msg.id
+                ? Theme.of(context).disabledColor
+                : Colors.transparent,
+            child: _createWidget(msg, currentRoom, pendingMessages),
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: msg.json == "{}" ? 0.0 : 4.0),
+                child: PersistentEventMessage(message: msg),
+              ),
+            ],
+          );
   }
 
   Widget _createWidget(
