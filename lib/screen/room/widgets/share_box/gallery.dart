@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/screen/room/widgets/share_box/image_folder.dart';
+import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
 
