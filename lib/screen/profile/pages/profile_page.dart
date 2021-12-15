@@ -534,7 +534,6 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "addBotToGroup"),
-        if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: Row(
                 children: [
@@ -927,6 +926,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
+                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -938,6 +938,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
+                shouldRouteToHomePage: true,
               );
             });
         break;

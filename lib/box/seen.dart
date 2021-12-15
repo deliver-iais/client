@@ -10,8 +10,17 @@ class Seen {
   String uid;
 
   // DbId
-  @HiveField(1)
-  int messageId;
 
-  Seen({required this.uid, required this.messageId});
+  @HiveField(1)
+  int? messageId;
+
+  @HiveField(2)
+  int? hiddenMessageCount;
+
+  Seen({required this.uid, this.messageId, this.hiddenMessageCount});
+
+  Seen copy(Seen seen) => Seen(
+      uid: seen.uid,
+      messageId: seen.messageId ?? messageId,
+      hiddenMessageCount: seen.hiddenMessageCount ?? hiddenMessageCount);
 }
