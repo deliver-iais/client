@@ -32,6 +32,7 @@ class ShareBoxGallery extends StatefulWidget {
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final i18n = GetIt.I.get<I18N>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late Future<List<StorageFile>> _future;
 
@@ -44,6 +45,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<StorageFile>?>(
+        key: _scaffoldKey,
         future: _future,
         builder: (context, folders) {
           if (folders.hasData &&
