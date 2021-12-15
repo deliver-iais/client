@@ -9,10 +9,10 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +35,11 @@ class ChatItem extends StatefulWidget {
 }
 
 class _ChatItemState extends State<ChatItem> {
-  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
@@ -143,16 +143,12 @@ class _ChatItemState extends State<ChatItem> {
                                                     Categories.BOT)
                                             ? const EdgeInsets.only(left: 16.0)
                                             : EdgeInsets.zero,
-                                        child: _authRepo
-                                                .isCurrentUser(widget.room.uid)
-                                            ? _showDisplayName(
-                                                widget.room.uid.asUid(),
-                                                _i18n.get("saved_message"),
-                                                context)
-                                            : _showDisplayName(
-                                                widget.room.uid.asUid(),
-                                                name.data!,
-                                                context))),
+                                        child: RoomName(
+                                            uid: widget.room.uid.asUid(),
+                                            name: _authRepo.isCurrentUser(
+                                                    widget.room.uid)
+                                                ? _i18n.get("saved_message")
+                                                : name.data!))),
                                 Text(
                                   dateTimeFormat(
                                       date(widget.room.lastUpdateTime!)),
@@ -278,16 +274,6 @@ class _ChatItemState extends State<ChatItem> {
               )),
         ),
       ],
-    );
-  }
-
-  _showDisplayName(Uid uid, String name, BuildContext context) {
-    return Text(
-      name.trim(),
-      style: Theme.of(context).textTheme.subtitle2,
-      maxLines: 1,
-      softWrap: false,
-      overflow: TextOverflow.fade,
     );
   }
 }

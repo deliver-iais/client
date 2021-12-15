@@ -585,13 +585,13 @@ class _InputMessageWidget extends State<InputMessage> {
     if (event is RawKeyUpEvent) {
       if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
-          (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+          (event.physicalKey == PhysicalKeyboardKey.enter ||
+              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         sendMessage();
       } else if (_uxService.sendByEnter &&
           !event.isShiftPressed &&
-          (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+          (event.physicalKey == PhysicalKeyboardKey.enter ||
+              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         sendMessage();
       }
     }

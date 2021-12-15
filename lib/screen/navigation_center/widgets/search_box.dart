@@ -10,9 +10,11 @@ class SearchBox extends StatefulWidget {
   final BorderRadius borderRadius;
 
   const SearchBox(
-      {Key? key, required this.onChange,
+      {Key? key,
+      required this.onChange,
       this.onCancel,
-      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))}) : super(key: key);
+      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))})
+      : super(key: key);
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
@@ -21,7 +23,9 @@ class SearchBox extends StatefulWidget {
 class _SearchBoxState extends State<SearchBox> {
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final TextEditingController _controller = TextEditingController();
-  I18N i18n = GetIt.I.get<I18N>();
+  final _focusNode = FocusNode(canRequestFocus: false);
+  final i18n = GetIt.I.get<I18N>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,7 @@ class _SearchBoxState extends State<SearchBox> {
         style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
-        focusNode: FocusNode(canRequestFocus: false),
+        focusNode: _focusNode,
         controller: _controller,
         autofocus: false,
         maxLines: 1,
@@ -46,11 +50,8 @@ class _SearchBoxState extends State<SearchBox> {
         cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-            borderRadius: widget.borderRadius,
-            borderSide: const BorderSide(
-              color: Colors.transparent,
-              width: 2.0,
-            ),
+            borderRadius: widget.borderRadius / 4,
+            borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius,

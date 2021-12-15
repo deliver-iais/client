@@ -64,7 +64,12 @@ class RoomRepo {
     }
   }
 
-  Future<String>? getName(Uid uid) async {
+  Future<bool> isVerified(Uid uid) async {
+    // TODO, add dynamic verification later on
+    return uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
+  }
+
+  Future<String> getName(Uid uid) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -147,9 +152,13 @@ class RoomRepo {
     }
 
     String? username = await getIdByUid(uid);
-    roomNameCache.set(uid.asString(), username!);
-    _uidIdNameDao.update(uid.asString(), id: username);
-    return username;
+
+    if (username != null) {
+      roomNameCache.set(uid.asString(), username);
+      _uidIdNameDao.update(uid.asString(), id: username);
+    }
+
+    return username ?? "Unknown";
   }
 
   Future<String?>? getId(Uid uid) async {

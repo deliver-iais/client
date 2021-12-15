@@ -169,7 +169,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   RawKeyboardListener(
                     focusNode: _captionFocusNode,
                     onKey: (event) {
-                      if (event.logicalKey == LogicalKeyboardKey.enter) {
+                      if (event.physicalKey == PhysicalKeyboardKey.enter) {
                         send();
                       }
                     },
