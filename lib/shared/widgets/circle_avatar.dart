@@ -7,7 +7,6 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -121,7 +120,6 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<Avatar?> snapshot, Color textColor) {
     if (snapshot.hasData &&
-        snapshot.data != null &&
         snapshot.data!.fileId != null &&
         snapshot.data!.fileName != null) {
       return FutureBuilder<File?>(
@@ -159,23 +157,19 @@ class CircleAvatarWidget extends StatelessWidget {
           String name = snapshot.data!.trim();
           return avatarAlt(name.trim(), textColor);
         } else {
-          return Icon(
-            Icons.person,
-            size: radius,
-            color: Colors.white,
-          );
+          return const SizedBox.shrink();
         }
       },
     );
   }
 
-  Center avatarAlt(String name, Color textColor) {
+  Widget avatarAlt(String name, Color textColor) {
     return Center(
       child: Text(
           name.length > 1
               ? name.substring(0, 1).toUpperCase()
               : name.toUpperCase(),
-          maxLines: null,
+          maxLines: 1,
           style: TextStyle(
               color: textColor, fontSize: (radius * 0.9).toInt().toDouble())),
     );
