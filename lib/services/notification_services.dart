@@ -353,7 +353,9 @@ class AndroidNotifier implements Notifier {
     var selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
-    if (la != null) {
+    //TODO why give LA with null fielID from avatarRepo???
+    //add check on fileId not null for fix this issue
+    if (la != null && la.fileId !=null ) {
       var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
