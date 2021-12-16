@@ -427,6 +427,7 @@ class CallRepo {
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
           callingStatus.add(CallStatus.CONNECTED);
+          startCallTimer();
           break;
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);
