@@ -63,7 +63,7 @@ class UidIdNameDaoImpl implements UidIdNameDao {
         .where((element) =>
             (element.id != null &&
                 element.id.toString().toLowerCase().contains(text)) ||
-            (element.name!.toLowerCase().contains(text)))
+            (element.name != null && element.name!.toLowerCase().contains(text)))
         .toList();
     return res;
   }

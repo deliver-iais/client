@@ -85,6 +85,7 @@ class CallRepo {
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
   Timer? timerConnectionFailed;
+  Timer? timerDisconnected;
 
   int seconds = 0;
   int minutes = 0;
@@ -247,6 +248,13 @@ class CallRepo {
           callingStatus.add(CallStatus.DISCONNECTED);
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
+          timerDisconnected = Timer(const Duration(seconds: 5), () {
+            if (callingStatus.value == CallStatus.DISCONNECTED) {
+              callingStatus.add(CallStatus.ENDED);
+              _logger.i("Disconnected and Call End!");
+              endCall();
+            }
+          });
           callingStatus.add(CallStatus.FAILED);
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:

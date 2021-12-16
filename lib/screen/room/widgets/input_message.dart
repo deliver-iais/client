@@ -29,8 +29,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -86,7 +84,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   double dx = 150.0;
   bool recordAudioPermission = false;
-  final FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
   late String mentionQuery;
   late Timer recordAudioTimer;
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
@@ -109,9 +106,10 @@ class _InputMessageWidget extends State<InputMessage> {
   int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  var r = Record();
+  var record = Record();
 
-  String? path;
+  var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -162,11 +160,6 @@ class _InputMessageWidget extends State<InputMessage> {
         _showSendIcon.add(false);
       }
 
-      _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text);
-
-      var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
-      var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
-
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           _controller.text.isNotEmpty &&
           _controller.text[0] == "/" &&
@@ -214,6 +207,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void dispose() {
     inputMessagePrifix.close();
+    _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text);
     _controller.dispose();
     super.dispose();
   }
@@ -294,7 +288,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                           FocusScope.of(context).unfocus();
                                         } else if (!back.data!) {
                                           FocusScope.of(context).unfocus();
-                                          Timer(const Duration(milliseconds: 50), () {
+                                          Timer(
+                                              const Duration(milliseconds: 50),
+                                              () {
                                             backSubject.add(true);
                                           });
                                         }
@@ -303,14 +299,11 @@ class _InputMessageWidget extends State<InputMessage> {
                                   }),
                               Flexible(
                                 child: RawKeyboardListener(
-                                  focusNode: isDesktop()
-                                      ? keyboardRawFocusNode
-                                      : FocusNode(canRequestFocus: false),
+                                  focusNode: keyboardRawFocusNode,
                                   onKey: handleKeyPress,
                                   child: TextField(
-                                    focusNode: isDesktop()
-                                        ? InputMessage.inputMessageFocusNode
-                                        : FocusNode(canRequestFocus: false),
+                                    focusNode:
+                                        InputMessage.inputMessageFocusNode,
                                     autofocus: widget.replyMessageId! > 0 ||
                                         isDesktop(),
                                     controller: _controller,
@@ -444,8 +437,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
-                                      _soundRecorder.closeAudioSession();
-                                      _soundRecorder.stopRecorder();
                                       x = 0;
                                       size = 1;
                                     });
@@ -456,29 +447,19 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   var s =
                                       await getApplicationDocumentsDirectory();
-                                  path = s.path +
+                                  String path = s.path +
                                       "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   recordSubject.add(DateTime.now());
                                   setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
-                                  await _soundRecorder.openAudioSession();
                                   // Start recording
-                                  await r.start(
+                                  await record.start(
                                     path: path,
                                     encoder: AudioEncoder.AAC, // by default
                                     bitRate: 128000, // by default
                                     samplingRate: 16000, // by default
                                   );
-
-                                  // _soundRecorder.startRecorder(
-                                  //   toFile: path,
-                                  //   codec:Codec.aacMP4,
-                                  //   sampleRate: 16000,
-                                  //   numChannels: 1,
-                                  //   bitRate: 16000,
-                                  //   audioSource: AudioSource.microphone,
-                                  // );
                                   setState(() {
                                     startAudioRecorder = true;
                                     size = 2;
@@ -489,7 +470,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               },
                               onLongPressEnd: (s) async {
                                 _tickTimer.cancel();
-                                var res = await r.stop();
+                                var res = await record.stop();
 
                                 // _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
@@ -544,6 +525,44 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
+  // TextField buildTextField() {
+  //   return TextField(
+  //     focusNode: isDesktop()
+  //         ? InputMessage.inputMessageFocusNode
+  //         : FocusNode(canRequestFocus: true),
+  //     autofocus: widget.replyMessageId! > 0 || isDesktop(),
+  //     controller: _controller,
+  //     decoration: InputDecoration(
+  //       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+  //       border: InputBorder.none,
+  //       hintText: i18n.get("message"),
+  //     ),
+  //     autocorrect: true,
+  //     textInputAction: TextInputAction.newline,
+  //     minLines: 1,
+  //     maxLines: 15,
+  //     textAlign: _controller.text.isNotEmpty && _controller.text.isPersian()
+  //         ? TextAlign.right
+  //         : TextAlign.left,
+  //     textDirection: _controller.text.isNotEmpty && _controller.text.isPersian()
+  //         ? TextDirection.rtl
+  //         : TextDirection.ltr,
+  //     style: Theme.of(context).textTheme.subtitle1,
+  //     onTap: () {
+  //       backSubject.add(false);
+  //
+  //     },
+  //     onChanged: (str) {
+  //       _textSelection = _controller.selection;
+  //       if (str.isNotEmpty) {
+  //         isTypingActivitySubject.add(ActivityType.TYPING);
+  //       } else {
+  //         noActivitySubject.add(ActivityType.NO_ACTIVITY);
+  //       }
+  //     },
+  //   );
+  // }
+
   void onMentionSelected(s) {
     int start = _textSelection.base.offset;
     String block_1 = _controller.text.substring(0, start);
@@ -566,13 +585,13 @@ class _InputMessageWidget extends State<InputMessage> {
     if (event is RawKeyUpEvent) {
       if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
-          (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+          (event.physicalKey == PhysicalKeyboardKey.enter ||
+              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         sendMessage();
       } else if (_uxService.sendByEnter &&
           !event.isShiftPressed &&
-          (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+          (event.physicalKey == PhysicalKeyboardKey.enter ||
+              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         sendMessage();
       }
     }

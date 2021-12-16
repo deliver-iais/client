@@ -26,16 +26,17 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
-        android:name=".Application"
+
         android:label="Deliver"
         android:installLocation="auto"
         android:usesCleartextTraffic="true"
         android:allowBackup="false"
         android:launchMode="singleTask"
         android:fullBackupOnly="false"
+        android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
+            android:name=".Application"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -154,6 +155,11 @@
 
 <!--        <meta-data android:name="com.google.android.geo.API_KEY"-->
 <!--            android:value="AIzaSyDdqjmHzKFHvMMJBAYPpDNEMW8yRYUYuYk"/>-->
+
+        <activity
+                android:name="com.yalantis.ucrop.UCropActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

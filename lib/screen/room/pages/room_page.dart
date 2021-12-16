@@ -37,6 +37,7 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -62,7 +63,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:sorted_list/sorted_list.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
 
@@ -108,7 +108,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _currentMessageSearchId = -1;
   List<Message> searchResult = [];
 
-  final _pinMessages = SortedList<Message>((a, b) => a.id!.compareTo(b.id!));
+  final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(80));
 
@@ -498,8 +498,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _getLastSeen() async {
     Seen? seen = await _roomRepo.getOthersSeen(widget.roomId);
-    if (seen != null) {
-      _lastSeenMessageId = seen.messageId;
+    if (seen != null && seen.messageId != null) {
+      _lastSeenMessageId = seen.messageId!;
     }
   }
 
@@ -508,8 +508,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     var room = await _roomRepo.getRoom(widget.roomId);
 
-    if (seen != null) {
-      _lastShowedMessageId = seen.messageId;
+    if (seen != null && seen.messageId != null) {
+      _lastShowedMessageId = seen.messageId!;
       if (room!.firstMessageId != null) {
         _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId!;
       }
@@ -536,6 +536,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           ? _currentRoom.value!.lastUpdatedMessageId!
                           : 0);
               _pinMessages.add(m!);
+              _pinMessages.sort((a, b) => a.time - b.time);
               _lastPinedMessage.add(_pinMessages.last.id!);
             } catch (e) {
               _logger.e(e);
@@ -1004,7 +1005,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               Padding(
                 padding: EdgeInsets.symmetric(
                     vertical: msg.json == "{}" ? 0.0 : 4.0),
-                child: PersistentEventMessage(message: msg),
+                child: PersistentEventMessage(
+                  message: msg,
+                  maxWidth: maxWidthOfMessage(context),
+                  onPinMessageClick: (int id) {
+                    setState(() {
+                      _replyMessageId = id;
+                    });
+                    _itemScrollController.scrollTo(
+                        alignment: .5,
+                        curve: Curves.easeOut,
+                        opacityAnimationWeights: [20, 20, 60],
+                        index: id,
+                        duration: const Duration(milliseconds: 1000));
+                    Timer(const Duration(seconds: 1), () {
+                      setState(() {
+                        _replyMessageId = -1;
+                      });
+                    });
+                  },
+                ),
               ),
             ],
           );
@@ -1035,6 +1055,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           if (_selectMultiMessageSubject.stream.value) {
             _addForwardMessage(message);
           } else if (!isDesktop()) {
+            FocusScope.of(context).unfocus();
             _showCustomMenu(message, false);
           }
         },
