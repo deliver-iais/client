@@ -178,9 +178,8 @@ class WebNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) {
-    //todo
-    // js.context.callMethod("showNotification",
-    //     [message.roomName, createNotificationTextFromMessageBrief(message)]);
+    js.context.callMethod("showNotification",
+        [message.roomName, createNotificationTextFromMessageBrief(message)]);
   }
 }
 

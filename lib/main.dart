@@ -158,7 +158,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
       kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
+  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(
+      kIsWeb ? webBotClientChannel : BotClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
       kIsWeb ? webStickerClientChannel : StickerClientChannel,

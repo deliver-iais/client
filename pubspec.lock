@@ -611,9 +611,11 @@ packages:
   grpc:
     dependency: "direct main"
     description:
-      name: grpc
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "9e3d1ad3e8458311b6228045c692208221c3ade1"
+      url: "https://github.com/deliver-iais/grpc-dart"
+    source: git
     version: "3.0.2"
   hashcodes:
     dependency: transitive

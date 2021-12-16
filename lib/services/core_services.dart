@@ -112,15 +112,19 @@ class CoreServices {
     //   await startStream();
     // }
     responseChecked = false;
-    _connectionTimer = Timer(Duration(seconds: backoffTime), () {
+    _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        // _clientPacketStream.close();
-
+        if(kIsWeb){
+      //    await _responseStream.cancel();
+          startStream();
+        }else{
+           _clientPacketStream.close();
+        }
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
 
@@ -182,6 +186,8 @@ class CoreServices {
             break;
         }
       });
+
+
     } catch (e) {
       startStream();
       _logger.e(e);
