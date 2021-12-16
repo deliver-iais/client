@@ -145,6 +145,9 @@ class _ShareBoxState extends State<ShareBox> {
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
                                           selectAvatar: false,
+                                          pop:(){
+                                            Navigator.of(context);
+                                          },
                                           roomUid: widget.currentRoomId,
                                         )
                                       : currentPage == Page.location
