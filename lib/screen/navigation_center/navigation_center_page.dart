@@ -3,10 +3,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
-import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -30,7 +28,6 @@ BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationVideoCall =
 
 BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationAudioCall =
     BehaviorSubject.seeded({"": true});
-BehaviorSubject<String> notificationRoomUid = BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);

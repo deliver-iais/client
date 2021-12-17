@@ -135,7 +135,6 @@ class WindowsNotifier implements Notifier {
     try {
       Avatar? lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid!, false);
-      notificationRoomUid.add(message.roomUid!.asString());
       if (message.type == MessageType.CALL) {
         actions = ['Accept', 'Decline'];
       }
@@ -174,23 +173,16 @@ class WindowsNotifier implements Notifier {
           } else if (event.action == 0) {
             //Accept
             if (callRepo.isVideo) {
-              notificationRoomUid.stream.listen((event) {
-                if (event.isNotEmpty && event != "") {
-                  _routingService.openInComingCallPage(event.asUid(), true);
+                  _routingService.openInComingCallPage(message.roomUid!, true);
                   DesktopWindow.focus();
-                }
-              });
             } else {
-              notificationRoomUid.stream.listen((event) {
-                if (event.isNotEmpty && event != "") {
-                  _routingService.openCallScreen(event.asUid(), true, false);
+                  _routingService.openCallScreen(message.roomUid!, true, false);
                   DesktopWindow.focus();
                 }
-              });
+
             }
           }
-        }
-      });
+        });
     } catch (e) {
       _logger.e(e);
     }
