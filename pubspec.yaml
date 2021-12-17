@@ -156,6 +156,7 @@ flutter:
     - lib/lang/en.json
     - assets/backgrounds/
     - assets/animations/done.tgs
+    - assets/animations/clock.json
     - assets/animations/not-found.tgs
     - assets/animations/unlock.tgs
     - assets/animations/audio_wave.tgs

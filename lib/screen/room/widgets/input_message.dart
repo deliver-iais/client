@@ -585,7 +585,6 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   KeyEventResult handleKeyPress(event) {
-    _logger.wtf(event);
     if (event is RawKeyEvent) {
       if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
