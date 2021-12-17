@@ -301,9 +301,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "4d59ebdad7c6f95efca34882d23853bb881d1d55"
+      ref: main
       resolved-ref: "4d59ebdad7c6f95efca34882d23853bb881d1d55"
-      url: "https://github.com/androidwoman/desktop_window.git"
+      url: "https://github.com/deliver-iais/desktop_window.git"
     source: git
     version: "0.4.0"
   device_info:
