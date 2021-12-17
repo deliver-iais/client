@@ -1154,12 +1154,12 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
           return const SizedBox(width: 0.0, height: 0.0);
         } else {
           return ListView.separated(
-            itemCount: linksCount,
+            itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
                 child: LinkPreview(
                     link: jsonDecode(snapshot.data![index].json)["url"],
-                    maxWidth: 100),
+                    maxWidth: 100,isProfile: true,),
               );
             },
             separatorBuilder: (BuildContext context, int index) =>
