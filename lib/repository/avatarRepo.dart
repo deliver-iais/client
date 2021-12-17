@@ -9,8 +9,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as avatar_pb;
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query;
 
@@ -115,7 +114,7 @@ class AvatarRepo {
 
   // TODO, change function signature
   Future<Avatar?> getLastAvatar(Uid userUid, bool forceToUpdate) async {
-    fetchAvatar(userUid, forceToUpdate);
+    await fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
     var ac = _avatarCache.get(key);
@@ -140,11 +139,17 @@ class AvatarRepo {
     return uploadAvatar(file, uid);
   }
 
-  Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
-    fetchAvatar(userUid, forceToUpdate);
+  Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) async* {
+    await fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
-    return _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
+    var cachedAvatar = _avatarCache.get(key);
+
+    if (cachedAvatar != null) {
+      yield cachedAvatar;
+    }
+
+    yield* _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
       _avatarCache.set(key, la!);
       return la;
     });
@@ -208,16 +213,13 @@ class AvatarRepo {
     avatar_pb.Avatar deleteAvatar = avatar_pb.Avatar();
     deleteAvatar.fileUuid = avatar.fileId!;
     deleteAvatar.fileName = avatar.fileName!;
-    deleteAvatar
-      .node = avatar.uid.isBot()
-          ? avatar.uid.asUid().node
-          : _authRepo.currentUserUid.node;
-    deleteAvatar
-      .createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
-    deleteAvatar
-      .category = avatar.uid.isBot()
-          ? avatar.uid.asUid().category
-          : _authRepo.currentUserUid.category;
+    deleteAvatar.node = avatar.uid.isBot()
+        ? avatar.uid.asUid().node
+        : _authRepo.currentUserUid.node;
+    deleteAvatar.createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
+    deleteAvatar.category = avatar.uid.isBot()
+        ? avatar.uid.asUid().category
+        : _authRepo.currentUserUid.category;
     var removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
     if (avatar.uid.isBot()) {
       _botRepo.removeBotAvatar(deleteAvatar);

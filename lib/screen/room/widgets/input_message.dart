@@ -132,15 +132,19 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    InputMessage.inputMessageFocusNode = FocusNode(canRequestFocus: false);
-    //todo
+    InputMessage.inputMessageFocusNode = FocusNode(
+      onKey: (FocusNode node, RawKeyEvent evt) {
+        return handleKeyPress(evt);
+      },
+    );
+    keyboardRawFocusNode = FocusNode(canRequestFocus: false);
+
     inputMessagePrifix = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = (currentRoom.draft ?? "");
     inputMessagePrifix.stream.listen((event) {
       if (event != null) _controller.text = event;
     });
-    keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
@@ -300,7 +304,6 @@ class _InputMessageWidget extends State<InputMessage> {
                               Flexible(
                                 child: RawKeyboardListener(
                                   focusNode: keyboardRawFocusNode,
-                                  onKey: handleKeyPress,
                                   child: TextField(
                                     focusNode:
                                         InputMessage.inputMessageFocusNode,
@@ -581,18 +584,25 @@ class _InputMessageWidget extends State<InputMessage> {
     _botCommandQuery.add("-");
   }
 
-  handleKeyPress(event) async {
-    if (event is RawKeyUpEvent) {
+  KeyEventResult handleKeyPress(event) {
+    _logger.wtf(event);
+    if (event is RawKeyEvent) {
       if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        sendMessage();
+        if (event is RawKeyDownEvent) {
+          sendMessage();
+        }
+        return KeyEventResult.handled;
       } else if (_uxService.sendByEnter &&
           !event.isShiftPressed &&
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        sendMessage();
+        if (event is RawKeyDownEvent) {
+          sendMessage();
+        }
+        return KeyEventResult.handled;
       }
     }
     _rawKeyboardService.handleCopyPastKeyPress(_controller, event);
@@ -608,6 +618,8 @@ class _InputMessageWidget extends State<InputMessage> {
       _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
           scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
     });
+
+    return KeyEventResult.ignored;
   }
 
   scrollUpInBotCommand() {
