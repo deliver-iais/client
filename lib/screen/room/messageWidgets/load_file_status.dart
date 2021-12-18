@@ -152,12 +152,17 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                           },
                                         );
                                       } else {
-                                        return Icon(
-                                          Icons.arrow_downward,
-                                          color: ExtraTheme.of(context)
-                                              .fileMessageDetails,
-                                          size: 35,
-                                        );
+                                        return GestureDetector(
+                                            onTap: () {
+                                              widget.onPressed(widget.fileId,
+                                                  widget.fileName);
+                                            },
+                                            child: Icon(
+                                              Icons.arrow_downward,
+                                              color: ExtraTheme.of(context)
+                                                  .fileMessageDetails,
+                                              size: 35,
+                                            ));
                                       }
                                     },
                                   ),

@@ -88,9 +88,12 @@ class FileService {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
+
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
       filesDownloadStatus[uuid]!.add((i / j));
-    }, options: Options(responseType: ResponseType.bytes),cancelToken: cancelToken);
+    },
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken);
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
