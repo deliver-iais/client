@@ -133,6 +133,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         padding: const EdgeInsets.all(0),
                         child: ShareBoxGallery(
                           scrollController: scrollController,
+                          pop: () => Navigator.pop(context),
                           setAvatar: (String imagePath) async {
                             Navigator.pop(context);
                             cropAvatar(imagePath);

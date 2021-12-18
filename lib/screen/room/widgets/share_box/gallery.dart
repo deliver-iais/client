@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'helper_classes.dart';
 
@@ -13,12 +15,14 @@ class ShareBoxGallery extends StatefulWidget {
   final Function? setAvatar;
   final bool selectAvatar;
   final Uid roomUid;
+  final Function pop;
 
   const ShareBoxGallery(
       {Key? key,
       required this.selectAvatar,
       required this.scrollController,
       this.setAvatar,
+      required this.pop,
       required this.roomUid})
       : super(key: key);
 
@@ -30,8 +34,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late Future<List<StorageFile>> _future;
-  late CameraController controller;
-  late List<CameraDescription> cameras;
+  late CameraController _controller;
+  late List<CameraDescription> _cameras;
+  late BehaviorSubject<CameraController> _streamController;
 
   @override
   void initState() {
@@ -42,28 +47,36 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 
   _initCamera() async {
-    cameras = await availableCameras();
-    controller = CameraController(cameras[0], ResolutionPreset.max);
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
+    _cameras = await availableCameras();
+    if (_cameras.isNotEmpty) {
+      _controller = CameraController(_cameras[0], ResolutionPreset.max);
+      _controller.initialize().then((_) {
+        if (!mounted) {
+          return;
+        }
+        _streamController = BehaviorSubject.seeded(_controller);
+        setState(() {});
+      });
+    }
   }
 
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!controller.value.isInitialized) {
+    if (_controller == null || !_controller.value.isInitialized) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
-      controller.dispose();
+      _controller.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      if (_controller != null) {
+        //todo
+      }
     }
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -95,14 +108,15 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5)),
                         ),
-                        child: controller.value.isInitialized
+                        child: _controller.value.isInitialized
                             ? GestureDetector(
                                 onTap: () {
                                   openCamera();
                                 },
                                 child: CameraPreview(
-                                  controller,
-                                  child: const Icon(Icons.photo_camera,size: 35,),
+                                  _controller,
+                                  child: const Icon(Icons.photo_camera,
+                                      size: 50, color: Colors.black26),
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -172,34 +186,63 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   void openCamera() {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return Scaffold(
-        body: Column(
-          children: [
-            CameraPreview(
-              controller,
+          body: Stack(
+        children: [
+          StreamBuilder<CameraController>(
+              stream: _streamController.stream,
+              builder: (context, snapshot) {
+                return CameraPreview(
+                  snapshot.data ?? _controller,
+                );
+              }),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20, right: 15),
+              child: IconButton(
+                onPressed: () async {
+                  XFile file = await _controller.takePicture();
+                  widget.pop();
+                  Navigator.pop(context);
+                  widget.selectAvatar
+                      ? widget.setAvatar!(file.path)
+                      : showCaptionDialog(
+                          roomUid: widget.roomUid,
+                          context: context,
+                          paths: [file.path],
+                          type: file.path.split(".").last);
+                },
+                icon: const Icon(
+                  Icons.photo_camera,
+                  color: Colors.blue,
+                  size: 55,
+                ),
+              ),
             ),
-            IconButton(
-              onPressed: () async {
-                XFile file = await controller.takePicture();
-                Navigator.pop(context);
-                widget.selectAvatar
-                    ? widget.setAvatar!(file.path)
-                    : () {
-                        showCaptionDialog(
-                            roomUid: widget.roomUid,
-                            context: context,
-                            paths: [file.path],
-                            type: file.path.split(".").last);
-                      };
-              },
-              icon: const Icon(
-                Icons.photo_camera,
-                color: Colors.blue,
-                size: 50,
+          ),
+          if (_cameras.isNotEmpty && _cameras.length > 1)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10, right: 10),
+                child: IconButton(
+                  onPressed: () async {
+                    _controller = CameraController(
+                        _controller.description == _cameras[1]
+                            ? _cameras[0]
+                            : _cameras[1],
+                        ResolutionPreset.max);
+                    await _controller.initialize();
+                    _streamController.add(_controller);
+                  },
+                  icon: const Icon(Icons.flip_camera_ios_outlined),
+                  color: Colors.blueAccent,
+                  iconSize: 40,
+                ),
               ),
             )
-          ],
-        ),
-      );
+        ],
+      ));
     }));
   }
 }

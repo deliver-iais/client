@@ -80,6 +80,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                       Container(
                         padding: const EdgeInsets.all(0),
                         child: ShareBoxGallery(
+                          pop: () => Navigator.pop(context),
                           scrollController: scrollController,
                           setAvatar: (String filePath) async {
                             cropAvatar(filePath);
