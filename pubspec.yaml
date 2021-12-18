@@ -69,7 +69,7 @@ dependencies:
   settings_ui: 1.0.0
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
     git:
-      url: git://github.com/google/flutter-desktop-embedding.git
+      url: https://github.com/google/flutter-desktop-embedding
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
   dio: ^4.0.3 # HTTP Invoker Library
