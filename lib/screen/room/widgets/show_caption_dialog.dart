@@ -144,9 +144,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Text(
                                       _fileNames[index],
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).textField),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                   ),
                                   Align(
@@ -179,9 +178,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                         minLines: 1,
                         maxLines: 5,
                         autofocus: true,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: ExtraTheme.of(context).textField),
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
                         decoration: InputDecoration(
                           labelText: _i18n.get("caption"),
                         )),
