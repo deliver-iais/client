@@ -4,6 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -12,7 +13,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
-  final int ? messageId;
+  final int? messageId;
   final String? messagePacketId; // TODO Needs to be refactored
   final String? roomUid;
   final Function onPressed;
@@ -59,15 +60,31 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                   return CircularPercentIndicator(
                                     radius: 45.0,
                                     lineWidth: 4.0,
-                                    center: IconButton(
-                                      padding: const EdgeInsets.all(0),
-                                      icon: Icon(
-                                        Icons.arrow_upward,
-                                        color: ExtraTheme.of(context)
-                                            .fileMessageDetails,
-                                        size: 35,
-                                      ),
-                                      onPressed: () {},
+                                    center: StreamBuilder<CancelToken?>(
+                                      stream: _fileService
+                                          .cancelTokens[widget.fileId],
+                                      builder: (c, s) {
+                                        if (s.hasData && s.data != null) {
+                                          return GestureDetector(
+                                            child: const Icon(
+                                              Icons.cancel,
+                                              size: 35,
+                                            ),
+                                            onTap: () {
+                                              s.data!.cancel();
+                                              _messageRepo.deletePendingMessage(
+                                                  widget.messagePacketId!);
+                                            },
+                                          );
+                                        } else {
+                                          return Icon(
+                                            Icons.arrow_upward,
+                                            color: ExtraTheme.of(context)
+                                                .fileMessageDetails,
+                                            size: 35,
+                                          );
+                                        }
+                                      },
                                     ),
                                     percent: snapshot.data!,
                                     backgroundColor: ExtraTheme.of(context)
@@ -105,8 +122,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                   if (!isPendingMes)
                     _startDownload
                         ? StreamBuilder<double>(
-                            stream: _fileService
-                                .filesDownloadStatus[widget.fileId],
+                            stream:
+                                _fileService.filesDownloadStatus[widget.fileId],
                             builder: (context, snapshot) {
                               if (snapshot.hasData &&
                                   snapshot.data != null &&
@@ -115,13 +132,35 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                   radius: 45.0,
                                   lineWidth: 4.0,
                                   percent: snapshot.data!,
-                                  backgroundColor: ExtraTheme.of(context)
-                                      .circularFileStatus,
-                                  center: Icon(Icons.arrow_downward,
-                                      color: ExtraTheme.of(context)
-                                          .fileMessageDetails),
-                                  progressColor: ExtraTheme.of(context)
-                                      .fileMessageDetails,
+                                  backgroundColor:
+                                      ExtraTheme.of(context).circularFileStatus,
+                                  center: StreamBuilder<CancelToken?>(
+                                    stream: _fileService
+                                        .cancelTokens[widget.fileId],
+                                    builder: (c, s) {
+                                      if (s.hasData && s.data != null) {
+                                        return GestureDetector(
+                                          child: const Icon(
+                                            Icons.cancel,
+                                            size: 35,
+                                          ),
+                                          onTap: () {
+                                            s.data!.cancel();
+                                            _fileService
+                                                .cancelTokens[widget.fileId]!
+                                                .add(null);
+                                          },
+                                        );
+                                      } else {
+                                        return Icon(
+                                          Icons.arrow_downward,
+                                          color: ExtraTheme.of(context)
+                                              .fileMessageDetails,
+                                          size: 35,
+                                        );
+                                      }
+                                    },
+                                  ),
                                 );
                               } else {
                                 return CircularPercentIndicator(
@@ -133,10 +172,10 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     color: ExtraTheme.of(context)
                                         .fileMessageDetails,
                                   ),
-                                  backgroundColor: ExtraTheme.of(context)
-                                      .circularFileStatus,
-                                  progressColor: ExtraTheme.of(context)
-                                      .fileMessageDetails,
+                                  backgroundColor:
+                                      ExtraTheme.of(context).circularFileStatus,
+                                  progressColor:
+                                      ExtraTheme.of(context).fileMessageDetails,
                                 );
                               }
                             })

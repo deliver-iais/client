@@ -27,6 +27,8 @@ class FileService {
 
   Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
 
+  Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
+
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() ||
         isDesktop() ||
@@ -80,13 +82,15 @@ class FileService {
 
   // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
+    CancelToken cancelToken = CancelToken();
+    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     if (filesDownloadStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
       filesDownloadStatus[uuid]!.add((i / j));
-    }, options: Options(responseType: ResponseType.bytes));
+    }, options: Options(responseType: ResponseType.bytes),cancelToken: cancelToken);
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
@@ -120,9 +124,12 @@ class FileService {
 
   Future<File> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
+    CancelToken cancelToken = CancelToken();
+    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     var res = await _dio.get(
         "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-        options: Options(responseType: ResponseType.bytes));
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken);
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
     return file;
@@ -134,8 +141,14 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, {required String uploadKey, Function ? sendActivity}) async {
+  uploadFile(
+    String filePath, {
+    required String uploadKey,
+    Function? sendActivity,
+  }) async {
     try {
+      CancelToken cancelToken = CancelToken();
+      cancelTokens[uploadKey] = BehaviorSubject.seeded(cancelToken);
       _dio.interceptors.add(InterceptorsWrapper(onRequest:
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
@@ -155,10 +168,7 @@ class FileService {
                 MediaType.parse(mime(filePath) ?? "application/octet-stream")),
       });
 
-      return _dio.post(
-        "/upload",
-        data: formData,
-      );
+      return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);
     }

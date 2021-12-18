@@ -441,7 +441,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _messageRepo.resendMessage(message);
           break;
         case OperationOnMessage.DELETE_PENDING_MESSAGE:
-          _messageRepo.deletePendingMessage(message);
+          _messageRepo.deletePendingMessage(message.packetId);
           break;
         case OperationOnMessage.PIN_MESSAGE:
           var isPin = await _messageRepo.pinMessage(message);
