@@ -118,7 +118,7 @@ class _VideoMessageState extends State<VideoMessage> {
                       return videoWidget(
                           w: VideoUi(
                             videoFile: s.data!,
-                            video: widget.message.json!.toFile(),
+                            videoMessage: widget.message.json!.toFile(),
                             duration: video.duration,
                           ),
                           videoLength: videoLength,

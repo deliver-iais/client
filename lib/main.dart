@@ -1,3 +1,5 @@
+
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -77,7 +79,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:universal_html/html.dart';
+
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
@@ -210,6 +212,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux() || isWindows()) {
+   DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
@@ -323,10 +326,7 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-                supportedLocales: const [
-                  Locale('en', 'US'),
-                  Locale('fa', 'IR')
-                ],
+                supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,

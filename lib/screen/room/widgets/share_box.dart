@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:android_intent/android_intent.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/localization/i18n.dart';
@@ -20,7 +19,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -72,10 +70,15 @@ class _ShareBoxState extends State<ShareBox> {
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
   var currentPage = Page.gallery;
-
-  final FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   I18N i18n = GetIt.I.get<I18N>();
+
+  @override
+  void dispose() {
+    _audioPlayer.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,11 +115,11 @@ class _ShareBoxState extends State<ShareBox> {
                                   playMusic: (index, path) {
                                     setState(() {
                                       if (playAudioIndex == index) {
-                                        _audioPlayer.pausePlayer();
+                                        _audioPlayer.pause();
                                         icons[index] = Icons.play_arrow;
                                         playAudioIndex = -1;
                                       } else {
-                                        _audioPlayer.startPlayer(fromURI: path);
+                                        _audioPlayer.play(path);
                                         icons.remove(playAudioIndex);
                                         icons[index] = Icons.pause;
                                         playAudioIndex = index;
@@ -142,21 +145,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   : currentPage == Page.gallery
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
-                                          onClick: (index, path) async {
-                                            setState(() {
-                                              selectedImages[index - 1] =
-                                                  !(selectedImages[index - 1] ??
-                                                      false);
-
-                                              selectedImages[index - 1]!
-                                                  ? finalSelected[index - 1] =
-                                                      path
-                                                  : finalSelected
-                                                      .remove(index - 1);
-                                            });
-                                          },
-                                          selectedImages: selectedImages,
-                                          selectGallery: true,
+                                          selectAvatar: false,
                                           roomUid: widget.currentRoomId,
                                         )
                                       : currentPage == Page.location
@@ -175,6 +164,13 @@ class _ShareBoxState extends State<ShareBox> {
                                   children: <Widget>[
                                     Container(
                                       child: circleButton(() {
+                                        _audioPlayer.stop();
+                                        Navigator.pop(co);
+                                        if (widget.replyMessageId! > 0) {
+                                          messageRepo.sendMultipleFilesMessages(
+                                              widget.currentRoomId,
+                                              finalSelected.values.toList(),
+                                              replyToId: widget.replyMessageId);
                                         List<model.File> res = [];
                                         finalSelected.forEach((key, value) {
                                           res.add(model.File(
@@ -189,12 +185,13 @@ class _ShareBoxState extends State<ShareBox> {
                                             widget.currentRoomId,
                                             res,
                                           );
+                                          showCaptionDialog(
+                                              type: "file",
+                                              paths:
+                                                  finalSelected.values.toList(),
+                                              roomUid: widget.currentRoomId,
+                                              context: context);
                                         }
-
-                                        Navigator.pop(co);
-                                        Timer(const Duration(seconds: 2), () {
-                                          widget.scrollToLastSentMessage();
-                                        });
                                         setState(() {
                                           finalSelected.clear();
                                           selectedAudio.clear();
@@ -285,7 +282,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           }
                                         } else {
                                           setState(() {
-                                            _audioPlayer.stopPlayer();
+                                            _audioPlayer.stop();
                                             currentPage = Page.gallery;
                                           });
                                         }
@@ -293,35 +290,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           i18n.get("gallery"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult? result =
-                                            await FilePicker.platform.pickFiles(
-                                                allowMultiple: true,
-                                                type: FileType.custom,
-                                                allowedExtensions: [
-                                              "pdf",
-                                              "mp4",
-                                              "pptx",
-                                              "docx",
-                                              "xlsx",
-                                              'png',
-                                              'jpg',
-                                              'jpeg',
-                                              'gif',
-                                              'rar'
-                                            ]);
-                                        if (result != null) {
-                                          List<model.File> res = [];
-                                          for (var element in result.files) {
-                                            res.add(model.File(
-                                                element.path!, element.name));
-                                          }
-                                          Navigator.pop(co);
-                                          showCaptionDialog(
-                                              type: "file",
-                                              files: res,
-                                              roomUid: widget.currentRoomId,
-                                              context: context);
-                                        }
+                                        setState(() {
+                                          _audioPlayer.stop();
+                                          currentPage = Page.files;
+                                        });
                                       }, Icons.file_upload, i18n.get("file"),
                                           40,
                                           context: co),
@@ -339,6 +311,7 @@ class _ShareBoxState extends State<ShareBox> {
                                             await intent.launch();
                                           } else {
                                             setState(() {
+                                              _audioPlayer.stop();
                                               currentPage = Page.location;
                                               initialChildSize.add(0.5);
                                             });
@@ -348,26 +321,9 @@ class _ShareBoxState extends State<ShareBox> {
                                           i18n.get("location"), 40,
                                           context: co),
                                       circleButton(() async {
-                                        FilePickerResult? result =
-                                            await FilePicker.platform.pickFiles(
-                                                allowMultiple: true,
-                                                type: FileType.custom,
-                                                allowedExtensions: ["mp3"]);
-                                        if (result != null) {
-                                          List<model.File> res = [];
-                                          result.files.forEach((element) {
-                                            res.add(model.File(
-                                                element.path!, element.name,
-                                                extention: element.extension,
-                                                size: element.size));
-                                          });
-                                          Navigator.pop(co);
-                                          showCaptionDialog(
-                                              roomUid: widget.currentRoomId,
-                                              type: "music",
-                                              context: context,
-                                              files: res);
-                                        }
+                                        setState(() {
+                                          currentPage = Page.music;
+                                        });
                                       }, Icons.music_note, i18n.get("music"),
                                           40,
                                           context: co),
@@ -614,13 +570,15 @@ showCaptionDialog(
     List<model.File>? files,
     required Uid roomUid,
     Message? editableMessage,
-    required BuildContext context}) async {
-  if (files!.isEmpty && editableMessage == null) return;
+    required BuildContext context,
+    bool showSelectedImage = false}) async {
+  if (paths!.isEmpty && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {
         return ShowCaptionDialog(
           type: type,
+          showSelectedImage: showSelectedImage,
           editableMessage: editableMessage,
           currentRoom: roomUid,
           files: files,

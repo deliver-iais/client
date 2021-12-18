@@ -115,7 +115,7 @@ class AvatarRepo {
 
   // TODO, change function signature
   Future<Avatar?> getLastAvatar(Uid userUid, bool forceToUpdate) async {
-    fetchAvatar(userUid, forceToUpdate);
+    await fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
     var ac = _avatarCache.get(key);
@@ -140,11 +140,17 @@ class AvatarRepo {
     return uploadAvatar(file, uid);
   }
 
-  Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
-    fetchAvatar(userUid, forceToUpdate);
+  Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) async* {
+    await fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
-    return _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
+    var cachedAvatar = _avatarCache.get(key);
+
+    if (cachedAvatar != null) {
+      yield cachedAvatar;
+    }
+
+    yield* _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
       _avatarCache.set(key, la!);
       return la;
     });

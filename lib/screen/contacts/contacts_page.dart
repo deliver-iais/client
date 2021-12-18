@@ -78,7 +78,7 @@ class _ContactsPageState extends State<ContactsPage> {
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(top: 4.0),
                         child: SearchBox(
                           borderRadius: BorderRadius.circular(8),
                           onChange: (str) {

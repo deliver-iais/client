@@ -97,7 +97,7 @@
   "enter_channel_name": "Channel Name",
   "enter_channel_desc": "Channel description",
   "enter_channel_id": " Channel Id",
-  "local_search": "search in Rooms and Contacts",
+  "local_search": "Search in Rooms and Contacts",
   "global_search": "Global search",
   "Forwarded_From": "Forwarded From",
   "send_To": "Send to...",
@@ -275,7 +275,7 @@
   "access_name": "Do you allow access to your name ?",
   "access_username" : "Do you allow access to your username?",
   "report_message": "Thank you for this report",
-  "edited": "edited",
-  "save_in_downloads" : "Save in Downloads",
-  "send_location_permission": "Are you want to sent your location?"
+  "bot_not_responding": "bot not responding"
+
+
 }

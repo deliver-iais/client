@@ -21,7 +21,7 @@ class BotInfoAdapter extends TypeAdapter<BotInfo> {
       description: fields[1] as String?,
       name: fields[2] as String?,
       commands: (fields[3] as Map?)?.cast<String, String>(),
-      isOwner: fields[4] as bool?,
+      isOwner: fields[4] as bool,
     );
   }
 
