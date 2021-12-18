@@ -25,7 +25,6 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
 
-
   final _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = {};
 
@@ -72,7 +71,8 @@ class FileService {
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
-      options.headers["Access-Control-Allow-Origin"] = FileServiceBaseUrl+"/upload";
+      options.headers["Access-Control-Allow-Origin"] =
+          FileServiceBaseUrl + "/upload";
       options.headers["Access-Control-Allow-Credentials"] = false;
       options.headers["Access-Control-Allow-Headers"] =
           "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale";
@@ -91,19 +91,19 @@ class FileService {
     return _getFile(uuid, filename);
   }
 
-  // TODO, refactoring needed
-  Future<File> _getFile(String uuid, String filename) async {
-    CancelToken cancelToken = CancelToken();
-    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
   Future<String?> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
+    CancelToken cancelToken = CancelToken();
+    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     try {
       var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
         filesDownloadStatus[uuid]!.add((i / j));
-      }, options: Options(responseType: ResponseType.bytes));
+      },
+          options: Options(responseType: ResponseType.bytes),
+          cancelToken: cancelToken);
       if (kIsWeb) {
         var blob = html.Blob(
             <Object>[res.data], "application/${filename.split(".").last}");
@@ -180,7 +180,7 @@ class FileService {
       {String? uploadKey, Function? sendActivity}) async {
     try {
       CancelToken cancelToken = CancelToken();
-      cancelTokens[uploadKey] = BehaviorSubject.seeded(cancelToken);
+      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
       if (kIsWeb) {
         http.Response r = await http.get(
@@ -206,7 +206,7 @@ class FileService {
           if (sendActivity != null) sendActivity();
           if (filesUploadStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
-            filesUploadStatus[uploadKey!] = d;
+            filesUploadStatus[uploadKey] = d;
           }
           filesUploadStatus[uploadKey]!.add((i / j));
         };
@@ -215,7 +215,7 @@ class FileService {
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);
-      return "Error::::"+ e.toString();
+      return "Error::::" + e.toString();
     }
   }
 }

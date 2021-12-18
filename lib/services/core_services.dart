@@ -108,9 +108,11 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    // if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
-    //   await startStream();
-    // }
+
+    if (!kIsWeb && _clientPacketStream.isClosed ||
+        _clientPacketStream.isPaused) {
+      await startStream();
+    }
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
@@ -119,17 +121,14 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        if(kIsWeb){
-      //    await _responseStream.cancel();
+        if (kIsWeb) {
           startStream();
-        }else{
-           _clientPacketStream.close();
+        } else {
+          _clientPacketStream.close();
         }
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
 
-      // await _responseStream.cancel();
-      //  startStream();
       startCheckerTimer();
     });
   }
@@ -186,8 +185,6 @@ class CoreServices {
             break;
         }
       });
-
-
     } catch (e) {
       startStream();
       _logger.e(e);
@@ -209,7 +206,7 @@ class CoreServices {
           startStream();
         }
       }
-      Timer(const Duration(seconds: MIN_BACKOFF_TIME * 2 ~/ 2),
+      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
           () => checkPendingStatus(message.packetId));
     } catch (e) {
       _logger.e(e);

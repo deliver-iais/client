@@ -19,9 +19,10 @@ class StorageFile {
 }
 
 List<StorageFile> _storageFiles(String json) {
-  return jsonDecode(json)
-      .map<StorageFile>((json) => StorageFile.fromJson(json))
-      .toList();
+  // return jsonDecode(json)
+  //     .map<StorageFile>((json) => StorageFile.fromJson(json))
+  //     .toList();
+  return [];
 }
 
 class FileBasic {

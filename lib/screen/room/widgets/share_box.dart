@@ -23,7 +23,6 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int? replyMessageId;
@@ -144,7 +143,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
                                           selectAvatar: false,
-                                          pop:(){
+                                          pop: () {
                                             Navigator.of(context);
                                           },
                                           roomUid: widget.currentRoomId,
@@ -170,26 +169,18 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (widget.replyMessageId! > 0) {
                                           messageRepo.sendMultipleFilesMessages(
                                               widget.currentRoomId,
-                                              finalSelected.values.toList(),
-                                              replyToId: widget.replyMessageId);
-                                        List<model.File> res = [];
-                                        finalSelected.forEach((key, value) {
-                                          res.add(model.File(
-                                              value, value.split(".").last));
-                                        });
-                                        if (widget.replyMessageId != null) {
-                                          messageRepo.sendMultipleFilesMessages(
-                                              widget.currentRoomId, res,
+                                              finalSelected.values
+                                                  .toList()
+                                                  .map((e) => model.File(e, e))
+                                                  .toList(),
                                               replyToId: widget.replyMessageId);
                                         } else {
-                                          messageRepo.sendMultipleFilesMessages(
-                                            widget.currentRoomId,
-                                            res,
-                                          );
                                           showCaptionDialog(
                                               type: "file",
-                                              paths:
-                                                  finalSelected.values.toList(),
+                                              files: finalSelected.values
+                                                  .toList()
+                                                  .map((e) => model.File(e, e))
+                                                  .toList(),
                                               roomUid: widget.currentRoomId,
                                               context: context);
                                         }
@@ -550,7 +541,7 @@ showCaptionDialog(
     Message? editableMessage,
     required BuildContext context,
     bool showSelectedImage = false}) async {
-  if (paths!.isEmpty && editableMessage == null) return;
+  if (files!.isEmpty && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {

@@ -29,13 +29,10 @@ class FileRepo {
   }
 
   Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
-      {Function? sendActivity, Function? sendError}) async {
+      {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
         uploadKey: uploadKey, sendActivity: sendActivity!);
-    if(sendError!=null){
-      sendError(value);
-    }
 
     var json = jsonDecode(value.toString());
     try{

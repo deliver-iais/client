@@ -335,7 +335,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     for (int i = 0; i < messages.length; i = i + 1) {
       _messageCache.set(messages[i]!.id!, messages[i]!);
     }
-    return _messageCache.get(id)!;
+    return _messageCache.get(id);
   }
 
   void _resetRoomPageDetails() {

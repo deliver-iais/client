@@ -7,17 +7,7 @@ import 'dart:io';
 
 
 extension on List<String> {
-  // Pointer<Pointer<Utf16>> toNativeUtf16Array() {
-  //   final List<Pointer<Utf16>> listPointer = this
-  //       .map((String string) => string.toNativeUtf16())
-  //       .toList()
-  //       .cast<Pointer<Utf16>>();
-  //   final Pointer<Pointer<Utf16>> pointerPointer =
-  //   calloc.allocate(this.join('').length);
-  //   for (int index = 0; index < this.length; index++)
-  //     pointerPointer[index] = listPointer[index];
-  //   return pointerPointer;
-  // }
+
 }
 
 /// Declares an event type related to a [Toast].

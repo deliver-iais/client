@@ -1,5 +1,5 @@
 
-import 'package:dart_vlc/dart_vlc.dart';
+
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -212,7 +212,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux() || isWindows()) {
-   DartVLC.initialize();
+ //  DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());

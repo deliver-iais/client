@@ -482,11 +482,9 @@ class MessageRepo {
     await _savePendingMessage(pm);
 
     var m = await _sendFileToServerOfPendingMessage(pm);
-    if(m!=null){
+    if (m != null) {
       await _sendMessageToServer(m);
     }
-
-
   }
 
   sendStickerMessage(
@@ -519,8 +517,6 @@ class MessageRepo {
     file_pb.File? fileInfo = await _fileRepo
         .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
       sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
-    }, sendError: (e) {
-      sendTextMessage(pm.roomUid.asUid(), e.toString());
     });
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
@@ -1014,7 +1010,7 @@ class MessageRepo {
       await _fileRepo.cloneFileInLocalDirectory(
           dart_file.File(file.path), upload_key, file.name);
       updatedFile = await _fileRepo.uploadClonedFile(upload_key, file.name);
-      if(updatedFile!= null) {
+      if (updatedFile != null) {
         updatedFile.caption = caption!;
       }
     } else {

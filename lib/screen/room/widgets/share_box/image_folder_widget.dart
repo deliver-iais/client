@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -101,6 +102,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                           ? Icons.check_circle_outline
                                           : Icons.panorama_fish_eye,
                                       color: Colors.white,
+                                      size: 38,
                                     ),
                                   ),
                                 )),
@@ -174,7 +176,11 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                 widget.pop();
                                 Navigator.pop(context);
                                 _messageRepo.sendMultipleFilesMessages(
-                                    widget.roomUid, _selectedImage,
+                                    widget.roomUid,
+                                    _selectedImage
+                                        .map((e) =>
+                                            model.File(e, e.split(".").last))
+                                        .toList(),
                                     caption: _textEditingController.text);
                               }),
                         ),
