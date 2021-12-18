@@ -900,8 +900,8 @@ class MessageRepo {
     _saveAndSend(pm!);
   }
 
-  void deletePendingMessage(Message message) {
-    _messageDao.deletePendingMessage(message.packetId);
+  void deletePendingMessage(String packetId) {
+    _messageDao.deletePendingMessage(packetId);
   }
 
   Future<bool> pinMessage(Message message) async {
@@ -959,7 +959,7 @@ class MessageRepo {
     try {
       for (var msg in messages) {
         if (msg.id == null) {
-          deletePendingMessage(msg);
+          deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
             if (msg.id == roomLastMessageId) {

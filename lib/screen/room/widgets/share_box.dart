@@ -12,7 +12,6 @@ import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -24,7 +23,6 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-import 'share_box/helper_classes.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -146,6 +144,9 @@ class _ShareBoxState extends State<ShareBox> {
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
                                           selectAvatar: false,
+                                          pop:(){
+                                            Navigator.of(context);
+                                          },
                                           roomUid: widget.currentRoomId,
                                         )
                                       : currentPage == Page.location
@@ -259,33 +260,10 @@ class _ShareBoxState extends State<ShareBox> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: <Widget>[
                                       circleButton(() async {
-                                        var res = await ImageItem.getImages();
-                                        if (res.isEmpty) {
-                                          FilePickerResult? result =
-                                              await FilePicker.platform
-                                                  .pickFiles(
-                                            allowMultiple: true,
-                                            type: FileType.custom,
-                                          );
-                                          if (result != null) {
-                                            Map<String, String> res = {};
-                                            for (var element in result.files) {
-                                              res[element.name] = element.path!;
-                                            }
-                                            Navigator.pop(co);
-                                            //todo merge by get media
-                                            // showCaptionDialog(
-                                            //     type: "image",
-                                            //     files: res,
-                                            //     roomUid: widget.currentRoomId,
-                                            //     context: context);
-                                          }
-                                        } else {
-                                          setState(() {
-                                            _audioPlayer.stop();
-                                            currentPage = Page.gallery;
-                                          });
-                                        }
+                                        setState(() {
+                                          _audioPlayer.stop();
+                                          currentPage = Page.gallery;
+                                        });
                                       }, Icons.insert_drive_file,
                                           i18n.get("gallery"), 40,
                                           context: co),
