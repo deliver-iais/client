@@ -11,7 +11,6 @@ import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -23,7 +22,6 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-import 'share_box/helper_classes.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;

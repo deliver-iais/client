@@ -28,27 +28,22 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   Widget build(BuildContext context) {
     return StreamBuilder<Duration>(
         stream: audioPlayerService.audioCurrentPosition(),
-        builder: (context, snapshot1) {
-          return StreamBuilder<Duration>(
-              stream: audioPlayerService.audioCurrentPosition(),
-              builder: (context, snapshot2) {
-                currentPos = snapshot2.data ?? currentPos;
-                if (currentPos != null) {
-                  return Slider(
-                      value: currentPos!.inSeconds.toDouble(),
-                      min: 0.0,
-                      max: widget.duration,
-                      onChanged: (double value) {
-                        setState(() {
-                          audioPlayerService
-                              .seek(Duration(seconds: value.toInt()));
-                          value = value;
-                        });
-                      });
-                } else {
-                  return const SizedBox.shrink();
-                }
-              });
+        builder: (context, snapshot2) {
+          currentPos = snapshot2.data ?? currentPos;
+          if (currentPos != null) {
+            return Slider(
+                value: currentPos!.inSeconds.toDouble(),
+                min: 0.0,
+                max: widget.duration,
+                onChanged: (double value) {
+                  setState(() {
+                    audioPlayerService.seek(Duration(seconds: value.toInt()));
+                    value = value;
+                  });
+                });
+          } else {
+            return const SizedBox.shrink();
+          }
         });
   }
 }

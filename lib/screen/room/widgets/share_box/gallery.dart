@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
@@ -53,17 +52,12 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     });
   }
 
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (controller == null || !controller.value.isInitialized) {
+    if (!controller.value.isInitialized) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
       controller.dispose();
-    } else if (state == AppLifecycleState.resumed) {
-      if (controller != null) {
-        //todo
-      }
     }
   }
 
@@ -108,7 +102,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 },
                                 child: CameraPreview(
                                   controller,
-                                  child: const Icon(Icons.photo_camera),
+                                  child: const Icon(Icons.photo_camera,size: 35,),
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -190,7 +184,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                 widget.selectAvatar
                     ? widget.setAvatar!(file.path)
                     : () {
-                        Navigator.pop(context);
                         showCaptionDialog(
                             roomUid: widget.roomUid,
                             context: context,
