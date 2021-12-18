@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -16,28 +18,24 @@ class AudioProgressIndicator extends StatefulWidget {
 
 class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
-  Duration? currentPos;
-  Duration? dur;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Duration>(
         stream: audioPlayerService.audioCurrentPosition(),
-        builder: (context, snapshot2) {
-          currentPos = snapshot2.data ?? currentPos;
-          if (currentPos != null) {
+        builder: (context, duration) {
+          if (duration.hasData && duration.data != null) {
+            double dur = duration.data!.inSeconds +
+                (duration.data!.inMilliseconds / 1000);
             return Slider(
-                value: currentPos!.inSeconds.toDouble(),
+                value: min(dur, widget.duration),
                 min: 0.0,
                 max: widget.duration,
                 onChanged: (double value) {
                   setState(() {
-                    audioPlayerService.seek(Duration(seconds: value.toInt()));
+                    audioPlayerService.seek(Duration(
+                      seconds: value.floor(),
+                    ));
                     value = value;
                   });
                 });
