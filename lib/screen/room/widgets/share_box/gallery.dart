@@ -81,7 +81,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                   ? showCaptionDialog(
                                       roomUid: widget.roomUid,
                                       context: context,
-                                      paths: [pickedFile.path],
+                                      files: [pickedFile.path],
                                       type: pickedFile.path.split(".").last)
                                   : widget.setAvatar!(pickedFile.path);
                             }

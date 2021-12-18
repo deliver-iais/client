@@ -1,4 +1,4 @@
-import 'dart:io' as da;
+
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -117,7 +117,7 @@ class _VideoMessageState extends State<VideoMessage> {
                     if (s.hasData && s.data != null) {
                       return videoWidget(
                           w: VideoUi(
-                            videoFile: s.data!,
+                            videoFilePath: s.data!,
                             videoMessage: widget.message.json!.toFile(),
                             duration: video.duration,
                           ),

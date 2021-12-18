@@ -2,15 +2,16 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
-  final File videoFile;
+  final String videoFilePath;
   final pb.File video;
 
   const VideoPlayerWidget(
-      {Key? key, required this.videoFile, required this.video})
+      {Key? key, required this.videoFilePath, required this.video})
       : super(key: key);
 
   @override
@@ -28,7 +29,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   _init() async {
-    _controller = VideoPlayerController.file(widget.videoFile);
+    _controller = kIsWeb
+        ? VideoPlayerController.network(widget.videoFilePath)
+        : VideoPlayerController.file(File(widget.videoFilePath));
     await _controller.initialize();
     _chewieController = ChewieController(
       videoPlayerController: _controller,
