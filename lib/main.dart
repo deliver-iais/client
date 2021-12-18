@@ -77,6 +77,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:universal_html/html.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
