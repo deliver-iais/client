@@ -191,7 +191,7 @@ public class StoragePathPlugin {
 
     public void getFilesPath(Result result) {
         Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
-            @RequiresApi(api = Build.VERSION_CODES.Q)
+
             @Override
             public void onGranted() {
                 getAllFile(result);
