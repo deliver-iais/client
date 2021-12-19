@@ -29,7 +29,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 
 import 'package:synchronized/synchronized.dart';
-import 'package:deliver/web_classes/platform_detect.dart' if(dart.library.html) 'package:platform_detect/platform_detect.dart' as platform_detect;
+import 'package:deliver/web_classes/platform_detect.dart'
+    if (dart.library.html) 'package:platform_detect/platform_detect.dart'
+    as platform_detect;
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
