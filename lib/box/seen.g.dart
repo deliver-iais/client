@@ -18,18 +18,21 @@ class SeenAdapter extends TypeAdapter<Seen> {
     };
     return Seen(
       uid: fields[0] as String,
-      messageId: fields[1] as int,
+      messageId: fields[1] as int?,
+      hiddenMessageCount: fields[2] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Seen obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
-      ..write(obj.messageId);
+      ..write(obj.messageId)
+      ..writeByte(2)
+      ..write(obj.hiddenMessageCount);
   }
 
   @override

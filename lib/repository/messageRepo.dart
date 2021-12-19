@@ -171,6 +171,12 @@ class MessageRepo {
               limit: 2,
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
+            if (room != null &&
+                room.lastMessageId != null &&
+                roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
+              fetchHiddenMessageCount(
+                  roomMetadata.roomUid, room.lastMessageId!);
+            }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               getMentions(room);
             }
@@ -203,9 +209,25 @@ class MessageRepo {
         fetchCurrentUserLastSeen(rm.roomMeta);
       }
       var othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
-      if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
+      if (othersSeen == null || othersSeen.messageId! < r.lastMessage!.id!) {
         fetchOtherSeen(r.uid.asUid());
       }
+    }
+  }
+
+  Future<void> fetchHiddenMessageCount(Uid roomUid, int id) async {
+    try {
+      var res = await _queryServiceClient
+          .countIsHiddenMessages(CountIsHiddenMessagesReq()
+            ..roomUid = roomUid
+            ..messageId = Int64(id + 1));
+      var s = await _seenDao.getMySeen(roomUid.asString());
+      if (s != null) {
+        _seenDao.saveMySeen(s.copy(
+            Seen(uid: roomUid.asString(), hiddenMessageCount: res.count)));
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -254,7 +276,7 @@ class MessageRepo {
         uid: roomUid.asString(),
         firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
         lastUpdateTime: lastMessage!.time,
-        lastMessageId: lastMessage.id!,
+        lastMessageId: lastMessageId,
         lastMessage: lastMessage,
       ));
       return lastMessage;
@@ -340,11 +362,14 @@ class MessageRepo {
 
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
-          lastSeen.messageId >
+          lastSeen.messageId != null &&
+          lastSeen.messageId! >
               max(fetchCurrentUserSeenData.seen.id.toInt(),
                   room.lastCurrentUserSentMessageId.toInt())) return;
       _seenDao.saveMySeen(Seen(
           uid: room.roomUid.asString(),
+          hiddenMessageCount:
+              lastSeen != null ? lastSeen.hiddenMessageCount ?? 0 : 0,
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {
@@ -592,7 +617,7 @@ class MessageRepo {
 
   sendSeen(int messageId, Uid to) async {
     var seen = await _seenDao.getMySeen(to.asString());
-    if (seen != null && seen.messageId >= messageId) return;
+    if (seen != null && seen.messageId! >= messageId) return;
     _coreServices.sendSeen(seen_pb.SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
@@ -865,8 +890,8 @@ class MessageRepo {
     _saveAndSend(pm!);
   }
 
-  void deletePendingMessage(Message message) {
-    _messageDao.deletePendingMessage(message.packetId);
+  void deletePendingMessage(String packetId) {
+    _messageDao.deletePendingMessage(packetId);
   }
 
   Future<bool> pinMessage(Message message) async {
@@ -924,7 +949,7 @@ class MessageRepo {
     try {
       for (var msg in messages) {
         if (msg.id == null) {
-          deletePendingMessage(msg);
+          deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
             if (msg.id == roomLastMessageId) {

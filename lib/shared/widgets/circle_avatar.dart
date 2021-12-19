@@ -23,12 +23,12 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
 
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  CircleAvatarWidget(this.contactUid, this.radius,
+  const CircleAvatarWidget(this.contactUid, this.radius,
       {Key? key,
       this.forceToUpdate = false,
       this.forceText = "",
@@ -79,7 +79,7 @@ class CircleAvatarWidget extends StatelessWidget {
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: null,
-          gradient: !isSavedMessage() && !isSystem()
+          gradient: !isSystem()
               ? LinearGradient(colors: [
                   changeColor(color, saturation: 0.8, lightness: 0.4),
                   changeColor(color, saturation: 0.8, lightness: 0.5),
@@ -90,18 +90,10 @@ class CircleAvatarWidget extends StatelessWidget {
         radius: radius,
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
-            ? Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  border: Border.all(
-                    color: const Color(0xFF3259D7),
-                    width: 2,
-                  ),
-                ),
-                padding: const EdgeInsets.all(6),
-                child: const Image(
-                  image: AssetImage('assets/images/icon.jpg'),
+            ? const ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: Image(
+                  image: AssetImage('assets/images/logo.png'),
                 ),
               )
             : isSavedMessage()
@@ -128,7 +120,6 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<Avatar?> snapshot, Color textColor) {
     if (snapshot.hasData &&
-        snapshot.data != null &&
         snapshot.data!.fileId != null &&
         snapshot.data!.fileName != null) {
       return FutureBuilder<File?>(
@@ -166,23 +157,19 @@ class CircleAvatarWidget extends StatelessWidget {
           String name = snapshot.data!.trim();
           return avatarAlt(name.trim(), textColor);
         } else {
-          return Icon(
-            Icons.person,
-            size: radius,
-            color: Colors.white,
-          );
+          return const SizedBox.shrink();
         }
       },
     );
   }
 
-  Center avatarAlt(String name, Color textColor) {
+  Widget avatarAlt(String name, Color textColor) {
     return Center(
       child: Text(
           name.length > 1
               ? name.substring(0, 1).toUpperCase()
               : name.toUpperCase(),
-          maxLines: null,
+          maxLines: 1,
           style: TextStyle(
               color: textColor, fontSize: (radius * 0.9).toInt().toDouble())),
     );

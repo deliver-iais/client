@@ -1,29 +1,28 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
-
-import 'package:image_picker/image_picker.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'helper_classes.dart';
 
 class ShareBoxGallery extends StatefulWidget {
   final ScrollController scrollController;
-  final Function onClick;
-  final Map<int, bool> selectedImages;
-  final bool selectGallery;
+  final Function? setAvatar;
+  final bool selectAvatar;
   final Uid roomUid;
+  final Function pop;
 
   const ShareBoxGallery(
       {Key? key,
-      required this.selectGallery,
+      required this.selectAvatar,
       required this.scrollController,
-      required this.onClick,
-      required this.selectedImages,
+      this.setAvatar,
+      required this.pop,
       required this.roomUid})
       : super(key: key);
 
@@ -32,141 +31,218 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final i18n = GetIt.I.get<I18N>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  late Future<List<ImageItem>> _future;
+  late Future<List<StorageFile>> _future;
+  late CameraController _controller;
+  late List<CameraDescription> _cameras;
+  late BehaviorSubject<CameraController> _streamController;
 
   @override
   void initState() {
     _future = ImageItem.getImages();
+    _initCamera();
+
     super.initState();
   }
 
-  void cropAvatar(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
-        sourcePath: imagePath,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square]
-            : [
-                CropAspectRatioPreset.square,
-              ],
-        cropStyle: CropStyle.rectangle,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: i18n.get("avatar"),
-            toolbarColor: Colors.blueAccent,
-            hideBottomControls: true,
-            showCropGrid: false,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: i18n.get("avatar"),
-        ));
-    if (croppedFile != null) {
-      widget.onClick(croppedFile);
+  _initCamera() async {
+    _cameras = await availableCameras();
+    if (_cameras.isNotEmpty) {
+      _controller = CameraController(_cameras[0], ResolutionPreset.max);
+      _controller.initialize().then((_) {
+        if (!mounted) {
+          return;
+        }
+        _streamController = BehaviorSubject.seeded(_controller);
+        setState(() {});
+      });
     }
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_controller == null || !_controller.value.isInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      _controller.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      if (_controller != null) {
+        //todo
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ImageItem>?>(
-        future: _future,
-        builder: (context, images) {
-          if (images.hasData &&
-              images.data != null &&
-              images.data!.isNotEmpty) {
-            return GridView.builder(
-                controller: widget.scrollController,
-                itemCount: images.data!.length + 1,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3),
-                itemBuilder: (context, index) {
-                  ImageItem? image = index > 0 ? images.data![index - 1] : null;
-                  if (index <= 0) {
-                    return Container(
-                      width: 50,
-                      height: 50,
-                      margin: const EdgeInsets.all(4.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(5)),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.photo_camera,
-                            color: Colors.white, size: 40),
-                        onPressed: () async {
-                          try {
-                            Navigator.pop(context);
-                            final picker = ImagePicker();
-                            final pickedFile = await picker.pickImage(
-                                source: ImageSource.camera);
-                            widget.selectGallery
-                                ? _routingServices.openImagePage(context,
-                                    roomUid: widget.roomUid,
-                                    file: File(pickedFile!.path))
-                                : cropAvatar(image!.path);
-                          } catch (_) {}
-                        },
-                      ),
-                    );
-                  } else {
-                    var selected = widget.selectedImages[index - 1] ?? false;
-                    return GestureDetector(
-                        onTap: widget.selectGallery
-                            ? () {
-                                if (!widget.selectedImages
-                                    .containsValue(true)) {
-                                  Navigator.pop(context);
-                                  _routingServices.openImagePage(context,
-                                      roomUid: widget.roomUid,
-                                      file: File(image!.path));
-                                } else {
-                                  widget.onClick(index, image!.path);
-                                }
-                              }
-                            : () {
-                                cropAvatar(image!.path);
-                                Navigator.pop(context);
-                              },
-                        child: AnimatedPadding(
-                          duration: const Duration(milliseconds: 200),
-                          padding: EdgeInsets.all(selected ? 8.0 : 4.0),
-                          child: Hero(
-                            tag: image!,
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5)),
-                                image: DecorationImage(
-                                    image: Image.file(File(image.path)).image,
-                                    fit: BoxFit.cover),
-                              ),
-                              child: widget.selectGallery
-                                  ? Align(
-                                      alignment: Alignment.topRight,
-                                      child: IconButton(
-                                        onPressed: () =>
-                                            widget.onClick(index, image.path),
-                                        icon: Icon(
-                                          selected
-                                              ? Icons.check_circle_outline
-                                              : Icons.panorama_fish_eye,
+    return Scaffold(
+      key: _scaffoldKey,
+      body: FutureBuilder<List<StorageFile>?>(
+          future: _future,
+          builder: (context, folders) {
+            if (folders.hasData &&
+                folders.data != null &&
+                folders.data!.isNotEmpty) {
+              return GridView.builder(
+                  controller: widget.scrollController,
+                  itemCount: folders.data!.length + 1,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2),
+                  itemBuilder: (co, index) {
+                    StorageFile? folder =
+                        index > 0 ? folders.data![index - 1] : null;
+                    if (index <= 0) {
+                      return Container(
+                        width: 50,
+                        height: 50,
+                        margin: const EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(co).primaryColor,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5)),
+                        ),
+                        child: _controller.value.isInitialized
+                            ? GestureDetector(
+                                onTap: () {
+                                  openCamera();
+                                },
+                                child: CameraPreview(
+                                  _controller,
+                                  child: const Icon(Icons.photo_camera,
+                                      size: 50, color: Colors.black26),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      );
+                    } else {
+                      return GestureDetector(
+                          onTap: () {
+                            Navigator.push(co, MaterialPageRoute(builder: (c) {
+                              return ImageFolderWidget(
+                                folder!,
+                                widget.roomUid,
+                                () {
+                                  Navigator.pop(co);
+                                },
+                                selectAvatar: widget.selectAvatar,
+                                setAvatar: widget.setAvatar,
+                              );
+                            }));
+                          },
+                          child: AnimatedPadding(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.all(10),
+                            child: Hero(
+                              tag: folder!.folderName,
+                              child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    image: DecorationImage(
+                                        image: Image.file(
+                                          File(
+                                            folder.files.first,
+                                          ),
+                                          cacheWidth: 300,
+                                          cacheHeight: 300,
+                                        ).image,
+                                        fit: BoxFit.cover),
+                                  ),
+                                  child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      widthFactor: 200,
+                                      child: Container(
+                                        decoration: BoxDecoration(
                                           color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
+                                        child: Text(
+                                          folder.folderName,
+                                          style: const TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.black),
+                                        ),
+                                      ))),
                             ),
-                          ),
-                        ));
-                  }
-                });
-          }
-          return const SizedBox.shrink();
-        });
+                          ));
+                    }
+                  });
+            }
+            return const SizedBox.shrink();
+          }),
+    );
+  }
+
+  void openCamera() {
+    Navigator.push(context, MaterialPageRoute(builder: (c) {
+      return Scaffold(
+          body: Stack(
+        children: [
+          StreamBuilder<CameraController>(
+              stream: _streamController.stream,
+              builder: (context, snapshot) {
+                return CameraPreview(
+                  snapshot.data ?? _controller,
+                );
+              }),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20, right: 15),
+              child: IconButton(
+                onPressed: () async {
+                  XFile file = await _controller.takePicture();
+                  widget.pop();
+                  Navigator.pop(context);
+                  widget.selectAvatar
+                      ? widget.setAvatar!(file.path)
+                      : showCaptionDialog(
+                          roomUid: widget.roomUid,
+                          context: context,
+                          paths: [file.path],
+                          type: file.path.split(".").last);
+                },
+                icon: const Icon(
+                  Icons.photo_camera,
+                  color: Colors.blue,
+                  size: 55,
+                ),
+              ),
+            ),
+          ),
+          if (_cameras.isNotEmpty && _cameras.length > 1)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10, right: 10),
+                child: IconButton(
+                  onPressed: () async {
+                    _controller = CameraController(
+                        _controller.description == _cameras[1]
+                            ? _cameras[0]
+                            : _cameras[1],
+                        ResolutionPreset.max);
+                    await _controller.initialize();
+                    _streamController.add(_controller);
+                  },
+                  icon: const Icon(Icons.flip_camera_ios_outlined),
+                  color: Colors.blueAccent,
+                  iconSize: 40,
+                ),
+              ),
+            )
+        ],
+      ));
+    }));
   }
 }

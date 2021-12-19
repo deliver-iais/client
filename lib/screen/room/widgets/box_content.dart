@@ -58,7 +58,6 @@ class _BoxContentState extends State<BoxContent> {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: Column(

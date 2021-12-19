@@ -2,6 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -51,13 +52,7 @@ class BotAppbarTitle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          name,
-          maxLines: 1,
-          overflow: TextOverflow.fade,
-          softWrap: false,
-          style: Theme.of(context).textTheme.subtitle1,
-        ),
+        RoomName(uid: botUid, name: name, style: Theme.of(context).textTheme.subtitle1),
         TitleStatus(
           currentRoomUid: botUid,
           style: Theme.of(context).textTheme.caption!,

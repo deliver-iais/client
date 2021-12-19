@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io';
-import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
@@ -17,7 +15,6 @@ import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
-import 'package:deliver/screen/room/widgets/show_image_widget.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -64,20 +61,12 @@ class RoutingService {
   final _dbManager = GetIt.I.get<DBManager>();
   final BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
-  late Widget _navigationCenter;
+  final _navigationCenter = const NavigationCenter(key: ValueKey("navigator"));
   static const Widget _empty = Empty();
 
   ListQueue<Page>? _stack;
 
   RoutingService() {
-    _navigationCenter = NavigationCenter(
-      key: const ValueKey("navigator"),
-      tapOnCurrentUserAvatar: () {
-        // this.openContacts();
-        openSettings();
-      },
-    );
-
     reset();
   }
 
@@ -109,13 +98,11 @@ class RoutingService {
           smallPageMain: widget,
           path: "/room/$roomId"));
     } else {
-      Navigator.push(context,
-          EnterExitRoute(exitPage: const HomePage(), enterPage: widget));
-      //_rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
-  _rootInMobileState(Widget widget, BuildContext context) {
+  _routeInMobileState(Widget widget, BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -135,7 +122,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/settings"));
     } else {
-      _rootInMobileState(widget, context!);
+      _routeInMobileState(widget, context!);
     }
   }
 
@@ -156,7 +143,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/language_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -170,7 +157,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/security_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -183,7 +170,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/language_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -196,7 +183,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/log_settings"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -209,7 +196,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/contacts"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -231,7 +218,7 @@ class RoutingService {
         path: "/media-details",
       ));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -253,7 +240,7 @@ class RoutingService {
         path: "/media-details",
       ));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -279,7 +266,7 @@ class RoutingService {
         path: "/media-details",
       ));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -292,7 +279,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/profile/$roomId"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -308,7 +295,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/custom_notification_sound_selection"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -328,7 +315,7 @@ class RoutingService {
           lockBackButton: forceToSetUsernameAndName,
           path: "/account-settings"));
     } else {
-      _rootInMobileState(accountSettingsWidget, context);
+      _routeInMobileState(accountSettingsWidget, context);
     }
   }
 
@@ -347,7 +334,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/member-selection-page"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -362,7 +349,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/new-contact"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -380,7 +367,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/new-contact"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -397,7 +384,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/group-info-determination-page"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -411,7 +398,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/share_file_page"));
     } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 
@@ -426,25 +413,7 @@ class RoutingService {
           smallPageMain: widget,
           path: "/scan_qr_code"));
     } else {
-      _rootInMobileState(widget, context);
-    }
-  }
-
-  void openImagePage(BuildContext context,
-      {required Uid roomUid, required File file}) {
-    var widget = ShowImagePage(
-      roomUid: roomUid,
-      imageFile: file,
-      key: const ValueKey("/show_image_page"),
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/scan_qr_code"));
-    } else {
-      _rootInMobileState(widget, context);
+      _routeInMobileState(widget, context);
     }
   }
 

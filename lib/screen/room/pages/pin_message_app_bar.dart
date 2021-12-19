@@ -8,11 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'package:sorted_list/sorted_list.dart';
 
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
-  final SortedList<Message> pinMessages;
+  final List<Message> pinMessages;
   final Function() onTap;
   final Function()? onNext;
   final Function? onPrev;

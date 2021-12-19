@@ -17,7 +17,6 @@ class TimeProgressIndicator extends StatefulWidget {
 
 class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
-  Duration ? currentPos;
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +35,20 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                     return StreamBuilder<Duration>(
                         stream: audioPlayerService.audioCurrentPosition(),
                         builder: (context, snapshot2) {
-                          currentPos = Duration.zero;
-
-                          return Text(
-                            currentPos.toString().split('.')[0].substring(2) +
-                                " / " +
-                                Duration(seconds: widget.duration.toInt()).toString().substring(0, 7),
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: ExtraTheme.of(context).textField),
-                          );
+                          if (snapshot2.hasData && snapshot2.data != null) {
+                            return Text(
+                              snapshot2.data.toString().substring(0,7) +
+                                  " / " +
+                                  Duration(seconds: widget.duration.toInt())
+                                      .toString()
+                                      .substring(0, 7),
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: ExtraTheme.of(context).textField),
+                            );
+                          } else {
+                            return buildText(context);
+                          }
                         });
                   } else {
                     return buildText(context);
@@ -59,7 +62,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
 
   Text buildText(BuildContext context) {
     return Text(
-      "00:00" " / " +
+      "00:00:00" " / " +
           Duration(seconds: widget.duration.toInt()).toString().substring(0, 7),
       style: TextStyle(fontSize: 11, color: ExtraTheme.of(context).textField),
     );

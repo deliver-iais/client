@@ -20,12 +20,14 @@ class ShowCaptionDialog extends StatefulWidget {
   final String? type;
   final Uid currentRoom;
   final Message? editableMessage;
+  final bool showSelectedImage;
 
   const ShowCaptionDialog(
       {Key? key,
       this.paths,
       this.type,
       required this.currentRoom,
+      this.showSelectedImage = false,
       this.editableMessage})
       : super(key: key);
 
@@ -74,7 +76,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   (widget.editableMessage != null ||
-                              widget.paths!.length <= 1) &&
+                              widget.paths!.length <= 1 ||
+                              widget.showSelectedImage) &&
                           (_type.contains("image") ||
                               _type.contains("jpg") ||
                               _type.contains("png") ||
@@ -120,7 +123,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Material(
                                         color: Theme.of(context)
                                             .primaryColor, // button color
-                                        child: const InkWell(
+                                        child: InkWell(
                                             splashColor:
                                                 Colors.blue, // inkwell color
                                             child: SizedBox(
@@ -129,7 +132,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                               child: Icon(
                                                 Icons.insert_drive_file,
                                                 size: 20,
-                                                color: Colors.white,
+                                                color: ExtraTheme.of(context)
+                                                    .textField,
                                               ),
                                             ))),
                                   ),
@@ -140,9 +144,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Text(
                                       _fileNames[index],
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).textField),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                   ),
                                   Align(
@@ -175,9 +178,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                         minLines: 1,
                         maxLines: 5,
                         autofocus: true,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: ExtraTheme.of(context).textField),
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
                         decoration: InputDecoration(
                           labelText: _i18n.get("caption"),
                         )),
