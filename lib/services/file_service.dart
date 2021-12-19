@@ -214,7 +214,7 @@ class FileService {
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);
-      return "Error::::" + e.toString();
+      return null;
     }
   }
 }

@@ -15,7 +15,6 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
@@ -33,29 +32,29 @@ class FileRepo {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
         uploadKey: uploadKey, sendActivity: sendActivity!);
+    if (value != null) {
+      var json = jsonDecode(value.toString());
+      try {
+        var uploadedFile = file_pb.File();
 
-    var json = jsonDecode(value.toString());
-    try{
-      var uploadedFile = file_pb.File();
+        uploadedFile = file_pb.File()
+          ..uuid = json["uuid"]
+          ..size = Int64.parseInt(json["size"])
+          ..type = json["type"]
+          ..name = json["name"]
+          ..width = json["width"] ?? 0
+          ..height = json["height"] ?? 0
+          ..duration = json["duration"] ?? 0
+          ..blurHash = json["blurHash"] ?? ""
+          ..hash = json["hash"] ?? "";
+        _logger.v(uploadedFile);
 
-      uploadedFile = file_pb.File()
-        ..uuid = json["uuid"]
-        ..size = Int64.parseInt(json["size"])
-        ..type = json["type"]
-        ..name = json["name"]
-        ..width = json["width"] ?? 0
-        ..height = json["height"] ?? 0
-        ..duration = json["duration"] ?? 0
-        ..blurHash = json["blurHash"] ?? ""
-        ..hash = json["hash"] ?? "";
-      _logger.v(uploadedFile);
-
-      await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
-      return uploadedFile;
-    }catch(e){
-
+        await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+        return uploadedFile;
+      } catch (e) {
+        _logger.e(e);
+      }
     }
-
   }
 
   Future<bool> isExist(String uuid, String filename,
