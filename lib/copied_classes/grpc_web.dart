@@ -1,5 +1,3 @@
-class GrpcWebClientChannel{
-  static xhr(Uri uri){
-
-  }
+class GrpcWebClientChannel {
+  static xhr(Uri uri) => {};
 }

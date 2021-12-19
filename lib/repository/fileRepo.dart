@@ -9,13 +9,11 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:universal_html/html.dart' as html;
 
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:universal_html/html.dart';
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -30,36 +28,33 @@ class FileRepo {
   }
 
   Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
-      {Function? sendActivity, Function? sendError}) async {
+      {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
         uploadKey: uploadKey, sendActivity: sendActivity!);
-    if(sendError!=null){
-      sendError(value);
+    if (value != null) {
+      var json = jsonDecode(value.toString());
+      try {
+        var uploadedFile = file_pb.File();
+
+        uploadedFile = file_pb.File()
+          ..uuid = json["uuid"]
+          ..size = Int64.parseInt(json["size"])
+          ..type = json["type"]
+          ..name = json["name"]
+          ..width = json["width"] ?? 0
+          ..height = json["height"] ?? 0
+          ..duration = json["duration"] ?? 0
+          ..blurHash = json["blurHash"] ?? ""
+          ..hash = json["hash"] ?? "";
+        _logger.v(uploadedFile);
+
+        await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+        return uploadedFile;
+      } catch (e) {
+        _logger.e(e);
+      }
     }
-
-    var json = jsonDecode(value.toString());
-    try{
-      var uploadedFile = file_pb.File();
-
-      uploadedFile = file_pb.File()
-        ..uuid = json["uuid"]
-        ..size = Int64.parseInt(json["size"])
-        ..type = json["type"]
-        ..name = json["name"]
-        ..width = json["width"] ?? 0
-        ..height = json["height"] ?? 0
-        ..duration = json["duration"] ?? 0
-        ..blurHash = json["blurHash"] ?? ""
-        ..hash = json["hash"] ?? "";
-      _logger.v(uploadedFile);
-
-      await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
-      return uploadedFile;
-    }catch(e){
-
-    }
-
   }
 
   Future<bool> isExist(String uuid, String filename,

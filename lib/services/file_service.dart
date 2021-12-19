@@ -25,11 +25,12 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
 
-
   final _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = {};
 
   Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
+
+  Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() ||
@@ -89,16 +90,19 @@ class FileService {
     return _getFile(uuid, filename);
   }
 
-  // TODO, refactoring needed
   Future<String?> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
+    CancelToken cancelToken = CancelToken();
+    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     try {
       var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
         filesDownloadStatus[uuid]!.add((i / j));
-      }, options: Options(responseType: ResponseType.bytes));
+      },
+          options: Options(responseType: ResponseType.bytes),
+          cancelToken: cancelToken);
       if (kIsWeb) {
         var blob = html.Blob(
             <Object>[res.data], "application/${filename.split(".").last}");
@@ -154,9 +158,12 @@ class FileService {
 
   Future<String> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
+    CancelToken cancelToken = CancelToken();
+    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     var res = await _dio.get(
         "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-        options: Options(responseType: ResponseType.bytes));
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken);
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
     return file.path;
@@ -171,6 +178,8 @@ class FileService {
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
     try {
+      CancelToken cancelToken = CancelToken();
+      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
       if (kIsWeb) {
         http.Response r = await http.get(
@@ -196,19 +205,16 @@ class FileService {
           if (sendActivity != null) sendActivity();
           if (filesUploadStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
-            filesUploadStatus[uploadKey!] = d;
+            filesUploadStatus[uploadKey] = d;
           }
           filesUploadStatus[uploadKey]!.add((i / j));
         };
         handler.next(options);
       }));
-      return _dio.post(
-        "/upload",
-        data: formData,
-      );
+      return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);
-      return "Error::::"+ e.toString();
+      return null;
     }
   }
 }

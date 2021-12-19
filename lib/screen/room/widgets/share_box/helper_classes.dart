@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver/services/storage_path.dart';
-
-
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class StorageFile {
   final List files;
@@ -13,7 +13,7 @@ class StorageFile {
 
   factory StorageFile.fromJson(Map<String, dynamic> json) {
     return StorageFile(
-        files: json['files'] as List,
+        files: json['files'] as List ,
         folderName: json['folderName'].toString());
   }
 }
@@ -36,34 +36,44 @@ class AudioItem extends FileBasic {
   AudioItem({required String path, required this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
-    return[];
-    //Todo read all audio file
-    // List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-    // List<File> files = [];
-    // for (var s in storageInfo) {
-    //   var root =
-    //       s.rootDir; //storageInfo[1] for SD card, geting the root directory
-    //   var fm = FileManager(root: Directory(root)); //
-    //   List<File> f = await fm.filesTree(extensions: ["mp3"]);
-    //   files.addAll(f);
-    // }
-    // return files;
+    var storageFiles = await StoragePath.audioPath;
+    List<dynamic> paths = json.decode(storageFiles);
+
+    List<File> files = [];
+    for (var path in paths) {
+      try {
+        files.add(File(path.toString()));
+      } catch (e) {
+        GetIt.I.get<Logger>().e(e);
+      }
+    }
+    return files;
   }
 }
 
 class ImageItem extends FileBasic {
   ImageItem({required String path}) : super(path);
 
-  static Future<List<ImageItem>> getImages() async {
-    var storageFiles = _storageFiles(await StoragePath.imagesPath);
-    List<ImageItem> items = [];
-    for (int i = 0; i < storageFiles.length; i++) {
-      for (int j = 0; j < storageFiles[i].files.length; j++) {
-        var f = storageFiles[i].files[j];
-        ImageItem item = ImageItem(path: f);
-        items.add(item);
+  static Future<List<StorageFile>> getImages() async {
+    return _storageFiles(await StoragePath.imagesPath);
+  }
+}
+
+class FileItem extends FileBasic {
+  FileItem({required String path}) : super(path);
+
+  static Future<List<String>> getFiles() async {
+    try {
+      var storageFiles = await StoragePath.filePath;
+      List<dynamic> filesPath = json.decode(storageFiles);
+      List<String> result = [];
+      for (var path in filesPath) {
+        result.add(path.toString());
       }
+      return result;
+    } catch (e) {
+      GetIt.I.get<Logger>().e(e);
+      return [];
     }
-    return items;
   }
 }

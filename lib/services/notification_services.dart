@@ -5,7 +5,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 
 import 'package:desktoasts/desktoasts.dart'
-    if (dart.library.html) 'package:deliver/services/web_desktoasts.dart'
+    if (dart.library.html) 'package:deliver/copied_classes/web_desktoasts.dart'
     as windowNotify;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

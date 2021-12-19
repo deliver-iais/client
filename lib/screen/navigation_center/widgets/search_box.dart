@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -10,9 +11,11 @@ class SearchBox extends StatefulWidget {
   final BorderRadius borderRadius;
 
   const SearchBox(
-      {Key? key, required this.onChange,
+      {Key? key,
+      required this.onChange,
       this.onCancel,
-      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))}) : super(key: key);
+      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))})
+      : super(key: key);
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
@@ -21,17 +24,37 @@ class SearchBox extends StatefulWidget {
 class _SearchBoxState extends State<SearchBox> {
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final TextEditingController _controller = TextEditingController();
-  I18N i18n = GetIt.I.get<I18N>();
+  final _focusNode = FocusNode(canRequestFocus: false);
+  final i18n = GetIt.I.get<I18N>();
+
+  @override
+  void initState() {
+    _focusNode.addListener(_onFocusChange);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+    return AnimatedPadding(
+      padding: EdgeInsets.symmetric(
+          horizontal: _focusNode.hasFocus ? 0 : 8, vertical: 4),
+      duration: ANIMATION_DURATION,
       child: TextField(
-        style: TextStyle(color: ExtraTheme.of(context).textField),
+        style: TextStyle(
+            color: ExtraTheme.of(context).textField, fontSize: 16, height: 1.2),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
-        focusNode: FocusNode(canRequestFocus: false),
+        focusNode: _focusNode,
         controller: _controller,
         autofocus: false,
         maxLines: 1,
@@ -46,11 +69,8 @@ class _SearchBoxState extends State<SearchBox> {
         cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-            borderRadius: widget.borderRadius,
-            borderSide: const BorderSide(
-              color: Colors.transparent,
-              width: 2.0,
-            ),
+            borderRadius: widget.borderRadius / 10,
+            borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius,
@@ -59,7 +79,7 @@ class _SearchBoxState extends State<SearchBox> {
               width: 0.0,
             ),
           ),
-          contentPadding: const EdgeInsets.all(8),
+          contentPadding: const EdgeInsets.all(12),
           filled: true,
           isDense: true,
           prefixIcon: Icon(
@@ -80,6 +100,7 @@ class _SearchBoxState extends State<SearchBox> {
                   onPressed: () {
                     _hasText.add(false);
                     _controller.clear();
+                    _focusNode.unfocus();
                     widget.onCancel!();
                   },
                 );

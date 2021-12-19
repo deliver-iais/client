@@ -24,12 +24,12 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
 
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  CircleAvatarWidget(this.contactUid, this.radius,
+  const CircleAvatarWidget(this.contactUid, this.radius,
       {Key? key,
       this.forceToUpdate = false,
       this.forceText = "",
@@ -68,7 +68,7 @@ class CircleAvatarWidget extends StatelessWidget {
     var color = colorFor(context, contactUid.asString());
 
     if (isSavedMessage()) color = Colors.blue;
-    if (isSystem()) color = Colors.blue;
+    if (isSystem()) color = Colors.white;
 
     var textColor =
         changeColor(color, saturation: 0.8, lightness: 0.5).computeLuminance() >
@@ -79,18 +79,23 @@ class CircleAvatarWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(colors: [
-            changeColor(color, saturation: 0.8, lightness: 0.4),
-            changeColor(color, saturation: 0.8, lightness: 0.5),
-            changeColor(color, saturation: 0.8, lightness: 0.7),
-          ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+          color: null,
+          gradient: !isSystem()
+              ? LinearGradient(colors: [
+                  changeColor(color, saturation: 0.8, lightness: 0.4),
+                  changeColor(color, saturation: 0.8, lightness: 0.5),
+                  changeColor(color, saturation: 0.8, lightness: 0.7),
+                ], begin: Alignment.bottomCenter, end: Alignment.topCenter)
+              : null),
       child: CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
-            ? const Image(
-                image: AssetImage(
-                    'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+            ? const ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: Image(
+                  image: AssetImage('assets/images/logo.png'),
+                ),
               )
             : isSavedMessage()
                 ? Icon(
@@ -116,13 +121,12 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<Avatar?> snapshot, Color textColor) {
     if (snapshot.hasData &&
-        snapshot.data != null &&
         snapshot.data!.fileId != null &&
         snapshot.data!.fileName != null) {
       return FutureBuilder<String?>(
         future: _fileRepo.getFile(
             snapshot.data!.fileId!, snapshot.data!.fileName!,
-            thumbnailSize: contactUid == _authRepo.currentUserUid
+            thumbnailSize: contactUid == _authRepo.currentUserUid || kIsWeb
                 ? null
                 : ThumbnailSize.medium),
         builder: (BuildContext c, snaps) {
@@ -154,23 +158,19 @@ class CircleAvatarWidget extends StatelessWidget {
           String name = snapshot.data!.trim();
           return avatarAlt(name.trim(), textColor);
         } else {
-          return Icon(
-            Icons.person,
-            size: radius,
-            color: Colors.white,
-          );
+          return const SizedBox.shrink();
         }
       },
     );
   }
 
-  Center avatarAlt(String name, Color textColor) {
+  Widget avatarAlt(String name, Color textColor) {
     return Center(
       child: Text(
           name.length > 1
               ? name.substring(0, 1).toUpperCase()
               : name.toUpperCase(),
-          maxLines: null,
+          maxLines: 1,
           style: TextStyle(
               color: textColor, fontSize: (radius * 0.9).toInt().toDouble())),
     );

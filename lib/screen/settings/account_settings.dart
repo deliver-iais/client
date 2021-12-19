@@ -6,6 +6,7 @@ import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -15,7 +16,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -48,7 +49,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   bool usernameIsAvailable = true;
   bool _userNameCorrect = false;
 
-  bool _uploadNewAvatar = false;
+  final BehaviorSubject<bool> _uploadNewAvatar = BehaviorSubject.seeded(false);
   String _newAvatarPath = "";
 
   attachFile() async {
@@ -57,20 +58,74 @@ class _AccountSettingsState extends State<AccountSettings> {
       FilePickerResult? result = await FilePicker.platform
           .pickFiles(type: FileType.media, allowMultiple: false);
       path = result!.files.first.path;
+      if (path != null) {
+        setAvatar(path);
+      }
     } else {
-      var result = await ImagePicker().pickImage(source: ImageSource.gallery);
-      path = result!.path;
+      showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.3,
+              minChildSize: 0.2,
+              maxChildSize: 1,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                    color: Colors.white,
+                    child: Stack(children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(0),
+                        child: ShareBoxGallery(
+                          pop: () => Navigator.pop(context),
+                          scrollController: scrollController,
+                          setAvatar: (String filePath) async {
+                            cropAvatar(filePath);
+                          },
+                          selectAvatar: true,
+                          roomUid: _authRepo.currentUserUid,
+                        ),
+                      ),
+                    ]));
+              },
+            );
+          });
     }
-    if (path != null) {
-      setState(() {
-        _newAvatarPath = path!;
-        _uploadNewAvatar = true;
-      });
-      await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
-      setState(() {
-        _uploadNewAvatar = false;
-      });
+  }
+
+  void cropAvatar(String imagePath) async {
+    File? croppedFile = await ImageCropper.cropImage(
+        sourcePath: imagePath,
+        aspectRatioPresets: Platform.isAndroid
+            ? [CropAspectRatioPreset.square]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        cropStyle: CropStyle.rectangle,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: _i18n.get("avatar"),
+            toolbarColor: Colors.blueAccent,
+            hideBottomControls: true,
+            showCropGrid: false,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: _i18n.get("avatar"),
+        ));
+    if (croppedFile != null) {
+      setAvatar(croppedFile.path);
     }
+  }
+
+  Future<void> setAvatar(String path) async {
+    _uploadNewAvatar.add(true);
+    _newAvatarPath = path;
+    await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
+    _uploadNewAvatar.add(false);
   }
 
   @override
@@ -153,13 +208,22 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 child: SizedBox(
                                     height: 50.0,
                                     width: 50.0,
-                                    child: _uploadNewAvatar
-                                        ? const CircularProgressIndicator(
+                                    child: StreamBuilder<bool>(
+                                      stream: _uploadNewAvatar.stream,
+                                      builder: (c, s) {
+                                        if (s.hasData &&
+                                            s.data != null &&
+                                            s.data!) {
+                                          return const CircularProgressIndicator(
                                             valueColor: AlwaysStoppedAnimation(
                                                 Colors.blue),
                                             strokeWidth: 6.0,
-                                          )
-                                        : const SizedBox.shrink()),
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      },
+                                    )),
                               ),
                             ),
                             // Spacer(),

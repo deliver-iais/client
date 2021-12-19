@@ -166,6 +166,10 @@ class ContactRepo {
   }
 
   Future<List<Uid>> searchUser(String query) async {
+    if (query.isEmpty) {
+      return [];
+    }
+
     try {
       var result = await _queryServiceClient.searchUid(SearchUidReq()
         ..text = query

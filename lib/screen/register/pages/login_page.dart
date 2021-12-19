@@ -10,6 +10,7 @@ import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/phone.dart';
 
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
@@ -24,6 +25,7 @@ import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
@@ -71,21 +73,24 @@ class _LoginPageState extends State<LoginPage> {
           _logger.e(e);
         }
       });
-      tokenGeneratorTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      tokenGeneratorTimer =
+          Timer.periodic(const Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
     } else if (isAndroid() && !kDebugMode) {
-      // SmsAutoFill().hint.then((value) {
-      //   final p = getPhoneNumber(value);
-      //   phoneNumber = p;
-      //   controller.text = p.nationalNumber.toString();
-      //   if (p != null) {
-      //     setState(() {
-      //       _isLoading = true;
-      //     });
-      //     checkAndGoNext(doNotCheckValidator: true);
-      //   }
-      // });
+      SmsAutoFill().hint.then((value) {
+        if (value != null) {
+          final PhoneNumber? p = getPhoneNumber(value);
+          if (p != null) {
+            phoneNumber = p;
+            controller.text = p.nationalNumber.toString();
+            setState(() {
+              _isLoading = true;
+            });
+            checkAndGoNext(doNotCheckValidator: true);
+          }
+        }
+      });
     }
     super.initState();
   }

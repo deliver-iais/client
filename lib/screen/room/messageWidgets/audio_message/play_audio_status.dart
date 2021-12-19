@@ -1,9 +1,12 @@
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'dart:io';
+
+import 'package:open_file/open_file.dart';
 
 class PlayAudioStatus extends StatefulWidget {
   final String fileId;
@@ -81,11 +84,15 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
           size: 40,
         ),
         onPressed: () {
-          audioPlayerService.play(
-            audio.data!,
-            widget.fileId,
-            widget.fileName,
-          );
+          if (isAndroid() || isIOS()) {
+            audioPlayerService.play(
+              audio.data!,
+              widget.fileId,
+              widget.fileName,
+            );
+          } else {
+            OpenFile.open(audio.data!);
+          }
         });
   }
 }

@@ -111,7 +111,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             child: TextButton(
                 onPressed: _currentPass.isNotEmpty
                     ? () {
-                        if (_authRepo.localPasswordIsCorrect(_pass)) {
+                        if (_authRepo.localPasswordIsCorrect(_currentPass)) {
                           _authRepo.setLocalPassword("");
                           setState(() {});
                           Navigator.of(context).pop();

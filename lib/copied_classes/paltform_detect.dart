@@ -1,5 +1,5 @@
 class browser {
-  static String name = "ew";
+  static String name = "";
   static Version version = Version();
 }
 

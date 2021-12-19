@@ -16,24 +16,19 @@ class BotRepo {
   final _botServiceClient = GetIt.I.get<BotServiceClient>();
   final _botDao = GetIt.I.get<BotDao>();
 
-  Future<BotInfo?> fetchBotInfo(Uid botUid) async {
-    try {
-      GetInfoRes result =
-      await _botServiceClient.getInfo(GetInfoReq()
-        ..bot = botUid);
-      var botInfo = BotInfo(
-          description: result.description,
-          uid: botUid.asString(),
-          name: result.name,
-          commands: result.commands,
-          isOwner: result.isOwner);
+  Future<BotInfo> fetchBotInfo(Uid botUid) async {
+    GetInfoRes result =
+        await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    var botInfo = BotInfo(
+        description: result.description,
+        uid: botUid.asString(),
+        name: result.name,
+        commands: result.commands,
+        isOwner: result.isOwner);
 
-      _botDao.save(botInfo);
+    _botDao.save(botInfo);
 
-      return botInfo;
-    }catch(e){
-      return null;
-    }
+    return botInfo;
   }
 
   Future<bool> addBotAvatar(Avatar botAvatar) async {
@@ -68,6 +63,10 @@ class BotRepo {
   }
 
   Future<List<Uid>> searchBotByName(String name) async {
+    if (name.isEmpty) {
+      return [];
+    }
+
     //Todo complete search in bot
     // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name);
     List<Uid> searchInBots = [];

@@ -23,12 +23,14 @@ class ShowCaptionDialog extends StatefulWidget {
   final List<model.File>? files;
   final Uid currentRoom;
   final Message? editableMessage;
+  final bool showSelectedImage;
 
   const ShowCaptionDialog(
       {Key? key,
       this.files,
       this.type,
       required this.currentRoom,
+      this.showSelectedImage = false,
       this.editableMessage})
       : super(key: key);
 
@@ -126,7 +128,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Material(
                                         color: Theme.of(context)
                                             .primaryColor, // button color
-                                        child: const InkWell(
+                                        child: InkWell(
                                             splashColor:
                                                 Colors.blue, // inkwell color
                                             child: SizedBox(
@@ -135,7 +137,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                               child: Icon(
                                                 Icons.insert_drive_file,
                                                 size: 20,
-                                                color: Colors.white,
+                                                color: ExtraTheme.of(context)
+                                                    .textField,
                                               ),
                                             ))),
                                   ),
@@ -146,9 +149,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     child: Text(
                                       widget.files![index].name,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).textField),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                   ),
                                   Align(
@@ -171,7 +173,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   RawKeyboardListener(
                     focusNode: _captionFocusNode,
                     onKey: (event) {
-                      if (event.logicalKey == LogicalKeyboardKey.enter) {
+                      if (event.physicalKey == PhysicalKeyboardKey.enter) {
                         send();
                       }
                     },
@@ -181,9 +183,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                         minLines: 1,
                         maxLines: 5,
                         autofocus: true,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: ExtraTheme.of(context).textField),
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
                         decoration: InputDecoration(
                           labelText: _i18n.get("caption"),
                         )),

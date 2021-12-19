@@ -77,6 +77,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
@@ -209,15 +210,15 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux() || isWindows()) {
+    // DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   }
   try {
     GetIt.I.registerSingleton<AudioService>(AudioService());
-  } catch (e) {
-    print(e.toString());
-  }
+  } catch (e) {}
+
   if (kIsWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
   } else if (isMacOS()) {
@@ -234,11 +235,7 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
   }
 
-  try {
-    GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
-  } catch (e) {
-    print(e.toString());
-  }
+  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
 
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
