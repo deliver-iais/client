@@ -9,7 +9,6 @@ import 'package:path/path.dart'
 
 class DBManager {
   Future<void> deleteDB() async {
-    // TODO - read all files in db directory with *.hive pattern and open it, then call delete
     try {
       await Hive.deleteFromDisk();
     } catch (_) {}
