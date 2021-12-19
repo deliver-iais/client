@@ -158,6 +158,7 @@ public class StoragePathPlugin {
             result.error("1", e.toString(), null);
         }
     }
+
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void getAllFile2(Result result) {
         try {
@@ -167,9 +168,9 @@ public class StoragePathPlugin {
             Uri musicUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-               // musicUri = MediaStore.getDocumentUri(activity.getApplicationContext(),MediaStore.);
+                // musicUri = MediaStore.getDocumentUri(activity.getApplicationContext(),MediaStore.);
             } else {
-                musicUri= MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                musicUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
             }
             Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
@@ -207,67 +208,63 @@ public class StoragePathPlugin {
 
 
     private void getAllFile(Result result) {
-        try {
-            ArrayList<String> allFilePath = new ArrayList<>();
-            Uri collection;
+        ArrayList<String> allFilePath = new ArrayList<>();
+        Uri collection;
 
-            final String[] projection = new String[]{
-                    MediaStore.Files.FileColumns.DISPLAY_NAME,
-                    MediaStore.Files.FileColumns.DATE_ADDED,
-                    MediaStore.Files.FileColumns.MIME_TYPE,
-            };
+        final String[] projection = new String[]{
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.DATE_ADDED,
+                MediaStore.Files.FileColumns.DATA,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+        };
 
-            final String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
-            String pdf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf");
-            String doc = MimeTypeMap.getSingleton().getMimeTypeFromExtension("doc");
-            String docx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("docx");
-            String xls = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xls");
-            String xlsx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xlsx");
-            String ppt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("ppt");
-            String pptx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pptx");
-            String txt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt");
-            String rtx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtx");
-            String rtf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf");
-            String html = MimeTypeMap.getSingleton().getMimeTypeFromExtension("html");
-            String apk = MimeTypeMap.getSingleton().getMimeTypeFromExtension("apk");
+        final String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
+        String pdf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf");
+        String doc = MimeTypeMap.getSingleton().getMimeTypeFromExtension("doc");
+        String docx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("docx");
+        String xls = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xls");
+        String xlsx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("xlsx");
+        String ppt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("ppt");
+        String pptx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pptx");
+        String txt = MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt");
+        String rtx = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtx");
+        String rtf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf");
+        String html = MimeTypeMap.getSingleton().getMimeTypeFromExtension("html");
+        String apk = MimeTypeMap.getSingleton().getMimeTypeFromExtension("apk");
 
-            String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
-                    + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-            final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk};
+        String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
+        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk};
 
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL);
-            } else {
-                collection = MediaStore.Files.getContentUri("external");
-            }
-
-
-            try (Cursor cursor = activity.getApplicationContext().getContentResolver().query(collection, projection, where, selectionArgs, sortOrder)) {
-                assert cursor != null;
-
-                if (cursor.moveToFirst()) {
-                    int columnData = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                    do {
-                        allFilePath.add((cursor.getString(columnData)));
-                    } while (cursor.moveToNext());
-                }
-            }
-            Gson gson = new GsonBuilder().create();
-
-            result.success(gson.toJson(allFilePath));
-        }catch ( Exception e){
-            result.success(e.toString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        } else {
+            collection = MediaStore.Files.getContentUri("external");
         }
+
+
+        try (Cursor cursor = activity.getContentResolver().query(collection, projection, where, selectionArgs, sortOrder)) {
+            assert cursor != null;
+
+            if (cursor.moveToFirst()) {
+                int columnData = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                do {
+                    allFilePath.add((cursor.getString(columnData)));
+                } while (cursor.moveToNext());
+            }
+        }
+        Gson gson = new GsonBuilder().create();
+
+        result.success(gson.toJson(allFilePath));
     }
 }
