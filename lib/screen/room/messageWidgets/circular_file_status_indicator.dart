@@ -38,7 +38,6 @@ class CircularFileStatusIndicator extends StatelessWidget {
         return LoadFileStatus(
           fileId: file.uuid,
           fileName: file.name,
-          messageId: msg.id,
           messagePacketId: msg.packetId,
           roomUid: msg.roomUid,
           onPressed: onPressed,

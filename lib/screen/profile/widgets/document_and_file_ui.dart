@@ -133,7 +133,6 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           LoadFileStatus(
                                             fileId: fileId,
                                             fileName: fileName,
-                                            messageId: messageId,
                                             onPressed: download,
                                           ),
                                           Expanded(
