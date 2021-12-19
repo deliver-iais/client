@@ -114,8 +114,9 @@ class _ContactsPageState extends State<ContactsPage> {
                           itemCount: snapshot.data!.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (searchHasResult(c))
+                            if (searchHasResult(c)) {
                               return const SizedBox.shrink();
+                            }
                             if (_authRepo.isCurrentUser(c.uid)) {
                               return const SizedBox.shrink();
                             } else {

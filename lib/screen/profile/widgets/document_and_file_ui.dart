@@ -45,9 +45,9 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
           if (!media.hasData ||
               media.data == null ||
               media.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
+            return const SizedBox.shrink();
           } else {
-            return Container(
+            return SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
@@ -73,7 +73,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           child: Row(children: <Widget>[
                                             Padding(
                                                 padding:
-                                                    EdgeInsets.only(left: 2),
+                                                    const EdgeInsets.only(left: 2),
                                                 child: Container(
                                                   width: 50,
                                                   height: 50,
@@ -85,7 +85,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   ),
                                                   child: IconButton(
                                                     padding:
-                                                        EdgeInsets.fromLTRB(
+                                                        const EdgeInsets.fromLTRB(
                                                             1, 0, 0, 0),
                                                     alignment: Alignment.center,
                                                     icon: Icon(
@@ -120,7 +120,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           ]),
                                         ),
                                       ),
-                                      Divider(
+                                      const Divider(
                                         color: Colors.grey,
                                       ),
                                     ],
@@ -157,13 +157,13 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           ),
                                         ]),
                                       ),
-                                      Divider(
+                                      const Divider(
                                         color: Colors.grey,
                                       ),
                                     ],
                                   );
                                 } else {
-                                  return Container(width: 0, height: 0);
+                                  return const SizedBox.shrink();
                                 }
                               });
                         })));

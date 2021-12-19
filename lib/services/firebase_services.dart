@@ -73,7 +73,7 @@ class FireBaseServices {
           !showNotifyForThisMessage(msg, _authRepo)) {
         return null;
       }
-    } catch (e) {}
+    } catch (_) {}
 
     if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;

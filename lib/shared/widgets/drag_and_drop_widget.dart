@@ -53,8 +53,9 @@ class DragDropWidget extends StatelessWidget {
                       } else {
                         var res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
-                        if (res)
+                        if (res) {
                           showDialogInDesktop([modelFile], context, file.type);
+                        }
                       }
                     } catch (e) {
                       _logger.e(e);

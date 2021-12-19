@@ -190,6 +190,7 @@ Future<void> setupDI() async {
   try {
     GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
   } catch (e) {
+    // ignore: avoid_print
     print(e.toString());
   }
 
@@ -217,7 +218,7 @@ Future<void> setupDI() async {
   }
   try {
     GetIt.I.registerSingleton<AudioService>(AudioService());
-  } catch (e) {}
+  } catch (_) {}
 
   if (kIsWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());

@@ -8,7 +8,6 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'dart:io';
 
 import 'package:logger/logger.dart';
 
