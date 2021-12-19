@@ -11,7 +11,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/copied_classes/html.dart' if(dart.library.html) 'package:universal_html/html.dart' as html;
+import 'package:universal_html/html.dart' as html;
 
 final bucketGlobal = PageStorageBucket();
 

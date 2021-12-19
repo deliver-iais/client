@@ -1,10 +1,8 @@
-
+// ignore_for_file: unused_local_variable, unused_field
 
 import 'dart:async';
 
 import 'dart:io';
-
-
 
 extension on List<String> {
 
@@ -81,12 +79,12 @@ class Toast {
     this.actions,
   }) {
     List<String> data = [
-      this.type.index.toString(),
-      this.title,
-      this.subtitle ?? '',
-      this.image?.path ?? ''
-    ]..addAll(actions ?? []);
-    this.id = 1;
+      type.index.toString(),
+      title,
+      subtitle ?? '',
+      image?.path ?? '', ...?actions
+    ];
+    id = 1;
   }
 
   /// Releases resources allocated to the instance of [Toast].
@@ -120,9 +118,7 @@ class ToastService {
     required this.productName,
     this.subProductName,
     this.versionInformation,
-  }) {
-
-  }
+  });
 
   /// Shows a [Toast] on the desktop.
   void show(Toast toast) {
