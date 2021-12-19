@@ -43,7 +43,6 @@ class OpenFileStatus extends StatelessWidget {
                     var blob = html.Blob(<Object>[snapshot.data!],
                         "application/${file.name.split(".").last}");
                     var url = html.Url.createObjectUrlFromBlob(blob);
-                    print(url.substring(5).toString());
                     window.open(url.substring(5), "_blank");
                   } else {
                     OpenFile.open(snapshot.data!);

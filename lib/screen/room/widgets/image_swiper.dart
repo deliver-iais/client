@@ -148,8 +148,9 @@ class _ImageSwiperState extends State<ImageSwiper> {
                 widget.message.id,
                 widget.message.json!.toFile().width.toDouble(),
                 widget.message.json!.toFile().height.toDouble());
-          } else
+          } else {
             return const SizedBox.shrink();
+          }
         });
   }
 

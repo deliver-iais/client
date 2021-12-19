@@ -1006,10 +1006,10 @@ class MessageRepo {
       {String? caption, model.File? file}) async {
     file_pb.File? updatedFile;
     if (file != null) {
-      String upload_key = DateTime.now().millisecondsSinceEpoch.toString();
+      String uploadKey = DateTime.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
-          dart_file.File(file.path), upload_key, file.name);
-      updatedFile = await _fileRepo.uploadClonedFile(upload_key, file.name);
+          dart_file.File(file.path), uploadKey, file.name);
+      updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
       if (updatedFile != null) {
         updatedFile.caption = caption!;
       }
