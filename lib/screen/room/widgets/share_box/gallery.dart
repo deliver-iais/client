@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
@@ -60,17 +59,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }
   }
 
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_controller == null || !_controller.value.isInitialized) {
+    if (!_controller.value.isInitialized) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
       _controller.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      if (_controller != null) {
-        //todo
-      }
     }
   }
 
