@@ -275,9 +275,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     });
 
     _roomRepo.resetMention(widget.roomId);
-    if (isAndroid() || isIOS()) {
-      _notificationServices.cancelRoomNotifications(widget.roomId);
-    }
+    _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(widget.forwardedMessages != null
         ? widget.forwardedMessages!.isNotEmpty
         : widget.shareUid != null);

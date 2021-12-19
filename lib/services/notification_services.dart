@@ -165,16 +165,10 @@ class WindowsNotifier implements Notifier {
 
 class WebNotifier implements Notifier {
   @override
-  cancel(int id, String roomId) {
-    // TODO: implement cancel
-    throw UnimplementedError();
-  }
+  cancel(int id, String roomId) {}
 
   @override
-  cancelAll() {
-    // TODO: implement cancelAll
-    throw UnimplementedError();
-  }
+  cancelAll() {}
 
   @override
   notify(MessageBrief message) {

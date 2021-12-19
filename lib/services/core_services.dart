@@ -44,8 +44,8 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 10;
-const MAX_BACKOFF_TIME = 8;
+const MIN_BACKOFF_TIME = kIsWeb ? 8 : 4;
+const MAX_BACKOFF_TIME = kIsWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!

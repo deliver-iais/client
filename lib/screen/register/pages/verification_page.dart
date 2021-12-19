@@ -23,7 +23,7 @@ class VerificationPage extends StatefulWidget {
 class _VerificationPageState extends State<VerificationPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
- final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _focusNode = FocusNode();
   bool _showError = false;
@@ -42,7 +42,7 @@ class _VerificationPageState extends State<VerificationPage> {
     var result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
-       _fireBaseServices.sendFireBaseToken();
+        _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {

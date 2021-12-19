@@ -818,10 +818,6 @@ class MessageRepo {
     return mime(path) ?? "application/octet-stream";
   }
 
-  void setCoreSetting() {
-    _coreServices.sendPing();
-  }
-
   void sendActivity(Uid to, ActivityType activityType) {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {
       ActivityByClient activityByClient = ActivityByClient()
