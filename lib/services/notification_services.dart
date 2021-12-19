@@ -5,7 +5,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 
 import 'package:desktoasts/desktoasts.dart'
-    if (dart.library.html) 'package:deliver/copied_classes/web_desktoasts.dart'
+    if (dart.library.html) 'package:deliver/web_classes/web_desktoasts.dart'
     as windows_notify;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -15,7 +15,7 @@ import 'package:logger/logger.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import "package:deliver/copied_classes/js.dart" if (dart.library.html) 'dart:js'
+import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';

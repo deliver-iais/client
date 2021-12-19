@@ -3,7 +3,7 @@
 import 'dart:core';
 
 import 'package:grpc/grpc.dart';
-import 'package:deliver/copied_classes/grpc_web.dart'
+import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
 
 // ignore: non_constant_identifier_names

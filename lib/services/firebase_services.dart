@@ -27,7 +27,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:deliver/copied_classes/js.dart' if(dart.library.html) 'package:js/js.dart' as js;
+import 'package:deliver/web_classes/js.dart' if(dart.library.html) 'package:js/js.dart' as js;
 
 
 import 'package:logger/logger.dart';

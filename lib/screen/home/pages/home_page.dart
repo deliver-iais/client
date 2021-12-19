@@ -14,7 +14,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
-import "package:deliver/copied_classes/js.dart" if (dart.library.html) 'dart:js'
+import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 
 
