@@ -118,6 +118,7 @@ dependencies:
   google_fonts: 2.1.0
   video_player: ^2.2.7
   chewie: ^1.2.2
+  hovering: 1.0.4
   camera: 0.9.4+5
 
 dev_dependencies:
