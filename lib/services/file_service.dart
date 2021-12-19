@@ -71,13 +71,12 @@ class FileService {
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
-      options.headers["Access-Control-Allow-Origin"] =
-          FileServiceBaseUrl + "/upload";
-      options.headers["Access-Control-Allow-Credentials"] = false;
-      options.headers["Access-Control-Allow-Headers"] =
-          "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale";
-      options.headers["Access-Control-Allow-Methods"] =
-          "GET, POST, OPTIONS, HEAD";
+      // options.headers["Access-Control-Allow-Origin"] = FileServiceBaseUrl+"/upload";
+      // options.headers["Access-Control-Allow-Credentials"] = false;
+      // options.headers["Access-Control-Allow-Headers"] =
+      //     "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale";
+      // options.headers["Access-Control-Allow-Methods"] =
+      //     "GET, POST, OPTIONS, HEAD";
 
       return handler.next(options); //continue
     }));
