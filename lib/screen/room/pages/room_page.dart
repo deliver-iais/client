@@ -31,7 +31,6 @@ import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
-
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -63,6 +62,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
 
@@ -100,7 +100,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _fileRepo = GetIt.I.get<FileRepo>();
   String? _searchMessagePattern;
   int _lastSeenMessageId = -1;
-
+  SharedPreferences? prefs;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   int _replyMessageId = -1;
@@ -181,6 +181,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           AlignmentDirectional.bottomStart,
                                       children: [
                                         buildMessagesListView(pendingMessages),
+                                        !isDesktop()
+                                            ? positionsView
+                                            : const SizedBox.shrink(),
                                         StreamBuilder<int>(
                                             stream: _positionSubject.stream,
                                             builder: (c, position) {
@@ -248,8 +251,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
+  Widget get positionsView => ValueListenableBuilder<Iterable<ItemPosition>>(
+      valueListenable: _itemPositionsListener.itemPositions,
+      builder: (context, positions, child) {
+        int? firstItem;
+        if (positions.isNotEmpty) {
+          // Determine the first visible item by finding the item with the
+          firstItem = positions
+              .where((ItemPosition position) => position.itemTrailingEdge > 0)
+              .reduce((ItemPosition first, ItemPosition position) =>
+                  position.itemTrailingEdge < first.itemTrailingEdge
+                      ? position
+                      : first)
+              .index;
+        }
+
+        prefs?.setInt('scrollPosition +${widget.roomId}', firstItem ?? 0);
+        return const SizedBox.shrink();
+      });
+
+  initPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   @override
   void initState() {
+    initPref();
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
 
@@ -772,13 +799,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildMessagesListView(List<PendingMessage> pendingMessages) {
+    int initialScrollIndex = isDesktop()
+        ? (_itemCount > 0
+            ? (_lastShowedMessageId != -1)
+                ? _lastShowedMessageId
+                : _itemCount
+            : 0)
+        : min(
+            prefs?.getInt('scrollPosition +${widget.roomId}') ??
+                (_itemCount > 0
+                    ? (_lastShowedMessageId != -1)
+                        ? _lastShowedMessageId
+                        : _itemCount
+                    : 0),
+            (_itemCount > 0
+                ? (_lastShowedMessageId != -1)
+                    ? _lastShowedMessageId
+                    : _itemCount
+                : 0));
+
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount > 0
-          ? (_lastShowedMessageId != -1)
-              ? _lastShowedMessageId
-              : _itemCount
-          : 0,
+      initialScrollIndex: initialScrollIndex,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
