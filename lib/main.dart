@@ -1,5 +1,3 @@
-
-
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -212,16 +210,14 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux() || isWindows()) {
- //  DartVLC.initialize();
+    //  DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   }
-  try {
-    GetIt.I.registerSingleton<AudioService>(AudioService());
-  } catch (e) {
-    print(e.toString());
-  }
+
+  GetIt.I.registerSingleton<AudioService>(AudioService());
+
   if (kIsWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
   } else if (isMacOS()) {
@@ -326,7 +322,10 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
-                supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
+                supportedLocales: const [
+                  Locale('en', 'US'),
+                  Locale('fa', 'IR')
+                ],
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,

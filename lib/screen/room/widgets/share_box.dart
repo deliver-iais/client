@@ -128,6 +128,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 )
                               : currentPage == Page.files
                                   ? ShareBoxFile(
+                                      roomUid: widget.currentRoomId,
                                       scrollController: scrollController,
                                       onClick: (index, path) {
                                         setState(() {
