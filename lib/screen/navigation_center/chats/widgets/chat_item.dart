@@ -83,6 +83,7 @@ class _ChatItemState extends State<ChatItem> {
           if (name.hasData && name.data != null && name.data!.isNotEmpty) {
             return DragDropWidget(
                 roomUid: widget.room.uid,
+                height: 70,
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   color: widget.isSelected

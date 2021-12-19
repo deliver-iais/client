@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
@@ -14,6 +14,9 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
+import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
+    as js;
+
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -44,24 +47,48 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     _coreServices.initStreamConnection();
-    _notificationServices.cancelAllNotifications();
-    checkIfUsernameIsSet();
+    if (isAndroid() || isIOS()) {
+      _notificationServices.cancelAllNotifications();
+    }
 
+    checkIfUsernameIsSet();
     if (isAndroid()) {
       checkShareFile(context);
     }
     if (isAndroid() || isIOS()) {
       initUniLinks(context);
     }
+    if (kIsWeb) {
+      js.context.callMethod("getNotificationPermission", []);
+    }
     checkLogOutApp();
+    checkAddToHomeInWeb(context);
     super.initState();
+  }
+
+  checkAddToHomeInWeb(BuildContext context) async {
+    Timer(const Duration(seconds: 3), () {
+      try {
+        final bool isDeferredNotNull =
+            js.context.callMethod("isDeferredNotNull",[]) as bool;
+        if (isDeferredNotNull) {
+          //   ujs.context.callMethod("presentAddToHome");
+          // return true;
+
+        }
+      } catch (e) {
+        _logger.e(e);
+      }
+    });
   }
 
   checkLogOutApp() {
     _logOut.stream.listen((event) {
       if (event) {
-        Navigator.pushAndRemoveUntil(context,
-            MaterialPageRoute(builder: (context) => const IntroPage()), (e) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const IntroPage()),
+            (e) => false);
       }
     });
   }

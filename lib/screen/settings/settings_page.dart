@@ -89,10 +89,10 @@ class _SettingsPageState extends State<SettingsPage> {
                               )),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: FutureBuilder<Account>(
+                            child: FutureBuilder<Account?>(
                               future: _accountRepo.getAccount(),
                               builder: (BuildContext context,
-                                  AsyncSnapshot<Account> snapshot) {
+                                  AsyncSnapshot<Account?> snapshot) {
                                 if (snapshot.data != null) {
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,

@@ -73,7 +73,7 @@ class FileItem extends FileBasic {
       return result;
     } catch (e) {
       GetIt.I.get<Logger>().e(e);
-      return [e.toString()];
+      return [];
     }
   }
 }

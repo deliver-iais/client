@@ -1,11 +1,13 @@
-import 'dart:io';
-
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:universal_html/html.dart' as html;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
+import 'package:universal_html/html.dart';
 
 class OpenFileStatus extends StatelessWidget {
   final file_pb.File file;
@@ -23,7 +25,7 @@ class OpenFileStatus extends StatelessWidget {
         shape: BoxShape.circle,
         color: ExtraTheme.of(context).circularFileStatus,
       ),
-      child: FutureBuilder<File?>(
+      child: FutureBuilder<String?>(
           future: fileRepo.getFile(file.uuid, file.name),
           builder: (context, snapshot) {
             return IconButton(
@@ -36,7 +38,15 @@ class OpenFileStatus extends StatelessWidget {
               ),
               onPressed: () {
                 if (snapshot.hasData) {
-                  OpenFile.open(snapshot.data!.path);
+                  if (kIsWeb) {
+
+                    var blob = html.Blob(<Object>[snapshot.data!],
+                        "application/${file.name.split(".").last}");
+                    var url = html.Url.createObjectUrlFromBlob(blob);
+                    window.open(url.substring(5), "_blank");
+                  } else {
+                    OpenFile.open(snapshot.data!);
+                  }
                 }
               },
             );

@@ -19,6 +19,7 @@ class FileInfo {
   @HiveField(3)
   String? path;
 
+
   FileInfo(
       {required this.sizeType,
       required this.uuid,
@@ -34,6 +35,6 @@ class FileInfo {
         sizeType: sizeType ?? this.sizeType,
         uuid: uuid,
         name: name ?? this.name,
-        path: path ?? this.path,
+        path: path ?? this.path
       );
 }

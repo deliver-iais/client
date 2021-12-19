@@ -14,6 +14,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -109,7 +110,7 @@ class PersistentEventMessage extends StatelessWidget {
                               .mucSpecificPersistentEvent
                               .issue ==
                           MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
-                    FutureBuilder<File?>(
+                    FutureBuilder<String?>(
                         future: _fileRepo.getFile(
                             persistentEventMessage
                                 .mucSpecificPersistentEvent.avatar.fileUuid,
@@ -120,7 +121,7 @@ class PersistentEventMessage extends StatelessWidget {
                               fileSnapshot.data != null) {
                             return CircleAvatar(
                               backgroundImage:
-                                  Image.file(File(fileSnapshot.data!.path))
+                                  Image.file(File(fileSnapshot.data!))
                                       .image,
                               radius: 35,
                             );

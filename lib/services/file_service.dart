@@ -1,8 +1,10 @@
-import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:ext_storage/ext_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -14,6 +16,7 @@ import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:universal_html/html.dart' as html;
 
 enum ThumbnailSize { medium }
 
@@ -34,8 +37,8 @@ class FileService {
         isDesktop() ||
         isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists()) {
-        await Directory('${directory.path}/Deliver').create(recursive: true);
+      if (!await io.Directory('${directory.path}/Deliver').exists()) {
+        await io.Directory('${directory.path}/Deliver').create(recursive: true);
       }
       return directory.path + "/Deliver";
     }
@@ -53,14 +56,14 @@ class FileService {
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
 
-  Future<File> localFile(String fileUuid, String fileType) async {
+  Future<io.File> localFile(String fileUuid, String fileType) async {
     final path = await _localPath;
-    return File('$path/$fileUuid.$fileType');
+    return io.File('$path/$fileUuid.$fileType');
   }
 
-  Future<File> localThumbnailFile(
+  Future<io.File> localThumbnailFile(
       String fileUuid, String fileType, ThumbnailSize size) async {
-    return File(await localThumbnailFilePath(fileUuid, fileType, size));
+    return io.File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
   FileService() {
@@ -68,11 +71,12 @@ class FileService {
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
+
       return handler.next(options); //continue
     }));
   }
 
-  Future<File> getFile(String uuid, String filename,
+  Future<String?> getFile(String uuid, String filename,
       {ThumbnailSize? size}) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
@@ -80,33 +84,50 @@ class FileService {
     return _getFile(uuid, filename);
   }
 
-  // TODO, refactoring needed
-  Future<File> _getFile(String uuid, String filename) async {
-    CancelToken cancelToken = CancelToken();
-    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
+  Future<String?> _getFile(String uuid, String filename) async {
     if (filesDownloadStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesDownloadStatus[uuid] = d;
     }
-
-    var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      filesDownloadStatus[uuid]!.add((i / j));
-    },
-        options: Options(responseType: ResponseType.bytes),
-        cancelToken: cancelToken);
-    final file = await localFile(uuid, filename.split('.').last);
-    file.writeAsBytesSync(res.data);
-    return file;
+    CancelToken cancelToken = CancelToken();
+    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
+    try {
+      var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
+        filesDownloadStatus[uuid]!.add((i / j));
+      },
+          options: Options(responseType: ResponseType.bytes),
+          cancelToken: cancelToken);
+      if (kIsWeb) {
+        var blob = html.Blob(
+            <Object>[res.data], "application/${filename.split(".").last}");
+        var url = html.Url.createObjectUrlFromBlob(blob);
+        return url;
+      } else {
+        final file = await localFile(uuid, filename.split('.').last);
+        file.writeAsBytesSync(res.data);
+        return file.path;
+      }
+    } catch (e) {
+      _logger.e(e);
+      return null;
+    }
   }
 
-  Future<File?> getDeliverIcon() async {
+  saveDownloadedFile(String url, String filename) async {
+    html.AnchorElement(href: url)
+      ..download = url
+      ..setAttribute("download", filename)
+      ..click();
+  }
+
+  Future<io.File?> getDeliverIcon() async {
     var file = await localFile("deliver-icon", "png");
     if (file.existsSync()) {
       return file;
     } else {
       var res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      File f = File("${await _localPath}/deliver-icon.png");
+      io.File f = io.File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -116,16 +137,20 @@ class FileService {
     }
   }
 
-  saveFileInDownloadFolder(File file, String name, String directory) async {
-    var downloadDir =
-        await ExtStorage.getExternalStoragePublicDirectory(directory);
-    File f = File('$downloadDir/$name');
-    try {
-      await f.writeAsBytes(file.readAsBytesSync());
-    } catch (_) {}
+  saveFileInDownloadFolder(String path, String name, String directory) async {
+    if (kIsWeb) {
+      saveDownloadedFile(path, name);
+    } else {
+      var downloadDir =
+          await ExtStorage.getExternalStoragePublicDirectory(directory);
+      io.File f = io.File('$downloadDir/$name');
+      try {
+        await f.writeAsBytes(io.File(path).readAsBytesSync());
+      } catch (_) {}
+    }
   }
 
-  Future<File> _getFileThumbnail(
+  Future<String> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
     CancelToken cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
@@ -135,7 +160,7 @@ class FileService {
         cancelToken: cancelToken);
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
-    return file;
+    return file.path;
   }
 
   void initUpoadProgrss(String uploadId) {
@@ -144,14 +169,30 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(
-    String filePath, {
-    required String uploadKey,
-    Function? sendActivity,
-  }) async {
+  uploadFile(String filePath, String filename,
+      {String? uploadKey, Function? sendActivity}) async {
     try {
       CancelToken cancelToken = CancelToken();
-      cancelTokens[uploadKey] = BehaviorSubject.seeded(cancelToken);
+      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
+      FormData? formData;
+      if (kIsWeb) {
+        http.Response r = await http.get(
+          Uri.parse(filePath),
+        );
+        formData = FormData.fromMap({
+          "file": MultipartFile.fromBytes(r.bodyBytes,
+              filename: filename,
+              contentType:
+                  MediaType.parse(mime(filename) ?? "application/octet-stream"))
+        });
+      } else {
+        formData = FormData.fromMap({
+          "file": MultipartFile.fromFileSync(filePath,
+              contentType:
+                  MediaType.parse(mime(filePath) ?? "application/octet-stream"))
+        });
+      }
+
       _dio.interceptors.add(InterceptorsWrapper(onRequest:
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
@@ -164,16 +205,10 @@ class FileService {
         };
         handler.next(options);
       }));
-
-      var formData = FormData.fromMap({
-        "file": MultipartFile.fromFileSync(filePath,
-            contentType:
-                MediaType.parse(mime(filePath) ?? "application/octet-stream")),
-      });
-
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);
+      return null;
     }
   }
 }

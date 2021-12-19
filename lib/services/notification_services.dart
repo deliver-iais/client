@@ -1,24 +1,30 @@
 import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+
+import 'package:desktoasts/desktoasts.dart'
+    if (dart.library.html) 'package:deliver/web_classes/web_desktoasts.dart'
+    as windows_notify;
+
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
+    as js;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:desktoasts/desktoasts.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
-import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -95,7 +101,8 @@ class IOSNotifier implements Notifier {
 
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  final ToastService _windowsNotificationServices = ToastService(
+  final windows_notify.ToastService _windowsNotificationServices =
+      windows_notify.ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
     productName: "deliver",
@@ -113,32 +120,32 @@ class WindowsNotifier implements Notifier {
       Avatar? lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid!, false);
       if (lastAvatar != null && lastAvatar.fileId != null) {
-        File? file = await fileRepo.getFile(
+        String? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        Toast toast = Toast(
-            type: ToastType.imageAndText02,
+        windows_notify.Toast toast = windows_notify.Toast(
+            type: windows_notify.ToastType.imageAndText02,
             title: message.roomName!,
             subtitle: createNotificationTextFromMessageBrief(message),
-            image: file);
+            image: File(file!));
         _windowsNotificationServices.show(toast);
         _windowsNotificationServices.stream.listen((event) {
-          if (event is ToastActivated) {
+          if (event is windows_notify.ToastActivated) {
             _routingService.openRoom(lastAvatar.uid);
           }
         });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          Toast toast = Toast(
-            type: ToastType.imageAndText02,
+          windows_notify.Toast toast = windows_notify.Toast(
+            type: windows_notify.ToastType.imageAndText02,
             title: message.roomName!,
             image: deliverIcon,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
           _windowsNotificationServices.stream.listen((event) {
-            if (event is ToastActivated) {
+            if (event is windows_notify.ToastActivated) {
               if (lastAvatar != null) _routingService.openRoom(lastAvatar.uid);
             }
           });
@@ -154,6 +161,20 @@ class WindowsNotifier implements Notifier {
 
   @override
   cancelAll() {}
+}
+
+class WebNotifier implements Notifier {
+  @override
+  cancel(int id, String roomId) {}
+
+  @override
+  cancelAll() {}
+
+  @override
+  notify(MessageBrief message) {
+    js.context.callMethod("showNotification",
+        [message.roomName, createNotificationTextFromMessageBrief(message)]);
+  }
 }
 
 class LinuxNotifier implements Notifier {
@@ -187,11 +208,11 @@ class LinuxNotifier implements Notifier {
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        icon = AssetsLinuxIcon(f.path);
+      if (path != null && path.isNotEmpty) {
+        icon = AssetsLinuxIcon(path);
       }
     }
 
@@ -274,11 +295,11 @@ class AndroidNotifier implements Notifier {
         await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        largeIcon = FilePathAndroidBitmap(f.path);
+      if (path != null && path.isNotEmpty) {
+        largeIcon = FilePathAndroidBitmap(path);
       }
     }
     if (selectedSound != null) {
@@ -375,11 +396,11 @@ class MacOSNotifier implements Notifier {
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
 
     if (la != null) {
-      var f = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
-      if (f != null && f.path.isNotEmpty) {
-        attachments.add(MacOSNotificationAttachment(f.path));
+      if (path != null && path.isNotEmpty) {
+        attachments.add(MacOSNotificationAttachment(path));
       }
     }
 
