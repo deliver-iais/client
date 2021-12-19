@@ -60,17 +60,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }
   }
 
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_controller == null || !_controller.value.isInitialized) {
+    if (!_controller.value.isInitialized) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
       _controller.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      if (_controller != null) {
-        //todo
-      }
     }
   }
 
