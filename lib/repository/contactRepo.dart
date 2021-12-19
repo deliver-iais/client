@@ -41,6 +41,9 @@ class ContactRepo {
   final Map<PhoneNumber, String> _contactsDisplayName = {};
 
   syncContacts() async {
+    if (requestLock.locked) {
+      return;
+    }
     requestLock.synchronized(() async {
       if (await _checkPermission.checkContactPermission() ||
           isDesktop() ||
@@ -123,22 +126,26 @@ class ContactRepo {
 
   Future<List<contact_pb.Contact>> getAll() => _contactDao.getAll();
 
-  Future getContacts() async {
-    var result =
-        await _contactServices.getContactListUsers(GetContactListUsersReq());
+  Future<void> getContacts() async {
+    try {
+      var result =
+          await _contactServices.getContactListUsers(GetContactListUsersReq());
 
-    for (var contact in result.userList) {
-      _contactDao.save(contact_pb.Contact(
-          uid: contact.uid.asString(),
-          countryCode: contact.phoneNumber.countryCode.toString(),
-          nationalNumber: contact.phoneNumber.nationalNumber.toString(),
-          firstName: contact.firstName,
-          lastName: contact.lastName));
+      for (var contact in result.userList) {
+        _contactDao.save(contact_pb.Contact(
+            uid: contact.uid.asString(),
+            countryCode: contact.phoneNumber.countryCode.toString(),
+            nationalNumber: contact.phoneNumber.nationalNumber.toString(),
+            firstName: contact.firstName,
+            lastName: contact.lastName));
 
-      roomNameCache.set(contact.uid.asString(), contact.firstName);
-      _uidIdNameDao.update(contact.uid.asString(),
-          name: "${contact.firstName} ${contact.lastName}");
-      _roomDao.updateRoom(Room(uid: contact.uid.asString()));
+        roomNameCache.set(contact.uid.asString(), contact.firstName);
+        _uidIdNameDao.update(contact.uid.asString(),
+            name: "${contact.firstName} ${contact.lastName}");
+        _roomDao.updateRoom(Room(uid: contact.uid.asString()));
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -185,7 +192,8 @@ class ContactRepo {
 
   // TODO needs to be refactored!
   Future<contact_pb.Contact?> getContact(Uid userUid) async {
-    contact_pb.Contact? contact = await _contactDao.getByUid(userUid.asString());
+    contact_pb.Contact? contact =
+        await _contactDao.getByUid(userUid.asString());
     return contact;
   }
 

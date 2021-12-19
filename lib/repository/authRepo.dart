@@ -7,9 +7,12 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:flutter/foundation.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as platform_pb;
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
+    as platform_pb;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -24,7 +27,11 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+
 import 'package:synchronized/synchronized.dart';
+import 'package:deliver/web_classes/platform_detect.dart'
+    if (dart.library.html) 'package:platform_detect/platform_detect.dart'
+    as platform_detect;
 
 class AuthRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -40,8 +47,8 @@ class AuthRepo {
     ..category = Categories.USER
     ..node = "";
   Avatar? avatar;
-  String ? _accessToken;
-  String ? _refreshToken;
+  String? _accessToken;
+  String? _refreshToken;
   late String platformVersion;
 
   late PhoneNumber _tmpPhoneNumber;
@@ -99,12 +106,17 @@ class AuthRepo {
     } catch (e) {
       version = VERSION;
     }
-    platform_pb.Platform platform = platform_pb.Platform()..clientVersion = version;
+    platform_pb.Platform platform = platform_pb.Platform()
+      ..clientVersion = version;
     return await getPlatForm(platform);
   }
 
   getPlatForm(platform_pb.Platform platform) async {
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      platform
+        ..platformType = platform_pb.PlatformsType.WEB
+        ..osVersion = platform_detect.browser.version.major.toString();
+    } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
       platform
@@ -138,8 +150,9 @@ class AuthRepo {
 
   Future<String> getDeviceName() async {
     String device;
-
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      device = platform_detect.browser.name;
+    } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.model;
     } else if (Platform.isIOS) {
@@ -205,8 +218,7 @@ class AuthRepo {
           ..platform = await getPlatformDetails());
       } on GrpcError catch (e) {
         _logger.e(e);
-        if (_refreshToken != null &&
-            e.code == StatusCode.unauthenticated) {
+        if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
           _routingServices.logout();
         }
       } catch (e) {
@@ -238,9 +250,7 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool isLoggedIn() =>
-      _refreshToken != null &&
-      !_isExpired(_refreshToken);
+  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
 
   bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
 

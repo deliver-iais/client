@@ -1,4 +1,4 @@
-import 'dart:io' as da;
+
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -111,13 +111,13 @@ class _VideoMessageState extends State<VideoMessage> {
                   ],
                 );
               } else {
-                return FutureBuilder<da.File?>(
+                return FutureBuilder<String?>(
                   future: _fileRepo.getFileIfExist(video.uuid, video.name),
                   builder: (c, s) {
                     if (s.hasData && s.data != null) {
                       return videoWidget(
                           w: VideoUi(
-                            videoFile: s.data!,
+                            videoFilePath: s.data!,
                             videoMessage: widget.message.json!.toFile(),
                             duration: video.duration,
                           ),
@@ -173,7 +173,8 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   Widget videoWidget(
-      {required Widget w, required File video, required String videoLength}) {
+      {required Widget w, required File
+      video, required String videoLength}) {
     return Stack(
       children: [
         w,

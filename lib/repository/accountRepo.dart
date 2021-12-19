@@ -73,10 +73,11 @@ class AccountRepo {
 
   Future<Account> getAccount() async {
     return Account()
-      ..countryCode = (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE))
-      ..nationalNumber = (await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER))
-      ..userName = await _sharedDao.get(SHARED_DAO_USERNAME)
-      ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME)
+      ..countryCode = (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) ?? "")
+      ..nationalNumber =
+          (await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER) ?? "")
+      ..userName = await _sharedDao.get(SHARED_DAO_USERNAME) ?? ""
+      ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME) ?? ""
       ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
       ..email = await _sharedDao.get(SHARED_DAO_EMAIL)
       ..password = await _sharedDao.get(SHARED_DAO_PASSWORD)

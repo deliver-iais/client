@@ -96,8 +96,8 @@ dependencies {
     implementation 'com.nabinbhandari.android:permissions:3.8'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.firebase:firebase-analytics:19.0.2'
-    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation 'com.google.firebase:firebase-analytics:20.0.0'
+    implementation 'com.google.firebase:firebase-messaging:23.0.0'
 }
 // parent level build.gradle (android/build.gradle)
 

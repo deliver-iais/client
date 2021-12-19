@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
@@ -204,7 +205,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       : showCaptionDialog(
                           roomUid: widget.roomUid,
                           context: context,
-                          paths: [file.path],
+                          files: [model.File(file.path, file.name)],
                           type: file.path.split(".").last);
                 },
                 icon: const Icon(

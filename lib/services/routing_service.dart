@@ -365,7 +365,7 @@ class RoutingService {
           largePageNavigator: _navigationCenter,
           largePageMain: widget,
           smallPageMain: widget,
-          path: "/new-contact"));
+          path: "/selection-to-forward-page"));
     } else {
       _routeInMobileState(widget, context);
     }

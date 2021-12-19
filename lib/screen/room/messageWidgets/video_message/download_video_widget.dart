@@ -14,7 +14,11 @@ class DownloadVideoWidget extends StatefulWidget {
   final Function download;
 
   const DownloadVideoWidget(
-      {Key? key, required this.uuid, required this.download, required this.name}) : super(key: key);
+      {Key? key,
+      required this.uuid,
+      required this.download,
+      required this.name})
+      : super(key: key);
 
   @override
   _DownloadVideoWidgetState createState() => _DownloadVideoWidgetState();
@@ -27,7 +31,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File?>(
+    return FutureBuilder<String?>(
       future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
           thumbnailSize: ThumbnailSize.medium),
       builder: (c, thumbnail) {
@@ -35,7 +39,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           return Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: Image.file(thumbnail.data!).image,
+                  image: Image.file(File(thumbnail.data!)).image,
                   fit: BoxFit.cover,
                 ),
                 color: Colors.black.withOpacity(0.5), //TODO check

@@ -1,0 +1,6 @@
+.*
+*.dockerfile
+*.md
+deployment/
+.idea
+.dat_tool

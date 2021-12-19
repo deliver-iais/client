@@ -84,6 +84,7 @@ class _ChatItemState extends State<ChatItem> {
           if (name.hasData && name.data != null && name.data!.isNotEmpty) {
             return DragDropWidget(
                 roomUid: widget.room.uid,
+                height: 70,
                 child: HoverContainer(
                   hoverColor: Theme.of(context).dividerColor,
                   cursor: SystemMouseCursors.click,

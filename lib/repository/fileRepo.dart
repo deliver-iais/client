@@ -1,15 +1,17 @@
 // ignore_for_file: file_names
 
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' as io;
+import 'package:http/http.dart' as http;
+
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-    as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -19,31 +21,38 @@ class FileRepo {
   final _fileService = GetIt.I.get<FileService>();
 
   Future<void> cloneFileInLocalDirectory(
-      File file, String uploadKey, String name) async {
-    await _saveFileInfo(uploadKey, file, name, "real");
+      io.File file, String uploadKey, String name) async {
+    await _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
-  Future<file_pb.File> uploadClonedFile(String uploadKey, String name,
+  Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
       {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    var value = await _fileService.uploadFile(clonedFilePath!.path!,
-        uploadKey: uploadKey, sendActivity: sendActivity);
+    var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
+        uploadKey: uploadKey, sendActivity: sendActivity!);
+    if (value != null) {
+      var json = jsonDecode(value.toString());
+      try {
+        var uploadedFile = file_pb.File();
 
-    var json = jsonDecode(value.toString());
-    var uploadedFile = file_pb.File()
-      ..uuid = json["uuid"]
-      ..size = Int64.parseInt(json["size"])
-      ..type = json["type"]
-      ..name = json["name"]
-      ..width = json["width"] ?? 0
-      ..height = json["height"] ?? 0
-      ..duration = json["duration"] ?? 0
-      ..blurHash = json["blurHash"] ?? ""
-      ..hash = json["hash"] ?? "";
-    _logger.v(uploadedFile);
+        uploadedFile = file_pb.File()
+          ..uuid = json["uuid"]
+          ..size = Int64.parseInt(json["size"])
+          ..type = json["type"]
+          ..name = json["name"]
+          ..width = json["width"] ?? 0
+          ..height = json["height"] ?? 0
+          ..duration = json["duration"] ?? 0
+          ..blurHash = json["blurHash"] ?? ""
+          ..hash = json["hash"] ?? "";
+        _logger.v(uploadedFile);
 
-    await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
-    return uploadedFile;
+        await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+        return uploadedFile;
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
   }
 
   Future<bool> isExist(String uuid, String filename,
@@ -51,55 +60,65 @@ class FileRepo {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = File(fileInfo.path!);
+      if (kIsWeb) return fileInfo.path != null;
+      io.File file = io.File(fileInfo.path!);
       return await file.exists();
     }
     return false;
   }
 
-  Future<File?> getFileIfExist(String uuid, String filename,
+  saveDownloadedFile(String url, String filename) =>
+      _fileService.saveDownloadedFile(url, filename);
+
+  Future<String?> getFileIfExist(String uuid, String filename,
       {ThumbnailSize? thumbnailSize}) async {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      File file = File(fileInfo.path!);
-      if (await file.exists()) {
-        return file;
+      if (kIsWeb) {
+        return Uri.parse(fileInfo.path!).toString();
+      } else {
+        io.File file = io.File(fileInfo.path!);
+        if (await file.exists()) {
+          return file.path;
+        }
       }
     }
     return null;
   }
 
-  Future<File?> getFile(String uuid, String filename,
+  Future<String?> getFile(String uuid, String filename,
       {ThumbnailSize? thumbnailSize}) async {
-    File? file =
+    String? path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
-    if (file != null) {
-      return file;
+    if (path != null) {
+      return kIsWeb ? Uri.parse(path).toString() : path;
     }
-
-    var downloadedFile =
+    var downloadedFileUri =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
-    await _saveFileInfo(uuid, downloadedFile, filename,
-        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
-    return downloadedFile;
-  }
+    if (downloadedFileUri != null) {
+      if (kIsWeb) {
+        var res = await http.get(Uri.parse(downloadedFileUri));
+        String bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
+        await _saveFileInfo(uuid, bytes, filename,
+            thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+        return downloadedFileUri;
+      }
 
-  Future<File> downloadFile(String uuid, String fileName,
-      {ThumbnailSize? thumbnailSize}) async {
-    var downloadedFile =
-        await _fileService.getFile(uuid, fileName, size: thumbnailSize);
-    await _saveFileInfo(uuid, downloadedFile, fileName,
-        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
-    return downloadedFile;
+      await _saveFileInfo(uuid, downloadedFileUri, filename,
+          thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+      return downloadedFileUri;
+    } else {
+      return null;
+    }
   }
 
   Future<FileInfo> _saveFileInfo(
-      String fileId, File file, String name, String sizeType) async {
+      String fileId, String filePath, String name, String sizeType) async {
     FileInfo fileInfo = FileInfo(
       uuid: fileId,
       name: name,
-      path: file.path,
+      path: filePath,
       sizeType: sizeType,
     );
     await _fileDao.save(fileInfo);
@@ -132,55 +151,7 @@ class FileRepo {
   }
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
-    var file = await getFileIfExist(uuid, name);
-    _fileService.saveFileInDownloadFolder(file!, name, dir);
+    String? path = await getFileIfExist(uuid, name);
+    _fileService.saveFileInDownloadFolder(path!, name, dir);
   }
 }
-
-// void decodeIsolate(Map<dynamic, dynamic> param) async {
-//   Image largeThumbnail;
-//   Image mediumThumbnail;
-//   Image smallThumbnail;
-//   Directory directory;
-//   Map fileMap = Map<dynamic, dynamic>();
-//
-//   directory = await getApplicationDocumentsDirectory();
-//   if (!await Directory('${directory.path}/Deliver').exists())
-//     await Directory('${directory.path}//Deliver').create(recursive: true);
-//
-//   final realLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey']}.${param['name']}');
-//
-//   final largeLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
-//
-//
-//   final mediumLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');
-//
-//   final smallLocalFile = File(
-//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-small"}.${param['name']}');
-//   Image image = decodeImage(File(param['file']).readAsBytesSync());
-//   if (image.width > image.height) {
-//     largeThumbnail = copyResize(image, width: 500);
-//     mediumThumbnail = copyResize(image, width: 300);
-//     smallThumbnail = copyResize(image, width: 64);
-//   } else {
-//     largeThumbnail = copyResize(image, height: 500);
-//     mediumThumbnail = copyResize(image, height: 300);
-//     smallThumbnail = copyResize(image, height: 64);
-//   }
-//
-//   realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
-//   largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
-//   mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
-//   smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
-//   fileMap['real'] = realLocalFile.path;
-//   fileMap['large'] = largeLocalFile.path;
-//   fileMap['medium'] = mediumLocalFile.path;
-//   fileMap['small'] = smallLocalFile.path;
-//
-//   SendPort sendport = param['sendPort'];
-//
-//   sendport.send(fileMap);
-// }
