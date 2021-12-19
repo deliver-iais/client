@@ -138,7 +138,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
         stream: _startDownload.stream,
         builder: (c, st) {
           if (st.hasData && st.data!) {
-            print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
             return StreamBuilder<double>(
                 stream: _fileService.filesDownloadStatus[widget.fileId],
                 builder: (context, snapshot) {
