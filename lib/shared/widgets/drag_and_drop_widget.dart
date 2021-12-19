@@ -47,7 +47,7 @@ class DragDropWidget extends StatelessWidget {
                       File file = blob as File;
                       String url = Url.createObjectUrlFromBlob(file.slice());
                       var modelFile = model.File(url, file.name,
-                          extention: file.type, size: file.size);
+                          extension: file.type, size: file.size);
                       if (!roomUid.asUid().isChannel()) {
                         showDialogInDesktop([modelFile], context, file.type);
                       } else {

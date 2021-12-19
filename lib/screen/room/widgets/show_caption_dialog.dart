@@ -210,7 +210,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                             .toString()
                                         : element.path!,
                                     element.name,
-                                    extention: element.extension,
+                                    extension: element.extension,
                                     size: element.size));
                               }
                             }
@@ -324,7 +324,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             ).toString()
                           : result.files.first.path!,
                       result.files.first.name,
-                      extention: result.files.first.extension,
+                      extension: result.files.first.extension,
                       size: result.files.first.size);
                 } else {
                   widget.files![index] = model.File(
@@ -334,7 +334,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             ).toString()
                           : result.files.first.path!,
                       result.files.first.name,
-                      extention: result.files.first.extension,
+                      extension: result.files.first.extension,
                       size: result.files.first.size);
 
                   _type = result.files.first.extension!;

@@ -441,7 +441,7 @@ class MessageRepo {
     String packetId = _getPacketId();
     var tempDimension = Size.zero;
     int? tempFileSize;
-    final tempType = file.extention ?? _findType(file.path);
+    final tempType = file.extension ?? _findType(file.path);
     _fileRepo.initUploadProgress(packetId);
 
     var f = dart_file.File(file.path);
