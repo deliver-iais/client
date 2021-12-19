@@ -210,13 +210,14 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux() || isWindows()) {
-    //  DartVLC.initialize();
+    // DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
     GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   }
-
-  GetIt.I.registerSingleton<AudioService>(AudioService());
+  try {
+    GetIt.I.registerSingleton<AudioService>(AudioService());
+  } catch (e) {}
 
   if (kIsWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
@@ -234,11 +235,7 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
   }
 
-  try {
-    GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
-  } catch (e) {
-    print(e.toString());
-  }
+  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
 
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());

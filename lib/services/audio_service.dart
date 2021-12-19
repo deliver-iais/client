@@ -79,10 +79,14 @@ class AudioService {
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
-    _playerModule.audioCurrentState!
-        .listen((event) => _audioCurrentState.add(event));
-    _playerModule.audioCurrentPosition!
-        .listen((event) => _audioCurrentPosition.add(event!));
+    try{
+      _playerModule.audioCurrentState!
+          .listen((event) => _audioCurrentState.add(event));
+      _playerModule.audioCurrentPosition!
+          .listen((event) => _audioCurrentPosition.add(event!));
+    }catch(_){
+    }
+
   }
 
   void play(String path, String uuid, String name) async {
