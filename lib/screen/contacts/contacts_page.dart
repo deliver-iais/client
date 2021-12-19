@@ -202,7 +202,7 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
-    } else if (isAlreadyContactAccessTipShowed || true) {
+    } else {
       _contactRepo.syncContacts();
     }
   }

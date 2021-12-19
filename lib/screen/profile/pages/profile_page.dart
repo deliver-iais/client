@@ -236,10 +236,10 @@ class _ProfilePageState extends State<ProfilePage>
                                 documentCount: snapshot.data!.filesCount,
                                 type: MediaType.FILE,
                               ),
-                              if (snapshot.hasData &&
-                                  snapshot.data!.linkCount != 0)
-                                linkWidget(widget.roomUid, _mediaQueryRepo,
-                                    snapshot.data!.linkCount),
+                            if (snapshot.hasData &&
+                                snapshot.data!.linkCount != 0)
+                              linkWidget(widget.roomUid, _mediaQueryRepo,
+                                  snapshot.data!.linkCount),
                             if (snapshot.hasData &&
                                 snapshot.data!.documentsCount != 0)
                               DocumentAndFileUi(
@@ -247,12 +247,12 @@ class _ProfilePageState extends State<ProfilePage>
                                 documentCount: snapshot.data!.documentsCount,
                                 type: MediaType.DOCUMENT,
                               ),
-                              if (snapshot.hasData &&
-                                  snapshot.data!.musicsCount != 0)
-                                MusicAndAudioUi(
-                                    userUid: widget.roomUid,
-                                    type: FetchMediasReq_MediaType.MUSICS,
-                                    mediaCount: snapshot.data!.musicsCount),
+                            if (snapshot.hasData &&
+                                snapshot.data!.musicsCount != 0)
+                              MusicAndAudioUi(
+                                  userUid: widget.roomUid,
+                                  type: FetchMediasReq_MediaType.MUSICS,
+                                  mediaCount: snapshot.data!.musicsCount),
                             if (snapshot.hasData &&
                                 snapshot.data!.audiosCount != 0)
                               MusicAndAudioUi(
@@ -537,15 +537,15 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "addBotToGroup"),
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.report),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("report")),
-                ],
-              ),
-              value: "report"),
+        PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.report),
+                const SizedBox(width: 8),
+                Text(_i18n.get("report")),
+              ],
+            ),
+            value: "report"),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: StreamBuilder<bool?>(
@@ -1172,8 +1172,10 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
                 child: LinkPreview(
-                    link: jsonDecode(snapshot.data![index].json)["url"],
-                    maxWidth: 100,isProfile: true,),
+                  link: jsonDecode(snapshot.data![index].json)["url"],
+                  maxWidth: 100,
+                  isProfile: true,
+                ),
               );
             },
             separatorBuilder: (BuildContext context, int index) =>

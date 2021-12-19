@@ -41,6 +41,9 @@ class ContactRepo {
   final Map<PhoneNumber, String> _contactsDisplayName = {};
 
   syncContacts() async {
+    if (requestLock.locked) {
+      return;
+    }
     requestLock.synchronized(() async {
       if (await _checkPermission.checkContactPermission() ||
           isDesktop() ||
@@ -123,7 +126,7 @@ class ContactRepo {
 
   Future<List<contact_pb.Contact>> getAll() => _contactDao.getAll();
 
-  Future getContacts() async {
+  Future<void> getContacts() async {
     try {
       var result =
           await _contactServices.getContactListUsers(GetContactListUsersReq());

@@ -20,8 +20,6 @@ class FileRepo {
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
 
-  //var sessionResource = StorageEntry('token', type: StorageType.localStorage);
-
   Future<void> cloneFileInLocalDirectory(
       io.File file, String uploadKey, String name) async {
     await _saveFileInfo(uploadKey, file.path, name, "real");
