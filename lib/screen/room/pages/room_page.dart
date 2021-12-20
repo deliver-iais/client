@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
@@ -55,14 +56,11 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:ext_storage/ext_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
 
@@ -98,14 +96,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
   String? _searchMessagePattern;
   int _lastSeenMessageId = -1;
-  SharedPreferences? prefs;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   int _replyMessageId = -1;
   int _lastReceivedMessageId = 0;
   int _currentMessageSearchId = -1;
+  int _lastSeenScrollPotion = -1;
   List<Message> searchResult = [];
 
   final List<Message> _pinMessages = [];
@@ -266,21 +265,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               .index;
         }
 
-        prefs?.setInt('scrollPosition +${widget.roomId}', firstItem ?? 0);
+        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
+            firstItem.toString());
         return const SizedBox.shrink();
       });
 
-  initPref() async {
-    prefs = await SharedPreferences.getInstance();
+  _getScrollPosition() async {
+    String? scrollPosition =
+        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
+    _lastSeenScrollPotion = int.parse(scrollPosition ?? "-1");
   }
 
   @override
   void initState() {
-    initPref();
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
 
-    if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
+    if (!isDesktop()) {
+      _fireBaseServices.sendFireBaseToken();
+      _getScrollPosition();
+    }
     _getLastShowMessageId();
     _getLastSeen();
     _itemPositionsListener.itemPositions.addListener(() {
@@ -799,24 +803,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildMessagesListView(List<PendingMessage> pendingMessages) {
+    int scrollIndex = (_itemCount > 0
+        ? (_lastShowedMessageId != -1)
+            ? _lastShowedMessageId
+            : _itemCount
+        : 0);
     int initialScrollIndex = isDesktop()
-        ? (_itemCount > 0
-            ? (_lastShowedMessageId != -1)
-                ? _lastShowedMessageId
-                : _itemCount
-            : 0)
-        : min(
-            prefs?.getInt('scrollPosition +${widget.roomId}') ??
-                (_itemCount > 0
-                    ? (_lastShowedMessageId != -1)
-                        ? _lastShowedMessageId
-                        : _itemCount
-                    : 0),
-            (_itemCount > 0
-                ? (_lastShowedMessageId != -1)
-                    ? _lastShowedMessageId
-                    : _itemCount
-                : 0));
+        ? scrollIndex
+        : min(_lastSeenScrollPotion != -1 ? _lastSeenScrollPotion : scrollIndex,
+            scrollIndex);
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
