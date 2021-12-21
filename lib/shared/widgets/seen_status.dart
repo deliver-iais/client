@@ -13,34 +13,32 @@ class SeenStatus extends StatelessWidget {
   final bool? isSeen;
   final Color? iconColor;
 
-  const SeenStatus(this.message, {Key? key, this.isSeen, this.iconColor}) : super(key: key);
+  const SeenStatus(this.message, {Key? key, this.isSeen, this.iconColor})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
     final color = iconColor ?? ExtraTheme.of(context).seenStatus;
-    // Widget pendingMessage = Icon(Icons.access_alarm,
-    //     color: ExtraTheme.of(context).seenStatus, size: 15);
     Widget pendingMessage = Container(
-        // transform: Matrix4.translationValues(-1.0, 4.0, 0.0),
         child: Lottie.asset(
-          'assets/animations/clock.json',
-          width: 18,
-          height: 18,
-          // fit: BoxFit.fitHeight,
-          delegates: LottieDelegates(
-            values: [
-              ValueDelegate.color(
-                const ['**'],
-                value: color,
-              ),
-              ValueDelegate.transformScale(const ['**'],
-                  value: const Offset(1.2, 1.2))
-            ],
+      'assets/animations/clock.json',
+      width: 18,
+      height: 18,
+      // fit: BoxFit.fitHeight,
+      delegates: LottieDelegates(
+        values: [
+          ValueDelegate.color(
+            const ['**'],
+            value: color,
           ),
-          repeat: true,
-        ));
+          ValueDelegate.transformScale(const ['**'],
+              value: const Offset(1.2, 1.2))
+        ],
+      ),
+      repeat: true,
+    ));
 
     if (message.id == null) {
       return FutureBuilder<PendingMessage?>(
