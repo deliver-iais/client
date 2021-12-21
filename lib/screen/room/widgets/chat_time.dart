@@ -16,6 +16,8 @@ class ChatTime extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: BlurContainer(
+        padding:
+            const EdgeInsets.only(top: 5, left: 8.0, right: 8.0, bottom: 4.0),
         child: ValueListenableBuilder<int>(
             valueListenable: day,
             builder: (context, value, _) {

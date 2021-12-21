@@ -4,21 +4,38 @@ import 'package:flutter/material.dart';
 
 class BlurContainer extends StatelessWidget {
   final Widget child;
+  final EdgeInsets? padding;
+  final Decoration? decoration;
+  final double skew;
+  final bool blurIsEnabled;
 
-  const BlurContainer({Key? key, required this.child}) : super(key: key);
+  const BlurContainer(
+      {Key? key,
+      required this.child,
+      this.padding,
+      this.decoration,
+      this.skew = 1.0,
+      this.blurIsEnabled = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (!blurIsEnabled) {
+      return Container(
+          padding: padding,
+          decoration: decoration,
+          child: child);
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+        filter: ImageFilter.blur(sigmaX: skew, sigmaY: skew),
         child: Container(
-            padding: const EdgeInsets.only(
-                top: 5, left: 8.0, right: 8.0, bottom: 4.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).dividerColor.withOpacity(0.15),
-            ),
+            padding: padding,
+            decoration: decoration ??
+                BoxDecoration(
+                  color: Theme.of(context).dividerColor.withOpacity(0.15),
+                ),
             child: child),
       ),
     );

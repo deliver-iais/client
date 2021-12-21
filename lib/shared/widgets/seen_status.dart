@@ -11,13 +11,15 @@ import 'package:lottie/lottie.dart';
 class SeenStatus extends StatelessWidget {
   final Message message;
   final bool? isSeen;
+  final Color? iconColor;
 
-  const SeenStatus(this.message, {Key? key, this.isSeen}) : super(key: key);
+  const SeenStatus(this.message, {Key? key, this.isSeen, this.iconColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
+    final color = iconColor ?? ExtraTheme.of(context).seenStatus;
     // Widget pendingMessage = Icon(Icons.access_alarm,
     //     color: ExtraTheme.of(context).seenStatus, size: 15);
     Widget pendingMessage = Container(
@@ -31,7 +33,7 @@ class SeenStatus extends StatelessWidget {
             values: [
               ValueDelegate.color(
                 const ['**'],
-                value: ExtraTheme.of(context).seenStatus,
+                value: color,
               ),
               ValueDelegate.transformScale(const ['**'],
                   value: const Offset(1.2, 1.2))
@@ -53,7 +55,7 @@ class SeenStatus extends StatelessWidget {
     } else if (isSeen != null && isSeen!) {
       return Icon(
         Icons.done_all,
-        color: ExtraTheme.of(context).seenStatus,
+        color: color,
         size: 15,
       );
     } else {
@@ -65,13 +67,13 @@ class SeenStatus extends StatelessWidget {
               snapshot.data!.messageId! >= message.id!
                   ? Icons.done_all
                   : Icons.done,
-              color: ExtraTheme.of(context).seenStatus,
+              color: color,
               size: 15,
             );
           } else {
             return Icon(
               Icons.done,
-              color: ExtraTheme.of(context).seenStatus,
+              color: color,
               size: 15,
             );
           }

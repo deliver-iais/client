@@ -82,6 +82,8 @@ class PersistentEventMessage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: BlurContainer(
+                      padding: const EdgeInsets.only(
+                          top: 5, left: 8.0, right: 8.0, bottom: 4.0),
                       child: FutureBuilder<List<Widget>?>(
                         future: getPersistentMessage(persistentEventMessage,
                             message.roomUid.isChannel(), context),
