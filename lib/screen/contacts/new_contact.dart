@@ -4,6 +4,7 @@ import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,39 +36,19 @@ class _NewContactState extends State<NewContact> {
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(context),
         title: Text(_i18n.get("add_new_contact")),
-        actions: [
-          Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: !_isLoading
-                  ? IconButton(
-                      icon: const Icon(Icons.check),
-                      iconSize: 40,
-                      onPressed: () async {
-                        if (_phoneNumber != null) {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          bool addContact =
-                              await _contactRepo.addContact(Contact()
-                                ..phoneNumber = _phoneNumber!
-                                ..firstName = _firstName
-                                ..lastName = _lastName);
-                          if (addContact) {
-                            await showResult(_phoneNumber!);
-                            _routingServices.pop();
-                          }
-                        }
-                      })
-                  : const Center(child: CircularProgressIndicator()))
-        ],
       ),
       body: FluidContainerWidget(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.only(left: 12),
-              child: TextField(
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: ExtraTheme.of(context).boxOuterBackground,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
                 onChanged: (firstName) {
                   _firstName = firstName;
                 },
@@ -76,11 +57,8 @@ class _NewContactState extends State<NewContact> {
                     border: const OutlineInputBorder(),
                     labelText: _i18n.get("firstName")),
               ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.only(left: 12),
-              child: TextField(
+              const SizedBox(height: 10),
+              TextField(
                 onChanged: (lastName) {
                   _lastName = lastName;
                 },
@@ -89,24 +67,47 @@ class _NewContactState extends State<NewContact> {
                     border: const OutlineInputBorder(),
                     labelText: _i18n.get("lastName")),
               ),
-            ),
-            const SizedBox(height: 10),
-            IntlPhoneField(
-              controller: TextEditingController(),
-              validator: (value) =>
-                  value!.length != 10 || (value.isNotEmpty && value[0] == '0')
-                      ? _i18n.get("invalid_mobile_number")
-                      : null,
-              style: Theme.of(context).textTheme.bodyText1!,
-              onChanged: (ph) {
-                _phoneNumber = ph;
-              },
-              onSubmitted: (p) {
-                _phoneNumber = p;
-                // checkAndGoNext();
-              },
-            ),
-          ],
+              const SizedBox(height: 10),
+              IntlPhoneField(
+                controller: TextEditingController(),
+                validator: (value) => value!.length != 10 ||
+                        (value.isNotEmpty && value[0] == '0')
+                    ? _i18n.get("invalid_mobile_number")
+                    : null,
+                style: Theme.of(context).textTheme.bodyText1!,
+                onChanged: (ph) {
+                  _phoneNumber = ph;
+                },
+                onSubmitted: (p) {
+                  _phoneNumber = p;
+                  // checkAndGoNext();
+                },
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  child: Text(_i18n.get("save")),
+                  onPressed: () async {
+                    if (_phoneNumber != null) {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      bool addContact =
+                      await _contactRepo.addContact(Contact()
+                        ..phoneNumber = _phoneNumber!
+                        ..firstName = _firstName
+                        ..lastName = _lastName);
+                      if (addContact) {
+                        await showResult(_phoneNumber!);
+                        _routingServices.pop();
+                      }
+                    }
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

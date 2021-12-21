@@ -16,13 +16,10 @@ class FluidContainerWidget extends StatelessWidget {
     return Stack(
       children: [
         const Background(),
-        Center(
-          child: Container(
-            padding: const EdgeInsets.all(0),
-            constraints:
-                const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
-            child: child,
-          ),
+        Container(
+          constraints:
+              const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
+          child: child,
         ),
       ],
     );

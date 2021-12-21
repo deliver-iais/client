@@ -15,7 +15,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
-import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/dark.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -65,12 +65,9 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         body: FluidContainerWidget(
           child: SettingsList(
-            backgroundColor: Colors.transparent,
-            lightBackgroundColor: Colors.transparent,
-            darkBackgroundColor: Colors.transparent,
-            sections: [
+            children: [
               SettingsSection(
-                tiles: [
+                children: [
                   NormalSettingsTitle(
                       onTap: () => _routingService.openAccountSettings(context),
                       child: Row(
@@ -142,7 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               SettingsSection(
-                tiles: [
+                children: [
                   SettingsTile(
                     title: i18n.get("qr_share"),
                     leading: const Icon(Icons.qr_code),
@@ -177,7 +174,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SettingsSection(
                 title: i18n.get("user_experience"),
-                tiles: [
+                children: [
                   SettingsTile.switchTile(
                     title: i18n.get("notification"),
                     leading: const Icon(Icons.notifications_active),
@@ -231,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
               if (isDeveloperMode)
                 SettingsSection(
                   title: 'Developer Mode',
-                  tiles: [
+                  children: [
                     SettingsTile(
                       title: 'Log Level',
                       subtitle: LogLevelHelper.levelToString(
@@ -244,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               SettingsSection(
-                tiles: [
+                children: [
                   SettingsTile(
                       title: i18n.get("version"),
                       trailing: FutureBuilder<PackageInfo>(

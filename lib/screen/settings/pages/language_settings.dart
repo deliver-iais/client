@@ -2,7 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
-import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,10 +38,10 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SettingsList(
-              sections: [
+              children: [
                 SettingsSection(
                   title: 'Languages',
-                  tiles: [
+                  children: [
                     SettingsTile(
                       title: 'English',
                       leading: const Icon(Icons.language),

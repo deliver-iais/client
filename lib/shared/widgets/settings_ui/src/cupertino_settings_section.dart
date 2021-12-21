@@ -1,7 +1,7 @@
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../settings_ui.dart';
+import '../box_ui.dart';
 
 import 'colors.dart';
 import 'defines.dart';
@@ -44,8 +44,10 @@ class CupertinoSettingsSection extends StatelessWidget {
 
     List<Widget> itemsWithDividers = [];
     for (int i = 0; i < items.length; i++) {
-      final leftPadding =
-          (items[i] as SettingsTile).leading == null ? 15.0 : 54.0;
+      final leftPadding = ((items[i] is SettingsTile) &&
+              (items[i] as SettingsTile).leading == null)
+          ? 15.0
+          : 54.0;
       if (i < items.length - 1) {
         itemsWithDividers.add(items[i]);
         itemsWithDividers.add(Divider(
@@ -116,10 +118,11 @@ class CupertinoSettingsSection extends StatelessWidget {
     return Padding(
       padding: largeScreen
           ? EdgeInsets.only(
-              top: header == null ? 35.0 : 22.0, left: 22, right: 22)
-          : EdgeInsets.only(
-              top: header == null ? 35.0 : 22.0,
-            ),
+              top: header == null ? 24.0 : 11.0,
+              left: 22,
+              right: 22,
+              bottom: 11.0)
+          : EdgeInsets.only(top: header == null ? 24.0 : 11.0, bottom: 11.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: columnChildren,

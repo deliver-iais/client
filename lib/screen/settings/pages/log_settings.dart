@@ -2,7 +2,7 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
@@ -34,10 +34,10 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
         ),
         body: FluidContainerWidget(
           child: SettingsList(
-            sections: [
+            children: [
               SettingsSection(
                 title: 'Log Levels',
-                tiles: LogLevelHelper.levels()
+                children: LogLevelHelper.levels()
                     .map((level) => SettingsTile(
                           title: level,
                           trailing: LogLevelHelper.stringToLevel(level) ==

@@ -2,13 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'abstract_section.dart';
 import 'cupertino_settings_section.dart';
-import 'settings_tile.dart';
 
 import 'defines.dart';
 
 // ignore: must_be_immutable
 class SettingsSection extends AbstractSection {
-  final List<SettingsTile>? tiles;
+  final List<Widget>? children;
   final TextStyle? titleTextStyle;
   final int? maxLines;
   final Widget? subtitle;
@@ -21,7 +20,7 @@ class SettingsSection extends AbstractSection {
     this.maxLines,
     this.subtitle,
     this.subtitlePadding = defaultTitlePadding,
-    this.tiles,
+    this.children,
     this.titleTextStyle,
   })  : assert(maxLines == null || maxLines > 0),
         super(key: key, title: title, titlePadding: titlePadding);
@@ -29,7 +28,7 @@ class SettingsSection extends AbstractSection {
   @override
   Widget build(BuildContext context) {
     return CupertinoSettingsSection(
-      tiles!,
+      children!,
       header: (title != null || subtitle != null)
           ? Column(
               mainAxisSize: MainAxisSize.min,

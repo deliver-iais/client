@@ -11,7 +11,7 @@ import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -193,7 +193,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               }
               return ListView(
                 children: [
-                  SettingsSection(title: _i18n.get("avatar"), tiles: [
+                  SettingsSection(title: _i18n.get("avatar"), children: [
                     NormalSettingsTitle(
                       child: Center(
                         child: Stack(
@@ -247,7 +247,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                       ),
                     )
                   ]),
-                  SettingsSection(title: _i18n.get("account_info"), tiles: [
+                  SettingsSection(title: _i18n.get("account_info"), children: [
                     NormalSettingsTitle(
                         child: Column(
                       children: [

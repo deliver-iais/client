@@ -3,7 +3,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
@@ -39,10 +39,10 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         ),
         body: FluidContainerWidget(
           child: SettingsList(
-            sections: [
+            children: [
               SettingsSection(
                 title: _i18n.get("security"),
-                tiles: [
+                children: [
                   SettingsTile.switchTile(
                     title: _i18n.get("enable_local_lock"),
                     leading: const Icon(Icons.lock),
