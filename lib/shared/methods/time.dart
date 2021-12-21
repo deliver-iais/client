@@ -19,9 +19,7 @@ String durationTimeFormat(Duration duration) {
 String dateTimeFormat(DateTime time, {String weekFormat = 'D'}) {
   var now = DateTime.now();
   var difference = now.difference(time);
-  if (difference.inMinutes <= 2) {
-    return "just now";
-  } else if (difference.inDays < 1 && time.day == now.day) {
+   if (difference.inDays < 1 && time.day == now.day) {
     return DateTimeFormat.format(time, format: 'H:i');
   } else if (difference.inDays <= 7) {
     return DateTimeFormat.format(time, format: weekFormat);

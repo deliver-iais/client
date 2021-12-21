@@ -610,8 +610,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "9e3d1ad3e8458311b6228045c692208221c3ade1"
+      ref: "42d8ba98d34c06377ced074562d0eaa278501b89"
+      resolved-ref: "42d8ba98d34c06377ced074562d0eaa278501b89"
       url: "https://github.com/deliver-iais/grpc-dart"
     source: git
     version: "3.0.2"

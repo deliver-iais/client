@@ -16,6 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:hovering/hovering.dart';
@@ -135,18 +136,15 @@ class _ChatItemState extends State<ChatItem> {
                                   Expanded(
                                       flex: 50,
                                       child: Padding(
-                                          padding: (widget.room.uid
-                                                          .asUid()
-                                                          .category ==
-                                                      Categories.GROUP) ||
-                                                  (widget.room.uid
-                                                          .asUid()
-                                                          .category ==
-                                                      Categories.CHANNEL) ||
-                                                  (widget.room.uid
-                                                          .asUid()
-                                                          .category ==
-                                                      Categories.BOT)
+                                          padding: widget.room.uid
+                                                      .asUid()
+                                                      .isGroup() ||
+                                                  widget.room.uid
+                                                      .asUid()
+                                                      .isChannel() ||
+                                                  widget.room.uid
+                                                      .asUid()
+                                                      .isBot()
                                               ? const EdgeInsets.only(
                                                   left: 16.0)
                                               : EdgeInsets.zero,
@@ -163,7 +161,8 @@ class _ChatItemState extends State<ChatItem> {
                                     style: TextStyle(
                                       color: ExtraTheme.of(context)
                                           .centerPageDetails,
-                                      fontSize: 12,
+                                      fontWeight: FontWeight.w100,
+                                      fontSize: 11,
                                     ),
                                   ),
                                 ],
