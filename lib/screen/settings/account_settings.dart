@@ -193,7 +193,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               }
               return ListView(
                 children: [
-                  SettingsSection(title: _i18n.get("avatar"), children: [
+                  Section(title: _i18n.get("avatar"), children: [
                     NormalSettingsTitle(
                       child: Center(
                         child: Stack(
@@ -247,7 +247,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                       ),
                     )
                   ]),
-                  SettingsSection(title: _i18n.get("account_info"), children: [
+                  Section(title: _i18n.get("account_info"), children: [
                     NormalSettingsTitle(
                         child: Column(
                       children: [

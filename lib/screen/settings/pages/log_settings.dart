@@ -33,9 +33,9 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
           ),
         ),
         body: FluidContainerWidget(
-          child: SettingsList(
+          child: ListView(
             children: [
-              SettingsSection(
+              Section(
                 title: 'Log Levels',
                 children: LogLevelHelper.levels()
                     .map((level) => SettingsTile(

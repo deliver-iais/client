@@ -64,9 +64,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         body: FluidContainerWidget(
-          child: SettingsList(
+          child: ListView(
             children: [
-              SettingsSection(
+              Section(
                 children: [
                   NormalSettingsTitle(
                       onTap: () => _routingService.openAccountSettings(context),
@@ -138,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ))
                 ],
               ),
-              SettingsSection(
+              Section(
                 children: [
                   SettingsTile(
                     title: i18n.get("qr_share"),
@@ -172,7 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   )
                 ],
               ),
-              SettingsSection(
+              Section(
                 title: i18n.get("user_experience"),
                 children: [
                   SettingsTile.switchTile(
@@ -226,7 +226,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               if (isDeveloperMode)
-                SettingsSection(
+                Section(
                   title: 'Developer Mode',
                   children: [
                     SettingsTile(
@@ -240,7 +240,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 ),
-              SettingsSection(
+              Section(
                 children: [
                   SettingsTile(
                       title: i18n.get("version"),

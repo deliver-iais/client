@@ -37,9 +37,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         body: FluidContainerWidget(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: SettingsList(
+            child: ListView(
               children: [
-                SettingsSection(
+                Section(
                   title: 'Languages',
                   children: [
                     SettingsTile(

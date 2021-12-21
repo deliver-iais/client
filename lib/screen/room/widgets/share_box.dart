@@ -452,9 +452,9 @@ class _ShareBoxState extends State<ShareBox> {
                           color: Colors.white,
                           child: SizedBox(
                             height: 200,
-                            child: SettingsList(
+                            child: ListView(
                               children: [
-                                SettingsSection(
+                                Section(
                                   children: [
                                     settingsTile(snapshot.data!, "10", () {
                                       time.add("10");

@@ -5,15 +5,14 @@ import 'cupertino_settings_section.dart';
 
 import 'defines.dart';
 
-// ignore: must_be_immutable
-class SettingsSection extends AbstractSection {
+class Section extends AbstractSection {
   final List<Widget>? children;
   final TextStyle? titleTextStyle;
   final int? maxLines;
   final Widget? subtitle;
   final EdgeInsetsGeometry subtitlePadding;
 
-  const SettingsSection({
+  const Section({
     Key? key,
     String? title,
     EdgeInsetsGeometry titlePadding = defaultTitlePadding,
@@ -27,7 +26,7 @@ class SettingsSection extends AbstractSection {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoSettingsSection(
+    return CupertinoSection(
       children!,
       header: (title != null || subtitle != null)
           ? Column(

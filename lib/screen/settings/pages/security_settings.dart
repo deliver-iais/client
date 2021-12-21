@@ -38,9 +38,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           ),
         ),
         body: FluidContainerWidget(
-          child: SettingsList(
+          child: ListView(
             children: [
-              SettingsSection(
+              Section(
                 title: _i18n.get("security"),
                 children: [
                   SettingsTile.switchTile(

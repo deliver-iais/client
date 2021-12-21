@@ -6,8 +6,8 @@ import '../box_ui.dart';
 import 'colors.dart';
 import 'defines.dart';
 
-class CupertinoSettingsSection extends StatelessWidget {
-  const CupertinoSettingsSection(
+class CupertinoSection extends StatelessWidget {
+  const CupertinoSection(
     this.items, {
     Key? key,
     this.header,
