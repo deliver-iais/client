@@ -92,7 +92,7 @@ class CircleAvatarWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
             ? const ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(16)),
                 child: Image(
                   image: AssetImage('assets/images/logo.png'),
                 ),
@@ -174,7 +174,7 @@ class CircleAvatarWidget extends StatelessWidget {
           style: TextStyle(
               color: textColor,
               fontSize: radius,
-              height: radius / 18)),
+              height: 1)),
     );
   }
 }
