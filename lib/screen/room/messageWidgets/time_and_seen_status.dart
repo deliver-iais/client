@@ -44,7 +44,7 @@ class TimeAndSeenStatus extends StatelessWidget {
       padding: needsPadding
           ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
           : null,
-      skew: 10,
+      skew: 5,
       blurIsEnabled: needsBackground,
       child: DefaultTextStyle(
         style: TextStyle(

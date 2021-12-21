@@ -21,15 +21,12 @@ class BlurContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!blurIsEnabled) {
-      return Container(
-          padding: padding,
-          decoration: decoration,
-          child: child);
+      return Container(padding: padding, decoration: decoration, child: child);
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: skew, sigmaY: skew),
+        filter: ImageFilter.blur(sigmaX: -skew, sigmaY: skew),
         child: Container(
             padding: padding,
             decoration: decoration ??
