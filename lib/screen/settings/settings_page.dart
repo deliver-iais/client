@@ -139,6 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               Section(
+                title: i18n.get("other"),
                 children: [
                   SettingsTile(
                     title: i18n.get("qr_share"),

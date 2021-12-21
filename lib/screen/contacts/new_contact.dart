@@ -4,6 +4,7 @@ import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -38,76 +39,75 @@ class _NewContactState extends State<NewContact> {
         title: Text(_i18n.get("add_new_contact")),
       ),
       body: FluidContainerWidget(
-        child: Container(
-          margin: const EdgeInsets.all(24.0),
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).boxOuterBackground,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (firstName) {
-                  _firstName = firstName;
-                },
-                style: Theme.of(context).textTheme.bodyText1,
-                decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: _i18n.get("firstName")),
+        child: Section(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    onChanged: (firstName) {
+                      _firstName = firstName;
+                    },
+                    style: Theme.of(context).textTheme.bodyText1,
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: _i18n.get("firstName")),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    onChanged: (lastName) {
+                      _lastName = lastName;
+                    },
+                    style: Theme.of(context).textTheme.bodyText1,
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: _i18n.get("lastName")),
+                  ),
+                  const SizedBox(height: 10),
+                  IntlPhoneField(
+                    controller: TextEditingController(),
+                    validator: (value) => value!.length != 10 ||
+                            (value.isNotEmpty && value[0] == '0')
+                        ? _i18n.get("invalid_mobile_number")
+                        : null,
+                    style: Theme.of(context).textTheme.bodyText1!,
+                    onChanged: (ph) {
+                      _phoneNumber = ph;
+                    },
+                    onSubmitted: (p) {
+                      _phoneNumber = p;
+                      // checkAndGoNext();
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      child: Text(_i18n.get("save")),
+                      onPressed: () async {
+                        if (_phoneNumber != null) {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          bool addContact =
+                          await _contactRepo.addContact(Contact()
+                            ..phoneNumber = _phoneNumber!
+                            ..firstName = _firstName
+                            ..lastName = _lastName);
+                          if (addContact) {
+                            await showResult(_phoneNumber!);
+                            _routingServices.pop();
+                          }
+                        }
+                      },
+                    ),
+                  )
+                ],
               ),
-              const SizedBox(height: 10),
-              TextField(
-                onChanged: (lastName) {
-                  _lastName = lastName;
-                },
-                style: Theme.of(context).textTheme.bodyText1,
-                decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: _i18n.get("lastName")),
-              ),
-              const SizedBox(height: 10),
-              IntlPhoneField(
-                controller: TextEditingController(),
-                validator: (value) => value!.length != 10 ||
-                        (value.isNotEmpty && value[0] == '0')
-                    ? _i18n.get("invalid_mobile_number")
-                    : null,
-                style: Theme.of(context).textTheme.bodyText1!,
-                onChanged: (ph) {
-                  _phoneNumber = ph;
-                },
-                onSubmitted: (p) {
-                  _phoneNumber = p;
-                  // checkAndGoNext();
-                },
-              ),
-              const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  child: Text(_i18n.get("save")),
-                  onPressed: () async {
-                    if (_phoneNumber != null) {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      bool addContact =
-                      await _contactRepo.addContact(Contact()
-                        ..phoneNumber = _phoneNumber!
-                        ..firstName = _firstName
-                        ..lastName = _lastName);
-                      if (addContact) {
-                        await showResult(_phoneNumber!);
-                        _routingServices.pop();
-                      }
-                    }
-                  },
-                ),
-              )
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
