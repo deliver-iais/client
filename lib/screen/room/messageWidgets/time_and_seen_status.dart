@@ -40,39 +40,41 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
-    return BlurContainer(
-      padding: needsPadding
-          ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
-          : null,
-      skew: 5,
-      blurIsEnabled: needsBackground,
-      child: DefaultTextStyle(
-        style: TextStyle(
-          color: needsBackground
-              ? Colors.white
-              : ExtraTheme.of(context).textMessage.withAlpha(130),
-          fontSize: 12,
-          height: 1.2,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (message.edited != null && message.edited!)
-              Text(_i18n.get("edited")),
-            MsgTime(time: date(message.time)),
-            if (isSender)
-              Padding(
-                padding: const EdgeInsets.only(left: 2.0),
-                child: SeenStatus(
-                  message,
-                  isSeen: isSeen,
-                  iconColor: needsBackground
-                      ? Colors.white
-                      : ExtraTheme.of(context).seenStatus,
-                ),
-              )
-          ],
+    return RepaintBoundary(
+      child: BlurContainer(
+        padding: needsPadding
+            ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
+            : null,
+        skew: 5,
+        blurIsEnabled: needsBackground,
+        child: DefaultTextStyle(
+          style: TextStyle(
+            color: needsBackground
+                ? Colors.white
+                : ExtraTheme.of(context).textMessage.withAlpha(130),
+            fontSize: 12,
+            height: 1.2,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (message.edited != null && message.edited!)
+                Text(_i18n.get("edited")),
+              MsgTime(time: date(message.time)),
+              if (isSender)
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0),
+                  child: SeenStatus(
+                    message,
+                    isSeen: isSeen,
+                    iconColor: needsBackground
+                        ? Colors.white
+                        : ExtraTheme.of(context).seenStatus,
+                  ),
+                )
+            ],
+          ),
         ),
       ),
     );
