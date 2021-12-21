@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:flutter/material.dart';

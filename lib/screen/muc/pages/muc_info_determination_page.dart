@@ -73,16 +73,14 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
       appBar: PreferredSize(
         // TODO, use some constant variable
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(context),
-            title: Text(
-              widget.isChannel
-                  ? _i18n.get("newChannel")
-                  : _i18n.get("newGroup"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          leading: _routingService.backButtonLeading(context),
+          title: Text(
+            widget.isChannel
+                ? _i18n.get("newChannel")
+                : _i18n.get("newGroup"),
+            style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
         ),
       ),

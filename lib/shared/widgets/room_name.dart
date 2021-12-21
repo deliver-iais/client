@@ -23,8 +23,9 @@ class RoomName extends StatelessWidget {
           return Row(
             children: [
               Text(
-                snapshot.data ?? "",
-                style: style ?? Theme.of(context).textTheme.subtitle2,
+                (snapshot.data ?? ""),
+                style: (style ?? Theme.of(context).textTheme.subtitle2)!
+                    .copyWith(height: 1),
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.fade,

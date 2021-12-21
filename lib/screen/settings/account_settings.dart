@@ -11,6 +11,7 @@ import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:settings_ui/settings_ui.dart';
 
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
@@ -161,25 +161,23 @@ class _AccountSettingsState extends State<AccountSettings> {
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
-          child: FluidContainerWidget(
-            child: AppBar(
-              backgroundColor: ExtraTheme.of(context).boxBackground,
-              titleSpacing: 8,
-              title: Column(children: [
-                Text(_i18n.get("account_info")),
-                if (widget.forceToSetUsernameAndName)
-                  Text(
-                    _i18n.get("should_set_username_and_name"),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline6!
-                        .copyWith(fontSize: 10),
-                  )
-              ]),
-              leading: !widget.forceToSetUsernameAndName
-                  ? _routingService.backButtonLeading(context)
-                  : null,
-            ),
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxBackground,
+            titleSpacing: 8,
+            title: Column(children: [
+              Text(_i18n.get("account_info")),
+              if (widget.forceToSetUsernameAndName)
+                Text(
+                  _i18n.get("should_set_username_and_name"),
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline6!
+                      .copyWith(fontSize: 10),
+                )
+            ]),
+            leading: !widget.forceToSetUsernameAndName
+                ? _routingService.backButtonLeading(context)
+                : null,
           ),
         ),
         body: FluidContainerWidget(

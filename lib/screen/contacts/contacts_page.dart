@@ -46,16 +46,14 @@ class _ContactsPageState extends State<ContactsPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            titleSpacing: 8,
-            title: Text(
-              I18N.of(context)!.get("contacts"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
-            leading: _routingService.backButtonLeading(context),
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          titleSpacing: 8,
+          title: Text(
+            I18N.of(context)!.get("contacts"),
+            style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
+          leading: _routingService.backButtonLeading(context),
         ),
       ),
       body: FluidContainerWidget(

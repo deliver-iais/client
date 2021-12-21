@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class BlurContainer extends StatelessWidget {
   final Widget child;
-  final EdgeInsets? padding;
+  final EdgeInsetsGeometry? padding;
   final Decoration? decoration;
   final double skew;
   final bool blurIsEnabled;

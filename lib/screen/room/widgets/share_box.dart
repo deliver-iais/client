@@ -11,6 +11,7 @@ import 'package:deliver/screen/room/widgets/share_box/music.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -21,7 +22,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:settings_ui/settings_ui.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;

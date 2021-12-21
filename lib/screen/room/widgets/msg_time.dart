@@ -1,4 +1,3 @@
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class MsgTime extends StatelessWidget {

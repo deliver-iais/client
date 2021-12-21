@@ -85,7 +85,7 @@ class _ChatItemState extends State<ChatItem> {
           if (name.hasData && name.data != null && name.data!.isNotEmpty) {
             return DragDropWidget(
                 roomUid: widget.room.uid,
-                height: 70,
+                height: 66,
                 child: HoverContainer(
                   hoverColor: Theme.of(context).dividerColor,
                   cursor: SystemMouseCursors.click,
@@ -95,7 +95,7 @@ class _ChatItemState extends State<ChatItem> {
                     color: widget.isSelected
                         ? Theme.of(context).focusColor
                         : Colors.transparent,
-                    height: 70,
+                    height: 66,
                     child: Row(
                       children: <Widget>[
                         ContactPic(widget.room.uid.asUid()),
@@ -105,7 +105,7 @@ class _ChatItemState extends State<ChatItem> {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Row(
                                 children: [
@@ -113,7 +113,7 @@ class _ChatItemState extends State<ChatItem> {
                                       Categories.GROUP)
                                     const Flexible(
                                       child: Icon(
-                                        Icons.group_rounded,
+                                        Icons.group_outlined,
                                         size: 16,
                                       ),
                                     ),
@@ -121,15 +121,15 @@ class _ChatItemState extends State<ChatItem> {
                                       Categories.CHANNEL)
                                     const Flexible(
                                       child: Icon(
-                                        Icons.rss_feed_rounded,
-                                        size: 16,
+                                        Icons.rss_feed_outlined,
+                                        size: 15,
                                       ),
                                     ),
                                   if (widget.room.uid.asUid().category ==
                                       Categories.BOT)
                                     const Flexible(
                                       child: Icon(
-                                        Icons.smart_toy_rounded,
+                                        Icons.smart_toy_outlined,
                                         size: 16,
                                       ),
                                     ),

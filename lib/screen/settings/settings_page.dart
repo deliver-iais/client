@@ -15,6 +15,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/widgets/settings_ui/settings_ui.dart';
 import 'package:deliver/theme/dark.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -26,7 +27,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';
 
-import 'package:settings_ui/settings_ui.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -48,26 +48,26 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
-          child: FluidContainerWidget(
-            child: AppBar(
-              backgroundColor: ExtraTheme.of(context).boxBackground,
-              titleSpacing: 8,
-              title: Text(
-                i18n.get(
-                  "settings",
-                ),
-                style: TextStyle(color: ExtraTheme.of(context).textField),
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxBackground,
+            titleSpacing: 8,
+            title: Text(
+              i18n.get(
+                "settings",
               ),
-              leading: _routingService.backButtonLeading(context),
+              style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
         body: FluidContainerWidget(
           child: SettingsList(
-            lightBackgroundColor: ExtraTheme.of(context).boxBackground,
-            darkBackgroundColor: ExtraTheme.of(context).boxBackground,
+            backgroundColor: Colors.transparent,
+            lightBackgroundColor: Colors.transparent,
+            darkBackgroundColor: Colors.transparent,
             sections: [
               SettingsSection(
                 tiles: [
@@ -332,12 +332,15 @@ class NormalSettingsTitle extends SettingsTile {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => onTap!.call(),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: child,
+    return MouseRegion(
+      cursor: onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => onTap?.call(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: child,
+        ),
       ),
     );
   }
