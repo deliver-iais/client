@@ -3,6 +3,8 @@ PODS:
     - FlutterMacOS
   - desktop_drop (0.0.1):
     - FlutterMacOS
+  - desktop_window (0.0.1):
+    - FlutterMacOS
   - Firebase/CoreOnly (8.9.1):
     - FirebaseCore (= 8.9.1)
   - Firebase/Messaging (8.9.1):
@@ -85,6 +87,7 @@ PODS:
 DEPENDENCIES:
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
+  - desktop_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_window/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
@@ -113,6 +116,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
   desktop_drop:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
+  desktop_window:
+    :path: Flutter/ephemeral/.symlinks/plugins/desktop_window/macos
   firebase_core:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_core/macos
   firebase_messaging:
@@ -137,6 +142,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
+  desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
   Firebase: fb5114cd2bf96e2ff7bcb01d0d9a156cf5fd2f07
   firebase_core: 15a2e2ceb41e9eb44ad4d17ea9c033781902d71d
   firebase_messaging: 23ba5771430d61af07cd96d10bde07290278266c
