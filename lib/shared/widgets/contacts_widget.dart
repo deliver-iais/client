@@ -5,8 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
-import '../constants.dart';
-
 class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData? circleIcon;

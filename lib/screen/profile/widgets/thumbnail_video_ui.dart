@@ -1,17 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 
 class VideoWidget extends StatelessWidget {
-  final _routingService = GetIt.I.get<RoutingService>();
-
   final Uid userUid;
   final int mediaPosition;
   final String videoLength;
@@ -19,7 +15,7 @@ class VideoWidget extends StatelessWidget {
   final int videoCount;
   final bool isExist;
 
-  VideoWidget(
+  const VideoWidget(
       {Key? key,
       required this.userUid,
       required this.mediaPosition,

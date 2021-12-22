@@ -11,7 +11,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
   final bool isPending;
   final File file;
   final Message msg;
-  final Function onPressed;
+  final void Function(String, String) onPressed;
 
   const CircularFileStatusIndicator(
       {Key? key,

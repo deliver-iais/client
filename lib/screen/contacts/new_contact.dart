@@ -28,7 +28,6 @@ class _NewContactState extends State<NewContact> {
 
   String _firstName = "";
   String _lastName = "";
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +84,6 @@ class _NewContactState extends State<NewContact> {
                       child: Text(_i18n.get("save")),
                       onPressed: () async {
                         if (_phoneNumber != null) {
-                          setState(() {
-                            _isLoading = true;
-                          });
                           bool addContact =
                               await _contactRepo.addContact(Contact()
                                 ..phoneNumber = _phoneNumber!
@@ -114,15 +110,9 @@ class _NewContactState extends State<NewContact> {
     var result = await _contactRepo.contactIsExist(
         pn.countryCode.toString(), pn.nationalNumber.toString());
     if (result) {
-      setState(() {
-        _isLoading = false;
-      });
       ToastDisplay.showToast(
           toastText: _i18n.get("contactAdd"), tostContext: context);
     } else {
-      setState(() {
-        _isLoading = false;
-      });
       ToastDisplay.showToast(
           toastText: _i18n.get("contact_not_exist"), tostContext: context);
     }

@@ -5,12 +5,9 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'package:logger/logger.dart';
 
 class VideoTabUi extends StatefulWidget {
   final Uid userUid;
@@ -24,7 +21,6 @@ class VideoTabUi extends StatefulWidget {
 }
 
 class _VideoTabUiState extends State<VideoTabUi> {
-  final _logger = GetIt.I.get<Logger>();
   final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final fileRepo = GetIt.I.get<FileRepo>();
   late Duration duration;
@@ -84,9 +80,9 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             fileId: fileId,
                             fileName: fileName,
                             roomUid: "_",
-                            onPressed: (_,_1) async {
+                            onPressed: (fId, fName) async {
                               await fileRepo.getFile(fileId, fileName);
-                             setState(() {});
+                              setState(() {});
                             },
                           );
                         }

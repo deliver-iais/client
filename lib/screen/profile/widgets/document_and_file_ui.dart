@@ -58,7 +58,6 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                               jsonDecode(media.data![index].json)["uuid"];
                           var fileName =
                               jsonDecode(media.data![index].json)["name"];
-                          var messageId = media.data![index].messageId;
                           return FutureBuilder<String?>(
                               future: fileRepo.getFileIfExist(fileId, fileName),
                               builder: (context, file) {

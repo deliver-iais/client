@@ -16,7 +16,7 @@ class LoadFileStatus extends StatefulWidget {
   final String fileName;
   final String? messagePacketId; // TODO Needs to be refactored
   final String? roomUid;
-  final Function onPressed;
+  final void Function(String, String) onPressed;
 
   const LoadFileStatus(
       {Key? key,
@@ -32,7 +32,7 @@ class LoadFileStatus extends StatefulWidget {
 }
 
 class _LoadFileStatusState extends State<LoadFileStatus> {
-  BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
+  final _startDownload = BehaviorSubject.seeded(false);
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
   bool isPendingMes = true;
