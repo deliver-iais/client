@@ -277,5 +277,6 @@
   "access_username" : "Do you allow access to your username?",
   "report_message": "Thank you for this report",
   "bot_not_responding": "bot not responding",
+  "other": "Other",
   "choose_other_files": "ُSelect other files..."
 }

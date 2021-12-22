@@ -25,10 +25,14 @@ ThemeData DarkTheme = ThemeData(
     scaffoldBackgroundColor: const Color(0xFF021a25),
     bottomAppBarColor: const Color.fromRGBO(255, 255, 255, 0.2),
     backgroundColor: const Color(0xFF00101A),
-    dividerTheme:
-        const DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xff313131)),
+    dividerTheme: const DividerThemeData(
+        space: 1.0, thickness: 1.0, color: Color(0xff313131)),
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
+    inputDecorationTheme: const InputDecorationTheme(
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12))),
+    ),
     appBarTheme: AppBarTheme(
         color: const Color(0xFF03151d),
         elevation: 0,

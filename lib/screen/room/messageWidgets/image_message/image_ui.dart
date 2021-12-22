@@ -43,7 +43,7 @@ class _ImageUiState extends State<ImageUi> {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
 
-    const radius = Radius.circular(12);
+    const radius = Radius.circular(8);
     const border = BorderRadius.all(radius);
 
     try {

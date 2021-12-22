@@ -103,34 +103,31 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                       controller: widget.scrollController,
                       itemCount: rooms.length,
                       itemBuilder: (BuildContext ctx, int index) {
-                        return MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            child: ChatItem(
-                              key: ValueKey("chatItem/${rooms[index].uid}"),
-                              room: rooms[index],
-                              isSelected:
-                                  _routingService.isInRoom(rooms[index].uid),
-                            ),
-                            onTap: () {
-                              _routingService.openRoom(rooms[index].uid,
-                                  context: context);
-                            },
-                            onLongPress: () {
-                              //ToDo new design for android
-                              _showCustomMenu(
-                                  context, rooms[index], canPin(rooms));
-                            },
-                            onTapDown: storePosition,
-                            onSecondaryTapDown: storePosition,
-                            onSecondaryTap: !isDesktop()
-                                ? null
-                                : () {
-                                    _showCustomMenu(
-                                        context, rooms[index], canPin(rooms));
-                                  },
+                        return GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          child: ChatItem(
+                            key: ValueKey("chatItem/${rooms[index].uid}"),
+                            room: rooms[index],
+                            isSelected:
+                                _routingService.isInRoom(rooms[index].uid),
                           ),
+                          onTap: () {
+                            _routingService.openRoom(rooms[index].uid,
+                                context: context);
+                          },
+                          onLongPress: () {
+                            //ToDo new design for android
+                            _showCustomMenu(
+                                context, rooms[index], canPin(rooms));
+                          },
+                          onTapDown: storePosition,
+                          onSecondaryTapDown: storePosition,
+                          onSecondaryTap: !isDesktop()
+                              ? null
+                              : () {
+                                  _showCustomMenu(
+                                      context, rooms[index], canPin(rooms));
+                                },
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {

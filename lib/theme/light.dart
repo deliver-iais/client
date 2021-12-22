@@ -24,10 +24,15 @@ ThemeData LightTheme = ThemeData(
     primaryColor: primary,
     scaffoldBackgroundColor: Colors.white,
     backgroundColor: const Color(0xfdf0fff7),
-    dividerTheme:
-        const DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
+    dividerTheme: const DividerThemeData(
+        space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
     focusColor: Colors.lightBlue[300]!.withOpacity(0.6),
     cardColor: Colors.white,
+    inputDecorationTheme: const InputDecorationTheme(
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12))
+      ),
+    ),
     appBarTheme: AppBarTheme(
         color: Colors.white,
         elevation: 0,

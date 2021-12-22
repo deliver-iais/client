@@ -66,7 +66,6 @@ dependencies:
   logger: 1.1.0
   android_intent: 2.0.2
   record: ^3.0.2
-  settings_ui: 1.0.0
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
@@ -83,6 +82,7 @@ dependencies:
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/grpc-dart
+      ref: 42d8ba98d34c06377ced074562d0eaa278501b89
 
  ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
@@ -123,6 +123,7 @@ dependencies:
   google_fonts: 2.1.0
   video_player: ^2.2.7
   chewie: ^1.2.2
+  hovering: 1.0.4
   camera: 0.9.4+5
   desktop_window: # CHANG TOP PAGE IN WINDOWS
     git:

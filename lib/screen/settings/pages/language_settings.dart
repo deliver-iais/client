@@ -2,11 +2,11 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:settings_ui/settings_ui.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
   const LanguageSettingsPage({Key? key}) : super(key: key);
@@ -24,26 +24,24 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
-          child: FluidContainerWidget(
-            child: AppBar(
-              backgroundColor: ExtraTheme.of(context).boxBackground,
-              titleSpacing: 8,
-              title: Text(
-                i18n.get("language"),
-                style: TextStyle(color: ExtraTheme.of(context).textField),
-              ),
-              leading: _routingService.backButtonLeading(context),
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxBackground,
+            titleSpacing: 8,
+            title: Text(
+              i18n.get("language"),
+              style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
         body: FluidContainerWidget(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: SettingsList(
-              sections: [
-                SettingsSection(
+            child: ListView(
+              children: [
+                Section(
                   title: 'Languages',
-                  tiles: [
+                  children: [
                     SettingsTile(
                       title: 'English',
                       leading: const Icon(Icons.language),

@@ -9,13 +9,17 @@ class SearchBox extends StatefulWidget {
   final Function(String) onChange;
   final Function? onCancel;
   final BorderRadius borderRadius;
+  late final TextEditingController controller;
 
-  const SearchBox(
+  SearchBox(
       {Key? key,
       required this.onChange,
       this.onCancel,
-      this.borderRadius = const BorderRadius.all(Radius.circular(25.0))})
-      : super(key: key);
+      this.borderRadius = const BorderRadius.all(Radius.circular(25.0)),
+      TextEditingController? controller})
+      : super(key: key) {
+    this.controller = controller ?? TextEditingController();
+  }
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
@@ -23,7 +27,6 @@ class SearchBox extends StatefulWidget {
 
 class _SearchBoxState extends State<SearchBox> {
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
-  final TextEditingController _controller = TextEditingController();
   final _focusNode = FocusNode(canRequestFocus: false);
   final i18n = GetIt.I.get<I18N>();
 
@@ -55,7 +58,7 @@ class _SearchBoxState extends State<SearchBox> {
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
         focusNode: _focusNode,
-        controller: _controller,
+        controller: widget.controller,
         autofocus: false,
         maxLines: 1,
         onChanged: (str) {
@@ -99,7 +102,7 @@ class _SearchBoxState extends State<SearchBox> {
                   ),
                   onPressed: () {
                     _hasText.add(false);
-                    _controller.clear();
+                    widget.controller.clear();
                     _focusNode.unfocus();
                     widget.onCancel!();
                   },

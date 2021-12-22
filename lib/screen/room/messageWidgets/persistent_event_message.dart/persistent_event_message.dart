@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/message_type.dart';
@@ -11,6 +12,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -77,30 +79,28 @@ class PersistentEventMessage extends StatelessWidget {
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.all(4.0),
-                    padding: const EdgeInsets.only(
-                        top: 5, left: 8.0, right: 8.0, bottom: 4.0),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).dividerColor.withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: FutureBuilder<List<Widget>?>(
-                      future: getPersistentMessage(persistentEventMessage,
-                          message.roomUid.isChannel(), context),
-                      builder: (c, s) {
-                        if (s.hasData && s.data != null) {
-                          return Directionality(
-                              textDirection: _i18n.isPersian
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                              child: Row(
-                                children: s.data!,
-                              ));
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: BlurContainer(
+                      padding: const EdgeInsets.only(
+                          top: 5, left: 8.0, right: 8.0, bottom: 4.0),
+                      child: FutureBuilder<List<Widget>?>(
+                        future: getPersistentMessage(persistentEventMessage,
+                            message.roomUid.isChannel(), context),
+                        builder: (c, s) {
+                          if (s.hasData && s.data != null) {
+                            return Directionality(
+                                textDirection: _i18n.isPersian
+                                    ? TextDirection.rtl
+                                    : TextDirection.ltr,
+                                child: Row(
+                                  children: s.data!,
+                                ));
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
                     ),
                   ),
                   if (message.json!.toPersistentEvent().whichType() ==
@@ -121,8 +121,7 @@ class PersistentEventMessage extends StatelessWidget {
                               fileSnapshot.data != null) {
                             return CircleAvatar(
                               backgroundImage:
-                                  Image.file(File(fileSnapshot.data!))
-                                      .image,
+                                  Image.file(File(fileSnapshot.data!)).image,
                               radius: 35,
                             );
                           } else {

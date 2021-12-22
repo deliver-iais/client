@@ -15,6 +15,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/dark.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -26,7 +27,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';
 
-import 'package:settings_ui/settings_ui.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -48,29 +48,26 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
-          child: FluidContainerWidget(
-            child: AppBar(
-              backgroundColor: ExtraTheme.of(context).boxBackground,
-              titleSpacing: 8,
-              title: Text(
-                i18n.get(
-                  "settings",
-                ),
-                style: TextStyle(color: ExtraTheme.of(context).textField),
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxBackground,
+            titleSpacing: 8,
+            title: Text(
+              i18n.get(
+                "settings",
               ),
-              leading: _routingService.backButtonLeading(context),
+              style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
         body: FluidContainerWidget(
-          child: SettingsList(
-            lightBackgroundColor: ExtraTheme.of(context).boxBackground,
-            darkBackgroundColor: ExtraTheme.of(context).boxBackground,
-            sections: [
-              SettingsSection(
-                tiles: [
+          child: ListView(
+            children: [
+              Section(
+                children: [
                   NormalSettingsTitle(
                       onTap: () => _routingService.openAccountSettings(context),
                       child: Row(
@@ -141,8 +138,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       ))
                 ],
               ),
-              SettingsSection(
-                tiles: [
+              Section(
+                title: i18n.get("other"),
+                children: [
                   SettingsTile(
                     title: i18n.get("qr_share"),
                     leading: const Icon(Icons.qr_code),
@@ -175,9 +173,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   )
                 ],
               ),
-              SettingsSection(
+              Section(
                 title: i18n.get("user_experience"),
-                tiles: [
+                children: [
                   SettingsTile.switchTile(
                     title: i18n.get("notification"),
                     leading: const Icon(Icons.notifications_active),
@@ -229,9 +227,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               if (isDeveloperMode)
-                SettingsSection(
+                Section(
                   title: 'Developer Mode',
-                  tiles: [
+                  children: [
                     SettingsTile(
                       title: 'Log Level',
                       subtitle: LogLevelHelper.levelToString(
@@ -243,8 +241,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 ),
-              SettingsSection(
-                tiles: [
+              Section(
+                children: [
                   SettingsTile(
                       title: i18n.get("version"),
                       trailing: FutureBuilder<PackageInfo>(
@@ -332,12 +330,15 @@ class NormalSettingsTitle extends SettingsTile {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => onTap!.call(),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: child,
+    return MouseRegion(
+      cursor: onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => onTap?.call(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: child,
+        ),
       ),
     );
   }

@@ -27,59 +27,58 @@ class MemberSelectionPage extends StatelessWidget {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(context),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                mucUid != null
-                    ? FutureBuilder<String?>(
-                        future: _roomRepo.getName(mucUid!),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String?> snapshot) {
-                          if (snapshot.data != null) {
-                            return Text(snapshot.data!);
-                          } else {
-                            return Text(_i18n.get("add_member"));
-                          }
-                        },
-                      )
-                    : Text(
-                        isChannel
-                            ? _i18n.get("newChannel")
-                            : _i18n.get("newGroup"),
-                        style:
-                            TextStyle(color: ExtraTheme.of(context).textField),
-                      ),
-                StreamBuilder<int>(
-                    stream: _createMucService.selectedLengthStream(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const SizedBox.shrink();
-                      }
-                      int members = snapshot.data!;
-                      return Text(
-                        members >= 1
-                            ? '$members ${_i18n.get("of_max_member")}'
-                            : _i18n.get("max_member"),
-                        style: Theme.of(context).textTheme.subtitle2,
-                      );
-                    })
-              ],
-            ),
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          leading: _routingService.backButtonLeading(context),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              mucUid != null
+                  ? FutureBuilder<String?>(
+                      future: _roomRepo.getName(mucUid!),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<String?> snapshot) {
+                        if (snapshot.data != null) {
+                          return Text(snapshot.data!);
+                        } else {
+                          return Text(_i18n.get("add_member"));
+                        }
+                      },
+                    )
+                  : Text(
+                      isChannel
+                          ? _i18n.get("newChannel")
+                          : _i18n.get("newGroup"),
+                      style: TextStyle(color: ExtraTheme.of(context).textField),
+                    ),
+              StreamBuilder<int>(
+                  stream: _createMucService.selectedLengthStream(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox.shrink();
+                    }
+                    int members = snapshot.data!;
+                    return Text(
+                      members >= 1
+                          ? '$members ${_i18n.get("of_max_member")}'
+                          : _i18n.get("max_member"),
+                      style: Theme.of(context).textTheme.subtitle2,
+                    );
+                  })
+            ],
           ),
         ),
       ),
       body: FluidContainerWidget(
-        child: Box(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SelectiveContactsList(
-              isChannel: isChannel,
-              mucUid: mucUid,
-            ),
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: ExtraTheme.of(context).boxOuterBackground,
+          ),
+          child: SelectiveContactsList(
+            isChannel: isChannel,
+            mucUid: mucUid,
           ),
         ),
       ),
