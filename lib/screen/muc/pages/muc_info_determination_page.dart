@@ -85,9 +85,14 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: Box(
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: ExtraTheme.of(context).boxOuterBackground,
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: Stack(
               children: [
                 Column(
