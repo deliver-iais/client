@@ -8,6 +8,7 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -29,6 +30,7 @@ import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -63,6 +65,7 @@ class _ProfilePageState extends State<ProfilePage>
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
@@ -71,6 +74,7 @@ class _ProfilePageState extends State<ProfilePage>
   final I18N _i18n = GetIt.I.get<I18N>();
 
   bool _isMucAdminOrOwner = false;
+  bool _isBotOwner = false;
   bool _isMucOwner = false;
   String _roomName = "";
   bool _roomIsBlocked = false;
@@ -276,7 +280,7 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 ProfileAvatar(
                   roomUid: widget.roomUid,
-                  canSetAvatar: _isMucAdminOrOwner,
+                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
                 ),
                 // _buildMenu(context)
               ],
@@ -448,10 +452,10 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return Text(
-                  _roomName,
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
-                );
+                return RoomName(
+                    uid: widget.roomUid,
+                    name: _roomName,
+                    style: TextStyle(color: ExtraTheme.of(context).textField));
               },
             ),
           ),
@@ -533,16 +537,15 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "addBotToGroup"),
-        if (!widget.roomUid.isMuc())
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.report),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("report")),
-                ],
-              ),
-              value: "report"),
+        PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.report),
+                const SizedBox(width: 8),
+                Text(_i18n.get("report")),
+              ],
+            ),
+            value: "report"),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: StreamBuilder<bool?>(
@@ -573,13 +576,22 @@ class _ProfilePageState extends State<ProfilePage>
   Future<void> _setupRoomSettings() async {
     if (widget.roomUid.isMuc()) {
       try {
-        final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
+        final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         final mucOwner = await _mucRepo.isMucOwner(
             _authRepo.currentUserUid.asString(), widget.roomUid.asString());
         setState(() {
-          _isMucAdminOrOwner = settingAvatarPermission;
+          _isMucAdminOrOwner = isMucAdminOrAdmin;
           _isMucOwner = mucOwner;
+        });
+      } catch (e) {
+        _logger.e(e);
+      }
+    } else if (widget.roomUid.isBot()) {
+      try {
+        final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
+        setState(() {
+          _isBotOwner = botAvatarPermission.isOwner;
         });
       } catch (e) {
         _logger.e(e);
@@ -926,6 +938,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
+                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -937,6 +950,7 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
+                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -1154,12 +1168,14 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
           return const SizedBox(width: 0.0, height: 0.0);
         } else {
           return ListView.separated(
-            itemCount: linksCount,
+            itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
                 child: LinkPreview(
-                    link: jsonDecode(snapshot.data![index].json)["url"],
-                    maxWidth: 100),
+                  link: jsonDecode(snapshot.data![index].json)["url"],
+                  maxWidth: 100,
+                  isProfile: true,
+                ),
               );
             },
             separatorBuilder: (BuildContext context, int index) =>

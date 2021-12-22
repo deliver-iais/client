@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -39,7 +40,11 @@ class _ImageWidget extends State<ShowImagePage> {
           ),
           onPressed: () {
             _messageRepo.sendMultipleFilesMessages(
-                widget.roomUid, [widget.imageFile.path],
+                widget.roomUid,
+                [
+                  model.File(widget.imageFile.path,
+                      widget.imageFile.path.split(".").last)
+                ],
                 caption: _controller.value.text);
             _routingServices.pop();
           },

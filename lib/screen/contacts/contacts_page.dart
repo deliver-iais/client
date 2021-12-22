@@ -78,7 +78,7 @@ class _ContactsPageState extends State<ContactsPage> {
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(top: 4.0),
                         child: SearchBox(
                           borderRadius: BorderRadius.circular(8),
                           onChange: (str) {
@@ -114,7 +114,9 @@ class _ContactsPageState extends State<ContactsPage> {
                           itemCount: snapshot.data!.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (searchHasResult(c)) return const SizedBox.shrink();
+                            if (searchHasResult(c)) {
+                              return const SizedBox.shrink();
+                            }
                             if (_authRepo.isCurrentUser(c.uid)) {
                               return const SizedBox.shrink();
                             } else {
@@ -200,7 +202,7 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
-    } else if (isAlreadyContactAccessTipShowed) {
+    } else {
       _contactRepo.syncContacts();
     }
   }

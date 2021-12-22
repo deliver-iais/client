@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
-import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -11,6 +11,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:rxdart/rxdart.dart';
 
 // TODO Move to profile folder, it is not shared widget
 class ProfileAvatar extends StatefulWidget {
@@ -18,7 +20,9 @@ class ProfileAvatar extends StatefulWidget {
   final Uid roomUid;
   final bool canSetAvatar;
 
-  const ProfileAvatar({Key? key, required this.roomUid, this.canSetAvatar = false}) : super(key: key);
+  const ProfileAvatar(
+      {Key? key, required this.roomUid, this.canSetAvatar = false})
+      : super(key: key);
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -27,16 +31,19 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
   String _uploadAvatarPath = "";
-  bool _showProgressBar = false;
-  final _selectedImages = <int, bool>{};
+  final BehaviorSubject<bool> _showProgressBar = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-      child: _showProgressBar
-          ? CircleAvatar(
+      child: StreamBuilder<bool>(
+        stream: _showProgressBar.stream,
+        builder: (c, s) {
+          if (s.hasData && s.data!) {
+            return CircleAvatar(
               radius: 40,
               backgroundImage: Image.file(File(_uploadAvatarPath)).image,
               child: const Center(
@@ -48,8 +55,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       strokeWidth: 6.0,
                     )),
               ),
-            )
-          : Row(
+            );
+          } else {
+            return Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Center(
@@ -81,21 +89,19 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         child: const Text("select an image")),
                   )
               ],
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 
   _setAvatar(String avatarPath) async {
-    setState(() {
-      _showProgressBar = true;
-      _uploadAvatarPath = avatarPath;
-    });
-    if (await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
-        null) {
-      setState(() => _showProgressBar = false);
-    } else {
-      setState(() => _showProgressBar = false);
-    }
+    _showProgressBar.add(true);
+    _uploadAvatarPath = avatarPath;
+
+    await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath));
+    _showProgressBar.add(false);
   }
 
   selectAvatar() async {
@@ -106,16 +112,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           allowedExtensions: ['png', 'jpeg', 'jpg']);
       if (result!.files.isNotEmpty) {
         _setAvatar(result.files.first.path!);
-      }
-    } else if ((await ImageItem.getImages()).isEmpty) {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.custom,
-      );
-      if (result != null) {
-        for (var path in result.paths) {
-          _setAvatar(path!);
-        }
       }
     } else {
       showModalBottomSheet(
@@ -137,11 +133,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         padding: const EdgeInsets.all(0),
                         child: ShareBoxGallery(
                           scrollController: scrollController,
-                          onClick: (File croppedFile) async {
-                            _setAvatar(croppedFile.path);
+                          pop: () => Navigator.pop(context),
+                          setAvatar: (String imagePath) async {
+                            Navigator.pop(context);
+                            cropAvatar(imagePath);
                           },
-                          selectedImages: _selectedImages,
-                          selectGallery: false,
+                          selectAvatar: true,
                           roomUid: widget.roomUid,
                         ),
                       ),
@@ -149,6 +146,31 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               },
             );
           });
+    }
+  }
+
+  void cropAvatar(String imagePath) async {
+    File? croppedFile = await ImageCropper.cropImage(
+        sourcePath: imagePath,
+        aspectRatioPresets: Platform.isAndroid
+            ? [CropAspectRatioPreset.square]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        cropStyle: CropStyle.rectangle,
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: _i18n.get("avatar"),
+            toolbarColor: Colors.blueAccent,
+            hideBottomControls: true,
+            showCropGrid: false,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: _i18n.get("avatar"),
+        ));
+    if (croppedFile != null) {
+      _setAvatar(croppedFile.path);
     }
   }
 }

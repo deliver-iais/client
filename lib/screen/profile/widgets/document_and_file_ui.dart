@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+
 
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
@@ -19,11 +19,7 @@ class DocumentAndFileUi extends StatefulWidget {
   final int documentCount;
   final MediaType type;
 
-  const DocumentAndFileUi(
-      {Key? key,
-      required this.roomUid,
-      required this.documentCount,
-      required this.type})
+  const DocumentAndFileUi({Key? key,required this.roomUid,required this.documentCount, required this.type})
       : super(key: key);
 
   @override
@@ -49,7 +45,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
           if (!media.hasData ||
               media.data == null ||
               media.connectionState == ConnectionState.waiting) {
-            return const SizedBox(width: 0.0, height: 0.0);
+            return const SizedBox.shrink();
           } else {
             return SizedBox(
                 width: MediaQuery.of(context).size.width,
@@ -63,7 +59,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                           var fileName =
                               jsonDecode(media.data![index].json)["name"];
                           var messageId = media.data![index].messageId;
-                          return FutureBuilder<File?>(
+                          return FutureBuilder<String?>(
                               future: fileRepo.getFileIfExist(fileId, fileName),
                               builder: (context, file) {
                                 if (file.hasData && file.data != null) {
@@ -72,12 +68,12 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                       ListTile(
                                         title: GestureDetector(
                                           onTap: () {
-                                            OpenFile.open(file.data!.path);
+                                            OpenFile.open(file.data!);
                                           },
                                           child: Row(children: <Widget>[
                                             Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 2),
+                                                padding:
+                                                    const EdgeInsets.only(left: 2),
                                                 child: Container(
                                                   width: 50,
                                                   height: 50,
@@ -88,8 +84,9 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                             .circularFileStatus,
                                                   ),
                                                   child: IconButton(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(1, 0, 0, 0),
+                                                    padding:
+                                                        const EdgeInsets.fromLTRB(
+                                                            1, 0, 0, 0),
                                                     alignment: Alignment.center,
                                                     icon: Icon(
                                                       Icons
@@ -123,7 +120,9 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           ]),
                                         ),
                                       ),
-                                      const Divider(color: Colors.grey),
+                                      const Divider(
+                                        color: Colors.grey,
+                                      ),
                                     ],
                                   );
                                 } else if (file.data == null) {
@@ -148,7 +147,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                       style: TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                           color: ExtraTheme.of(
                                                                   context)
                                                               .textMessage)),
@@ -158,11 +157,13 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           ),
                                         ]),
                                       ),
-                                      const Divider(color: Colors.grey),
+                                      const Divider(
+                                        color: Colors.grey,
+                                      ),
                                     ],
                                   );
                                 } else {
-                                  return const SizedBox(width: 0, height: 0);
+                                  return const SizedBox.shrink();
                                 }
                               });
                         })));

@@ -8,7 +8,6 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'dart:io';
 
 import 'package:logger/logger.dart';
 
@@ -73,7 +72,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == true) {
-                          return FutureBuilder<File?>(
+                          return FutureBuilder<String?>(
                               future: fileRepo.getFile(
                                   fileId, fileName + ".png",
                                   thumbnailSize: ThumbnailSize.medium),
@@ -101,7 +100,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
-                          return FutureBuilder<File?>(
+                          return FutureBuilder<String?>(
                             future: fileRepo.getFile(fileId, fileName + ".png",
                                 thumbnailSize: ThumbnailSize.medium),
                             builder:

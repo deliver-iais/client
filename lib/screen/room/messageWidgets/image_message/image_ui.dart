@@ -8,6 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
@@ -55,7 +56,7 @@ class _ImageUiState extends State<ImageUi> {
 
       return ClipRRect(
         borderRadius: border,
-        child: FutureBuilder<File?>(
+        child: FutureBuilder<String?>(
             future: fileRepo.getFileIfExist(image.uuid, image.name),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
@@ -81,12 +82,21 @@ class _ImageUiState extends State<ImageUi> {
                       },
                       child: Hero(
                         tag: image.uuid,
-                        child: Image.file(
-                          s.data!,
-                          width: width,
-                          height: height,
-                          fit: BoxFit.fill,
-                        ),
+                        child: kIsWeb
+                            ? Image.network(
+                                s.data!,
+                                width: width,
+                                height: height,
+                                fit: BoxFit.fill,
+                              )
+                            : Image.file(
+                                File(
+                                  s.data!,
+                                ),
+                                width: width,
+                                height: height,
+                                fit: BoxFit.fill,
+                              ),
                       ),
                     ),
                     if (image.caption.isEmpty)
@@ -180,7 +190,7 @@ class _ImageUiState extends State<ImageUi> {
     return Size(w, h);
   }
 
-  _showImageInDesktop(File file) {
+  _showImageInDesktop(String file) {
     return showDialog(
         context: context,
         builder: (c) {
@@ -189,7 +199,8 @@ class _ImageUiState extends State<ImageUi> {
             content: InteractiveViewer(
                 child: Hero(
                     tag: widget.message.json!.toFile().uuid,
-                    child: Image.file(file))),
+                    child:
+                        kIsWeb ? Image.network(file) : Image.file(File(file)))),
           );
         });
   }

@@ -29,12 +29,12 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
-    as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -44,8 +44,8 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 4;
-const MAX_BACKOFF_TIME = 8;
+const MIN_BACKOFF_TIME = kIsWeb ? 8 : 4;
+const MAX_BACKOFF_TIME = kIsWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
@@ -104,24 +104,31 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
+    sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
+
+    if (!kIsWeb && _clientPacketStream.isClosed ||
+        _clientPacketStream.isPaused) {
       await startStream();
     }
-    sendPing();
     responseChecked = false;
-    _connectionTimer = Timer(Duration(seconds: backoffTime), () {
+    _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        _clientPacketStream.close();
+        if (kIsWeb) {
+          startStream();
+        } else {
+          _clientPacketStream.close();
+        }
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
+
       startCheckerTimer();
     });
   }
@@ -136,10 +143,13 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
-      _responseStream =
-          _grpcCoreService.establishStream(_clientPacketStream.stream);
+      _responseStream = kIsWeb
+          ? _grpcCoreService
+              .establishServerSideStream(EstablishServerSideStreamReq())
+          : _grpcCoreService.establishStream(_clientPacketStream.stream);
       _responseStream.listen((serverPacket) async {
         _logger.d(serverPacket);
+
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
@@ -182,15 +192,24 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) async {
-    if (!_clientPacketStream.isClosed &&
-        _connectionStatus.value == ConnectionStatus.Connected) {
-      _clientPacketStream.add(ClientPacket()
+    try {
+      ClientPacket clientPacket = ClientPacket()
         ..message = message
-        ..id = message.packetId);
+        ..id = DateTime.now().microsecondsSinceEpoch.toString();
+      if (kIsWeb) {
+        _grpcCoreService.sendClientPacket(clientPacket);
+      } else {
+        if (!_clientPacketStream.isClosed &&
+            _connectionStatus.value == ConnectionStatus.Connected) {
+          _clientPacketStream.add(clientPacket);
+        } else {
+          startStream();
+        }
+      }
       Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
           () => checkPendingStatus(message.packetId));
-    } else {
-      startStream();
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -207,34 +226,58 @@ class CoreServices {
   }
 
   sendPing() {
-    if (!_clientPacketStream.isClosed) {
-      var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _clientPacketStream.add(ClientPacket()
-        ..ping = ping
-        ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    if (kIsWeb) {
+      try {
+        var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+        _grpcCoreService.sendClientPacket(ClientPacket()
+          ..ping = ping
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+        _grpcCoreService.sendClientPacket(ClientPacket()
+          ..ping = ping
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      } catch (e) {
+        _logger.e(e);
+      }
     } else {
-      startStream();
+      if (!_clientPacketStream.isClosed) {
+        var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+        _clientPacketStream.add(ClientPacket()
+          ..ping = ping
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      } else {
+        startStream();
+      }
     }
   }
 
   sendSeen(seen_pb.SeenByClient seen) {
-    if (!_clientPacketStream.isClosed) {
-      _clientPacketStream.add(ClientPacket()
-        ..seen = seen
-        ..id = seen.id.toString());
+    ClientPacket clientPacket = ClientPacket()
+      ..seen = seen
+      ..id = seen.id.toString();
+    if (kIsWeb) {
+      _grpcCoreService.sendClientPacket(clientPacket);
     } else {
-      startStream();
+      if (!_clientPacketStream.isClosed) {
+        _clientPacketStream.add(clientPacket);
+      } else {
+        startStream();
+      }
     }
   }
 
   sendActivity(ActivityByClient activity, String id) {
-    if (!_clientPacketStream.isClosed &&
-        !_authRepo.isCurrentUser(activity.to.asString())) {
-      _clientPacketStream.add(ClientPacket()
+    if (_authRepo.isCurrentUser(activity.to.toString())) {
+      ClientPacket clientPacket = ClientPacket()
         ..activity = activity
-        ..id = id);
-    } else {
-      startStream();
+        ..id = id;
+      if (kIsWeb) {
+        _grpcCoreService.sendClientPacket(clientPacket);
+      } else if (!_clientPacketStream.isClosed &&
+          !_authRepo.isCurrentUser(activity.to.asString())) {
+        _clientPacketStream.add(clientPacket);
+      } else {
+        startStream();
+      }
     }
   }
 
@@ -386,6 +429,9 @@ class CoreServices {
           }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.botSpecificPersistentEvent:
           // TODO: Handle this case.
           break;
         case PersistentEvent_Type.notSet:

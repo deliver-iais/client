@@ -5,7 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/poll.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/transaction.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/payment.pb.dart';
 
 extension JsonMapper on String {
   File toFile() {
@@ -24,8 +24,8 @@ extension JsonMapper on String {
     return Location.fromJson(this);
   }
 
-  PaymentTransaction toPaymentTransaction() {
-    return PaymentTransaction.fromJson(this);
+  Transaction toPaymentTransaction() {
+    return Transaction.fromJson(this);
   }
 
   Poll toPoll() {
