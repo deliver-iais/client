@@ -25,6 +25,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:desktop_window/desktop_window.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -114,7 +115,6 @@ class WindowsNotifier implements Notifier {
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     final _fileServices = GetIt.I.get<FileService>();
-
     final _logger = GetIt.I.get<Logger>();
     try {
       Avatar? lastAvatar =
@@ -146,7 +146,10 @@ class WindowsNotifier implements Notifier {
           _windowsNotificationServices.show(toast);
           _windowsNotificationServices.stream.listen((event) {
             if (event is windows_notify.ToastActivated) {
-              if (lastAvatar != null) _routingService.openRoom(lastAvatar.uid);
+              if (lastAvatar != null) {
+                _routingService.openRoom(lastAvatar.uid);
+                DesktopWindow.focus();
+              }
             }
           });
         }

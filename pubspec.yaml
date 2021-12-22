@@ -125,6 +125,10 @@ dependencies:
   chewie: ^1.2.2
   hovering: 1.0.4
   camera: 0.9.4+5
+  desktop_window: # CHANG TOP PAGE IN WINDOWS
+    git:
+      url: https://github.com/deliver-iais/desktop_window.git
+      ref: main
   service_worker: 0.2.4
   meta: 1.7.0
   flutter_dropzone: 3.0.3
