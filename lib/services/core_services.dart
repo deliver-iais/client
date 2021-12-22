@@ -183,6 +183,9 @@ class CoreServices {
           case ServerPacket_Type.callAnswer:
             // TODO: Handle this case.
             break;
+          case ServerPacket_Type.expletivePacket:
+            // TODO: Handle this case.
+            break;
         }
       });
     } catch (e) {
