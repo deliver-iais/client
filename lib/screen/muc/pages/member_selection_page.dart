@@ -49,8 +49,7 @@ class MemberSelectionPage extends StatelessWidget {
                       isChannel
                           ? _i18n.get("newChannel")
                           : _i18n.get("newGroup"),
-                      style:
-                          TextStyle(color: ExtraTheme.of(context).textField),
+                      style: TextStyle(color: ExtraTheme.of(context).textField),
                     ),
               StreamBuilder<int>(
                   stream: _createMucService.selectedLengthStream(),
@@ -71,13 +70,15 @@ class MemberSelectionPage extends StatelessWidget {
         ),
       ),
       body: FluidContainerWidget(
-        child: Box(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SelectiveContactsList(
-              isChannel: isChannel,
-              mucUid: mucUid,
-            ),
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: ExtraTheme.of(context).boxOuterBackground,
+          ),
+          child: SelectiveContactsList(
+            isChannel: isChannel,
+            mucUid: mucUid,
           ),
         ),
       ),

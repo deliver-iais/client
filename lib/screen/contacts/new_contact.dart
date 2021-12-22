@@ -5,7 +5,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,9 +50,8 @@ class _NewContactState extends State<NewContact> {
                       _firstName = firstName;
                     },
                     style: Theme.of(context).textTheme.bodyText1,
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: _i18n.get("firstName")),
+                    decoration:
+                        InputDecoration(labelText: _i18n.get("firstName")),
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -61,9 +59,8 @@ class _NewContactState extends State<NewContact> {
                       _lastName = lastName;
                     },
                     style: Theme.of(context).textTheme.bodyText1,
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: _i18n.get("lastName")),
+                    decoration:
+                        InputDecoration(labelText: _i18n.get("lastName")),
                   ),
                   const SizedBox(height: 10),
                   IntlPhoneField(
@@ -92,10 +89,10 @@ class _NewContactState extends State<NewContact> {
                             _isLoading = true;
                           });
                           bool addContact =
-                          await _contactRepo.addContact(Contact()
-                            ..phoneNumber = _phoneNumber!
-                            ..firstName = _firstName
-                            ..lastName = _lastName);
+                              await _contactRepo.addContact(Contact()
+                                ..phoneNumber = _phoneNumber!
+                                ..firstName = _firstName
+                                ..lastName = _lastName);
                           if (addContact) {
                             await showResult(_phoneNumber!);
                             _routingServices.pop();

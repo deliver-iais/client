@@ -15,22 +15,24 @@ class ContactWidget extends StatelessWidget {
   final bool currentMember;
 
   const ContactWidget(
-      {Key? key, required this.contact,
+      {Key? key,
+      required this.contact,
       this.circleIcon,
       this.isSelected = false,
       this.currentMember = false,
-      this.onCircleIcon}) : super(key: key);
+      this.onCircleIcon})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: currentMember
-              ? Theme.of(context).colorScheme.secondary
-              : isSelected
-                  ? Theme.of(context).focusColor
-                  : null,
-          borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
+        color: currentMember
+            ? Theme.of(context).colorScheme.secondary
+            : isSelected
+                ? Theme.of(context).focusColor
+                : null,
+      ),
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
