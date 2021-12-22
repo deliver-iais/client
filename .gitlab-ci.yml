@@ -1,0 +1,77 @@
+include:
+  - project: deliver/devops
+    file: /deployment/templates/base.yml
+  - project: deliver/devops
+    file: /deployment/templates/commons.yml
+
+stages:
+  - build
+  - deploy
+
+variables:
+  PROJECT_NAME: deliver-web
+  KUSTOMIZE_DEPLOYMENT_PATH: deployment
+  PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
+
+.docker-builder-prim:
+  extends:
+#    - .only-master
+    - .shell-basic
+  script:
+    - unset https_proxy && unset http_proxy
+    - if [ "$DOCKER_LOGIN_NEEDED" = true ] ; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REPO; fi
+    - docker build -t $DOCKER_REPO/$PROJECT_NAME:$PROJECT_VERSION .
+    - docker push $DOCKER_REPO/$PROJECT_NAME:$PROJECT_VERSION
+
+.deliver-web-builder:
+  stage: build
+  extends:
+    - .docker-builder-prim
+
+.deliver-web-deployer:
+  stage: deploy
+  extends:
+    - .kustomize-deploy
+
+# Pre Build - Because of needs of VPN this stage should be run in DEVELOPER PC when pubspecs.yaml changed and don't forget change version in pubspec.yaml if you change it
+.pre_build:
+  extends:
+    - .only-master
+    - .shell-basic
+  stage: pre-build
+  needs: []
+  script:
+    - sudo docker build -t 172.17.4.40:443/deliver-web-builder:1.0.0 -f builder.dockerfile .
+    - sudo docker push 172.17.4.40:443/deliver-web-builder:1.0.0
+
+dev_build:
+  needs: [ ]
+  extends:
+    - .deliver-web-builder
+    - .dev
+
+dev_deploy:
+  needs: [ dev_build ]
+  when: manual
+  extends:
+    - .deliver-web-deployer
+    - .dev
+
+prod_and_staging_build:
+  needs: [ ]
+  extends:
+    - .deliver-web-builder
+    - .staging
+
+staging_deploy:
+  needs: [ prod_and_staging_build ]
+  when: manual
+  extends:
+    - .deliver-web-deployer
+    - .staging
+
+prod_deploy:
+  needs: [ prod_and_staging_build ]
+  extends:
+    - .deliver-web-deployer
+    - .prod

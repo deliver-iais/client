@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
@@ -21,7 +22,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:settings_ui/settings_ui.dart';
-
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -128,6 +128,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 )
                               : currentPage == Page.files
                                   ? ShareBoxFile(
+                                      roomUid: widget.currentRoomId,
                                       scrollController: scrollController,
                                       onClick: (index, path) {
                                         setState(() {
@@ -143,7 +144,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       ? ShareBoxGallery(
                                           scrollController: scrollController,
                                           selectAvatar: false,
-                                          pop:(){
+                                          pop: () {
                                             Navigator.of(context);
                                           },
                                           roomUid: widget.currentRoomId,
@@ -169,13 +170,18 @@ class _ShareBoxState extends State<ShareBox> {
                                         if (widget.replyMessageId! > 0) {
                                           messageRepo.sendMultipleFilesMessages(
                                               widget.currentRoomId,
-                                              finalSelected.values.toList(),
+                                              finalSelected.values
+                                                  .toList()
+                                                  .map((e) => model.File(e, e))
+                                                  .toList(),
                                               replyToId: widget.replyMessageId);
                                         } else {
                                           showCaptionDialog(
                                               type: "file",
-                                              paths:
-                                                  finalSelected.values.toList(),
+                                              files: finalSelected.values
+                                                  .toList()
+                                                  .map((e) => model.File(e, e))
+                                                  .toList(),
                                               roomUid: widget.currentRoomId,
                                               context: context);
                                         }
@@ -531,12 +537,12 @@ class _ShareBoxState extends State<ShareBox> {
 
 showCaptionDialog(
     {String? type,
-    List<String?>? paths,
+    List<model.File>? files,
     required Uid roomUid,
     Message? editableMessage,
     required BuildContext context,
     bool showSelectedImage = false}) async {
-  if (paths!.isEmpty && editableMessage == null) return;
+  if (files!.isEmpty && editableMessage == null) return;
   showDialog(
       context: context,
       builder: (context) {
@@ -545,7 +551,7 @@ showCaptionDialog(
           showSelectedImage: showSelectedImage,
           editableMessage: editableMessage,
           currentRoom: roomUid,
-          paths: paths,
+          files: files,
         );
       });
 }

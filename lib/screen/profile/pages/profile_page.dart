@@ -537,15 +537,15 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "addBotToGroup"),
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.report),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("report")),
-                ],
-              ),
-              value: "report"),
+        PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.report),
+                const SizedBox(width: 8),
+                Text(_i18n.get("report")),
+              ],
+            ),
+            value: "report"),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: StreamBuilder<bool?>(
@@ -1168,12 +1168,14 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
           return const SizedBox(width: 0.0, height: 0.0);
         } else {
           return ListView.separated(
-            itemCount: linksCount,
+            itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
                 child: LinkPreview(
-                    link: jsonDecode(snapshot.data![index].json)["url"],
-                    maxWidth: 100),
+                  link: jsonDecode(snapshot.data![index].json)["url"],
+                  maxWidth: 100,
+                  isProfile: true,
+                ),
               );
             },
             separatorBuilder: (BuildContext context, int index) =>

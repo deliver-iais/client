@@ -5,6 +5,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -27,6 +28,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -486,7 +488,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(), res!);
+                                        widget.currentRoom.uid.asUid(),
+                                        File(res!, res));
                                   } catch (_) {}
                                 }
                               },
@@ -752,12 +755,25 @@ class _InputMessageWidget extends State<InputMessage> {
   showCaptionDialog(
       {IconData? icons, String? type, required FilePickerResult result}) async {
     if (result.files.isEmpty) return;
+
+    List<File> res = [];
+    for (var file in result.files) {
+      res.add(File(
+          kIsWeb
+              ? Uri.dataFromBytes(file.bytes!.toList()).toString()
+              : file.path!,
+          file.name,
+          size: file.size,
+          extension: file.extension));
+    }
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            paths: result.files.map((e) => e.path!).toList(),
-            type: result.files.first.path!.split(".").last,
+            files: res,
+            type: kIsWeb
+                ? result.files.first.extension
+                : result.files.first.path!.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });

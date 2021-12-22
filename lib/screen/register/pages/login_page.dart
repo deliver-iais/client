@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
   checkAndGoNext({bool doNotCheckValidator = false}) async {
     if (phoneNumber != null &&
         phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
-      _logger.e("logis as test user ");
+      _logger.e("login as test user ");
       _loginASTestUser();
     } else {
       var isValidated = _formKey.currentState?.validate() ?? false;

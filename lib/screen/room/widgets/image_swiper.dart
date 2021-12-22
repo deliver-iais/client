@@ -5,6 +5,7 @@ import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -136,15 +137,15 @@ class _ImageSwiperState extends State<ImageSwiper> {
   }
 
   Widget defaultWidget() {
-    return FutureBuilder<File?>(
+    return FutureBuilder<String?>(
         future: _fileRepo.getFile(widget.message.json!.toFile().uuid,
             widget.message.json!.toFile().name),
-        builder: (c, file) {
-          if (file.hasData && file.data != null) {
+        builder: (c, path) {
+          if (path.hasData && path.data != null) {
             return buildImageUi(
                 context,
-                file.data!,
-                widget.message.id!,
+                path.data,
+                widget.message.id,
                 widget.message.json!.toFile().width.toDouble(),
                 widget.message.json!.toFile().height.toDouble());
           } else {
@@ -153,7 +154,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
         });
   }
 
-  Widget buildImageUi(BuildContext context, File file, int messageId,
+  Widget buildImageUi(BuildContext context, String? path, int? messageId,
       double width, double height) {
     return Stack(
       children: [
@@ -164,9 +165,15 @@ class _ImageSwiperState extends State<ImageSwiper> {
               height: height,
               child: Hero(
                 tag: widget.message.json!.toFile().uuid,
-                child: Image.file(
-                  file,
-                ),
+                child: kIsWeb
+                    ? Image.network(
+                        path!,
+                        width: width,
+                        height: height,
+                      )
+                    : Image.file(
+                        File(path!),
+                      ),
               ),
             ),
           ),

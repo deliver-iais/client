@@ -16,6 +16,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -423,37 +424,41 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendMultipleFilesMessages(Uid room, List<String?>? filesPath,
+  sendMultipleFilesMessages(Uid room, List<model.File> files,
       {String? caption, int? replyToId}) async {
-    for (var path in filesPath!) {
-      if (filesPath.last == path) {
-        await sendFileMessage(room, path!,
+    for (var file in files) {
+      if (files.last.path == file.path) {
+        await sendFileMessage(room, file,
             caption: caption!, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, path!, caption: "", replyToId: replyToId);
+        await sendFileMessage(room, file, caption: "", replyToId: replyToId);
       }
     }
   }
 
-  sendFileMessage(Uid room, String path,
+  sendFileMessage(Uid room, model.File file,
       {String? caption = "", int? replyToId = 0}) async {
     String packetId = _getPacketId();
+    var tempDimension = Size.zero;
+    int? tempFileSize;
+    final tempType = file.extension ?? _findType(file.path);
     _fileRepo.initUploadProgress(packetId);
 
-    // Create MessageCompanion
-    var file = dart_file.File(path);
-    final tempType = _findType(path);
-    var tempDimension = Size.zero;
+    var f = dart_file.File(file.path);
     // Get size of image
-    if (tempType.split('/')[0] == 'image') {
-      tempDimension = ImageSizeGetter.getSize(FileInput(file));
-      if (tempDimension == Size.zero) {
-        tempDimension = Size(200, 200);
+    try {
+      if (tempType.split('/')[0] == 'image') {
+        tempDimension = ImageSizeGetter.getSize(FileInput(f));
+        if (tempDimension == Size.zero) {
+          tempDimension = Size(200, 200);
+        }
       }
-    }
+      tempFileSize = f.statSync().size;
+    } catch (_) {}
+
+    // Create MessageCompanion
 
     // Get type with file name
-    final tempFileSize = file.statSync().size;
 
     file_pb.File sendingFakeFile = file_pb.File()
       ..uuid = packetId
@@ -461,8 +466,8 @@ class MessageRepo {
       ..width = tempDimension.width
       ..height = tempDimension.height
       ..type = tempType
-      ..size = Int64(tempFileSize)
-      ..name = path.split(".").last
+      ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize!)
+      ..name = file.name
       ..duration = 0;
 
     Message msg = _createMessage(room, replyId: replyToId).copyWith(
@@ -470,16 +475,16 @@ class MessageRepo {
         type: MessageType.FILE,
         json: sendingFakeFile.writeToJson());
 
-    await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, path.split('.').last);
+    await _fileRepo.cloneFileInLocalDirectory(f, packetId, file.name);
 
     var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 
     await _savePendingMessage(pm);
 
     var m = await _sendFileToServerOfPendingMessage(pm);
-
-    await _sendMessageToServer(m);
+    if (m != null) {
+      await _sendMessageToServer(m);
+    }
   }
 
   sendStickerMessage(
@@ -502,30 +507,31 @@ class MessageRepo {
     // _saveAndSend(pm);
   }
 
-  Future<PendingMessage> _sendFileToServerOfPendingMessage(
+  Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
     var fakeFileInfo = file_pb.File.fromJson(pm.msg.json!);
 
     var packetId = pm.msg.packetId;
 
     // Upload to file server
-    file_pb.File fileInfo = await _fileRepo
+    file_pb.File? fileInfo = await _fileRepo
         .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
       sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
     });
+    if (fileInfo != null) {
+      fileInfo.caption = fakeFileInfo.caption;
 
-    fileInfo.caption = fakeFileInfo.caption;
+      var newJson = fileInfo.writeToJson();
 
-    var newJson = fileInfo.writeToJson();
+      var newPm = pm.copyWith(
+          msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
 
-    var newPm = pm.copyWith(
-        msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
+      // Update pending messages table
+      await _savePendingMessage(newPm);
 
-    // Update pending messages table
-    await _savePendingMessage(newPm);
-
-    _updateRoomLastMessage(newPm);
-    return newPm;
+      _updateRoomLastMessage(newPm);
+      return newPm;
+    }
   }
 
   _sendMessageToServer(PendingMessage pm) async {
@@ -812,10 +818,6 @@ class MessageRepo {
     return mime(path) ?? "application/octet-stream";
   }
 
-  void setCoreSetting() {
-    _coreServices.sendPing();
-  }
-
   void sendActivity(Uid to, ActivityType activityType) {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {
       ActivityByClient activityByClient = ActivityByClient()
@@ -997,14 +999,16 @@ class MessageRepo {
   }
 
   editFileMessage(Uid roomUid, Message editableMessage,
-      {String? caption, String? newFilePath, String? newFileName}) async {
-    file_pb.File updatedFile;
-    if (newFilePath != null) {
-      String u = DateTime.now().millisecondsSinceEpoch.toString();
+      {String? caption, model.File? file}) async {
+    file_pb.File? updatedFile;
+    if (file != null) {
+      String uploadKey = DateTime.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
-          dart_file.File(newFilePath), u, newFileName!);
-      updatedFile = await _fileRepo.uploadClonedFile(u, newFileName);
-      updatedFile.caption = caption!;
+          dart_file.File(file.path), uploadKey, file.name);
+      updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
+      if (updatedFile != null) {
+        updatedFile.caption = caption!;
+      }
     } else {
       var preFile = editableMessage.json!.toFile();
       updatedFile = file_pb.File.create()
@@ -1023,7 +1027,7 @@ class MessageRepo {
     }
     var updatedMessage = message_pb.MessageByClient()
       ..to = editableMessage.to.asUid()
-      ..file = updatedFile;
+      ..file = updatedFile!;
     await _queryServiceClient.updateMessage(UpdateMessageReq()
       ..message = updatedMessage
       ..messageId = Int64(editableMessage.id!));

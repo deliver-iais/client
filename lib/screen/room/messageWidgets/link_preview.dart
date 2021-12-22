@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:metadata_fetch/metadata_fetch.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:metadata_fetch/metadata_fetch.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ignore: constant_identifier_names
 const APARAT = "https://www.aparat.com";
@@ -15,12 +16,14 @@ class LinkPreview extends StatelessWidget {
   final String link;
   final double maxWidth;
   final double maxHeight;
+  final bool isProfile;
 
   const LinkPreview(
       {Key? key,
       required this.link,
       required this.maxWidth,
-      this.maxHeight = double.infinity})
+      this.maxHeight = double.infinity,
+      this.isProfile = false})
       : super(key: key);
 
   Future<Metadata> _fetchFromHTML(String url) async {
@@ -69,48 +72,56 @@ class LinkPreview extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          return Container(
-              margin: const EdgeInsets.only(top: 10),
-              constraints: BoxConstraints(
-                  minWidth: 300,
-                  maxWidth: max(300, maxWidth),
-                  maxHeight: maxHeight),
-              decoration: BoxDecoration(
-                  border: Border(
-                      left: BorderSide(
-                          width: 2, color: Theme.of(context).primaryColor))),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 2.0),
-                    child: Text(
-                      snapshot.data!.title!,
-                      textDirection: snapshot.data!.title!.isPersian()
-                          ? TextDirection.rtl
-                          : TextDirection.ltr,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).primaryTextTheme.bodyText2,
-                    ),
-                  ),
-                  if (snapshot.data?.description != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 2.0),
-                      child: Text(
-                        snapshot.data!.description!,
-                        textDirection: snapshot.data!.description!.isPersian()
-                            ? TextDirection.rtl
-                            : TextDirection.ltr,
-                        style: Theme.of(context).textTheme.bodyText2,
-                      ),
-                    ),
-                ],
-              ));
+          return isProfile
+              ? GestureDetector(
+                  onTap: () async {
+                    await launch(link);
+                  },
+                  child: linkPreviewContent(snapshot.data, context))
+              : linkPreviewContent(snapshot.data, context);
         });
+  }
+
+  Widget linkPreviewContent(Metadata? data, BuildContext context) {
+    return Container(
+        margin: const EdgeInsets.only(top: 10),
+        constraints: BoxConstraints(
+            minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
+        decoration: BoxDecoration(
+            border: Border(
+                left: BorderSide(
+                    width: 2, color: Theme.of(context).primaryColor))),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+              child: Text(
+                data!.title!,
+                textDirection: data.title!.isPersian()
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: Theme.of(context).primaryTextTheme.bodyText2,
+              ),
+            ),
+            if (data.description != null)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                child: Text(
+                  data.description!,
+                  textDirection: data.description!.isPersian()
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ),
+          ],
+        ));
   }
 }
