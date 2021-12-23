@@ -2,13 +2,12 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'package:settings_ui/settings_ui.dart';
 
 class LogSettingsPage extends StatefulWidget {
   const LogSettingsPage({Key? key}) : super(key: key);
@@ -26,21 +25,19 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
-          child: FluidContainerWidget(
-            child: AppBar(
-              backgroundColor: ExtraTheme.of(context).boxBackground,
-              titleSpacing: 8,
-              title: const Text("Log Level"),
-              leading: _routingService.backButtonLeading(context),
-            ),
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxBackground,
+            titleSpacing: 8,
+            title: const Text("Log Level"),
+            leading: _routingService.backButtonLeading(context),
           ),
         ),
         body: FluidContainerWidget(
-          child: SettingsList(
-            sections: [
-              SettingsSection(
+          child: ListView(
+            children: [
+              Section(
                 title: 'Log Levels',
-                tiles: LogLevelHelper.levels()
+                children: LogLevelHelper.levels()
                     .map((level) => SettingsTile(
                           title: level,
                           trailing: LogLevelHelper.stringToLevel(level) ==

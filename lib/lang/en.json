@@ -258,6 +258,7 @@
   "enable_notifications" : "Enable notifications",
   "sure_delete_message": "Are sure you want to delete this message ?",
   "sure_delete_messages": "Are sure you want to delete these messages ?",
+  "send_location_permission": "Are sure you want to send your location?",
   "edited": "edited",
   "call": "call",
   "change_group_avatar": "changed group avatar",
@@ -276,7 +277,7 @@
   "access_name": "Do you allow access to your name ?",
   "access_username" : "Do you allow access to your username?",
   "report_message": "Thank you for this report",
-  "bot_not_responding": "bot not responding"
-
-
+  "bot_not_responding": "bot not responding",
+  "other": "Other",
+  "choose_other_files": "ُSelect other files..."
 }

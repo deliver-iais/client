@@ -7,12 +7,12 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -92,7 +92,7 @@ class CircleAvatarWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
             ? const ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(16)),
                 child: Image(
                   image: AssetImage('assets/images/logo.png'),
                 ),
@@ -121,22 +121,21 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<Avatar?> snapshot, Color textColor) {
     if (snapshot.hasData &&
-        snapshot.data != null &&
         snapshot.data!.fileId != null &&
         snapshot.data!.fileName != null) {
-      return FutureBuilder<File?>(
+      return FutureBuilder<String?>(
         future: _fileRepo.getFile(
             snapshot.data!.fileId!, snapshot.data!.fileName!,
-            thumbnailSize: contactUid == _authRepo.currentUserUid
+            thumbnailSize: contactUid == _authRepo.currentUserUid || kIsWeb
                 ? null
                 : ThumbnailSize.medium),
-        builder: (BuildContext c, AsyncSnapshot snaps) {
+        builder: (BuildContext c, snaps) {
           if (snaps.hasData) {
             return CircleAvatar(
               radius: radius,
-              backgroundImage: Image.file(
-                snaps.data,
-              ).image,
+              backgroundImage: kIsWeb
+                  ? Image.network(snaps.data!).image
+                  : Image.file(File(snaps.data!)).image,
             );
           } else {
             return showDisplayName(textColor);
@@ -159,25 +158,23 @@ class CircleAvatarWidget extends StatelessWidget {
           String name = snapshot.data!.trim();
           return avatarAlt(name.trim(), textColor);
         } else {
-          return Icon(
-            Icons.person,
-            size: radius,
-            color: Colors.white,
-          );
+          return const SizedBox.shrink();
         }
       },
     );
   }
 
-  Center avatarAlt(String name, Color textColor) {
+  Widget avatarAlt(String name, Color textColor) {
     return Center(
       child: Text(
           name.length > 1
               ? name.substring(0, 1).toUpperCase()
               : name.toUpperCase(),
-          maxLines: null,
+          maxLines: 1,
           style: TextStyle(
-              color: textColor, fontSize: (radius * 0.9).toInt().toDouble())),
+              color: textColor,
+              fontSize: radius,
+              height: 1)),
     );
   }
 }

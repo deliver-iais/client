@@ -30,13 +30,11 @@ class _DevicesPageState extends State<DevicesPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            titleSpacing: 8,
-            title: Text(_i18n.get("devices")),
-            leading: _routingService.backButtonLeading(context),
-          ),
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          titleSpacing: 8,
+          title: Text(_i18n.get("devices")),
+          leading: _routingService.backButtonLeading(context),
         ),
       ),
       body: FutureBuilder<List<Session>>(

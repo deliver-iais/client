@@ -61,7 +61,7 @@ class Background extends StatelessWidget {
     final b = pp[(id + 10) % 12];
 
     const duration = Duration(milliseconds: 500);
-    final curve = Curves.easeOut;
+    const curve = Curves.easeOut;
 
     return Center(
       child: Container(
@@ -131,6 +131,7 @@ class Background extends StatelessWidget {
                 ))),
             SizedBox(
               width: double.infinity,
+              height: double.infinity,
               child: Image(
                   image: const AssetImage("assets/backgrounds/pattern-24.png"),
                   fit: BoxFit.scaleDown,

@@ -15,6 +15,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -49,19 +51,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
   static final _botRepo = GetIt.I.get<BotRepo>();
 
   final ScrollController _scrollController = ScrollController();
-  final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
+  final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
-
-  String _query = "";
 
   @override
   void initState() {
     _queryTermDebouncedSubject.stream
-        .map((text) {
-          _searchMode.add(text.isNotEmpty);
-          return text;
-        })
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) {
       setState(() {
@@ -178,22 +174,16 @@ class _NavigationCenterState extends State<NavigationCenter> {
               height: 4,
             ),
             RepaintBoundary(
-              child: SearchBox(onChange: (str) {
-                if (str.isNotEmpty) {
-                  _queryTermDebouncedSubject.add(str);
-                } else {
-                  _searchMode.add(false);
-                }
-              }, onCancel: () {
-                _searchMode.add(false);
-              }),
+              child: SearchBox(
+                  onChange: _queryTermDebouncedSubject.add,
+                  onCancel: () => _queryTermDebouncedSubject.add("")),
             ),
             if (!isLarge(context)) AudioPlayerAppBar(),
-            StreamBuilder<bool>(
+            StreamBuilder<String>(
                 stream: _searchMode.stream,
                 builder: (c, s) {
-                  if (s.hasData && s.data!) {
-                    return searchResult();
+                  if (s.hasData && s.data!.isNotEmpty) {
+                    return searchResult(s.data!);
                   } else {
                     return Expanded(
                         child: ChatsPage(scrollController: _scrollController));
@@ -253,10 +243,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
     }
   }
 
-  Widget searchResult() {
+  Widget searchResult(String query) {
     return Expanded(
         child: FutureBuilder<List<List<Uid>>>(
-            future: searchUidList(),
+            future: searchUidList(query),
             builder: (BuildContext c, AsyncSnapshot<List<List<Uid>>> snaps) {
               if (!snaps.hasData || snaps.data!.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
@@ -267,15 +257,24 @@ class _NavigationCenterState extends State<NavigationCenter> {
               final roomAndContacts = snaps.data![2];
 
               if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(_i18n.get("not_found"),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).primaryTextTheme.headline6),
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const TGS.asset(
+                      'assets/animations/not-found.tgs',
+                      width: 180,
+                      height: 150,
+                      repeat: true,
+                    ),
+                    Text(_i18n.get("not_found"),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headline6),
+                  ],
                 );
               }
 
-              return Column(children: [
+              return ListView(children: [
                 if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
                 if (global.isNotEmpty) ...searchResultWidget(global),
                 if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
@@ -290,8 +289,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget buildTitle(String title) {
     return Container(
-        padding: const EdgeInsets.all(4),
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.only(bottom: 4),
         width: double.infinity,
         color: Theme.of(context).dividerColor.withAlpha(10),
         child: Text(title,
@@ -299,11 +298,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
             style: Theme.of(context).primaryTextTheme.caption));
   }
 
-  Future<List<List<Uid>>> searchUidList() async {
+  Future<List<List<Uid>>> searchUidList(String query) async {
     return [
-      await _contactRepo.searchUser(_query),
-      await _botRepo.searchBotByName(_query),
-      await _roomRepo.searchInRoomAndContacts(_query)
+      await _contactRepo.searchUser(query),
+      await _botRepo.searchBotByName(query),
+      await _roomRepo.searchInRoomAndContacts(query)
     ];
   }
 
@@ -312,14 +311,19 @@ class _NavigationCenterState extends State<NavigationCenter> {
       uidList.length,
       (index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: GestureDetector(
-            onTap: () {
-              _roomRepo.insertRoom(uidList[index].asString());
-              _routingServices.openRoom(uidList[index].asString(),
-                  context: context);
-            },
-            child: _contactResultWidget(uid: uidList[index], context: context),
+          padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                _roomRepo.insertRoom(uidList[index].asString());
+                _routingServices.openRoom(uidList[index].asString(),
+                    context: context);
+              },
+              child:
+                  _contactResultWidget(uid: uidList[index], context: context),
+            ),
           ),
         );
       },
@@ -333,7 +337,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CircleAvatarWidget(uid, 23),
+            CircleAvatarWidget(uid, 24),
             const SizedBox(
               width: 20,
             ),
@@ -347,9 +351,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 }),
           ],
         ),
-        const SizedBox(
-          height: 10,
-        )
+        const SizedBox(height: 8),
+        const Divider()
       ],
     );
   }

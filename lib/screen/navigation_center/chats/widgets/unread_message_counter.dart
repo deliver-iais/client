@@ -24,17 +24,18 @@ class UnreadMessageCounterWidget extends StatelessWidget {
           }
           return (unreadCount > 0)
               ? Container(
-                  width: 24,
-                  height: 24,
+                  constraints: const BoxConstraints(minWidth: 20),
+                  height: 20,
                   padding: const EdgeInsets.all(2.0),
                   child: Text(
                     "${unreadCount >= 100 ? "+99" : unreadCount}",
-                    style: const TextStyle(fontSize: 11),
+                    style: const TextStyle(fontSize: 11, color: Colors.white),
                   ),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
-                    shape: BoxShape.circle,
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    // shape: BoxShape.circle,
                   ),
                 )
               : const SizedBox.shrink();

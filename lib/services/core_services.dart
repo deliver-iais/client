@@ -36,6 +36,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -45,8 +46,8 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 4;
-const MAX_BACKOFF_TIME = 8;
+const MIN_BACKOFF_TIME = kIsWeb ? 16 : 4;
+const MAX_BACKOFF_TIME = kIsWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
@@ -96,7 +97,7 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    startStream();
+    await startStream();
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -114,24 +115,31 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
+    sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
+
+    if (!kIsWeb && _clientPacketStream.isClosed ||
+        _clientPacketStream.isPaused) {
       await startStream();
     }
-    sendPing();
     responseChecked = false;
-    _connectionTimer = Timer(Duration(seconds: backoffTime), () {
+    _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        _clientPacketStream.close();
+        if (kIsWeb) {
+          await startStream();
+        } else {
+          _clientPacketStream.close();
+        }
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
+
       startCheckerTimer();
     });
   }
@@ -146,10 +154,13 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
-      _responseStream =
-          _grpcCoreService.establishStream(_clientPacketStream.stream);
+      _responseStream = kIsWeb
+          ? _grpcCoreService
+              .establishServerSideStream(EstablishServerSideStreamReq())
+          : _grpcCoreService.establishStream(_clientPacketStream.stream);
       _responseStream.listen((serverPacket) async {
         _logger.d(serverPacket);
+
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
@@ -187,28 +198,31 @@ class CoreServices {
                 roomUid: getRoomUid(_authRepo, serverPacket.message));
             _callEvents.add(callEvents);
             break;
+          case ServerPacket_Type.expletivePacket:
+            // TODO: Handle this case.
+            break;
         }
       });
     } catch (e) {
-      startStream();
+      await startStream();
       _logger.e(e);
     }
   }
 
   sendMessage(MessageByClient message) async {
-    if (!_clientPacketStream.isClosed &&
-        _connectionStatus.value == ConnectionStatus.Connected) {
-      _clientPacketStream.add(ClientPacket()
+    try {
+      ClientPacket clientPacket = ClientPacket()
         ..message = message
-        ..id = message.packetId);
+        ..id = DateTime.now().microsecondsSinceEpoch.toString();
+      _sendPacket(clientPacket);
       Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => checkPendingStatus(message.packetId));
-    } else {
-      startStream();
+          () => _checkPendingStatus(message.packetId));
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
-  Future<void> checkPendingStatus(String packetId) async {
+  Future<void> _checkPendingStatus(String packetId) async {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       await _messageDao.savePendingMessage(pm.copyWith(
@@ -221,24 +235,18 @@ class CoreServices {
   }
 
   sendPing() {
-    if (!_clientPacketStream.isClosed) {
-      var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _clientPacketStream.add(ClientPacket()
-        ..ping = ping
-        ..id = DateTime.now().microsecondsSinceEpoch.toString());
-    } else {
-      startStream();
-    }
+    var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    var clientPacket = ClientPacket()
+      ..ping = ping
+      ..id = DateTime.now().microsecondsSinceEpoch.toString();
+    _sendPacket(clientPacket, forceToSend: true);
   }
 
   sendSeen(seen_pb.SeenByClient seen) {
-    if (!_clientPacketStream.isClosed) {
-      _clientPacketStream.add(ClientPacket()
-        ..seen = seen
-        ..id = seen.id.toString());
-    } else {
-      startStream();
-    }
+    ClientPacket clientPacket = ClientPacket()
+      ..seen = seen
+      ..id = seen.id.toString();
+    _sendPacket(clientPacket);
   }
 
   sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
@@ -262,13 +270,31 @@ class CoreServices {
   }
 
   sendActivity(ActivityByClient activity, String id) {
-    if (!_clientPacketStream.isClosed &&
-        !_authRepo.isCurrentUser(activity.to.asString())) {
-      _clientPacketStream.add(ClientPacket()
+    if (_authRepo.isCurrentUser(activity.to.toString())) {
+      ClientPacket clientPacket = ClientPacket()
         ..activity = activity
-        ..id = id);
-    } else {
-      startStream();
+        ..id = id;
+      if (!_authRepo.isCurrentUser(activity.to.asString())) {
+        _sendPacket(clientPacket);
+      }
+    }
+  }
+
+  _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
+    try {
+      if (kIsWeb) {
+        await _grpcCoreService.sendClientPacket(packet);
+      } else if (!_clientPacketStream.isClosed &&
+          (forceToSend ||
+              _connectionStatus.value == ConnectionStatus.Connected)) {
+        _clientPacketStream.add(packet);
+      } else {
+        await startStream();
+        // throw Exception("no active stream");
+      }
+    } catch (e) {
+      _logger.e(e);
+      // rethrow;
     }
   }
 
@@ -401,7 +427,7 @@ class CoreServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await getEditedMsg(
+              await messageEdited(
                   roomUid,
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
@@ -450,7 +476,7 @@ class CoreServices {
     }
   }
 
-  getEditedMsg(Uid roomUid, int id) async {
+  messageEdited(Uid roomUid, int id) async {
     var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1

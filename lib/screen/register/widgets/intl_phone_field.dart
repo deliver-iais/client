@@ -185,20 +185,6 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
               ),
               labelText: _i18n.get("phone_number"),
               labelStyle: TextStyle(color: ExtraTheme.of(context).textField),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.0),
-                borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 2.0,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.0),
-                borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor.withOpacity(0.5),
-                  width: 2.0,
-                ),
-              ),
             ),
             style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {

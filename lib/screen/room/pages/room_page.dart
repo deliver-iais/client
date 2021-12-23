@@ -10,6 +10,7 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -138,6 +139,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
     return DragDropWidget(
       roomUid: widget.roomId,
+      height: MediaQuery.of(context).size.height,
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: buildAppbar(),
@@ -306,7 +308,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (widget.roomId.asUid().category == Categories.CHANNEL ||
         widget.roomId.asUid().category == Categories.GROUP) {
       fetchMucInfo(widget.roomId.asUid());
-    } else if (widget.roomId.asUid().category == Categories.BOT) {
+    } else if (widget.roomId.asUid().isBot()) {
       _botRepo.fetchBotInfo(widget.roomId.asUid());
     }
     if (widget.roomId.asUid().isMuc()) {
@@ -333,7 +335,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     for (int i = 0; i < messages.length; i = i + 1) {
       _messageCache.set(messages[i]!.id!, messages[i]!);
     }
-    return _messageCache.get(id)!;
+    return _messageCache.get(id);
   }
 
   void _resetRoomPageDetails() {
@@ -386,7 +388,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               showCaptionDialog(
                   roomUid: widget.roomId.asUid(),
                   editableMessage: message,
-                  paths: [],
+                  files: [],
                   context: context);
               break;
             case MessageType.STICKER:
@@ -443,7 +445,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _messageRepo.resendMessage(message);
           break;
         case OperationOnMessage.DELETE_PENDING_MESSAGE:
-          _messageRepo.deletePendingMessage(message);
+          _messageRepo.deletePendingMessage(message.packetId);
           break;
         case OperationOnMessage.PIN_MESSAGE:
           var isPin = await _messageRepo.pinMessage(message);
@@ -1104,7 +1106,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath!) {
-        _messageRepo.sendFileMessage(widget.roomId.asUid(), path);
+        _messageRepo.sendFileMessage(
+            widget.roomId.asUid(), File(path, path.split(".").last));
       }
     }
   }

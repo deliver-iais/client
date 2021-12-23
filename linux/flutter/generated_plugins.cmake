@@ -3,8 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  dart_vlc
   desktop_drop
+  desktop_window
   url_launcher_linux
   window_size
 )

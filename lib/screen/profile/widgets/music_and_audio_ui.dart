@@ -66,7 +66,6 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                     _logger.d(media.data![index].json);
                     _logger.d(dur.toString());
 
-                    var messageId = media.data![index].messageId;
                     return FutureBuilder<bool>(
                         future: fileRepo.isExist(fileId, fileName),
                         builder: (context, isExist) {
@@ -120,7 +119,6 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                       LoadFileStatus(
                                         fileId: fileId,
                                         fileName: fileName,
-                                        messageId: messageId,
                                         onPressed: download,
                                       ),
                                       Expanded(

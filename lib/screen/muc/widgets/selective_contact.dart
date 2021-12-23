@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 class SelectiveContact extends StatefulWidget {
   final Contact contact;
   final bool isSelected;
-  final bool cureentMember;
+  final bool currentMember;
 
   const SelectiveContact(
       {Key? key,
       required this.contact,
       required this.isSelected,
-      this.cureentMember = false})
+      this.currentMember = false})
       : super(key: key);
 
   @override
@@ -21,21 +21,15 @@ class SelectiveContact extends StatefulWidget {
 class _SelectiveContactState extends State<SelectiveContact> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  color: Theme.of(context).dividerColor.withAlpha(10)))),
-      child: Column(
-        children: [
-          ContactWidget(
-            contact: widget.contact,
-            circleIcon: widget.isSelected ? Icons.check : null,
-            isSelected: widget.isSelected,
-            currentMember: widget.cureentMember,
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        ContactWidget(
+          contact: widget.contact,
+          circleIcon: widget.isSelected ? Icons.check : null,
+          isSelected: widget.isSelected,
+          currentMember: widget.currentMember,
+        ),
+      ],
     );
   }
 }

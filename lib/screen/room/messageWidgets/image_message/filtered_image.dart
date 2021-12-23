@@ -17,13 +17,15 @@ class FilteredImage extends StatefulWidget {
   final Function onPressed;
 
   const FilteredImage(
-      {Key? key, required this.uuid,
+      {Key? key,
+      required this.uuid,
       required this.name,
       required this.path,
       required this.sended,
       required this.width,
       required this.height,
-      required this.onPressed}) : super(key: key);
+      required this.onPressed})
+      : super(key: key);
 
   @override
   _FilteredImageState createState() => _FilteredImageState();
@@ -35,7 +37,7 @@ class _FilteredImageState extends State<FilteredImage> {
   @override
   Widget build(BuildContext context) {
     var fileRepo = GetIt.I.get<FileRepo>();
-    return FutureBuilder<File?>(
+    return FutureBuilder<String?>(
         future: fileRepo.getFile(widget.uuid, widget.name,
             thumbnailSize: ThumbnailSize.medium),
         builder: (context, file) {
@@ -60,7 +62,7 @@ class _FilteredImageState extends State<FilteredImage> {
               alignment: Alignment.center,
               children: [
                 Image.file(
-                  file.data!,
+                  File(file.data!),
                   width: widget.width,
                   height: widget.height,
                   fit: BoxFit.fill,

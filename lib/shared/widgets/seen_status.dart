@@ -6,19 +6,39 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 
 class SeenStatus extends StatelessWidget {
   final Message message;
   final bool? isSeen;
+  final Color? iconColor;
 
-  const SeenStatus(this.message, {Key? key, this.isSeen}) : super(key: key);
+  const SeenStatus(this.message, {Key? key, this.isSeen, this.iconColor})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
-    Widget pendingMessage = Icon(Icons.access_alarm,
-        color: ExtraTheme.of(context).seenStatus, size: 15);
+    final color = iconColor ?? ExtraTheme.of(context).seenStatus;
+    Widget pendingMessage = Container(
+        child: Lottie.asset(
+      'assets/animations/clock.json',
+      width: 18,
+      height: 18,
+      // fit: BoxFit.fitHeight,
+      delegates: LottieDelegates(
+        values: [
+          ValueDelegate.color(
+            const ['**'],
+            value: color,
+          ),
+          ValueDelegate.transformScale(const ['**'],
+              value: const Offset(1.2, 1.2))
+        ],
+      ),
+      repeat: true,
+    ));
 
     if (message.id == null) {
       return FutureBuilder<PendingMessage?>(
@@ -33,7 +53,7 @@ class SeenStatus extends StatelessWidget {
     } else if (isSeen != null && isSeen!) {
       return Icon(
         Icons.done_all,
-        color: ExtraTheme.of(context).seenStatus,
+        color: color,
         size: 15,
       );
     } else {
@@ -45,13 +65,13 @@ class SeenStatus extends StatelessWidget {
               snapshot.data!.messageId! >= message.id!
                   ? Icons.done_all
                   : Icons.done,
-              color: ExtraTheme.of(context).seenStatus,
+              color: color,
               size: 15,
             );
           } else {
             return Icon(
               Icons.done,
-              color: ExtraTheme.of(context).seenStatus,
+              color: color,
               size: 15,
             );
           }

@@ -268,6 +268,7 @@
   "enable_notifications": "فعال کردن اعلان ها",
   "sure_delete_message": "آیا از حذف پیام مطمنید؟",
   "sure_delete_messages": "آیا از حذف پیام ها مطمنید؟",
+  "send_location_permission": "آیا می خواهید موقعیت مکانی خود را ارسال کنید؟",
   "edited": "ویرایش شده",
   "call": "تماس",
   "show_in_folder": "نمایش محل فایل",
@@ -284,5 +285,7 @@
   "access_name": "آیا اجازه دسترسی به نام را می دهید؟",
   "access_username": "آیا اجاره دسترسی به نام  کاربری را می دهید؟",
   "report_message": "از گزارش  شما متشکریم",
-  "bot_not_responding": "جوابی از بات دریافت نشده است."
+  "bot_not_responding": "جوابی از بات دریافت نشده است.",
+  "other": "متفرقه",
+  "choose_other_files": "انتخاب دیگر فایل ها ..."
 }

@@ -31,6 +31,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -43,7 +44,6 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:settings_ui/settings_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -442,28 +442,26 @@ class _ProfilePageState extends State<ProfilePage>
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
-      child: FluidContainerWidget(
-        child: AppBar(
-          backgroundColor: ExtraTheme.of(context).boxBackground,
-          titleSpacing: 8,
-          title: Align(
-            alignment: Alignment.centerLeft,
-            child: FutureBuilder<String>(
-              future: _roomRepo.getName(widget.roomUid),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return RoomName(
-                    uid: widget.roomUid,
-                    name: _roomName,
-                    style: TextStyle(color: ExtraTheme.of(context).textField));
-              },
-            ),
+      child: AppBar(
+        backgroundColor: ExtraTheme.of(context).boxBackground,
+        titleSpacing: 8,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: FutureBuilder<String>(
+            future: _roomRepo.getName(widget.roomUid),
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
+              return RoomName(
+                  uid: widget.roomUid,
+                  name: _roomName,
+                  style: TextStyle(color: ExtraTheme.of(context).textField));
+            },
           ),
-          actions: <Widget>[
-            _buildMenu(context),
-          ],
-          leading: _routingService.backButtonLeading(context),
         ),
+        actions: <Widget>[
+          _buildMenu(context),
+        ],
+        leading: _routingService.backButtonLeading(context),
       ),
     );
   }
@@ -537,15 +535,15 @@ class _ProfilePageState extends State<ProfilePage>
                 ],
               ),
               value: "addBotToGroup"),
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.report),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("report")),
-                ],
-              ),
-              value: "report"),
+        PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.report),
+                const SizedBox(width: 8),
+                Text(_i18n.get("report")),
+              ],
+            ),
+            value: "report"),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
               child: StreamBuilder<bool?>(
@@ -1168,12 +1166,14 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
           return const SizedBox(width: 0.0, height: 0.0);
         } else {
           return ListView.separated(
-            itemCount: linksCount,
+            itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext ctx, int index) {
               return SizedBox(
                 child: LinkPreview(
-                    link: jsonDecode(snapshot.data![index].json)["url"],
-                    maxWidth: 100),
+                  link: jsonDecode(snapshot.data![index].json)["url"],
+                  maxWidth: 100,
+                  isProfile: true,
+                ),
               );
             },
             separatorBuilder: (BuildContext context, int index) =>

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -32,7 +31,8 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final int roomLastMessageId;
 
   const OperationOnMessageEntry(
-    this.message, {Key? key,
+    this.message, {
+    Key? key,
     this.hasPermissionInChannel = true,
     this.hasPermissionInGroup = true,
     this.isPinned = false,
@@ -94,11 +94,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   onShare() async {
     try {
-      var result = await _fileRepo.getFileIfExist(
+      String? result = await _fileRepo.getFileIfExist(
           widget.message.json!.toFile().uuid,
           widget.message.json!.toFile().name);
-      if (result!.path.isNotEmpty) {
-        Share.shareFiles([(result.path)],
+      if (result!.isNotEmpty) {
+        Share.shareFiles([(result)],
             text: widget.message.json!.toFile().caption.isNotEmpty
                 ? widget.message.json!.toFile().caption
                 : 'Deliver');
@@ -198,8 +198,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 ])),
           if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
                   widget.hasPermissionInGroup) ||
-              (widget.message.roomUid.asUid().category ==
-                      Categories.CHANNEL &&
+              (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
                   widget.hasPermissionInChannel))
             if (!widget.isPinned)
               TextButton(
@@ -336,8 +335,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 ])),
           if (widget.message.id == null)
             FutureBuilder<PendingMessage?>(
-                future:
-                    _messageRepo.getPendingMessage(widget.message.packetId),
+                future: _messageRepo.getPendingMessage(widget.message.packetId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
@@ -362,8 +360,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             widget.message.id != null
                 ? deleteMenuWidget()
                 : FutureBuilder<PendingMessage?>(
-                    future: _messageRepo
-                        .getPendingMessage(widget.message.packetId),
+                    future:
+                        _messageRepo.getPendingMessage(widget.message.packetId),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
@@ -391,7 +389,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   Text(_i18n.get("edit")),
                 ])),
           if (isDesktop() && widget.message.type == MessageType.FILE)
-            FutureBuilder<File?>(
+            FutureBuilder<String?>(
                 future: _fileRepo.getFileIfExist(
                     widget.message.json!.toFile().uuid,
                     widget.message.json!.toFile().name),

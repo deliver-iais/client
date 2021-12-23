@@ -2,18 +2,19 @@ import 'dart:io';
 import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
-  final File videoFile;
+  final String videoFilePath;
   final pb.File videoMessage;
   final double duration;
 
   const VideoUi(
       {Key? key,
-      required this.videoFile,
+      required this.videoFilePath,
       required this.duration,
       required this.videoMessage})
       : super(key: key);
@@ -39,7 +40,9 @@ class _VideoUiState extends State<VideoUi> {
   }
 
   _init() async {
-    _videoPlayerController = VideoPlayerController.file(widget.videoFile);
+    _videoPlayerController = kIsWeb
+        ? VideoPlayerController.network(widget.videoFilePath)
+        : VideoPlayerController.file(File(widget.videoFilePath));
     await _videoPlayerController.initialize();
     setState(() {});
   }
@@ -51,14 +54,13 @@ class _VideoUiState extends State<VideoUi> {
         GestureDetector(
           onTap: () {
             if (isDesktop()) {
-              OpenFile.open(widget.videoFile.path);
+              OpenFile.open(widget.videoFilePath);
             } else {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return Hero(
                   tag: widget.videoMessage.uuid,
                   child: VideoPlayerWidget(
-                    videoFile: widget.videoFile,
-                    video: widget.videoMessage,
+                    videoFilePath: widget.videoFilePath,
                   ),
                 );
               }));
@@ -71,11 +73,11 @@ class _VideoUiState extends State<VideoUi> {
               fit: BoxFit.fitWidth,
               child: Center(
                 child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2,
-                    child: VideoPlayer(
-                      _videoPlayerController,
-                    ),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: VideoPlayer(
+                    _videoPlayerController,
+                  ),
                 ),
               ),
             ),
@@ -88,14 +90,13 @@ class _VideoUiState extends State<VideoUi> {
             color: Colors.cyanAccent,
             onPressed: () {
               if (isDesktop()) {
-                OpenFile.open(widget.videoFile.path);
+                OpenFile.open(widget.videoFilePath);
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return Hero(
                     tag: widget.videoMessage.uuid,
                     child: VideoPlayerWidget(
-                      videoFile: widget.videoFile,
-                      video: widget.videoMessage,
+                      videoFilePath: widget.videoFilePath,
                     ),
                   );
                 }));

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io';
-
+import 'package:deliver/shared/widgets/blured_container.dart';
+import 'package:flutter/material.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -412,7 +412,7 @@ class RoutingService {
           largePageNavigator: _navigationCenter,
           largePageMain: widget,
           smallPageMain: widget,
-          path: "/new-contact"));
+          path: "/selection-to-forward-page"));
     } else {
       _routeInMobileState(widget, context);
     }
@@ -599,12 +599,13 @@ class Empty extends StatelessWidget {
       children: [
         const Background(),
         Center(
-          child: Container(
+          child: BlurContainer(
+            skew: 4,
               padding:
                   const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  color: Theme.of(context).dividerColor.withOpacity(0.25)),
+              // decoration: BoxDecoration(
+              //     borderRadius: const BorderRadius.all(Radius.circular(20)),
+              //     color: Theme.of(context).dividerColor.withOpacity(0.25)),
               child: Text("Please select a chat to start messaging",
                   style: Theme.of(context)
                       .textTheme

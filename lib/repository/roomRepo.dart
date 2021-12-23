@@ -141,7 +141,7 @@ class RoomRepo {
     }
 
     // Is bot
-    if (uid.category == Categories.BOT) {
+    if (uid.isBot()) {
       BotInfo? botInfo = await _botRepo.getBotInfo(uid);
       if (botInfo != null && botInfo.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), botInfo.name!);

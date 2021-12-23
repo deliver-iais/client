@@ -46,16 +46,14 @@ class _ContactsPageState extends State<ContactsPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            titleSpacing: 8,
-            title: Text(
-              I18N.of(context)!.get("contacts"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
-            leading: _routingService.backButtonLeading(context),
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          titleSpacing: 8,
+          title: Text(
+            I18N.of(context)!.get("contacts"),
+            style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
+          leading: _routingService.backButtonLeading(context),
         ),
       ),
       body: FluidContainerWidget(
@@ -78,7 +76,7 @@ class _ContactsPageState extends State<ContactsPage> {
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: SearchBox(
                           borderRadius: BorderRadius.circular(8),
                           onChange: (str) {
@@ -114,7 +112,9 @@ class _ContactsPageState extends State<ContactsPage> {
                           itemCount: snapshot.data!.length,
                           itemBuilder: (BuildContext ctx, int index) {
                             var c = contacts[index];
-                            if (searchHasResult(c)) return const SizedBox.shrink();
+                            if (searchHasResult(c)) {
+                              return const SizedBox.shrink();
+                            }
                             if (_authRepo.isCurrentUser(c.uid)) {
                               return const SizedBox.shrink();
                             } else {
@@ -200,7 +200,7 @@ class _ContactsPageState extends State<ContactsPage> {
               ],
             );
           });
-    } else if (isAlreadyContactAccessTipShowed) {
+    } else {
       _contactRepo.syncContacts();
     }
   }

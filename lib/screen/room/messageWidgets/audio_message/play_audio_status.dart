@@ -1,9 +1,11 @@
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'dart:io';
+
+import 'package:open_file/open_file.dart';
 
 class PlayAudioStatus extends StatefulWidget {
   final String fileId;
@@ -23,7 +25,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File?>(
+    return FutureBuilder<String?>(
         future: fileRepo.getFileIfExist(widget.fileId, widget.fileName),
         builder: (context, audio) {
           return Padding(
@@ -71,7 +73,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         });
   }
 
-  IconButton buildPlay(BuildContext context, AsyncSnapshot<File?> audio) {
+  IconButton buildPlay(BuildContext context, AsyncSnapshot<String?> audio) {
     return IconButton(
         padding: const EdgeInsets.all(0),
         alignment: Alignment.center,
@@ -81,11 +83,15 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
           size: 40,
         ),
         onPressed: () {
-          audioPlayerService.play(
-            audio.data!.path,
-            widget.fileId,
-            widget.fileName,
-          );
+          if (isAndroid() || isIOS()) {
+            audioPlayerService.play(
+              audio.data!,
+              widget.fileId,
+              widget.fileName,
+            );
+          } else {
+            OpenFile.open(audio.data!);
+          }
         });
   }
 }

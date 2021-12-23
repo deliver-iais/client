@@ -5,6 +5,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -27,6 +28,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -132,15 +134,19 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    InputMessage.inputMessageFocusNode = FocusNode(canRequestFocus: false);
-    //todo
+    InputMessage.inputMessageFocusNode = FocusNode(
+      onKey: (FocusNode node, RawKeyEvent evt) {
+        return handleKeyPress(evt);
+      },
+    );
+    keyboardRawFocusNode = FocusNode(canRequestFocus: false);
+
     inputMessagePrifix = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
     _controller.text = (currentRoom.draft ?? "");
     inputMessagePrifix.stream.listen((event) {
       if (event != null) _controller.text = event;
     });
-    keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
@@ -300,7 +306,6 @@ class _InputMessageWidget extends State<InputMessage> {
                               Flexible(
                                 child: RawKeyboardListener(
                                   focusNode: keyboardRawFocusNode,
-                                  onKey: handleKeyPress,
                                   child: TextField(
                                     focusNode:
                                         InputMessage.inputMessageFocusNode,
@@ -483,7 +488,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(), res!);
+                                        widget.currentRoom.uid.asUid(),
+                                        File(res!, res));
                                   } catch (_) {}
                                 }
                               },
@@ -581,18 +587,24 @@ class _InputMessageWidget extends State<InputMessage> {
     _botCommandQuery.add("-");
   }
 
-  handleKeyPress(event) async {
-    if (event is RawKeyUpEvent) {
+  KeyEventResult handleKeyPress(event) {
+    if (event is RawKeyEvent) {
       if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        sendMessage();
+        if (event is RawKeyDownEvent) {
+          sendMessage();
+        }
+        return KeyEventResult.handled;
       } else if (_uxService.sendByEnter &&
           !event.isShiftPressed &&
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        sendMessage();
+        if (event is RawKeyDownEvent) {
+          sendMessage();
+        }
+        return KeyEventResult.handled;
       }
     }
     _rawKeyboardService.handleCopyPastKeyPress(_controller, event);
@@ -600,14 +612,22 @@ class _InputMessageWidget extends State<InputMessage> {
         replyMessageId: widget.replyMessageId!,
         resetRoomPageDetails: widget.resetRoomPageDetails!,
         event: event);
-    setState(() {
-      _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
-          event, mentionSelectedIndex, scrollUpInMentions, sendMentionByEnter);
-    });
-    setState(() {
-      _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
-          scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
-    });
+    if (widget.currentRoom.uid.asUid().isGroup()) {
+      setState(() {
+        _rawKeyboardService.navigateInMentions(
+            _mentionData, scrollDownInMentions,
+            event, mentionSelectedIndex, scrollUpInMentions,
+            sendMentionByEnter);
+      });
+    }
+    if (widget.currentRoom.uid.asUid().isBot()) {
+      setState(() {
+        _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
+            scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
+      });
+    }
+
+    return KeyEventResult.ignored;
   }
 
   scrollUpInBotCommand() {
@@ -741,12 +761,25 @@ class _InputMessageWidget extends State<InputMessage> {
   showCaptionDialog(
       {IconData? icons, String? type, required FilePickerResult result}) async {
     if (result.files.isEmpty) return;
+
+    List<File> res = [];
+    for (var file in result.files) {
+      res.add(File(
+          kIsWeb
+              ? Uri.dataFromBytes(file.bytes!.toList()).toString()
+              : file.path!,
+          file.name,
+          size: file.size,
+          extension: file.extension));
+    }
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            paths: result.files.map((e) => e.path!).toList(),
-            type: result.files.first.path!.split(".").last,
+            files: res,
+            type: kIsWeb
+                ? result.files.first.extension
+                : result.files.first.path!.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });

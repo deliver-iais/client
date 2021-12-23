@@ -14,6 +14,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import 'package:get_it/get_it.dart';
@@ -79,7 +80,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   var fileServices = GetIt.I.get<FileService>();
 
-  final _fileCache = LruCache<String, File>(storage: InMemoryStorage(5));
+  final _fileCache = LruCache<String, String>(storage: InMemoryStorage(5));
   final _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
   final _mediaSenderCache =
       LruCache<String, String>(storage: InMemoryStorage(50));
@@ -108,7 +109,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget build(BuildContext context) {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
-    } else if (widget.isVideo == true) {
+    } else if (widget.isVideo) {
       _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, true);
     } else {
@@ -214,9 +215,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     }
   }
 
-  FutureBuilder<File?> buildFutureMediaBuilder(
+  FutureBuilder<String?> buildFutureMediaBuilder(
       fileId, fileName, BuildContext context, int i) {
-    return FutureBuilder<File?>(
+    return FutureBuilder<String?>(
       future: _fileRepo.getFile(fileId, fileName),
       builder: (BuildContext c, snaps) {
         if (snaps.hasData &&
@@ -237,7 +238,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Center buildMediaCenter(
-      BuildContext context, int i, File mediaFile, fileId, Object tag) {
+      BuildContext context, int i, String mediaFile, fileId, Object tag) {
     return Center(
       child: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -247,9 +248,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           children: <Widget>[
             Hero(
               tag: tag,
-              child: Image.file(
-                mediaFile,
-              ),
+              child: kIsWeb
+                  ? Image.network(mediaFile)
+                  : Image.file(File(
+                      mediaFile,
+                    )),
               transitionOnUserGestures: true,
             ),
             buildBottomAppBar(mediaSender, createdOn, _senderName, fileId),
@@ -322,12 +325,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     fileName = jsonDecode(media.json)["name"];
     mediaSender = media.createdBy.asUid();
     createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
-    _senderName = _mediaSenderCache.get(fileId)!;
+    _senderName = _mediaSenderCache.get(fileId)??"";
     duration = jsonDecode(media.json)["duration"];
   }
 
-  FutureBuilder<File?> buildFutureBuilder(BuildContext context, int i) {
-    return FutureBuilder<File?>(
+  FutureBuilder<String?> buildFutureBuilder(BuildContext context, int i) {
+    return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(fileId, fileName),
         builder: (BuildContext c, AsyncSnapshot snaps) {
           if (snaps.hasData &&
@@ -426,7 +429,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Stack buildVeidoWidget(int i, File snaps, double duration, Uid mediaSender,
+  Stack buildVeidoWidget(int i, String file, double duration, Uid mediaSender,
       DateTime createdOn, String senderName, var fileId) {
     return Stack(
       alignment: Alignment.centerLeft,

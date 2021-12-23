@@ -269,11 +269,14 @@
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/audioplayers/audioplayers.framework",
 				"${BUILT_PRODUCTS_DIR}/desktop_drop/desktop_drop.framework",
+				"${BUILT_PRODUCTS_DIR}/desktop_window/desktop_window.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_local_notifications/flutter_local_notifications.framework",
+				"${BUILT_PRODUCTS_DIR}/geolocator_apple/geolocator_apple.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 				"${BUILT_PRODUCTS_DIR}/package_info_plus_macos/package_info_plus_macos.framework",
 				"${BUILT_PRODUCTS_DIR}/path_provider_macos/path_provider_macos.framework",
 				"${BUILT_PRODUCTS_DIR}/url_launcher_macos/url_launcher_macos.framework",
+				"${BUILT_PRODUCTS_DIR}/wakelock_macos/wakelock_macos.framework",
 				"${BUILT_PRODUCTS_DIR}/window_size/window_size.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -287,11 +290,14 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/audioplayers.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/desktop_drop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/desktop_window.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_local_notifications.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/geolocator_apple.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info_plus_macos.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/path_provider_macos.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/url_launcher_macos.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/wakelock_macos.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/window_size.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

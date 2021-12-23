@@ -4,13 +4,10 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/profile/widgets/thumbnail_video_ui.dart';
-import 'package:deliver/services/file_service.dart';
+import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'dart:io';
-
-import 'package:logger/logger.dart';
 
 class VideoTabUi extends StatefulWidget {
   final Uid userUid;
@@ -24,7 +21,6 @@ class VideoTabUi extends StatefulWidget {
 }
 
 class _VideoTabUiState extends State<VideoTabUi> {
-  final _logger = GetIt.I.get<Logger>();
   final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final fileRepo = GetIt.I.get<FileRepo>();
   late Duration duration;
@@ -36,7 +32,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
             widget.userUid, MediaType.VIDEO, widget.videoCount),
-        builder: (BuildContext c, AsyncSnapshot snaps) {
+        builder: (BuildContext c, snaps) {
           if (!snaps.hasData ||
               snaps.data == null ||
               snaps.connectionState == ConnectionState.waiting) {
@@ -45,15 +41,15 @@ class _VideoTabUiState extends State<VideoTabUi> {
             return GridView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
-                itemCount: widget.videoCount,
+                itemCount: snaps.data!.length,
                 scrollDirection: Axis.vertical,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
                 itemBuilder: (context, position) {
-                  var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                  var fileName = jsonDecode(snaps.data[position].json)["name"];
+                  var fileId = jsonDecode(snaps.data![position].json)["uuid"];
+                  var fileName = jsonDecode(snaps.data![position].json)["name"];
                   var videoDuration =
-                      jsonDecode(snaps.data[position].json)["duration"];
+                      jsonDecode(snaps.data![position].json)["duration"];
                   duration = Duration(seconds: videoDuration.round());
                   if (duration.inHours == 0) {
                     videoLength = duration.inMinutes > 9
@@ -66,71 +62,28 @@ class _VideoTabUiState extends State<VideoTabUi> {
                     totalDuration[position] = videoLength;
                   }
 
-                  return FutureBuilder<bool>(
-                      future: fileRepo.isExist(fileId, fileName),
-                      builder: (BuildContext c, AsyncSnapshot videoFile) {
-                        if (videoFile.hasData &&
-                            videoFile.data != null &&
-                            videoFile.connectionState == ConnectionState.done &&
-                            videoFile.data == true) {
-                          return FutureBuilder<File?>(
-                              future: fileRepo.getFile(
-                                  fileId, fileName + ".png",
-                                  thumbnailSize: ThumbnailSize.medium),
-                              builder: (BuildContext buildContext,
-                                  AsyncSnapshot thumbFile) {
-                                if (thumbFile.data != null &&
-                                    thumbFile.hasData &&
-                                    thumbFile.connectionState ==
-                                        ConnectionState.done) {
-                                  return VideoThumbnail(
-                                    userUid: widget.userUid,
-                                    thumbnail: thumbFile.data,
-                                    videoCount: widget.videoCount,
-                                    isExist: true,
-                                    mediaPosition: position,
-                                    videoLength: totalDuration[position]!,
-                                  );
-                                } else {
-                                  return const SizedBox(
-                                    width: 0,
-                                    height: 0,
-                                  );
-                                }
-                              });
-                        } else if (videoFile.data != null &&
-                            videoFile.connectionState == ConnectionState.done &&
-                            videoFile.data == false) {
-                          return FutureBuilder<File?>(
-                            future: fileRepo.getFile(fileId, fileName + ".png",
-                                thumbnailSize: ThumbnailSize.medium),
-                            builder:
-                                (BuildContext c, AsyncSnapshot thumbnailFile) {
-                              if (thumbnailFile.hasData &&
-                                  thumbnailFile.data != null &&
-                                  thumbnailFile.connectionState ==
-                                      ConnectionState.done) {
-                                _logger.d("FilevideoooooooPosition$position");
-                                return VideoThumbnail(
-                                  userUid: widget.userUid,
-                                  thumbnail: thumbnailFile.data,
-                                  videoCount: widget.videoCount,
-                                  isExist: false,
-                                  mediaPosition: position,
-                                  videoLength: totalDuration[position]!,
-                                );
-                              } else {
-                                return const SizedBox(
-                                  width: 0,
-                                  height: 0,
-                                );
-                              }
-                            },
+                  return FutureBuilder<String?>(
+                      future: fileRepo.getFileIfExist(fileId, fileName),
+                      builder: (BuildContext c, isExit) {
+                        if (isExit.hasData &&
+                            isExit.connectionState == ConnectionState.done) {
+                          return VideoWidget(
+                            userUid: widget.userUid,
+                            thumbnail: isExit.data!,
+                            videoCount: widget.videoCount,
+                            isExist: isExit.data != null,
+                            mediaPosition: position,
+                            videoLength: totalDuration[position]!,
                           );
                         } else {
-                          return const SizedBox(
-                            width: 0,
-                            height: 0,
+                          return LoadFileStatus(
+                            fileId: fileId,
+                            fileName: fileName,
+                            roomUid: "_",
+                            onPressed: (fId, fName) async {
+                              await fileRepo.getFile(fileId, fileName);
+                              setState(() {});
+                            },
                           );
                         }
                       });

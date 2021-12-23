@@ -33,6 +33,7 @@
         android:allowBackup="false"
         android:launchMode="singleTask"
         android:fullBackupOnly="false"
+        android:requestLegacyExternalStorage="true"
         android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher">
         <activity

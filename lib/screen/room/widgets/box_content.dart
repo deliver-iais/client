@@ -59,20 +59,22 @@ class _BoxContentState extends State<BoxContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-              !widget.isSender)
-            senderNameBox(),
-          if (hasReply()) replyToIdBox(),
-          if (widget.message.forwardedFrom != null &&
-              widget.message.forwardedFrom!.length > 3)
-            forwardedFromBox(),
-          messageBox()
-        ],
+    return RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.message.roomUid.asUid().category == Categories.GROUP &&
+                !widget.isSender)
+              senderNameBox(),
+            if (hasReply()) replyToIdBox(),
+            if (widget.message.forwardedFrom != null &&
+                widget.message.forwardedFrom!.length > 3)
+              forwardedFromBox(),
+            messageBox()
+          ],
+        ),
       ),
     );
   }
