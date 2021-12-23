@@ -612,14 +612,20 @@ class _InputMessageWidget extends State<InputMessage> {
         replyMessageId: widget.replyMessageId!,
         resetRoomPageDetails: widget.resetRoomPageDetails!,
         event: event);
-    setState(() {
-      _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
-          event, mentionSelectedIndex, scrollUpInMentions, sendMentionByEnter);
-    });
-    setState(() {
-      _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
-          scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
-    });
+    if (widget.currentRoom.uid.asUid().isGroup()) {
+      setState(() {
+        _rawKeyboardService.navigateInMentions(
+            _mentionData, scrollDownInMentions,
+            event, mentionSelectedIndex, scrollUpInMentions,
+            sendMentionByEnter);
+      });
+    }
+    if (widget.currentRoom.uid.asUid().isBot()) {
+      setState(() {
+        _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
+            scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
+      });
+    }
 
     return KeyEventResult.ignored;
   }

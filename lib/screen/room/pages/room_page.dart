@@ -306,7 +306,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (widget.roomId.asUid().category == Categories.CHANNEL ||
         widget.roomId.asUid().category == Categories.GROUP) {
       fetchMucInfo(widget.roomId.asUid());
-    } else if (widget.roomId.asUid().category == Categories.BOT) {
+    } else if (widget.roomId.asUid().isBot()) {
       _botRepo.fetchBotInfo(widget.roomId.asUid());
     }
     if (widget.roomId.asUid().isMuc()) {
