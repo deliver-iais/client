@@ -41,8 +41,8 @@ variables:
   stage: pre-build
   needs: []
   script:
-    - sudo docker build -t 172.17.4.40:443/deliver-web-builder:1.0.0 -f builder.dockerfile .
-    - sudo docker push 172.17.4.40:443/deliver-web-builder:1.0.0
+    - sudo docker build -t 172.17.4.40:443/deliver-web-builder:1.1.1 -f builder.dockerfile .
+    - sudo docker push 172.17.4.40:443/deliver-web-builder:1.1.1
 
 dev_build:
   needs: [ ]
