@@ -235,15 +235,16 @@ class NormalAudioPlayer implements AudioPlayerModule {
 }
 
 class VlcAudioPlayer implements AudioPlayerModule {
-  final Player _audioPlayer = Player(id: 0);
-  final Player _fastAudioPlayerOut = Player(id: 1);
-  final Player _fastAudioPlayerIn = Player(id: 1);
-  final Player _fastAudioPlayerBeep = Player(id: 2);
-  final Player _fastAudioPlayerBusy = Player(id: 3);
+  // final Player _audioPlayer = Player(id: 0);
+  // final Player _fastAudioPlayerOut = Player(id: 1);
+  // final Player _fastAudioPlayerIn = Player(id: 1);
+  // final Player _fastAudioPlayerBeep = Player(id: 2);
+  // final Player _fastAudioPlayerBusy = Player(id: 3);
 
   @override
-  Stream<Duration> get audioCurrentPosition => _audioPlayer.positionStream
-      .map((event) => event.position ?? Duration.zero);
+  Stream<Duration?>? get audioCurrentPosition => null;
+
+  // _audioPlayer.positionStream.map((event) => event.position!);
 
   @override
   Stream<AudioPlayerState>? get audioCurrentState => null;
@@ -301,19 +302,19 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBeepSound() {
-    _fastAudioPlayerBeep
-        .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
-    _fastAudioPlayerBeep.play();
+    // _fastAudioPlayerBeep
+    //     .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
+    // _fastAudioPlayerBeep.play();
   }
 
   @override
   void stopPlayBeepSound() {
-    _fastAudioPlayerBeep.stop();
+    // _fastAudioPlayerBeep.stop();
   }
 
   @override
   void playBusySound() {
-    _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
-    _fastAudioPlayerBusy.play();
+    // _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
+    // _fastAudioPlayerBusy.play();
   }
 }

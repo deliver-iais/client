@@ -75,13 +75,13 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
             if (snapshot.hasData &&
                 snapshot.data != null &&
                 snapshot.data!.fileId != null) {
-              return FutureBuilder<File?>(
+              return FutureBuilder<String?>(
                   future: _fileRepo.getFile(
                       snapshot.data!.fileId!, snapshot.data!.fileName!),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
                       return FadeAudioCallBackground(
-                        image: FileImage(snapshot.data!),
+                        image: FileImage(File(snapshot.data!)),
                       );
                     } else {
                       return const FadeAudioCallBackground(

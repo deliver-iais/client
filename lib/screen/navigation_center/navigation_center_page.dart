@@ -21,7 +21,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -56,11 +55,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   void initState() {
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
-        .listen((text) {
-      setState(() {
-        _query = text;
-      });
-    });
+        .listen((text) => _searchMode.add(text));
     modifyRoutingByNotificationVideoCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
         _routingService.openInComingCallPage(

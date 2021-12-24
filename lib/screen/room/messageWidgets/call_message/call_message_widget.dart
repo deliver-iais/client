@@ -54,7 +54,6 @@ class CallMessageWidget extends StatelessWidget {
                         MsgTime(
                           time:
                               DateTime.fromMillisecondsSinceEpoch(message.time),
-                          isSent: false,
                         ),
                         const SizedBox(
                           width: 10,
