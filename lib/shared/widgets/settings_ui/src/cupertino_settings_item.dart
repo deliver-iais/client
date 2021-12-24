@@ -14,7 +14,8 @@ typedef PressOperationCallback = void Function();
 const _spacer = Expanded(child: SizedBox.shrink());
 
 class CupertinoSettingsItem extends StatefulWidget {
-  const CupertinoSettingsItem({Key? key,
+  const CupertinoSettingsItem({
+    Key? key,
     required this.type,
     required this.label,
     this.labelMaxLines,
@@ -35,7 +36,8 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.valueTextStyle,
     this.switchActiveColor,
   })  : assert(labelMaxLines == null || labelMaxLines > 0),
-        assert(subtitleMaxLines == null || subtitleMaxLines > 0), super(key: key);
+        assert(subtitleMaxLines == null || subtitleMaxLines > 0),
+        super(key: key);
 
   final String label;
   final int? labelMaxLines;
@@ -151,24 +153,20 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
     switch (widget.type) {
       case SettingsItemType.toggle:
-        rowChildren
-          .add(
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 11.0),
-              child: CupertinoSwitch(
-                value: widget.switchValue!,
-                activeColor: widget.enabled
-                    ? (widget.switchActiveColor ??
-                        Theme.of(context).colorScheme.secondary)
-                    : CupertinoColors.inactiveGray,
-                onChanged: !widget.enabled
-                    ? null
-                    : (bool value) {
-                        widget.onToggle!(value);
-                      },
-              ),
+        rowChildren.add(
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 11.0),
+            child: CupertinoSwitch(
+              value: widget.switchValue!,
+              activeColor: Theme.of(context).primaryColor,
+              onChanged: !widget.enabled
+                  ? null
+                  : (bool value) {
+                      widget.onToggle!(value);
+                    },
             ),
-          );
+          ),
+        );
         break;
 
       case SettingsItemType.modal:
@@ -292,8 +290,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         },
         child: Container(
           decoration: BoxDecoration(
-            borderRadius:
-                isLargeScreen ? const BorderRadius.all(Radius.circular(20)) : null,
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
             color: calculateBackgroundColor(context),
           ),
           height: widget.subtitle == null ? 44.0 : 57.0,
