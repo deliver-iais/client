@@ -252,71 +252,71 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   void initState() {
-    // _logger.wtf(_authRepo.currentUserUid);
-    // _logger.wtf(widget.roomId);
-    //
-    // if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
-    // _getLastShowMessageId();
-    // _getLastSeen();
-    // _itemPositionsListener.itemPositions.addListener(() {
-    //   if (_itemPositionsListener.itemPositions.value.isNotEmpty) {
-    //     _positionSubject.add(_itemPositionsListener.itemPositions.value
-    //         .map((e) => e.index)
-    //         .reduce(max));
-    //   }
-    // });
-    //
-    // _itemCountSubject.distinct().listen((event) {
-    //   if (event != 0) {
-    //     if (_itemCount - (_positionSubject.value) < 4) {
-    //       scrollToLast();
-    //     }
-    //   }
-    // });
-    //
-    // _roomRepo.resetMention(widget.roomId);
-    // _notificationServices.cancelRoomNotifications(widget.roomId);
-    // _waitingForForwardedMessage.add(widget.forwardedMessages != null
-    //     ? widget.forwardedMessages!.isNotEmpty
-    //     : widget.shareUid != null);
-    // sendInputSharedFile();
-    // // TODO Channel is different from groups and private chats !!!
-    //
-    // _positionSubject
-    //     .map((event) => event + 1 + (_currentRoom.value?.firstMessageId ?? 0))
-    //     .where(
-    //         (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
-    //     .map((event) => _lastReceivedMessageId = event)
-    //     .distinct()
-    //     .debounceTime(const Duration(milliseconds: 100))
-    //     .listen((event) async {
-    //   var msg = await _getMessage(
-    //       event, widget.roomId, _currentRoom.value!.lastMessageId!,
-    //       lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
-    //
-    //   if (msg == null) return;
-    //
-    //   if (!_authRepo.isCurrentUser(msg.from)) {
-    //     _messageRepo.sendSeen(event, widget.roomId.asUid());
-    //   }
-    //
-    //   _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
-    // });
-    //
-    // if (widget.roomId.asUid().category == Categories.CHANNEL ||
-    //     widget.roomId.asUid().category == Categories.GROUP) {
-    //   fetchMucInfo(widget.roomId.asUid());
-    // } else if (widget.roomId.asUid().isBot()) {
-    //   _botRepo.fetchBotInfo(widget.roomId.asUid());
-    // }
-    // if (widget.roomId.asUid().isMuc()) {
-    //   watchPinMessages();
-    // }
-    // if (widget.roomId.asUid().isGroup()) {
-    //   checkGroupRole();
-    // } else if (widget.roomId.asUid().isChannel()) {
-    //   checkChannelRole();
-    // }
+    _logger.wtf(_authRepo.currentUserUid);
+    _logger.wtf(widget.roomId);
+
+    if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
+    _getLastShowMessageId();
+    _getLastSeen();
+    _itemPositionsListener.itemPositions.addListener(() {
+      if (_itemPositionsListener.itemPositions.value.isNotEmpty) {
+        _positionSubject.add(_itemPositionsListener.itemPositions.value
+            .map((e) => e.index)
+            .reduce(max));
+      }
+    });
+
+    _itemCountSubject.distinct().listen((event) {
+      if (event != 0) {
+        if (_itemCount - (_positionSubject.value) < 4) {
+          scrollToLast();
+        }
+      }
+    });
+
+    _roomRepo.resetMention(widget.roomId);
+    _notificationServices.cancelRoomNotifications(widget.roomId);
+    _waitingForForwardedMessage.add(widget.forwardedMessages != null
+        ? widget.forwardedMessages!.isNotEmpty
+        : widget.shareUid != null);
+    sendInputSharedFile();
+    // TODO Channel is different from groups and private chats !!!
+
+    _positionSubject
+        .map((event) => event + 1 + (_currentRoom.value?.firstMessageId ?? 0))
+        .where(
+            (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
+        .map((event) => _lastReceivedMessageId = event)
+        .distinct()
+        .debounceTime(const Duration(milliseconds: 100))
+        .listen((event) async {
+      var msg = await _getMessage(
+          event, widget.roomId, _currentRoom.value!.lastMessageId!,
+          lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
+
+      if (msg == null) return;
+
+      if (!_authRepo.isCurrentUser(msg.from)) {
+        _messageRepo.sendSeen(event, widget.roomId.asUid());
+      }
+
+      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
+    });
+
+    if (widget.roomId.asUid().category == Categories.CHANNEL ||
+        widget.roomId.asUid().category == Categories.GROUP) {
+      fetchMucInfo(widget.roomId.asUid());
+    } else if (widget.roomId.asUid().isBot()) {
+      _botRepo.fetchBotInfo(widget.roomId.asUid());
+    }
+    if (widget.roomId.asUid().isMuc()) {
+      watchPinMessages();
+    }
+    if (widget.roomId.asUid().isGroup()) {
+      checkGroupRole();
+    } else if (widget.roomId.asUid().isChannel()) {
+      checkChannelRole();
+    }
 
     super.initState();
   }
