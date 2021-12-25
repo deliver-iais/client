@@ -107,9 +107,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   selectAvatar() async {
     if (isDesktop()) {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowMultiple: false,
-          allowedExtensions: ['png', 'jpeg', 'jpg']);
+        type: FileType.image,
+        allowMultiple: false,
+      );
       if (result!.files.isNotEmpty) {
         _setAvatar(result.files.first.path!);
       }
