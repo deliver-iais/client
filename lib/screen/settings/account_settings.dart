@@ -43,7 +43,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   String _lastName = "";
   String _firstName = "";
   String _lastUserName = "";
-  late Account _account;
+  Account? _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
   bool usernameIsAvailable = true;
@@ -56,7 +56,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     String? path;
     if (isDesktop()) {
       FilePickerResult? result = await FilePicker.platform
-          .pickFiles(type: FileType.media, allowMultiple: false);
+          .pickFiles(type: FileType.image, allowMultiple: false);
       path = result!.files.first.path;
       if (path != null) {
         setAvatar(path);
@@ -130,25 +130,29 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   @override
   void initState() {
-    _accountRepo.getProfile();
-    subject.stream
-        .debounceTime(const Duration(milliseconds: 250))
-        .listen((username) async {
-      _usernameFormKey.currentState?.validate();
-      if (_userNameCorrect) {
-        if (_lastUserName != username) {
-          bool validUsername = await _accountRepo.checkUserName(username);
-          setState(() {
-            usernameIsAvailable = validUsername;
-          });
-        } else {
-          setState(() {
-            usernameIsAvailable = true;
-          });
+    try {
+      _accountRepo.getProfile();
+      subject.stream
+          .debounceTime(const Duration(milliseconds: 250))
+          .listen((username) async {
+        _usernameFormKey.currentState?.validate();
+        if (_userNameCorrect) {
+          if (_lastUserName != username) {
+            bool validUsername = await _accountRepo.checkUserName(username);
+            setState(() {
+              usernameIsAvailable = validUsername;
+            });
+          } else {
+            setState(() {
+              usernameIsAvailable = true;
+            });
+          }
         }
-      }
-    });
-    super.initState();
+      });
+      super.initState();
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -198,33 +202,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                       child: Center(
                         child: Stack(
                           children: [
-                            CircleAvatar(
-                              radius: 65,
-                              backgroundImage:
-                                  Image.file(File(_newAvatarPath)).image,
-                              child: Center(
-                                child: SizedBox(
-                                    height: 50.0,
-                                    width: 50.0,
-                                    child: StreamBuilder<bool>(
-                                      stream: _uploadNewAvatar.stream,
-                                      builder: (c, s) {
-                                        if (s.hasData &&
-                                            s.data != null &&
-                                            s.data!) {
-                                          return const CircularProgressIndicator(
-                                            valueColor: AlwaysStoppedAnimation(
-                                                Colors.blue),
-                                            strokeWidth: 6.0,
-                                          );
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      },
-                                    )),
-                              ),
-                            ),
-                            // Spacer(),
                             Container(
                               height: 130,
                               width: 130,
@@ -465,10 +442,10 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (isValidated) {
         if (usernameIsAvailable) {
           bool setPrivateInfo = await _accountRepo.setAccountDetails(
-              _username.isNotEmpty ? _username : _account.userName,
-              _firstName.isNotEmpty ? _firstName : _account.firstName,
-              _lastName.isNotEmpty ? _lastName : _account.lastName,
-              _email.isNotEmpty ? _email : _account.email);
+              _username.isNotEmpty ? _username : _account!.userName,
+              _firstName.isNotEmpty ? _firstName : _account!.firstName,
+              _lastName.isNotEmpty ? _lastName : _account!.lastName,
+              _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
             _routingService.pop();
           }
