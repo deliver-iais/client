@@ -759,7 +759,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     _routingService.openCallScreen(
                         _currentRoom.value!.uid.asUid(), false, false,
                         context: context);
-                    //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  AudioCallScreen(roomUid:_currentRoom.value!.uid.asUid(), isAccepted: false,)));
                   },
                   icon: const Icon(Icons.call)),
           if (_currentRoom.value!.uid.asUid().isUser())

@@ -1,4 +1,3 @@
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class CallTime extends StatelessWidget {
@@ -18,14 +17,8 @@ class CallTime extends StatelessWidget {
     }
     callMin = callMin.length != 2 ? '0' + callMin : callMin;
 
-    return Text(
-      callHour + ':' + callMin + ':' + callSec ,
-      style: TextStyle(
-        fontSize: 11,
-        height: 1.1,
-        fontStyle: FontStyle.italic,
-        color: ExtraTheme.of(context).textMessage.withAlpha(130),
-      ),
-    );
+    return time.microsecondsSinceEpoch != 0
+        ? Text(callHour + ':' + callMin + ':' + callSec)
+        : const SizedBox.shrink();
   }
 }
