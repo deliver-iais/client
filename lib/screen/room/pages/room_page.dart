@@ -276,9 +276,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
-    _waitingForForwardedMessage.add(widget.forwardedMessages != null
-        ? widget.forwardedMessages!.isNotEmpty
-        : widget.shareUid != null);
+    _waitingForForwardedMessage
+        .add(widget.forwardedMessages!.isNotEmpty || widget.shareUid != null);
     sendInputSharedFile();
     // TODO Channel is different from groups and private chats !!!
 

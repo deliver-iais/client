@@ -196,7 +196,7 @@ class FileService {
       _dio.interceptors.add(InterceptorsWrapper(onRequest:
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
-          if (sendActivity != null) sendActivity();
+          if (sendActivity != null) sendActivity(i);
           if (filesUploadStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
             filesUploadStatus[uploadKey] = d;

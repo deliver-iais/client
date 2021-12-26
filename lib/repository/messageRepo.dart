@@ -509,15 +509,23 @@ class MessageRepo {
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
+    BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
+    sendActivitySubject
+        .debounceTime(const Duration(seconds: 2))
+        .listen((value) {
+      if (value != null && value != 0) {
+        sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
+      }
+    });
+
     var fakeFileInfo = file_pb.File.fromJson(pm.msg.json!);
 
     var packetId = pm.msg.packetId;
 
     // Upload to file server
-    file_pb.File? fileInfo = await _fileRepo
-        .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
-      sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
-    });
+    file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(
+        packetId, fakeFileInfo.name,
+        sendActivity: (int i) => sendActivitySubject.add(i));
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 
