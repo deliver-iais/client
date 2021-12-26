@@ -511,9 +511,9 @@ class MessageRepo {
       PendingMessage pm) async {
     BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
     sendActivitySubject
-        .debounceTime(const Duration(seconds: 2))
+        .throttleTime(const Duration(seconds: 10))
         .listen((value) {
-      if (value != null && value != 0) {
+      if (value != 0) {
         sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
       }
     });
