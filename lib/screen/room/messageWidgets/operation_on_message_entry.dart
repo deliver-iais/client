@@ -106,7 +106,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     } catch (e) {
       _logger.e(e);
     }
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
+    Navigator.pop(context);
   }
 
   onPinMessage() {
