@@ -150,7 +150,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 }),
             Column(
               children: <Widget>[
-                AudioPlayerAppBar(),
                 const Divider(),
                 pinMessageWidget(),
                 Expanded(
@@ -244,6 +243,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 keyboardWidget(),
               ],
             ),
+            AudioPlayerAppBar(),
           ],
         ),
       ),
