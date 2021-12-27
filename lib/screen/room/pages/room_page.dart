@@ -35,6 +35,7 @@ import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
@@ -56,7 +57,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:ext_storage/ext_storage.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -150,7 +151,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 }),
             Column(
               children: <Widget>[
-                const Divider(),
                 pinMessageWidget(),
                 Expanded(
                   child: StreamBuilder<List<PendingMessage>>(
@@ -173,30 +173,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   _itemCount = _itemCount -
                                       currentRoomStream.data!.firstMessageId!;
                                 }
-
                                 return PageStorage(
                                     bucket: PageStorage.of(context)!,
                                     key: PageStorageKey(widget.roomId),
-                                    child: Stack(
-                                      alignment:
-                                          AlignmentDirectional.bottomStart,
-                                      children: [
-                                        buildMessagesListView(pendingMessages),
-                                        StreamBuilder<int>(
-                                            stream: _positionSubject.stream,
-                                            builder: (c, position) {
-                                              if (position.hasData &&
-                                                  position.data != null &&
-                                                  _itemCount -
-                                                          (position.data!) >
-                                                      4) {
-                                                return scrollDownButtonWidget();
-                                              } else {
-                                                return const SizedBox.shrink();
-                                              }
-                                            }),
-                                      ],
-                                    ));
+                                    child:
+                                        buildMessagesListView(pendingMessages));
                               } else {
                                 return const SizedBox(
                                   height: 50,
@@ -243,6 +224,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 keyboardWidget(),
               ],
             ),
+            StreamBuilder<int>(
+                stream: _positionSubject.stream,
+                builder: (c, position) {
+                  if (position.hasData &&
+                      position.data != null &&
+                      _itemCount - (position.data!) > 4) {
+                    return scrollDownButtonWidget();
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
             AudioPlayerAppBar(),
           ],
         ),
@@ -431,12 +423,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         case OperationOnMessage.SAVE_TO_GALLERY:
           var file = message.json!.toFile();
           _fileRepo.saveFileInDownloadDir(
-              file.uuid, file.name, ExtStorage.DIRECTORY_PICTURES);
+              file.uuid, file.name, ExtStorage.pictures);
           break;
         case OperationOnMessage.SAVE_TO_MUSIC:
           var file = message.json!.toFile();
           _fileRepo.saveFileInDownloadDir(
-              file.uuid, file.name, ExtStorage.DIRECTORY_MUSIC);
+              file.uuid, file.name, ExtStorage.music);
           break;
         case OperationOnMessage.RESEND:
           _messageRepo.resendMessage(message);
@@ -579,8 +571,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget scrollDownButtonWidget() {
     return Positioned(
-        right: 10,
-        bottom: 10,
+        right: 20,
+        bottom: 70,
         child: Stack(
           children: [
             FloatingActionButton(

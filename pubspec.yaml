@@ -48,9 +48,6 @@ dependencies:
   date_time_format: 2.0.1
   permission_handler: 8.3.0 # ANDROID ONLY SUPPORTED
   synchronized: 3.0.0
-  ext_storage:
-    git:
-      url: git://github.com/GitJournal/ext_storage.git
   path_provider: 2.0.7
   path: ^1.8.0
   # The following adds the Cupertino Icons font to your application.
