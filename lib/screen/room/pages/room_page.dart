@@ -150,42 +150,43 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   return Background(id: snapshot.data?.lastMessageId ?? 0);
                 }),
             Column(
+              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 pinMessageWidget(),
-                Expanded(
-                  child: StreamBuilder<List<PendingMessage>>(
-                      stream: _messageRepo.watchPendingMessages(widget.roomId),
-                      builder: (context, pendingMessagesStream) {
-                        List<PendingMessage> pendingMessages =
-                            pendingMessagesStream.data ?? [];
-                        return StreamBuilder<Room?>(
-                            stream: _roomRepo.watchRoom(widget.roomId),
-                            builder: (context, currentRoomStream) {
-                              if (currentRoomStream.hasData) {
-                                _currentRoom.add(currentRoomStream.data);
-                                int i =
-                                    (_currentRoom.value!.lastMessageId ?? 0) +
-                                        pendingMessages.length;
-                                _itemCountSubject.add(i);
-                                _itemCount = i;
-                                if (currentRoomStream.data!.firstMessageId !=
-                                    null) {
-                                  _itemCount = _itemCount -
-                                      currentRoomStream.data!.firstMessageId!;
-                                }
-                                return PageStorage(
-                                    bucket: PageStorage.of(context)!,
-                                    key: PageStorageKey(widget.roomId),
-                                    child:
-                                        buildMessagesListView(pendingMessages));
-                              } else {
-                                return const SizedBox(
-                                  height: 50,
-                                );
+                StreamBuilder<List<PendingMessage>>(
+                    stream: _messageRepo.watchPendingMessages(widget.roomId),
+                    builder: (context, pendingMessagesStream) {
+                      List<PendingMessage> pendingMessages =
+                          pendingMessagesStream.data ?? [];
+                      return StreamBuilder<Room?>(
+                          stream: _roomRepo.watchRoom(widget.roomId),
+                          builder: (context, currentRoomStream) {
+                            if (currentRoomStream.hasData) {
+                              _currentRoom.add(currentRoomStream.data);
+                              int i =
+                                  (_currentRoom.value!.lastMessageId ?? 0) +
+                                      pendingMessages.length;
+                              _itemCountSubject.add(i);
+                              _itemCount = i;
+                              if (currentRoomStream.data!.firstMessageId !=
+                                  null) {
+                                _itemCount = _itemCount -
+                                    currentRoomStream.data!.firstMessageId!;
                               }
-                            });
-                      }),
-                ),
+                              return PageStorage(
+                                  bucket: PageStorage.of(context)!,
+                                  key: PageStorageKey(widget.roomId),
+                                  child: Flexible(
+                                      fit: FlexFit.loose,
+                                      child: buildMessagesListView(
+                                          pendingMessages)));
+                            } else {
+                              return const SizedBox(
+                                height: 50,
+                              );
+                            }
+                          });
+                    }),
                 StreamBuilder(
                     stream: _repliedMessage.stream,
                     builder: (c, rm) {
@@ -766,6 +767,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget buildMessagesListView(List<PendingMessage> pendingMessages) {
     return ScrollablePositionedList.separated(
+      shrinkWrap: true,
       itemCount: _itemCount,
       initialScrollIndex: _itemCount > 0
           ? (_lastShowedMessageId != -1)
