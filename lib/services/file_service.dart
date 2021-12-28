@@ -148,7 +148,6 @@ class FileService {
       try {
         await f.writeAsBytes(io.File(path).readAsBytesSync());
       } catch (_) {
-        print(_.toString());
       }
     }
   }
