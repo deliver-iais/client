@@ -162,7 +162,6 @@ flutter:
     - assets/images/a.flr
     - assets/images/logo.png
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
-    - assets/ic_launcher/web_hi_res_512.png
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/audios/incoming-msg.mp3
