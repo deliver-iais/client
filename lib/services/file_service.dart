@@ -3,7 +3,6 @@ import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
@@ -17,6 +16,8 @@ import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:universal_html/html.dart' as html;
+
+import 'ext_storage_services.dart';
 
 enum ThumbnailSize { medium }
 
@@ -146,7 +147,8 @@ class FileService {
       io.File f = io.File('$downloadDir/$name');
       try {
         await f.writeAsBytes(io.File(path).readAsBytesSync());
-      } catch (_) {}
+      } catch (_) {
+      }
     }
   }
 
@@ -196,7 +198,7 @@ class FileService {
       _dio.interceptors.add(InterceptorsWrapper(onRequest:
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
-          if (sendActivity != null) sendActivity();
+          if (sendActivity != null) sendActivity(i);
           if (filesUploadStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
             filesUploadStatus[uploadKey] = d;

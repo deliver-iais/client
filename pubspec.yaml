@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
 
-version: 1.5.4  #if change the version , is necessary to change VERSION  in constants.dart
+version: 1.6.0  #if change the version , is necessary to change VERSION  in constants.dart
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -48,9 +48,6 @@ dependencies:
   date_time_format: 2.0.1
   permission_handler: 8.3.0 # ANDROID ONLY SUPPORTED
   synchronized: 3.0.0
-  ext_storage:
-    git:
-      url: git://github.com/GitJournal/ext_storage.git
   path_provider: 2.0.7
   path: ^1.8.0
   # The following adds the Cupertino Icons font to your application.
@@ -165,7 +162,6 @@ flutter:
     - assets/images/a.flr
     - assets/images/logo.png
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
-    - assets/ic_launcher/web_hi_res_512.png
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/audios/incoming-msg.mp3

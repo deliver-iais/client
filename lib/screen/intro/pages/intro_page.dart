@@ -1,4 +1,3 @@
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
@@ -39,7 +38,7 @@ class _IntroPageState extends State<IntroPage> {
   void navigateToLoginPage() {
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
       return const LoginPage();
-    }),(r)=>false);
+    }), (r) => false);
   }
 
   @override
@@ -50,22 +49,6 @@ class _IntroPageState extends State<IntroPage> {
       child: Stack(
         key: const Key("INTRO_ANIMATION_PAGE1"),
         children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Container(
-              key: const Key("INTRO_ANIMATION_PAGE"),
-              width: animationSize,
-              height: animationSize + paddingTop,
-              padding: EdgeInsets.only(top: paddingTop),
-              child: FlareActor(
-                "assets/images/a.flr",
-                alignment: Alignment.center,
-                fit: BoxFit.contain,
-                antialias: true,
-                controller: introAnimationController,
-              ),
-            ),
-          ),
           IntroSlider(
             slides: [
               Slide(
@@ -179,6 +162,22 @@ class _IntroPageState extends State<IntroPage> {
             onAnimationChange: (d) {
               subject.add(d);
             },
+          ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              key: const Key("INTRO_ANIMATION_PAGE"),
+              width: animationSize,
+              height: animationSize + paddingTop,
+              padding: EdgeInsets.only(top: paddingTop),
+              child: FlareActor(
+                "assets/images/a.flr",
+                alignment: Alignment.center,
+                fit: BoxFit.contain,
+                antialias: true,
+                controller: introAnimationController,
+              ),
+            ),
           ),
         ],
       ),

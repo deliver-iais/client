@@ -7,13 +7,13 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
-import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -106,7 +106,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     } catch (e) {
       _logger.e(e);
     }
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
+    Navigator.pop(context);
   }
 
   onPinMessage() {
@@ -126,7 +126,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onSaveTODownloads() {
     var file = widget.message.json!.toFile();
     _fileRepo.saveFileInDownloadDir(
-        file.uuid, file.name, ExtStorage.DIRECTORY_DOWNLOADS);
+        file.uuid, file.name, ExtStorage.download);
     Navigator.pop(context);
   }
 
