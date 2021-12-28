@@ -72,7 +72,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     _checked = widget.switchValue;
 
     /// The width of iPad. This is used to make circular borders on iPad and web
-    final isLargeScreen = MediaQuery.of(context).size.width >= 768;
+    // final isLargeScreen = MediaQuery.of(context).size.width >= 768;
 
     final ThemeData theme = Theme.of(context);
     final ListTileTheme tileTheme = ListTileTheme.of(context);

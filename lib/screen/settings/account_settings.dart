@@ -50,7 +50,6 @@ class _AccountSettingsState extends State<AccountSettings> {
   bool _userNameCorrect = false;
 
   final BehaviorSubject<bool> _uploadNewAvatar = BehaviorSubject.seeded(false);
-  String _newAvatarPath = "";
 
   attachFile() async {
     String? path;
@@ -123,7 +122,6 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   Future<void> setAvatar(String path) async {
     _uploadNewAvatar.add(true);
-    _newAvatarPath = path;
     await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
     _uploadNewAvatar.add(false);
   }
@@ -150,8 +148,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         }
       });
       super.initState();
-    } catch (e) {
-      print(e.toString());
+    } catch (_) {
     }
   }
 
