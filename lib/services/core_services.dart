@@ -200,7 +200,7 @@ class CoreServices {
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
       _sendPacket(clientPacket);
-      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+      Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
           () => _checkPendingStatus(message.packetId));
     } catch (e) {
       _logger.e(e);
