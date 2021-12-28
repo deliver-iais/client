@@ -118,7 +118,6 @@ class AuthRepo {
         ..osVersion = platform_detect.browser.version.major.toString();
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
       platform
         ..platformType = platform_pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
