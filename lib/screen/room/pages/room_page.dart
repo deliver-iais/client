@@ -163,9 +163,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           builder: (context, currentRoomStream) {
                             if (currentRoomStream.hasData) {
                               _currentRoom.add(currentRoomStream.data);
-                              int i =
-                                  (_currentRoom.value!.lastMessageId ?? 0) +
-                                      pendingMessages.length;
+                              int i = (_currentRoom.value!.lastMessageId ?? 0) +
+                                  pendingMessages.length;
                               _itemCountSubject.add(i);
                               _itemCount = i;
                               if (currentRoomStream.data!.firstMessageId !=
@@ -176,8 +175,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               return PageStorage(
                                   bucket: PageStorage.of(context)!,
                                   key: PageStorageKey(widget.roomId),
-                                  child: Flexible(
-                                      fit: FlexFit.loose,
+                                  child: Expanded(
                                       child: buildMessagesListView(
                                           pendingMessages)));
                             } else {
