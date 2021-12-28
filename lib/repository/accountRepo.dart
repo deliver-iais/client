@@ -8,7 +8,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 

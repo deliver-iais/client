@@ -6,7 +6,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';

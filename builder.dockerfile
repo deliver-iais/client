@@ -1,4 +1,4 @@
-FROM 172.17.4.40:443/cirrusci/flutter-web:2.5.3
+FROM 172.17.4.40:443/cirrusci/flutter-web:2.8.1
 
 COPY pubspec.yaml /usr/local/bin/app/pubspec.yaml
 COPY pubspec.lock /usr/local/bin/app/pubspec.lock
