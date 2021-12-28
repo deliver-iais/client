@@ -581,7 +581,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget buildDoneButton() {
     return TextButton(
-      onPressed:()=> onDonePress!(),
+      onPressed: () => onDonePress!(),
       child: renderDoneBtn!,
     );
   }

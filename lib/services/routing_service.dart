@@ -92,14 +92,14 @@ class RoutingService {
           }
         },
         child: roomWidget);
-    if (isDesktop() || context == null && false) {
+    if (isDesktop() || context == null) {
       _popAllAndPush(Page(
           largePageNavigator: _navigationCenter,
           largePageMain: widget,
           smallPageMain: widget,
           path: "/room/$roomId"));
     } else {
-      _routeInMobileState(widget, context!);
+      _routeInMobileState(widget, context);
     }
   }
 

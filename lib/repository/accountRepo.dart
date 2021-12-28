@@ -113,9 +113,9 @@ class AccountRepo {
       _profileServiceClient.saveUserProfile(saveUserProfileReq);
       _saveProfilePrivateData(
           username: username,
-          firstName: firstName??"",
-          lastName: lastName??"",
-          email: email??"");
+          firstName: firstName ?? "",
+          lastName: lastName ?? "",
+          email: email ?? "");
 
       return true;
     } catch (e) {
@@ -158,7 +158,7 @@ class AccountRepo {
     if (pv != null) {
       // Migrations
       if (shouldRemoveDB(pv)) {
-        //  await _dbManager.deleteDB();
+        await _dbManager.deleteDB();
       }
 
       if (shouldMigrateDB(pv)) {
@@ -171,8 +171,8 @@ class AccountRepo {
         _sessionServicesClient.updateSessionPlatformInformation(
             UpdateSessionPlatformInformationReq()..platform = platform);
       }
-
       // Update version in DB
+    } else {
       _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
     }
   }
