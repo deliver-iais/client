@@ -19,11 +19,14 @@ import 'package:deliver/screen/room/widgets/share_private_data_request_message_w
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
@@ -34,6 +37,7 @@ class BoxContent extends StatefulWidget {
   final Function? onUsernameClick;
   final String? pattern;
   final Function? onBotCommandClick;
+  final Function? onArrowIconClick;
 
   const BoxContent(
       {Key? key,
@@ -44,38 +48,75 @@ class BoxContent extends StatefulWidget {
       this.pattern,
       this.onUsernameClick,
       this.onBotCommandClick,
-      required this.scrollToMessage})
+      required this.scrollToMessage,
+      required this.onArrowIconClick})
       : super(key: key);
 
   @override
   _BoxContentState createState() => _BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> {
+class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final I18N _i18n = GetIt.I.get<I18N>();
+  bool hideArrowDopIcon = true;
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Column(
+    return MouseRegion(
+        onHover: (s) {
+          hideArrowDopIcon = false;
+          setState(() {});
+        },
+        onExit: (s) {
+          hideArrowDopIcon = true;
+          setState(() {});
+        },
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-                !widget.isSender)
-              senderNameBox(),
-            if (hasReply()) replyToIdBox(),
-            if (widget.message.forwardedFrom != null &&
-                widget.message.forwardedFrom!.length > 3)
-              forwardedFromBox(),
-            messageBox()
+            isDesktop() | kIsWeb
+                ? hideArrowDopIcon
+                    ? const SizedBox(
+                        width: 18,
+                      )
+                    : MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTapDown: storePosition,
+                          onTap: () {
+                            widget.onArrowIconClick!();
+                          },
+                          child: const Icon(
+                            Icons.arrow_drop_down_sharp,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+                : const SizedBox.shrink(),
+            RepaintBoundary(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.message.roomUid.asUid().category ==
+                            Categories.GROUP &&
+                        !widget.isSender)
+                      senderNameBox(),
+                    if (hasReply()) replyToIdBox(),
+                    if (widget.message.forwardedFrom != null &&
+                        widget.message.forwardedFrom!.length > 3)
+                      forwardedFromBox(),
+                    messageBox()
+                  ],
+                ),
+              ),
+            ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget replyToIdBox() {

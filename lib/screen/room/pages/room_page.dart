@@ -1144,6 +1144,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _scrollToMessage(id: id);
       },
       omUsernameClick: onUsernameClick,
+      onArrowIconClick: () {
+        _showCustomMenu(message, false);
+      },
     );
 
     return Row(
@@ -1155,12 +1158,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showReceivedMessage(Message message) {
     var messageWidget = ReceivedMessageBox(
-      message: message,
-      pattern: _searchMessagePattern,
-      onBotCommandClick: onBotCommandClick,
-      scrollToMessage: (int id) => _scrollToMessage(id: id),
-      onUsernameClick: onUsernameClick,
-    );
+        message: message,
+        pattern: _searchMessagePattern,
+        onBotCommandClick: onBotCommandClick,
+        scrollToMessage: (int id) => _scrollToMessage(id: id),
+        onUsernameClick: onUsernameClick,
+        onArrowIconClick: () {
+          _showCustomMenu(message, false);
+        });
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -12,6 +12,7 @@ class SentMessageBox extends StatelessWidget {
   final bool isSeen;
   final Function omUsernameClick;
   final String? pattern;
+  final Function onArrowIconClick;
 
   const SentMessageBox(
       {Key? key,
@@ -19,7 +20,8 @@ class SentMessageBox extends StatelessWidget {
       required this.isSeen,
       required this.scrollToMessage,
       this.pattern,
-      required this.omUsernameClick})
+      required this.omUsernameClick,
+      required this.onArrowIconClick})
       : super(key: key);
 
   @override
@@ -32,6 +34,7 @@ class SentMessageBox extends StatelessWidget {
       isSeen: isSeen,
       pattern: pattern,
       onUsernameClick: omUsernameClick,
+      onArrowIconClick: onArrowIconClick,
     );
 
     return doNotNeedsWrapper()

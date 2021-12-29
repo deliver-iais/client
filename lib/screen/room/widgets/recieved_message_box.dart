@@ -13,6 +13,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final Function onUsernameClick;
   final String? pattern;
   final Function onBotCommandClick;
+  final Function onArrowIconClick;
 
   const ReceivedMessageBox(
       {Key? key,
@@ -20,6 +21,7 @@ class ReceivedMessageBox extends StatelessWidget {
       required this.onBotCommandClick,
       required this.scrollToMessage,
       required this.onUsernameClick,
+      required this.onArrowIconClick,
       this.pattern})
       : super(key: key);
 
@@ -34,6 +36,7 @@ class ReceivedMessageBox extends StatelessWidget {
       pattern: pattern,
       isSeen: true,
       onUsernameClick: onUsernameClick,
+      onArrowIconClick: onArrowIconClick,
     );
 
     return doNotNeedsWrapper()
