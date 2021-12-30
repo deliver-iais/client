@@ -136,7 +136,8 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.1.5
-  #  test: ^1.19.3
+  test:
+  mockito:
   hive_generator: ^1.1.1
   flutter_lints: ^1.0.0
   dependency_validator: ^3.1.2  # flutter pub run dependency_validator
