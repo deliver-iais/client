@@ -2,6 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
@@ -11,6 +12,7 @@ import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 
 import 'package:deliver/screen/room/messageWidgets/locatioin_message.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
+import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
@@ -52,6 +54,10 @@ class BoxContent extends StatefulWidget {
       required this.onArrowIconClick})
       : super(key: key);
 
+  Type getState() {
+    return _BoxContentState;
+  }
+
   @override
   _BoxContentState createState() => _BoxContentState();
 }
@@ -85,10 +91,11 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                     : MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
-                          onTapDown: storePosition,
-                          onTap: () {
-                            widget.onArrowIconClick!();
+                          onTapDown: (tapDownDetails) {
+                            storePosition(tapDownDetails);
                           },
+                          onTap: () => widget.onArrowIconClick!(
+                              widget.message, false, this),
                           child: const Icon(
                             Icons.arrow_drop_down_sharp,
                             color: Colors.grey,

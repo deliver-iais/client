@@ -26,6 +26,7 @@ import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
+import 'package:deliver/screen/room/widgets/box_content.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
@@ -343,8 +344,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _repliedMessage.add(null);
   }
 
-  void _showCustomMenu(Message message, bool isPersistentEventMessage) {
-    this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
+  showCustomMenu(Message message, bool isPersistentEventMessage, state) {
+    state
+        .showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(
         message,
         hasPermissionInChannel: _hasPermissionInChannel.value,
@@ -356,7 +358,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _selectedMessages.clear();
         },
       )
-    ]).then<void>((OperationOnMessage? opr) async {
+    ]).then<void>((opr) async {
       if (opr == null) return;
       switch (opr) {
         // ignore: missing_enum_constant_in_switch
@@ -987,14 +989,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _addForwardMessage(message);
           } else if (!isDesktop()) {
             FocusScope.of(context).unfocus();
-            _showCustomMenu(message, false);
+            showCustomMenu(message, false, this);
           }
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!_selectMultiMessageSubject.stream.value) {
-                  _showCustomMenu(message, false);
+                  showCustomMenu(message, false, this);
                 }
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
@@ -1137,17 +1139,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
-      message: message,
-      isSeen: message.id != null && message.id! <= _lastSeenMessageId,
-      pattern: _searchMessagePattern,
-      scrollToMessage: (int id) {
-        _scrollToMessage(id: id);
-      },
-      omUsernameClick: onUsernameClick,
-      onArrowIconClick: () {
-        _showCustomMenu(message, false);
-      },
-    );
+        message: message,
+        isSeen: message.id != null && message.id! <= _lastSeenMessageId,
+        pattern: _searchMessagePattern,
+        scrollToMessage: (int id) {
+          _scrollToMessage(id: id);
+        },
+        omUsernameClick: onUsernameClick,
+        onArrowIconClick: showCustomMenu);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1163,9 +1162,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onBotCommandClick: onBotCommandClick,
         scrollToMessage: (int id) => _scrollToMessage(id: id),
         onUsernameClick: onUsernameClick,
-        onArrowIconClick: () {
-          _showCustomMenu(message, false);
-        });
+        onArrowIconClick: showCustomMenu);
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
