@@ -81,7 +81,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
-  final _i18n = GetIt.I.get<I18N>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
@@ -141,7 +140,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     var dismissibleWidget = SwipeTo(
         onLeftSwipe: () async {
           widget.addReplyMessage();
-          // _repliedMessage.add(message);
           Vibration.vibrate(duration: 150);
           //return false;
         },
@@ -155,7 +153,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           if (widget.selectMultiMessageSubject.stream.value) {
             widget.addForwardMessage();
           } else if (!isDesktop()) {
-            FocusScope.of(context).unfocus();
+           FocusScope.of(context).unfocus();
             _showCustomMenu(message, false);
           }
         },

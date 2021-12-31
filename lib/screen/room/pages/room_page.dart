@@ -4,14 +4,12 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
-import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -21,7 +19,6 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_co
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
-import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
@@ -30,14 +27,11 @@ import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
-import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
-import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -46,7 +40,6 @@ import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
@@ -60,8 +53,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:swipe_to/swipe_to.dart';
-import 'package:vibration/vibration.dart';
 
 // ignore: constant_identifier_names
 const int PAGE_SIZE = 16;
@@ -84,7 +75,7 @@ class RoomPage extends StatefulWidget {
   _RoomPageState createState() => _RoomPageState();
 }
 
-class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
+class _RoomPageState extends State<RoomPage> {
   final _logger = GetIt.I.get<Logger>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -144,7 +135,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   return Background(id: snapshot.data?.lastMessageId ?? 0);
                 }),
             Column(
-              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 pinMessageWidget(),
                 StreamBuilder<List<PendingMessage>>(
@@ -261,8 +251,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
     _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
-    _waitingForForwardedMessage
-        .add(widget.forwardedMessages!.isNotEmpty || widget.shareUid != null);
+    _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
+            widget.forwardedMessages!.isNotEmpty) ||
+        widget.shareUid != null);
     sendInputSharedFile();
     // TODO Channel is different from groups and private chats !!!
 
@@ -462,7 +453,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget scrollDownButtonWidget() {
     return Positioned(
         right: 20,
-        bottom: 70,
+        bottom: 100,
         child: Stack(
           children: [
             FloatingActionButton(
@@ -768,7 +759,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             return Column(
               children: [
                 ChatTime(currentMessageTime: date(ms.data!.time)),
-               buildBox(ms, currentRoom, pendingMessages)
+                buildBox(ms, currentRoom, pendingMessages)
               ],
             );
           } else {
@@ -784,7 +775,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  BuildMessageBox buildBox(AsyncSnapshot<Message?> ms, Room currentRoom, List<PendingMessage> pendingMessages) {
+  BuildMessageBox buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
+      List<PendingMessage> pendingMessages) {
     return BuildMessageBox(
         message: ms.data!,
         currentRoom: currentRoom,
@@ -919,11 +911,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       ],
     );
   }
-
-
-
-
-
 
   scrollToLast() {
     _itemScrollController.scrollTo(

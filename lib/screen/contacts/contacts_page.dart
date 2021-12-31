@@ -12,6 +12,7 @@ import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -164,7 +165,7 @@ class _ContactsPageState extends State<ContactsPage> {
   _showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed && !isDesktop()) {
+    if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
       return showDialog(
           context: context,
           builder: (context) {

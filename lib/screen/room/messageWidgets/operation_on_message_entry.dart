@@ -72,8 +72,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   final _logger = GetIt.I.get<Logger>();
 
   onReply() {
-    Navigator.of(context);
     widget.onReply();
+    Navigator.of(context).pop();
   }
 
   onCopy() {
