@@ -731,7 +731,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           },
         ),
         actions: [
-          if (_currentRoom.value!.uid.asUid().isUser())
+          if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
             //TODO we need fix and more test on videCall then disable it
             IconButton(
                 onPressed: () {
@@ -741,7 +741,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
                 },
                 icon: const Icon(Icons.videocam)),
-          if (_currentRoom.value!.uid.asUid().isUser())
+          if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
             IconButton(
                 onPressed: () {
                   _routingService.openCallScreen(
@@ -750,9 +750,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 },
                 icon: const Icon(Icons.call)),
           if (_currentRoom.value!.uid.asUid().isUser())
-            const SizedBox(
-              width: 10,
-            ),
           StreamBuilder<bool>(
               stream: _searchMode.stream,
               builder: (c, s) {
