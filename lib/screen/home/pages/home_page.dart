@@ -14,9 +14,9 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:universal_html/html.dart' as html;
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -46,6 +46,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    if (kIsWeb) {
+      html.document.onContextMenu.listen((event) => event.preventDefault());
+    }
+
     _coreServices.initStreamConnection();
     if (isAndroid() || isIOS()) {
       _notificationServices.cancelAllNotifications();
@@ -63,6 +67,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
     checkLogOutApp();
     checkAddToHomeInWeb(context);
+
     super.initState();
   }
 
@@ -70,7 +75,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     Timer(const Duration(seconds: 3), () {
       try {
         final bool isDeferredNotNull =
-            js.context.callMethod("isDeferredNotNull",[]) as bool;
+            js.context.callMethod("isDeferredNotNull", []) as bool;
         if (isDeferredNotNull) {
           //   ujs.context.callMethod("presentAddToHome");
           // return true;

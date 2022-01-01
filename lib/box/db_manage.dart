@@ -15,7 +15,6 @@ class DBManager {
 
     if (!kIsWeb) {
       var documentPath = await getApplicationDocumentsDirectory();
-
       var myDir = Directory(path_helper.join(documentPath.path, "db"));
       myDir
           .list()

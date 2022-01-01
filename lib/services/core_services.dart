@@ -34,10 +34,7 @@ import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -215,7 +212,7 @@ class CoreServices {
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
       _sendPacket(clientPacket);
-      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+      Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
           () => _checkPendingStatus(message.packetId));
     } catch (e) {
       _logger.e(e);

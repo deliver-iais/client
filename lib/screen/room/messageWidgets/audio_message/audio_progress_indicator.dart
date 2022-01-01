@@ -25,10 +25,9 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
         stream: audioPlayerService.audioCurrentPosition(),
         builder: (context, duration) {
           if (duration.hasData && duration.data != null) {
-            double dur = duration.data!.inSeconds +
-                (duration.data!.inMilliseconds / 1000);
             return Slider(
-                value: min(dur, widget.duration),
+                value:
+                    min(duration.data!.inMilliseconds / 1000, widget.duration),
                 min: 0.0,
                 max: widget.duration,
                 onChanged: (double value) {

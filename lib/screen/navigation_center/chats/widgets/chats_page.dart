@@ -8,10 +8,8 @@ import 'package:deliver/screen/room/widgets/operation_on_room_entry.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:universal_html/html.dart' as html;
 
 final bucketGlobal = PageStorageBucket();
 
@@ -52,9 +50,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
   @override
   void initState() {
-    if (kIsWeb) {
-     html.document.onContextMenu.listen((event) => event.stopPropagation());
-    }
     super.initState();
   }
 

@@ -16,7 +16,6 @@ import 'package:desktoasts/desktoasts.dart'
 import 'package:desktoasts/desktoasts.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_local_notifications_linux/flutter_local_notifications_linux.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:deliver/localization/i18n.dart';
