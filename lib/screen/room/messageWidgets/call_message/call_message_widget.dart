@@ -79,7 +79,7 @@ class CallMessageWidget extends StatelessWidget {
             InkWell(
               onTap: () {
                 _routingService.openCallScreen(
-                    message.roomUid.asUid(), false, false,
+                    message.roomUid.asUid(),
                     context: context);
               },
               child: const Align(

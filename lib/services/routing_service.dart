@@ -6,13 +6,9 @@ import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/call_screen.dart';
-import 'package:deliver/screen/call/videoCallScreen/in_video_call_page.dart';
-import 'package:deliver/screen/call/incoming_call_page.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
-import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
@@ -38,8 +34,6 @@ import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -134,16 +128,19 @@ class RoutingService {
     }
   }
 
-  void openCallScreen(
-      Uid roomUid, bool isAccepted, bool isInitial,
-      {BuildContext? context, bool isIncomingCall=false}) {
-
+  void openCallScreen(Uid roomUid,
+      {BuildContext? context,
+      bool isIncomingCall = false,
+      bool isCallInitialized = false,
+      bool isCallAccepted = false,
+      isVideoCall = false}) {
     var widget = CallScreen(
       key: const ValueKey("/callScreen"),
       roomUid: roomUid,
-      isAccepted: isAccepted,
-      isInitial: isInitial,
-      isIncomingCall:isIncomingCall
+      isCallAccepted: isCallAccepted,
+      isCallInitialized: isCallInitialized,
+      isIncomingCall: isIncomingCall,
+      isVideoCall: isVideoCall,
     );
     if (isDesktop()) {
       _popAllAndPush(Page(
@@ -151,23 +148,6 @@ class RoutingService {
           largePageMain: widget,
           smallPageMain: widget,
           path: "/callScreen"));
-    } else {
-      _routeInMobileState(widget, context!);
-    }
-  }
-
-  void openInComingCallPage(Uid roomUid, bool isAccepted,
-      {BuildContext? context}) {
-    var widget = InComingCallPage(
-        key: const ValueKey("/Incomingcallpage"),
-        roomuid: roomUid,
-        isAccepted: isAccepted);
-    if (isDesktop()) {
-      _popAllAndPush(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/Incomingcallpage"));
     } else {
       _routeInMobileState(widget, context!);
     }
@@ -600,7 +580,7 @@ class Empty extends StatelessWidget {
         const Background(),
         Center(
           child: BlurContainer(
-            skew: 4,
+              skew: 4,
               padding:
                   const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
               // decoration: BoxDecoration(

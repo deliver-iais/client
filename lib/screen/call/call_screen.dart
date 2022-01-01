@@ -18,17 +18,19 @@ import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
   final Uid roomUid;
-  final bool isAccepted;
-  final bool isInitial;
+  final bool isCallAccepted;
+  final bool isCallInitialized;
   final bool isIncomingCall;
+  final bool isVideoCall;
 
-  const CallScreen(
-      {Key? key,
-      required this.roomUid,
-      required this.isAccepted,
-      required this.isInitial,
-      this.isIncomingCall = false})
-      : super(key: key);
+  const CallScreen({
+    Key? key,
+    required this.roomUid,
+    this.isCallAccepted = false,
+    this.isCallInitialized = false,
+    this.isIncomingCall = false,
+    this.isVideoCall = false,
+  }) : super(key: key);
 
   @override
   _CallScreenState createState() => _CallScreenState();
@@ -49,7 +51,7 @@ class _CallScreenState extends State<CallScreen> {
     callRepo.initRenderer();
     _localRenderer = callRepo.getLocalRenderer;
     _remoteRenderer = callRepo.getRemoteRenderer;
-    if (!widget.isInitial) {
+    if (!widget.isCallInitialized) {
       startCall();
     }
     super.initState();
@@ -70,12 +72,12 @@ class _CallScreenState extends State<CallScreen> {
 
     //True means its VideoCall and false means AudioCall
 
-    if (widget.isAccepted || widget.isIncomingCall) {
+    if (widget.isCallAccepted || widget.isIncomingCall) {
       await callRepo.initCall(true);
-      if (widget.isAccepted) {
+      if (widget.isCallAccepted) {
         callRepo.acceptCall(widget.roomUid);
       }
-    } else if (callRepo.isVideo) {
+    } else if (widget.isVideoCall) {
       await callRepo.startCall(widget.roomUid, true);
     } else {
       await callRepo.startCall(widget.roomUid, false);
@@ -91,7 +93,7 @@ class _CallScreenState extends State<CallScreen> {
           switch (snapshot.data) {
             case CallStatus.CONNECTED:
               _audioService.stopPlayBeepSound();
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? InVideoCallPage(
                       localRenderer: _localRenderer,
                       remoteRenderer: _remoteRenderer,
@@ -104,7 +106,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
             case CallStatus.DISCONNECTED:
               _audioService.stopPlayBeepSound();
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? InVideoCallPage(
                       localRenderer: _localRenderer,
                       remoteRenderer: _remoteRenderer,
@@ -117,7 +119,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
             case CallStatus.FAILED:
               _audioService.stopPlayBeepSound();
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? InVideoCallPage(
                       localRenderer: _localRenderer,
                       remoteRenderer: _remoteRenderer,
@@ -130,7 +132,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
             case CallStatus.IN_CALL:
               _audioService.stopPlayBeepSound();
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? InVideoCallPage(
                       localRenderer: _localRenderer,
                       remoteRenderer: _remoteRenderer,
@@ -143,7 +145,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp);
             case CallStatus.IS_RINGING:
               _audioService.playBeepSound();
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? StartVideoCallPage(
                       roomUid: widget.roomUid,
                       localRenderer: _localRenderer,
@@ -157,7 +159,7 @@ class _CallScreenState extends State<CallScreen> {
                       hangUp: _hangUp,
                     );
             case CallStatus.CREATED:
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? StartVideoCallPage(
                       roomUid: widget.roomUid,
                       localRenderer: _localRenderer,
@@ -188,7 +190,7 @@ class _CallScreenState extends State<CallScreen> {
             case CallStatus.BUSY:
               _audioService.stopPlayBeepSound();
               _audioService.playBusySound();
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? StartVideoCallPage(
                       roomUid: widget.roomUid,
                       localRenderer: _localRenderer,
@@ -200,7 +202,7 @@ class _CallScreenState extends State<CallScreen> {
                       callStatus: "Busy....",
                       hangUp: _hangUp);
             case CallStatus.DECLINED:
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? StartVideoCallPage(
                       roomUid: widget.roomUid,
                       localRenderer: _localRenderer,
@@ -212,7 +214,7 @@ class _CallScreenState extends State<CallScreen> {
                       callStatus: "Declined....",
                       hangUp: _hangUp);
             case CallStatus.ACCEPTED:
-              return callRepo.isVideo
+              return widget.isVideoCall
                   ? StartVideoCallPage(
                       roomUid: widget.roomUid,
                       localRenderer: _localRenderer,

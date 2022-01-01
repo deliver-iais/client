@@ -733,22 +733,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         actions: [
           if (_currentRoom.value!.uid.asUid().isUser())
             //TODO we need fix and more test on videCall then disable it
-            // IconButton(
-            //     onPressed: () {
-            //       _routingService.openCallScreen(
-            //           _currentRoom.value!.uid.asUid(), true, false,false,
-            //           context: context);
-            //       //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
-            //     },
-            //     icon: const Icon(Icons.videocam)),
-            if (_currentRoom.value!.uid.asUid().isUser())
-              IconButton(
-                  onPressed: () {
-                    _routingService.openCallScreen(
-                        _currentRoom.value!.uid.asUid(), false, false,
-                        context: context);
-                  },
-                  icon: const Icon(Icons.call)),
+            IconButton(
+                onPressed: () {
+                  _routingService.openCallScreen(
+                      _currentRoom.value!.uid.asUid(),isVideoCall: true,
+                      context: context);
+                  //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
+                },
+                icon: const Icon(Icons.videocam)),
+          if (_currentRoom.value!.uid.asUid().isUser())
+            IconButton(
+                onPressed: () {
+                  _routingService.openCallScreen(
+                      _currentRoom.value!.uid.asUid(),
+                      context: context);
+                },
+                icon: const Icon(Icons.call)),
           if (_currentRoom.value!.uid.asUid().isUser())
             const SizedBox(
               width: 10,

@@ -44,6 +44,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       height: 100,
                       color: Colors.transparent,
                       child: FloatingActionButton(
+                        heroTag: 11,
                         backgroundColor: Colors.transparent,
                         elevation: 0,
                         child: Lottie.asset(
@@ -72,21 +73,25 @@ class _CallBottomRowState extends State<CallBottomRow> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       FloatingActionButton(
+                        heroTag: 22,
                         backgroundColor: _switchCameraIcon,
                         child: const Icon(Icons.switch_camera),
                         onPressed: () => _switchCamera(),
                       ),
                       FloatingActionButton(
+                        heroTag: 33,
                         backgroundColor: _offVideoCamIcon,
                         child: const Icon(Icons.videocam_off_sharp),
                         onPressed: () => _offVideoCam(),
                       ),
                       FloatingActionButton(
+                        heroTag: 44,
                         backgroundColor: _muteMicIcon,
                         child: const Icon(Icons.mic_off),
                         onPressed: () => _muteMic(),
                       ),
                       FloatingActionButton(
+                        heroTag: 55,
                         backgroundColor: _screenShareIcon,
                         child: (isAndroid())
                             ? const Icon(Icons.mobile_screen_share)
@@ -94,6 +99,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         onPressed: () => _shareScreen(),
                       ),
                       FloatingActionButton(
+                        heroTag: 66,
                         onPressed: () => widget.hangUp(),
                         tooltip: 'Hangup',
                         child: const Icon(Icons.call_end),

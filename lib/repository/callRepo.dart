@@ -368,7 +368,7 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() {
-    startCallTimer();
+    if(!isVideo)startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
     }
@@ -426,7 +426,7 @@ class CallRepo {
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
           callingStatus.add(CallStatus.CONNECTED);
-          startCallTimer();
+          if(!isVideo)startCallTimer();
           break;
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);

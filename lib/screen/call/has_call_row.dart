@@ -31,13 +31,11 @@ class _HasCallRowState extends State<HasCallRow> {
                   } else {
                     if (snapshot.data == CallStatus.CREATED &&
                         !callRepo.isCaller) {
-                      _routingService.openCallScreen(
-                          callRepo.roomUid!, false, false,
-                          isIncomingCall: true, context: context);
+                      _routingService.openCallScreen(callRepo.roomUid!,
+                          isIncomingCall: true, context: context , isVideoCall:callRepo.isVideo);
                     } else {
-                      _routingService.openCallScreen(
-                          callRepo.roomUid!, false, true,
-                          context: context);
+                      _routingService.openCallScreen(callRepo.roomUid!,
+                          isCallInitialized: true, context: context, isVideoCall:callRepo.isVideo);
                     }
                   }
                 },

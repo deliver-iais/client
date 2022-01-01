@@ -184,16 +184,16 @@ class WindowsNotifier implements Notifier {
           } else if (event.action == 0) {
             //Accept
             if (callRepo.isVideo) {
-                  _routingService.openInComingCallPage(message.roomUid!, true);
-                  DesktopWindow.focus();
+              _routingService.openCallScreen(message.roomUid!,
+                  isVideoCall: true, isCallAccepted: true);
             } else {
-                  _routingService.openCallScreen(message.roomUid!, true, false);
-                  DesktopWindow.focus();
-                }
-
+              _routingService.openCallScreen(message.roomUid!,
+                  isCallAccepted: true);
+              DesktopWindow.focus();
             }
           }
-        });
+        }
+      });
     } catch (e) {
       _logger.e(e);
     }

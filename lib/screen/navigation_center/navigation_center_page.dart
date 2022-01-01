@@ -55,15 +55,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
         .listen((text) => _searchMode.add(text));
     modifyRoutingByNotificationVideoCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
-        _routingService.openInComingCallPage(
-            event.keys.elementAt(0).asUid(), true,
+        _routingService.openCallScreen(
+            event.keys.elementAt(0).asUid(), isCallAccepted: true,isVideoCall:true,
             context: context);
       }
     });
     modifyRoutingByNotificationAudioCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
         _routingService.openCallScreen(
-            event.keys.elementAt(0).asUid(), true, false,
+            event.keys.elementAt(0).asUid(), isCallAccepted: true,
             context: context);
       }
     });
