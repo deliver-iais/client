@@ -1,5 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
@@ -20,10 +21,15 @@ class CallMessageWidget extends StatelessWidget {
   final int _callDuration;
   final _autRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final bool _isVideo;
 
   CallMessageWidget({Key? key, required this.message})
       : _callEvent = message.json!.toCallEvent().newStatus,
         _callDuration = message.json!.toCallDuration(),
+        _isVideo =
+            message.json!.toCallEvent().callType == CallEvent_CallType.VIDEO
+                ? true
+                : false,
         super(key: key);
 
   @override
@@ -78,14 +84,13 @@ class CallMessageWidget extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                _routingService.openCallScreen(
-                    message.roomUid.asUid(),
+                _routingService.openCallScreen(message.roomUid.asUid(),
                     context: context);
               },
-              child: const Align(
+              child: Align(
                 alignment: Alignment.centerRight,
                 child: Icon(
-                  Icons.call,
+                  _isVideo ? Icons.videocam : Icons.call,
                   color: Colors.cyan,
                   size: 35,
                 ),
