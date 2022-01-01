@@ -833,7 +833,7 @@ class CallRepo {
     await _peerConnection?.close();
     await _peerConnection?.dispose();
     _candidate = [];
-    Timer(const Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 2), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
     _offerSdp = "";
