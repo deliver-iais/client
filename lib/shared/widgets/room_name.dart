@@ -22,16 +22,13 @@ class RoomName extends StatelessWidget {
         builder: (context, snapshot) {
           return Row(
             children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width*0.33,
-                child: Text(
-                  (snapshot.data ?? ""),
-                  style: (style ?? Theme.of(context).textTheme.subtitle2)!
-                      .copyWith(height: 1),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ),
+              Text(
+                (snapshot.data ?? ""),
+                style: (style ?? Theme.of(context).textTheme.subtitle2)!
+                    .copyWith(height: 1),
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.fade,
               ),
               FutureBuilder<bool>(
                   future: _roomRepo.isVerified(uid),

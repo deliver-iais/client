@@ -26,17 +26,17 @@ class _HasCallRowState extends State<HasCallRow> {
               snapshot.data != CallStatus.NO_CALL) {
             return GestureDetector(
                 onTap: () {
-                  if (callRepo.isVideo) {
-                    //Todo handle this case
+                  if (snapshot.data == CallStatus.CREATED &&
+                      !callRepo.isCaller) {
+                    _routingService.openCallScreen(callRepo.roomUid!,
+                        isIncomingCall: true,
+                        context: context,
+                        isVideoCall: callRepo.isVideo);
                   } else {
-                    if (snapshot.data == CallStatus.CREATED &&
-                        !callRepo.isCaller) {
-                      _routingService.openCallScreen(callRepo.roomUid!,
-                          isIncomingCall: true, context: context , isVideoCall:callRepo.isVideo);
-                    } else {
-                      _routingService.openCallScreen(callRepo.roomUid!,
-                          isCallInitialized: true, context: context, isVideoCall:callRepo.isVideo);
-                    }
+                    _routingService.openCallScreen(callRepo.roomUid!,
+                        isCallInitialized: true,
+                        context: context,
+                        isVideoCall: callRepo.isVideo);
                   }
                 },
                 child: callRepo.roomUid != null
