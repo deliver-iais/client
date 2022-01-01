@@ -815,6 +815,7 @@ class CallRepo {
   }
 
   _dispose() async {
+    callingStatus.add(CallStatus.ENDED);
     if (timer != null) {
       _logger.i("timer canceled");
       timer!.cancel();
@@ -832,7 +833,6 @@ class CallRepo {
     await _peerConnection?.close();
     await _peerConnection?.dispose();
     _candidate = [];
-    callingStatus.add(CallStatus.ENDED);
     Timer(const Duration(seconds: 4), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
