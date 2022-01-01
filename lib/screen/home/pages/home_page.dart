@@ -76,11 +76,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       try {
         final bool isDeferredNotNull =
             js.context.callMethod("isDeferredNotNull", []) as bool;
-        if (isDeferredNotNull) {
-          //   ujs.context.callMethod("presentAddToHome");
-          // return true;
-
-        }
+        //todo add to home web
+        // if (isDeferredNotNull != nnulisDeferredNotNull) {
+        //   //   ujs.context.callMethod("presentAddToHome");
+        //   // return true;
+        //
+        // }
       } catch (e) {
         _logger.e(e);
       }
