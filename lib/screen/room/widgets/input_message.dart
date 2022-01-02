@@ -19,7 +19,6 @@ import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -278,9 +277,8 @@ class _InputMessageWidget extends State<InputMessage> {
                       ? Expanded(
                           child: Row(
                             children: <Widget>[
-                              StreamBuilder<bool>(
-                                  stream: backSubject.stream,
-                                  builder: (c, back) {
+                              StatefulBuilder(
+                                  builder: (c, setStateIcon) {
                                     return IconButton(
                                       icon: Icon(
                                         back.hasData && back.data!

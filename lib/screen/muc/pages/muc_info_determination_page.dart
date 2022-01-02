@@ -75,9 +75,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
           backgroundColor: ExtraTheme.of(context).boxBackground,
           leading: _routingService.backButtonLeading(context),
           title: Text(
-            widget.isChannel
-                ? _i18n.get("newChannel")
-                : _i18n.get("newGroup"),
+            widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
             style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
         ),
@@ -291,9 +289,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   if (mucUid != null) {
                                     _createMucService.reset();
                                     if (isDesktop() || kIsWeb) {
-                                      _routingService.openRoom(
-                                          mucUid.asString(),
-                                          context: context);
+                                      _routingService
+                                          .openRoom(mucUid.asString());
                                     } else {
                                       Navigator.pushAndRemoveUntil(
                                           context,

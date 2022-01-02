@@ -121,8 +121,7 @@ class _ContactsPageState extends State<ContactsPage> {
                             } else {
                               return GestureDetector(
                                 onTap: () {
-                                  _rootingServices.openRoom(c.uid,
-                                      context: context);
+                                  _rootingServices.openRoom(c.uid);
                                 },
                                 child: ContactWidget(
                                     contact: c,
@@ -148,7 +147,7 @@ class _ContactsPageState extends State<ContactsPage> {
                             Icons.add,
                           ),
                           onPressed: () {
-                            _routingService.openCreateNewContactPage(context);
+                            _routingService.openNewContact();
                           },
                           label: Text(I18N.of(context)!.get("add_new_contact")),
                         ),

@@ -92,7 +92,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onForward() {
     Navigator.pop(context);
     _routingServices
-        .openSelectForwardMessage(context, forwardedMessages: [widget.message]);
+        .openSelectForwardMessage(forwardedMessages: [widget.message]);
 
   }
 

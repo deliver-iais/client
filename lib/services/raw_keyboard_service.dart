@@ -49,7 +49,7 @@ class RawKeyboardService {
 
   void escapeHandle(int replyMessageId, Function resetRoomPageDetails) {
     if (InputMessage.inputMessageFocusNode == null) {
-      if (_routingService.isAnyRoomOpen()) _routingService.pop();
+      _routingService.popAll();
     } else {
       if (InputMessage.inputMessageFocusNode?.hasFocus == true) {
         if (replyMessageId == 0) {
@@ -74,8 +74,7 @@ class RawKeyboardService {
                   index++,
                   if (element.node == _currentRoom?.node)
                     if (index - 1 >= 0)
-                      _routingService.openRoom(room[index - 1].uid,
-                          context: context)
+                      _routingService.openRoom(room[index - 1].uid)
                 }
             }));
   }
@@ -90,8 +89,7 @@ class RawKeyboardService {
                   index++,
                   if (element.node == _currentRoom?.node)
                     if (index + 1 < room.length)
-                      _routingService.openRoom(room[index + 1].uid,
-                          context: context)
+                      _routingService.openRoom(room[index + 1].uid)
                 }
             }));
   }

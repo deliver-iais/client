@@ -16,7 +16,8 @@ import 'package:deliver/shared/widgets/tgs.dart';
 
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as contact_pb;
+import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart'
+    as contact_pb;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -219,12 +220,14 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var res = await _contactRepo.addContact(contact_pb.Contact()
-                        ..firstName = firstName!
-                        ..lastName = lastName!
-                        ..phoneNumber = PhoneNumber(
-                            countryCode: int.parse(countryCode),
-                            nationalNumber: Int64(int.parse(nationalNumber))));
+                      var res = await _contactRepo.addContact(
+                          contact_pb.Contact()
+                            ..firstName = firstName!
+                            ..lastName = lastName!
+                            ..phoneNumber = PhoneNumber(
+                                countryCode: int.parse(countryCode),
+                                nationalNumber:
+                                    Int64(int.parse(nationalNumber))));
                       _contactRepo.getContacts();
                       if (res) {
                         ToastDisplay.showToast(
@@ -288,11 +291,11 @@ class _ScanQrCode extends State<ScanQrCode> {
                   onPressed: () async {
                     Navigator.of(context).pop();
                     _routingServices.openRoom(
-                        (Uid.create()
-                              ..node = botId
-                              ..category = Categories.BOT)
-                            .asString(),
-                        context: context);
+                      (Uid.create()
+                            ..node = botId
+                            ..category = Categories.BOT)
+                          .asString(),
+                    );
                     _messageRepo.sendTextMessage(
                         Uid()
                           ..category = Categories.BOT
@@ -370,12 +373,10 @@ class _ScanQrCode extends State<ScanQrCode> {
                           ..node = botId,
                         privateDataType,
                         token);
-                    _routingServices.openRoom(
-                        (Uid.create()
-                              ..node = botId
-                              ..category = Categories.BOT)
-                            .asString(),
-                        context: context);
+                    _routingServices.openRoom((Uid.create()
+                          ..node = botId
+                          ..category = Categories.BOT)
+                        .asString());
                     Navigator.of(context).pop();
                   },
                   child: Text(_i18n.get("ok")),

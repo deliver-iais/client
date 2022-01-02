@@ -32,7 +32,6 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -47,7 +46,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -86,7 +84,6 @@ class _RoomPageState extends State<RoomPage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  String? _searchMessagePattern;
   int _lastSeenMessageId = -1;
 
   int _lastShowedMessageId = -1;
@@ -149,8 +146,9 @@ class _RoomPageState extends State<RoomPage> {
                             builder: (context, currentRoomStream) {
                               if (currentRoomStream.hasData) {
                                 _currentRoom.add(currentRoomStream.data);
-                                int i = (_currentRoom.value!.lastMessageId ?? 0) +
-                                    pendingMessages.length;
+                                int i =
+                                    (_currentRoom.value!.lastMessageId ?? 0) +
+                                        pendingMessages.length;
                                 _itemCountSubject.add(i);
                                 _itemCount = i;
                                 if (currentRoomStream.data!.firstMessageId !=
@@ -161,7 +159,8 @@ class _RoomPageState extends State<RoomPage> {
                                 return PageStorage(
                                     bucket: PageStorage.of(context)!,
                                     key: PageStorageKey(widget.roomId),
-                                    child: buildMessagesListView(pendingMessages));
+                                    child:
+                                        buildMessagesListView(pendingMessages));
                               } else {
                                 return const SizedBox(
                                   height: 50,
@@ -881,7 +880,7 @@ class _RoomPageState extends State<RoomPage> {
                   size: 30,
                 ),
                 onPressed: () {
-                  _routingService.openSelectForwardMessage(context,
+                  _routingService.openSelectForwardMessage(
                       forwardedMessages: _selectedMessages.values.toList());
                   _selectedMessages.clear();
                 }),
@@ -925,10 +924,10 @@ class _RoomPageState extends State<RoomPage> {
   onUsernameClick(String username) async {
     if (username.contains("_bot")) {
       String roomId = "4:${username.substring(1)}";
-      _routingService.openRoom(roomId, context: context);
+      _routingService.openRoom(roomId);
     } else {
       String roomId = await _roomRepo.getUidById(username);
-      _routingService.openRoom(roomId, context: context);
+      _routingService.openRoom(roomId);
     }
   }
 

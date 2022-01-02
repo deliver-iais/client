@@ -344,8 +344,8 @@ class _ProfilePageState extends State<ProfilePage>
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: const Icon(Icons.message),
-                    onPressed: (_) => _routingService
-                        .openRoom(widget.roomUid.asString(), context: context)),
+                    onPressed: (_) =>
+                        _routingService.openRoom(widget.roomUid.asString())),
               ),
             if (isAndroid())
               FutureBuilder<String?>(
@@ -367,7 +367,7 @@ class _ProfilePageState extends State<ProfilePage>
                             onPressed: (_) async {
                               _routingService
                                   .openCustomNotificationSoundSelection(
-                                      context, widget.roomUid.asString());
+                                      widget.roomUid.asString());
                             },
                           ));
                     } else {
@@ -428,7 +428,7 @@ class _ProfilePageState extends State<ProfilePage>
                   titleTextStyle:
                       TextStyle(color: ExtraTheme.of(context).textField),
                   leading: const Icon(Icons.person_add),
-                  onPressed: (_) => _routingService.openMemberSelection(context,
+                  onPressed: (_) => _routingService.openMemberSelection(
                       isChannel: true, mucUid: widget.roomUid),
                 ),
               ),
@@ -667,13 +667,11 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: () {
                       // TODO set name for share uid
                       Navigator.pop(context);
-                      _routingService.openSelectForwardMessage(context,
+                      _routingService.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
                             ..name = _roomName
                             ..joinToken = token
                             ..uid = widget.roomUid);
-
-
                     },
                     child: Text(
                       _i18n.get("share"),
@@ -935,7 +933,6 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -947,7 +944,6 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -1115,10 +1111,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                                       c1);
                                                                   _routingService
                                                                       .openRoom(
-                                                                          snapshot.data![
-                                                                              i],
-                                                                          context:
-                                                                              c);
+                                                                    snapshot
+                                                                        .data![i],
+                                                                  );
                                                                 }
                                                               },
                                                               child: Text(_i18n

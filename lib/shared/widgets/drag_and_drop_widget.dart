@@ -96,6 +96,6 @@ class DragDropWidget extends StatelessWidget {
       List<model.File> files, BuildContext context, String type) {
     showCaptionDialog(
         type: type, context: context, files: files, roomUid: roomUid.asUid());
-    _routingServices.openRoom(roomUid, context: context);
+    _routingServices.openRoom(roomUid);
   }
 }

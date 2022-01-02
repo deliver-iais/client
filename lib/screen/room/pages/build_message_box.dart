@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -13,7 +12,6 @@ import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.da
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -233,7 +231,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 child: CircleAvatarWidget(message.from.asUid(), 18),
               ),
               onTap: () {
-                _routingServices.openRoom(message.from, context: context);
+                _routingServices.openRoom(message.from);
               },
             ),
           ),
@@ -271,7 +269,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (widget.replyMessageId != -1) {
       Timer(const Duration(seconds: 3), () {
         widget.changeReplyMessageId(-1);
-        ;
       });
     }
   }
@@ -279,10 +276,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   onUsernameClick(String username) async {
     if (username.contains("_bot")) {
       String roomId = "4:${username.substring(1)}";
-      _routingServices.openRoom(roomId, context: context);
+      _routingServices.openRoom(roomId);
     } else {
       String roomId = await _roomRepo.getUidById(username);
-      _routingServices.openRoom(roomId, context: context);
+      _routingServices.openRoom(roomId);
     }
   }
 }
