@@ -70,7 +70,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       FloatingActionButton(
                         heroTag: 22,

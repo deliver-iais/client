@@ -182,16 +182,16 @@ class WindowsNotifier implements Notifier {
           if (event.action == 1) {
             //Decline
             callRepo.declineCall();
-            _routingService.pop();
           } else if (event.action == 0) {
             //Accept
+            DesktopWindow.focus();
             if (callRepo.isVideo) {
               _routingService.openCallScreen(message.roomUid!,
                   isVideoCall: true, isCallAccepted: true);
             } else {
               _routingService.openCallScreen(message.roomUid!,
                   isCallAccepted: true);
-              DesktopWindow.focus();
+
             }
           }
         }
