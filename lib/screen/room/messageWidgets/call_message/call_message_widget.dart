@@ -8,7 +8,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -82,7 +81,7 @@ class CallMessageWidget extends StatelessWidget {
             InkWell(
               onTap: () {
                 _routingService.openCallScreen(message.roomUid.asUid(),
-                    context: context);
+                    isVideoCall: _isVideo, context: context);
               },
               child: Align(
                 alignment: Alignment.centerRight,
