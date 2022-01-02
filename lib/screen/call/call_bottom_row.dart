@@ -38,7 +38,6 @@ class _CallBottomRowState extends State<CallBottomRow> {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-
                     Container(
                       width: 100,
                       height: 100,
@@ -48,8 +47,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         backgroundColor: Colors.transparent,
                         elevation: 0,
                         child: Lottie.asset(
-                                'assets/animations/accept_call.json',
-                               ),
+                          'assets/animations/accept_call.json',
+                        ),
                         onPressed: () => _acceptCall(),
                       ),
                     ),
@@ -58,8 +57,11 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       height: 70,
                       child: FloatingActionButton(
                         backgroundColor: Colors.red,
-                        child: const Icon(Icons.call_end,size: 40,),
-                        onPressed:() => _declineCall() ,
+                        child: const Icon(
+                          Icons.call_end,
+                          size: 40,
+                        ),
+                        onPressed: () => _declineCall(),
                       ),
                     )
                   ])));

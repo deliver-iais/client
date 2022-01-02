@@ -151,6 +151,7 @@ class _CallScreenState extends State<CallScreen> {
                       localRenderer: _localRenderer,
                       text: "Ringing...",
                       remoteRenderer: _remoteRenderer,
+                      isIncomingCall: widget.isIncomingCall,
                       hangUp: _hangUp)
                   : AudioCallScreen(
                       roomUid: widget.roomUid,
@@ -165,6 +166,7 @@ class _CallScreenState extends State<CallScreen> {
                       localRenderer: _localRenderer,
                       text: "Calling....",
                       remoteRenderer: _remoteRenderer,
+                      isIncomingCall: widget.isIncomingCall,
                       hangUp: _hangUp)
                   : AudioCallScreen(
                       roomUid: widget.roomUid,
