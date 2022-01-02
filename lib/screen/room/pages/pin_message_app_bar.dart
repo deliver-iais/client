@@ -3,11 +3,9 @@ import 'dart:math';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
 
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
@@ -99,17 +97,20 @@ class PinMessageAppBar extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              i18n.get("pinned_message"),
-                              style:
-                                  Theme.of(context).primaryTextTheme.subtitle2,
-                            ),
-                            LastMessage(
-                                message: mes!,
-                                lastMessageId: mes.id!,
-                                hasMentioned: false,
-                                showSeenStatus: false,
-                                showSender: false),
+                            if (mes != null)
+                              Text(
+                                i18n.get("pinned_message"),
+                                style: Theme.of(context)
+                                    .primaryTextTheme
+                                    .subtitle2,
+                              ),
+                            if (mes != null)
+                              LastMessage(
+                                  message: mes,
+                                  lastMessageId: mes.id!,
+                                  hasMentioned: false,
+                                  showSeenStatus: false,
+                                  showSender: false),
                           ],
                         ),
                       ),

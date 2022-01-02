@@ -114,7 +114,7 @@ class _InputMessageWidget extends State<InputMessage> {
   var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
   void showButtonSheet() {
-    if (isDesktop()) {
+    if (kIsWeb || isDesktop()) {
       _attachFileInWindowsMode();
     } else {
       showModalBottomSheet(
@@ -531,44 +531,6 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  // TextField buildTextField() {
-  //   return TextField(
-  //     focusNode: isDesktop()
-  //         ? InputMessage.inputMessageFocusNode
-  //         : FocusNode(canRequestFocus: true),
-  //     autofocus: widget.replyMessageId! > 0 || isDesktop(),
-  //     controller: _controller,
-  //     decoration: InputDecoration(
-  //       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-  //       border: InputBorder.none,
-  //       hintText: i18n.get("message"),
-  //     ),
-  //     autocorrect: true,
-  //     textInputAction: TextInputAction.newline,
-  //     minLines: 1,
-  //     maxLines: 15,
-  //     textAlign: _controller.text.isNotEmpty && _controller.text.isPersian()
-  //         ? TextAlign.right
-  //         : TextAlign.left,
-  //     textDirection: _controller.text.isNotEmpty && _controller.text.isPersian()
-  //         ? TextDirection.rtl
-  //         : TextDirection.ltr,
-  //     style: Theme.of(context).textTheme.subtitle1,
-  //     onTap: () {
-  //       backSubject.add(false);
-  //
-  //     },
-  //     onChanged: (str) {
-  //       _textSelection = _controller.selection;
-  //       if (str.isNotEmpty) {
-  //         isTypingActivitySubject.add(ActivityType.TYPING);
-  //       } else {
-  //         noActivitySubject.add(ActivityType.NO_ACTIVITY);
-  //       }
-  //     },
-  //   );
-  // }
-
   void onMentionSelected(s) {
     int start = _textSelection.base.offset;
     String block_1 = _controller.text.substring(0, start);
@@ -612,14 +574,23 @@ class _InputMessageWidget extends State<InputMessage> {
         replyMessageId: widget.replyMessageId!,
         resetRoomPageDetails: widget.resetRoomPageDetails!,
         event: event);
-    setState(() {
-      _rawKeyboardService.navigateInMentions(_mentionData, scrollDownInMentions,
-          event, mentionSelectedIndex, scrollUpInMentions, sendMentionByEnter);
-    });
-    setState(() {
-      _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
-          scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
-    });
+    if (widget.currentRoom.uid.asUid().isGroup()) {
+      setState(() {
+        _rawKeyboardService.navigateInMentions(
+            _mentionData,
+            scrollDownInMentions,
+            event,
+            mentionSelectedIndex,
+            scrollUpInMentions,
+            sendMentionByEnter);
+      });
+    }
+    if (widget.currentRoom.uid.asUid().isBot()) {
+      setState(() {
+        _rawKeyboardService.navigateInBotCommand(event, scrollDownInBotCommand,
+            scrollUpInBotCommand, sendBotCommandByEnter, _botCommandData);
+      });
+    }
 
     return KeyEventResult.ignored;
   }

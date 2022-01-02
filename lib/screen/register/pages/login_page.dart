@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
-  bool _acceptPrivacy = false;
+  bool _acceptPrivacy = !isAndroid();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -296,34 +296,45 @@ class _LoginPageState extends State<LoginPage> {
                                 loginWithQrCode = true;
                               });
                             }),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _acceptPrivacy,
-                            onChanged: (c) {
-                              setState(() {
-                                _acceptPrivacy = c!;
-                              });
-                            },
-                          ),
-                          RichText(
-                            text: TextSpan(children: [
-                              TextSpan(
-                                  text: "شرایط حریم خصوصی",
-                                  style: const TextStyle(
-                                      color: Colors.blue, fontSize: 13),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () => launch(
-                                        "https://deliver-co.ir/#/termofuse")),
-                              const TextSpan(
-                                  text:
-                                      " را مطالعه نموده ام و آن را قبول می کنم",
-                                  style: TextStyle(fontSize: 13)),
-                            ], style: Theme.of(context).textTheme.bodyText2),
-                            textDirection: TextDirection.rtl,
-                          ),
-                        ],
-                      )
+                      if (isAndroid())
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _acceptPrivacy,
+                              onChanged: (c) {
+                                setState(() {
+                                  _acceptPrivacy = c!;
+                                });
+                              },
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _acceptPrivacy = true;
+                                });
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          text: "شرایط حریم خصوصی",
+                                          style: const TextStyle(
+                                              color: Colors.blue, fontSize: 13),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => launch(
+                                                "https://deliver-co.ir/#/termofuse")),
+                                      const TextSpan(
+                                          text:
+                                              " را مطالعه نموده ام و آن را قبول می کنم",
+                                          style: TextStyle(fontSize: 13)),
+                                    ],
+                                    style:
+                                        Theme.of(context).textTheme.bodyText2),
+                                textDirection: TextDirection.rtl,
+                              ),
+                            ),
+                          ],
+                        )
                     ],
                   ),
                 ),

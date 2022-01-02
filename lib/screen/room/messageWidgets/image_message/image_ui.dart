@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -140,9 +139,8 @@ class _ImageUiState extends State<ImageUi> {
                                     _startDownload.add(true);
                                     await fileRepo.getFile(
                                         image.uuid, image.name);
-                                    setState(() {
-                                      _startDownload.add(false);
-                                    });
+
+                                    _startDownload.add(false);
                                   },
                                   shape: const CircleBorder(),
                                   child: const Icon(Icons.arrow_downward),

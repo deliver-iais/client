@@ -22,7 +22,6 @@ import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';

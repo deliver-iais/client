@@ -60,42 +60,25 @@ class CupertinoSection extends StatelessWidget {
       }
     }
 
-    bool largeScreen = MediaQuery.of(context).size.width >= 768 ? true : false;
-
-    columnChildren.add(largeScreen
-        ? Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
-              color: Theme.of(context).brightness == Brightness.light
-                  ? CupertinoColors.white
-                  : iosTileDarkColor,
+    columnChildren.add(Container(
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          color: Theme.of(context).brightness == Brightness.light
+              ? CupertinoColors.white
+              : iosTileDarkColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              spreadRadius: 2,
+              blurRadius: 25,
+              offset: const Offset(0, 3), // changes position of shadow
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: itemsWithDividers,
-            ),
-          )
-        : Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.light
-                  ? CupertinoColors.white
-                  : iosTileDarkColor,
-              border: const Border(
-                top: BorderSide(
-                  color: borderColor,
-                  width: 0.3,
-                ),
-                bottom: BorderSide(
-                  color: borderColor,
-                  width: 0.3,
-                ),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: itemsWithDividers,
-            ),
-          ));
+          ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: itemsWithDividers,
+      ),
+    ));
 
     if (footer != null) {
       columnChildren.add(DefaultTextStyle(
@@ -116,13 +99,8 @@ class CupertinoSection extends StatelessWidget {
     }
 
     return Padding(
-      padding: largeScreen
-          ? EdgeInsets.only(
-              top: header == null ? 24.0 : 11.0,
-              left: 22,
-              right: 22,
-              bottom: 11.0)
-          : EdgeInsets.only(top: header == null ? 24.0 : 11.0, bottom: 11.0),
+      padding: EdgeInsets.only(
+          top: header == null ? 24.0 : 11.0, left: 22, right: 22, bottom: 11.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: columnChildren,

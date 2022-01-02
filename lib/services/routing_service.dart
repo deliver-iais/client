@@ -32,7 +32,6 @@ import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -554,7 +553,7 @@ class Empty extends StatelessWidget {
         const Background(),
         Center(
           child: BlurContainer(
-            skew: 4,
+              skew: 4,
               padding:
                   const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
               // decoration: BoxDecoration(

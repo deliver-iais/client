@@ -27,7 +27,6 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -41,8 +40,6 @@ import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -509,15 +506,23 @@ class MessageRepo {
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
+    BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
+    sendActivitySubject
+        .throttleTime(const Duration(seconds: 10))
+        .listen((value) {
+      if (value != 0) {
+        sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
+      }
+    });
+
     var fakeFileInfo = file_pb.File.fromJson(pm.msg.json!);
 
     var packetId = pm.msg.packetId;
 
     // Upload to file server
-    file_pb.File? fileInfo = await _fileRepo
-        .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
-      sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
-    });
+    file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(
+        packetId, fakeFileInfo.name,
+        sendActivity: (int i) => sendActivitySubject.add(i));
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 

@@ -15,8 +15,6 @@ import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
     as platform_pb;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
@@ -118,7 +116,6 @@ class AuthRepo {
         ..osVersion = platform_detect.browser.version.major.toString();
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
       platform
         ..platformType = platform_pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
