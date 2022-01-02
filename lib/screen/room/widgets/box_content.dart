@@ -92,8 +92,7 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                           onTapDown: (tapDownDetails) {
                             storePosition(tapDownDetails);
                           },
-                          onTap: () => widget.onArrowIconClick!(
-                              widget.message, false, this),
+                          onTap: () => widget.onArrowIconClick!(),
                           child: const Icon(
                             Icons.arrow_drop_down_sharp,
                             color: Colors.grey,
