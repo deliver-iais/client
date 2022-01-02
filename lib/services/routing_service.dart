@@ -451,9 +451,13 @@ class RoutingService {
   }
 
   pop() {
-    if (_stack!.length > 1) {
-      _stack!.removeLast();
-      _route.add(_stack!.last.path);
+    if (isDesktop()) {
+      if (_stack!.length > 1) {
+        _stack!.removeLast();
+        _route.add(_stack!.last.path);
+      }
+    } else {
+      // TODO add context and pop from Navigator
     }
   }
 
