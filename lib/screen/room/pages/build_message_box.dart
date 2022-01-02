@@ -153,7 +153,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           if (widget.selectMultiMessageSubject.stream.value) {
             widget.addForwardMessage();
           } else if (!isDesktop()) {
-           FocusScope.of(context).unfocus();
+            FocusScope.of(context).unfocus();
             _showCustomMenu(message, false);
           }
         },
@@ -192,9 +192,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
       message: message,
-      onArrowIconClick: (){
-
-      },
+      onArrowIconClick: () => _showCustomMenu(message, false),
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
       pattern: "",
       //todo add search message
@@ -222,9 +220,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
-      onArrowIconClick: (){
-
-      },
+      onArrowIconClick: () => _showCustomMenu(message, false),
     );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
