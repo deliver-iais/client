@@ -1,12 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
@@ -23,7 +20,6 @@ class CustomNotificationSoundSelection extends StatefulWidget {
 
 class _CustomNotificationSoundSelectionState
     extends State<CustomNotificationSoundSelection> {
-  final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   List<String> staticData = [
     "deduction",
@@ -52,7 +48,7 @@ class _CustomNotificationSoundSelectionState
         leading: InkWell(
           child: const Icon(Icons.clear),
           onTap: () {
-            _routingService.pop();
+            Navigator.pop(context);
           },
         ),
         actions: [
@@ -68,7 +64,7 @@ class _CustomNotificationSoundSelectionState
                     _roomRepo.setRoomCustomNotification(
                         widget.roomUid, staticData[index]);
                   }
-                  _routingService.pop();
+                  Navigator.pop(context);
                 },
                 child: Text(
                   i18n.get("ok"),
@@ -119,7 +115,6 @@ class _CustomNotificationSoundSelectionState
   }
 
   Widget _buildSelectIcon(bool isSelected, String data) {
-    final _shakeController = ShakeWidgetController();
     return StreamBuilder<Object>(
         stream: widget._player.fixedPlayer!.onPlayerStateChanged,
         builder: (context, snapshot) {
@@ -129,16 +124,12 @@ class _CustomNotificationSoundSelectionState
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (isSelected && snapshot.data == PlayerState.PLAYING)
-                    ShakeWidget(
-                        controller: _shakeController,
-                        child: const TGS.asset(
+                     const TGS.asset(
                           'assets/animations/audio_wave.tgs',
                           autoPlay: true,
-                          width: 60,
+                          width: 40,
                           height: 60,
-                        )),
-                  Lottie.asset('assets/animations/audio_wave.tgs',
-                      width: 40, height: 40),
+                        ),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Icon(

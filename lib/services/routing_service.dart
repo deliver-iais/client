@@ -451,9 +451,13 @@ class RoutingService {
   }
 
   pop() {
-    if (_stack!.length > 1) {
-      _stack!.removeLast();
-      _route.add(_stack!.last.path);
+    if (isDesktop()) {
+      if (_stack!.length > 1) {
+        _stack!.removeLast();
+        _route.add(_stack!.last.path);
+      }
+    } else {
+      // TODO add context and pop from Navigator
     }
   }
 
@@ -553,7 +557,7 @@ class Empty extends StatelessWidget {
         const Background(),
         Center(
           child: BlurContainer(
-            skew: 4,
+              skew: 4,
               padding:
                   const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
               // decoration: BoxDecoration(
