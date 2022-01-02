@@ -1,3 +1,4 @@
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:hive/hive.dart';
 
@@ -51,9 +52,15 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
   static String _key2() => "id-uid-name";
 
-  static Future<Box<UidIdName>> _open() => Hive.openBox<UidIdName>(_key());
+  static Future<Box<UidIdName>> _open() {
+    BoxInfo.addBox(_key());
+    return Hive.openBox<UidIdName>(_key());
+  }
 
-  static Future<Box<String>> _open2() => Hive.openBox<String>(_key2());
+  static Future<Box<String>> _open2() {
+    BoxInfo.addBox(_key2());
+    return Hive.openBox<String>(_key2());
+  }
 
   @override
   Future<List<UidIdName>> search(String term) async {
@@ -63,7 +70,8 @@ class UidIdNameDaoImpl implements UidIdNameDao {
         .where((element) =>
             (element.id != null &&
                 element.id.toString().toLowerCase().contains(text)) ||
-            (element.name != null && element.name!.toLowerCase().contains(text)))
+            (element.name != null &&
+                element.name!.toLowerCase().contains(text)))
         .toList();
     return res;
   }

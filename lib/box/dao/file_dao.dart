@@ -1,3 +1,4 @@
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:hive/hive.dart';
 
@@ -37,6 +38,8 @@ class FileDaoImpl implements FileDao {
 
   static String _key(String size) => "file-info-$size";
 
-  static Future<Box<FileInfo>> _open(String size) =>
-      Hive.openBox<FileInfo>(_key(size));
+  static Future<Box<FileInfo>> _open(String size) {
+    BoxInfo.addBox(_key(size));
+    return Hive.openBox<FileInfo>(_key(size));
+  }
 }
