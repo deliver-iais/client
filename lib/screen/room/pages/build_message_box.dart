@@ -192,6 +192,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
       message: message,
+      onArrowIconClick: (){
+
+      },
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
       pattern: "",
       //todo add search message
@@ -219,6 +222,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
+      onArrowIconClick: (){
+
+      },
     );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
