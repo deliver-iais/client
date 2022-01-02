@@ -27,8 +27,28 @@ import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:rxdart/rxdart.dart';
 
+// Pages
 const _navigationCenter = NavigationCenter(key: ValueKey("navigator"));
+
 const _empty = Empty(key: ValueKey("empty"));
+
+const _settings = SettingsPage(key: ValueKey("/settings"));
+
+const _languageSettings =
+    LanguageSettingsPage(key: ValueKey("/language-settings"));
+
+const _securitySettings =
+    SecuritySettingsPage(key: ValueKey("/security-settings"));
+
+const _logSettings = LogSettingsPage(key: ValueKey("/log-settings"));
+
+const _devices = DevicesPage(key: ValueKey("/devices"));
+
+const _contacts = ContactsPage(key: ValueKey("/contacts"));
+
+const _newContact = NewContact(key: ValueKey("/new-contact"));
+
+const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 class RoutingService {
   final _mainScreen = GlobalKey<NavigatorState>();
@@ -36,25 +56,6 @@ class RoutingService {
   final _route = BehaviorSubject.seeded("/");
 
   Stream<String> get currentRouteStream => _route.stream;
-
-  // Pages
-  final _settings = const SettingsPage(key: ValueKey("/settings"));
-
-  final _languageSettings =
-      const LanguageSettingsPage(key: ValueKey("/language-settings"));
-
-  final _securitySettings =
-      const SecuritySettingsPage(key: ValueKey("/security-settings"));
-
-  final _logSettings = const LogSettingsPage(key: ValueKey("/log-settings"));
-
-  final _devices = const DevicesPage(key: ValueKey("/devices"));
-
-  final _contacts = const ContactsPage(key: ValueKey("/contacts"));
-
-  final _newContact = const NewContact(key: ValueKey("/new-contact"));
-
-  final _scanQrCode = const ScanQrCode(key: ValueKey("/scan-qr-code"));
 
   // Functions
   void openSettings() => _push(_settings);
@@ -217,7 +218,9 @@ class RoutingService {
     );
   }
 
-  logout() async {}
+  logout() async {
+    // TODO implement
+  }
 
   Widget backButtonLeading(BuildContext context, {Function? back}) {
     return BackButton(

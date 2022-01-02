@@ -304,9 +304,9 @@ class MyApp extends StatelessWidget {
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
-                _rawKeyboardService.escapeHandeling(
+                _rawKeyboardService.escapeHandling(
                     event: event, replyMessageId: -1);
-                _rawKeyboardService.searchHandeling(event: event);
+                _rawKeyboardService.searchHandling(event: event);
                 _rawKeyboardService.navigateInRooms(
                     event: event, context: context);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight

@@ -118,14 +118,14 @@ class RawKeyboardService {
     scrollDownInBotCommands();
   }
 
-  void searchHandeling({event}) {
+  void searchHandling({event}) {
     if (event.physicalKey == PhysicalKeyboardKey.keyF &&
         event.isControlPressed) {
       controlFHandle();
     }
   }
 
-  void escapeHandeling(
+  void escapeHandling(
       {event, int? replyMessageId, Function? resetRoomPageDetails}) {
     if (isKeyPressed(event, PhysicalKeyboardKey.escape)) {
       escapeHandle(replyMessageId!, resetRoomPageDetails!);
