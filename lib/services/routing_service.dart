@@ -185,7 +185,7 @@ class RoutingService {
 
   void pop() {
     if (canPop()) {
-      _mainScreen.currentState?.pop();
+      _mainScreen.currentState?.maybePop();
     }
   }
 

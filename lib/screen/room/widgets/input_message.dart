@@ -277,30 +277,30 @@ class _InputMessageWidget extends State<InputMessage> {
                       ? Expanded(
                           child: Row(
                             children: <Widget>[
-                              StatefulBuilder(
-                                  builder: (c, setStateIcon) {
-                                    return IconButton(
-                                      icon: Icon(
-                                        back.hasData && back.data!
-                                            ? Icons.keyboard
-                                            : Icons.mood,
-                                        color: ExtraTheme.of(context).textField,
-                                      ),
-                                      onPressed: () {
-                                        if (back.data!) {
-                                          backSubject.add(false);
-                                          FocusScope.of(context).unfocus();
-                                        } else if (!back.data!) {
-                                          FocusScope.of(context).unfocus();
-                                          Timer(
-                                              const Duration(milliseconds: 50),
-                                              () {
-                                            backSubject.add(true);
-                                          });
-                                        }
-                                      },
-                                    );
-                                  }),
+                              // StatefulBuilder(
+                              //     builder: (c, setStateIcon) {
+                              //       return IconButton(
+                              //         icon: Icon(
+                              //           back.hasData && back.data!
+                              //               ? Icons.keyboard
+                              //               : Icons.mood,
+                              //           color: ExtraTheme.of(context).textField,
+                              //         ),
+                              //         onPressed: () {
+                              //           if (back.data!) {
+                              //             backSubject.add(false);
+                              //             FocusScope.of(context).unfocus();
+                              //           } else if (!back.data!) {
+                              //             FocusScope.of(context).unfocus();
+                              //             Timer(
+                              //                 const Duration(milliseconds: 50),
+                              //                 () {
+                              //               backSubject.add(true);
+                              //             });
+                              //           }
+                              //         },
+                              //       );
+                              //     }),
                               Flexible(
                                 child: RawKeyboardListener(
                                   focusNode: keyboardRawFocusNode,
@@ -332,7 +332,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             : TextDirection.ltr,
                                     style:
                                         Theme.of(context).textTheme.subtitle1,
-                                    onTap: () => backSubject.add(false),
+                                    // onTap: () => backSubject.add(false),
                                     onChanged: (str) {
                                       _textSelection = _controller.selection;
                                       if (str.isNotEmpty) {
@@ -378,7 +378,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                 .textField,
                                           ),
                                           onPressed: () {
-                                            backSubject.add(false);
+                                            // backSubject.add(false);
                                             showButtonSheet();
                                           });
                                     } else {
@@ -510,21 +510,21 @@ class _InputMessageWidget extends State<InputMessage> {
             ],
           ),
         ),
-        StreamBuilder<bool>(
-            stream: backSubject.stream,
-            builder: (context, back) {
-              if (back.hasData && back.data!) {
-                return SizedBox(
-                    height: 270.0,
-                    child: EmojiKeyboard(
-                      onTap: (emoji) {
-                        _controller.text = _controller.text + emoji.toString();
-                      },
-                    ));
-              } else {
-                return const SizedBox.shrink();
-              }
-            }),
+        // StreamBuilder<bool>(
+        //     stream: backSubject.stream,
+        //     builder: (context, back) {
+        //       if (back.hasData && back.data!) {
+        //         return SizedBox(
+        //             height: 270.0,
+        //             child: EmojiKeyboard(
+        //               onTap: (emoji) {
+        //                 _controller.text = _controller.text + emoji.toString();
+        //               },
+        //             ));
+        //       } else {
+        //         return const SizedBox.shrink();
+        //       }
+        //     }),
       ],
     );
   }

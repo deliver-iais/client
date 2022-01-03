@@ -53,13 +53,13 @@ class RawKeyboardService {
     } else {
       if (InputMessage.inputMessageFocusNode?.hasFocus == true) {
         if (replyMessageId == 0) {
-          _routingService.pop();
+          _routingService.popAll();
         }
         if (replyMessageId > 0) {
           resetRoomPageDetails();
         }
       } else {
-        _routingService.pop();
+        _routingService.popAll();
       }
     }
   }
