@@ -1,6 +1,5 @@
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,23 +44,6 @@ class RawKeyboardService {
   void controlAHandle(TextEditingController controller) {
     controller.selection = TextSelection(
         baseOffset: 0, extentOffset: controller.value.text.length);
-  }
-
-  void escapeHandle(int replyMessageId, Function resetRoomPageDetails) {
-    if (InputMessage.inputMessageFocusNode == null) {
-      _routingService.popAll();
-    } else {
-      if (InputMessage.inputMessageFocusNode?.hasFocus == true) {
-        if (replyMessageId == 0) {
-          _routingService.popAll();
-        }
-        if (replyMessageId > 0) {
-          resetRoomPageDetails();
-        }
-      } else {
-        _routingService.popAll();
-      }
-    }
   }
 
   void scrollUpInRoom(BuildContext context) {
@@ -125,10 +107,9 @@ class RawKeyboardService {
     }
   }
 
-  void escapeHandling(
-      {event, int? replyMessageId, Function? resetRoomPageDetails}) {
+  void escapeHandling(event) {
     if (isKeyPressed(event, PhysicalKeyboardKey.escape)) {
-      escapeHandle(replyMessageId!, resetRoomPageDetails!);
+      _routingService.maybePop();
     }
   }
 

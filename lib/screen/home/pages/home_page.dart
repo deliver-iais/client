@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return WillPopScope(
       onWillPop: () async {
         if (!_routingService.canPop()) return true;
-        _routingService.pop();
+        if (_routingService.isInRoomPage()) _routingService.maybePop();
         return false;
       },
       child: _routingService.outlet(context),

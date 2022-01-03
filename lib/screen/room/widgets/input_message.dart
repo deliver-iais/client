@@ -11,7 +11,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
-import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
@@ -47,22 +46,25 @@ class InputMessage extends StatefulWidget {
   final Function? showMentionList;
   final Function scrollToLastSentMessage;
   final Message? editableMessage;
-  static FocusNode? inputMessageFocusNode;
+  final FocusNode focusNode;
+  final TextEditingController textController;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
 
-  const InputMessage(
-      {Key? key,
-      required this.currentRoom,
-      this.replyMessageId,
-      this.resetRoomPageDetails,
-      this.waitingForForward = false,
-      this.sendForwardMessage,
-      this.editableMessage,
-      this.showMentionList,
-      required this.scrollToLastSentMessage})
-      : super(key: key);
+  const InputMessage({
+    Key? key,
+    required this.currentRoom,
+    required this.scrollToLastSentMessage,
+    required this.focusNode,
+    required this.textController,
+    this.replyMessageId,
+    this.resetRoomPageDetails,
+    this.waitingForForward = false,
+    this.sendForwardMessage,
+    this.editableMessage,
+    this.showMentionList,
+  }) : super(key: key);
 }
 
 class _InputMessageWidget extends State<InputMessage> {
@@ -73,7 +75,6 @@ class _InputMessageWidget extends State<InputMessage> {
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
   final _logger = GetIt.I.get<Logger>();
   final checkPermission = GetIt.I.get<CheckPermissionsService>();
-  final TextEditingController _controller = TextEditingController();
   late Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -133,19 +134,14 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    InputMessage.inputMessageFocusNode = FocusNode(
-      onKey: (FocusNode node, RawKeyEvent evt) {
-        return handleKeyPress(evt);
-      },
-    );
+    widget.focusNode.onKey = (FocusNode node, RawKeyEvent evt) {
+      return handleKeyPress(evt);
+    };
+
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
-    inputMessagePrifix = BehaviorSubject.seeded(null);
     currentRoom = widget.currentRoom;
-    _controller.text = (currentRoom.draft ?? "");
-    inputMessagePrifix.stream.listen((event) {
-      if (event != null) _controller.text = event;
-    });
+    widget.textController.text = (currentRoom.draft ?? "");
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
@@ -158,51 +154,54 @@ class _InputMessageWidget extends State<InputMessage> {
 
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
-    _controller.addListener(() {
-      if (_controller.text.isNotEmpty && _controller.text.isNotEmpty) {
+    widget.textController.addListener(() {
+      if (widget.textController.text.isNotEmpty &&
+          widget.textController.text.isNotEmpty) {
         _showSendIcon.add(true);
       } else {
         _showSendIcon.add(false);
       }
 
       if (currentRoom.uid.asUid().category == Categories.BOT &&
-          _controller.text.isNotEmpty &&
-          _controller.text[0] == "/" &&
-          _controller.selection.start == _controller.selection.end &&
-          _controller.selection.start >= 1 &&
-          botCommandRegexp.hasMatch(
-              _controller.text.substring(0 + 1, _controller.selection.start))) {
-        _botCommandQuery.add(
-            _controller.text.substring(0 + 1, _controller.selection.start));
-      } else if (_controller.text.isEmpty) {
+          widget.textController.text.isNotEmpty &&
+          widget.textController.text[0] == "/" &&
+          widget.textController.selection.start ==
+              widget.textController.selection.end &&
+          widget.textController.selection.start >= 1 &&
+          botCommandRegexp.hasMatch(widget.textController.text
+              .substring(0 + 1, widget.textController.selection.start))) {
+        _botCommandQuery.add(widget.textController.text
+            .substring(0 + 1, widget.textController.selection.start));
+      } else if (widget.textController.text.isEmpty) {
         _botCommandQuery.add("-");
       }
 
       if (currentRoom.uid.asUid().category == Categories.GROUP &&
-          _controller.selection.start > 0) {
+          widget.textController.selection.start > 0) {
         mentionQuery = "-";
-        final str = _controller.text;
-        int start = str.lastIndexOf("@", _controller.selection.start);
+        final str = widget.textController.text;
+        int start = str.lastIndexOf("@", widget.textController.selection.start);
 
         if (start == -1) {
           _mentionQuery.add("-");
         }
 
         try {
-          if (_controller.text.isNotEmpty &&
-              _controller.text[start] == "@" &&
-              _controller.selection.start == _controller.selection.end &&
-              idRegexp.hasMatch(_controller.text
-                  .substring(start + 1, _controller.selection.start))) {
-            _mentionQuery.add(_controller.text
-                .substring(start + 1, _controller.selection.start));
+          if (widget.textController.text.isNotEmpty &&
+              widget.textController.text[start] == "@" &&
+              widget.textController.selection.start ==
+                  widget.textController.selection.end &&
+              idRegexp.hasMatch(widget.textController.text.substring(
+                  start + 1, widget.textController.selection.start))) {
+            _mentionQuery.add(widget.textController.text
+                .substring(start + 1, widget.textController.selection.start));
           } else {
             _mentionQuery.add("-");
           }
         } catch (e) {
           _mentionQuery.add("-");
         }
-      } else if (_controller.text.isEmpty) {
+      } else if (widget.textController.text.isEmpty) {
         _mentionQuery.add("-");
       }
     });
@@ -211,9 +210,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void dispose() {
-    inputMessagePrifix.close();
-    _roomRepo.updateRoomDraft(currentRoom.uid, _controller.text);
-    _controller.dispose();
+    _roomRepo.updateRoomDraft(currentRoom.uid, widget.textController.text);
+    widget.textController.dispose();
     super.dispose();
   }
 
@@ -305,11 +303,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                 child: RawKeyboardListener(
                                   focusNode: keyboardRawFocusNode,
                                   child: TextField(
-                                    focusNode:
-                                        InputMessage.inputMessageFocusNode,
+                                    focusNode: widget.focusNode,
                                     autofocus: widget.replyMessageId! > 0 ||
                                         isDesktop(),
-                                    controller: _controller,
+                                    controller: widget.textController,
                                     decoration: InputDecoration(
                                       contentPadding:
                                           const EdgeInsets.symmetric(
@@ -321,20 +318,24 @@ class _InputMessageWidget extends State<InputMessage> {
                                     textInputAction: TextInputAction.newline,
                                     minLines: 1,
                                     maxLines: 15,
-                                    textAlign: _controller.text.isNotEmpty &&
-                                            _controller.text.isPersian()
-                                        ? TextAlign.right
-                                        : TextAlign.left,
+                                    textAlign:
+                                        widget.textController.text.isNotEmpty &&
+                                                widget.textController.text
+                                                    .isPersian()
+                                            ? TextAlign.right
+                                            : TextAlign.left,
                                     textDirection:
-                                        _controller.text.isNotEmpty &&
-                                                _controller.text.isPersian()
+                                        widget.textController.text.isNotEmpty &&
+                                                widget.textController.text
+                                                    .isPersian()
                                             ? TextDirection.rtl
                                             : TextDirection.ltr,
                                     style:
                                         Theme.of(context).textTheme.subtitle1,
                                     // onTap: () => backSubject.add(false),
                                     onChanged: (str) {
-                                      _textSelection = _controller.selection;
+                                      _textSelection =
+                                          widget.textController.selection;
                                       if (str.isNotEmpty) {
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
@@ -395,7 +396,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           Icons.send,
                                           color: Colors.blue,
                                         ),
-                                        onPressed: _controller.text.isEmpty &&
+                                        onPressed: widget.textController.text
+                                                    .isEmpty &&
                                                 !widget.waitingForForward
                                             ? () async {}
                                             : () {
@@ -518,7 +520,7 @@ class _InputMessageWidget extends State<InputMessage> {
         //             height: 270.0,
         //             child: EmojiKeyboard(
         //               onTap: (emoji) {
-        //                 _controller.text = _controller.text + emoji.toString();
+        //                 widget.textController.text = widget.textController.text + emoji.toString();
         //               },
         //             ));
         //       } else {
@@ -531,19 +533,20 @@ class _InputMessageWidget extends State<InputMessage> {
 
   void onMentionSelected(s) {
     int start = _textSelection.base.offset;
-    String block_1 = _controller.text.substring(0, start);
-    String block_2 = _controller.text.substring(start, _controller.text.length);
-    _controller.text = block_1 + s + " " + block_2;
-    _controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: _controller.text.length));
+    String block_1 = widget.textController.text.substring(0, start);
+    String block_2 = widget.textController.text
+        .substring(start, widget.textController.text.length);
+    widget.textController.text = block_1 + s + " " + block_2;
+    widget.textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: widget.textController.text.length));
     _mentionQuery.add("-");
     isMentionSelected = true;
   }
 
   onCommandClick(String command) {
-    _controller.text = "/" + command;
-    _controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: _controller.text.length));
+    widget.textController.text = "/" + command;
+    widget.textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: widget.textController.text.length));
     _botCommandQuery.add("-");
   }
 
@@ -567,11 +570,7 @@ class _InputMessageWidget extends State<InputMessage> {
         return KeyEventResult.handled;
       }
     }
-    _rawKeyboardService.handleCopyPastKeyPress(_controller, event);
-    _rawKeyboardService.escapeHandling(
-        replyMessageId: widget.replyMessageId!,
-        resetRoomPageDetails: widget.resetRoomPageDetails!,
-        event: event);
+    _rawKeyboardService.handleCopyPastKeyPress(widget.textController, event);
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
@@ -652,10 +651,10 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void sendMessage() {
-    if (_controller.text.contains("\n") &&
-        _controller.text.contains("@") &&
+    if (widget.textController.text.contains("\n") &&
+        widget.textController.text.contains("@") &&
         isMentionSelected) {
-      _controller.clear();
+      widget.textController.clear();
       isMentionSelected = false;
     } else {
       noActivitySubject.add(ActivityType.NO_ACTIVITY);
@@ -664,7 +663,7 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage!()!;
     }
 
-    var text = _controller.text.trim();
+    var text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (widget.replyMessageId! > 0) {
@@ -679,7 +678,7 @@ class _InputMessageWidget extends State<InputMessage> {
           messageRepo.editTextMessage(
               currentRoom.uid.asUid(),
               widget.editableMessage!,
-              _controller.text,
+              widget.textController.text,
               currentRoom.lastMessageId);
           widget.resetRoomPageDetails!();
         } else {
@@ -687,7 +686,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
       }
 
-      _controller.clear();
+      widget.textController.clear();
 
       _mentionQuery.add("-");
     }
@@ -772,5 +771,3 @@ class _InputMessageWidget extends State<InputMessage> {
     return text + " ";
   }
 }
-
-BehaviorSubject<String?> inputMessagePrifix = BehaviorSubject.seeded("");

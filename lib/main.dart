@@ -298,14 +298,13 @@ class MyApp extends StatelessWidget {
         _uxService.themeStream,
         _i18n.localeStream,
       ]),
-      builder: (bcontext, snapshot) {
+      builder: (ctx, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
-                _rawKeyboardService.escapeHandling(
-                    event: event, replyMessageId: -1);
+                _rawKeyboardService.escapeHandling(event);
                 _rawKeyboardService.searchHandling(event: event);
                 _rawKeyboardService.navigateInRooms(
                     event: event, context: context);

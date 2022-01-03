@@ -161,8 +161,10 @@ class RoutingService {
 
   String? _path() => _route.value;
 
+  bool isInRoomPage() => _path()?.contains("/room/") ?? false;
+
   bool isInRoom(String roomId) =>
-      _path() == "/room/$roomId" || _path() == "room/$roomId/profile";
+      _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
   // Routing Functions
   void popAll() {
@@ -184,6 +186,12 @@ class RoutingService {
   }
 
   void pop() {
+    if (canPop()) {
+      _mainScreen.currentState?.pop();
+    }
+  }
+
+  void maybePop() {
     if (canPop()) {
       _mainScreen.currentState?.maybePop();
     }

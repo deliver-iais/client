@@ -6,7 +6,6 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ext_storage_services.dart';
@@ -93,7 +92,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     Navigator.pop(context);
     _routingServices
         .openSelectForwardMessage(forwardedMessages: [widget.message]);
-
   }
 
   onEditMessage() {
@@ -101,7 +99,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     switch (widget.message.type) {
       // ignore: missing_enum_constant_in_switch
       case MessageType.TEXT:
-        inputMessagePrifix.add(widget.message.json!.toText().text);
         widget.onEdit();
         break;
       case MessageType.FILE:
@@ -200,7 +197,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     Navigator.of(context).pop();
     var file = widget.message.json!.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
-
   }
 
   onDeleteMessage() {
