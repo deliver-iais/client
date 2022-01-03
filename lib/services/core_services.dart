@@ -106,10 +106,6 @@ class CoreServices {
       return;
     }
 
-    if (!kIsWeb && _clientPacketStream.isClosed ||
-        _clientPacketStream.isPaused) {
-      await startStream();
-    }
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
@@ -118,11 +114,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        if (kIsWeb) {
-          await startStream();
-        } else {
-          _clientPacketStream.close();
-        }
+        await startStream();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
 

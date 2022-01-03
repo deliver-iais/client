@@ -478,13 +478,15 @@ class RoutingService {
       if (!isDesktop()) fireBaseServices.deleteToken();
       coreServices.closeConnection();
       await _autRepo.deleteTokens();
+      _dbManager.deleteDB();
+
       _push(Page(
           largePageNavigator: _empty,
           smallPageMain: _empty,
           largePageMain: _empty,
           path: LOG_OUT));
 
-      Timer(const Duration(milliseconds: 300), () => _dbManager.deleteDB());
+      //   Timer(const Duration(milliseconds: 300), () => _dbManager.deleteDB());
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
@@ -36,8 +37,10 @@ class MediaDaoImpl implements MediaDao {
 
   static String _key(String roomUid) => "media-$roomUid";
 
-  static Future<Box<Media>> _open(String uid) =>
-      Hive.openBox<Media>(_key(uid.replaceAll(":", "-")));
+  static Future<Box<Media>> _open(String uid) {
+    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
+    return Hive.openBox<Media>(_key(uid.replaceAll(":", "-")));
+  }
 
   @override
   Future<List<Media>> getByRoomIdAndType(String roomUid, MediaType type) async {
