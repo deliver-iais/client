@@ -1,5 +1,5 @@
 name: deliver-co
-version: 1.6.0
+version: 1.6.1
 summary: Messenger
 description: Messenger
 
@@ -25,9 +25,6 @@ apps:
 
 parts:
   deliver-co:
-    stage-packages:
-      - vlc
-      - libvlc-dev
     source: .
     plugin: flutter
     flutter-target: lib/main.dart # The main entry-point file of the application

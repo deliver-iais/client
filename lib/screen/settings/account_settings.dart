@@ -13,6 +13,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -53,9 +54,23 @@ class _AccountSettingsState extends State<AccountSettings> {
   attachFile() async {
     String? path;
     if (kIsWeb || isDesktop()) {
-      FilePickerResult? result = await FilePicker.platform
-          .pickFiles(type: FileType.image, allowMultiple: false);
-      path = result!.files.first.path;
+      if (isLinux()) {
+        final typeGroup =
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+        final file = await openFile(
+          acceptedTypeGroups: [typeGroup],
+        );
+        if (file != null) {
+          path = file.path;
+        }
+      } else {
+        FilePickerResult? result = await FilePicker.platform
+            .pickFiles(type: FileType.image, allowMultiple: true);
+        if (result != null && result.files.isNotEmpty) {
+          path = result.files.first.path;
+        }
+      }
+
       if (path != null) {
         setAvatar(path);
       }
