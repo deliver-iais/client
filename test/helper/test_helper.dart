@@ -2,6 +2,7 @@ import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -27,7 +28,7 @@ import '../helper/test_helper.mocks.dart';
   MockSpec<MucServices>(returnNullOnMissingStub: true),
   MockSpec<CoreServices>(returnNullOnMissingStub: true),
   MockSpec<QueryServiceClient>(returnNullOnMissingStub: true),
-  // MockSpec<SharedDao>(returnNullOnMissingStub: true),
+  MockSpec<SharedDao>(returnNullOnMissingStub: true),
   MockSpec<AvatarRepo>(returnNullOnMissingStub: true),
   MockSpec<BlockDao>(returnNullOnMissingStub: true),
 ])
@@ -80,12 +81,14 @@ MockFileRepo getAndRegisterFileRepo() {
   GetIt.I.registerSingleton<FileRepo>(service);
   return service;
 }
+
 MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   _removeRegistrationIfExists<LiveLocationRepo>();
   final service = MockLiveLocationRepo();
   GetIt.I.registerSingleton<LiveLocationRepo>(service);
   return service;
 }
+
 MockSeenDao getAndRegisterSeenDao() {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
@@ -93,6 +96,39 @@ MockSeenDao getAndRegisterSeenDao() {
   return service;
 }
 
+MockMucServices getAndRegisterMucServices() {
+  _removeRegistrationIfExists<MucServices>();
+  final service = MockMucServices();
+  GetIt.I.registerSingleton<MucServices>(service);
+  return service;
+}
+
+MockQueryServiceClient getAndRegisterQueryServiceClient() {
+  _removeRegistrationIfExists<QueryServiceClient>();
+  final service = MockQueryServiceClient();
+  GetIt.I.registerSingleton<QueryServiceClient>(service);
+  return service;
+}
+
+MockSharedDao getAndRegisterSharedDao() {
+  _removeRegistrationIfExists<SharedDao>();
+  final service = MockSharedDao();
+  GetIt.I.registerSingleton<SharedDao>(service);
+  return service;
+}
+MockAvatarRepo getAndRegisterAvatarRepo() {
+  _removeRegistrationIfExists<AvatarRepo>();
+  final service = MockAvatarRepo();
+  GetIt.I.registerSingleton<AvatarRepo>(service);
+  return service;
+}
+
+MockBlockDao getAndRegisterBlockDao() {
+  _removeRegistrationIfExists<BlockDao>();
+  final service = MockBlockDao();
+  GetIt.I.registerSingleton<BlockDao>(service);
+  return service;
+}
 void registerServices() {
   getAndRegisterCoreServices();
   getAndRegisterLogger();
@@ -103,6 +139,11 @@ void registerServices() {
   getAndRegisterFileRepo();
   getAndRegisterLiveLocationRepo();
   getAndRegisterSeenDao();
+  getAndRegisterMucServices();
+  getAndRegisterQueryServiceClient();
+  getAndRegisterSharedDao();
+  getAndRegisterAvatarRepo();
+  getAndRegisterBlockDao();
 }
 
 void unregisterServices() {

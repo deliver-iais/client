@@ -5,20 +5,20 @@
 import 'dart:async' as _i14;
 import 'dart:io' as _i27;
 
-import 'package:audioplayers/audioplayers.dart' as _i12;
 import 'package:deliver/box/avatar.dart' as _i23;
-import 'package:deliver/box/dao/block_dao.dart' as _i42;
+import 'package:deliver/box/dao/block_dao.dart' as _i43;
 import 'package:deliver/box/dao/last_activity_dao.dart' as _i39;
 import 'package:deliver/box/dao/message_dao.dart' as _i13;
 import 'package:deliver/box/dao/room_dao.dart' as _i17;
 import 'package:deliver/box/dao/seen_dao.dart' as _i33;
+import 'package:deliver/box/dao/shared_dao.dart' as _i41;
 import 'package:deliver/box/livelocation.dart' as _i31;
 import 'package:deliver/box/message.dart' as _i15;
 import 'package:deliver/box/pending_message.dart' as _i16;
 import 'package:deliver/box/room.dart' as _i18;
 import 'package:deliver/box/seen.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i22;
-import 'package:deliver/repository/avatarRepo.dart' as _i41;
+import 'package:deliver/repository/avatarRepo.dart' as _i42;
 import 'package:deliver/repository/fileRepo.dart' as _i26;
 import 'package:deliver/repository/liveLocationRepo.dart' as _i30;
 import 'package:deliver/repository/roomRepo.dart' as _i19;
@@ -43,6 +43,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart' as _i6;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as _i40;
 import 'package:device_info/device_info.dart' as _i4;
 import 'package:grpc/grpc.dart' as _i11;
+import 'package:logger/logger.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:rxdart/rxdart.dart' as _i10;
 import 'package:synchronized/synchronized.dart' as _i3;
@@ -93,7 +94,41 @@ class _FakeResponseStream_12<R> extends _i1.Fake
 /// A class which mocks [Logger].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogger extends _i1.Mock implements _i12.Logger {}
+class MockLogger extends _i1.Mock implements _i12.Logger {
+  @override
+  void v(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(Invocation.method(#v, [message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void d(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(Invocation.method(#d, [message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void i(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(Invocation.method(#i, [message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void w(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(Invocation.method(#w, [message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void e(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(Invocation.method(#e, [message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void wtf(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(Invocation.method(#wtf, [message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void log(_i12.Level? level, dynamic message,
+          [dynamic error, StackTrace? stackTrace]) =>
+      super.noSuchMethod(
+          Invocation.method(#log, [level, message, error, stackTrace]),
+          returnValueForMissingStub: null);
+  @override
+  void close() => super.noSuchMethod(Invocation.method(#close, []),
+      returnValueForMissingStub: null);
+}
 
 /// A class which mocks [MessageDao].
 ///
@@ -1101,10 +1136,52 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue: _FakeResponseStream_12<R>()) as _i11.ResponseStream<R>);
 }
 
+/// A class which mocks [SharedDao].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSharedDao extends _i1.Mock implements _i41.SharedDao {
+  @override
+  _i14.Future<String?> get(String? key) =>
+      (super.noSuchMethod(Invocation.method(#get, [key]),
+          returnValue: Future<String?>.value()) as _i14.Future<String?>);
+  @override
+  _i14.Stream<String?> getStream(String? key, {dynamic defaultValue}) =>
+      (super.noSuchMethod(
+          Invocation.method(#getStream, [key], {#defaultValue: defaultValue}),
+          returnValue: Stream<String?>.empty()) as _i14.Stream<String?>);
+  @override
+  _i14.Future<void> put(String? key, String? value) => (super.noSuchMethod(
+      Invocation.method(#put, [key, value]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i14.Future<void>);
+  @override
+  _i14.Future<void> remove(String? key) => (super.noSuchMethod(
+      Invocation.method(#remove, [key]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i14.Future<void>);
+  @override
+  _i14.Future<bool> getBoolean(String? key, {bool? defaultValue = false}) =>
+      (super.noSuchMethod(
+          Invocation.method(#getBoolean, [key], {#defaultValue: defaultValue}),
+          returnValue: Future<bool>.value(false)) as _i14.Future<bool>);
+  @override
+  _i14.Stream<bool> getBooleanStream(String? key,
+          {bool? defaultValue = false}) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #getBooleanStream, [key], {#defaultValue: defaultValue}),
+          returnValue: Stream<bool>.empty()) as _i14.Stream<bool>);
+  @override
+  _i14.Future<void> putBoolean(String? key, bool? value) => (super.noSuchMethod(
+      Invocation.method(#putBoolean, [key, value]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i14.Future<void>);
+}
+
 /// A class which mocks [AvatarRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAvatarRepo extends _i1.Mock implements _i41.AvatarRepo {
+class MockAvatarRepo extends _i1.Mock implements _i42.AvatarRepo {
   @override
   _i14.Future<void> fetchAvatar(_i2.Uid? userUid, bool? forceToUpdate) =>
       (super.noSuchMethod(
@@ -1163,7 +1240,7 @@ class MockAvatarRepo extends _i1.Mock implements _i41.AvatarRepo {
 /// A class which mocks [BlockDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBlockDao extends _i1.Mock implements _i42.BlockDao {
+class MockBlockDao extends _i1.Mock implements _i43.BlockDao {
   @override
   _i14.Future<bool> isBlocked(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isBlocked, [uid]),

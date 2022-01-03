@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 abstract class SharedDao {
   Future<String?> get(String key);
 
-  Stream<String?> getStream(String key, {defaultValue = String});
+  Stream<String?> getStream(String key, {defaultValue});
 
   Future<void> put(String key, String value);
 
