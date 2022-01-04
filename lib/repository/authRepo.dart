@@ -225,6 +225,9 @@ class AuthRepo {
 
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
+      if (_refreshToken == null) {
+        return "";
+      }
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken!);
       _saveTokens(renewAccessTokenRes);
@@ -246,9 +249,13 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
+  bool isLoggedIn() =>
+      _refreshToken != null &&
+      _refreshToken!.isNotEmpty &&
+      !_isExpired(_refreshToken);
 
-  bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
+  bool _isExpired(accessToken) =>
+      accessToken == null || JwtDecoder.isExpired(accessToken);
 
   void _saveTokens(RenewAccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -287,8 +294,8 @@ class AuthRepo {
       currentUserUid.node == session.node;
 
   Future<void> deleteTokens() async {
-    _refreshToken = "";
-    _accessToken = "";
+    _refreshToken = null;
+    _accessToken = null;
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }

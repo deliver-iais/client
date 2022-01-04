@@ -146,10 +146,9 @@ class PersistentEventMessage extends StatelessWidget {
             style:
                 const TextStyle(fontSize: 14, height: 1, color: Colors.white),
           ),
-          onTap: () => _routingServices.openRoom(
-              persistentEventMessage.mucSpecificPersistentEvent.issuer
-                  .asString(),
-              context: context),
+          onTap: () => _routingServices.openRoom(persistentEventMessage
+              .mucSpecificPersistentEvent.issuer
+              .asString()),
         );
         Widget? assigneeWidget;
         if ({
@@ -167,10 +166,9 @@ class PersistentEventMessage extends StatelessWidget {
               style:
                   const TextStyle(fontSize: 14, height: 1, color: Colors.white),
             ),
-            onTap: () => _routingServices.openRoom(
-                persistentEventMessage.mucSpecificPersistentEvent.assignee
-                    .asString(),
-                context: context),
+            onTap: () => _routingServices.openRoom(persistentEventMessage
+                .mucSpecificPersistentEvent.assignee
+                .asString()),
           );
         }
         Widget? pinedMessageWidget;
@@ -238,9 +236,7 @@ class PersistentEventMessage extends StatelessWidget {
 
       case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
         return _i18n.verb(
-          isChannel
-              ?"change_channel_avatar"
-              : "change_group_avatar",
+          isChannel ? "change_channel_avatar" : "change_group_avatar",
           isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
               .mucSpecificPersistentEvent.issuer
               .asString()),

@@ -9,7 +9,6 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
 import 'package:universal_html/html.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class OpenFileStatus extends StatelessWidget {
   final file_pb.File file;

@@ -2,7 +2,7 @@
 import 'package:deliver/repository/roomRepo.dart';
 
 import 'package:deliver/screen/navigation_center/chats/widgets/contact_pic.dart';
-import 'package:deliver/screen/room/pages/room_page.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ class ChatItemToShareFile extends StatelessWidget {
   final List<String>? sharedFilePath;
   final String? sharedText;
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   ChatItemToShareFile(
       {Key? key, required this.uid, this.sharedText, this.sharedFilePath})
@@ -60,12 +61,7 @@ class ChatItemToShareFile extends StatelessWidget {
                       }
                     }),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (c) {
-                    return RoomPage(
-                      roomId: uid.asString(),
-                      inputFilePath: sharedFilePath,
-                    );
-                  }));
+                  _routingService.openRoom(uid.asString(), inputFilePaths: sharedFilePath);
                 },
               ),
               const Spacer(),

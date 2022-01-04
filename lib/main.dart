@@ -283,6 +283,7 @@ _setWindowSize() {
 
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
@@ -295,17 +296,14 @@ class MyApp extends StatelessWidget {
         _uxService.themeStream,
         _i18n.localeStream,
       ]),
-      builder: (bcontext, snapshot) {
+      builder: (ctx, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
-                _rawKeyboardService.escapeHandeling(
-                    event: event, replyMessageId: -1);
-                _rawKeyboardService.searchHandeling(event: event);
-                _rawKeyboardService.navigateInRooms(
-                    event: event, context: context);
+                _rawKeyboardService.escapeHandling(event);
+                _rawKeyboardService.searchHandling(event: event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
@@ -315,6 +313,7 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
+                navigatorKey: _routingService.mainNavigatorState,
                 supportedLocales: const [
                   Locale('en', 'US'),
                   Locale('fa', 'IR')

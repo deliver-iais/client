@@ -124,7 +124,7 @@ class _BoxContentState extends State<BoxContent> {
           style: Theme.of(context).primaryTextTheme.bodyText2,
         ),
         onTap: () {
-          _routingServices.openRoom(widget.message.from, context: context);
+          _routingServices.openRoom(widget.message.from);
         },
       ),
     );
@@ -143,8 +143,7 @@ class _BoxContentState extends State<BoxContent> {
                       color: ExtraTheme.of(context).messageDetails,
                       fontSize: 13)),
               onTap: () {
-                _routingServices.openRoom(widget.message.forwardedFrom!,
-                    context: context);
+                _routingServices.openRoom(widget.message.forwardedFrom!);
               },
             );
           } else {

@@ -27,7 +27,7 @@ class ShareInputFile extends StatelessWidget {
           i18n.get("send_To"),
           style: TextStyle(color: ExtraTheme.of(context).textField),
         ),
-        leading: _routingServices.backButtonLeading(context),
+        leading: _routingServices.backButtonLeading(),
       ),
       body: Column(
         children: <Widget>[
