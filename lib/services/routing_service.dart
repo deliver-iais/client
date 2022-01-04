@@ -25,6 +25,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 // Pages
@@ -51,9 +53,15 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 class RoutingService {
+  RoutingService() {
+    _navigatorObserver = RoutingServiceNavigatorObserver(_route);
+  }
+
   final _mainScreen = GlobalKey<NavigatorState>();
 
   final _route = BehaviorSubject.seeded("/");
+
+  late final RoutingServiceNavigatorObserver _navigatorObserver;
 
   Stream<String> get currentRouteStream => _route.stream;
 
@@ -76,9 +84,10 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openRoom(String roomId,
-          {List<Message> forwardedMessages = const [],
-          bool popAllBeforePush = false,
-          pro.ShareUid? shareUid}) =>
+      {List<Message> forwardedMessages = const [],
+      bool popAllBeforePush = false,
+      pro.ShareUid? shareUid}) {
+    if (!isInRoom(roomId)) {
       _push(
           RoomPage(
             key: ValueKey("/room/$roomId"),
@@ -87,6 +96,8 @@ class RoutingService {
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);
+    }
+  }
 
   void openProfile(String roomId) => _push(
       ProfilePage(roomId.asUid(), key: ValueKey("/room/$roomId/profile")));
@@ -173,13 +184,10 @@ class RoutingService {
   // Routing Functions
   void popAll() {
     _mainScreen.currentState?.popUntil((route) => route.isFirst);
-    _route.add("/");
   }
 
   void _push(Widget widget, {bool popAllBeforePush = false}) {
     final path = (widget.key as ValueKey).value;
-
-    _route.add(path);
 
     if (popAllBeforePush) {
       _mainScreen.currentState?.pushAndRemoveUntil(
@@ -217,9 +225,9 @@ class RoutingService {
             child: ClipRect(
           child: Navigator(
             key: _mainScreen,
-            observers: [HeroController()],
+            observers: [HeroController(), _navigatorObserver],
             onGenerateRoute: (r) => CupertinoPageRoute(
-                settings: r,
+                settings: r.copyWith(name: "/"),
                 builder: (c) {
                   if (isLarge(context)) {
                     return _empty;
@@ -244,6 +252,22 @@ class RoutingService {
         pop();
       },
     );
+  }
+}
+
+class RoutingServiceNavigatorObserver extends NavigatorObserver {
+  final BehaviorSubject<String> _route;
+
+  RoutingServiceNavigatorObserver(this._route);
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _route.add(previousRoute?.settings.name ?? "/");
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _route.add(route.settings.name ?? "/");
   }
 }
 

@@ -238,12 +238,6 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   @override
-  void dispose() {
-    _logger.wtf("DISPOSE");
-    super.dispose();
-  }
-
-  @override
   void initState() {
     _logger.wtf("INIT");
     // Log page data
