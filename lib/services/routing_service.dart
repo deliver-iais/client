@@ -33,7 +33,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 // Pages

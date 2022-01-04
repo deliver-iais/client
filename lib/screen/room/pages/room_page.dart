@@ -239,10 +239,9 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _logger.wtf("INIT");
     // Log page data
-    // _logger.wtf(_authRepo.currentUserUid);
-    // _logger.wtf(widget.roomId);
+    _logger.wtf(_authRepo.currentUserUid);
+    _logger.wtf(widget.roomId);
 
     // TODO remove this, this is unnecessary
     if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
