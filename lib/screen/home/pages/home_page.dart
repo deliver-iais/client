@@ -46,46 +46,50 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    if (kIsWeb) {
-      html.document.onContextMenu.listen((event) => event.preventDefault());
-    }
+    try {
+      if (kIsWeb) {
+        html.document.onContextMenu.listen((event) => event.preventDefault());
+      }
 
-    _coreServices.initStreamConnection();
-    if (isAndroid() || isIOS()) {
-      _notificationServices.cancelAllNotifications();
-    }
+      _coreServices.initStreamConnection();
+      if (isAndroid() || isIOS()) {
+        _notificationServices.cancelAllNotifications();
+      }
 
-    checkIfUsernameIsSet();
-    if (isAndroid()) {
-      checkShareFile(context);
-    }
-    if (isAndroid() || isIOS()) {
-      initUniLinks(context);
-    }
-    if (kIsWeb) {
-      js.context.callMethod("getNotificationPermission", []);
-    }
-    checkLogOutApp();
-    checkAddToHomeInWeb(context);
+      checkIfUsernameIsSet();
+      if (isAndroid()) {
+        checkShareFile(context);
+      }
+      if (isAndroid() || isIOS()) {
+        initUniLinks(context);
+      }
+      if (kIsWeb) {
+        js.context.callMethod("getNotificationPermission", []);
+      }
+      checkLogOutApp();
+      checkAddToHomeInWeb(context);
 
-    super.initState();
+      super.initState();
+    } catch (e) {
+    }
   }
 
   checkAddToHomeInWeb(BuildContext context) async {
-    Timer(const Duration(seconds: 3), () {
-      try {
-        final bool isDeferredNotNull =
-            js.context.callMethod("isDeferredNotNull", []) as bool;
-        //todo add to home web
-        // if (isDeferredNotNull != nnulisDeferredNotNull) {
-        //   //   ujs.context.callMethod("presentAddToHome");
-        //   // return true;
-        //
-        // }
-      } catch (e) {
-        _logger.e(e);
-      }
-    });
+    // Timer(const Duration(seconds: 3), () {
+    //   try {
+    //     final bool isDeferredNotNull =
+    //         js.context.callMethod("isDeferredNotNull", []) as bool;
+    //     //todo add to home web
+    //     // if (isDeferredNotNull != nnulisDeferredNotNull) {
+    //     //   //   ujs.context.callMethod("presentAddToHome");
+    //     //   // return true;
+    //     //
+    //     // }
+    //   } catch (e) {
+    //     print(\)
+    //     _logger.e(e);
+    //   }
+    //  });
   }
 
   checkLogOutApp() {
@@ -133,11 +137,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.getProfile(retry: true)) {
-      _routingService.openAccountSettings(context,
-          forceToSetUsernameAndName: true);
-    } else {
-      await _accountRepo.fetchProfile();
+    try {
+      if (!await _accountRepo.getProfile(retry: true)) {
+        _routingService.openAccountSettings(context,
+            forceToSetUsernameAndName: true);
+      } else {
+        await _accountRepo.fetchProfile();
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 }
