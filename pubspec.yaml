@@ -59,7 +59,7 @@ dependencies:
   uni_links: 0.5.1
   flutter_map: 0.14.0
   geolocator: 7.7.1
-  file_picker: 4.2.4
+  file_picker: 4.3.0
   logger: 1.1.0
   android_intent: 2.0.2
   record: ^3.0.2
@@ -122,6 +122,8 @@ dependencies:
   chewie: ^1.2.2
   hovering: 1.0.4
   camera: 0.9.4+5
+  file_selector_linux: 0.0.2+1
+  file_selector: 0.8.2+1
   desktop_window: # CHANG TOP PAGE IN WINDOWS
     git:
       url: https://github.com/deliver-iais/desktop_window.git

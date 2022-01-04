@@ -1,4 +1,5 @@
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/box/box_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {
@@ -45,13 +46,13 @@ class AvatarDaoImpl implements AvatarDao {
 
     var lastAvatarOfList = avatars.fold<Avatar?>(
         null,
-        (value , element) => value == null
+        (value, element) => value == null
             ? element
             : value.createdOn > element.createdOn
                 ? value
                 : element);
 
-    var  lastAvatar  = box2.get(uid);
+    var lastAvatar = box2.get(uid);
 
     if (lastAvatar == null ||
         lastAvatar.createdOn < lastAvatarOfList!.createdOn) {
@@ -90,7 +91,8 @@ class AvatarDaoImpl implements AvatarDao {
       if (box.values.isNotEmpty) {
         var lastAvatarOfList = box.values.fold<Avatar?>(
             null,
-            (value, element) => value == null ? element
+            (value, element) => value == null
+                ? element
                 : value.createdOn > element.createdOn
                     ? value
                     : element);
@@ -104,10 +106,10 @@ class AvatarDaoImpl implements AvatarDao {
   }
 
   @override
-  Future<Avatar?>  getLastAvatar(String uid) async {
+  Future<Avatar?> getLastAvatar(String uid) async {
     var box = await _open2();
 
-    return  box.get(uid);
+    return box.get(uid);
   }
 
   @override
@@ -123,12 +125,17 @@ class AvatarDaoImpl implements AvatarDao {
 
   static String _key2() => "last-avatar";
 
-  static Future<Box<Avatar>> _open(String uid) =>
-      Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-")));
+  static Future<Box<Avatar>> _open(String uid) {
+    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
+    return Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-")));
+  }
 
   @override
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();
 
-  static Future<Box<Avatar>> _open2() => Hive.openBox<Avatar>(_key2());
+  static Future<Box<Avatar>> _open2() {
+    BoxInfo.addBox(_key2());
+    return Hive.openBox<Avatar>(_key2());
+  }
 }
