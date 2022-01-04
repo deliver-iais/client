@@ -2,7 +2,6 @@
 import 'package:deliver/repository/roomRepo.dart';
 
 import 'package:deliver/screen/navigation_center/chats/widgets/contact_pic.dart';
-import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
