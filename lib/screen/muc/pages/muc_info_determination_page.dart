@@ -1,11 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -288,19 +286,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (mucUid != null) {
                                     _createMucService.reset();
-                                    if (isDesktop() || kIsWeb) {
-                                      _routingService
-                                          .openRoom(mucUid.asString());
-                                    } else {
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (c) => RoomPage(
-                                                  roomId: mucUid!.asString())),
-                                          (t) {
-                                        return t.isFirst;
-                                      });
-                                    }
+                                    _routingService.openRoom(mucUid.asString());
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),

@@ -143,7 +143,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   @override
   void initState() {
     try {
-      _accountRepo.getProfile();
+      _accountRepo.hasProfile();
       subject.stream
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {

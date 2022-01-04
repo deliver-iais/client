@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
-import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -30,7 +28,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final BehaviorSubject<bool> _logOut = BehaviorSubject.seeded(false);
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
@@ -64,7 +61,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (kIsWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
-    checkLogOutApp();
     checkAddToHomeInWeb(context);
 
     super.initState();
@@ -83,17 +79,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         // }
       } catch (e) {
         _logger.e(e);
-      }
-    });
-  }
-
-  checkLogOutApp() {
-    _logOut.stream.listen((event) {
-      if (event) {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const IntroPage()),
-            (e) => false);
       }
     });
   }
@@ -123,7 +108,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.getProfile(retry: true)) {
+    if (!await _accountRepo.hasProfile(retry: true)) {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();

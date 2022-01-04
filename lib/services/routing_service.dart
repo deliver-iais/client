@@ -88,12 +88,14 @@ class RoutingService {
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
       bool popAllBeforePush = false,
+      List<String>? inputFilePaths,
       pro.ShareUid? shareUid}) {
     if (!isInRoom(roomId)) {
       _push(
           RoomPage(
             key: ValueKey("/room/$roomId"),
             roomId: roomId,
+            inputFilePaths: inputFilePaths,
             forwardedMessages: forwardedMessages,
             shareUid: shareUid,
           ),

@@ -58,14 +58,14 @@ const int PAGE_SIZE = 16;
 class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message>? forwardedMessages;
-  final List<String>? inputFilePath;
+  final List<String>? inputFilePaths;
   final proto.ShareUid? shareUid;
 
   const RoomPage(
       {Key? key,
       required this.roomId,
       this.forwardedMessages,
-      this.inputFilePath,
+      this.inputFilePaths,
       this.shareUid})
       : super(key: key);
 
@@ -844,8 +844,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   sendInputSharedFile() async {
-    if (widget.inputFilePath != null) {
-      for (String path in widget.inputFilePath!) {
+    if (widget.inputFilePaths != null) {
+      for (String path in widget.inputFilePaths!) {
         _messageRepo.sendFileMessage(
             widget.roomId.asUid(), File(path, path.split(".").last));
       }
