@@ -286,6 +286,7 @@ _setWindowSize() {
 
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
@@ -315,6 +316,7 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
+                navigatorKey: _routingService.mainNavigatorState,
                 supportedLocales: const [
                   Locale('en', 'US'),
                   Locale('fa', 'IR')

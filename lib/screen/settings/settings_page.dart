@@ -59,7 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
-            leading: _routingService.backButtonLeading(context),
+            leading: _routingService.backButtonLeading(),
           ),
         ),
         body: FluidContainerWidget(

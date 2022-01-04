@@ -459,7 +459,7 @@ class _ProfilePageState extends State<ProfilePage>
         actions: <Widget>[
           _buildMenu(context),
         ],
-        leading: _routingService.backButtonLeading(context),
+        leading: _routingService.backButtonLeading(),
       ),
     );
   }

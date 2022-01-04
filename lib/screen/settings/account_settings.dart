@@ -190,7 +190,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                 )
             ]),
             leading: !widget.forceToSetUsernameAndName
-                ? _routingService.backButtonLeading(context)
+                ? _routingService.backButtonLeading()
                 : null,
           ),
         ),

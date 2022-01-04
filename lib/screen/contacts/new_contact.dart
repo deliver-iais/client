@@ -32,7 +32,7 @@ class _NewContactState extends State<NewContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: _routingServices.backButtonLeading(context),
+        leading: _routingServices.backButtonLeading(),
         title: Text(_i18n.get("add_new_contact")),
       ),
       body: FluidContainerWidget(

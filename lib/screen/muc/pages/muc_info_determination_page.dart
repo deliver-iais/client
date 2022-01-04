@@ -73,7 +73,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           backgroundColor: ExtraTheme.of(context).boxBackground,
-          leading: _routingService.backButtonLeading(context),
+          leading: _routingService.backButtonLeading(),
           title: Text(
             widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
             style: TextStyle(color: ExtraTheme.of(context).textField),

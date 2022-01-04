@@ -1,4 +1,7 @@
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
@@ -16,8 +19,12 @@ import 'package:deliver/screen/settings/pages/log_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
@@ -53,17 +60,13 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 class RoutingService {
-  RoutingService() {
-    _navigatorObserver = RoutingServiceNavigatorObserver(_route);
-  }
+  final _homeNavigatorState = GlobalKey<NavigatorState>();
+  final mainNavigatorState = GlobalKey<NavigatorState>();
 
-  final _mainScreen = GlobalKey<NavigatorState>();
+  final _navigatorObserver = RoutingServiceNavigatorObserver();
 
-  final _route = BehaviorSubject.seeded("/");
-
-  late final RoutingServiceNavigatorObserver _navigatorObserver;
-
-  Stream<String> get currentRouteStream => _route.stream;
+  Stream<String> get currentRouteStream =>
+      _navigatorObserver.currentRoute.stream;
 
   // Functions
   void openSettings({bool popAllBeforePush = false}) =>
@@ -174,45 +177,45 @@ class RoutingService {
   void openShareFile({required List<String> path}) => _push(ShareInputFile(
       key: const ValueKey("/share_file_page"), inputSharedFilePath: path));
 
-  String? _path() => _route.value;
-
-  bool isInRoomPage() => _path()?.contains("/room/") ?? false;
+  bool isInRoomPage() => _path().contains("/room/");
 
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
+  String _path() => _navigatorObserver.currentRoute.value;
+
   // Routing Functions
   void popAll() {
-    _mainScreen.currentState?.popUntil((route) => route.isFirst);
+    _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
   void _push(Widget widget, {bool popAllBeforePush = false}) {
     final path = (widget.key as ValueKey).value;
 
     if (popAllBeforePush) {
-      _mainScreen.currentState?.pushAndRemoveUntil(
+      _homeNavigatorState.currentState?.pushAndRemoveUntil(
           CupertinoPageRoute(
               builder: (c) => widget, settings: RouteSettings(name: path)),
           (r) => r.isFirst);
     } else {
-      _mainScreen.currentState?.push(CupertinoPageRoute(
+      _homeNavigatorState.currentState?.push(CupertinoPageRoute(
           builder: (c) => widget, settings: RouteSettings(name: path)));
     }
   }
 
   void pop() {
     if (canPop()) {
-      _mainScreen.currentState?.pop();
+      _homeNavigatorState.currentState?.pop();
     }
   }
 
   void maybePop() {
     if (canPop()) {
-      _mainScreen.currentState?.maybePop();
+      _homeNavigatorState.currentState?.maybePop();
     }
   }
 
-  bool canPop() => _mainScreen.currentState?.canPop() ?? false;
+  bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
   Widget outlet(BuildContext context) {
     return Row(
@@ -224,7 +227,7 @@ class RoutingService {
         Expanded(
             child: ClipRect(
           child: Navigator(
-            key: _mainScreen,
+            key: _homeNavigatorState,
             observers: [HeroController(), _navigatorObserver],
             onGenerateRoute: (r) => CupertinoPageRoute(
                 settings: r.copyWith(name: "/"),
@@ -242,10 +245,25 @@ class RoutingService {
   }
 
   logout() async {
-    // TODO implement
+    final coreServices = GetIt.I.get<CoreServices>();
+    final authRepo = GetIt.I.get<AuthRepo>();
+    final accountRepo = GetIt.I.get<AccountRepo>();
+    final fireBaseServices = GetIt.I.get<FireBaseServices>();
+    final dbManager = GetIt.I.get<DBManager>();
+    if (authRepo.isLoggedIn()) {
+      accountRepo.deleteSessions([authRepo.currentUserUid.sessionId]);
+      if (!isDesktop()) fireBaseServices.deleteToken();
+      coreServices.closeConnection();
+      await authRepo.deleteTokens();
+      dbManager.deleteDB();
+      mainNavigatorState.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (c) => const SplashScreen()),
+          (route) => route.isFirst);
+    }
+    popAll();
   }
 
-  Widget backButtonLeading(BuildContext context, {Function? back}) {
+  Widget backButtonLeading({Function? back}) {
     return BackButton(
       onPressed: () {
         if (back != null) back();
@@ -256,18 +274,18 @@ class RoutingService {
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
-  final BehaviorSubject<String> _route;
+  final currentRoute = BehaviorSubject.seeded("/");
 
-  RoutingServiceNavigatorObserver(this._route);
+  RoutingServiceNavigatorObserver();
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _route.add(previousRoute?.settings.name ?? "/");
+    currentRoute.add(previousRoute?.settings.name ?? "/");
   }
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _route.add(route.settings.name ?? "/");
+    currentRoute.add(route.settings.name ?? "/");
   }
 }
 
