@@ -101,7 +101,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                             isSelected: _routingService.isInRoom(rooms[index].uid),
                           ),
                           onTap: () {
-                            _routingService.openRoom(rooms[index].uid);
+                            _routingService.openRoom(rooms[index].uid, popAllBeforePush: false);
                           },
                           onLongPress: () {
                             //ToDo new design for android

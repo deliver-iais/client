@@ -238,15 +238,34 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   @override
+  void dispose() {
+    _logger.wtf("DISPOSE");
+    super.dispose();
+  }
+
+  @override
   void initState() {
-    _logger.wtf(_authRepo.currentUserUid);
-    _logger.wtf(widget.roomId);
+    _logger.wtf("INIT");
+    // Log page data
+    // _logger.wtf(_authRepo.currentUserUid);
+    // _logger.wtf(widget.roomId);
 
-    _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
-
+    // TODO remove this, this is unnecessary
     if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
+
+    // Do some stuff
+    _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
     _getLastShowMessageId();
     _getLastSeen();
+    _roomRepo.resetMention(widget.roomId);
+    _notificationServices.cancelRoomNotifications(widget.roomId);
+    sendInputSharedFile();
+    _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
+            widget.forwardedMessages!.isNotEmpty) ||
+        widget.shareUid != null);
+    subscribeOnPositionToSendSeen();
+
+    // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
       if (_itemPositionsListener.itemPositions.value.isNotEmpty) {
         _positionSubject.add(_itemPositionsListener.itemPositions.value
@@ -255,6 +274,7 @@ class _RoomPageState extends State<RoomPage> {
       }
     });
 
+    // If new message arrived, scroll to the end of page if we are close to end of the page
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
         if (_itemCount - (_positionSubject.value) < 4) {
@@ -263,15 +283,29 @@ class _RoomPageState extends State<RoomPage> {
       }
     });
 
-    _roomRepo.resetMention(widget.roomId);
-    _notificationServices.cancelRoomNotifications(widget.roomId);
-    _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
-            widget.forwardedMessages!.isNotEmpty) ||
-        widget.shareUid != null);
-    sendInputSharedFile();
-    // TODO Channel is different from groups and private chats !!!
+    if (widget.roomId.asUid().category == Categories.CHANNEL ||
+        widget.roomId.asUid().category == Categories.GROUP) {
+      fetchMucInfo(widget.roomId.asUid());
+    } else if (widget.roomId.asUid().isBot()) {
+      _botRepo.fetchBotInfo(widget.roomId.asUid());
+    }
+    if (widget.roomId.asUid().isMuc()) {
+      watchPinMessages();
+    }
+    if (widget.roomId.asUid().isGroup()) {
+      checkGroupRole();
+    } else if (widget.roomId.asUid().isChannel()) {
+      checkChannelRole();
+    }
 
+    super.initState();
+  }
+
+  void subscribeOnPositionToSendSeen() {
+    // TODO Channel is different from groups and private chats !!!
     _positionSubject
+        .where((event) =>
+            ModalRoute.of(context)?.isCurrent ?? false) // is in current page
         .map((event) => event + 1 + (_currentRoom.value?.firstMessageId ?? 0))
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
@@ -291,23 +325,6 @@ class _RoomPageState extends State<RoomPage> {
 
       _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
     });
-
-    if (widget.roomId.asUid().category == Categories.CHANNEL ||
-        widget.roomId.asUid().category == Categories.GROUP) {
-      fetchMucInfo(widget.roomId.asUid());
-    } else if (widget.roomId.asUid().isBot()) {
-      _botRepo.fetchBotInfo(widget.roomId.asUid());
-    }
-    if (widget.roomId.asUid().isMuc()) {
-      watchPinMessages();
-    }
-    if (widget.roomId.asUid().isGroup()) {
-      checkGroupRole();
-    } else if (widget.roomId.asUid().isChannel()) {
-      checkChannelRole();
-    }
-
-    super.initState();
   }
 
   Future<Message?> _getMessage(int id, String roomId, int lastMessageId,

@@ -77,13 +77,16 @@ class RoutingService {
 
   void openRoom(String roomId,
           {List<Message> forwardedMessages = const [],
+          bool popAllBeforePush = false,
           pro.ShareUid? shareUid}) =>
-      _push(RoomPage(
-        key: ValueKey("/room/$roomId"),
-        roomId: roomId,
-        forwardedMessages: forwardedMessages,
-        shareUid: shareUid,
-      ));
+      _push(
+          RoomPage(
+            key: ValueKey("/room/$roomId"),
+            roomId: roomId,
+            forwardedMessages: forwardedMessages,
+            shareUid: shareUid,
+          ),
+          popAllBeforePush: popAllBeforePush);
 
   void openProfile(String roomId) => _push(
       ProfilePage(roomId.asUid(), key: ValueKey("/room/$roomId/profile")));
@@ -174,16 +177,19 @@ class RoutingService {
   }
 
   void _push(Widget widget, {bool popAllBeforePush = false}) {
-    if (popAllBeforePush) {
-      popAll();
-    }
-
     final path = (widget.key as ValueKey).value;
 
     _route.add(path);
 
-    _mainScreen.currentState?.push(CupertinoPageRoute(
-        builder: (c) => widget, settings: RouteSettings(name: path)));
+    if (popAllBeforePush) {
+      _mainScreen.currentState?.pushAndRemoveUntil(
+          CupertinoPageRoute(
+              builder: (c) => widget, settings: RouteSettings(name: path)),
+          (r) => r.isFirst);
+    } else {
+      _mainScreen.currentState?.push(CupertinoPageRoute(
+          builder: (c) => widget, settings: RouteSettings(name: path)));
+    }
   }
 
   void pop() {
