@@ -177,7 +177,7 @@ class AccountRepo {
   }
 
   shouldRemoveDB(String? previousVersion) {
-    return previousVersion == null || previousVersion != VERSION;
+    return previousVersion != VERSION;
   }
 
   shouldMigrateDB(String? previousVersion) {

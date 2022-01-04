@@ -141,7 +141,9 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<AuthServiceClient>(AuthServiceClient(
       kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
-  GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
+  final authRepo = AuthRepo();
+  GetIt.I.registerSingleton<AuthRepo>(authRepo);
+  await authRepo.setCurrentUserUid();
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
@@ -185,12 +187,7 @@ Future<void> setupDI() async {
               ? webLiveLocationClientChannel
               : LiveLocationServiceClientChannel,
           interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  try {
-    GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
-  } catch (e) {
-    // ignore: avoid_print
-    print(e.toString());
-  }
+  GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
 
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   GetIt.I.registerSingleton<UxService>(UxService());
