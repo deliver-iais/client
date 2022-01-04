@@ -95,7 +95,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       ),
                     ),
                     onTap: () {
-                      _routingServices.openSettings();
+                      _routingServices.openSettings(popAllBeforePush: true);
                     },
                   ),
                 ],

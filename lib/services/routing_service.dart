@@ -58,7 +58,8 @@ class RoutingService {
   Stream<String> get currentRouteStream => _route.stream;
 
   // Functions
-  void openSettings() => _push(_settings);
+  void openSettings({bool popAllBeforePush = false}) =>
+      _push(_settings, popAllBeforePush: popAllBeforePush);
 
   void openLanguageSettings() => _push(_languageSettings);
 

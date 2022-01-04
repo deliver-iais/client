@@ -30,7 +30,6 @@ import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -114,7 +113,6 @@ class _RoomPageState extends State<RoomPage> {
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
-  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
   final _inputMessageTextController = TextEditingController();
   final _inputMessageFocusNode = FocusNode();
 
@@ -459,8 +457,6 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget keyboardWidget() {
-    _rawKeyboardService.openSearchBox = openRoomSearchBox;
-    _rawKeyboardService.currentRoom = widget.roomId.asUid();
     return widget.roomId.asUid().category != Categories.CHANNEL
         ? buildNewMessageInput()
         : MuteAndUnMuteRoomWidget(

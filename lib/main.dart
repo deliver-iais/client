@@ -306,8 +306,6 @@ class MyApp extends StatelessWidget {
               onKey: (_, RawKeyEvent event) {
                 _rawKeyboardService.escapeHandling(event);
                 _rawKeyboardService.searchHandling(event: event);
-                _rawKeyboardService.navigateInRooms(
-                    event: event, context: context);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
