@@ -1,3 +1,4 @@
+
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -14,6 +15,8 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
 
 @GenerateMocks([], customMocks: [
@@ -32,18 +35,29 @@ import '../helper/test_helper.mocks.dart';
   MockSpec<AvatarRepo>(returnNullOnMissingStub: true),
   MockSpec<BlockDao>(returnNullOnMissingStub: true),
 ])
-MockCoreServices getAndRegisterCoreServices() {
+MockCoreServices getAndRegisterCoreServices(
+    {ConnectionStatus connectionStatus = ConnectionStatus.Connecting}) {
   _removeRegistrationIfExists<CoreServices>();
   final service = MockCoreServices();
   GetIt.I.registerSingleton<CoreServices>(service);
+  BehaviorSubject<ConnectionStatus> _connectionStatus =
+      BehaviorSubject.seeded(ConnectionStatus.Connecting);
+  _connectionStatus.add(connectionStatus);
+  when(service.connectionStatus)
+      .thenAnswer((realInvocation) => _connectionStatus);
+  when(service.connectionStatus.listen)
+      .thenReturn((onData, {cancelOnError, onDone, onError}) {
+    return service.connectionStatus.listen((value) {
+      print(value.toString());
+    });
+  });
   return service;
 }
 
 MockLogger getAndRegisterLogger() {
   _removeRegistrationIfExists<Logger>();
   final service = MockLogger();
-  GetIt.I.registerSingleton<Logger>(Logger());
-  GetIt.I.registerSingleton<MockLogger>(service);
+  GetIt.I.registerSingleton<Logger>(service);
   return service;
 }
 
@@ -116,6 +130,7 @@ MockSharedDao getAndRegisterSharedDao() {
   GetIt.I.registerSingleton<SharedDao>(service);
   return service;
 }
+
 MockAvatarRepo getAndRegisterAvatarRepo() {
   _removeRegistrationIfExists<AvatarRepo>();
   final service = MockAvatarRepo();
@@ -129,6 +144,7 @@ MockBlockDao getAndRegisterBlockDao() {
   GetIt.I.registerSingleton<BlockDao>(service);
   return service;
 }
+
 void registerServices() {
   getAndRegisterCoreServices();
   getAndRegisterLogger();
