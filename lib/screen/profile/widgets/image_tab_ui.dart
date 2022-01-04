@@ -73,7 +73,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                     return GestureDetector(
                                       onTap: () {
                                         _routingService.openShowAllMedia(
-                                          context,
                                           uid: widget.userUid,
                                           hasPermissionToDeletePic: true,
                                           mediaPosition: position,
@@ -107,7 +106,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllMedia(
-                                  context,
                                   uid: widget.userUid,
                                   hasPermissionToDeletePic: true,
                                   mediaPosition: position,

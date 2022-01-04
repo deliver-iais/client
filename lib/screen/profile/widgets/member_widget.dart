@@ -52,8 +52,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
               widgets.add(const Divider());
               widgets.add(GestureDetector(
                   onTap: () {
-                    _routingServices.openRoom(member!.memberUid,
-                        context: context);
+                    _routingServices.openRoom(member!.memberUid);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

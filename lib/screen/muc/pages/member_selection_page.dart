@@ -28,7 +28,7 @@ class MemberSelectionPage extends StatelessWidget {
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           backgroundColor: ExtraTheme.of(context).boxBackground,
-          leading: _routingService.backButtonLeading(context),
+          leading: _routingService.backButtonLeading(),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

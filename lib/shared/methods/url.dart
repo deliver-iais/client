@@ -37,8 +37,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
         (Uid.create()
               ..node = botId
               ..category = Categories.BOT)
-            .asString(),
-        context: context,
+            .asString()
       );
     }
   } else if (m[4].toString().contains("GROUP")) {
@@ -53,7 +52,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   if (roomUid != null) {
     var muc = await _mucDao.get(roomUid.asString());
     if (muc != null) {
-      _routingService.openRoom(roomUid.asString(), context: context);
+      _routingService.openRoom(roomUid.asString());
     } else {
       Future.delayed(Duration.zero, () {
         showFloatingModalBottomSheet(
@@ -80,8 +79,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                           if (muc != null) {
                             _messageRepo.updateNewMuc(
                                 roomUid, muc.lastMessageId!);
-                            _routingService.openRoom(roomUid.asString(),
-                                context: context);
+                            _routingService.openRoom(roomUid.asString());
                             Navigator.of(context).pop();
                           }
                         } else {
@@ -89,8 +87,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                           if (muc != null) {
                             _messageRepo.updateNewMuc(
                                 roomUid, muc.lastMessageId!);
-                            _routingService.openRoom(roomUid.asString(),
-                                context: context);
+                            _routingService.openRoom(roomUid.asString());
                             Navigator.of(context).pop();
                           }
                         }
