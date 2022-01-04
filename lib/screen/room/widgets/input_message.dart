@@ -26,6 +26,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -703,11 +704,28 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
-    //final typeGroup = XTypeGroup(label: 'images');
     try {
-      FilePickerResult? result =
-          await FilePicker.platform.pickFiles(allowMultiple: true);
-      showCaptionDialog(result: result!, icons: Icons.file_upload);
+      List<File> res = [];
+      if (isLinux()) {
+        final result = await openFiles();
+        for (var file in result) {
+          res.add(File(file.path, file.name, extension: file.mimeType));
+        }
+      } else {
+        FilePickerResult? result =
+            await FilePicker.platform.pickFiles(allowMultiple: true);
+        for (var file in result!.files) {
+          res.add(File(
+              kIsWeb
+                  ? Uri.dataFromBytes(file.bytes!.toList()).toString()
+                  : file.path!,
+              file.name,
+              size: file.size,
+              extension: file.extension));
+        }
+      }
+
+      showCaptionDialog(files: res, icons: Icons.file_upload);
     } catch (e) {
       _logger.d(e.toString());
     }
@@ -721,27 +739,17 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   showCaptionDialog(
-      {IconData? icons, String? type, required FilePickerResult result}) async {
-    if (result.files.isEmpty) return;
+      {IconData? icons, String? type, required List<File> files}) async {
+    if (files.isEmpty) return;
 
-    List<File> res = [];
-    for (var file in result.files) {
-      res.add(File(
-          kIsWeb
-              ? Uri.dataFromBytes(file.bytes!.toList()).toString()
-              : file.path!,
-          file.name,
-          size: file.size,
-          extension: file.extension));
-    }
     showDialog(
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
-            files: res,
+            files: files,
             type: kIsWeb
-                ? result.files.first.extension
-                : result.files.first.path!.split(".").last,
+                ? files.first.extension
+                : files.first.path.split(".").last,
             currentRoom: currentRoom.uid.asUid(),
           );
         });

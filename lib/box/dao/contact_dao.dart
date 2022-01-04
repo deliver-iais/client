@@ -1,3 +1,4 @@
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:hive/hive.dart';
 
@@ -19,10 +20,9 @@ class ContactDaoImpl implements ContactDao {
     var box = await _open();
 
     try {
-      box.values.firstWhere(
-              (element) =>
+      box.values.firstWhere((element) =>
           element.countryCode == countryCode &&
-              element.nationalNumber == nationalNumber);
+          element.nationalNumber == nationalNumber);
     } catch (e) {
       return null;
     }
@@ -60,5 +60,8 @@ class ContactDaoImpl implements ContactDao {
 
   static String _key() => "contact";
 
-  static Future<Box<Contact>> _open() => Hive.openBox<Contact>(_key());
+  static Future<Box<Contact>> _open() {
+    BoxInfo.addBox(_key());
+    return Hive.openBox<Contact>(_key());
+  }
 }
