@@ -15,9 +15,11 @@ import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -80,6 +82,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  CallEvent_CallStatus? _callEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +92,15 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget _buildMessageBox(
       Message msg, Room? currentRoom, List<PendingMessage> pendingMessages) {
+    if (msg.type == MessageType.CALL) {
+      _callEvent = msg.json!.toCallEvent().newStatus;
+      if (_callEvent != CallEvent_CallStatus.BUSY &&
+          _callEvent != CallEvent_CallStatus.DECLINED &&
+          _callEvent != CallEvent_CallStatus.ENDED) {
+        return const SizedBox.shrink();
+      }
+    }
+
     return msg.type != MessageType.PERSISTENT_EVENT
         ? AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -151,7 +163,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           if (widget.selectMultiMessageSubject.stream.value) {
             widget.addForwardMessage();
           } else if (!isDesktop()) {
-           FocusScope.of(context).unfocus();
+            FocusScope.of(context).unfocus();
             _showCustomMenu(message, false);
           }
         },
