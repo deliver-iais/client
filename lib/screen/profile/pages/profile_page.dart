@@ -383,7 +383,7 @@ class _ProfilePageState extends State<ProfilePage>
                       titleTextStyle:
                           TextStyle(color: ExtraTheme.of(context).textField),
                       leading: const Icon(Icons.notifications_active),
-                      switchValue: snapshot.data!,
+                      switchValue: !snapshot.data!,
                       onToggle: (state) {
                         if (state) {
                           _roomRepo.unmute(widget.roomUid.asString());
