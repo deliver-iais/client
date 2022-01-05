@@ -106,27 +106,18 @@ class RoutingService {
 
   void openCallScreen(Uid roomUid,
       {BuildContext? context,
-        bool isIncomingCall = false,
-        bool isCallInitialized = false,
-        bool isCallAccepted = false,
-        isVideoCall = false}) {
-    var widget = CallScreen(
+      bool isIncomingCall = false,
+      bool isCallInitialized = false,
+      bool isCallAccepted = false,
+      isVideoCall = false}) {
+    _push(CallScreen(
       key: const ValueKey("/callScreen"),
       roomUid: roomUid,
       isCallAccepted: isCallAccepted,
       isCallInitialized: isCallInitialized,
       isIncomingCall: isIncomingCall,
       isVideoCall: isVideoCall,
-    );
-    if (isDesktop()) {
-      _popAllAndPush(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/callScreen"));
-    } else {
-      _routeInMobileState(widget, context!);
-    }
+    ));
   }
 
   void openProfile(String roomId) => _push(
