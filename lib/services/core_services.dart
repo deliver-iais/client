@@ -260,7 +260,7 @@ class CoreServices {
   }
 
   sendActivity(ActivityByClient activity, String id) {
-    if (_authRepo.isCurrentUser(activity.to.toString())) {
+    if (!_authRepo.isCurrentUser(activity.to.toString())) {
       ClientPacket clientPacket = ClientPacket()
         ..activity = activity
         ..id = id;

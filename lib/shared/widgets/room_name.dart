@@ -20,10 +20,14 @@ class RoomName extends StatelessWidget {
     return FutureBuilder<String>(
         future: getName(),
         builder: (context, snapshot) {
+          var name = (snapshot.data ?? "");
+          if (name.length > 35) {
+            name = name.substring(0, 32) + "...";
+          }
           return Row(
             children: [
               Text(
-                (snapshot.data ?? ""),
+                name,
                 style: (style ?? Theme.of(context).textTheme.subtitle2)!
                     .copyWith(height: 1),
                 maxLines: 1,

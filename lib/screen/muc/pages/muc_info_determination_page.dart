@@ -69,7 +69,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         // TODO, use some constant variable
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
-          backgroundColor: ExtraTheme.of(context).boxBackground,
           leading: _routingService.backButtonLeading(),
           title: Text(
             widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
@@ -285,7 +284,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (mucUid != null) {
                                     _createMucService.reset();
-                                    _routingService.openRoom(mucUid.asString());
+                                    _routingService.openRoom(mucUid.asString(), popAllBeforePush: true);
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),
