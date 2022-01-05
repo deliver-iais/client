@@ -11,6 +11,8 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -518,6 +520,69 @@ class CallRepo {
       _isSharing = false;
       _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
     }
+  }
+
+  Future<void> initializeBackGroundService() async {
+    final service = FlutterBackgroundService();
+    await service.configure(
+      androidConfiguration: AndroidConfiguration(
+        // this will executed when app is in foreground or background in separated isolate
+        onStart: onStart,
+
+        // auto start service
+        autoStart: true,
+        isForegroundMode: false,
+      ),
+      iosConfiguration: IosConfiguration(
+        // auto start service
+        autoStart: true,
+
+        // this will executed when app is in foreground in separated isolate
+        onForeground: onStart,
+
+        // you have to enable background fetch capability on xcode project
+        onBackground: onIosBackground,
+      ),
+    );
+  }
+
+  // to ensure this executed
+  // run app from xcode, then from xcode menu, select Simulate Background Fetch
+  void onIosBackground() {
+    WidgetsFlutterBinding.ensureInitialized();
+    print('FLUTTER BACKGROUND FETCH');
+  }
+
+  void onStart() {
+    WidgetsFlutterBinding.ensureInitialized();
+    final service = FlutterBackgroundService();
+    service.onDataReceived.listen((event) {
+      if (event!["action"] == "setAsForeground") {
+        service.setForegroundMode(true);
+        return;
+      }
+
+      if (event["action"] == "setAsBackground") {
+        service.setForegroundMode(false);
+      }
+
+      if (event["action"] == "stopService") {
+        service.stopBackgroundService();
+      }
+    });
+
+    // bring to foreground
+    service.setForegroundMode(false);
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (!(await service.isServiceRunning())) timer.cancel();
+      service.setNotificationInfo(
+        title: "My App Service",
+        content: "Updated at ${DateTime.now()}",
+      );
+      service.sendData(
+        {"current_date": DateTime.now().toIso8601String()},
+      );
+    });
   }
 
   /*

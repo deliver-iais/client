@@ -141,7 +141,7 @@ dependencies:
     git:
       url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git
       ref: master
-
+  flutter_background_service: ^0.2.2
 
 dev_dependencies:
   build_runner: ^2.1.5
