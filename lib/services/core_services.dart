@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -486,7 +487,9 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
+    if (_routingServices.isInRoom(roomUid.asString()) &&
+        !isDesktop() &&
+        message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
       _notificationServices.playSoundIn();
     } else {
       _notificationServices.showNotification(message);
