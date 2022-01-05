@@ -96,15 +96,8 @@ class AuthRepo {
   }
 
   Future<platform_pb.Platform> getPlatformDetails() async {
-    String version;
-    try {
-      var info = await PackageInfo.fromPlatform();
-      version = info.version;
-    } catch (e) {
-      version = VERSION;
-    }
     platform_pb.Platform platform = platform_pb.Platform()
-      ..clientVersion = version;
+      ..clientVersion = VERSION;
     return await getPlatForm(platform);
   }
 

@@ -23,7 +23,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';
 
@@ -243,27 +242,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      trailing: FutureBuilder<PackageInfo>(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null) {
-                            return isDeveloperMode
-                                ? FutureBuilder<String?>(
-                                    future: SmsAutoFill().getAppSignature,
-                                    builder: (c, sms) {
-                                      return Text(
-                                          sms.data ?? snapshot.data!.version);
-                                    })
-                                : Text(
-                                    snapshot.data!.version,
-                                  );
-                          } else {
-                            return const Text(
-                              VERSION,
-                            );
-                          }
-                        },
-                      ),
+                      trailing: isDeveloperMode
+                          ? FutureBuilder<String?>(
+                              future: SmsAutoFill().getAppSignature,
+                              builder: (c, sms) => Text(sms.data ?? VERSION),
+                            )
+                          : const Text(VERSION),
                       onPressed: (_) async {
                         _logger.d(developerModeCounterCountDown);
                         developerModeCounterCountDown--;
