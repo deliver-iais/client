@@ -270,9 +270,9 @@ class _ProfilePageState extends State<ProfilePage>
     return SliverList(
         delegate: SliverChildListDelegate([
       BoxList(
-          largePageBorderRadius: const BorderRadius.only(
-              topRight: Radius.circular(24), topLeft: Radius.circular(24)),
+          largePageBorderRadius: BorderRadius.zero,
           children: [
+            const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -441,7 +441,6 @@ class _ProfilePageState extends State<ProfilePage>
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
       child: AppBar(
-        backgroundColor: ExtraTheme.of(context).boxBackground,
         titleSpacing: 8,
         title: Align(
           alignment: Alignment.centerLeft,

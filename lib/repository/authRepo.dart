@@ -18,7 +18,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
 
