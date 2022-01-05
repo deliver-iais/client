@@ -24,7 +24,6 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(
               i18n.get("language"),
