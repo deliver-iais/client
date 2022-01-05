@@ -441,7 +441,6 @@ class _ProfilePageState extends State<ProfilePage>
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
       child: AppBar(
-        backgroundColor: ExtraTheme.of(context).boxBackground,
         titleSpacing: 8,
         title: Align(
           alignment: Alignment.centerLeft,
