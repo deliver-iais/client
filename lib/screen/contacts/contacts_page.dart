@@ -39,6 +39,12 @@ class _ContactsPageState extends State<ContactsPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _queryTermDebouncedSubject.close();
+    super.dispose();
+  }
+
   _syncContacts() {
     _showSyncContactDialog(context);
   }
