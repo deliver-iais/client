@@ -10,6 +10,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
@@ -167,6 +168,13 @@ MockSharedDao getAndRegisterSharedDao() {
   return service;
 }
 
+Future<MessageRepo> getAndRegisterMessageRepo() async {
+  _removeRegistrationIfExists<MessageRepo>();
+  GetIt.I.registerSingleton<MessageRepo>(await MessageRepo());
+  MessageRepo service = GetIt.I.get<MessageRepo>();
+  return service;
+}
+
 MockAvatarRepo getAndRegisterAvatarRepo() {
   _removeRegistrationIfExists<AvatarRepo>();
   final service = MockAvatarRepo();
@@ -201,6 +209,17 @@ void registerServices() {
 void unregisterServices() {
   GetIt.I.unregister<CoreServices>();
   GetIt.I.unregister<Logger>();
+  GetIt.I.unregister<MessageDao>();
+  GetIt.I.unregister<RoomDao>();
+  GetIt.I.unregister<AuthRepo>();
+  GetIt.I.unregister<FileRepo>();
+  GetIt.I.unregister<LiveLocationRepo>();
+  GetIt.I.unregister<SeenDao>();
+  GetIt.I.unregister<MucServices>();
+  GetIt.I.unregister<QueryServiceClient>();
+  GetIt.I.unregister<SharedDao>();
+  GetIt.I.unregister<AvatarRepo>();
+  GetIt.I.unregister<BlockDao>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {

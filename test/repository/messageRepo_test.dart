@@ -33,27 +33,29 @@ void main() {
           () async {
         getAndRegisterCoreServices(
             connectionStatus: ConnectionStatus.Connected);
-        expect(await MessageRepo().updatingStatus.value,
-            TitleStatusConditions.Updating);
+        MessageRepo messageRepo = await getAndRegisterMessageRepo();
+        expect(
+            messageRepo.updatingStatus.value, TitleStatusConditions.Updating);
       });
 
       test(
           'When called should check if coreServices.connectionStatus is disconnected updatingStatus should be TitleStatusConditions.Disconnected',
           () async {
-        MessageRepo();
-        expect(MessageRepo().updatingStatus.value,
+        getAndRegisterCoreServices(
+            connectionStatus: ConnectionStatus.Disconnected);
+        MessageRepo messageRepo = await getAndRegisterMessageRepo();
+        expect(messageRepo.updatingStatus.value,
             TitleStatusConditions.Disconnected);
       });
 
       test(
           'When called should check if coreServices.connectionStatus is Connecting updatingStatus should be TitleStatusConditions.Connecting',
           () async {
-        final coreServices = getAndRegisterCoreServices(
+        getAndRegisterCoreServices(
             connectionStatus: ConnectionStatus.Connecting);
-        MessageRepo();
-        verify(coreServices.connectionStatus);
-        expect(MessageRepo().updatingStatus.value,
-            TitleStatusConditions.Connecting);
+        MessageRepo messageRepo = await getAndRegisterMessageRepo();
+        expect(
+            messageRepo.updatingStatus.value, TitleStatusConditions.Connecting);
       });
     });
 
