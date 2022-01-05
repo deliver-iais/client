@@ -152,6 +152,7 @@ class WindowsNotifier implements Notifier {
         windows_notify.Toast toast = windows_notify.Toast(
             type: windows_notify.ToastType.imageAndText02,
             title: message.roomName!,
+            actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
             image: File(file!));
         _windowsNotificationServices.show(toast);
@@ -167,6 +168,7 @@ class WindowsNotifier implements Notifier {
             type: windows_notify.ToastType.imageAndText02,
             title: message.roomName!,
             image: deliverIcon,
+            actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
           _windowsNotificationServices.show(toast);
@@ -180,16 +182,16 @@ class WindowsNotifier implements Notifier {
           if (event.action == 1) {
             //Decline
             callRepo.declineCall();
-            _routingService.pop();
           } else if (event.action == 0) {
             //Accept
+            DesktopWindow.focus();
             if (callRepo.isVideo) {
               _routingService.openCallScreen(message.roomUid!,
                   isVideoCall: true, isCallAccepted: true);
             } else {
               _routingService.openCallScreen(message.roomUid!,
                   isCallAccepted: true);
-              DesktopWindow.focus();
+
             }
           }
         }

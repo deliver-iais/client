@@ -13,6 +13,7 @@ class StartVideoCallPage extends StatefulWidget {
   final String text;
   final RTCVideoRenderer remoteRenderer;
   final Function hangUp;
+  final bool isIncomingCall;
 
   const StartVideoCallPage(
       {Key? key,
@@ -20,7 +21,8 @@ class StartVideoCallPage extends StatefulWidget {
       required this.roomUid,
       required this.localRenderer,
       required this.remoteRenderer,
-      required this.hangUp})
+      required this.hangUp,
+      this.isIncomingCall = false})
       : super(key: key);
 
   @override
@@ -50,6 +52,7 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
       ),
       CallBottomRow(
         hangUp: widget.hangUp,
+        isIncomingCall: widget.isIncomingCall,
       ),
       Padding(
         padding:
