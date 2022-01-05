@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -11,14 +12,25 @@ import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
+class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
+  final T value;
 
+  MockResponseFuture(this.value);
+
+  @override
+  Future<S> then<S>(FutureOr<S> Function(T value) onValue, {Function? onError}) =>
+      Future.value(value).then(onValue, onError: onError);
+}
 @GenerateMocks([], customMocks: [
   MockSpec<Logger>(returnNullOnMissingStub: true),
   MockSpec<MessageDao>(returnNullOnMissingStub: true),
@@ -45,12 +57,6 @@ MockCoreServices getAndRegisterCoreServices(
   _connectionStatus.add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
-  when(service.connectionStatus.listen)
-      .thenReturn((onData, {cancelOnError, onDone, onError}) {
-    return service.connectionStatus.listen((value) {
-      print(value.toString());
-    });
-  });
   return service;
 }
 
@@ -128,6 +134,8 @@ MockSharedDao getAndRegisterSharedDao() {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
+  when(service.get(SHARED_DAO_FETCH_ALL_ROOM))
+      .thenAnswer((realInvocation) => Future.value(""));
   return service;
 }
 
