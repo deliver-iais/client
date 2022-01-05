@@ -147,7 +147,7 @@ class _InputMessageWidget extends State<InputMessage> {
     widget.textController.text = (currentRoom.draft ?? "");
 
     isTypingActivitySubject
-        .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
+        .throttle((_) => TimerStream(true, const Duration(seconds: 3)))
         .listen((activityType) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
     });
