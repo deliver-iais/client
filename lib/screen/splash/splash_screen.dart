@@ -48,24 +48,26 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   tryInitAccountRepo() async {
-    await _accountRepo.checkUpdatePlatformSessionInformation();
-    _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {
-      if (_attempts < 3) {
-        _attempts++;
-        tryInitAccountRepo();
-      } else {
-        _navigateToIntroPage();
-      }
-    }).then((_) {
-      if (!_authRepo.isLocalLockEnabled()) {
-        navigateToApp();
-      } else {
-        // navigateToApp();
-        setState(() {
-          _isLocked = true;
-        });
-      }
-    });
+    try {
+      await _accountRepo.checkUpdatePlatformSessionInformation();
+      _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {
+        if (_attempts < 3) {
+          _attempts++;
+          tryInitAccountRepo();
+        } else {
+          _navigateToIntroPage();
+        }
+      }).then((_) {
+        if (!_authRepo.isLocalLockEnabled()) {
+          navigateToApp();
+        } else {
+          // navigateToApp();
+          setState(() {
+            _isLocked = true;
+          });
+        }
+      });
+    } catch (_) {}
   }
 
   void navigateToApp() {
@@ -84,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
-    bool setUserName = await _accountRepo.getProfile();
+    bool setUserName = await _accountRepo.hasProfile();
     if (setUserName) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
         return const HomePage();

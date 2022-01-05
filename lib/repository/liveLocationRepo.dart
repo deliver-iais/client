@@ -69,7 +69,7 @@ class LiveLocationRepo {
         uuid: uuid,
         locations: [location],
         lastUpdate: DateTime.now().millisecondsSinceEpoch));
-    Geolocator.getPositionStream(locationSettings: LocationSettings(timeLimit: Duration(seconds: duration)))
+    Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
         .listen((p) {
       pb.Location location =
           pb.Location(latitude: p.latitude, longitude: p.longitude);

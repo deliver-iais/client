@@ -6,6 +6,7 @@ import 'package:universal_html/html.dart' as html;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
 import 'package:universal_html/html.dart';
 
@@ -36,14 +37,14 @@ class OpenFileStatus extends StatelessWidget {
                 color: ExtraTheme.of(context).fileMessageDetails,
                 size: 33,
               ),
-              onPressed: () {
+              onPressed: () async {
                 if (snapshot.hasData) {
                   if (kIsWeb) {
-
-                    var blob = html.Blob(<Object>[snapshot.data!],
-                        "application/${file.name.split(".").last}");
-                    var url = html.Url.createObjectUrlFromBlob(blob);
-                    window.open(url.substring(5), "_blank");
+                    var res = await http.get(Uri.parse(snapshot.data!));
+                    var blob =
+                        Blob([res.bodyBytes], file.type);
+                    var fileUrl = html.Url.createObjectUrl(blob);
+                    window.open(fileUrl, "_");
                   } else {
                     OpenFile.open(snapshot.data!);
                   }

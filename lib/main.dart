@@ -142,7 +142,9 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<AuthServiceClient>(AuthServiceClient(
       kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
-  GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
+  final authRepo = AuthRepo();
+  GetIt.I.registerSingleton<AuthRepo>(authRepo);
+  await authRepo.setCurrentUserUid();
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
@@ -186,12 +188,7 @@ Future<void> setupDI() async {
               ? webLiveLocationClientChannel
               : LiveLocationServiceClientChannel,
           interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  try {
-    GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
-  } catch (e) {
-    // ignore: avoid_print
-    print(e.toString());
-  }
+  GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
 
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   GetIt.I.registerSingleton<UxService>(UxService());
@@ -289,6 +286,7 @@ _setWindowSize() {
 
 class MyApp extends StatelessWidget {
   final _uxService = GetIt.I.get<UxService>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
@@ -301,17 +299,14 @@ class MyApp extends StatelessWidget {
         _uxService.themeStream,
         _i18n.localeStream,
       ]),
-      builder: (bcontext, snapshot) {
+      builder: (ctx, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
-                _rawKeyboardService.escapeHandeling(
-                    event: event, replyMessageId: -1);
-                _rawKeyboardService.searchHandeling(event: event);
-                _rawKeyboardService.navigateInRooms(
-                    event: event, context: context);
+                _rawKeyboardService.escapeHandling(event);
+                _rawKeyboardService.searchHandling(event: event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
@@ -321,6 +316,7 @@ class MyApp extends StatelessWidget {
                 title: 'Deliver',
                 locale: _i18n.locale,
                 theme: _uxService.theme,
+                navigatorKey: _routingService.mainNavigatorState,
                 supportedLocales: const [
                   Locale('en', 'US'),
                   Locale('fa', 'IR')

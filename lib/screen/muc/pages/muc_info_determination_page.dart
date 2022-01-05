@@ -1,16 +1,13 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:get_it/get_it.dart';
@@ -73,11 +70,9 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           backgroundColor: ExtraTheme.of(context).boxBackground,
-          leading: _routingService.backButtonLeading(context),
+          leading: _routingService.backButtonLeading(),
           title: Text(
-            widget.isChannel
-                ? _i18n.get("newChannel")
-                : _i18n.get("newGroup"),
+            widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
             style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
         ),
@@ -290,20 +285,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (mucUid != null) {
                                     _createMucService.reset();
-                                    if (isDesktop() || kIsWeb) {
-                                      _routingService.openRoom(
-                                          mucUid.asString(),
-                                          context: context);
-                                    } else {
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (c) => RoomPage(
-                                                  roomId: mucUid!.asString())),
-                                          (t) {
-                                        return t.isFirst;
-                                      });
-                                    }
+                                    _routingService.openRoom(mucUid.asString());
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),

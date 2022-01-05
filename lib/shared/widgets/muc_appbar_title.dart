@@ -87,7 +87,7 @@ class MucAppbarTitle extends StatelessWidget {
               ],
             ),
             onTap: () {
-              _routingService.openProfile(context,mucUid);
+              _routingService.openProfile(mucUid);
             },
           ),
         ));

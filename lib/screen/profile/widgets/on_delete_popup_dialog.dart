@@ -1,7 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -13,14 +12,12 @@ class OnDeletePopupDialog extends StatefulWidget {
   final String selected;
   final Uid roomUid;
   final String roomName;
-  final bool shouldRouteToHomePage;
 
   const OnDeletePopupDialog(
       {Key? key,
       required this.selected,
       required this.roomUid,
-      required this.roomName,
-      required this.shouldRouteToHomePage})
+      required this.roomName})
       : super(key: key);
 
   @override
@@ -174,29 +171,23 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   _leftMuc() async {
     var result = await _mucRepo.leaveMuc(widget.roomUid);
     if (result) _navigateHomePage();
-    if (!widget.shouldRouteToHomePage) Navigator.pop(context);
   }
 
   _deleteRoom() async {
     var res = await _roomRepo.deleteRoom(widget.roomUid);
     if (res) _navigateHomePage();
-    if (!widget.shouldRouteToHomePage) Navigator.pop(context);
   }
 
   _deleteMuc() async {
     var result = await _mucRepo.removeMuc(widget.roomUid);
     if (result) {
       _navigateHomePage();
-      if (!widget.shouldRouteToHomePage) Navigator.pop(context);
     }
   }
 
   _navigateHomePage() {
-    if (widget.shouldRouteToHomePage) {
-      _routingService.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-        return const HomePage();
-      }), (f) => false);
+    if (_routingService.isInRoom(widget.roomUid.asString())) {
+      _routingService.popAll();
     }
   }
 }

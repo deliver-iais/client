@@ -30,7 +30,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
               i18n.get("language"),
               style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
-            leading: _routingService.backButtonLeading(context),
+            leading: _routingService.backButtonLeading(),
           ),
         ),
         body: FluidContainerWidget(

@@ -16,17 +16,21 @@ class NewMessageInput extends StatelessWidget {
   final Function? sendForwardMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final Function? scrollToLastSentMessage;
+  final FocusNode focusNode;
+  final TextEditingController textController;
 
-  NewMessageInput(
-      {Key? key,
-      required this.currentRoomId,
-      this.replyMessageId,
-      this.resetRoomPageDetails,
-      this.waitingForForward,
-      this.editableMessage,
-      this.sendForwardMessage,
-      this.scrollToLastSentMessage})
-      : super(key: key);
+  NewMessageInput({
+    Key? key,
+    required this.currentRoomId,
+    required this.focusNode,
+    required this.textController,
+    this.replyMessageId,
+    this.resetRoomPageDetails,
+    this.waitingForForward,
+    this.editableMessage,
+    this.sendForwardMessage,
+    this.scrollToLastSentMessage,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +40,16 @@ class NewMessageInput extends StatelessWidget {
           if (snapshot.hasData) {
             Room currentRoom = snapshot.data!;
             return InputMessage(
-                currentRoom: currentRoom,
-                replyMessageId: replyMessageId,
-                resetRoomPageDetails: resetRoomPageDetails,
-                waitingForForward: waitingForForward!,
-                editableMessage: editableMessage,
-                sendForwardMessage: sendForwardMessage!,
-                scrollToLastSentMessage: scrollToLastSentMessage!);
+              currentRoom: currentRoom,
+              replyMessageId: replyMessageId,
+              resetRoomPageDetails: resetRoomPageDetails,
+              waitingForForward: waitingForForward!,
+              editableMessage: editableMessage,
+              sendForwardMessage: sendForwardMessage!,
+              scrollToLastSentMessage: scrollToLastSentMessage!,
+              focusNode: focusNode,
+              textController: textController,
+            );
           } else {
             _roomRepo.createRoomIfNotExist(currentRoomId);
             return const SizedBox.shrink();

@@ -24,7 +24,7 @@ class AccountRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dbManager = GetIt.I.get<DBManager>();
 
-  Future<bool> getProfile({bool retry = false}) async {
+  Future<bool> hasProfile({bool retry = false}) async {
     if (await _sharedDao.get(SHARED_DAO_USERNAME) != null) {
       return true;
     }
@@ -40,21 +40,21 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
-        return await getUsername();
+        return await hasUsername();
       } else {
-        return getUsername();
+        return await hasUsername();
       }
     } catch (e) {
       _logger.e(e);
       if (retry) {
-        return getProfile();
+        return hasProfile();
       } else {
         return false;
       }
     }
   }
 
-  Future<bool> getUsername() async {
+  Future<bool> hasUsername() async {
     try {
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
@@ -141,9 +141,9 @@ class AccountRepo {
 
   Future<void> fetchProfile() async {
     if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
-      await getUsername();
+      await hasUsername();
     } else if (null == await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
-      await getProfile(retry: true);
+      await hasProfile(retry: true);
     }
   }
 
@@ -177,7 +177,7 @@ class AccountRepo {
   }
 
   shouldRemoveDB(String? previousVersion) {
-    return previousVersion == null || previousVersion != VERSION;
+    return previousVersion != VERSION;
   }
 
   shouldMigrateDB(String? previousVersion) {

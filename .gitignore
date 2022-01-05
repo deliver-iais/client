@@ -48,3 +48,4 @@ android/key.jks
 
 *.dmg
 /pubspec.lock
+/pubspec.lock
