@@ -239,7 +239,7 @@ class PersistentEventMessage extends StatelessWidget {
       case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
         return _i18n.verb(
           isChannel
-              ? _i18n.verb("change_channel_avatar")
+              ?"change_channel_avatar"
               : "change_group_avatar",
           isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
               .mucSpecificPersistentEvent.issuer

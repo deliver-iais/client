@@ -177,7 +177,7 @@ Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
             issuer,
             i18n.verb(
                 isChannel
-                    ? i18n.verb("change_channel_avatar")
+                    ? "change_channel_avatar"
                     : "change_group_avatar",
                 isFirstPerson: authRepo.isCurrentUser(
                     pe.mucSpecificPersistentEvent.issuer.asString())),

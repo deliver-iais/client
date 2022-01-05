@@ -13,6 +13,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -51,7 +52,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   attachFile() async {
     String? path;
-    if (isDesktop()) {
+    if (kIsWeb || isDesktop()) {
       FilePickerResult? result = await FilePicker.platform
           .pickFiles(type: FileType.image, allowMultiple: false);
       path = result!.files.first.path;
@@ -146,8 +147,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         }
       });
       super.initState();
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   @override

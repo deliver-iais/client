@@ -47,3 +47,4 @@ android/key.jks
 *.snap
 
 *.dmg
+/pubspec.lock

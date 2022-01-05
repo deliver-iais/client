@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final List<Message> pinMessages;
@@ -98,17 +97,20 @@ class PinMessageAppBar extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              i18n.get("pinned_message"),
-                              style:
-                                  Theme.of(context).primaryTextTheme.subtitle2,
-                            ),
-                            LastMessage(
-                                message: mes!,
-                                lastMessageId: mes.id!,
-                                hasMentioned: false,
-                                showSeenStatus: false,
-                                showSender: false),
+                            if (mes != null)
+                              Text(
+                                i18n.get("pinned_message"),
+                                style: Theme.of(context)
+                                    .primaryTextTheme
+                                    .subtitle2,
+                              ),
+                            if (mes != null)
+                              LastMessage(
+                                  message: mes,
+                                  lastMessageId: mes.id!,
+                                  hasMentioned: false,
+                                  showSeenStatus: false,
+                                  showSender: false),
                           ],
                         ),
                       ),

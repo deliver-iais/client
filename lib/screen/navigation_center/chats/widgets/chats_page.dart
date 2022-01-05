@@ -48,10 +48,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
+
 
   void onUnPin(Room room) {
     _roomDao.updateRoom(Room(uid: room.uid, pinned: false));

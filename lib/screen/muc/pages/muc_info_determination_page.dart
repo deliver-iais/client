@@ -10,6 +10,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:get_it/get_it.dart';
@@ -289,7 +290,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (mucUid != null) {
                                     _createMucService.reset();
-                                    if (isDesktop()) {
+                                    if (isDesktop() || kIsWeb) {
                                       _routingService.openRoom(
                                           mucUid.asString(),
                                           context: context);
