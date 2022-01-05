@@ -7,7 +7,6 @@ import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -176,13 +175,11 @@ class _CallScreenState extends State<CallScreen> {
             case CallStatus.ENDED:
               _logger.i("END!");
               _audioService.stopPlayBeepSound();
-              isDesktop()
-                  ? _routingService.pop()
-                  : Timer.run(() {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      }
-                    });
+              Timer.run(() {
+                if (_routingService.canPop()) {
+                  _routingService.pop();
+                }
+              });
               callRepo.disposeRenderer();
               return const SizedBox.shrink();
             case CallStatus.NO_CALL:
