@@ -19,14 +19,24 @@ void main() {
         verify(coreServices.connectionStatus);
       });
       test(
-          'When called should check if coreServices.connectionStatus is connected we should update',
+          'When called should check if coreServices.connectionStatus is connected we should see updating log',
           () async {
-        MessageRepo();
-
-        //verify(logger.i('updating -----------------'));
-        expect(
-            MessageRepo().updatingStatus.value, TitleStatusConditions.Updating);
+        final logger = getAndRegisterLogger();
+        getAndRegisterCoreServices(
+            connectionStatus: ConnectionStatus.Connected);
+        // ignore: await_only_futures
+        await MessageRepo();
+        verify(logger.i('updating -----------------'));
       });
+      test(
+          'When called should check if coreServices.connectionStatus is connected  updatingStatus should be TitleStatusConditions.Updating',
+          () async {
+        getAndRegisterCoreServices(
+            connectionStatus: ConnectionStatus.Connected);
+        expect(await MessageRepo().updatingStatus.value,
+            TitleStatusConditions.Updating);
+      });
+
       test(
           'When called should check if coreServices.connectionStatus is disconnected updatingStatus should be TitleStatusConditions.Disconnected',
           () async {
