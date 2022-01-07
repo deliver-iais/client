@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
@@ -31,6 +32,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -83,6 +85,7 @@ class _RoomPageState extends State<RoomPage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
   int _lastSeenMessageId = -1;
 
   int _lastShowedMessageId = -1;
@@ -90,6 +93,7 @@ class _RoomPageState extends State<RoomPage> {
   int _replyMessageId = -1;
   int _lastReceivedMessageId = 0;
   int _currentMessageSearchId = -1;
+  int _lastSeenScrollPotion = -1;
   List<Message> searchResult = [];
 
   final List<Message> _pinMessages = [];
@@ -180,6 +184,7 @@ class _RoomPageState extends State<RoomPage> {
                               });
                         }),
                   ),
+                  !isDesktop() ? positionsView : const SizedBox.shrink(),
                   StreamBuilder(
                       stream: _repliedMessage.stream,
                       builder: (c, rm) {
@@ -237,17 +242,42 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
+  Widget get positionsView => ValueListenableBuilder<Iterable<ItemPosition>>(
+      valueListenable: _itemPositionsListener.itemPositions,
+      builder: (context, positions, child) {
+        int? firstItem;
+        if (positions.isNotEmpty) {
+          // Determine the first visible item by finding the item with the
+          firstItem = positions
+              .where((ItemPosition position) => position.itemTrailingEdge > 0)
+              .reduce((ItemPosition first, ItemPosition position) =>
+                  position.itemTrailingEdge < first.itemTrailingEdge
+                      ? position
+                      : first)
+              .index;
+        }
+
+        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
+            firstItem.toString());
+        return const SizedBox.shrink();
+      });
+
+  _getScrollPosition() async {
+    String? scrollPosition =
+        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
+    _lastSeenScrollPotion = int.parse(scrollPosition ?? "-1");
+  }
+
   @override
   void initState() {
     // Log page data
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
 
-    // TODO remove this, this is unnecessary
-    if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
-
-    // Do some stuff
-    _currentRoom.add(Room(uid: widget.roomId, firstMessageId: 0));
+    if (!isDesktop()) {
+      _fireBaseServices.sendFireBaseToken();
+      _getScrollPosition();
+    }
     _getLastShowMessageId();
     _getLastSeen();
     _roomRepo.resetMention(widget.roomId);
@@ -649,14 +679,19 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget buildMessagesListView(List<PendingMessage> pendingMessages) {
+    int scrollIndex = (_itemCount > 0
+        ? (_lastShowedMessageId != -1)
+            ? _lastShowedMessageId
+            : _itemCount
+        : 0);
+    int initialScrollIndex = isDesktop()
+        ? scrollIndex
+        : min(_lastSeenScrollPotion != -1 ? _lastSeenScrollPotion : scrollIndex,
+            scrollIndex);
+
     return ScrollablePositionedList.separated(
-      // shrinkWrap: true,
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount > 0
-          ? (_lastShowedMessageId != -1)
-              ? _lastShowedMessageId
-              : _itemCount
-          : 0,
+      initialScrollIndex: initialScrollIndex,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
