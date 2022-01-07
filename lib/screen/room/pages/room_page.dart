@@ -184,7 +184,7 @@ class _RoomPageState extends State<RoomPage> {
                               });
                         }),
                   ),
-                  !isDesktop() ? positionsView : const SizedBox.shrink(),
+                  positionsView,
                   StreamBuilder(
                       stream: _repliedMessage.stream,
                       builder: (c, rm) {
@@ -273,10 +273,9 @@ class _RoomPageState extends State<RoomPage> {
     // Log page data
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
-
+    _getScrollPosition();
     if (!isDesktop()) {
       _fireBaseServices.sendFireBaseToken();
-      _getScrollPosition();
     }
     _getLastShowMessageId();
     _getLastSeen();
@@ -684,10 +683,9 @@ class _RoomPageState extends State<RoomPage> {
             ? _lastShowedMessageId
             : _itemCount
         : 0);
-    int initialScrollIndex = isDesktop()
-        ? scrollIndex
-        : min(_lastSeenScrollPotion != -1 ? _lastSeenScrollPotion : scrollIndex,
-            scrollIndex);
+    int initialScrollIndex = min(
+        _lastSeenScrollPotion != -1 ? _lastSeenScrollPotion : scrollIndex,
+        scrollIndex);
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
