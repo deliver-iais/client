@@ -8,7 +8,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
@@ -25,8 +24,8 @@ class AccountRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dbManager = GetIt.I.get<DBManager>();
 
-  Future<bool> getProfile({bool retry = false}) async {
-    if (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) != null) {
+  Future<bool> hasProfile({bool retry = false}) async {
+    if (await _sharedDao.get(SHARED_DAO_USERNAME) != null) {
       return true;
     }
     try {
@@ -41,21 +40,21 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
-        return await getUsername();
+        return await hasUsername();
       } else {
-        return getUsername();
+        return await hasUsername();
       }
     } catch (e) {
       _logger.e(e);
       if (retry) {
-        return getProfile();
+        return hasProfile();
       } else {
         return false;
       }
     }
   }
 
-  Future<bool> getUsername() async {
+  Future<bool> hasUsername() async {
     try {
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
@@ -113,9 +112,9 @@ class AccountRepo {
       _profileServiceClient.saveUserProfile(saveUserProfileReq);
       _saveProfilePrivateData(
           username: username,
-          firstName: firstName,
-          lastName: lastName,
-          email: email);
+          firstName: firstName ?? "",
+          lastName: lastName ?? "",
+          email: email ?? "");
 
       return true;
     } catch (e) {
@@ -142,9 +141,9 @@ class AccountRepo {
 
   Future<void> fetchProfile() async {
     if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
-      await getUsername();
+      await hasUsername();
     } else if (null == await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
-      await getProfile(retry: true);
+      await hasProfile(retry: true);
     }
   }
 
@@ -158,7 +157,7 @@ class AccountRepo {
     if (pv != null) {
       // Migrations
       if (shouldRemoveDB(pv)) {
-        //  await _dbManager.deleteDB();
+        await _dbManager.deleteDB();
       }
 
       if (shouldMigrateDB(pv)) {
@@ -171,14 +170,14 @@ class AccountRepo {
         _sessionServicesClient.updateSessionPlatformInformation(
             UpdateSessionPlatformInformationReq()..platform = platform);
       }
-
       // Update version in DB
+    } else {
       _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
     }
   }
 
   shouldRemoveDB(String? previousVersion) {
-    return previousVersion == null || previousVersion != VERSION;
+    return previousVersion != VERSION;
   }
 
   shouldMigrateDB(String? previousVersion) {

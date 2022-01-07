@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as form_pb;

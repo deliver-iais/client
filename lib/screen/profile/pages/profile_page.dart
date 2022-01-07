@@ -31,19 +31,17 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:settings_ui/settings_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -272,9 +270,9 @@ class _ProfilePageState extends State<ProfilePage>
     return SliverList(
         delegate: SliverChildListDelegate([
       BoxList(
-          largePageBorderRadius: const BorderRadius.only(
-              topRight: Radius.circular(24), topLeft: Radius.circular(24)),
+          largePageBorderRadius: BorderRadius.zero,
           children: [
+            const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -346,8 +344,8 @@ class _ProfilePageState extends State<ProfilePage>
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: const Icon(Icons.message),
-                    onPressed: (_) => _routingService
-                        .openRoom(widget.roomUid.asString(), context: context)),
+                    onPressed: (_) =>
+                        _routingService.openRoom(widget.roomUid.asString())),
               ),
             if (isAndroid())
               FutureBuilder<String?>(
@@ -369,7 +367,7 @@ class _ProfilePageState extends State<ProfilePage>
                             onPressed: (_) async {
                               _routingService
                                   .openCustomNotificationSoundSelection(
-                                      context, widget.roomUid.asString());
+                                      widget.roomUid.asString());
                             },
                           ));
                     } else {
@@ -385,7 +383,7 @@ class _ProfilePageState extends State<ProfilePage>
                       titleTextStyle:
                           TextStyle(color: ExtraTheme.of(context).textField),
                       leading: const Icon(Icons.notifications_active),
-                      switchValue: snapshot.data!,
+                      switchValue: !snapshot.data!,
                       onToggle: (state) {
                         if (state) {
                           _roomRepo.unmute(widget.roomUid.asString());
@@ -430,7 +428,7 @@ class _ProfilePageState extends State<ProfilePage>
                   titleTextStyle:
                       TextStyle(color: ExtraTheme.of(context).textField),
                   leading: const Icon(Icons.person_add),
-                  onPressed: (_) => _routingService.openMemberSelection(context,
+                  onPressed: (_) => _routingService.openMemberSelection(
                       isChannel: true, mucUid: widget.roomUid),
                 ),
               ),
@@ -442,28 +440,25 @@ class _ProfilePageState extends State<ProfilePage>
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
-      child: FluidContainerWidget(
-        child: AppBar(
-          backgroundColor: ExtraTheme.of(context).boxBackground,
-          titleSpacing: 8,
-          title: Align(
-            alignment: Alignment.centerLeft,
-            child: FutureBuilder<String>(
-              future: _roomRepo.getName(widget.roomUid),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-                return RoomName(
-                    uid: widget.roomUid,
-                    name: _roomName,
-                    style: TextStyle(color: ExtraTheme.of(context).textField));
-              },
-            ),
+      child: AppBar(
+        titleSpacing: 8,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: FutureBuilder<String>(
+            future: _roomRepo.getName(widget.roomUid),
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
+              return RoomName(
+                  uid: widget.roomUid,
+                  name: _roomName,
+                  style: TextStyle(color: ExtraTheme.of(context).textField));
+            },
           ),
-          actions: <Widget>[
-            _buildMenu(context),
-          ],
-          leading: _routingService.backButtonLeading(context),
         ),
+        actions: <Widget>[
+          _buildMenu(context),
+        ],
+        leading: _routingService.backButtonLeading(),
       ),
     );
   }
@@ -670,13 +665,12 @@ class _ProfilePageState extends State<ProfilePage>
                   TextButton(
                     onPressed: () {
                       // TODO set name for share uid
-                      _routingService.openSelectForwardMessage(context,
+                      Navigator.pop(context);
+                      _routingService.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
                             ..name = _roomName
                             ..joinToken = token
                             ..uid = widget.roomUid);
-
-                      Navigator.pop(context);
                     },
                     child: Text(
                       _i18n.get("share"),
@@ -938,7 +932,6 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -950,7 +943,6 @@ class _ProfilePageState extends State<ProfilePage>
                 roomUid: widget.roomUid,
                 selected: selected,
                 roomName: _roomName,
-                shouldRouteToHomePage: true,
               );
             });
         break;
@@ -1118,10 +1110,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                                       c1);
                                                                   _routingService
                                                                       .openRoom(
-                                                                          snapshot.data![
-                                                                              i],
-                                                                          context:
-                                                                              c);
+                                                                    snapshot
+                                                                        .data![i],
+                                                                  );
                                                                 }
                                                               },
                                                               child: Text(_i18n

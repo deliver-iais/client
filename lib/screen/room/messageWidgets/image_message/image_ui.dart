@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -43,7 +42,7 @@ class _ImageUiState extends State<ImageUi> {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
 
-    const radius = Radius.circular(12);
+    const radius = Radius.circular(8);
     const border = BorderRadius.all(radius);
 
     try {
@@ -140,8 +139,9 @@ class _ImageUiState extends State<ImageUi> {
                                     _startDownload.add(true);
                                     await fileRepo.getFile(
                                         image.uuid, image.name);
+                                    _startDownload.add(false);
                                     setState(() {
-                                      _startDownload.add(false);
+
                                     });
                                   },
                                   shape: const CircleBorder(),

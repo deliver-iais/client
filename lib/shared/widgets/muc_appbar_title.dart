@@ -4,9 +4,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
@@ -89,7 +87,7 @@ class MucAppbarTitle extends StatelessWidget {
               ],
             ),
             onTap: () {
-              _routingService.openProfile(context,mucUid);
+              _routingService.openProfile(mucUid);
             },
           ),
         ));

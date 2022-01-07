@@ -58,20 +58,22 @@ class _BoxContentState extends State<BoxContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-              !widget.isSender)
-            senderNameBox(),
-          if (hasReply()) replyToIdBox(),
-          if (widget.message.forwardedFrom != null &&
-              widget.message.forwardedFrom!.length > 3)
-            forwardedFromBox(),
-          messageBox()
-        ],
+    return RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.message.roomUid.asUid().category == Categories.GROUP &&
+                !widget.isSender)
+              senderNameBox(),
+            if (hasReply()) replyToIdBox(),
+            if (widget.message.forwardedFrom != null &&
+                widget.message.forwardedFrom!.length > 3)
+              forwardedFromBox(),
+            messageBox()
+          ],
+        ),
       ),
     );
   }
@@ -122,7 +124,7 @@ class _BoxContentState extends State<BoxContent> {
           style: Theme.of(context).primaryTextTheme.bodyText2,
         ),
         onTap: () {
-          _routingServices.openRoom(widget.message.from, context: context);
+          _routingServices.openRoom(widget.message.from);
         },
       ),
     );
@@ -141,8 +143,7 @@ class _BoxContentState extends State<BoxContent> {
                       color: ExtraTheme.of(context).messageDetails,
                       fontSize: 13)),
               onTap: () {
-                _routingServices.openRoom(widget.message.forwardedFrom!,
-                    context: context);
+                _routingServices.openRoom(widget.message.forwardedFrom!);
               },
             );
           } else {

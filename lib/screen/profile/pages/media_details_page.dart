@@ -13,7 +13,6 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
@@ -109,7 +108,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget build(BuildContext context) {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
-    } else if (widget.isVideo == true) {
+    } else if (widget.isVideo) {
       _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, true);
     } else {
@@ -325,7 +324,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     fileName = jsonDecode(media.json)["name"];
     mediaSender = media.createdBy.asUid();
     createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
-    _senderName = _mediaSenderCache.get(fileId)!;
+    _senderName = _mediaSenderCache.get(fileId)??"";
     duration = jsonDecode(media.json)["duration"];
   }
 
@@ -500,7 +499,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   PreferredSizeWidget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
-      leading: _routingService.backButtonLeading(context),
+      leading: _routingService.backButtonLeading(),
       title: Align(
           alignment: Alignment.topLeft,
           child: StreamBuilder<int>(

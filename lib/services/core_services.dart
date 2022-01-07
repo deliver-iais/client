@@ -32,10 +32,7 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -44,7 +41,7 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = kIsWeb ? 8 : 4;
+const MIN_BACKOFF_TIME = kIsWeb ? 16 : 4;
 const MAX_BACKOFF_TIME = kIsWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
@@ -89,7 +86,7 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    startStream();
+    await startStream();
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -109,10 +106,6 @@ class CoreServices {
       return;
     }
 
-    if (!kIsWeb && _clientPacketStream.isClosed ||
-        _clientPacketStream.isPaused) {
-      await startStream();
-    }
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
@@ -121,11 +114,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        if (kIsWeb) {
-          startStream();
-        } else {
-          _clientPacketStream.close();
-        }
+        await startStream();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
 
@@ -183,10 +172,13 @@ class CoreServices {
           case ServerPacket_Type.callAnswer:
             // TODO: Handle this case.
             break;
+          case ServerPacket_Type.expletivePacket:
+            // TODO: Handle this case.
+            break;
         }
       });
     } catch (e) {
-      startStream();
+      await startStream();
       _logger.e(e);
     }
   }
@@ -196,24 +188,15 @@ class CoreServices {
       ClientPacket clientPacket = ClientPacket()
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
-      if (kIsWeb) {
-        _grpcCoreService.sendClientPacket(clientPacket);
-      } else {
-        if (!_clientPacketStream.isClosed &&
-            _connectionStatus.value == ConnectionStatus.Connected) {
-          _clientPacketStream.add(clientPacket);
-        } else {
-          startStream();
-        }
-      }
-      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => checkPendingStatus(message.packetId));
+      _sendPacket(clientPacket);
+      Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+          () => _checkPendingStatus(message.packetId));
     } catch (e) {
       _logger.e(e);
     }
   }
 
-  Future<void> checkPendingStatus(String packetId) async {
+  Future<void> _checkPendingStatus(String packetId) async {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       await _messageDao.savePendingMessage(pm.copyWith(
@@ -226,58 +209,46 @@ class CoreServices {
   }
 
   sendPing() {
-    if (kIsWeb) {
-      try {
-        var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-        _grpcCoreService.sendClientPacket(ClientPacket()
-          ..ping = ping
-          ..id = DateTime.now().microsecondsSinceEpoch.toString());
-        _grpcCoreService.sendClientPacket(ClientPacket()
-          ..ping = ping
-          ..id = DateTime.now().microsecondsSinceEpoch.toString());
-      } catch (e) {
-        _logger.e(e);
-      }
-    } else {
-      if (!_clientPacketStream.isClosed) {
-        var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-        _clientPacketStream.add(ClientPacket()
-          ..ping = ping
-          ..id = DateTime.now().microsecondsSinceEpoch.toString());
-      } else {
-        startStream();
-      }
-    }
+    var ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    var clientPacket = ClientPacket()
+      ..ping = ping
+      ..id = DateTime.now().microsecondsSinceEpoch.toString();
+    _sendPacket(clientPacket, forceToSend: true);
   }
 
   sendSeen(seen_pb.SeenByClient seen) {
     ClientPacket clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    if (kIsWeb) {
-      _grpcCoreService.sendClientPacket(clientPacket);
-    } else {
-      if (!_clientPacketStream.isClosed) {
-        _clientPacketStream.add(clientPacket);
-      } else {
-        startStream();
+    _sendPacket(clientPacket);
+  }
+
+  sendActivity(ActivityByClient activity, String id) {
+    if (!_authRepo.isCurrentUser(activity.to.toString())) {
+      ClientPacket clientPacket = ClientPacket()
+        ..activity = activity
+        ..id = id;
+      if (!_authRepo.isCurrentUser(activity.to.asString())) {
+        _sendPacket(clientPacket);
       }
     }
   }
 
-  sendActivity(ActivityByClient activity, String id) {
-    if (_authRepo.isCurrentUser(activity.to.toString())) {
-      ClientPacket clientPacket = ClientPacket()
-        ..activity = activity
-        ..id = id;
+  _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
+    try {
       if (kIsWeb) {
-        _grpcCoreService.sendClientPacket(clientPacket);
+        await _grpcCoreService.sendClientPacket(packet);
       } else if (!_clientPacketStream.isClosed &&
-          !_authRepo.isCurrentUser(activity.to.asString())) {
-        _clientPacketStream.add(clientPacket);
+          (forceToSend ||
+              _connectionStatus.value == ConnectionStatus.Connected)) {
+        _clientPacketStream.add(packet);
       } else {
-        startStream();
+        await startStream();
+        // throw Exception("no active stream");
       }
+    } catch (e) {
+      _logger.e(e);
+      // rethrow;
     }
   }
 
@@ -410,7 +381,7 @@ class CoreServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await getEditedMsg(
+              await messageEdited(
                   roomUid,
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
@@ -452,7 +423,7 @@ class CoreServices {
     }
   }
 
-  getEditedMsg(Uid roomUid, int id) async {
+  messageEdited(Uid roomUid, int id) async {
     var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1

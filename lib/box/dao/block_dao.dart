@@ -1,3 +1,4 @@
+import 'package:deliver/box/box_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class BlockDao {
@@ -43,5 +44,8 @@ class BlockDaoImpl implements BlockDao {
 
   static String _key() => "block";
 
-  static Future<Box<bool>> _open() => Hive.openBox<bool>(_key());
+  static Future<Box<bool>> _open() {
+    BoxInfo.addBox(_key());
+    return Hive.openBox<bool>(_key());
+  }
 }

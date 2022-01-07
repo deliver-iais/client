@@ -8,21 +8,20 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 
 // TODO Needs to be refactored. WTF WTF WTF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
-  final int? messageId;
   final String? messagePacketId; // TODO Needs to be refactored
   final String? roomUid;
-  final Function onPressed;
+  final void Function(String, String) onPressed;
 
   const LoadFileStatus(
       {Key? key,
       required this.fileId,
       required this.fileName,
-      this.messageId,
       this.messagePacketId,
       this.roomUid,
       required this.onPressed})
@@ -33,7 +32,7 @@ class LoadFileStatus extends StatefulWidget {
 }
 
 class _LoadFileStatusState extends State<LoadFileStatus> {
-  bool _startDownload = false;
+  final _startDownload = BehaviorSubject.seeded(false);
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
   bool isPendingMes = true;
@@ -122,106 +121,103 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                 isMedia: false,
                               )
                         : Container(),
-                    if (!isPendingMes)
-                      _startDownload
-                          ? StreamBuilder<double>(
-                              stream: _fileService
-                                  .filesDownloadStatus[widget.fileId],
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData &&
-                                    snapshot.data != null &&
-                                    snapshot.data! > 0) {
-                                  return CircularPercentIndicator(
-                                    radius: 45.0,
-                                    lineWidth: 4.0,
-                                    percent: snapshot.data!,
-                                    backgroundColor: ExtraTheme.of(context)
-                                        .circularFileStatus,
-                                    center: StreamBuilder<CancelToken?>(
-                                      stream: _fileService
-                                          .cancelTokens[widget.fileId],
-                                      builder: (c, s) {
-                                        if (s.hasData && s.data != null) {
-                                          return GestureDetector(
-                                            child: const Icon(
-                                              Icons.cancel,
-                                              size: 35,
-                                            ),
-                                            onTap: () {
-                                              s.data!.cancel();
-                                              _fileService
-                                                  .cancelTokens[widget.fileId]!
-                                                  .add(null);
-                                            },
-                                          );
-                                        } else {
-                                          return GestureDetector(
-                                              onTap: () {
-                                                widget.onPressed(widget.fileId,
-                                                    widget.fileName);
-                                              },
-                                              child: Icon(
-                                                Icons.arrow_downward,
-                                                color: ExtraTheme.of(context)
-                                                    .fileMessageDetails,
-                                                size: 35,
-                                              ));
-                                        }
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  return CircularPercentIndicator(
-                                    radius: 45.0,
-                                    lineWidth: 4.0,
-                                    percent: 0.1,
-                                    center: Icon(
-                                      Icons.arrow_downward,
-                                      color: ExtraTheme.of(context)
-                                          .fileMessageDetails,
-                                    ),
-                                    backgroundColor: ExtraTheme.of(context)
-                                        .circularFileStatus,
-                                    progressColor: ExtraTheme.of(context)
-                                        .fileMessageDetails,
-                                  );
-                                }
-                              })
-                          : Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ExtraTheme.of(context)
-                                      .circularFileStatus),
-                              child: pendingMessage.data != null
-                                  ? const SizedBox.shrink()
-                                  : IconButton(
-                                      padding: const EdgeInsets.all(0),
-                                      alignment: Alignment.center,
-                                      icon: Icon(
-                                        Icons.arrow_downward,
-                                        color: ExtraTheme.of(context)
-                                            .fileMessageDetails,
-                                        size: 35,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _startDownload = true;
-                                        });
-                                        widget.onPressed(
-                                            widget.fileId, widget.fileName);
-                                      },
-                                    ),
-                            )
+                    if (!isPendingMes) buildDownload()
                   ],
                 ),
               ],
             );
           });
     } else {
-      return const SizedBox.shrink();
+      return buildDownload();
     }
     //TODO animation to change icon????
+  }
+
+  Widget buildDownload() {
+    return StreamBuilder<bool>(
+        stream: _startDownload.stream,
+        builder: (c, st) {
+          if (st.hasData && st.data!) {
+            return StreamBuilder<double>(
+                stream: _fileService.filesDownloadStatus[widget.fileId],
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data! > 0) {
+                    return CircularPercentIndicator(
+                      radius: 45.0,
+                      lineWidth: 4.0,
+                      percent: snapshot.data!,
+                      backgroundColor:
+                          ExtraTheme.of(context).circularFileStatus,
+                      center: StreamBuilder<CancelToken?>(
+                        stream: _fileService.cancelTokens[widget.fileId],
+                        builder: (c, s) {
+                          if (s.hasData && s.data != null) {
+                            return GestureDetector(
+                              child: const Icon(
+                                Icons.cancel,
+                                size: 35,
+                              ),
+                              onTap: () {
+                                s.data!.cancel();
+                                _fileService.cancelTokens[widget.fileId]!
+                                    .add(null);
+                              },
+                            );
+                          } else {
+                            return GestureDetector(
+                                onTap: () {
+                                  widget.onPressed(
+                                      widget.fileId, widget.fileName);
+                                },
+                                child: Icon(
+                                  Icons.arrow_downward,
+                                  color:
+                                      ExtraTheme.of(context).fileMessageDetails,
+                                  size: 35,
+                                ));
+                          }
+                        },
+                      ),
+                    );
+                  } else {
+                    return CircularPercentIndicator(
+                      radius: 45.0,
+                      lineWidth: 4.0,
+                      percent: 0.1,
+                      center: Icon(
+                        Icons.arrow_downward,
+                        color: ExtraTheme.of(context).fileMessageDetails,
+                      ),
+                      backgroundColor:
+                          ExtraTheme.of(context).circularFileStatus,
+                      progressColor: ExtraTheme.of(context).fileMessageDetails,
+                    );
+                  }
+                });
+          } else {
+            return Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: ExtraTheme.of(context).circularFileStatus),
+              child: IconButton(
+                padding: const EdgeInsets.all(0),
+                alignment: Alignment.center,
+                icon: Icon(
+                  Icons.arrow_downward,
+                  color: ExtraTheme.of(context).fileMessageDetails,
+                  size: 35,
+                ),
+                onPressed: () {
+                  _startDownload.add(true);
+                  widget.onPressed(widget.fileId, widget.fileName);
+                },
+              ),
+            );
+          }
+        });
   }
 }

@@ -1,12 +1,9 @@
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class MsgTime extends StatelessWidget {
   final DateTime time;
-  final bool isSent;
 
-  const MsgTime({Key? key, required this.time, this.isSent = false})
-      : super(key: key);
+  const MsgTime({Key? key, required this.time}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +14,8 @@ class MsgTime extends StatelessWidget {
 
     return Text(
       msgHour + ':' + msgMin,
-      style: TextStyle(
-        fontSize: 11,
-        height: 1.1,
+      style: const TextStyle(
         fontStyle: FontStyle.italic,
-        color: ExtraTheme.of(context).textMessage.withAlpha(130),
       ),
     );
   }

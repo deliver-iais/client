@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:collection';
-import 'package:flutter/material.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -22,524 +19,274 @@ import 'package:deliver/screen/settings/pages/log_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
+import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/subjects.dart';
+import 'package:rxdart/rxdart.dart';
 
-class Page {
-  final Widget? largePageNavigator;
-  final Widget? largePageMain;
-  final Widget? smallPageMain;
-  final Widget? singlePageMain;
-  final String path;
-  final bool? lockBackButton;
+// Pages
+const _navigationCenter = NavigationCenter(key: ValueKey("navigator"));
 
-  Page(
-      {this.largePageNavigator,
-      this.largePageMain,
-      this.smallPageMain,
-      this.singlePageMain,
-      this.lockBackButton,
-      required this.path});
-}
+const _empty = Empty(key: ValueKey("empty"));
 
-BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
-FireBaseServices fireBaseServices = GetIt.I.get<FireBaseServices>();
-var _accountRepo = GetIt.I.get<AccountRepo>();
-var _autRepo = GetIt.I.get<AuthRepo>();
+const _settings = SettingsPage(key: ValueKey("/settings"));
+
+const _languageSettings =
+    LanguageSettingsPage(key: ValueKey("/language-settings"));
+
+const _securitySettings =
+    SecuritySettingsPage(key: ValueKey("/security-settings"));
+
+const _logSettings = LogSettingsPage(key: ValueKey("/log-settings"));
+
+const _devices = DevicesPage(key: ValueKey("/devices"));
+
+const _contacts = ContactsPage(key: ValueKey("/contacts"));
+
+const _newContact = NewContact(key: ValueKey("/new-contact"));
+
+const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 class RoutingService {
-  final _dbManager = GetIt.I.get<DBManager>();
-  final BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
+  final _homeNavigatorState = GlobalKey<NavigatorState>();
+  final mainNavigatorState = GlobalKey<NavigatorState>();
 
-  final _navigationCenter = const NavigationCenter(key: ValueKey("navigator"));
-  static const Widget _empty = Empty();
+  final _navigatorObserver = RoutingServiceNavigatorObserver();
 
-  ListQueue<Page>? _stack;
+  Stream<String> get currentRouteStream =>
+      _navigatorObserver.currentRoute.stream;
 
-  RoutingService() {
-    reset();
-  }
+  // Functions
+  void openSettings({bool popAllBeforePush = false}) =>
+      _push(_settings, popAllBeforePush: popAllBeforePush);
+
+  void openLanguageSettings() => _push(_languageSettings);
+
+  void openSecuritySettings() => _push(_securitySettings);
+
+  void openLogSettings() => _push(_logSettings);
+
+  void openDevices() => _push(_devices);
+
+  void openContacts() => _push(_contacts);
+
+  void openNewContact() => _push(_newContact);
+
+  void openScanQrCode() => _push(_scanQrCode);
 
   void openRoom(String roomId,
-      {BuildContext? context,
-      List<Message> forwardedMessages = const [],
+      {List<Message> forwardedMessages = const [],
+      bool popAllBeforePush = false,
+      List<String>? inputFilePaths,
       pro.ShareUid? shareUid}) {
-    backSubject.add(false);
-    var roomWidget = RoomPage(
-      key: ValueKey("/room/$roomId"),
-      roomId: roomId,
-      forwardedMessages: forwardedMessages,
-      shareUid: shareUid,
-    );
-    var widget = WillPopScope(
-        onWillPop: () async {
-          if (!await backSubject.stream.first) {
-            return Future.value(true);
-          } else {
-            backSubject.add(false);
-            return Future.value(false);
-          }
-        },
-        child: roomWidget);
-    if (isDesktop() || context == null) {
-      _popAllAndPush(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/room/$roomId"));
-    } else {
-      _routeInMobileState(widget, context);
+    if (!isInRoom(roomId)) {
+      _push(
+          RoomPage(
+            key: ValueKey("/room/$roomId"),
+            roomId: roomId,
+            inputFilePaths: inputFilePaths,
+            forwardedMessages: forwardedMessages,
+            shareUid: shareUid,
+          ),
+          popAllBeforePush: popAllBeforePush);
     }
   }
 
-  _routeInMobileState(Widget widget, BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (c) {
-            return widget;
-          },
-          maintainState: false),
-    );
-  }
+  void openProfile(String roomId) => _push(
+      ProfilePage(roomId.asUid(), key: ValueKey("/room/$roomId/profile")));
 
-  void openSettings({BuildContext? context}) {
-    var widget = const SettingsPage(key: ValueKey("/settings"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/settings"));
-    } else {
-      _routeInMobileState(widget, context!);
-    }
-  }
+  void openShowAllAvatars(
+          {required Uid uid,
+          required bool hasPermissionToDeleteAvatar,
+          required String heroTag}) =>
+      _push(MediaDetailsPage.showAvatar(
+          key: const ValueKey("/media-details"),
+          userUid: uid,
+          hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
+          heroTag: heroTag));
 
-  bool isAnyRoomOpen() {
-    if (_stack!.length == 1) {
-      return false;
-    }
-    return true;
-  }
-
-  void openLanguageSettings(BuildContext context) {
-    var widget =
-        const LanguageSettingsPage(key: ValueKey("/language_settings"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/language_settings"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openSecuritySettings(BuildContext context) {
-    var widget =
-        const SecuritySettingsPage(key: ValueKey("/security_settings"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/security_settings"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openDevicesPage(BuildContext context) {
-    var widget = const DevicesPage(key: ValueKey("/devices_page"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/language_settings"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openLogSettings(BuildContext context) {
-    var widget = const LogSettingsPage(key: ValueKey("/log_settings"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/log_settings"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openContacts(BuildContext context) {
-    var widget = const ContactsPage(key: ValueKey("/contacts"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/contacts"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openShowAllAvatars(BuildContext context,
-      {required Uid uid,
-      required bool hasPermissionToDeleteAvatar,
-      required String heroTag}) {
-    var widget = MediaDetailsPage.showAvatar(
+  void openShowAllVideos(
+          {required Uid uid,
+          required int mediaPosition,
+          required int mediasLength}) =>
+      _push(MediaDetailsPage.showVideo(
         key: const ValueKey("/media-details"),
         userUid: uid,
-        hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
-        heroTag: heroTag);
-    if (isDesktop()) {
-      _push(Page(
-        //largePageNavigator: _navigationCenter,
-        //largePageMain: widget,
-        //smallPageMain: widget,
-        singlePageMain: widget,
-        path: "/media-details",
+        mediaPosition: mediaPosition,
+        mediasLength: mediasLength,
       ));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
 
-  void openShowAllVideos(BuildContext context,
-      {required Uid uid,
-      required int mediaPosition,
-      required int mediasLength}) {
-    var widget = MediaDetailsPage.showVideo(
-      key: const ValueKey("/media-details"),
-      userUid: uid,
-      mediaPosition: mediaPosition,
-      mediasLength: mediasLength,
-    );
-    if (isDesktop()) {
-      _push(Page(
-        largePageNavigator: _navigationCenter,
-        largePageMain: widget,
-        smallPageMain: widget,
-        path: "/media-details",
+  void openShowAllMedia(
+          {required Uid uid,
+          required bool hasPermissionToDeletePic,
+          required int mediaPosition,
+          required int mediasLength,
+          required String heroTag}) =>
+      _push(MediaDetailsPage.showMedia(
+        key: const ValueKey("/media-details"),
+        userUid: uid,
+        hasPermissionToDeletePic: hasPermissionToDeletePic,
+        mediaPosition: mediaPosition,
+        mediasLength: mediasLength,
+        heroTag: heroTag,
       ));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
 
-  void openShowAllMedia(BuildContext context,
-      {required Uid uid,
-      required bool hasPermissionToDeletePic,
-      required int mediaPosition,
-      required int mediasLength,
-      required String heroTag}) {
-    var widget = MediaDetailsPage.showMedia(
-      key: const ValueKey("/media-details"),
-      userUid: uid,
-      hasPermissionToDeletePic: hasPermissionToDeletePic,
-      mediaPosition: mediaPosition,
-      mediasLength: mediasLength,
-      heroTag: heroTag,
-    );
-    if (isDesktop()) {
-      _push(Page(
-        largePageNavigator: _navigationCenter,
-        largePageMain: widget,
-        smallPageMain: widget,
-        path: "/media-details",
+  void openCustomNotificationSoundSelection(String roomId) =>
+      _push(CustomNotificationSoundSelection(
+        key: const ValueKey("/custom-notification-sound-selection"),
+        roomUid: roomId,
       ));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
 
-  void openProfile(BuildContext context, String roomId) {
-    var widget = ProfilePage(roomId.asUid(), key: ValueKey("/profile/$roomId"));
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/profile/$roomId"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
+  void openAccountSettings({bool forceToSetUsernameAndName = false}) =>
+      _push(AccountSettings(
+        key: const ValueKey("/account-settings"),
+        forceToSetUsernameAndName: forceToSetUsernameAndName,
+      ));
 
-  openCustomNotificationSoundSelection(BuildContext context, String roomId) {
-    var widget = CustomNotificationSoundSelection(
-      key: const ValueKey("/custom_notification_sound_selection"),
-      roomUid: roomId,
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/custom_notification_sound_selection"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
+  void openMemberSelection({required bool isChannel, Uid? mucUid}) =>
+      _push(MemberSelectionPage(
+        key: const ValueKey("/member-selection-page"),
+        isChannel: isChannel,
+        mucUid: mucUid,
+      ));
 
-  openAccountSettings(BuildContext context,
-      {bool forceToSetUsernameAndName = false}) {
-    var accountSettingsWidget = AccountSettings(
-      key: const ValueKey("/account-settings"),
-      forceToSetUsernameAndName: forceToSetUsernameAndName,
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: accountSettingsWidget,
-          smallPageMain: accountSettingsWidget,
-          singlePageMain:
-              forceToSetUsernameAndName ? accountSettingsWidget : null,
-          lockBackButton: forceToSetUsernameAndName,
-          path: "/account-settings"));
-    } else {
-      _routeInMobileState(accountSettingsWidget, context);
-    }
-  }
+  void openSelectForwardMessage(
+          {List<Message>? forwardedMessages, pro.ShareUid? sharedUid}) =>
+      _push(SelectionToForwardPage(
+        key: const ValueKey("/selection-to-forward-page"),
+        forwardedMessages: forwardedMessages,
+        shareUid: sharedUid,
+      ));
 
-  void openMemberSelection(BuildContext context,
-      {required bool isChannel, Uid? mucUid}) {
-    // _createMucService.reset();
-    var widget = MemberSelectionPage(
-      key: const ValueKey("/member-selection-page"),
-      isChannel: isChannel,
-      mucUid: mucUid,
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/member-selection-page"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
+  void openGroupInfoDeterminationPage({required bool isChannel}) =>
+      _push(MucInfoDeterminationPage(
+        key: const ValueKey("/group-info-determination-page"),
+        isChannel: isChannel,
+      ));
 
-  void openCreateNewContactPage(BuildContext context) {
-    var widget = const NewContact(
-      key: ValueKey("/new-contact"),
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/new-contact"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
+  void openShareFile({required List<String> path}) => _push(ShareInputFile(
+      key: const ValueKey("/share_file_page"), inputSharedFilePath: path));
 
-  void openSelectForwardMessage(BuildContext context,
-      {List<Message>? forwardedMessages, pro.ShareUid? sharedUid}) {
-    var widget = SelectionToForwardPage(
-      key: const ValueKey("/selection-to-forward-page"),
-      forwardedMessages: forwardedMessages,
-      shareUid: sharedUid,
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/selection-to-forward-page"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openGroupInfoDeterminationPage(BuildContext context,
-      {required bool isChannel}) {
-    var widget = MucInfoDeterminationPage(
-      key: const ValueKey("/group-info-determination-page"),
-      isChannel: isChannel,
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/group-info-determination-page"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openShareFile(BuildContext context, {required List<String> path}) {
-    var widget = ShareInputFile(
-        key: const ValueKey("/share_file_page"), inputSharedFilePath: path);
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/share_file_page"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openScanQrCode(BuildContext context) {
-    var widget = const ScanQrCode(
-      key: ValueKey("/scan_qr_code"),
-    );
-    if (isDesktop()) {
-      _push(Page(
-          largePageNavigator: _navigationCenter,
-          largePageMain: widget,
-          smallPageMain: widget,
-          path: "/scan_qr_code"));
-    } else {
-      _routeInMobileState(widget, context);
-    }
-  }
-
-  void openAddStickerPcakPage() {
-    // var widget = AddStickerPack(
-    //   key: ValueKey("/add-sticker-pack-page"),
-    // );
-    // _push(Page(
-    //     largePageNavigator: _navigationCenter,
-    //     largePageMain: widget,
-    //     smallPageMain: widget,
-    //     path: "/add-sticker-pack-page"));
-  }
-
-  _push(Page p) {
-    if (p.path == _stack!.last.path) return;
-    _stack!.add(p);
-    _route.add(_stack!.last.path);
-  }
-
-  _popAllAndPush(Page p) {
-    if (p.path == _stack!.last.path) return;
-    if (_stack != null) {
-      _stack!.clear();
-    }
-    _stack = ListQueue.from([
-      Page(
-          largePageNavigator: _navigationCenter,
-          smallPageMain: _navigationCenter,
-          largePageMain: _empty,
-          path: "/")
-    ]);
-    _stack!.add(p);
-    _route.add(_stack!.last.path);
-  }
-
-  pop() {
-    if (_stack!.length > 1) {
-      _stack!.removeLast();
-      _route.add(_stack!.last.path);
-    }
-  }
-
-  reset() {
-    _route.add("/");
-    if (_stack != null) {
-      _stack!.clear();
-    }
-    _stack = ListQueue.from([
-      Page(
-          largePageNavigator: _navigationCenter,
-          smallPageMain: _navigationCenter,
-          largePageMain: _empty,
-          path: "/")
-    ]);
-  }
-
-  logout() async {
-    if (_autRepo.isLoggedIn()) {
-      CoreServices coreServices = GetIt.I.get<CoreServices>();
-      _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
-      if (!isDesktop()) fireBaseServices.deleteToken();
-      coreServices.closeConnection();
-      await _autRepo.deleteTokens();
-      _push(Page(
-          largePageNavigator: _empty,
-          smallPageMain: _empty,
-          largePageMain: _empty,
-          path: LOG_OUT));
-
-      Timer(const Duration(milliseconds: 300), () => _dbManager.deleteDB());
-    }
-  }
-
-  Stream<String> get currentRouteStream => _route.stream;
-
-  bool canPerformBackButton() {
-    return _stack!.length < 2 || (_stack!.last.lockBackButton ?? false);
-  }
-
-  Widget backButtonLeading(BuildContext context, {Function? back}) {
-    return BackButton(
-      onPressed: () {
-        if (back != null) back();
-        if (isDesktop()) {
-          pop();
-        } else {
-          Navigator.pop(context);
-        }
-      },
-    );
-  }
+  bool isInRoomPage() => _path().contains("/room/");
 
   bool isInRoom(String roomId) =>
-      _stack!.last.path == "/room/$roomId" ||
-      _stack!.last.path == "/profile/$roomId";
+      _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
-  Widget routerOutlet(BuildContext context) {
-    if (_stack!.last.singlePageMain != null) {
-      return _stack!.last.singlePageMain!;
+  String _path() => _navigatorObserver.currentRoute.value;
+
+  // Routing Functions
+  void popAll() {
+    _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
+  }
+
+  void _push(Widget widget, {bool popAllBeforePush = false}) {
+    final path = (widget.key as ValueKey).value;
+
+    if (popAllBeforePush) {
+      _homeNavigatorState.currentState?.pushAndRemoveUntil(
+          CupertinoPageRoute(
+              builder: (c) => widget, settings: RouteSettings(name: path)),
+          (r) => r.isFirst);
+    } else {
+      _homeNavigatorState.currentState?.push(CupertinoPageRoute(
+          builder: (c) => widget, settings: RouteSettings(name: path)));
     }
+  }
+
+  void pop() {
+    if (canPop()) {
+      _homeNavigatorState.currentState?.pop();
+    }
+  }
+
+  void maybePop() {
+    if (canPop()) {
+      _homeNavigatorState.currentState?.maybePop();
+    }
+  }
+
+  bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
+
+  Widget outlet(BuildContext context) {
     return Row(
       children: [
-        SizedBox(
-            width: isLarge(context)
-                ? NAVIGATION_PANEL_SIZE
-                : MediaQuery.of(context).size.width,
-            child: isLarge(context)
-                ? _largePageNavigator(context)
-                : _smallPageMain(context)),
+        if (isLarge(context))
+          const SizedBox(
+              width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
         if (isLarge(context)) const VerticalDivider(),
-        if (isLarge(context)) Expanded(child: _largePageMain(context))
+        Expanded(
+            child: ClipRect(
+          child: Navigator(
+            key: _homeNavigatorState,
+            observers: [HeroController(), _navigatorObserver],
+            onGenerateRoute: (r) => CupertinoPageRoute(
+                settings: r.copyWith(name: "/"),
+                builder: (c) {
+                  if (isLarge(context)) {
+                    return _empty;
+                  } else {
+                    return _navigationCenter;
+                  }
+                }),
+          ),
+        )),
       ],
     );
   }
 
-  _largePageNavigator(BuildContext context) {
-    return _stack!.last.largePageNavigator;
+  logout() async {
+    final coreServices = GetIt.I.get<CoreServices>();
+    final authRepo = GetIt.I.get<AuthRepo>();
+    final accountRepo = GetIt.I.get<AccountRepo>();
+    final fireBaseServices = GetIt.I.get<FireBaseServices>();
+    final dbManager = GetIt.I.get<DBManager>();
+    if (authRepo.isLoggedIn()) {
+      accountRepo.deleteSessions([authRepo.currentUserUid.sessionId]);
+      if (!isDesktop()) fireBaseServices.deleteToken();
+      coreServices.closeConnection();
+      await authRepo.deleteTokens();
+      dbManager.deleteDB();
+      mainNavigatorState.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (c) => const SplashScreen()),
+          (route) => route.isFirst);
+    }
+    popAll();
   }
 
-  _largePageMain(BuildContext context) {
-    return _stack!.last.largePageMain;
+  Widget backButtonLeading({Function? back}) {
+    return BackButton(
+      onPressed: () {
+        if (back != null) back();
+        pop();
+      },
+    );
+  }
+}
+
+class RoutingServiceNavigatorObserver extends NavigatorObserver {
+  final currentRoute = BehaviorSubject.seeded("/");
+
+  RoutingServiceNavigatorObserver();
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    currentRoute.add(previousRoute?.settings.name ?? "/");
   }
 
-  _smallPageMain(BuildContext context) {
-    return _stack!.last.smallPageMain;
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    currentRoute.add(route.settings.name ?? "/");
   }
 }
 
@@ -552,12 +299,13 @@ class Empty extends StatelessWidget {
       children: [
         const Background(),
         Center(
-          child: Container(
+          child: BlurContainer(
+              skew: 4,
               padding:
                   const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  color: Theme.of(context).dividerColor.withOpacity(0.25)),
+              // decoration: BoxDecoration(
+              //     borderRadius: const BorderRadius.all(Radius.circular(20)),
+              //     color: Theme.of(context).dividerColor.withOpacity(0.25)),
               child: Text("Please select a chat to start messaging",
                   style: Theme.of(context)
                       .textTheme
@@ -567,102 +315,4 @@ class Empty extends StatelessWidget {
       ],
     );
   }
-}
-
-class EnterExitRoute extends PageRouteBuilder {
-  final Widget? enterPage;
-  final Widget? exitPage;
-
-  EnterExitRoute({this.exitPage, this.enterPage})
-      : super(
-          pageBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) =>
-              enterPage!,
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) =>
-              Stack(
-            children: <Widget>[
-              SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, 0.0),
-                  end: const Offset(-1.0, 0.0),
-                ).animate(animation),
-                child: exitPage,
-              ),
-              SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1.0, 0.0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: enterPage,
-              )
-            ],
-          ),
-        );
-}
-
-class ScaleRoute extends PageRouteBuilder {
-  final Widget? page;
-
-  ScaleRoute({this.page})
-      : super(
-          pageBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) =>
-              page!,
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) =>
-              ScaleTransition(
-            scale: Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ).animate(
-              CurvedAnimation(
-                parent: animation,
-                curve: Curves.fastOutSlowIn,
-              ),
-            ),
-            child: child,
-          ),
-        );
-}
-
-class SlideRightRoute extends PageRouteBuilder {
-  final Widget? page;
-
-  SlideRightRoute({this.page})
-      : super(
-          pageBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) =>
-              page!,
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) =>
-              SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
 }

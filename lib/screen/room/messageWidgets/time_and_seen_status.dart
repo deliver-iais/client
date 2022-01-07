@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,11 @@ class TimeAndSeenStatus extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
-      {Key? key, this.needsPositioned = true,
+      {Key? key,
+      this.needsPositioned = true,
       this.needsBackground = false,
-      this.needsPadding = true}) : super(key: key);
+      this.needsPadding = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,37 +40,42 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
-    return Container(
-      padding: needsPadding
-          ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
-          : null,
-      margin: const EdgeInsets.all(2),
-      decoration: needsBackground
-          ? BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
-              color: Theme.of(context).backgroundColor.withAlpha(150),
-            )
-          : null,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (message.edited != null && message.edited!)
-            Text(
-              _i18n.get("edited"),
-              style: TextStyle(
-                color: ExtraTheme.of(context).textMessage.withAlpha(130),
-                fontSize: 13,
-                height: 1.1,
-              ),
-            ),
-          MsgTime(time: date(message.time), isSent: isSender),
-          if (isSender)
-            Padding(
-              padding: const EdgeInsets.only(left: 2.0),
-              child: SeenStatus(message, isSeen: isSeen),
-            )
-        ],
+    return RepaintBoundary(
+      child: BlurContainer(
+        padding: needsPadding
+            ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
+            : null,
+        skew: 5,
+        blurIsEnabled: needsBackground,
+        child: DefaultTextStyle(
+          style: TextStyle(
+            color: needsBackground
+                ? Colors.white
+                : ExtraTheme.of(context).textMessage.withAlpha(130),
+            fontSize: 12,
+            height: 1.2,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (message.edited != null && message.edited!)
+                Text(_i18n.get("edited")),
+              MsgTime(time: date(message.time)),
+              if (isSender)
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0),
+                  child: SeenStatus(
+                    message,
+                    isSeen: isSeen,
+                    iconColor: needsBackground
+                        ? Colors.white
+                        : ExtraTheme.of(context).seenStatus,
+                  ),
+                )
+            ],
+          ),
+        ),
       ),
     );
   }

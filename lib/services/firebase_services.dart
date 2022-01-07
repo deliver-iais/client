@@ -27,15 +27,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:deliver/web_classes/js.dart' if(dart.library.html) 'package:js/js.dart' as js;
-
+import 'package:deliver/web_classes/js.dart'
+    if (dart.library.html) 'package:js/js.dart' as js;
 
 import 'package:logger/logger.dart';
 
-
 import 'notification_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-
 
 @js.JS('decodeMessageForCallFromJs')
 external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
@@ -113,14 +111,18 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String? fireBaseToken) async {
-    if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
-      try {
-        await _firebaseServices
-            .registration(RegistrationReq()..tokenId = fireBaseToken!);
-        _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
-      } catch (e) {
-        _logger.e(e);
+    try {
+      if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
+        try {
+          await _firebaseServices
+              .registration(RegistrationReq()..tokenId = fireBaseToken!);
+          _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
+        } catch (e) {
+          _logger.e(e);
+        }
       }
+    } catch (e) {
+      _logger.e(e.toString());
     }
   }
 

@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
 
-version: 1.5.4  #if change the version , is necessary to change VERSION  in constants.dart
+version: 2.0.0  #if change the version , is necessary to change VERSION  in constants.dart
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -48,9 +48,6 @@ dependencies:
   date_time_format: 2.0.1
   permission_handler: 8.3.0 # ANDROID ONLY SUPPORTED
   synchronized: 3.0.0
-  ext_storage:
-    git:
-      url: git://github.com/GitJournal/ext_storage.git
   path_provider: 2.0.7
   path: ^1.8.0
   # The following adds the Cupertino Icons font to your application.
@@ -62,11 +59,10 @@ dependencies:
   uni_links: 0.5.1
   flutter_map: 0.14.0
   geolocator: 7.7.1
-  file_picker: 4.2.4
+  file_picker: 4.3.0
   logger: 1.1.0
   android_intent: 2.0.2
   record: ^3.0.2
-  settings_ui: 1.0.0
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
@@ -78,11 +74,12 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/pub-dart-artifactory
-      ref: tags/v1.11.4
+      ref: tags/v1.11.5
 
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/grpc-dart
+      ref: 42d8ba98d34c06377ced074562d0eaa278501b89
 
  ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
@@ -123,7 +120,10 @@ dependencies:
   google_fonts: 2.1.0
   video_player: ^2.2.7
   chewie: ^1.2.2
+  hovering: 1.0.4
   camera: 0.9.4+5
+  file_selector_linux: 0.0.2+1
+  file_selector: 0.8.2+1
   desktop_window: # CHANG TOP PAGE IN WINDOWS
     git:
       url: https://github.com/deliver-iais/desktop_window.git
@@ -164,7 +164,6 @@ flutter:
     - assets/images/a.flr
     - assets/images/logo.png
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
-    - assets/ic_launcher/web_hi_res_512.png
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/audios/incoming-msg.mp3

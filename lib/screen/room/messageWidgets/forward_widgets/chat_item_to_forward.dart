@@ -62,7 +62,6 @@ class ChatItemToForward extends StatelessWidget {
                   }),
               onTap: () {
                 _routingService.openRoom(uid.asString(),
-                    context: context,
                     forwardedMessages: forwardedMessages??[],
                     shareUid: shareUid);
               },

@@ -61,7 +61,6 @@ class _VideoUiState extends State<VideoUi> {
                   tag: widget.videoMessage.uuid,
                   child: VideoPlayerWidget(
                     videoFilePath: widget.videoFilePath,
-                    video: widget.videoMessage,
                   ),
                 );
               }));
@@ -98,7 +97,6 @@ class _VideoUiState extends State<VideoUi> {
                     tag: widget.videoMessage.uuid,
                     child: VideoPlayerWidget(
                       videoFilePath: widget.videoFilePath,
-                      video: widget.videoMessage,
                     ),
                   );
                 }));

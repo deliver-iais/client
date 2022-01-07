@@ -131,6 +131,7 @@ class Background extends StatelessWidget {
                 ))),
             SizedBox(
               width: double.infinity,
+              height: double.infinity,
               child: Image(
                   image: const AssetImage("assets/backgrounds/pattern-24.png"),
                   fit: BoxFit.scaleDown,

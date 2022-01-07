@@ -6,11 +6,11 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
+import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 
@@ -106,14 +106,15 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
-            TextField(
-                decoration: InputDecoration(
-                  hintText: i18n.get("search"),
-                ),
-                onChanged: (value) {
-                  filterSearchResults(value);
-                },
-                controller: editingController),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: SearchBox(
+                  borderRadius: BorderRadius.circular(8),
+                  onChange: (str) {
+                    filterSearchResults(str);
+                  },
+                  controller: editingController),
+            ),
             Expanded(
                 child: FutureBuilder(
                     future: _contactRepo.getAll(),
@@ -187,9 +188,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid!, users);
                               if (usersAdd) {
-                                _routingService.openRoom(
-                                    widget.mucUid!.asString(),
-                                    context: context);
+                                _routingService
+                                    .openRoom(widget.mucUid!.asString());
                                 // _routingService.reset();
                                 // _createMucService.reset();
 
@@ -209,7 +209,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             padding: const EdgeInsets.all(0),
                             onPressed: () {
                               _routingService.openGroupInfoDeterminationPage(
-                                  context,
                                   isChannel: widget.isChannel);
                             },
                           ),
@@ -239,7 +238,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
         child: SelectiveContact(
           contact: items![index],
           isSelected: _createMucService.isSelected(items![index]),
-          cureentMember: members.contains(items![index].uid),
+          currentMember: members.contains(items![index].uid),
         ));
   }
 }

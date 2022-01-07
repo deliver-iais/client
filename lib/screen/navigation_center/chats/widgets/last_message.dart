@@ -65,21 +65,21 @@ class LastMessage extends StatelessWidget {
                             text: mb.sender!.trim() +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
                             style:
-                                Theme.of(context).primaryTextTheme.bodyText2),
+                                Theme.of(context).primaryTextTheme.caption),
                       if (mb.typeDetails!.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
                             style:
-                                Theme.of(context).primaryTextTheme.bodyText2),
+                                Theme.of(context).primaryTextTheme.caption),
                       if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty)
                         TextSpan(
                             text: ", ",
                             style:
-                                Theme.of(context).primaryTextTheme.bodyText2),
+                                Theme.of(context).primaryTextTheme.caption),
                       if (mb.text!.isNotEmpty)
                         TextSpan(
                             children: buildText(mb, context),
-                            style: Theme.of(context).textTheme.bodyText2),
+                            style: Theme.of(context).textTheme.caption),
                     ])),
               ),
               if (hasMentioned)

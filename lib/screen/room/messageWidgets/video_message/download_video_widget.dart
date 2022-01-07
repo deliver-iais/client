@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';

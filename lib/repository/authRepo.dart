@@ -15,12 +15,9 @@ import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
     as platform_pb;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -64,17 +61,16 @@ class AuthRepo {
   }
 
   Future<void> init() async {
-    _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
-    var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
-    var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
-    _setTokensAndCurrentUserUid(accessToken, refreshToken);
-  }
-
-  AuthRepo() {
-    setCurrentUserUid();
+    try {
+      _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
+      var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
+      var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
+      _setTokensAndCurrentUserUid(accessToken, refreshToken);
+    } catch (_) {}
   }
 
   setCurrentUserUid() async {
+    init();
     String? res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
     if (res != null) currentUserUid = (res).asUid();
   }
@@ -99,15 +95,8 @@ class AuthRepo {
   }
 
   Future<platform_pb.Platform> getPlatformDetails() async {
-    String version;
-    try {
-      var info = await PackageInfo.fromPlatform();
-      version = info.version;
-    } catch (e) {
-      version = VERSION;
-    }
     platform_pb.Platform platform = platform_pb.Platform()
-      ..clientVersion = version;
+      ..clientVersion = VERSION;
     return await getPlatForm(platform);
   }
 
@@ -118,7 +107,6 @@ class AuthRepo {
         ..osVersion = platform_detect.browser.version.major.toString();
     } else if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
       platform
         ..platformType = platform_pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
@@ -229,6 +217,9 @@ class AuthRepo {
 
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
+      if (_refreshToken == null) {
+        return "";
+      }
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken!);
       _saveTokens(renewAccessTokenRes);
@@ -250,9 +241,13 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  bool isLoggedIn() => _refreshToken != null && !_isExpired(_refreshToken);
+  bool isLoggedIn() =>
+      _refreshToken != null &&
+      _refreshToken!.isNotEmpty &&
+      !_isExpired(_refreshToken);
 
-  bool _isExpired(accessToken) => JwtDecoder.isExpired(accessToken);
+  bool _isExpired(accessToken) =>
+      accessToken == null || JwtDecoder.isExpired(accessToken);
 
   void _saveTokens(RenewAccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -291,8 +286,8 @@ class AuthRepo {
       currentUserUid.node == session.node;
 
   Future<void> deleteTokens() async {
-    _refreshToken = "";
-    _accessToken = "";
+    _refreshToken = null;
+    _accessToken = null;
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }

@@ -1,4 +1,4 @@
-FROM 172.17.4.40:443/deliver-web-builder:1.1.0 as builder
+FROM 172.17.4.40:443/deliver-web-builder:2.0.0 as builder
 
 # Copy the app files to the container
 COPY . /usr/local/bin/app

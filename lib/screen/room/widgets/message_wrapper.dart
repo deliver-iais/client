@@ -75,21 +75,17 @@ class OPainter extends CustomPainter {
 
     var path = Path();
 
-    path.moveTo(10, 5);
+    path.moveTo(10, 0);
+
+    path.lineTo(-5, 0);
 
     path.arcToPoint(
-      const Offset(-4, 0),
+      const Offset(0, 10),
       radius: const Radius.circular(20),
-      clockwise: false,
-    );
-
-    path.arcToPoint(
-      const Offset(0, 12),
-      radius: const Radius.circular(15),
       clockwise: true,
     );
 
-    path.lineTo(10, 5);
+    path.lineTo(10, 0);
 
     canvas.drawPath(path, paint);
   }

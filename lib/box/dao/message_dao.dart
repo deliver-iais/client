@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:hive/hive.dart';
@@ -92,8 +93,11 @@ class MessageDaoImpl implements MessageDao {
         .watch()
         .where((event) =>
             event.deleted || (event.value as PendingMessage).roomUid == roomUid)
-        .map((event) =>
-            box.values.where((element) => element.roomUid == roomUid).toList());
+        .map((event) => box.values
+            .where((element) => element.roomUid == roomUid)
+            .toList()
+            .reversed
+            .toList());
   }
 
   @override
@@ -132,6 +136,7 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<Box<Message>> _openMessages(String uid) async {
     try {
+      BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-")));
       var res =
           await Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
       return res;
@@ -144,6 +149,7 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<Box<PendingMessage>> _openPending() async {
     try {
+      BoxInfo.addBox(_keyPending());
       return Hive.openBox<PendingMessage>(_keyPending());
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPending());

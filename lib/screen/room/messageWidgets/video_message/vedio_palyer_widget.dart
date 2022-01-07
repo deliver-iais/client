@@ -1,17 +1,13 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoFilePath;
-  final pb.File video;
 
-  const VideoPlayerWidget(
-      {Key? key, required this.videoFilePath, required this.video})
+  const VideoPlayerWidget({Key? key, required this.videoFilePath})
       : super(key: key);
 
   @override

@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:deliver/repository/accountRepo.dart';
-import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +11,9 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:universal_html/html.dart' as html;
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -31,7 +28,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final BehaviorSubject<bool> _logOut = BehaviorSubject.seeded(false);
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
@@ -46,6 +42,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    if (kIsWeb) {
+      html.document.onContextMenu.listen((event) => event.preventDefault());
+    }
+
     _coreServices.initStreamConnection();
     if (isAndroid() || isIOS()) {
       _notificationServices.cancelAllNotifications();
@@ -61,34 +61,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (kIsWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
-    checkLogOutApp();
     checkAddToHomeInWeb(context);
+
     super.initState();
   }
 
   checkAddToHomeInWeb(BuildContext context) async {
     Timer(const Duration(seconds: 3), () {
       try {
-        final bool isDeferredNotNull =
-            js.context.callMethod("isDeferredNotNull",[]) as bool;
-        if (isDeferredNotNull) {
-          //   ujs.context.callMethod("presentAddToHome");
-          // return true;
-
-        }
+        // final bool isDeferredNotNull =
+        //     js.context.callMethod("isDeferredNotNull", []) as bool;
+        //todo add to home web
+        // if (isDeferredNotNull != nnulisDeferredNotNull) {
+        //   //   ujs.context.callMethod("presentAddToHome");
+        //   // return true;
+        //
+        // }
       } catch (e) {
         _logger.e(e);
-      }
-    });
-  }
-
-  checkLogOutApp() {
-    _logOut.stream.listen((event) {
-      if (event) {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const IntroPage()),
-            (e) => false);
       }
     });
   }
@@ -100,7 +90,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         for (var path in value) {
           paths.add(path.path);
         }
-        _routingService.openShareFile(context, path: paths);
+        _routingService.openShareFile(path: paths);
       }
     });
   }
@@ -109,27 +99,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (_routingService.canPerformBackButton()) return true;
-        _routingService.pop();
+        if (!_routingService.canPop()) return true;
+        _routingService.maybePop();
         return false;
       },
-      child: StreamBuilder<String>(
-          stream: _routingService.currentRouteStream,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data == LOG_OUT) {
-              _logOut.add(true);
-              _routingService.reset();
-              return const SizedBox.shrink();
-            }
-            return _routingService.routerOutlet(context);
-          }),
+      child: _routingService.outlet(context),
     );
   }
 
   void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.getProfile(retry: true)) {
-      _routingService.openAccountSettings(context,
-          forceToSetUsernameAndName: true);
+    if (!await _accountRepo.hasProfile(retry: true)) {
+      _routingService.openAccountSettings(forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();
     }

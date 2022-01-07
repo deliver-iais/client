@@ -6,7 +6,6 @@ import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/methods/time.dart';
@@ -30,13 +29,10 @@ class _DevicesPageState extends State<DevicesPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            titleSpacing: 8,
-            title: Text(_i18n.get("devices")),
-            leading: _routingService.backButtonLeading(context),
-          ),
+        child: AppBar(
+          titleSpacing: 8,
+          title: Text(_i18n.get("devices")),
+          leading: _routingService.backButtonLeading(),
         ),
       ),
       body: FutureBuilder<List<Session>>(

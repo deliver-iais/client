@@ -1,14 +1,9 @@
-import 'dart:ui';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -73,23 +68,23 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
       appBar: PreferredSize(
         // TODO, use some constant variable
         preferredSize: const Size.fromHeight(60.0),
-        child: FluidContainerWidget(
-          child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
-            leading: _routingService.backButtonLeading(context),
-            title: Text(
-              widget.isChannel
-                  ? _i18n.get("newChannel")
-                  : _i18n.get("newGroup"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
+        child: AppBar(
+          leading: _routingService.backButtonLeading(),
+          title: Text(
+            widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
+            style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
         ),
       ),
       body: FluidContainerWidget(
-        child: Box(
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: ExtraTheme.of(context).boxOuterBackground,
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: Stack(
               children: [
                 Column(
@@ -289,20 +284,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (mucUid != null) {
                                     _createMucService.reset();
-                                    if (isDesktop()) {
-                                      _routingService.openRoom(
-                                          mucUid.asString(),
-                                          context: context);
-                                    } else {
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (c) => RoomPage(
-                                                  roomId: mucUid!.asString())),
-                                          (t) {
-                                        return t.isFirst;
-                                      });
-                                    }
+                                    _routingService.openRoom(mucUid.asString(), popAllBeforePush: true);
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),

@@ -8,10 +8,8 @@ import 'package:deliver/screen/room/widgets/operation_on_room_entry.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:universal_html/html.dart' as html;
 
 final bucketGlobal = PageStorageBucket();
 
@@ -48,14 +46,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
           break;
       }
     });
-  }
-
-  @override
-  void initState() {
-    if (kIsWeb) {
-     html.document.onContextMenu.listen((event) => event.stopPropagation());
-    }
-    super.initState();
   }
 
   void onUnPin(Room room) {
@@ -103,34 +93,29 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                       controller: widget.scrollController,
                       itemCount: rooms.length,
                       itemBuilder: (BuildContext ctx, int index) {
-                        return MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            child: ChatItem(
-                              key: ValueKey("chatItem/${rooms[index].uid}"),
-                              room: rooms[index],
-                              isSelected:
-                                  _routingService.isInRoom(rooms[index].uid),
-                            ),
-                            onTap: () {
-                              _routingService.openRoom(rooms[index].uid,
-                                  context: context);
-                            },
-                            onLongPress: () {
-                              //ToDo new design for android
-                              _showCustomMenu(
-                                  context, rooms[index], canPin(rooms));
-                            },
-                            onTapDown: storePosition,
-                            onSecondaryTapDown: storePosition,
-                            onSecondaryTap: !isDesktop()
-                                ? null
-                                : () {
-                                    _showCustomMenu(
-                                        context, rooms[index], canPin(rooms));
-                                  },
+                        return GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          child: ChatItem(
+                            key: ValueKey("chatItem/${rooms[index].uid}"),
+                            room: rooms[index],
+                            isSelected: _routingService.isInRoom(rooms[index].uid),
                           ),
+                          onTap: () {
+                            _routingService.openRoom(rooms[index].uid, popAllBeforePush: true);
+                          },
+                          onLongPress: () {
+                            //ToDo new design for android
+                            _showCustomMenu(
+                                context, rooms[index], canPin(rooms));
+                          },
+                          onTapDown: storePosition,
+                          onSecondaryTapDown: storePosition,
+                          onSecondaryTap: !isDesktop()
+                              ? null
+                              : () {
+                                  _showCustomMenu(
+                                      context, rooms[index], canPin(rooms));
+                                },
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {

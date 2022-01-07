@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -16,8 +14,6 @@ import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -99,7 +95,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       ),
                     ),
                     onTap: () {
-                      _routingServices.openSettings(context: context);
+                      _routingServices.openSettings(popAllBeforePush: true);
                     },
                   ),
                 ],
@@ -120,7 +116,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     child: IconButton(
                         onPressed: () {
-                          _routingService.openScanQrCode(context);
+                          _routingService.openScanQrCode();
                         },
                         icon: const Icon(
                           Icons.qr_code,
@@ -203,10 +199,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
   selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
-        _routingService.openMemberSelection(context, isChannel: false);
+        _routingService.openMemberSelection(isChannel: false);
         break;
       case "newChannel":
-        _routingService.openMemberSelection(context, isChannel: true);
+        _routingService.openMemberSelection(isChannel: true);
         break;
     }
   }
@@ -286,8 +282,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               behavior: HitTestBehavior.translucent,
               onTap: () {
                 _roomRepo.insertRoom(uidList[index].asString());
-                _routingServices.openRoom(uidList[index].asString(),
-                    context: context);
+                _routingServices.openRoom(uidList[index].asString());
               },
               child:
                   _contactResultWidget(uid: uidList[index], context: context),

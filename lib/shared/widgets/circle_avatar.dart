@@ -11,7 +11,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -92,7 +91,7 @@ class CircleAvatarWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         child: contactUid.category == Categories.SYSTEM
             ? const ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(16)),
                 child: Image(
                   image: AssetImage('assets/images/logo.png'),
                 ),
@@ -171,8 +170,7 @@ class CircleAvatarWidget extends StatelessWidget {
               ? name.substring(0, 1).toUpperCase()
               : name.toUpperCase(),
           maxLines: 1,
-          style: TextStyle(
-              color: textColor, fontSize: (radius * 0.9).toInt().toDouble())),
+          style: TextStyle(color: textColor, fontSize: radius, height: 1)),
     );
   }
 }

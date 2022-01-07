@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
@@ -15,7 +17,8 @@ class ImageTabUi extends StatefulWidget {
   final int imagesCount;
   final Uid userUid;
 
-  const ImageTabUi(this.imagesCount, this.userUid, {Key? key}) : super(key: key);
+  const ImageTabUi(this.imagesCount, this.userUid, {Key? key})
+      : super(key: key);
 
   @override
   _ImageTabUiState createState() => _ImageTabUiState();
@@ -60,9 +63,9 @@ class _ImageTabUiState extends State<ImageTabUi> {
                               isExist.data != null &&
                               isExist.connectionState == ConnectionState.done &&
                               isExist.data == true) {
-                            return FutureBuilder(
+                            return FutureBuilder<String?>(
                                 future: _fileRepo.getFile(fileId, fileName),
-                                builder: (BuildContext c, AsyncSnapshot snaps) {
+                                builder: (BuildContext c, snaps) {
                                   if (snaps.hasData &&
                                       snaps.data != null &&
                                       snaps.connectionState ==
@@ -70,7 +73,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                     return GestureDetector(
                                       onTap: () {
                                         _routingService.openShowAllMedia(
-                                          context,
                                           uid: widget.userUid,
                                           hasPermissionToDeletePic: true,
                                           mediaPosition: position,
@@ -83,9 +85,12 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                         child: Container(
                                             decoration: BoxDecoration(
                                           image: DecorationImage(
-                                            image: Image.file(
-                                              snaps.data,
-                                            ).image,
+                                            image: kIsWeb
+                                                ? Image.network(snaps.data!)
+                                                    .image
+                                                : Image.file(
+                                                    File(snaps.data!),
+                                                  ).image,
                                             fit: BoxFit.cover,
                                           ),
                                         )),
@@ -101,7 +106,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllMedia(
-                                  context,
                                   uid: widget.userUid,
                                   hasPermissionToDeletePic: true,
                                   mediaPosition: position,
