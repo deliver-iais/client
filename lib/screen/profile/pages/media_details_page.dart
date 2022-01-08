@@ -324,7 +324,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     fileName = jsonDecode(media.json)["name"];
     mediaSender = media.createdBy.asUid();
     createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
-    _senderName = _mediaSenderCache.get(fileId)??"";
+    _senderName = _mediaSenderCache.get(fileId) ?? "";
     duration = jsonDecode(media.json)["duration"];
   }
 

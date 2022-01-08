@@ -96,6 +96,7 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                                 fontSize: 16, color: Colors.red),
                           ),
                           onTap: () {
+                            Navigator.pop(context);
                             widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
                           }),
                       const SizedBox(width: 10)
@@ -157,7 +158,10 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                           style:
                               const TextStyle(fontSize: 16, color: Colors.red),
                         ),
-                        onTap: () => _deleteMuc(),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _deleteMuc();
+                        },
                       ),
                       const SizedBox(
                         width: 10,

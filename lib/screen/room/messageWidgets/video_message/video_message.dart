@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -13,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../size_formater.dart';
 import '../time_and_seen_status.dart';
@@ -39,9 +39,18 @@ class VideoMessage extends StatefulWidget {
 class _VideoMessageState extends State<VideoMessage> {
   bool showTime = true;
   final _fileRepo = GetIt.I.get<FileRepo>();
-  bool startDownload = false;
-  var fileServices = GetIt.I.get<FileService>();
+
+  final _fileServices = GetIt.I.get<FileService>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+
+  @override
+  void initState() {
+    if (_fileServices.filesDownloadStatus[widget.message.json!.toFile().uuid] ==
+        null) {
+      _fileServices.filesDownloadStatus[widget.message.json!.toFile().uuid] =
+          BehaviorSubject.seeded(0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +70,7 @@ class _VideoMessageState extends State<VideoMessage> {
                   (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
               0.7,
           400),
-      height: min(video.height.toDouble(), 200),
+      height: 200,
       color: Colors.black,
       child: MouseRegion(
         onEnter: (PointerEvent details) {
@@ -86,7 +95,7 @@ class _VideoMessageState extends State<VideoMessage> {
                   children: [
                     Center(
                       child: StreamBuilder<double>(
-                          stream: fileServices
+                          stream: _fileServices
                               .filesUploadStatus[widget.message.packetId],
                           builder: (context, snapshot) {
                             if (snapshot.hasData && snapshot.data != null) {
@@ -125,14 +134,44 @@ class _VideoMessageState extends State<VideoMessage> {
                           video: video);
                     } else {
                       return videoWidget(
-                          w: DownloadVideoWidget(
-                            name: video.name,
-                            uuid: video.uuid,
-                            download: () async {
-                              await _fileRepo.getFile(video.uuid, video.name);
-                              setState(() {});
-                            },
-                          ),
+                          w: StreamBuilder<double>(
+                              stream:
+                                  _fileServices.filesDownloadStatus[video.uuid],
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    snapshot.data != null &&
+                                    snapshot.data == 1) {
+                                  return FutureBuilder<String?>(
+                                      future: _fileRepo.getFile(
+                                          video.uuid, video.name),
+                                      builder: (c, s) {
+                                        if (s.hasData && s.data != null) {
+                                          return videoWidget(
+                                              w: VideoUi(
+                                                videoFilePath: s.data!,
+                                                videoMessage: widget
+                                                    .message.json!
+                                                    .toFile(),
+                                                duration: video.duration,
+                                              ),
+                                              videoLength: videoLength,
+                                              video: video);
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      });
+                                } else {
+                                  return DownloadVideoWidget(
+                                    name: video.name,
+                                    uuid: video.uuid,
+                                    download: () async {
+                                      await _fileRepo.getFile(
+                                          video.uuid, video.name);
+                                      setState(() {});
+                                    },
+                                  );
+                                }
+                              }),
                           video: video,
                           videoLength: videoLength);
                     }
@@ -173,8 +212,7 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   Widget videoWidget(
-      {required Widget w, required File
-      video, required String videoLength}) {
+      {required Widget w, required File video, required String videoLength}) {
     return Stack(
       children: [
         w,
