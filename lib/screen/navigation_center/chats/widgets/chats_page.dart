@@ -48,11 +48,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void onUnPin(Room room) {
     _roomDao.updateRoom(Room(uid: room.uid, pinned: false));
   }
@@ -103,12 +98,10 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                           child: ChatItem(
                             key: ValueKey("chatItem/${rooms[index].uid}"),
                             room: rooms[index],
-                            isSelected:
-                                _routingService.isInRoom(rooms[index].uid),
+                            isSelected: _routingService.isInRoom(rooms[index].uid),
                           ),
                           onTap: () {
-                            _routingService.openRoom(rooms[index].uid,
-                                context: context);
+                            _routingService.openRoom(rooms[index].uid, popAllBeforePush: true);
                           },
                           onLongPress: () {
                             //ToDo new design for android

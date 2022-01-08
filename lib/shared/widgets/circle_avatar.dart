@@ -170,10 +170,7 @@ class CircleAvatarWidget extends StatelessWidget {
               ? name.substring(0, 1).toUpperCase()
               : name.toUpperCase(),
           maxLines: 1,
-          style: TextStyle(
-              color: textColor,
-              fontSize: radius,
-              height: 1)),
+          style: TextStyle(color: textColor, fontSize: radius, height: 1)),
     );
   }
 }

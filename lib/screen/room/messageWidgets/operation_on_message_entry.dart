@@ -6,6 +6,7 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -29,6 +30,10 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool isPinned;
   final Function onDelete;
   final int roomLastMessageId;
+  final Function onEdit;
+  final Function onPin;
+  final Function onUnPin;
+  final Function onReply;
 
   const OperationOnMessageEntry(
     this.message, {
@@ -36,6 +41,10 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
     this.hasPermissionInChannel = true,
     this.hasPermissionInGroup = true,
     this.isPinned = false,
+    required this.onEdit,
+    required this.onPin,
+    required this.onUnPin,
+    required this.onReply,
     this.onDelete = empty,
     this.roomLastMessageId = 1,
   }) : super(key: key);
@@ -62,7 +71,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   final _logger = GetIt.I.get<Logger>();
 
   onReply() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPLY);
+    widget.onReply();
+    Navigator.of(context).pop();
   }
 
   onCopy() {
@@ -79,17 +89,69 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onForward() {
-    _routingServices
-        .openSelectForwardMessage(context, forwardedMessages: [widget.message]);
     Navigator.pop(context);
+    _routingServices
+        .openSelectForwardMessage(forwardedMessages: [widget.message]);
   }
 
   onEditMessage() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.EDIT);
+    Navigator.pop(context);
+    switch (widget.message.type) {
+      // ignore: missing_enum_constant_in_switch
+      case MessageType.TEXT:
+        widget.onEdit();
+        break;
+      case MessageType.FILE:
+        showCaptionDialog(
+            roomUid: widget.message.roomUid.asUid(),
+            editableMessage: widget.message,
+            files: [],
+            context: context);
+        break;
+      case MessageType.STICKER:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LIVE_LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.POLL:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM:
+        // TODO: Handle this case.
+        break;
+      case MessageType.PERSISTENT_EVENT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.NOT_SET:
+        // TODO: Handle this case.
+        break;
+      case MessageType.BUTTONS:
+        // TODO: Handle this case.
+        break;
+      case MessageType.SHARE_UID:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM_RESULT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+        // TODO: Handle this case.
+        break;
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+        // TODO: Handle this case.
+        break;
+      default:
+        break;
+    }
   }
 
   onResend() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
+    Navigator.of(context).pop();
+    _messageRepo.resendMessage(widget.message);
   }
 
   onShare() async {
@@ -110,29 +172,31 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onPinMessage() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.PIN_MESSAGE);
+    Navigator.of(context).pop();
+    widget.onPin();
   }
 
   onUnPinMessage() {
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.UN_PIN_MESSAGE);
+    Navigator.of(context).pop();
+    widget.onUnPin();
   }
 
   onSaveTOGallery() {
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.SAVE_TO_GALLERY);
+    var file = widget.message.json!.toFile();
+    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
+    Navigator.of(context);
   }
 
   onSaveTODownloads() {
     var file = widget.message.json!.toFile();
-    _fileRepo.saveFileInDownloadDir(
-        file.uuid, file.name, ExtStorage.download);
+    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
     Navigator.pop(context);
   }
 
   onSaveToMusic() {
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.SAVE_TO_MUSIC);
+    Navigator.of(context).pop();
+    var file = widget.message.json!.toFile();
+    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
   }
 
   onDeleteMessage() {
@@ -142,12 +206,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onDeletePendingMessage() {
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.DELETE_PENDING_MESSAGE);
+    Navigator.of(context).pop();
+    _messageRepo.deletePendingMessage(widget.message.packetId);
   }
 
   onReportMessage() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.REPORT);
+    Navigator.of(context).pop();
     ToastDisplay.showToast(
         toastText: _i18n.get("report_message"), tostContext: context);
   }
@@ -162,8 +226,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     } else if (isMacOS()) {
       await shell.run('open ${snapshot.data.parent.path}');
     }
-    Navigator.pop<OperationOnMessage>(
-        context, OperationOnMessage.SHOW_IN_FOLDER);
+    Navigator.of(context).pop();
   }
 
   final BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);

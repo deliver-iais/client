@@ -368,7 +368,35 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.4"
+    version: "4.3.0"
+  file_selector:
+    dependency: "direct main"
+    description:
+      name: file_selector
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.2+1"
+  file_selector_linux:
+    dependency: "direct main"
+    description:
+      name: file_selector_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2+1"
+  file_selector_platform_interface:
+    dependency: transitive
+    description:
+      name: file_selector_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.2"
+  file_selector_web:
+    dependency: transitive
+    description:
+      name: file_selector_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.1+2"
   firebase_core:
     dependency: "direct main"
     description:
@@ -868,7 +896,7 @@ packages:
       name: msix
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.7.2"
+    version: "2.7.3"
   nested:
     dependency: transitive
     description:

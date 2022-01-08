@@ -23,10 +23,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';
-
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -48,11 +46,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.transparent,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(
               i18n.get(
@@ -60,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
-            leading: _routingService.backButtonLeading(context),
+            leading: _routingService.backButtonLeading(),
           ),
         ),
         body: FluidContainerWidget(
@@ -69,12 +65,12 @@ class _SettingsPageState extends State<SettingsPage> {
               Section(
                 children: [
                   NormalSettingsTitle(
-                      onTap: () => _routingService.openAccountSettings(context),
+                      onTap: () => _routingService.openAccountSettings(),
                       child: Row(
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                _routingService.openShowAllAvatars(context,
+                                _routingService.openShowAllAvatars(
                                     uid: _authRepo.currentUserUid,
                                     hasPermissionToDeleteAvatar: true,
                                     heroTag: "avatar");
@@ -159,16 +155,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("saved_message"),
                     leading: const Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
-                      _routingService.openRoom(
-                          _authRepo.currentUserUid.asString(),
-                          context: context);
+                      _routingService
+                          .openRoom(_authRepo.currentUserUid.asString());
                     },
                   ),
                   SettingsTile(
                     title: i18n.get("contacts"),
                     leading: const Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
-                      _routingService.openContacts(context);
+                      _routingService.openContacts();
                     },
                   )
                 ],
@@ -188,7 +183,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     subtitle: I18N.of(context)!.locale.language().name,
                     leading: const Icon(Icons.language),
                     onPressed: (BuildContext context) {
-                      _routingService.openLanguageSettings(context);
+                      _routingService.openLanguageSettings();
                     },
                   ),
                   SettingsTile.switchTile(
@@ -205,14 +200,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("security"),
                     leading: const Icon(Icons.security),
                     onPressed: (BuildContext context) =>
-                        _routingService.openSecuritySettings(context),
+                        _routingService.openSecuritySettings(),
                     trailing: const SizedBox.shrink(),
                   ),
                   SettingsTile(
                     title: i18n.get("devices"),
                     leading: const Icon(Icons.devices),
                     onPressed: (c) {
-                      _routingService.openDevicesPage(context);
+                      _routingService.openDevices();
                     },
                   ),
                   if (isDesktop())
@@ -236,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           GetIt.I.get<DeliverLogFilter>().level!),
                       leading: const Icon(Icons.bug_report_rounded),
                       onPressed: (BuildContext context) {
-                        _routingService.openLogSettings(context);
+                        _routingService.openLogSettings();
                       },
                     )
                   ],
@@ -245,30 +240,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      trailing: FutureBuilder<PackageInfo>(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null) {
-                            return isDeveloperMode
-                                ? FutureBuilder<String?>(
-                                    future: SmsAutoFill().getAppSignature,
-                                    builder: (c, sms) {
-                                      return Text(
-                                        sms.data ??
-                                            snapshot.data!.version
-
-                                      );
-                                    })
-                                : Text(
-                                    snapshot.data!.version,
-                                  );
-                          } else {
-                            return const Text(
-                              VERSION,
-                            );
-                          }
-                        },
-                      ),
+                      trailing: isDeveloperMode
+                          ? FutureBuilder<String?>(
+                              future: SmsAutoFill().getAppSignature,
+                              builder: (c, sms) => Text(sms.data ?? VERSION),
+                            )
+                          : const Text(VERSION),
                       onPressed: (_) async {
                         _logger.d(developerModeCounterCountDown);
                         developerModeCounterCountDown--;
@@ -326,12 +303,14 @@ class NormalSettingsTitle extends SettingsTile {
   // ignore: overridden_fields
   final VoidCallback? onTap;
 
-  const NormalSettingsTitle({Key? key,  this.onTap, required this.child}) : super(key: key, title: "");
+  const NormalSettingsTitle({Key? key, this.onTap, required this.child})
+      : super(key: key, title: "");
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      cursor:
+          onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => onTap?.call(),

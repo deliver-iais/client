@@ -19,6 +19,7 @@ variables:
     - .shell-basic
   script:
     - unset https_proxy && unset http_proxy
+    - export PUB_HOSTED_URL=https://pub.flutter-io.cn
     - if [ "$DOCKER_LOGIN_NEEDED" = true ] ; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REPO; fi
     - docker build -t $DOCKER_REPO/$PROJECT_NAME:$PROJECT_VERSION .
     - docker push $DOCKER_REPO/$PROJECT_NAME:$PROJECT_VERSION

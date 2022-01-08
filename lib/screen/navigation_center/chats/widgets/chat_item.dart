@@ -132,7 +132,7 @@ class _ChatItemState extends State<ChatItem> {
                                       ),
                                     ),
                                   Expanded(
-                                      flex: 50,
+                                      flex: 80,
                                       child: Padding(
                                           padding: widget.room.uid
                                                       .asUid()

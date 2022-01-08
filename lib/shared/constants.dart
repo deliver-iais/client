@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 const VERSION =
-    "1.6.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+    "1.6.4"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT = "log_out";
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
@@ -42,6 +42,7 @@ const SHARED_DAO_LOG_LEVEL = "SHARED_DAO_LOG_LEVEL";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
 const SHARED_DAO_APP_VERSION = "SHARED_DAO_APP_VERSION";
+const SHARED_DAO_SCROLL_POSITION= "SHARED_DAO_SCROLL_POSITION";
 
 const ONLINE_TIME = 60000;
 

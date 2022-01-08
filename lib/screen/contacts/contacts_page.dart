@@ -12,8 +12,10 @@ import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ContactsPage extends StatefulWidget {
   const ContactsPage({Key? key}) : super(key: key);
@@ -28,13 +30,19 @@ class _ContactsPageState extends State<ContactsPage> {
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  bool _searchMode = false;
-  String _query = "";
+  final BehaviorSubject<String> _queryTermDebouncedSubject =
+      BehaviorSubject<String>.seeded("");
 
   @override
   void initState() {
     _syncContacts();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _queryTermDebouncedSubject.close();
+    super.dispose();
   }
 
   _syncContacts() {
@@ -47,13 +55,12 @@ class _ContactsPageState extends State<ContactsPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
-          backgroundColor: ExtraTheme.of(context).boxBackground,
           titleSpacing: 8,
           title: Text(
             I18N.of(context)!.get("contacts"),
             style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
-          leading: _routingService.backButtonLeading(context),
+          leading: _routingService.backButtonLeading(),
         ),
       ),
       body: FluidContainerWidget(
@@ -78,65 +85,54 @@ class _ContactsPageState extends State<ContactsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: SearchBox(
-                          borderRadius: BorderRadius.circular(8),
-                          onChange: (str) {
-                            if (str.isNotEmpty) {
-                              setState(() {
-                                _searchMode = true;
-                                _query = str;
-                              });
-                            } else {
-                              setState(() {
-                                _searchMode = false;
-                              });
-                            }
-                          },
-                          onCancel: () {
-                            setState(() {
-                              _searchMode = false;
-                            });
-                          },
-                        ),
+                            borderRadius: BorderRadius.circular(8),
+                            onChange: _queryTermDebouncedSubject.add,
+                            onCancel: () => _queryTermDebouncedSubject.add("")),
                       ),
                       Expanded(
                           child: Scrollbar(
-                        child: ListView.separated(
-                          separatorBuilder: (BuildContext context, int index) {
-                            if (_authRepo.isCurrentUser(contacts[index].uid) ||
-                                searchHasResult(contacts[index])) {
-                              return const SizedBox.shrink();
-                            } else {
-                              return const Divider();
-                            }
-                          },
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (BuildContext ctx, int index) {
-                            var c = contacts[index];
-                            if (searchHasResult(c)) {
-                              return const SizedBox.shrink();
-                            }
-                            if (_authRepo.isCurrentUser(c.uid)) {
-                              return const SizedBox.shrink();
-                            } else {
-                              return GestureDetector(
-                                onTap: () {
-                                  _rootingServices.openRoom(c.uid,
-                                      context: context);
+                        child: StreamBuilder<String>(
+                            stream: _queryTermDebouncedSubject.stream,
+                            builder: (context, sna) {
+                              return ListView.separated(
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  if (_authRepo
+                                          .isCurrentUser(contacts[index].uid) ||
+                                      searchHasResult(contacts[index])) {
+                                    return const SizedBox.shrink();
+                                  } else {
+                                    return const Divider();
+                                  }
                                 },
-                                child: ContactWidget(
-                                    contact: c,
-                                    circleIcon: Icons.qr_code_rounded,
-                                    onCircleIcon: () => showQrCode(
-                                        context,
-                                        buildShareUserUrl(
-                                            c.countryCode,
-                                            c.nationalNumber,
-                                            c.firstName!,
-                                            c.lastName!))),
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (BuildContext ctx, int index) {
+                                  var c = contacts[index];
+                                  if (searchHasResult(c)) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  if (_authRepo.isCurrentUser(c.uid)) {
+                                    return const SizedBox.shrink();
+                                  } else {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        _rootingServices.openRoom(c.uid);
+                                      },
+                                      child: ContactWidget(
+                                          contact: c,
+                                          circleIcon: Icons.qr_code_rounded,
+                                          onCircleIcon: () => showQrCode(
+                                              context,
+                                              buildShareUserUrl(
+                                                  c.countryCode,
+                                                  c.nationalNumber,
+                                                  c.firstName!,
+                                                  c.lastName!))),
+                                    );
+                                  }
+                                },
                               );
-                            }
-                          },
-                        ),
+                            }),
                       )),
                       const Divider(),
                       SizedBox(
@@ -147,7 +143,7 @@ class _ContactsPageState extends State<ContactsPage> {
                             Icons.add,
                           ),
                           onPressed: () {
-                            _routingService.openCreateNewContactPage(context);
+                            _routingService.openNewContact();
                           },
                           label: Text(I18N.of(context)!.get("add_new_contact")),
                         ),
@@ -164,7 +160,7 @@ class _ContactsPageState extends State<ContactsPage> {
   _showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed && !isDesktop()) {
+    if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
       return showDialog(
           context: context,
           builder: (context) {
@@ -207,6 +203,8 @@ class _ContactsPageState extends State<ContactsPage> {
 
   bool searchHasResult(Contact contact) {
     var name = contact.firstName! + contact.lastName!;
-    return _searchMode && !name.toLowerCase().contains(_query.toLowerCase());
+    return !name
+        .toLowerCase()
+        .contains(_queryTermDebouncedSubject.value.toLowerCase());
   }
 }

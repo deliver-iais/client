@@ -8,6 +8,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SelectionToForwardPage extends StatefulWidget {
   final List<Message>? forwardedMessages;
@@ -22,8 +23,14 @@ class SelectionToForwardPage extends StatefulWidget {
 }
 
 class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
-  bool _searchMode = false;
-  String _query = "";
+  final BehaviorSubject<String> _queryTermDebouncedSubject =
+      BehaviorSubject<String>.seeded("");
+
+  @override
+  void dispose() {
+    _queryTermDebouncedSubject.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,45 +45,34 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
       body: Column(
         children: <Widget>[
           SearchBox(
-            onChange: (str) {
-              if (str.isNotEmpty) {
-                setState(() {
-                  _searchMode = true;
-                  _query = str;
-                });
-              } else {
-                setState(() {
-                  _searchMode = false;
-                });
-              }
-            },
-            onCancel: () {
-              setState(() {
-                _searchMode = false;
-              });
-            },
+            onChange: _queryTermDebouncedSubject.add,
+            onCancel: () => _queryTermDebouncedSubject.add(""),
           ),
           Expanded(
-            child: FutureBuilder<List<Uid>>(
-              future: _searchMode
-                  ? _roomRepo.searchInRoomAndContacts(_query)
-                  : _roomRepo.getAllRooms(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!.isNotEmpty) {
-                  return Container(
-                    child: buildListView(snapshot.data!),
+            child: StreamBuilder<String>(
+                stream: _queryTermDebouncedSubject.stream,
+                builder: (context, snapshot) {
+                  return FutureBuilder<List<Uid>>(
+                    future: snapshot.hasData && snapshot.data!.isNotEmpty
+                        ? _roomRepo.searchInRoomAndContacts(snapshot.data!)
+                        : _roomRepo.getAllRooms(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!.isNotEmpty) {
+                        return Container(
+                          child: buildListView(snapshot.data!),
+                        );
+                      } else {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
+                      }
+                    },
                   );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.blue,
-                    ),
-                  );
-                }
-              },
-            ),
+                }),
           ),
         ],
       ),
