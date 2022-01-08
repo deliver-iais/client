@@ -81,13 +81,20 @@ MockMessageDao getAndRegisterMessageDao() {
   return service;
 }
 
-MockRoomDao getAndRegisterRoomDao() {
+MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   _removeRegistrationIfExists<RoomDao>();
   final service = MockRoomDao();
   GetIt.I.registerSingleton<RoomDao>(service);
   when(service.getRoom("0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd")).thenAnswer(
       (realInvocation) =>
           Future.value(Room(uid: " 0:3049987b-e15d-4288-97cd-42dbc6d73abd")));
+  rooms ??= [
+    Room(
+      uid: " 0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+    )
+  ];
+  when(service.getAllRooms())
+      .thenAnswer((realInvocation) => Future.value(rooms));
   return service;
 }
 
@@ -98,10 +105,13 @@ MockRoomRepo getAndRegisterRoomRepo() {
   return service;
 }
 
-MockAuthRepo getAndRegisterAuthRepo() {
+MockAuthRepo getAndRegisterAuthRepo(
+    {String uid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+    bool isCurrentUser = false}) {
   _removeRegistrationIfExists<AuthRepo>();
   final service = MockAuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(service);
+  when(service.isCurrentUser(uid)).thenReturn(isCurrentUser);
   return service;
 }
 

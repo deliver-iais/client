@@ -1,8 +1,10 @@
+import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -90,6 +92,47 @@ void main() {
         final roomDao = getAndRegisterRoomDao();
         await MessageRepo().updatingMessages();
         verify(roomDao.getRoom("0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd"));
+      });
+    });
+
+    group('updatingLastSeen -', () {
+      test('When called should fetch all room from roomDao', () async {
+        final roomDao = getAndRegisterRoomDao();
+        MessageRepo().updatingLastSeen();
+        verify(roomDao.getAllRooms());
+      });
+    });
+    group('updatingLastSeen -', () {
+      test('When called should fetch all room from roomDao', () async {
+        final roomDao = getAndRegisterRoomDao();
+        MessageRepo().updatingLastSeen();
+        verify(roomDao.getAllRooms());
+      });
+
+      test(
+          'When called should fetch all room from roomDao and if any room exist should get category',
+          () async {
+        final roomDao = getAndRegisterRoomDao(rooms: [
+          Room(
+              uid: " 0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+              lastMessage: Message(
+                  to: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+                  from: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+                  packetId: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+                  roomUid: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+                  time: 0))
+        ]);
+        var rooms = await roomDao.getAllRooms();
+        MessageRepo().updatingLastSeen();
+        expect(rooms.first.lastMessage!.to.asUid().category, Categories.USER);
+      });
+      test(
+          'When called should fetch all room from roomDao and if last message id not be null should check isCurrentUser',
+          () async {
+        final authRepo = getAndRegisterAuthRepo();
+        // var rooms = await roomDao.getAllRooms();
+        MessageRepo().updatingLastSeen();
+        // expect(rooms.first.lastMessage!.to.asUid().category, Categories.USER);
       });
     });
   });

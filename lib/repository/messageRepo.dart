@@ -198,6 +198,7 @@ class MessageRepo {
     var rooms = await _roomDao.getAllRooms();
 
     for (var r in rooms) {
+      if (r.lastMessage == null) return;
       var category = r.lastMessage!.to.asUid().category;
       if (r.lastMessage!.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
