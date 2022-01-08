@@ -18,6 +18,7 @@ class LastMessage extends StatelessWidget {
   final bool showSender;
   final bool showSenderInSeparatedLine;
   final bool showSeenStatus;
+  final bool expandContent;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
@@ -30,6 +31,7 @@ class LastMessage extends StatelessWidget {
       this.showSender = true,
       this.showSeenStatus = true,
       this.showSenderInSeparatedLine = false,
+      this.expandContent = true,
       this.pinned = false})
       : super(key: key);
 
@@ -47,13 +49,15 @@ class LastMessage extends StatelessWidget {
           }
           final mb = snapshot.data;
           return Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (showSeenStatus && !isReceivedMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
                   child: SeenStatus(message),
                 ),
-              Expanded(
+              Flexible(
+                fit: expandContent ? FlexFit.tight : FlexFit.loose,
                 child: RichText(
                     maxLines: showSenderInSeparatedLine && showSender ? 2 : 1,
                     overflow: TextOverflow.fade,
