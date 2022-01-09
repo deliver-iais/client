@@ -77,29 +77,9 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
           hideArrowDopIcon = true;
           setState(() {});
         },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Stack(
+          alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
           children: [
-            isDesktop() | kIsWeb
-                ? hideArrowDopIcon
-                    ? const SizedBox(
-                        width: 18,
-                      )
-                    : MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTapDown: (tapDownDetails) {
-                            storePosition(tapDownDetails);
-                          },
-                          onTap: () => widget.onArrowIconClick!(),
-                          child: const Icon(
-                            Icons.arrow_drop_down_sharp,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      )
-                : const SizedBox.shrink(),
             RepaintBoundary(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -119,6 +99,28 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                 ),
               ),
             ),
+            isDesktop() | kIsWeb
+                ? hideArrowDopIcon
+                    ? const SizedBox.shrink()
+                    : MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTapDown: (tapDownDetails) {
+                            storePosition(tapDownDetails);
+                          },
+                          onTap: () => widget.onArrowIconClick!(),
+                          child: Container(
+                            color: widget.isSender
+                                ? ExtraTheme.of(context).sentMessageBox
+                                : ExtraTheme.of(context).receivedMessageBox,
+                            child: const Icon(
+                              Icons.arrow_drop_down_sharp,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      )
+                : const SizedBox.shrink(),
           ],
         ));
   }
