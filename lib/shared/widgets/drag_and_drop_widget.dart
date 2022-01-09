@@ -69,7 +69,7 @@ class DragDropWidget extends StatelessWidget {
             child: child,
             onDragDone: (d) async {
               List<model.File> files = [];
-              for (var element in d.urls) {
+              for (var element in d.files) {
                 String path = element.path.replaceAll("%20", " ");
                 files.add(model.File(isWindows() ? path.substring(1) : path,
                     path.split(".").last));
