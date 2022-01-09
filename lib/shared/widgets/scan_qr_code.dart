@@ -127,15 +127,15 @@ class _ScanQrCode extends State<ScanQrCode> {
           nationalNumber: uri.queryParameters["nn"]!,
           firstName: uri.queryParameters["fn"]!,
           lastName: uri.queryParameters["ln"]!);
-    } else if (segments.first == "spda") {
+    } else if (segments.first == SPDA) {
       handleSendPrivateDateAcceptance(context, uri.queryParameters["type"]!,
           uri.queryParameters["botId"]!, uri.queryParameters["token"]!);
-    } else if (segments.first == "text") {
+    } else if (segments.first == TEXT) {
       handleSendMsgToBot(
           context, uri.queryParameters["botId"]!, uri.queryParameters["text"]!);
-    } else if (segments.first == "join") {
+    } else if (segments.first == JOIN) {
       handleJoinUri(context, url);
-    } else if (segments.first == "login") {
+    } else if (segments.first == LOGIN) {
       handleLogin(context, uri.queryParameters["token"]!);
     }
   }

@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
+const SPDA="spda";
+const TEXT="text";
+const JOIN="join";
+const LOGIN="login";
 const VERSION =
     "1.6.4"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT = "log_out";
