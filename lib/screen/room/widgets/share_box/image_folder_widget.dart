@@ -7,6 +7,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class ImageFolderWidget extends StatefulWidget {
   final StorageFile storageFile;
@@ -70,7 +71,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
               return GestureDetector(
                   onTap: () => widget.selectAvatar
                       ? widget.setAvatar!(imagePath)
-                      : openImage(imagePath),
+                      : openImage(imagePath, index),
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsets.all(
@@ -110,13 +111,39 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   ));
             },
           ),
-          buildInputCaption()
+          buildInputCaption(canPop: false)
         ],
       ),
     );
   }
 
-  Stack buildInputCaption() {
+  Future<String?> cropImage(String imagePath) async {
+    File? croppedFile = await ImageCropper.cropImage(
+        sourcePath: imagePath,
+        aspectRatioPresets: Platform.isAndroid
+            ? [CropAspectRatioPreset.square]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        cropStyle: CropStyle.rectangle,
+        androidUiSettings: const AndroidUiSettings(
+            toolbarTitle: "image",
+            toolbarColor: Colors.blueAccent,
+            hideBottomControls: true,
+            showCropGrid: false,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: const IOSUiSettings(
+          title: "image",
+        ));
+    if (croppedFile != null) {
+      return croppedFile.path;
+    }
+    return null;
+  }
+
+  Stack buildInputCaption({required bool canPop}) {
     return Stack(
       children: [
         _selectedImage.isNotEmpty && !widget.selectAvatar
@@ -174,7 +201,10 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                   )),
                               onTap: () {
                                 widget.pop();
-                                Navigator.pop(context);
+                                if (canPop) {
+                                  Navigator.pop(context);
+                                }
+
                                 _messageRepo.sendMultipleFilesMessages(
                                     widget.roomUid,
                                     _selectedImage
@@ -234,7 +264,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     }
   }
 
-  void openImage(String imagePath) {
+  void openImage(String imagePath, int index) {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return StatefulBuilder(builder: (c, set) {
         return Scaffold(
@@ -249,6 +279,27 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                             fontSize: 25,
                             color: ExtraTheme.of(context).textField),
                       ),
+                    IconButton(
+                      onPressed: () async {
+                        var res = await cropImage(imagePath);
+                        if (res != null) {
+                          if (_selectedImage.contains(imagePath)) {
+                            _selectedImage.remove(imagePath);
+                            _selectedImage.add(res);
+                          }
+                          set(() {
+                            imagePath = res;
+                          });
+                          setState(() {
+                            widget.storageFile.files[index] = res;
+                          });
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.crop,
+                      ),
+                      iconSize: 35,
+                    ),
                     IconButton(
                       onPressed: () {
                         set(() {
@@ -280,7 +331,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     ),
                   ),
                 ),
-                buildInputCaption()
+                buildInputCaption(canPop: true)
               ],
             ));
       });

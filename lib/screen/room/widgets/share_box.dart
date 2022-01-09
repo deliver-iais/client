@@ -143,7 +143,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           scrollController: scrollController,
                                           selectAvatar: false,
                                           pop: () {
-                                            Navigator.of(context);
+                                            Navigator.pop(context);
                                           },
                                           roomUid: widget.currentRoomId,
                                         )

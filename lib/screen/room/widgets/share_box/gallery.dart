@@ -125,7 +125,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 folder!,
                                 widget.roomUid,
                                 () {
-                                  Navigator.pop(co);
+                                  widget.pop();
+                                  Navigator.pop(context);
+
                                 },
                                 selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,
