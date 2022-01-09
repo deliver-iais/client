@@ -6,7 +6,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/room.dart';
-import 'package:deliver/box/seen.dart';
+import 'package:deliver/box/seen.dart' as seen_box;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -18,6 +18,7 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -132,7 +133,9 @@ MockSeenDao getAndRegisterSeenDao() {
   final service = MockSeenDao();
   GetIt.I.registerSingleton<SeenDao>(service);
   when(service.getOthersSeen(testUid.asString())).thenAnswer(
-      (realInvocation) => Future.value(Seen(uid: testUid.asString())));
+      (realInvocation) => Future.value(seen_box.Seen(uid: testUid.asString())));
+  when(service.getMySeen(testUid.asString())).thenAnswer(
+          (realInvocation) => Future.value(seen_box.Seen(uid: testUid.asString())));
   return service;
 }
 
@@ -167,6 +170,14 @@ MockQueryServiceClient getAndRegisterQueryServiceClient() {
     return MockResponseFuture<GetUserRoomMetaRes>(
         GetUserRoomMetaRes(roomMeta: roomMetadata));
   });
+  when(service.fetchCurrentUserSeenData(
+          FetchCurrentUserSeenDataReq()..roomUid = testUid))
+      .thenAnswer((realInvocation) {
+    return MockResponseFuture<FetchCurrentUserSeenDataRes>(
+        FetchCurrentUserSeenDataRes(
+            seen: seen_pb.Seen(from: testUid, to: testUid)));
+  });
+
   return service;
 }
 

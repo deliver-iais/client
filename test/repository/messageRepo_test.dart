@@ -5,6 +5,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:mockito/mockito.dart';
@@ -181,6 +182,27 @@ void main() {
         verify(authRepo.isCurrentUser(testUid.asString()));
         verify(queryServiceClient
             .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid));
+      });
+    });
+    group('fetchCurrentUserLastSeen -', () {
+      RoomMetadata roomMetadata = RoomMetadata(
+          roomUid: testUid,
+          lastMessageId: null,
+          firstMessageId: null,
+          lastCurrentUserSentMessageId: null,
+          lastUpdate: null,
+          presenceType: PresenceType.ACTIVE);
+
+      test('When called should fetch CurrentUser SeenData', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
+        verify(queryServiceClient.fetchCurrentUserSeenData(
+            FetchCurrentUserSeenDataReq()..roomUid = testUid));
+      });
+      test('When called should get My Seen', () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
+        verify(seenDo.getMySeen(testUid.asString()));
       });
     });
   });
