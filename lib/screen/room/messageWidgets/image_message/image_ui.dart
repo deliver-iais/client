@@ -139,8 +139,10 @@ class _ImageUiState extends State<ImageUi> {
                                     _startDownload.add(true);
                                     await fileRepo.getFile(
                                         image.uuid, image.name);
-
                                     _startDownload.add(false);
+                                    setState(() {
+
+                                    });
                                   },
                                   shape: const CircleBorder(),
                                   child: const Icon(Icons.arrow_downward),

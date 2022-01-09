@@ -188,9 +188,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid!, users);
                               if (usersAdd) {
-                                _routingService.openRoom(
-                                    widget.mucUid!.asString(),
-                                    context: context);
+                                _routingService
+                                    .openRoom(widget.mucUid!.asString());
                                 // _routingService.reset();
                                 // _createMucService.reset();
 
@@ -210,7 +209,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             padding: const EdgeInsets.all(0),
                             onPressed: () {
                               _routingService.openGroupInfoDeterminationPage(
-                                  context,
                                   isChannel: widget.isChannel);
                             },
                           ),

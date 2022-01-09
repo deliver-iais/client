@@ -4,7 +4,6 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -30,10 +29,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
-            backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(_i18n.get("security")),
-            leading: _routingService.backButtonLeading(context),
+            leading: _routingService.backButtonLeading(),
           ),
         ),
         body: FluidContainerWidget(

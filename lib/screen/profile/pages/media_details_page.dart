@@ -499,7 +499,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   PreferredSizeWidget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
-      leading: _routingService.backButtonLeading(context),
+      leading: _routingService.backButtonLeading(),
       title: Align(
           alignment: Alignment.topLeft,
           child: StreamBuilder<int>(

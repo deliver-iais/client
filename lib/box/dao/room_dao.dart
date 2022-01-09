@@ -1,3 +1,4 @@
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
@@ -43,9 +44,11 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<List<Room>> watchAllRooms() async* {
+  Stream<List<Room>> watchAllRooms() async* {;
     var box = await _openRoom();
-
+    if(box.isEmpty){
+      box = await  _openRoom();
+    }
     yield sorted(box.values
         .where((element) =>
             (element.deleted == null || !element.deleted!) &&
@@ -95,6 +98,7 @@ class RoomDaoImpl implements RoomDao {
 
   static Future<Box<Room>> _openRoom() async {
     try {
+      BoxInfo.addBox(_keyRoom());
       return await Hive.openBox<Room>(_keyRoom());
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());

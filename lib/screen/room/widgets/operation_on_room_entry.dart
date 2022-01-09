@@ -13,7 +13,9 @@ class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   final bool isPinned;
   final Room room;
 
-  const OperationOnRoomEntry({Key? key, required this.room, this.isPinned = false}) : super(key: key);
+  const OperationOnRoomEntry(
+      {Key? key, required this.room, this.isPinned = false})
+      : super(key: key);
 
   @override
   OperationOnRoomEntryState createState() => OperationOnRoomEntryState();
@@ -50,7 +52,6 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             roomUid: widget.room.uid.asUid(),
             selected: selected,
             roomName: roomName,
-            shouldRouteToHomePage: false,
           );
         });
   }

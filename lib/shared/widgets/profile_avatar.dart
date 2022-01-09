@@ -8,6 +8,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -72,7 +73,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       var lastAvatar = await _avatarRepo.getLastAvatar(
                           widget.roomUid, false);
                       if (lastAvatar?.createdOn != null) {
-                        _routingService.openShowAllAvatars(context,
+                        _routingService.openShowAllAvatars(
                             uid: widget.roomUid,
                             hasPermissionToDeleteAvatar: widget.canSetAvatar,
                             heroTag: "avatar");
@@ -106,12 +107,23 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   selectAvatar() async {
     if (kIsWeb || isDesktop()) {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      );
-      if (result!.files.isNotEmpty) {
-        _setAvatar(result.files.first.path!);
+      if (isLinux()) {
+        final typeGroup =
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+        final file = await openFile(
+          acceptedTypeGroups: [typeGroup],
+        );
+        if (file != null && file.path.isNotEmpty) {
+          _setAvatar(file.path);
+        }
+      } else {
+        FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          allowMultiple: false,
+        );
+        if (result!.files.isNotEmpty) {
+          _setAvatar(result.files.first.path!);
+        }
       }
     } else {
       showModalBottomSheet(

@@ -1,4 +1,5 @@
 import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/box_info.dart';
 import 'package:hive/hive.dart';
 
 abstract class BotDao {
@@ -9,7 +10,7 @@ abstract class BotDao {
 
 class BotDaoImpl implements BotDao {
   @override
-  Future<BotInfo?>  get(String uid) async {
+  Future<BotInfo?> get(String uid) async {
     var box = await _open();
 
     return box.get(uid);
@@ -24,5 +25,8 @@ class BotDaoImpl implements BotDao {
 
   static String _key() => "bot";
 
-  static Future<Box<BotInfo>> _open() => Hive.openBox<BotInfo>(_key());
+  static Future<Box<BotInfo>> _open() {
+    BoxInfo.addBox(_key());
+    return Hive.openBox<BotInfo>(_key());
+  }
 }
