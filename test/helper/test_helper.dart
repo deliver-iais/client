@@ -6,6 +6,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -15,9 +16,8 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -26,6 +26,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
+import '../repository/messageRepo_test.dart';
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -85,12 +86,11 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   _removeRegistrationIfExists<RoomDao>();
   final service = MockRoomDao();
   GetIt.I.registerSingleton<RoomDao>(service);
-  when(service.getRoom("0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd")).thenAnswer(
-      (realInvocation) =>
-          Future.value(Room(uid: " 0:3049987b-e15d-4288-97cd-42dbc6d73abd")));
+  when(service.getRoom(testUid.asString())).thenAnswer(
+      (realInvocation) => Future.value(Room(uid: testUid.asString())));
   rooms ??= [
     Room(
-      uid: " 0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+      uid: testUid.asString(),
     )
   ];
   when(service.getAllRooms())
@@ -105,13 +105,11 @@ MockRoomRepo getAndRegisterRoomRepo() {
   return service;
 }
 
-MockAuthRepo getAndRegisterAuthRepo(
-    {String uid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
-    bool isCurrentUser = false}) {
+MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   _removeRegistrationIfExists<AuthRepo>();
   final service = MockAuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(service);
-  when(service.isCurrentUser(uid)).thenReturn(isCurrentUser);
+  when(service.isCurrentUser(testUid.asString())).thenReturn(isCurrentUser);
   return service;
 }
 
@@ -133,6 +131,8 @@ MockSeenDao getAndRegisterSeenDao() {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
   GetIt.I.registerSingleton<SeenDao>(service);
+  when(service.getOthersSeen(testUid.asString())).thenAnswer(
+      (realInvocation) => Future.value(Seen(uid: testUid.asString())));
   return service;
 }
 
@@ -147,24 +147,25 @@ MockQueryServiceClient getAndRegisterQueryServiceClient() {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
-  Iterable<RoomMetadata>? roomsMeta = {
-    RoomMetadata(
-        roomUid: Uid(
-            sessionId: "ad619345-cfbb-43f9-9539-be00c8c5b718",
-            category: Categories.USER,
-            node: 'b89fa74c-a583-4d64-aa7d-56ab8e37edcd'),
-        lastMessageId: null,
-        firstMessageId: null,
-        lastCurrentUserSentMessageId: null,
-        lastUpdate: null,
-        presenceType: PresenceType.ACTIVE)
-  };
+  RoomMetadata roomMetadata = RoomMetadata(
+      roomUid: testUid,
+      lastMessageId: null,
+      firstMessageId: null,
+      lastCurrentUserSentMessageId: null,
+      lastUpdate: null,
+      presenceType: PresenceType.ACTIVE);
+  Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
   when(service.getAllUserRoomMeta(GetAllUserRoomMetaReq()
         ..pointer = 0
         ..limit = 10))
       .thenAnswer((realInvocation) {
     return MockResponseFuture<GetAllUserRoomMetaRes>(
         GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: true));
+  });
+  when(service.getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid))
+      .thenAnswer((realInvocation) {
+    return MockResponseFuture<GetUserRoomMetaRes>(
+        GetUserRoomMetaRes(roomMeta: roomMetadata));
   });
   return service;
 }

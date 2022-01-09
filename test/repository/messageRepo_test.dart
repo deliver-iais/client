@@ -5,10 +5,13 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import '../helper/test_helper.dart';
+
+Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 
 void main() {
   group('MessageRepoTest -', () {
@@ -62,12 +65,12 @@ void main() {
     });
 
     group('updateNewMuc -', () {
+      //todo need better test for time
       test('When called should update roomDao', () async {
         final roomDao = getAndRegisterRoomDao();
-        MessageRepo()
-            .updateNewMuc("0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd".asUid(), 0);
+        MessageRepo().updateNewMuc(testUid, 0);
         verifyNever(roomDao.updateRoom(Room(
-          uid: "0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd",
+          uid: testUid.asString(),
           lastMessageId: 0,
           lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
         )));
@@ -91,17 +94,10 @@ void main() {
       test('When called should get room from roomDao', () async {
         final roomDao = getAndRegisterRoomDao();
         await MessageRepo().updatingMessages();
-        verify(roomDao.getRoom("0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd"));
+        verify(roomDao.getRoom(testUid.asString()));
       });
     });
 
-    group('updatingLastSeen -', () {
-      test('When called should fetch all room from roomDao', () async {
-        final roomDao = getAndRegisterRoomDao();
-        MessageRepo().updatingLastSeen();
-        verify(roomDao.getAllRooms());
-      });
-    });
     group('updatingLastSeen -', () {
       test('When called should fetch all room from roomDao', () async {
         final roomDao = getAndRegisterRoomDao();
@@ -114,12 +110,12 @@ void main() {
           () async {
         final roomDao = getAndRegisterRoomDao(rooms: [
           Room(
-              uid: " 0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+              uid: testUid.asString(),
               lastMessage: Message(
-                  to: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
-                  from: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
-                  packetId: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
-                  roomUid: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
+                  to: testUid.asString(),
+                  from: testUid.asString(),
+                  packetId: testUid.asString(),
+                  roomUid: testUid.asString(),
                   time: 0))
         ]);
         var rooms = await roomDao.getAllRooms();
@@ -127,12 +123,64 @@ void main() {
         expect(rooms.first.lastMessage!.to.asUid().category, Categories.USER);
       });
       test(
+          'When called should fetch all room from roomDao and if last message id be null should return',
+          () async {
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        getAndRegisterRoomDao(rooms: [
+          Room(
+              uid: testUid.asString(),
+              lastMessage: Message(
+                  to: testUid.asString(),
+                  from: testUid.asString(),
+                  packetId: testUid.asString(),
+                  roomUid: testUid.asString(),
+                  time: 0))
+        ]);
+        await MessageRepo().updatingLastSeen();
+        verifyNever(authRepo.isCurrentUser(testUid.asString()));
+      });
+      test(
           'When called should fetch all room from roomDao and if last message id not be null should check isCurrentUser',
           () async {
-        final authRepo = getAndRegisterAuthRepo();
-        // var rooms = await roomDao.getAllRooms();
-        MessageRepo().updatingLastSeen();
-        // expect(rooms.first.lastMessage!.to.asUid().category, Categories.USER);
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        getAndRegisterRoomDao(rooms: [
+          Room(
+              uid: testUid.asString(),
+              lastMessage: Message(
+                  to: testUid.asString(),
+                  from: testUid.asString(),
+                  packetId: testUid.asString(),
+                  roomUid: testUid.asString(),
+                  id: 0,
+                  time: 0))
+        ]);
+        await MessageRepo().updatingLastSeen();
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        verifyNever(queryServiceClient
+            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid));
+      });
+      test(
+          'When called should fetch all room from roomDao and if last message id not be null and isCurrentUser be false should get user room meta',
+          () async {
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: false);
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        getAndRegisterRoomDao(rooms: [
+          Room(
+              uid: testUid.asString(),
+              lastMessage: Message(
+                  to: testUid.asString(),
+                  from: testUid.asString(),
+                  packetId: testUid.asString(),
+                  roomUid: testUid.asString(),
+                  id: 0,
+                  time: 0))
+        ]);
+
+        await MessageRepo().updatingLastSeen();
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        verify(queryServiceClient
+            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid));
       });
     });
   });

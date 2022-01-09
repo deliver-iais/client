@@ -208,6 +208,7 @@ class MessageRepo {
         fetchCurrentUserLastSeen(rm.roomMeta);
       }
       var othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
+      if(othersSeen?.messageId==null ) return;
       if (othersSeen == null || othersSeen.messageId! < r.lastMessage!.id!) {
         fetchOtherSeen(r.uid.asUid());
       }
