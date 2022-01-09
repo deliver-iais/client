@@ -66,8 +66,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }
     if (state == AppLifecycleState.inactive) {
       _controller.dispose();
-    } else if (state == AppLifecycleState.resumed) {
-    }
+    } else if (state == AppLifecycleState.resumed) {}
   }
 
   @override
@@ -125,9 +124,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 folder!,
                                 widget.roomUid,
                                 () {
-                                  widget.pop();
+                                  if (!widget.selectAvatar) {
+                                    widget.pop();
+                                  }
                                   Navigator.pop(context);
-
                                 },
                                 selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,

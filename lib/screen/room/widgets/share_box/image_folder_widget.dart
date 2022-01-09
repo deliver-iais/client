@@ -69,9 +69,15 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             itemBuilder: (c, index) {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
-                  onTap: () => widget.selectAvatar
-                      ? widget.setAvatar!(imagePath)
-                      : openImage(imagePath, index),
+                  onTap: () {
+                    if (widget.selectAvatar) {
+                      widget.pop();
+                      Navigator.pop(context);
+                      widget.setAvatar!(imagePath);
+                    } else {
+                      openImage(imagePath, index);
+                    }
+                  },
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsets.all(

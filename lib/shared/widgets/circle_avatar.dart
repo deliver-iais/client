@@ -22,6 +22,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
+  final bool hideName;
 
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
@@ -33,6 +34,7 @@ class CircleAvatarWidget extends StatelessWidget {
       this.forceToUpdate = false,
       this.forceText = "",
       this.showAsStreamOfAvatar = false,
+      this.hideName = false,
       this.showSavedMessageLogoIfNeeded = false})
       : super(key: key);
 
@@ -164,6 +166,9 @@ class CircleAvatarWidget extends StatelessWidget {
   }
 
   Widget avatarAlt(String name, Color textColor) {
+    if (hideName) {
+      return const SizedBox.shrink();
+    }
     return Center(
       child: Text(
           name.length > 1
