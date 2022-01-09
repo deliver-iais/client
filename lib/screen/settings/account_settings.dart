@@ -68,7 +68,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         FilePickerResult? result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
-          path = result.files.first.path;
+          path = kIsWeb?Uri.dataFromBytes(result.files.first.bytes!.toList()).toString():result.files.first.path;
         }
       }
 
@@ -137,7 +137,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   Future<void> setAvatar(String path) async {
     _newAvatarPath.add(path);
-    await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
+    await _avatarRepo.uploadAvatar(path, _authRepo.currentUserUid);
     _newAvatarPath.add("");
   }
 

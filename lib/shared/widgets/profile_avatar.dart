@@ -100,7 +100,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   _setAvatar(String avatarPath) async {
     _newAvatarPath.add(avatarPath);
-    await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath));
+    await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
     _newAvatarPath.add("");
   }
 
@@ -121,7 +121,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(result.files.first.path!);
+          _setAvatar(kIsWeb
+              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
+              : result.files.first.path!);
         }
       }
     } else {

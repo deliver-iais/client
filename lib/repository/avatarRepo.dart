@@ -135,8 +135,8 @@ class AvatarRepo {
     return ac;
   }
 
-   setMucAvatar(Uid uid, File file) async {
-    return uploadAvatar(file, uid);
+   setMucAvatar(Uid uid, String path) async {
+    return uploadAvatar(path, uid);
   }
 
   Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) async* {
@@ -155,11 +155,11 @@ class AvatarRepo {
     });
   }
 
-  Future uploadAvatar(File file, Uid uid) async {
+  Future uploadAvatar(String path , Uid uid) async {
     await _fileRepo.cloneFileInLocalDirectory(
-        file, uid.node, file.path.split('/').last);
+        File(path), uid.node, path);
     file_pb.File? fileInfo =
-        await _fileRepo.uploadClonedFile(uid.node, file.path.split('/').last);
+        await _fileRepo.uploadClonedFile(uid.node, path);
     if (fileInfo != null) {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
      await  _setAvatarAtServer(fileInfo, createdOn, uid);
