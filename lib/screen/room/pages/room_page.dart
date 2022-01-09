@@ -147,14 +147,17 @@ class _RoomPageState extends State<RoomPage> {
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
               SingleChildScrollView(
-                child:  ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height-80),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height -
+                      buildAppbar().preferredSize.height -
+                      MediaQuery.of(context).padding.top,
                   child: Column(
                     children: <Widget>[
                       pinMessageWidget(),
                       Expanded(
                         child: StreamBuilder<List<PendingMessage>>(
-                            stream: _messageRepo.watchPendingMessages(widget.roomId),
+                            stream: _messageRepo
+                                .watchPendingMessages(widget.roomId),
                             builder: (context, pendingMessagesStream) {
                               List<PendingMessage> pendingMessages =
                                   pendingMessagesStream.data ?? [];
@@ -164,14 +167,17 @@ class _RoomPageState extends State<RoomPage> {
                                     if (currentRoomStream.hasData) {
                                       _currentRoom.add(currentRoomStream.data);
                                       int i =
-                                          (_currentRoom.value!.lastMessageId ?? 0) +
+                                          (_currentRoom.value!.lastMessageId ??
+                                                  0) +
                                               pendingMessages.length;
                                       _itemCountSubject.add(i);
                                       _itemCount = i;
-                                      if (currentRoomStream.data!.firstMessageId !=
+                                      if (currentRoomStream
+                                              .data!.firstMessageId !=
                                           null) {
                                         _itemCount = _itemCount -
-                                            currentRoomStream.data!.firstMessageId!;
+                                            currentRoomStream
+                                                .data!.firstMessageId!;
                                       }
                                       return PageStorage(
                                           bucket: PageStorage.of(context)!,
