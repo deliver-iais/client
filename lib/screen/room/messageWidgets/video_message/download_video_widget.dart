@@ -6,7 +6,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:rxdart/rxdart.dart';
 
 class DownloadVideoWidget extends StatefulWidget {
   final String uuid;
@@ -55,9 +54,9 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
 
   StreamBuilder<double> buildStreamBuilder() {
     return StreamBuilder<double>(
-      stream: _fileServices.filesDownloadStatus[widget.uuid],
+      stream: _fileServices.filesProgressBarStatus[widget.uuid],
       builder: (c, snapshot) {
-        if (snapshot.hasData && snapshot.data != null && snapshot.data! > 0) {
+        if (snapshot.hasData && snapshot.data != null &&  snapshot.data! > 0 && snapshot.data!<=1) {
           return CircularPercentIndicator(
             radius: 40.0,
             lineWidth: 5.0,

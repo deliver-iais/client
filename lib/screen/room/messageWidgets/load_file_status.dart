@@ -8,15 +8,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:rxdart/rxdart.dart';
 
-// TODO Needs to be refactored. WTF WTF WTF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
   final String? messagePacketId; // TODO Needs to be refactored
   final String? roomUid;
-  final void Function(String, String) onPressed;
+  final Function onPressed;
 
   const LoadFileStatus(
       {Key? key,
@@ -54,7 +52,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                 SendingStatus.SENDING_FILE
                             ? StreamBuilder<double?>(
                                 stream: _fileService
-                                    .filesUploadStatus[widget.fileId],
+                                    .filesProgressBarStatus[widget.fileId],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     return CircularPercentIndicator(
@@ -134,7 +132,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
 
   Widget buildDownload() {
     return StreamBuilder<double>(
-        stream: _fileService.filesDownloadStatus[widget.fileId],
+        stream: _fileService.filesProgressBarStatus[widget.fileId],
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null && snapshot.data! > 0) {
             return CircularPercentIndicator(
@@ -159,7 +157,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                   } else {
                     return GestureDetector(
                         onTap: () {
-                          widget.onPressed(widget.fileId, widget.fileName);
+                          widget.onPressed();
                         },
                         child: Icon(
                           Icons.arrow_downward,
@@ -186,7 +184,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                   size: 35,
                 ),
                 onPressed: () {
-                  widget.onPressed(widget.fileId, widget.fileName);
+                  widget.onPressed();
                 },
               ),
             );

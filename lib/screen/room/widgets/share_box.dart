@@ -72,6 +72,7 @@ class _ShareBoxState extends State<ShareBox> {
   @override
   void dispose() {
     _audioPlayer.stop();
+    captionTextController.dispose();
     super.dispose();
   }
 
