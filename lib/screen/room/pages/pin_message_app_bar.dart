@@ -47,7 +47,7 @@ class PinMessageAppBar extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).appBarTheme.backgroundColor,
-                    borderRadius: BorderRadius.circular(50),
+                    borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
                         color: Theme.of(context).shadowColor.withAlpha(60),
@@ -56,9 +56,9 @@ class PinMessageAppBar extends StatelessWidget {
                       ),
                     ],
                   ),
-                  height: 52,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  height: 58,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Row(
                     children: [
                       Column(
