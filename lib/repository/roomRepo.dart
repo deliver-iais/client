@@ -55,7 +55,7 @@ class RoomRepo {
 
   updateRoom(Room room) => _roomDao.updateRoom(room);
 
-  Future<String?> getSlangName(Uid uid) async {
+  Future<String> getSlangName(Uid uid) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       return _i18n.get("you");

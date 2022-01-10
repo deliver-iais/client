@@ -27,6 +27,7 @@ class SentMessageBox extends StatelessWidget {
     final boxContent = BoxContent(
       message: message,
       maxWidth: maxWidthOfMessage(context),
+      minWidth: minWidthOfMessage(context),
       isSender: true,
       scrollToMessage: scrollToMessage,
       isSeen: isSeen,

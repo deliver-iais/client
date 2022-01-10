@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
 
-  const SenderAndContent({Key? key, required this.messages}) : super(key: key);
+  final bool expandContent;
+  const SenderAndContent({Key? key, required this.messages, this.expandContent = true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,7 @@ class SenderAndContent extends StatelessWidget {
       showSenderInSeparatedLine: true,
       showSeenStatus: false,
       lastMessageId: messages.first.id!,
+      expandContent: expandContent,
     );
   }
 }
