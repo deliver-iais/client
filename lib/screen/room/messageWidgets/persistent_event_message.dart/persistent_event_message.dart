@@ -48,7 +48,7 @@ class PersistentEventMessage extends StatelessWidget {
         : persistentEventMessage.whichType() ==
                 PersistentEvent_Type.botSpecificPersistentEvent
             ? Padding(
-                padding: const EdgeInsets.only(left: 2),
+                padding: const EdgeInsets.only(left: 1),
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
