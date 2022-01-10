@@ -17,6 +17,7 @@ import 'package:rxdart/rxdart.dart';
 class ImageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final double minWidth;
   final bool isSender;
   final bool isSeen;
 
@@ -24,6 +25,7 @@ class ImageUi extends StatefulWidget {
       {Key? key,
       required this.message,
       required this.maxWidth,
+      required this.minWidth,
       required this.isSender,
       required this.isSeen})
       : super(key: key);
@@ -140,9 +142,7 @@ class _ImageUiState extends State<ImageUi> {
                                     await fileRepo.getFile(
                                         image.uuid, image.name);
                                     _startDownload.add(false);
-                                    setState(() {
-
-                                    });
+                                    setState(() {});
                                   },
                                   shape: const CircleBorder(),
                                   child: const Icon(Icons.arrow_downward),
@@ -187,6 +187,12 @@ class _ImageUiState extends State<ImageUi> {
       h = min(height, maxWidth);
       w = h * aspect;
     }
+
+    if (w < widget.minWidth) {
+      h = (widget.minWidth / w) * h;
+      w = widget.minWidth;
+    }
+
     return Size(w, h);
   }
 

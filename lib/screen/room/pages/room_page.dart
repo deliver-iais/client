@@ -153,7 +153,6 @@ class _RoomPageState extends State<RoomPage> {
                       MediaQuery.of(context).padding.top,
                   child: Column(
                     children: <Widget>[
-                      pinMessageWidget(),
                       Expanded(
                         child: StreamBuilder<List<PendingMessage>>(
                             stream: _messageRepo
@@ -233,6 +232,7 @@ class _RoomPageState extends State<RoomPage> {
                   ),
                 ),
               ),
+              pinMessageWidget(),
               StreamBuilder<int>(
                   stream: _positionSubject.stream,
                   builder: (c, position) {
@@ -574,20 +574,18 @@ class _RoomPageState extends State<RoomPage> {
           stream:
               MergeStream([_repliedMessage.stream, _editableMessage.stream]),
           builder: (c, data) {
-            return SizedBox(
-              child: NewMessageInput(
-                currentRoomId: widget.roomId,
-                replyMessageId: _repliedMessage.value != null
-                    ? _repliedMessage.value!.id!
-                    : 0,
-                editableMessage: _editableMessage.value,
-                resetRoomPageDetails: _resetRoomPageDetails,
-                waitingForForward: _waitingForForwardedMessage.value,
-                sendForwardMessage: _sendForwardMessage,
-                scrollToLastSentMessage: scrollToLast,
-                focusNode: _inputMessageFocusNode,
-                textController: _inputMessageTextController,
-              ),
+            return NewMessageInput(
+              currentRoomId: widget.roomId,
+              replyMessageId: _repliedMessage.value != null
+                  ? _repliedMessage.value!.id!
+                  : 0,
+              editableMessage: _editableMessage.value,
+              resetRoomPageDetails: _resetRoomPageDetails,
+              waitingForForward: _waitingForForwardedMessage.value,
+              sendForwardMessage: _sendForwardMessage,
+              scrollToLastSentMessage: scrollToLast,
+              focusNode: _inputMessageFocusNode,
+              textController: _inputMessageTextController,
             );
           });
     }

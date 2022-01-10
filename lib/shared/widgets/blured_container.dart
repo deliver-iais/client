@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class BlurContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
   final Decoration? decoration;
   final double skew;
   final bool blurIsEnabled;
@@ -13,6 +14,7 @@ class BlurContainer extends StatelessWidget {
       {Key? key,
       required this.child,
       this.padding,
+      this.margin,
       this.decoration,
       this.skew = 1.0,
       this.blurIsEnabled = true})
@@ -29,6 +31,7 @@ class BlurContainer extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: -skew, sigmaY: skew),
         child: Container(
             padding: padding,
+            margin: margin,
             decoration: decoration ??
                 BoxDecoration(
                   color: Theme.of(context).dividerColor.withOpacity(0.15),

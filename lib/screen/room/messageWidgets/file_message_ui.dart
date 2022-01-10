@@ -12,6 +12,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 class FileMessageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final double minWidth;
   final bool isSender;
   final Function? onUsernameClick;
   final bool isSeen;
@@ -20,6 +21,7 @@ class FileMessageUi extends StatefulWidget {
       {Key? key,
       required this.message,
       required this.maxWidth,
+      required this.minWidth,
       required this.isSender,
       this.onUsernameClick,
       required this.isSeen})
@@ -66,6 +68,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,
+        minWidth: widget.minWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
       );

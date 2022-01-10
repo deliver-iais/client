@@ -23,7 +23,7 @@ final Uid TEST_USER_UID = Uid.create()
   ..category = Categories.USER
   ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
 
-const TEST_USER_PHONE_NUMBER ="1234567890";
+const TEST_USER_PHONE_NUMBER = "1234567890";
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";
@@ -47,7 +47,7 @@ const SHARED_DAO_LOG_LEVEL = "SHARED_DAO_LOG_LEVEL";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
 const SHARED_DAO_APP_VERSION = "SHARED_DAO_APP_VERSION";
-const SHARED_DAO_SCROLL_POSITION= "SHARED_DAO_SCROLL_POSITION";
+const SHARED_DAO_SCROLL_POSITION = "SHARED_DAO_SCROLL_POSITION";
 
 const ONLINE_TIME = 60000;
 
@@ -92,6 +92,7 @@ const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;
 
 const double NAVIGATION_PANEL_SIZE = 384;
+const double MIN_WIDTH = 200;
 
 // Screen Breakdown
 bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
@@ -111,3 +112,6 @@ double maxWidthOfMessage(BuildContext context) => min(
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
         0.7,
     400);
+
+double minWidthOfMessage(BuildContext context) =>
+    min(maxWidthOfMessage(context), 200);

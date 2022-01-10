@@ -8,6 +8,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -68,8 +69,12 @@ class _VideoMessageState extends State<VideoMessage> {
                   (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
               0.7,
           400),
-      height: 200,
-      color: Colors.black,
+      padding: const EdgeInsets.all(4),
+      height:  200,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(10)
+      ),
       child: MouseRegion(
         onEnter: (PointerEvent details) {
           if (isDesktop()) {
@@ -214,15 +219,9 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   Widget size(String len, int size) {
-    return Container(
-      // height: 40,
-      margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+    return BlurContainer(
       padding:
           const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-        color: Colors.black87,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
