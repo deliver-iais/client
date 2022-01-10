@@ -69,8 +69,7 @@ class _BoxContentState extends State<BoxContent> {
                 !widget.isSender)
               senderNameBox(),
             if (hasReply()) replyToIdBox(),
-            if (widget.message.forwardedFrom != null &&
-                widget.message.forwardedFrom!.length > 3)
+            if (isForwarded())
               forwardedFromBox(),
             messageBox()
           ],
@@ -128,7 +127,7 @@ class _BoxContentState extends State<BoxContent> {
           child: Text(
             name.trim(),
             maxLines: 1,
-            overflow: TextOverflow.fade,
+            overflow: TextOverflow.ellipsis,
             softWrap: false,
             style: Theme.of(context).primaryTextTheme.bodyText2,
           ),
@@ -279,5 +278,9 @@ class _BoxContentState extends State<BoxContent> {
     return widget.message.to.asUid().category != Categories.BOT &&
         widget.message.replyToId != null &&
         widget.message.replyToId! > 0;
+  }
+
+  bool isForwarded() {
+    return (widget.message.forwardedFrom?.length ?? 0) > 3;
   }
 }
