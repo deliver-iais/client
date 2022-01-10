@@ -18,6 +18,7 @@ import 'package:deliver/screen/room/widgets/share_private_data_request_message_w
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
@@ -89,12 +90,7 @@ class _BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
-          color: (widget.isSender
-                  ? Color.lerp(ExtraTheme.of(context).sentMessageBox,
-                      Theme.of(context).dividerColor, 0.05)
-                  : Color.lerp(ExtraTheme.of(context).receivedMessageBox,
-                      Theme.of(context).dividerColor, 0.05)) ??
-              Colors.transparent,
+          color: messageExtraContentColor(widget.isSender, context),
         ),
       ),
     );
@@ -146,7 +142,7 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget forwardedFromBox() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+      margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
       padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(

@@ -29,7 +29,7 @@ class ReplyBrief extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               child: Container(
                 constraints:
-                    BoxConstraints.loose(Size.fromWidth(maxWidth - 16.0)),
+                    BoxConstraints.loose(Size.fromWidth(maxWidth - 14.0)),
                 padding: const EdgeInsets.only(
                     left: 4.0, top: 4, bottom: 4, right: 8),
                 margin: const EdgeInsets.only(left: 2.0),

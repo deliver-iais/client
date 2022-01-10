@@ -5,6 +5,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +78,11 @@ class TextUI extends StatelessWidget {
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
-          LinkPreview(link: link, maxWidth: linkPreviewMaxWidth),
+          LinkPreview(
+            link: link,
+            maxWidth: linkPreviewMaxWidth,
+            color: messageExtraContentColor(isSender, context),
+          ),
           TimeAndSeenStatus(
             message,
             isSender,

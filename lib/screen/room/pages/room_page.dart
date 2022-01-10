@@ -148,7 +148,6 @@ class _RoomPageState extends State<RoomPage> {
                   }),
               Column(
                 children: <Widget>[
-                  pinMessageWidget(),
                   Expanded(
                     child: StreamBuilder<List<PendingMessage>>(
                         stream:
@@ -223,6 +222,7 @@ class _RoomPageState extends State<RoomPage> {
                   keyboardWidget(),
                 ],
               ),
+              pinMessageWidget(),
               StreamBuilder<int>(
                   stream: _positionSubject.stream,
                   builder: (c, position) {
