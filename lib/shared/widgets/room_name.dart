@@ -1,4 +1,6 @@
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -22,7 +24,12 @@ class RoomName extends StatelessWidget {
         builder: (context, snapshot) {
           var name = (snapshot.data ?? "");
           if (name.length > 35) {
-            name = name.substring(0, 32) + "...";
+            name = name.substring(0, 30) + "...";
+            if (key != null &&
+                key == const Key("room_page") &&
+                uid.category == Categories.USER && !isDesktop()) {
+              name = name.substring(0, 15) + "...";
+            }
           }
           return Row(
             children: [

@@ -42,7 +42,6 @@ import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -116,7 +115,6 @@ class _RoomPageState extends State<RoomPage> {
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
   final _inputMessageTextController = TextEditingController();
   final _inputMessageFocusNode = FocusNode();
-  CallEvent_CallStatus? _callEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -634,6 +632,7 @@ class _RoomPageState extends State<RoomPage> {
                     } else {
                       return UserAppbarTitle(
                         userUid: widget.roomId.asUid(),
+                        key: const Key("room_page"),
                       );
                     }
                   }
@@ -644,14 +643,12 @@ class _RoomPageState extends State<RoomPage> {
         ),
         actions: [
           if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
-            //TODO we need fix and more test on videCall then disable it
             IconButton(
                 onPressed: () {
                   _routingService.openCallScreen(
                       _currentRoom.value!.uid.asUid(),isVideoCall: true,
                       context: context);
-                  //Navigator.push(context,MaterialPageRoute(builder: (BuildContext context) =>  VideoCallPage(roomUid:_currentRoom.value!.uid.asUid(),)));
-                },
+                  },
                 icon: const Icon(Icons.videocam)),
           if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
             IconButton(

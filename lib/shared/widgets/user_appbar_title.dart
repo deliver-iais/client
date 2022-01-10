@@ -57,6 +57,7 @@ class UserAppbarTitle extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 RoomName(
+                                    key: key,
                                     uid: userUid,
                                     name: (snapshot.data)!.trim(),
                                     style:
