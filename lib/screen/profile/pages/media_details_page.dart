@@ -148,7 +148,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       var file = _fileCache.get(fileId!);
                       if (file != null) {
                         return buildMediaCenter(
-                            context, i, file, fileId, "avatar$i");
+                            context, i, file, fileId, widget.heroTag!);
                       } else {
                         return buildFutureMediaBuilder(
                             fileId, fileName, context, i);
@@ -237,7 +237,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Center buildMediaCenter(
-      BuildContext context, int i, String mediaFile, fileId, Object tag) {
+      BuildContext context, int i, String mediaFile, fileId, String tag) {
     return Center(
       child: SizedBox(
         width: MediaQuery.of(context).size.width,
