@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/adapter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
@@ -66,6 +69,12 @@ class FileService {
   }
 
   FileService() {
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (HttpClient client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
     _dio.interceptors.add(InterceptorsWrapper(onRequest:
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
@@ -83,8 +92,7 @@ class FileService {
     return _getFile(uuid, filename);
   }
 
-  Future<String?> _getFile(
-      String uuid, String filename) async {
+  Future<String?> _getFile(String uuid, String filename) async {
     if (filesProgressBarStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
       filesProgressBarStatus[uuid] = d;
@@ -155,9 +163,10 @@ class FileService {
     CancelToken cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     var res = await _dio.get(
-        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-        options: Options(responseType: ResponseType.bytes),
-        cancelToken: cancelToken);
+      "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
+      options: Options(responseType: ResponseType.bytes),
+      cancelToken: cancelToken,
+    );
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
     return file.path;
@@ -190,7 +199,8 @@ class FileService {
         formData = FormData.fromMap({
           "file": MultipartFile.fromFileSync(filePath,
               contentType:
-                  MediaType.parse(mime(filePath) ?? "application/octet-stream"))
+                  MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+              filename: filename.replaceAll(" ", ""))
         });
       }
 
