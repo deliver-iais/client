@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/adapter.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
@@ -74,7 +76,7 @@ class FileService {
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       return client;
-   };
+    };
     _dio.interceptors.add(InterceptorsWrapper(onRequest:
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
@@ -178,12 +180,28 @@ class FileService {
     }
   }
 
+  Future<File> testCompressFile(File file,String fileUuid) async {
+
+    var result = await FlutterImageCompress.compressWithFile(
+      file.absolute.path,
+      minWidth: 720,
+      quality: 90,
+    );
+    print("final lenght     " + result!.length.toString());
+    return File.fromRawPath(result) ;
+  }
+
   // TODO, refactoring needed
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
+    var f = File(filePath);
+    var l = await f.length();
+    print("init lenght" + l.toString());
+   var res = await  testCompressFile(f,uploadKey!);
+
     try {
       CancelToken cancelToken = CancelToken();
-      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
+      cancelTokens[uploadKey] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
       if (kIsWeb) {
         http.Response r = await http.get(
@@ -196,9 +214,9 @@ class FileService {
         });
       } else {
         formData = FormData.fromMap({
-          "file": MultipartFile.fromFileSync(filePath,
+          "file": MultipartFile.fromFileSync(res.path,
               contentType:
-                  MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+                  MediaType.parse(mime(res.path) ?? "application/octet-stream"),
               )
         });
       }

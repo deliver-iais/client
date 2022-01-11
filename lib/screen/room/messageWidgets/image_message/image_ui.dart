@@ -130,6 +130,7 @@ class _ImageUiState extends State<ImageUi> {
                                 return CircularPercentIndicator(
                                   radius: 45.0,
                                   lineWidth: 4.0,
+                                  backgroundColor:Colors.blue,
                                   percent: snap.data!,
                                   center: StreamBuilder<CancelToken?>(
                                     stream:
@@ -158,9 +159,6 @@ class _ImageUiState extends State<ImageUi> {
                                       }
                                     },
                                   ),
-
-                                  backgroundColor:
-                                      ExtraTheme.of(context).circularFileStatus,
                                   progressColor:
                                       ExtraTheme.of(context).fileMessageDetails,
                                 );
