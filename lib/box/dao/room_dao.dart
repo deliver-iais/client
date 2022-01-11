@@ -44,7 +44,7 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<List<Room>> watchAllRooms() async* {;
+  Stream<List<Room>> watchAllRooms() async* {
     var box = await _openRoom();
     if(box.isEmpty){
       box = await  _openRoom();

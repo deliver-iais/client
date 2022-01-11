@@ -24,83 +24,85 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-  var m = initialLink.toString().split("/");
 
   Uid? roomUid;
   Uri uri = Uri.parse(initialLink);
-  List<String?> s =
-      uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList() ;
-  if (s.first == "text") {
+  List<String?> segments =
+      uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
+  if (segments.first == "text") {
     String? botId = uri.queryParameters["botId"];
     if (botId != null) {
-      _routingService.openRoom(
-        (Uid.create()
-              ..node = botId
-              ..category = Categories.BOT)
-            .asString()
-      );
+      _routingService.openRoom((Uid.create()
+            ..node = botId
+            ..category = Categories.BOT)
+          .asString());
     }
-  } else if (m[4].toString().contains("GROUP")) {
-    roomUid = Uid.create()
-      ..node = m[5].toString()
-      ..category = Categories.GROUP;
-  } else if (m[4].toString().contains("CHANNEL")) {
-    roomUid = Uid.create()
-      ..node = m[5].toString()
-      ..category = Categories.CHANNEL;
-  }
-  if (roomUid != null) {
-    var muc = await _mucDao.get(roomUid.asString());
-    if (muc != null) {
-      _routingService.openRoom(roomUid.asString());
-    } else {
-      Future.delayed(Duration.zero, () {
-        showFloatingModalBottomSheet(
-          context: context,
-          builder: (context) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                CircleAvatarWidget(roomUid!, 40, forceText: "un"),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    MaterialButton(
+  } else if (segments.first == JOIN) {
+    if (segments[1] == "GROUP") {
+      roomUid = Uid.create()
+        ..node = segments[2].toString()
+        ..category = Categories.GROUP;
+    } else if (segments[1] == "CHANNEL") {
+      roomUid = Uid.create()
+        ..node = segments[2].toString()
+        ..category = Categories.CHANNEL;
+    }
+
+    if (roomUid != null) {
+      var muc = await _mucDao.get(roomUid.asString());
+      if (muc != null) {
+        _routingService.openRoom(roomUid.asString());
+      } else {
+        Future.delayed(Duration.zero, () {
+          showFloatingModalBottomSheet(
+            context: context,
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  CircleAvatarWidget(roomUid!, 40, forceText: "un"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      MaterialButton(
+                          color: Colors.blueAccent,
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(I18N.of(context)!.get("skip"))),
+                      MaterialButton(
                         color: Colors.blueAccent,
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(I18N.of(context)!.get("skip"))),
-                    MaterialButton(
-                      color: Colors.blueAccent,
-                      onPressed: () async {
-                        if (roomUid!.category == Categories.GROUP) {
-                          Muc? muc = await _mucRepo.joinGroup(
-                              roomUid, m[6].toString());
-                          if (muc != null) {
-                            _messageRepo.updateNewMuc(
-                                roomUid, muc.lastMessageId!);
-                            _routingService.openRoom(roomUid.asString());
-                            Navigator.of(context).pop();
+                        onPressed: () async {
+                          if (roomUid!.category == Categories.GROUP) {
+                            Muc? muc = await _mucRepo.joinGroup(
+                                roomUid, segments[3].toString());
+                            if (muc != null) {
+                              Navigator.of(context).pop();
+                              _messageRepo.updateNewMuc(
+                                  roomUid, muc.lastMessageId!);
+
+                              _routingService.openRoom(roomUid.asString());
+                            }
+                          } else {
+                            Muc? muc = await _mucRepo.joinChannel(
+                                roomUid, segments[3].toString());
+                            if (muc != null) {
+                              Navigator.of(context).pop();
+                              _messageRepo.updateNewMuc(
+                                  roomUid, muc.lastMessageId!);
+                              _routingService.openRoom(roomUid.asString());
+                            }
                           }
-                        } else {
-                          Muc? muc = await _mucRepo.joinChannel(roomUid, m[6]);
-                          if (muc != null) {
-                            _messageRepo.updateNewMuc(
-                                roomUid, muc.lastMessageId!);
-                            _routingService.openRoom(roomUid.asString());
-                            Navigator.of(context).pop();
-                          }
-                        }
-                      },
-                      child: Text(I18N.of(context)!.get("join")),
-                    ),
-                  ],
-                ),
-              ],
+                        },
+                        child: Text(I18N.of(context)!.get("join")),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      });
+          );
+        });
+      }
     }
   }
 }

@@ -61,7 +61,7 @@ class _ChatItemState extends State<ChatItem> {
                 future: _messageRepo.fetchLastMessages(
                     widget.room.uid.asUid(),
                     widget.room.lastMessageId!,
-                    widget.room.firstMessageId!,
+                    widget.room.firstMessageId,
                     widget.room,
                     limit: 5,
                     type: FetchMessagesReq_Type.BACKWARD_FETCH),

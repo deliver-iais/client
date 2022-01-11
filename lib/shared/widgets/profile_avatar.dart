@@ -33,27 +33,28 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
-  String _uploadAvatarPath = "";
-  final BehaviorSubject<bool> _showProgressBar = BehaviorSubject.seeded(false);
+  final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-      child: StreamBuilder<bool>(
-        stream: _showProgressBar.stream,
+      child: StreamBuilder<String>(
+        stream: _newAvatarPath.stream,
         builder: (c, s) {
-          if (s.hasData && s.data!) {
+          if (s.hasData && s.data != null && s.data!.isNotEmpty) {
             return CircleAvatar(
               radius: 40,
-              backgroundImage: Image.file(File(_uploadAvatarPath)).image,
+              backgroundImage: kIsWeb
+                  ? Image.network(s.data!).image
+                  : Image.file(File(s.data!)).image,
               child: const Center(
                 child: SizedBox(
                     height: 20.0,
                     width: 20.0,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation(Colors.blue),
-                      strokeWidth: 6.0,
+                      strokeWidth: 4.0,
                     )),
               ),
             );
@@ -98,11 +99,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   _setAvatar(String avatarPath) async {
-    _showProgressBar.add(true);
-    _uploadAvatarPath = avatarPath;
-
-    await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath));
-    _showProgressBar.add(false);
+    _newAvatarPath.add(avatarPath);
+    await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
+    _newAvatarPath.add("");
   }
 
   selectAvatar() async {
@@ -122,7 +121,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(result.files.first.path!);
+          _setAvatar(kIsWeb
+              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
+              : result.files.first.path!);
         }
       }
     } else {
@@ -147,7 +148,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           scrollController: scrollController,
                           pop: () => Navigator.pop(context),
                           setAvatar: (String imagePath) async {
-                            Navigator.pop(context);
                             cropAvatar(imagePath);
                           },
                           selectAvatar: true,

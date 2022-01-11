@@ -1,8 +1,9 @@
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/messageWidgets/audio_and_document_file_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
-import 'package:deliver/screen/room/messageWidgets/message_header.dart';
+
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         isSeen: widget.isSeen,
       );
     } else {
-      return UnknownFileUi(
+      return AudioAndDocumentFileUI(
         message: widget.message,
         maxWidth: widget.maxWidth,
         isSender: widget.isSender,

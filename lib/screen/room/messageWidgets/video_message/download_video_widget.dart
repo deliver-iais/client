@@ -24,7 +24,6 @@ class DownloadVideoWidget extends StatefulWidget {
 }
 
 class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
-  bool startDownload = false;
   final _fileServices = GetIt.I.get<FileService>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
@@ -43,105 +42,44 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                 ),
                 color: Colors.black.withOpacity(0.5), //TODO check
               ),
-              child: Center(
-                child: startDownload
-                    ? StreamBuilder<double>(
-                        stream: _fileServices.filesDownloadStatus[widget.uuid],
-                        builder: (c, snapshot) {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            return CircularPercentIndicator(
-                              radius: 35.0,
-                              lineWidth: 4.0,
-                              percent: snapshot.data!,
-                              center: Icon(
-                                Icons.download_rounded,
-                                color: ExtraTheme.of(context).messageDetails,
-                              ),
-                              progressColor:
-                                  ExtraTheme.of(context).messageDetails,
-                            );
-                          } else {
-                            return CircularPercentIndicator(
-                              radius: 35.0,
-                              lineWidth: 4.0,
-                              percent: 0.01,
-                              center: Icon(
-                                Icons.download_rounded,
-                                color: ExtraTheme.of(context).messageDetails,
-                              ),
-                              progressColor:
-                                  ExtraTheme.of(context).messageDetails,
-                            );
-                          }
-                        },
-                      )
-                    : MaterialButton(
-                        color: Theme.of(context).primaryColor,
-                        onPressed: () async {
-                          widget.download();
-                          startDownload = true;
-                          setState(() {});
-                        },
-                        shape: const CircleBorder(),
-                        child: Icon(
-                          Icons.download_rounded,
-                          color: ExtraTheme.of(context).messageDetails,
-                        ),
-                        padding: const EdgeInsets.all(10),
-                      ),
-              ));
+              child: Center(child: buildStreamBuilder()));
         } else {
           return Center(
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black.withOpacity(0.5),
-              ),
-              child: startDownload
-                  ? StreamBuilder<double>(
-                      stream: _fileServices.filesDownloadStatus[widget.uuid],
-                      builder: (c, snapshot) {
-                        if (snapshot.hasData && snapshot.data != null) {
-                          return CircularPercentIndicator(
-                            radius: 35.0,
-                            lineWidth: 4.0,
-                            percent: snapshot.data!,
-                            center: Icon(
-                              Icons.arrow_downward,
-                              color: ExtraTheme.of(context).messageDetails,
-                            ),
-                            progressColor:
-                                ExtraTheme.of(context).messageDetails,
-                          );
-                        } else {
-                          return CircularPercentIndicator(
-                            radius: 35.0,
-                            lineWidth: 4.0,
-                            percent: 0.1,
-                            center: Icon(
-                              Icons.arrow_downward,
-                              color: ExtraTheme.of(context).messageDetails,
-                            ),
-                            progressColor:
-                                ExtraTheme.of(context).messageDetails,
-                          );
-                        }
-                      },
-                    )
-                  : IconButton(
-                      icon: Icon(
-                        Icons.file_download,
-                        color: ExtraTheme.of(context).messageDetails,
-                      ),
-                      onPressed: () async {
-                        startDownload = true;
-                        widget.download();
-                        setState(() {});
-                      },
-                    ),
+            child: buildStreamBuilder(),
+          );
+        }
+      },
+    );
+  }
+
+  StreamBuilder<double> buildStreamBuilder() {
+    return StreamBuilder<double>(
+      stream: _fileServices.filesProgressBarStatus[widget.uuid],
+      builder: (c, snapshot) {
+        if (snapshot.hasData && snapshot.data != null &&  snapshot.data! > 0 && snapshot.data!<=1) {
+          return CircularPercentIndicator(
+            radius: 40.0,
+            lineWidth: 5.0,
+            backgroundColor: Colors.lightBlue,
+            percent: snapshot.data!,
+            center: const Icon(
+              Icons.download_rounded,
+              color: Colors.lightBlue,
             ),
+            progressColor: Colors.white,
+          );
+        } else {
+          return MaterialButton(
+            color: Theme.of(context).primaryColor,
+            onPressed: () {
+              widget.download();
+            },
+            shape: const CircleBorder(),
+            child: Icon(
+              Icons.download_rounded,
+              color: ExtraTheme.of(context).messageDetails,
+            ),
+            padding: const EdgeInsets.all(10),
           );
         }
       },

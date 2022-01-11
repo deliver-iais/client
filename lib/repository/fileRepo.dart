@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io' as io;
+import 'package:deliver/shared/constants.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:deliver/box/dao/file_dao.dart';
@@ -88,7 +89,7 @@ class FileRepo {
   }
 
   Future<String?> getFile(String uuid, String filename,
-      {ThumbnailSize? thumbnailSize}) async {
+      {ThumbnailSize? thumbnailSize, bool intiProgressBar = true}) async {
     String? path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
@@ -102,11 +103,23 @@ class FileRepo {
         String bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
         await _saveFileInfo(uuid, bytes, filename,
             thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+        if (intiProgressBar) {
+          if (_fileService.filesProgressBarStatus[uuid] != null) {
+            _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
+          }
+        }
+
         return downloadedFileUri;
       }
 
       await _saveFileInfo(uuid, downloadedFileUri, filename,
           thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+      if (intiProgressBar) {
+        if (_fileService.filesProgressBarStatus[uuid] != null) {
+          _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
+        }
+      }
+
       return downloadedFileUri;
     } else {
       return null;
@@ -147,7 +160,7 @@ class FileRepo {
   }
 
   void initUploadProgress(String uploadId) {
-    _fileService.initUpoadProgrss(uploadId);
+    _fileService.initProgressBar(uploadId);
   }
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
