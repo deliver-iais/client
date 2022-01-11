@@ -74,7 +74,7 @@ class FileService {
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       return client;
-    };
+   };
     _dio.interceptors.add(InterceptorsWrapper(onRequest:
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
@@ -191,7 +191,6 @@ class FileService {
         );
         formData = FormData.fromMap({
           "file": MultipartFile.fromBytes(r.bodyBytes,
-              filename: filename,
               contentType:
                   MediaType.parse(mime(filename) ?? "application/octet-stream"))
         });
@@ -200,7 +199,7 @@ class FileService {
           "file": MultipartFile.fromFileSync(filePath,
               contentType:
                   MediaType.parse(mime(filePath) ?? "application/octet-stream"),
-              filename: filename.replaceAll(" ", ""))
+              )
         });
       }
 

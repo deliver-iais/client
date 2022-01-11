@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
@@ -29,10 +30,13 @@ class LoadFileStatus extends StatefulWidget {
   _LoadFileStatusState createState() => _LoadFileStatusState();
 }
 
+
+
 class _LoadFileStatusState extends State<LoadFileStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
   bool isPendingMes = true;
+  final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
@@ -150,20 +154,31 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                         size: 35,
                       ),
                       onTap: () {
+                        _starDownload.add(false);
                         s.data!.cancel();
                         _fileService.cancelTokens[widget.fileId]!.add(null);
                       },
                     );
                   } else {
-                    return GestureDetector(
-                        onTap: () {
-                          widget.onPressed();
-                        },
-                        child: Icon(
-                          Icons.arrow_downward,
-                          color: ExtraTheme.of(context).fileMessageDetails,
-                          size: 35,
-                        ));
+                    return StreamBuilder<bool>(
+                      stream:_starDownload.stream,
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData && snapshot.data != null && snapshot.data!){
+                          return const CircularProgressIndicator(strokeWidth: 4,color: Colors.blue,);
+                        }else{
+                           return GestureDetector(
+                              onTap: () {
+                                _starDownload.add(true);
+                                widget.onPressed();
+                              },
+                              child: Icon(
+                                Icons.arrow_downward,
+                                color: ExtraTheme.of(context).fileMessageDetails,
+                                size: 35,
+                              ));
+                        }
+                      }
+                    );
                   }
                 },
               ),
@@ -175,18 +190,29 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: ExtraTheme.of(context).circularFileStatus),
-              child: IconButton(
-                padding: const EdgeInsets.all(0),
-                alignment: Alignment.center,
-                icon: Icon(
-                  Icons.arrow_downward,
-                  color: ExtraTheme.of(context).fileMessageDetails,
-                  size: 35,
-                ),
-                onPressed: () {
-                  widget.onPressed();
-                },
-              ),
+              child: StreamBuilder<bool>(
+                  stream:_starDownload.stream,
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData && snapshot.data != null && snapshot.data!){
+                      return const CircularProgressIndicator(strokeWidth: 4,color: Colors.blue,);
+                    }else{
+                      return  IconButton(
+                        padding: const EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        icon: Icon(
+                          Icons.arrow_downward,
+                          color: ExtraTheme.of(context).fileMessageDetails,
+                          size: 35,
+                        ),
+                        onPressed: () {
+                          _starDownload.add(true);
+                          widget.onPressed();
+                        },
+                      );
+                    }
+                  }
+              )
+
             );
           }
         });
