@@ -21,30 +21,33 @@ class BotAppbarTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         color: Theme.of(context).appBarTheme.backgroundColor,
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          child: Row(
-            children: [
-              CircleAvatarWidget(botUid, 23),
-              const SizedBox(
-                width: 16,
-              ),
-              Expanded(
-                child: FutureBuilder<String>(
-                    future: _roomRepo.getName(botUid),
-                    builder: (c, name) {
-                      if (name.hasData && name.data != null) {
-                        return buildColumn(name.data!, context);
-                      } else {
-                        return buildColumn(botUid.node, context);
-                      }
-                    }),
-              )
-            ],
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: Row(
+              children: [
+                CircleAvatarWidget(botUid, 23),
+                const SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                  child: FutureBuilder<String>(
+                      future: _roomRepo.getName(botUid),
+                      builder: (c, name) {
+                        if (name.hasData && name.data != null) {
+                          return buildColumn(name.data!, context);
+                        } else {
+                          return buildColumn(botUid.node, context);
+                        }
+                      }),
+                )
+              ],
+            ),
+            onTap: () {
+              _routingService.openProfile(botUid.asString());
+            },
           ),
-          onTap: () {
-            _routingService.openProfile(botUid.asString());
-          },
         ));
   }
 
