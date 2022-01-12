@@ -60,6 +60,7 @@ dependencies:
   flutter_map: 0.14.0
   geolocator: 7.7.1
   flutter_image_compress: 1.1.0
+  image_compression_flutter: 1.0.2
   file_picker: 4.3.0
   logger: 1.1.0
   android_intent: 2.0.2

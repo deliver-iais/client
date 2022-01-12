@@ -130,13 +130,13 @@ class _ImageUiState extends State<ImageUi> {
                                 return CircularPercentIndicator(
                                   radius: 45.0,
                                   lineWidth: 4.0,
-                                  backgroundColor:Colors.blue,
+                                  backgroundColor: Colors.blue,
                                   percent: snap.data!,
                                   center: StreamBuilder<CancelToken?>(
                                     stream:
                                         _fileServices.cancelTokens[image.uuid],
                                     builder: (c, s) {
-                                      if (s.hasData && s.data != null) {
+
                                         return GestureDetector(
                                           child: const Icon(
                                             Icons.cancel,
@@ -144,19 +144,14 @@ class _ImageUiState extends State<ImageUi> {
                                             size: 40,
                                           ),
                                           onTap: () {
-                                            s.data!.cancel();
+                                            if(s.hasData && s.data!= null) {
+                                              s.data!.cancel();
+                                            }
                                             _messageRepo.deletePendingMessage(
                                                 widget.message.packetId);
                                           },
                                         );
-                                      } else {
-                                        return Icon(
-                                          Icons.arrow_upward,
-                                          color: ExtraTheme.of(context)
-                                              .fileMessageDetails,
-                                          size: 35,
-                                        );
-                                      }
+
                                     },
                                   ),
                                   progressColor:
@@ -219,14 +214,17 @@ class _ImageUiState extends State<ImageUi> {
                                             stream: _fileServices
                                                 .cancelTokens[image.uuid],
                                             builder: (c, s) {
-                                              if (s.hasData && s.data != null) {
+
                                                 return GestureDetector(
                                                   child: const Icon(
                                                     Icons.cancel,
                                                     size: 35,
                                                   ),
                                                   onTap: () {
-                                                    s.data!.cancel();
+                                                    if(s.hasData && s.data != null){
+                                                      s.data!.cancel();
+                                                    }
+
                                                     if (widget.message.id !=
                                                         null) {
                                                       _messageRepo
@@ -236,14 +234,7 @@ class _ImageUiState extends State<ImageUi> {
                                                     }
                                                   },
                                                 );
-                                              } else {
-                                                return Icon(
-                                                  Icons.arrow_upward,
-                                                  color: ExtraTheme.of(context)
-                                                      .fileMessageDetails,
-                                                  size: 35,
-                                                );
-                                              }
+
                                             },
                                           ),
                                           percent: snap.data!,

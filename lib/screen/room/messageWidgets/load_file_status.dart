@@ -30,8 +30,6 @@ class LoadFileStatus extends StatefulWidget {
   _LoadFileStatusState createState() => _LoadFileStatusState();
 }
 
-
-
 class _LoadFileStatusState extends State<LoadFileStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
@@ -66,27 +64,19 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                         stream: _fileService
                                             .cancelTokens[widget.fileId],
                                         builder: (c, s) {
-                                          if (s.hasData && s.data != null) {
-                                            return GestureDetector(
-                                              child: const Icon(
-                                                Icons.cancel,
-                                                size: 35,
-                                              ),
-                                              onTap: () {
-                                                s.data!.cancel();
-                                                _messageRepo
-                                                    .deletePendingMessage(widget
-                                                        .messagePacketId!);
-                                              },
-                                            );
-                                          } else {
-                                            return Icon(
-                                              Icons.arrow_upward,
-                                              color: ExtraTheme.of(context)
-                                                  .fileMessageDetails,
+                                          return GestureDetector(
+                                            child: const Icon(
+                                              Icons.cancel,
                                               size: 35,
-                                            );
-                                          }
+                                            ),
+                                            onTap: () {
+                                              if (s.hasData && s.data != null) {
+                                                s.data!.cancel();
+                                              }
+                                              _messageRepo.deletePendingMessage(
+                                                  widget.messagePacketId!);
+                                            },
+                                          );
                                         },
                                       ),
                                       percent: snapshot.data!,
@@ -99,15 +89,15 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     return CircularPercentIndicator(
                                       radius: 45.0,
                                       lineWidth: 4.0,
-                                      center: IconButton(
-                                        padding: const EdgeInsets.all(0),
-                                        icon: Icon(
-                                          Icons.arrow_upward,
-                                          color: ExtraTheme.of(context)
-                                              .fileMessageDetails,
+                                      center: GestureDetector(
+                                        child: const Icon(
+                                          Icons.cancel,
                                           size: 35,
                                         ),
-                                        onPressed: () {},
+                                        onTap: () {
+                                          _messageRepo.deletePendingMessage(
+                                              widget.messagePacketId!);
+                                        },
                                       ),
                                       percent: 0.01,
                                       backgroundColor: ExtraTheme.of(context)
@@ -131,7 +121,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
     } else {
       return buildDownload();
     }
-    //TODO animation to change icon????
+//TODO animation to change icon????
   }
 
   Widget buildDownload() {
@@ -161,59 +151,66 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                     );
                   } else {
                     return StreamBuilder<bool>(
-                      stream:_starDownload.stream,
-                      builder: (context, snapshot) {
-                        if(snapshot.hasData && snapshot.data != null && snapshot.data!){
-                          return const CircularProgressIndicator(strokeWidth: 4,color: Colors.blue,);
-                        }else{
-                           return GestureDetector(
-                              onTap: () {
-                                _starDownload.add(true);
-                                widget.onPressed();
-                              },
-                              child: Icon(
-                                Icons.arrow_downward,
-                                color: ExtraTheme.of(context).fileMessageDetails,
-                                size: 35,
-                              ));
-                        }
-                      }
-                    );
+                        stream: _starDownload.stream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData &&
+                              snapshot.data != null &&
+                              snapshot.data!) {
+                            return const CircularProgressIndicator(
+                              strokeWidth: 4,
+                              color: Colors.blue,
+                            );
+                          } else {
+                            return GestureDetector(
+                                onTap: () {
+                                  _starDownload.add(true);
+                                  widget.onPressed();
+                                },
+                                child: Icon(
+                                  Icons.arrow_downward,
+                                  color:
+                                      ExtraTheme.of(context).fileMessageDetails,
+                                  size: 35,
+                                ));
+                          }
+                        });
                   }
                 },
               ),
             );
           } else {
             return Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: ExtraTheme.of(context).circularFileStatus),
-              child: StreamBuilder<bool>(
-                  stream:_starDownload.stream,
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData && snapshot.data != null && snapshot.data!){
-                      return const CircularProgressIndicator(strokeWidth: 4,color: Colors.blue,);
-                    }else{
-                      return  IconButton(
-                        padding: const EdgeInsets.all(0),
-                        alignment: Alignment.center,
-                        icon: Icon(
-                          Icons.arrow_downward,
-                          color: ExtraTheme.of(context).fileMessageDetails,
-                          size: 35,
-                        ),
-                        onPressed: () {
-                          _starDownload.add(true);
-                          widget.onPressed();
-                        },
-                      );
-                    }
-                  }
-              )
-
-            );
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ExtraTheme.of(context).circularFileStatus),
+                child: StreamBuilder<bool>(
+                    stream: _starDownload.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!) {
+                        return const CircularProgressIndicator(
+                          strokeWidth: 4,
+                          color: Colors.blue,
+                        );
+                      } else {
+                        return IconButton(
+                          padding: const EdgeInsets.all(0),
+                          alignment: Alignment.center,
+                          icon: Icon(
+                            Icons.arrow_downward,
+                            color: ExtraTheme.of(context).fileMessageDetails,
+                            size: 35,
+                          ),
+                          onPressed: () {
+                            _starDownload.add(true);
+                            widget.onPressed();
+                          },
+                        );
+                      }
+                    }));
           }
         });
   }

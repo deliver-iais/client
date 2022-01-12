@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/adapter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as io;
@@ -16,6 +17,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
@@ -179,25 +181,54 @@ class FileService {
       filesProgressBarStatus[uploadId] = BehaviorSubject.seeded(0);
     }
   }
+  Future<ImageFile> compressImage(File file)async{
+    var bytes = await file.readAsBytes();
+    var path = await localFilePath("dsfjdsfds", "png");
+    ImageFile input = ImageFile(filePath: path, rawBytes: bytes); // set the input image file
+    Configuration config = const Configuration(
+      outputType: ImageOutputType.png,
+      // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
+      useJpgPngNativeCompressor: false,
+      // set quality between 0-100
+      quality: 80,
+    );
 
-  Future<File> testCompressFile(File file,String fileUuid) async {
+    final param = ImageFileConfiguration(input: input, config: config);
+    final output = await compressor.compress(param);
+    print("Input size : ${input.sizeInBytes}");
+    print("Output size : ${output.sizeInBytes}");
+    return output;
 
-    var result = await FlutterImageCompress.compressWithFile(
-      file.absolute.path,
+
+  }
+
+  Future<File?> testCompressFile(File file, String fileUuid) async {
+
+
+    var targetFilePath = await localFilePath("resultFile", "jpeg");
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.path,
+      targetFilePath,
       minWidth: 720,
+      format: CompressFormat.jpeg,
       quality: 90,
     );
-    print("final lenght     " + result!.length.toString());
-    return File.fromRawPath(result) ;
+
+
+    if(await result!.exists()){
+      return result;
+    }
+
+    return null;
   }
+
 
   // TODO, refactoring needed
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
-    var f = File(filePath);
-    var l = await f.length();
-    print("init lenght" + l.toString());
-   var res = await  testCompressFile(f,uploadKey!);
+
+    var f1 = await testCompressFile(File(filePath), uploadKey!);
+  // var res = await  compressImage(File(filePath));
 
     try {
       CancelToken cancelToken = CancelToken();
@@ -214,9 +245,9 @@ class FileService {
         });
       } else {
         formData = FormData.fromMap({
-          "file": MultipartFile.fromFileSync(res.path,
+          "file": MultipartFile.fromFile(f1!.path,
               contentType:
-                  MediaType.parse(mime(res.path) ?? "application/octet-stream"),
+                  MediaType.parse(mime(f1.path) ?? "application/octet-stream"),
               )
         });
       }
