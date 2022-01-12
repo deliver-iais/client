@@ -69,6 +69,13 @@ class RoomRepo {
     return uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
   }
 
+  String? fastForwardName(Uid uid) {
+    String? name = roomNameCache.get(uid.asString());
+    if (name != null && name.isNotEmpty && !name.contains("null")) {
+      return name;
+    }
+  }
+
   Future<String> getName(Uid uid) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 

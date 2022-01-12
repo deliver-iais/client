@@ -848,7 +848,11 @@ class _RoomPageState extends State<RoomPage> {
 
   BuildMessageBox buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
       List<PendingMessage> pendingMessages) {
+    final keyId = ms.data?.id;
+    final key = keyId != null ? ValueKey(keyId) : null;
+
     return BuildMessageBox(
+        key: key,
         message: ms.data!,
         currentRoom: currentRoom,
         pendingMessages: pendingMessages,
