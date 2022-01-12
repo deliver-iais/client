@@ -38,7 +38,7 @@ class AvatarRepo {
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: InMemoryStorage(50));
 
-  final Cache<String, String> _avatarFileCache =
+  final Cache<String, String> _avatarFilePathCache =
       LruCache<String, String>(storage: InMemoryStorage(50));
 
   final Cache<String, BehaviorSubject<String>> _avatarCacheBehaviorSubjects =
@@ -150,14 +150,14 @@ class AvatarRepo {
     return uploadAvatar(path, uid);
   }
 
-  String? fastForwardAvatar(Uid userUid) {
+  String? fastForwardAvatarFilePath(Uid userUid) {
     var key = getAvatarCacheKey(userUid);
-    return _avatarFileCache.get(key);
+    return _avatarFilePathCache.get(key);
   }
 
   String getAvatarCacheKey(Uid userUid) => "${userUid.category}-${userUid.node}";
 
-  Stream<String> getLastAvatarStream(Uid userUid, bool forceToUpdate) async* {
+  Stream<String> getLastAvatarFilePathStream(Uid userUid, bool forceToUpdate) async* {
     await fetchAvatar(userUid, forceToUpdate);
     var key = getAvatarCacheKey(userUid);
 
@@ -180,7 +180,7 @@ class AvatarRepo {
         String? path = await _fileRepo.getFile(event.fileId!, event.fileName!,
             thumbnailSize: ThumbnailSize.medium);
         if (path != null) {
-          _avatarFileCache.set(key, path);
+          _avatarFilePathCache.set(key, path);
           bs.sink.add(path);
         }
       }
