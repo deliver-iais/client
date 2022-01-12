@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 
 class DownloadVideoWidget extends StatefulWidget {
   final String uuid;
@@ -26,6 +28,7 @@ class DownloadVideoWidget extends StatefulWidget {
 class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   final _fileServices = GetIt.I.get<FileService>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
@@ -52,26 +55,61 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
     );
   }
 
-  StreamBuilder<double> buildStreamBuilder() {
-    return StreamBuilder<double>(
-      stream: _fileServices.filesProgressBarStatus[widget.uuid],
-      builder: (c, snapshot) {
-        if (snapshot.hasData && snapshot.data != null &&  snapshot.data! > 0 && snapshot.data!<=1) {
-          return CircularPercentIndicator(
-            radius: 40.0,
-            lineWidth: 5.0,
-            backgroundColor: Colors.lightBlue,
-            percent: snapshot.data!,
-            center: const Icon(
-              Icons.download_rounded,
-              color: Colors.lightBlue,
-            ),
-            progressColor: Colors.white,
+  Widget buildStreamBuilder() {
+    return StreamBuilder<bool>(
+      stream: _startDownload.stream,
+      builder: (c, start) {
+        if (start.hasData && start.data != null && start.data!) {
+          return StreamBuilder<double>(
+            stream: _fileServices.filesProgressBarStatus[widget.uuid],
+            builder: (c, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data! > 0 &&
+                  snapshot.data! <= 1) {
+                return CircularPercentIndicator(
+                  radius: 40.0,
+                  lineWidth: 5.0,
+                  backgroundColor: Colors.lightBlue,
+                  percent: snapshot.data!,
+                  center: StreamBuilder<CancelToken?>(
+                    stream: _fileServices.cancelTokens[widget.uuid],
+                    builder: (c, s) {
+                      if (s.hasData && s.data != null) {
+                        return GestureDetector(
+                          child: const Icon(
+                            Icons.cancel,
+                            color: Colors.blue,
+                            size: 40,
+                          ),
+                          onTap: () {
+                            if (s.hasData && s.data != null) {
+                              _startDownload.add(false);
+                              s.data!.cancel();
+                            }
+                          },
+                        );
+                      } else {
+                        return const CircularProgressIndicator(
+                          strokeWidth: 4,
+                        );
+                      }
+                    },
+                  ),
+                  progressColor: Colors.white,
+                );
+              } else {
+                return const CircularProgressIndicator(
+                  strokeWidth: 4,
+                );
+              }
+            },
           );
         } else {
           return MaterialButton(
             color: Theme.of(context).primaryColor,
             onPressed: () {
+              _startDownload.add(true);
               widget.download();
             },
             shape: const CircleBorder(),
