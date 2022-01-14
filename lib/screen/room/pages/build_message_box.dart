@@ -229,7 +229,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             child: GestureDetector(
               child: Padding(
                 padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
-                child: CircleAvatarWidget(message.from.asUid(), 18),
+                child: CircleAvatarWidget(message.from.asUid(), 18, isHeroEnabled: false),
               ),
               onTap: () {
                 _routingServices.openRoom(message.from);

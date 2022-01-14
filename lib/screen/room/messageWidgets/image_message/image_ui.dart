@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -11,6 +10,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -26,7 +26,9 @@ class ImageUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
 
-  const ImageUi(
+  late final file_pb.File image = message.json!.toFile();
+
+  ImageUi(
       {Key? key,
       required this.message,
       required this.maxWidth,
@@ -40,8 +42,13 @@ class ImageUi extends StatefulWidget {
 }
 
 class _ImageUiState extends State<ImageUi> {
-  var fileRepo = GetIt.I.get<FileRepo>();
-  late file_pb.File image;
+  final globalKey = GlobalKey();
+
+  static final fileRepo = GetIt.I.get<FileRepo>();
+  static const radius = Radius.circular(8);
+
+  static const border = BorderRadius.all(radius);
+
   final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
   final _fileServices = GetIt.I.get<FileService>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
@@ -59,9 +66,6 @@ class _ImageUiState extends State<ImageUi> {
   Widget build(BuildContext context) {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
-
-    const radius = Radius.circular(8);
-    const border = BorderRadius.all(radius);
 
     try {
       image = widget.message.json!.toFile();
@@ -286,45 +290,5 @@ class _ImageUiState extends State<ImageUi> {
         height: height,
       );
     }
-  }
-
-  Size getImageDimensions(double width, double height) {
-    double maxWidth = widget.maxWidth;
-    if (width == 0 || height == 0) {
-      width = maxWidth;
-      height = maxWidth;
-    }
-    double aspect = width / height;
-    double w = 0;
-    double h = 0;
-    if (aspect > 1) {
-      w = min(width, maxWidth);
-      h = w / aspect;
-    } else {
-      h = min(height, maxWidth);
-      w = h * aspect;
-    }
-
-    if (w < widget.minWidth) {
-      h = (widget.minWidth / w) * h;
-      w = widget.minWidth;
-    }
-
-    return Size(w, h);
-  }
-
-  _showImageInDesktop(String file) {
-    return showDialog(
-        context: context,
-        builder: (c) {
-          return AlertDialog(
-            backgroundColor: Colors.white12,
-            content: InteractiveViewer(
-                child: Hero(
-                    tag: widget.message.json!.toFile().uuid,
-                    child:
-                        kIsWeb ? Image.network(file) : Image.file(File(file)))),
-          );
-        });
   }
 }

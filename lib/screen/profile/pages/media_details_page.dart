@@ -72,12 +72,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Uid? mediaSender;
   DateTime? createdOn;
   double? duration;
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  var fileServices = GetIt.I.get<FileService>();
+  static final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  final _streamKey = GlobalKey();
 
   final _fileCache = LruCache<String, String>(storage: InMemoryStorage(5));
   final _mediaCache = LruCache<String, Media>(storage: InMemoryStorage(50));
@@ -118,48 +118,52 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildAvatar(BuildContext context) {
-    return StreamBuilder<List<Avatar?>>(
-        stream: _avatarRepo.getAvatar(widget.userUid, false),
-        builder: (cont, snapshot) {
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.blue,
-              ),
-            );
-          } else {
-            _allAvatars = snapshot.data!.reversed.toList();
-            if (_allAvatars.isEmpty) {
-              _routingService.pop();
+    return Hero(
+      tag: widget.heroTag!,
+      child: StreamBuilder<List<Avatar?>>(
+          key: _streamKey,
+          stream:
+              _avatarRepo.getAvatar(widget.userUid, false),
+          builder: (cont, snapshot) {
+            if (!snapshot.hasData || snapshot.data == null) {
               return const Center(
                 child: CircularProgressIndicator(
                   backgroundColor: Colors.blue,
                 ),
               );
+            } else {
+              _allAvatars = snapshot.data!.reversed.toList();
+              if (_allAvatars.isEmpty) {
+                _routingService.pop();
+                return const Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              }
+              return Scaffold(
+                  appBar: buildAppBar(swipePosition, snapshot.data!.length),
+                  body: Swiper(
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (c, i) {
+                        _swipePositionSubject.add(i);
+                        var fileId = _allAvatars[i]!.fileId;
+                        var fileName = _allAvatars[i]!.fileName;
+                        var file = _fileCache.get(fileId!);
+                        if (file != null) {
+                          return buildMediaCenter(context, i, file, fileId);
+                        } else {
+                          return buildFutureMediaBuilder(
+                              fileId, fileName, context, i);
+                        }
+                      },
+                      itemCount: snapshot.data!.length,
+                      viewportFraction: 1.0,
+                      scale: 0.9,
+                      loop: false));
             }
-            return Scaffold(
-                appBar: buildAppBar(swipePosition, snapshot.data!.length),
-                body: Swiper(
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (c, i) {
-                      _swipePositionSubject.add(i);
-                      var fileId = _allAvatars[i]!.fileId;
-                      var fileName = _allAvatars[i]!.fileName;
-                      var file = _fileCache.get(fileId!);
-                      if (file != null) {
-                        return buildMediaCenter(
-                            context, i, file, fileId, "avatar$i");
-                      } else {
-                        return buildFutureMediaBuilder(
-                            fileId, fileName, context, i);
-                      }
-                    },
-                    itemCount: snapshot.data!.length,
-                    viewportFraction: 1.0,
-                    scale: 0.9,
-                    loop: false));
-          }
-        });
+          }),
+    );
   }
 
   Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
@@ -207,7 +211,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       buildMediaProperties(media);
       var mediaFile = _fileCache.get(fileId);
       if (mediaFile != null) {
-        return buildMediaCenter(context, i, mediaFile, fileId, widget.heroTag!);
+        return buildMediaCenter(context, i, mediaFile, fileId);
       } else {
         return buildFutureMediaBuilder(fileId, fileName, context, i);
       }
@@ -223,8 +227,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             snaps.data != null &&
             snaps.connectionState == ConnectionState.done) {
           _fileCache.set(fileId, snaps.data!);
-          return buildMediaCenter(
-              context, i, snaps.data!, fileId, widget.heroTag!);
+          return buildMediaCenter(context, i, snaps.data!, fileId);
         } else {
           return const Center(
             child: CircularProgressIndicator(
@@ -237,7 +240,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Center buildMediaCenter(
-      BuildContext context, int i, String mediaFile, fileId, Object tag) {
+      BuildContext context, int i, String mediaFile, fileId) {
     return Center(
       child: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -245,15 +248,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
-            Hero(
-              tag: tag,
-              child: kIsWeb
-                  ? Image.network(mediaFile)
-                  : Image.file(File(
-                      mediaFile,
-                    )),
-              transitionOnUserGestures: true,
-            ),
+            kIsWeb
+                ? Image.network(mediaFile)
+                : Image.file(File(
+                    mediaFile,
+                  )),
             buildBottomAppBar(mediaSender, createdOn, _senderName, fileId),
           ],
         ),

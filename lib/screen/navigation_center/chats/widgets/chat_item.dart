@@ -78,6 +78,7 @@ class _ChatItemState extends State<ChatItem> {
 
   buildLastMessageWidget(Message lastMessage) {
     return FutureBuilder<String>(
+        initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
         future: _roomRepo.getName(widget.room.uid.asUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data!.isNotEmpty) {
