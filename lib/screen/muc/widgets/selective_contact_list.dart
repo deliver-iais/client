@@ -110,9 +110,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(
                   borderRadius: BorderRadius.circular(8),
-                  onChange: (str) {
-                    filterSearchResults(str);
-                  },
+                  onChange: (str) => filterSearchResults(str),
+                  onCancel: () => filterSearchResults(""),
                   controller: editingController),
             ),
             Expanded(
