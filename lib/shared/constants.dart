@@ -13,7 +13,7 @@ const TEXT="text";
 const JOIN="join";
 const LOGIN="login";
 const VERSION =
-    "1.6.4"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+    "1.6.5"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT = "log_out";
 const double DOWNLOAD_COMPLETE = 200;
 const String TEST_USER_ACCESS_TOKEN =
