@@ -555,6 +555,7 @@ class MucRepo {
             return uidIdName;
           }
         })
+        .where((e) => e.id != null && e.id!.isNotEmpty)
         // TODO better pattern matching maybe be helpful
         .where((e) =>
             query!.isEmpty ||
