@@ -46,7 +46,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final TextEditingController _editingController = TextEditingController();
 
   late file_pb.File _editableFile;
-  String _type = "";
+  String  _type = "";
   final FocusNode _captionFocusNode = FocusNode();
   model.File? _editedFile;
 

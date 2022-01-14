@@ -9,6 +9,7 @@ import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -49,7 +50,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   bool usernameIsAvailable = true;
   bool _userNameCorrect = false;
 
-  final BehaviorSubject<bool> _uploadNewAvatar = BehaviorSubject.seeded(false);
+  final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
   attachFile() async {
     String? path;
@@ -67,7 +68,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         FilePickerResult? result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
-          path = result.files.first.path;
+          path = kIsWeb?Uri.dataFromBytes(result.files.first.bytes!.toList()).toString():result.files.first.path;
         }
       }
 
@@ -135,9 +136,9 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   Future<void> setAvatar(String path) async {
-    _uploadNewAvatar.add(true);
-    await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
-    _uploadNewAvatar.add(false);
+    _newAvatarPath.add(path);
+    await _avatarRepo.uploadAvatar(path, _authRepo.currentUserUid);
+    _newAvatarPath.add("");
   }
 
   @override
@@ -209,27 +210,65 @@ class _AccountSettingsState extends State<AccountSettings> {
                   Section(title: _i18n.get("avatar"), children: [
                     NormalSettingsTitle(
                       child: Center(
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 130,
-                              width: 130,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey[500]!.withOpacity(0.4),
-                              ),
-                              child: IconButton(
-                                color: Colors.white,
-                                splashRadius: 40,
-                                iconSize: 40,
-                                icon: const Icon(
-                                  Icons.add_a_photo,
-                                ),
-                                onPressed: () => attachFile(),
-                              ),
-                            ),
-                          ],
-                        ),
+                        child: StreamBuilder<String>(
+                            stream: _newAvatarPath.stream,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData &&
+                                  snapshot.data != null &&
+                                  snapshot.data!.isNotEmpty) {
+                                return Stack(
+                                  children: [
+                                    Center(
+                                        child: CircleAvatar(
+                                      radius: 60,
+                                      backgroundImage: kIsWeb
+                                          ? Image.network(snapshot.data!).image
+                                          : Image.file(File(snapshot.data!))
+                                              .image,
+                                    )),
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 45),
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 6.0,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                );
+                              }
+                              return Stack(
+                                children: [
+                                  Center(
+                                    child: Container(
+                                        height: 130,
+                                        width: 130,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.grey[500]!
+                                              .withOpacity(0.9),
+                                        ),
+                                        child: CircleAvatarWidget(
+                                            _authRepo.currentUserUid, 130,hideName: true,)),
+                                  ),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 35),
+                                      child: IconButton(
+                                        color: Colors.white,
+                                        splashRadius: 40,
+                                        iconSize: 50,
+                                        icon: const Icon(
+                                          Icons.add_a_photo,
+                                        ),
+                                        onPressed: () => attachFile(),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              );
+                            }),
                       ),
                     )
                   ]),

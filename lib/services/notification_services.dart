@@ -372,7 +372,7 @@ class AndroidNotifier implements Notifier {
     var selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
-    if (la != null) {
+    if (la != null && la.fileId!=null && la.fileName!= null) {
       var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 

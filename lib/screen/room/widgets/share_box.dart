@@ -72,6 +72,7 @@ class _ShareBoxState extends State<ShareBox> {
   @override
   void dispose() {
     _audioPlayer.stop();
+    captionTextController.dispose();
     super.dispose();
   }
 
@@ -143,7 +144,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           scrollController: scrollController,
                                           selectAvatar: false,
                                           pop: () {
-                                            Navigator.of(context);
+                                            Navigator.pop(context);
                                           },
                                           roomUid: widget.currentRoomId,
                                         )

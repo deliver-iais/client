@@ -87,11 +87,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   @override
   Widget build(BuildContext context) {
     return _buildMessageBox(
-        widget.message, widget.currentRoom, widget.pendingMessages);
+        context, widget.message, widget.currentRoom, widget.pendingMessages);
   }
 
-  Widget _buildMessageBox(
-      Message msg, Room? currentRoom, List<PendingMessage> pendingMessages) {
+  Widget _buildMessageBox(BuildContext context, Message msg, Room? currentRoom,
+      List<PendingMessage> pendingMessages) {
     if (msg.type == MessageType.CALL) {
       _callEvent = msg.json!.toCallEvent().newStatus;
       if (_callEvent != CallEvent_CallStatus.BUSY &&
@@ -108,7 +108,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                     (msg.id != null && msg.id == widget.replyMessageId)
                 ? Theme.of(context).disabledColor
                 : Colors.transparent,
-            child: _createWidget(msg, currentRoom, pendingMessages),
+            child: _createWidget(context, msg, currentRoom, pendingMessages),
           )
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -138,8 +138,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           );
   }
 
-  Widget _createWidget(
-      Message message, Room? currentRoom, List pendingMessages) {
+  Widget _createWidget(BuildContext context, Message message, Room? currentRoom,
+      List pendingMessages) {
     if (message.json == "{}") return const SizedBox.shrink();
     Widget messageWidget;
     if (_authRepo.isCurrentUser(message.from)) {
@@ -159,19 +159,20 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             child: messageWidget));
 
     return GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: () {
           if (widget.selectMultiMessageSubject.stream.value) {
             widget.addForwardMessage();
           } else if (!isDesktop()) {
             FocusScope.of(context).unfocus();
-            _showCustomMenu(message, false);
+            _showCustomMenu(context, message, false);
           }
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!widget.selectMultiMessageSubject.stream.value) {
-                  _showCustomMenu(message, false);
+                  _showCustomMenu(context, message, false);
                 }
               },
         onDoubleTap: !isDesktop() ? null : () => widget.onReply,
@@ -240,7 +241,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             child: GestureDetector(
               child: Padding(
                 padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
-                child: CircleAvatarWidget(message.from.asUid(), 18),
+                child: CircleAvatarWidget(message.from.asUid(), 18, isHeroEnabled: false),
               ),
               onTap: () {
                 _routingServices.openRoom(message.from);
@@ -252,7 +253,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  void _showCustomMenu(Message message, bool isPersistentEventMessage) {
+  void _showCustomMenu(
+      BuildContext context, Message message, bool isPersistentEventMessage) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(message,
           hasPermissionInChannel: widget.hasPermissionInChannel.value,

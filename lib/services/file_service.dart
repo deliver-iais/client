@@ -27,9 +27,7 @@ class FileService {
   final _logger = GetIt.I.get<Logger>();
 
   final _dio = Dio();
-  Map<String, BehaviorSubject<double>> filesUploadStatus = {};
-
-  Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
+  Map<String, BehaviorSubject<double>> filesProgressBarStatus = {};
 
   Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
@@ -85,16 +83,17 @@ class FileService {
     return _getFile(uuid, filename);
   }
 
-  Future<String?> _getFile(String uuid, String filename) async {
-    if (filesDownloadStatus[uuid] == null) {
+  Future<String?> _getFile(
+      String uuid, String filename) async {
+    if (filesProgressBarStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
-      filesDownloadStatus[uuid] = d;
+      filesProgressBarStatus[uuid] = d;
     }
     CancelToken cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     try {
       var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-        filesDownloadStatus[uuid]!.add((i / j));
+        filesProgressBarStatus[uuid]!.add((i / j));
       },
           options: Options(responseType: ResponseType.bytes),
           cancelToken: cancelToken);
@@ -147,8 +146,7 @@ class FileService {
       io.File f = io.File('$downloadDir/$name');
       try {
         await f.writeAsBytes(io.File(path).readAsBytesSync());
-      } catch (_) {
-      }
+      } catch (_) {}
     }
   }
 
@@ -165,9 +163,10 @@ class FileService {
     return file.path;
   }
 
-  void initUpoadProgrss(String uploadId) {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject.seeded(0);
-    filesUploadStatus[uploadId] = behaviorSubject;
+  void initProgressBar(String uploadId) {
+    if (filesProgressBarStatus[uploadId] == null) {
+      filesProgressBarStatus[uploadId] = BehaviorSubject.seeded(0);
+    }
   }
 
   // TODO, refactoring needed
@@ -199,11 +198,11 @@ class FileService {
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
           if (sendActivity != null) sendActivity(i);
-          if (filesUploadStatus[uploadKey] == null) {
+          if (filesProgressBarStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
-            filesUploadStatus[uploadKey] = d;
+            filesProgressBarStatus[uploadKey] = d;
           }
-          filesUploadStatus[uploadKey]!.add((i / j));
+          filesProgressBarStatus[uploadKey]!.add((i / j));
         };
         handler.next(options);
       }));

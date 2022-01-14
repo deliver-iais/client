@@ -17,11 +17,13 @@ class LinkPreview extends StatelessWidget {
   final double maxWidth;
   final double maxHeight;
   final bool isProfile;
+  final Color? color;
 
   const LinkPreview(
       {Key? key,
       required this.link,
       required this.maxWidth,
+      this.color,
       this.maxHeight = double.infinity,
       this.isProfile = false})
       : super(key: key);
@@ -72,13 +74,14 @@ class LinkPreview extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          return isProfile
-              ? GestureDetector(
-                  onTap: () async {
-                    await launch(link);
-                  },
-                  child: linkPreviewContent(snapshot.data, context))
-              : linkPreviewContent(snapshot.data, context);
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+                onTap: () async {
+                  await launch(link);
+                },
+                child: linkPreviewContent(snapshot.data, context)),
+          );
         });
   }
 
@@ -88,9 +91,7 @@ class LinkPreview extends StatelessWidget {
         constraints: BoxConstraints(
             minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
         decoration: BoxDecoration(
-            border: Border(
-                left: BorderSide(
-                    width: 2, color: Theme.of(context).primaryColor))),
+            borderRadius: BorderRadius.circular(10), color: color),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -108,11 +108,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Center(
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
-                        child: CircleAvatarWidget(
-                          _authRepo.currentUserUid,
-                          20,
-                          showAsStreamOfAvatar: true,
-                        ),
+                        child: CircleAvatarWidget(_authRepo.currentUserUid, 20),
                       ),
                     ),
                     onTap: () {

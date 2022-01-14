@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -17,13 +16,17 @@ import 'package:rxdart/rxdart.dart';
 class ImageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final double minWidth;
   final bool isSender;
   final bool isSeen;
 
-  const ImageUi(
+  late final file_pb.File image = message.json!.toFile();
+
+  ImageUi(
       {Key? key,
       required this.message,
       required this.maxWidth,
+      required this.minWidth,
       required this.isSender,
       required this.isSeen})
       : super(key: key);
@@ -33,8 +36,13 @@ class ImageUi extends StatefulWidget {
 }
 
 class _ImageUiState extends State<ImageUi> {
-  var fileRepo = GetIt.I.get<FileRepo>();
-  late file_pb.File image;
+  final globalKey = GlobalKey();
+
+  static final fileRepo = GetIt.I.get<FileRepo>();
+  static const radius = Radius.circular(8);
+
+  static const border = BorderRadius.all(radius);
+
   final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
 
   @override
@@ -42,126 +50,111 @@ class _ImageUiState extends State<ImageUi> {
     double width = widget.maxWidth;
     double height = widget.maxWidth;
 
-    const radius = Radius.circular(8);
-    const border = BorderRadius.all(radius);
-
     try {
-      image = widget.message.json!.toFile();
-
-      var dimensions =
-          getImageDimensions(image.width.toDouble(), image.height.toDouble());
-      width = dimensions.width;
-      height = dimensions.height;
-
-      return ClipRRect(
-        borderRadius: border,
-        child: FutureBuilder<String?>(
-            future: fileRepo.getFileIfExist(image.uuid, image.name),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (isDesktop()) {
-                          _showImageInDesktop(s.data!);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return ImageSwiper(
-                                  message: widget.message,
-                                );
-                              },
-                            ),
-                          );
-                        }
-                      },
-                      child: Hero(
-                        tag: image.uuid,
-                        child: kIsWeb
-                            ? Image.network(
-                                s.data!,
-                                width: width,
-                                height: height,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.file(
-                                File(
-                                  s.data!,
-                                ),
-                                width: width,
-                                height: height,
-                                fit: BoxFit.fill,
-                              ),
-                      ),
-                    ),
-                    if (image.caption.isEmpty)
-                      TimeAndSeenStatus(
-                          widget.message, widget.isSender, widget.isSeen,
-                          needsBackground: true)
-                  ],
-                );
-              } else {
-                return GestureDetector(
-                  onTap: () async {
-                    _startDownload.add(true);
-                    await fileRepo.getFile(
-                      image.uuid,
-                      image.name,
-                    );
-                    _startDownload.add(false);
-                    setState(() {});
-                  },
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Stack(
+      return Hero(
+        tag: "${widget.message.id}-${widget.image.uuid}",
+        child: ClipRRect(
+          borderRadius: border,
+          child: Container(
+            constraints: BoxConstraints(
+                minWidth: widget.minWidth,
+                maxWidth: widget.maxWidth,
+                maxHeight: widget.maxWidth),
+            child: FutureBuilder<String?>(
+                key: globalKey,
+                future: fileRepo.getFileIfExist(
+                    widget.image.uuid, widget.image.name),
+                builder: (c, s) {
+                  if (s.hasData && s.data != null) {
+                    return Stack(
+                      fit: StackFit.passthrough,
+                      alignment: Alignment.center,
                       children: [
-                        SizedBox(
-                            width: width,
-                            height: height,
-                            child: BlurHash(hash: image.blurHash)),
-                        Center(
-                          child: StreamBuilder<bool>(
-                            stream: _startDownload.stream,
-                            builder: (c, s) {
-                              if (s.hasData && s.data!) {
-                                return const CircularProgressIndicator(
-                                  strokeWidth: 4,
-                                );
-                              } else {
-                                return MaterialButton(
-                                  color: Theme.of(context).primaryColor,
-                                  onPressed: () async {
-                                    _startDownload.add(true);
-                                    await fileRepo.getFile(
-                                        image.uuid, image.name);
-                                    _startDownload.add(false);
-                                    setState(() {
-
-                                    });
-                                  },
-                                  shape: const CircleBorder(),
-                                  child: const Icon(Icons.arrow_downward),
-                                  padding: const EdgeInsets.all(20),
-                                );
-                              }
-                            },
-                          ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) {
+                                  return ImageSwiper(message: widget.message);
+                                },
+                              ),
+                            );
+                          },
+                          child: kIsWeb
+                              ? Image.network(
+                                  s.data!,
+                                  fit: BoxFit.fill,
+                                )
+                              : Image.file(
+                                  File(s.data!),
+                                  fit: BoxFit.fill,
+                                ),
                         ),
-                        if (image.caption.isEmpty)
+                        if (widget.image.caption.isEmpty)
                           TimeAndSeenStatus(
                               widget.message, widget.isSender, widget.isSeen,
                               needsBackground: true)
                       ],
-                    ),
-                  ),
-                );
-              }
-            }),
+                    );
+                  } else {
+                    return GestureDetector(
+                      onTap: () async {
+                        _startDownload.add(true);
+                        await fileRepo.getFile(
+                          widget.image.uuid,
+                          widget.image.name,
+                        );
+                        _startDownload.add(false);
+                        setState(() {});
+                      },
+                      child: AspectRatio(
+                        aspectRatio: widget.image.width / widget.image.height,
+                        child: Stack(
+                          children: [
+                            BlurHash(
+                              hash: widget.image.blurHash,
+                              imageFit: BoxFit.cover,
+                            ),
+                            Center(
+                              child: StreamBuilder<bool>(
+                                stream: _startDownload.stream,
+                                builder: (c, s) {
+                                  if (s.hasData && s.data!) {
+                                    return const CircularProgressIndicator(
+                                      strokeWidth: 4,
+                                    );
+                                  } else {
+                                    return MaterialButton(
+                                      color: Theme.of(context).primaryColor,
+                                      onPressed: () async {
+                                        _startDownload.add(true);
+                                        await fileRepo.getFile(
+                                            widget.image.uuid,
+                                            widget.image.name);
+                                        _startDownload.add(false);
+                                        setState(() {});
+                                      },
+                                      shape: const CircleBorder(),
+                                      child: const Icon(Icons.arrow_downward),
+                                      padding: const EdgeInsets.all(20),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            if (widget.image.caption.isEmpty)
+                              TimeAndSeenStatus(widget.message, widget.isSender,
+                                  widget.isSeen,
+                                  needsBackground: true)
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                }),
+          ),
+        ),
       );
     } catch (e) {
       return SizedBox(
@@ -169,39 +162,5 @@ class _ImageUiState extends State<ImageUi> {
         height: height,
       );
     }
-  }
-
-  Size getImageDimensions(double width, double height) {
-    double maxWidth = widget.maxWidth;
-    if (width == 0 || height == 0) {
-      width = maxWidth;
-      height = maxWidth;
-    }
-    double aspect = width / height;
-    double w = 0;
-    double h = 0;
-    if (aspect > 1) {
-      w = min(width, maxWidth);
-      h = w / aspect;
-    } else {
-      h = min(height, maxWidth);
-      w = h * aspect;
-    }
-    return Size(w, h);
-  }
-
-  _showImageInDesktop(String file) {
-    return showDialog(
-        context: context,
-        builder: (c) {
-          return AlertDialog(
-            backgroundColor: Colors.white12,
-            content: InteractiveViewer(
-                child: Hero(
-                    tag: widget.message.json!.toFile().uuid,
-                    child:
-                        kIsWeb ? Image.network(file) : Image.file(File(file)))),
-          );
-        });
   }
 }

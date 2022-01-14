@@ -75,6 +75,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                             showCaptionDialog(
                                 roomUid: widget.roomUid,
                                 context: context,
+                                type: result.files.first.path!.split(".").last,
                                 files: result.files
                                     .map((e) => File(e.path!, e.name))
                                     .toList());

@@ -77,8 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               },
                               child: CircleAvatarWidget(
                                 _authRepo.currentUserUid,
-                                35,
-                                showAsStreamOfAvatar: true,
+                                35
                               )),
                           const SizedBox(width: 10),
                           Expanded(

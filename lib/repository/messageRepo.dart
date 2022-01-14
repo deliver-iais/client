@@ -622,8 +622,10 @@ class MessageRepo {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
           case SendingStatus.SENDING_FILE:
-            await _sendFileToServerOfPendingMessage(pendingMessage);
-            await _sendMessageToServer(pendingMessage);
+            var pm = await _sendFileToServerOfPendingMessage(pendingMessage);
+            if(pm!=null) {
+              await _sendMessageToServer(pm);
+            }
             break;
           case SendingStatus.PENDING:
             await _sendMessageToServer(pendingMessage);

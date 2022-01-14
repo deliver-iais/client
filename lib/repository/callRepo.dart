@@ -13,6 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -165,10 +166,10 @@ class CallRepo {
         {'url': STUN_SERVER_URL},
         {'url': STUN_SERVER_URL_2},
         {
-           'url': TURN_SERVER_URL,
-           'username': TURN_SERVER_USERNAME,
-           'credential': TURN_SERVER_PASSWORD
-         },
+          'url': TURN_SERVER_URL,
+          'username': TURN_SERVER_USERNAME,
+          'credential': TURN_SERVER_PASSWORD
+        },
         {
           'url': TURN_SERVER_URL_2,
           'username': TURN_SERVER_USERNAME_2,
@@ -194,8 +195,7 @@ class CallRepo {
 
     _localStream = await _getUserMedia();
 
-    RTCPeerConnection pc =
-        await createPeerConnection(_iceServers, _config);
+    RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isWindows()) {
@@ -369,14 +369,16 @@ class CallRepo {
     return pc;
   }
 
-  void _startCallTimerAndChangeStatus() {
-    if(!isVideo)startCallTimer();
+  void _startCallTimerAndChangeStatus() async{
+    if (isAndroid()) {
+      await startForegroundService();
+    }
+    if (!isVideo) startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
     }
-    if(_isDCRecived) {
-      _dataChannel!
-          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
+    if (_isDCRecived) {
+      _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
@@ -428,7 +430,7 @@ class CallRepo {
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
           callingStatus.add(CallStatus.CONNECTED);
-          if(!isVideo)startCallTimer();
+          if (!isVideo) startCallTimer();
           break;
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);
@@ -452,9 +454,9 @@ class CallRepo {
                   'minWidth': '640',
                   'maxWidth': '720',
                   'minHeight': '360',
-                  'maxHeight': '405',
-                  'minFrameRate': '15',
-                  'maxFrameRate': '25',
+                  'maxHeight': '480',
+                  'minFrameRate': '20',
+                  'maxFrameRate': '30',
                 },
                 'facingMode': 'user',
                 'optional': [],
@@ -472,10 +474,10 @@ class CallRepo {
                 'mandatory': {
                   'minWidth': '480',
                   'maxWidth': '640',
-                  'minHeight': '270',
-                  'maxHeight': '360',
-                  'minFrameRate': '15',
-                  'maxFrameRate': '25',
+                  'minHeight': '320',
+                  'maxHeight': '480',
+                  'minFrameRate': '20',
+                  'maxFrameRate': '30',
                 },
                 'facingMode': 'user',
                 'optional': [],
@@ -522,6 +524,33 @@ class CallRepo {
     }
   }
 
+  startForegroundService() async {
+    await FlutterForegroundPlugin.setServiceMethodInterval(seconds: 5);
+    //await FlutterForegroundPlugin.setServiceMethod(globalForegroundService);
+    await FlutterForegroundPlugin.startForegroundService(
+      holdWakeLock: false,
+      onStarted: () {
+        print("Foreground on Started");
+      },
+      onStopped: () {
+        print("Foreground on Stopped");
+      },
+      title: "Deliver",
+      content: "Deliver sharing your screen.",
+      iconName: "ic_stat_mobile_screen_share",
+    );
+    return true;
+  }
+
+  stopForegroundService() async {
+    await FlutterForegroundPlugin.stopForegroundService();
+    return true;
+  }
+
+  void globalForegroundService() {
+    debugPrint("current datetime is ${DateTime.now()}");
+  }
+
   Future<void> initializeBackGroundService() async {
     final service = FlutterBackgroundService();
     await service.configure(
@@ -544,6 +573,16 @@ class CallRepo {
         onBackground: onIosBackground,
       ),
     );
+  }
+
+  stopBackGroundService() async {
+    final service = FlutterBackgroundService();
+    var isRunning = await service.isServiceRunning();
+    if (isRunning) {
+      service.sendData(
+        {"action": "stopService"},
+      );
+    }
   }
 
   // to ensure this executed
@@ -874,12 +913,15 @@ class CallRepo {
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
-     for (var candidate in candidates) {
+    for (var candidate in candidates) {
       await _peerConnection!.addCandidate(candidate);
-     }
+    }
   }
 
   _dispose() async {
+    if (isAndroid()) {
+      await stopForegroundService();
+    }
     if (timer != null) {
       _logger.i("timer canceled");
       timer!.cancel();

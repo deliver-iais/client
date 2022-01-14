@@ -1,4 +1,3 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/box/message_type.dart';
@@ -20,6 +19,7 @@ import 'package:deliver/screen/room/widgets/share_private_data_request_message_w
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +29,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class BoxContent extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final double minWidth;
   final bool isSender;
   final Function scrollToMessage;
   final bool isSeen;
@@ -40,6 +41,7 @@ class BoxContent extends StatefulWidget {
       {Key? key,
       required this.message,
       required this.maxWidth,
+      required this.minWidth,
       required this.isSender,
       required this.isSeen,
       this.pattern,
@@ -55,7 +57,6 @@ class BoxContent extends StatefulWidget {
 class _BoxContentState extends State<BoxContent> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
-  final I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +70,7 @@ class _BoxContentState extends State<BoxContent> {
                 !widget.isSender)
               senderNameBox(),
             if (hasReply()) replyToIdBox(),
-            if (widget.message.forwardedFrom != null &&
-                widget.message.forwardedFrom!.length > 3)
+            if (isForwarded())
               forwardedFromBox(),
             messageBox()
           ],
@@ -89,6 +89,8 @@ class _BoxContentState extends State<BoxContent> {
         child: ReplyBrief(
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
+          maxWidth: widget.minWidth,
+          color: messageExtraContentColor(widget.isSender, context),
         ),
       ),
     );
@@ -120,9 +122,16 @@ class _BoxContentState extends State<BoxContent> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        child: Text(
-          name.trim(),
-          style: Theme.of(context).primaryTextTheme.bodyText2,
+        child: Container(
+          constraints:
+              BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
+          child: Text(
+            name.trim(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: Theme.of(context).primaryTextTheme.bodyText2,
+          ),
         ),
         onTap: () {
           _routingServices.openRoom(widget.message.from);
@@ -133,26 +142,46 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget forwardedFromBox() {
     return Container(
-      padding: const EdgeInsets.all(4),
+      margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
+      padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
+      constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).buttonTheme.colorScheme?.primary,
+      ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return GestureDetector(
-              child: Text("${_i18n.get("Forwarded_From")} ${snapshot.data}",
-                  style: TextStyle(
-                      color: ExtraTheme.of(context).messageDetails,
-                      fontSize: 13)),
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.keyboard_arrow_right_rounded,
+                      size: 15,
+                      color:
+                          Theme.of(context).buttonTheme.colorScheme?.onPrimary),
+                  Flexible(
+                    child: Text(snapshot.data ?? "",
+                        softWrap: false,
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .buttonTheme
+                                .colorScheme
+                                ?.onPrimary,
+                            fontSize: 12)),
+                  ),
+                ],
+              ),
               onTap: () {
                 _routingServices.openRoom(widget.message.forwardedFrom!);
               },
-            );
-          } else {
-            return Text("${_i18n.get("Forwarded_From")} Unknown",
-                style: TextStyle(
-                    color: ExtraTheme.of(context).messageDetails,
-                    fontSize: 13));
-          }
+            ),
+          );
         },
       ),
     );
@@ -171,7 +200,7 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: hasReply() ? 200 : 0,
+          minWidth: widget.minWidth,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           searchTerm: widget.pattern,
@@ -183,6 +212,7 @@ class _BoxContentState extends State<BoxContent> {
         return FileMessageUi(
           message: widget.message,
           maxWidth: widget.maxWidth,
+          minWidth: widget.minWidth,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
         );
@@ -253,5 +283,9 @@ class _BoxContentState extends State<BoxContent> {
     return widget.message.to.asUid().category != Categories.BOT &&
         widget.message.replyToId != null &&
         widget.message.replyToId! > 0;
+  }
+
+  bool isForwarded() {
+    return (widget.message.forwardedFrom?.length ?? 0) > 3;
   }
 }
