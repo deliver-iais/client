@@ -181,58 +181,81 @@ class FileService {
       filesProgressBarStatus[uploadId] = BehaviorSubject.seeded(0);
     }
   }
-  Future<ImageFile> compressImage(File file)async{
-    var bytes = await file.readAsBytes();
-    var path = await localFilePath("dsfjdsfds", "png");
-    ImageFile input = ImageFile(filePath: path, rawBytes: bytes); // set the input image file
-    Configuration config = const Configuration(
-      outputType: ImageOutputType.png,
-      // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
-      useJpgPngNativeCompressor: false,
-      // set quality between 0-100
-      quality: 80,
-    );
 
-    final param = ImageFileConfiguration(input: input, config: config);
-    final output = await compressor.compress(param);
-    print("Input size : ${input.sizeInBytes}");
-    print("Output size : ${output.sizeInBytes}");
-    return output;
+  Future<String> compressImageInDesktop(File file) async {
+    try {
+      if (await file.length() < 500000) {
+        return file.path;
+      }
+      var bytes = await file.readAsBytes();
+      ImageFile input = ImageFile(
+          filePath: file.path, rawBytes: bytes); // set the input image file
+      Configuration config = const Configuration(
+        outputType: ImageOutputType.jpg,
+        // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
+        useJpgPngNativeCompressor: false,
+        // set quality between 0-100
+        quality: 80,
+      );
 
-
-  }
-
-  Future<File?> testCompressFile(File file, String fileUuid) async {
-
-
-    var targetFilePath = await localFilePath("resultFile", "jpeg");
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.path,
-      targetFilePath,
-      minWidth: 720,
-      format: CompressFormat.jpeg,
-      quality: 90,
-    );
-
-
-    if(await result!.exists()){
-      return result;
+      final param = ImageFileConfiguration(input: input, config: config);
+      final output = await compressor.compress(param);
+      return output.filePath;
+    } catch (_) {
+      return file.path;
     }
-
-    return null;
   }
 
+  Future<String> compressImageInMobile(
+    File file,
+  ) async {
+    try {
+      if (await file.length() < 500000) {
+        return file.path;
+      }
+      var name = DateTime.now().millisecondsSinceEpoch.toString();
+      var targetFilePath = await localFilePath(name, "jpeg");
+      var result = await FlutterImageCompress.compressAndGetFile(
+        file.path,
+        targetFilePath,
+        minWidth: 480,
+        format: CompressFormat.jpeg,
+        quality: 80,
+      );
+      if (result != null) {
+        return result.path;
+      }
+      return file.path;
+    } catch (_) {
+      return file.path;
+    }
+  }
 
   // TODO, refactoring needed
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
-
-    var f1 = await testCompressFile(File(filePath), uploadKey!);
-  // var res = await  compressImage(File(filePath));
-
     try {
+      if (!kIsWeb) {
+        try {
+          if (MediaType.parse(mime(filePath) ?? filePath)
+              .toString()
+              .contains("image")) {
+            if (isAndroid()) {
+              var compressedImagePath =
+                  await compressImageInMobile(File(filePath));
+              filePath = compressedImagePath;
+            } else {
+              var compressedImagePath =
+                  await compressImageInDesktop(File(filePath));
+              filePath = compressedImagePath;
+            }
+          }
+        } catch (_) {
+          _logger.e(_);
+        }
+      }
       CancelToken cancelToken = CancelToken();
-      cancelTokens[uploadKey] = BehaviorSubject.seeded(cancelToken);
+      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
       if (kIsWeb) {
         http.Response r = await http.get(
@@ -245,10 +268,11 @@ class FileService {
         });
       } else {
         formData = FormData.fromMap({
-          "file": MultipartFile.fromFile(f1!.path,
-              contentType:
-                  MediaType.parse(mime(f1.path) ?? "application/octet-stream"),
-              )
+          "file": MultipartFile.fromFileSync(
+            filePath,
+            contentType:
+                MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+          )
         });
       }
 
