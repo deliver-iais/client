@@ -5,10 +5,10 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 
-class HeaderDetails extends StatelessWidget {
+class FileDetails extends StatelessWidget {
   final File file;
 
-  const HeaderDetails({Key? key, required this.file}) : super(key: key);
+  const FileDetails({Key? key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +17,10 @@ class HeaderDetails extends StatelessWidget {
             audio: file,
             audioUuid: file.uuid,
           )
-        : Padding(
-            padding: const EdgeInsets.only(top: 26.0, left: 20),
-            child: Text(
-              sizeFormatter(file.size.toInt()) + " " + findFileType(file.name),
-              style: TextStyle(
-                  fontSize: 10, color: ExtraTheme.of(context).textMessage),
-            ),
-          );
+        : Text(
+          sizeFormatter(file.size.toInt()) + " " + findFileType(file.name),
+          style: TextStyle(
+              fontSize: 10, color: ExtraTheme.of(context).textMessage),
+        );
   }
 }
