@@ -20,54 +20,46 @@ class AudioPlayProgress extends StatelessWidget {
     return StreamBuilder<bool>(
         stream: _audioPlayerService.audioCenterIsOn,
         builder: (context, snapshot) {
-          return Stack(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 3.0),
-                child: StreamBuilder<AudioPlayerState>(
-                    stream: _audioPlayerService.audioCurrentState(),
-                    builder: (c, state) {
-                      if (state.data != null &&
-                          (state.data == AudioPlayerState.PLAYING ||
-                              state.data == AudioPlayerState.PAUSED)) {
-                        return StreamBuilder(
-                            stream: _audioPlayerService.audioUuid,
-                            builder: (c, uuid) {
-                              if (uuid.hasData &&
-                                  uuid.data.toString().isNotEmpty &&
-                                  uuid.data.toString().contains(audioUuid)) {
-                                return AudioProgressIndicator(
-                                  duration: audio.duration,
-                                  audioUuid: audioUuid,
-                                );
-                              } else {
-                                return buildPadding(context);
-                              }
-                            });
-                      } else {
-                        return buildPadding(context);
-                      }
-                    }),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, top: 44),
-                child: TimeProgressIndicator(
-                  audioUuid: audioUuid,
-                  duration: audio.duration,
-                ),
+              StreamBuilder<AudioPlayerState>(
+                  stream: _audioPlayerService.audioCurrentState(),
+                  builder: (c, state) {
+                    if (state.data != null &&
+                        (state.data == AudioPlayerState.PLAYING ||
+                            state.data == AudioPlayerState.PAUSED)) {
+                      return StreamBuilder(
+                          stream: _audioPlayerService.audioUuid,
+                          builder: (c, uuid) {
+                            if (uuid.hasData &&
+                                uuid.data.toString().isNotEmpty &&
+                                uuid.data.toString().contains(audioUuid)) {
+                              return AudioProgressIndicator(
+                                duration: audio.duration,
+                                audioUuid: audioUuid,
+                              );
+                            } else {
+                              return buildPadding(context);
+                            }
+                          });
+                    } else {
+                      return buildPadding(context);
+                    }
+                  }),
+              TimeProgressIndicator(
+                audioUuid: audioUuid,
+                duration: audio.duration,
               ),
             ],
           );
         });
   }
 
-  Padding buildPadding(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 26.0, left: 20),
-      child: Text(
-        sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
-        style: TextStyle(fontSize: 10, color: ExtraTheme.of(context).textField),
-      ),
+  Widget buildPadding(BuildContext context) {
+    return Text(
+      sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
+      style: TextStyle(fontSize: 10, color: ExtraTheme.of(context).textField),
     );
   }
 }
