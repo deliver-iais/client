@@ -346,7 +346,7 @@ class _RoomPageState extends State<RoomPage> {
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
       var msg = await _getMessage(
-          event, widget.roomId, _currentRoom.value!.lastMessageId!,
+          event, widget.roomId, _currentRoom.value!.lastMessageId,
           lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
 
       if (msg == null) return;
@@ -359,19 +359,21 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-  Future<Message?> _getMessage(int id, String roomId, int lastMessageId,
+  Future<Message?> _getMessage(int id, String roomId, int? lastMessageId,
       {int? lastUpdatedMessageId}) async {
-    var msg = _messageCache.get(id);
-    if (msg != null && id != lastUpdatedMessageId) {
-      return msg;
+    if (lastMessageId != null) {
+      var msg = _messageCache.get(id);
+      if (msg != null && id != lastUpdatedMessageId) {
+        return msg;
+      }
+      int page = (id / PAGE_SIZE).floor();
+      List<Message?> messages = await _messageRepo
+          .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
+      for (int i = 0; i < messages.length; i = i + 1) {
+        _messageCache.set(messages[i]!.id!, messages[i]!);
+      }
+      return _messageCache.get(id);
     }
-    int page = (id / PAGE_SIZE).floor();
-    List<Message?> messages = await _messageRepo
-        .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
-    for (int i = 0; i < messages.length; i = i + 1) {
-      _messageCache.set(messages[i]!.id!, messages[i]!);
-    }
-    return _messageCache.get(id);
   }
 
   void _resetRoomPageDetails() {
@@ -608,11 +610,39 @@ class _RoomPageState extends State<RoomPage> {
                         //   searchMessage(controller.text, checkSearchResult);
                       });
                 } else {
-                  return _routingService.backButtonLeading(
-                    back: () {
-                      // _notificationServices.reset("\t");
-                    },
-                  );
+                  return StreamBuilder<bool>(
+                      stream: _selectMultiMessageSubject.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!) {
+                          return Row(
+                            children: [
+                              IconButton(
+                                  color: Theme.of(context).primaryColor,
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    size: 25,
+                                  ),
+                                  onPressed: () {
+                                    onDelete();
+                                  }),
+                              Text(
+                                _selectedMessages.length.toString(),
+                                style: TextStyle(
+                                    color: ExtraTheme.of(context).textField,
+                                    fontSize: 14),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return _routingService.backButtonLeading(
+                            back: () {
+                              // _notificationServices.reset("\t");
+                            },
+                          );
+                        }
+                      });
                 }
               }),
         ),
@@ -922,68 +952,45 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _selectMultiMessageAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Tooltip(
-          message: _i18n.get("cancel"),
-          child: Badge(
-            animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
-            badgeContent: Text(_selectedMessages.length.toString()),
-            animationDuration: const Duration(milliseconds: 125),
-            child: IconButton(
-                color: Theme.of(context).primaryColor,
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  onDelete();
-                }),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Tooltip(
-          message: _i18n.get("forward"),
-          child: Badge(
-            animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
-            badgeContent: Text(_selectedMessages.length.toString()),
-            animationDuration: const Duration(milliseconds: 125),
-            child: IconButton(
-                color: Theme.of(context).primaryColor,
-                icon: const Icon(
-                  Icons.arrow_forward,
-                  size: 30,
-                ),
-                onPressed: () {
-                  _routingService.openSelectForwardMessage(
-                      forwardedMessages: _selectedMessages.values.toList());
-                  _selectedMessages.clear();
-                }),
-          ),
-        ),
-        Tooltip(
-          message: _i18n.get("delete"),
-          child: Badge(
-            animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
-            badgeContent: Text(_selectedMessages.length.toString()),
-            animationDuration: const Duration(milliseconds: 125),
-            child: IconButton(
-                color: Theme.of(context).primaryColor,
-                icon: const Icon(
-                  Icons.delete,
-                  size: 30,
-                ),
-                onPressed: () {
-                  showDeleteMsgDialog(
-                      _selectedMessages.values.toList(), context, () {
-                    onDelete();
-                  }, _currentRoom.value!.lastMessageId);
-                  _selectedMessages.clear();
-                }),
-          ),
-        )
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(right: 12, top: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Tooltip(
+              message: _i18n.get("forward"),
+              child: IconButton(
+                  color: Theme.of(context).primaryColor,
+                  icon: const Icon(
+                    Icons.forward,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    _routingService.openSelectForwardMessage(
+                        forwardedMessages: _selectedMessages.values.toList());
+                    _selectedMessages.clear();
+                  })),
+          if (!widget.roomId.isMuc() ||
+              _hasPermissionInGroup.value ||
+              (widget.roomId.isChannel() && _hasPermissionInChannel.value))
+            Tooltip(
+              message: _i18n.get("delete"),
+              child: IconButton(
+                  color: Theme.of(context).primaryColor,
+                  icon: const Icon(
+                    Icons.delete,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    showDeleteMsgDialog(
+                        _selectedMessages.values.toList(), context, () {
+                      onDelete();
+                    }, _currentRoom.value!.lastMessageId);
+                    _selectedMessages.clear();
+                  }),
+            )
+        ],
+      ),
     );
   }
 

@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktoasts
   desktop_drop
   desktop_window
+  image_compression_flutter
   url_launcher_windows
   window_size
 )
