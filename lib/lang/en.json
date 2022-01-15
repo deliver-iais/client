@@ -280,6 +280,7 @@
   "other": "Other",
   "choose_other_files": "ُSelect other files...",
   "error" : "Error",
+  "error_in_uploading" : "Error in uploading...",
   "cant sent": "Cant sent"
 
 }
