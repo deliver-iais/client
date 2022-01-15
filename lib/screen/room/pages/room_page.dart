@@ -346,7 +346,7 @@ class _RoomPageState extends State<RoomPage> {
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
       var msg = await _getMessage(
-          event, widget.roomId, _currentRoom.value!.lastMessageId!,
+          event, widget.roomId, _currentRoom.value!.lastMessageId,
           lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
 
       if (msg == null) return;
@@ -359,19 +359,21 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-  Future<Message?> _getMessage(int id, String roomId, int lastMessageId,
+  Future<Message?> _getMessage(int id, String roomId, int? lastMessageId,
       {int? lastUpdatedMessageId}) async {
-    var msg = _messageCache.get(id);
-    if (msg != null && id != lastUpdatedMessageId) {
-      return msg;
+    if (lastMessageId != null) {
+      var msg = _messageCache.get(id);
+      if (msg != null && id != lastUpdatedMessageId) {
+        return msg;
+      }
+      int page = (id / PAGE_SIZE).floor();
+      List<Message?> messages = await _messageRepo
+          .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
+      for (int i = 0; i < messages.length; i = i + 1) {
+        _messageCache.set(messages[i]!.id!, messages[i]!);
+      }
+      return _messageCache.get(id);
     }
-    int page = (id / PAGE_SIZE).floor();
-    List<Message?> messages = await _messageRepo
-        .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
-    for (int i = 0; i < messages.length; i = i + 1) {
-      _messageCache.set(messages[i]!.id!, messages[i]!);
-    }
-    return _messageCache.get(id);
   }
 
   void _resetRoomPageDetails() {
