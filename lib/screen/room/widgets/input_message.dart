@@ -551,8 +551,11 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onMentionSelected(s) {
-    int start = _textSelection.base.offset;
+    int start = _textSelection.baseOffset;
+
     String block_1 = widget.textController.text.substring(0, start);
+    int indexOf = block_1.lastIndexOf("@");
+    block_1 = block_1.substring(0, indexOf+1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;
