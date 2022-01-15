@@ -229,7 +229,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             child: GestureDetector(
               child: Padding(
                 padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
-                child: CircleAvatarWidget(message.from.asUid(), 18, isHeroEnabled: false),
+                child: CircleAvatarWidget(message.from.asUid(), 18,
+                    isHeroEnabled: false),
               ),
               onTap: () {
                 _routingServices.openRoom(message.from);
@@ -243,18 +244,22 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   void _showCustomMenu(
       BuildContext context, Message message, bool isPersistentEventMessage) {
-    this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
-      OperationOnMessageEntry(message,
-          hasPermissionInChannel: widget.hasPermissionInChannel.value,
-          hasPermissionInGroup: widget.hasPermissionInGroup,
-          isPinned: widget.pinMessages.contains(message),
-          roomLastMessageId: widget.currentRoom.lastMessageId!,
-          onDelete: () => widget.onDelete(),
-          onEdit: () => widget.onEdit(),
-          onPin: () => widget.onPin(),
-          onUnPin: () => widget.onUnPin(),
-          onReply: () => widget.addReplyMessage())
-    ]);
+    this.showMenu(
+        color: Theme.of(context).backgroundColor,
+        context: context,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        items: <PopupMenuEntry<OperationOnMessage>>[
+          OperationOnMessageEntry(message,
+              hasPermissionInChannel: widget.hasPermissionInChannel.value,
+              hasPermissionInGroup: widget.hasPermissionInGroup,
+              isPinned: widget.pinMessages.contains(message),
+              roomLastMessageId: widget.currentRoom.lastMessageId!,
+              onDelete: () => widget.onDelete(),
+              onEdit: () => widget.onEdit(),
+              onPin: () => widget.onPin(),
+              onUnPin: () => widget.onUnPin(),
+              onReply: () => widget.addReplyMessage())
+        ]);
   }
 
   _scrollToMessage({required int id}) {

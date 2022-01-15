@@ -243,14 +243,17 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return TextButtonTheme(
+      data: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          primary: Colors.blueGrey[900],
+        ),
+      ),
       child: Column(
         children: [
           if (widget.hasPermissionInChannel && widget.message.id != null)
             TextButton(
-                onPressed: () {
-                  onReply();
-                },
+                onPressed: onReply,
                 child: Row(children: [
                   const Icon(
                     Icons.reply,
@@ -265,9 +268,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   widget.hasPermissionInChannel))
             if (!widget.isPinned)
               TextButton(
-                  onPressed: () {
-                    onPinMessage();
-                  },
+                  onPressed: onPinMessage,
                   child: Row(children: [
                     const Icon(
                       Icons.push_pin,
@@ -278,9 +279,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   ]))
             else
               TextButton(
-                  onPressed: () {
-                    onUnPinMessage();
-                  },
+                  onPressed: onUnPinMessage,
                   child: Row(children: [
                     const Icon(
                       Icons.remove,
@@ -293,15 +292,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               (widget.message.type == MessageType.FILE &&
                   widget.message.json!.toFile().caption.isNotEmpty))
             TextButton(
-                onPressed: () {
-                  onCopy();
-                },
+                onPressed: onCopy,
                 child: Row(children: [
                   const Icon(
                     Icons.content_copy,
-                    size: 20,
+                    size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Text(_i18n.get("copy")),
                 ])),
           if (widget.message.type == MessageType.FILE)
@@ -354,9 +351,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   if (s.hasData && s.data!) {
                     _fileIsExist.add(true);
                     return TextButton(
-                        onPressed: () {
-                          onShare();
-                        },
+                        onPressed: onShare,
                         child: Row(children: [
                           const Icon(
                             Icons.share,
@@ -371,9 +366,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }),
           if (widget.message.roomUid.isMuc())
             TextButton(
-                onPressed: () {
-                  onReportMessage();
-                },
+                onPressed: onReportMessage,
                 child: Row(children: [
                   const Icon(
                     Icons.report,
@@ -385,12 +378,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (widget.message.id != null &&
               widget.message.type != MessageType.PERSISTENT_EVENT)
             TextButton(
-                onPressed: () {
-                  onForward();
-                },
+                onPressed: onForward,
                 child: Row(children: [
                   const Icon(
-                    Icons.forward,
+                    Icons.forward_outlined,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -404,9 +395,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       snapshot.data != null &&
                       snapshot.data!.failed) {
                     return TextButton(
-                        onPressed: () {
-                          onResend();
-                        },
+                        onPressed: onResend,
                         child: Row(children: [
                           const Icon(
                             Icons.refresh,
@@ -440,15 +429,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               _autRepo.isCurrentUserSender(widget.message) &&
               checkMessageTime(widget.message))
             TextButton(
-                onPressed: () {
-                  onEditMessage();
-                },
+                onPressed: onEditMessage,
                 child: Row(children: [
                   const Icon(
-                    Icons.edit,
-                    size: 20,
+                    Icons.edit_outlined,
+                    size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Text(_i18n.get("edit")),
                 ])),
           if (isDesktop() && widget.message.type == MessageType.FILE)
@@ -459,9 +446,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 builder: (c, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return TextButton(
-                        onPressed: () async {
-                          await onShowInFolder(snapshot, context);
-                        },
+                        onPressed: () async =>
+                            await onShowInFolder(snapshot, context),
                         child: Row(children: [
                           const Icon(
                             Icons.folder_open_rounded,
@@ -488,10 +474,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         },
         child: Row(children: [
           const Icon(
-            Icons.delete,
-            size: 20,
+            Icons.delete_outline_rounded,
+            size: 21,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 7),
           Text(_i18n.get("delete")),
         ]));
   }

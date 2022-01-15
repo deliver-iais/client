@@ -63,6 +63,7 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
     sentMessageBox: const Color(0xFF0674A1),
+    sentMessageBoxForeground: primary,
     receivedMessageBox: const Color(0xFF182731),
     textMessage: Colors.white,
     messageDetails: const Color(0xFF00396C),

@@ -7,6 +7,7 @@ class ExtraThemeData {
   Color menuIconButton;
   Color chatOrContactItemDetails;
   Color sentMessageBox;
+  Color sentMessageBoxForeground;
   Color receivedMessageBox;
   Color persistentEventMessage;
   Color seenStatus; //green white
@@ -20,7 +21,7 @@ class ExtraThemeData {
   Color username; // primary
   Color textMessage; // -> normal
   Color textField; //green white -> normal
-  Color textDetails; //light green - blue -> accent
+  Color textDetails;
 
   ExtraThemeData(
       {required this.centerPageDetails,
@@ -40,7 +41,7 @@ class ExtraThemeData {
       required this.fileMessageDetails,
       required this.textField,
       required this.inputBoxBackground,
-      required this.fileSharingDetails});
+      required this.fileSharingDetails, required this.sentMessageBoxForeground});
 }
 
 class ExtraTheme extends InheritedWidget {
