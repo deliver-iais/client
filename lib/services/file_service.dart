@@ -195,7 +195,7 @@ class FileService {
         // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
         useJpgPngNativeCompressor: false,
         // set quality between 0-100
-        quality: 80,
+        quality: 70,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
@@ -210,7 +210,7 @@ class FileService {
     File file,
   ) async {
     try {
-      if (await file.length() < 500000) {
+      if (await file.length() < 300000) {
         return file.path;
       }
       var name = DateTime.now().millisecondsSinceEpoch.toString();
@@ -220,7 +220,7 @@ class FileService {
         targetFilePath,
         minWidth: 480,
         format: CompressFormat.jpeg,
-        quality: 80,
+        quality: 70,
       );
       if (result != null) {
         return result.path;
@@ -247,7 +247,9 @@ class FileService {
             } else {
               var compressedImagePath =
                   await compressImageInDesktop(File(filePath));
-              filePath = compressedImagePath;
+              if (compressedImagePath.isNotEmpty) {
+                filePath = compressedImagePath;
+              }
             }
           }
         } catch (_) {
