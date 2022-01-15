@@ -286,5 +286,7 @@
   "report_message": "از گزارش  شما متشکریم",
   "bot_not_responding": "جوابی از بات دریافت نشده است.",
   "other": "متفرقه",
-  "choose_other_files": "انتخاب دیگر فایل ها ..."
+  "choose_other_files": "انتخاب دیگر فایل ها ...",
+  "error" : "ارور",
+  "cant sent": "را نمیتوان ارسال کرد"
 }

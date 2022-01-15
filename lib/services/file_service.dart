@@ -212,4 +212,31 @@ class FileService {
       return null;
     }
   }
+
+  bool isFileFormatAccepted(String format) {
+    return format == "doc" ||
+        format == "pdf" ||
+        format == "svg" ||
+        format == "csv" ||
+        format == "xls" ||
+        format == "txt" ||
+        format == "jpg" ||
+        format == "jpeg" ||
+        format == "png" ||
+        format == "txt" ||
+        format == "rar" ||
+        format == "zip" ||
+        format == "mp3" ||
+        format == "mp4" ||
+        format == "m4a" ||
+        format == "ogg" ||
+        format == "xml" ||
+        format == "pptx" ||
+        format == "docx" ||
+        format == "xlsm" ||
+        format == "xlsx" ||
+        format == "crt" ||
+        format == "tgs" ||
+        format == "apk";
+  }
 }

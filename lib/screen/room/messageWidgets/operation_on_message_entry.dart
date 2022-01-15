@@ -222,7 +222,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     if (isWindows()) {
       await shell.run('start "" "${snapshot.data.parent.path}"');
     } else if (isLinux()) {
-      await shell.run('nautilus ${snapshot.data.path}');
+      await shell.run('nautilus ${snapshot.data}');
     } else if (isMacOS()) {
       await shell.run('open ${snapshot.data.parent.path}');
     }
