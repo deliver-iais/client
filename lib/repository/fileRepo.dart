@@ -41,7 +41,10 @@ class FileRepo {
       value = await _fileService.uploadFile(clonedFilePath!.path!, name,
           uploadKey: uploadKey, sendActivity: sendActivity);
     } on DioError catch (e) {
-      _logger.i(e);
+      if (e.response != null) {
+        uploadFileStatusCode[uploadKey]!.add(e.response!.statusCode);
+      }
+      _logger.e(e);
     }
     if (value != null) {
       var json = jsonDecode(value.toString());
