@@ -117,7 +117,6 @@ class _RoomPageState extends State<RoomPage> {
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
-  final _mucOwnerOrAdminStream = BehaviorSubject.seeded(false);
   final _inputMessageTextController = TextEditingController();
   final _inputMessageFocusNode = FocusNode();
 
