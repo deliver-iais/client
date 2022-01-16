@@ -146,83 +146,93 @@ class _RoomPageState extends State<RoomPage> {
                   builder: (context, snapshot) {
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
-              Column(
-                children: <Widget>[
-                  pinMessageWidget(),
-                  Expanded(
-                    child: StreamBuilder<List<PendingMessage>>(
-                        stream:
-                            _messageRepo.watchPendingMessages(widget.roomId),
-                        builder: (context, pendingMessagesStream) {
-                          List<PendingMessage> pendingMessages =
-                              pendingMessagesStream.data ?? [];
-                          return StreamBuilder<Room?>(
-                              stream: _roomRepo.watchRoom(widget.roomId),
-                              builder: (context, currentRoomStream) {
-                                if (currentRoomStream.hasData) {
-                                  _currentRoom.add(currentRoomStream.data);
-                                  int i =
-                                      (_currentRoom.value!.lastMessageId ?? 0) +
-                                          pendingMessages.length;
-                                  _itemCountSubject.add(i);
-                                  _itemCount = i;
-                                  if (currentRoomStream.data!.firstMessageId !=
-                                      null) {
-                                    _itemCount = _itemCount -
-                                        currentRoomStream.data!.firstMessageId!;
-                                  }
-                                  return PageStorage(
-                                      bucket: PageStorage.of(context)!,
-                                      key: PageStorageKey(widget.roomId),
-                                      child: buildMessagesListView(
-                                          pendingMessages));
-                                } else {
-                                  return const SizedBox(
-                                    height: 50,
-                                  );
-                                }
-                              });
-                        }),
+              SingleChildScrollView(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height -
+                      buildAppbar().preferredSize.height -
+                      MediaQuery.of(context).padding.top,
+                  child: Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: StreamBuilder<List<PendingMessage>>(
+                            stream: _messageRepo
+                                .watchPendingMessages(widget.roomId),
+                            builder: (context, pendingMessagesStream) {
+                              List<PendingMessage> pendingMessages =
+                                  pendingMessagesStream.data ?? [];
+                              return StreamBuilder<Room?>(
+                                  stream: _roomRepo.watchRoom(widget.roomId),
+                                  builder: (context, currentRoomStream) {
+                                    if (currentRoomStream.hasData) {
+                                      _currentRoom.add(currentRoomStream.data);
+                                      int i =
+                                          (_currentRoom.value!.lastMessageId ??
+                                                  0) +
+                                              pendingMessages.length;
+                                      _itemCountSubject.add(i);
+                                      _itemCount = i;
+                                      if (currentRoomStream
+                                              .data!.firstMessageId !=
+                                          null) {
+                                        _itemCount = _itemCount -
+                                            currentRoomStream
+                                                .data!.firstMessageId!;
+                                      }
+                                      return PageStorage(
+                                          bucket: PageStorage.of(context)!,
+                                          key: PageStorageKey(widget.roomId),
+                                          child: buildMessagesListView(
+                                              pendingMessages));
+                                    } else {
+                                      return const SizedBox(
+                                        height: 50,
+                                      );
+                                    }
+                                  });
+                            }),
+                      ),
+                      positionsView,
+                      StreamBuilder(
+                          stream: _repliedMessage.stream,
+                          builder: (c, rm) {
+                            if (rm.hasData && rm.data != null) {
+                              return ReplyPreview(
+                                  message: _repliedMessage.value!,
+                                  resetRoomPageDetails: _resetRoomPageDetails);
+                            }
+                            return Container();
+                          }),
+                      StreamBuilder(
+                          stream: _editableMessage.stream,
+                          builder: (c, em) {
+                            if (em.hasData && em.data != null) {
+                              return OnEditMessageWidget(
+                                  message: _editableMessage.value!,
+                                  resetRoomPageDetails: _resetRoomPageDetails);
+                            }
+                            return Container();
+                          }),
+                      StreamBuilder<bool>(
+                          stream: _waitingForForwardedMessage.stream,
+                          builder: (c, wm) {
+                            if (wm.hasData && wm.data!) {
+                              return ForwardPreview(
+                                forwardedMessages: widget.forwardedMessages,
+                                shareUid: widget.shareUid,
+                                onClick: () {
+                                  _waitingForForwardedMessage.add(false);
+                                },
+                              );
+                            } else {
+                              return Container();
+                            }
+                          }),
+                      keyboardWidget(),
+                    ],
                   ),
-                  positionsView,
-                  StreamBuilder(
-                      stream: _repliedMessage.stream,
-                      builder: (c, rm) {
-                        if (rm.hasData && rm.data != null) {
-                          return ReplyPreview(
-                              message: _repliedMessage.value!,
-                              resetRoomPageDetails: _resetRoomPageDetails);
-                        }
-                        return Container();
-                      }),
-                  StreamBuilder(
-                      stream: _editableMessage.stream,
-                      builder: (c, em) {
-                        if (em.hasData && em.data != null) {
-                          return OnEditMessageWidget(
-                              message: _editableMessage.value!,
-                              resetRoomPageDetails: _resetRoomPageDetails);
-                        }
-                        return Container();
-                      }),
-                  StreamBuilder<bool>(
-                      stream: _waitingForForwardedMessage.stream,
-                      builder: (c, wm) {
-                        if (wm.hasData && wm.data!) {
-                          return ForwardPreview(
-                            forwardedMessages: widget.forwardedMessages,
-                            shareUid: widget.shareUid,
-                            onClick: () {
-                              _waitingForForwardedMessage.add(false);
-                            },
-                          );
-                        } else {
-                          return Container();
-                        }
-                      }),
-                  keyboardWidget(),
-                ],
+                ),
               ),
+              pinMessageWidget(),
               StreamBuilder<int>(
                   stream: _positionSubject.stream,
                   builder: (c, position) {
@@ -336,7 +346,7 @@ class _RoomPageState extends State<RoomPage> {
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
       var msg = await _getMessage(
-          event, widget.roomId, _currentRoom.value!.lastMessageId!,
+          event, widget.roomId, _currentRoom.value!.lastMessageId,
           lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
 
       if (msg == null) return;
@@ -349,19 +359,21 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-  Future<Message?> _getMessage(int id, String roomId, int lastMessageId,
+  Future<Message?> _getMessage(int id, String roomId, int? lastMessageId,
       {int? lastUpdatedMessageId}) async {
-    var msg = _messageCache.get(id);
-    if (msg != null && id != lastUpdatedMessageId) {
-      return msg;
+    if (lastMessageId != null) {
+      var msg = _messageCache.get(id);
+      if (msg != null && id != lastUpdatedMessageId) {
+        return msg;
+      }
+      int page = (id / PAGE_SIZE).floor();
+      List<Message?> messages = await _messageRepo
+          .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
+      for (int i = 0; i < messages.length; i = i + 1) {
+        _messageCache.set(messages[i]!.id!, messages[i]!);
+      }
+      return _messageCache.get(id);
     }
-    int page = (id / PAGE_SIZE).floor();
-    List<Message?> messages = await _messageRepo
-        .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
-    for (int i = 0; i < messages.length; i = i + 1) {
-      _messageCache.set(messages[i]!.id!, messages[i]!);
-    }
-    return _messageCache.get(id);
   }
 
   void _resetRoomPageDetails() {
@@ -598,11 +610,39 @@ class _RoomPageState extends State<RoomPage> {
                         //   searchMessage(controller.text, checkSearchResult);
                       });
                 } else {
-                  return _routingService.backButtonLeading(
-                    back: () {
-                      // _notificationServices.reset("\t");
-                    },
-                  );
+                  return StreamBuilder<bool>(
+                      stream: _selectMultiMessageSubject.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!) {
+                          return Row(
+                            children: [
+                              IconButton(
+                                  color: Theme.of(context).primaryColor,
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    size: 25,
+                                  ),
+                                  onPressed: () {
+                                    onDelete();
+                                  }),
+                              Text(
+                                _selectedMessages.length.toString(),
+                                style: TextStyle(
+                                    color: ExtraTheme.of(context).textField,
+                                    fontSize: 14),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return _routingService.backButtonLeading(
+                            back: () {
+                              // _notificationServices.reset("\t");
+                            },
+                          );
+                        }
+                      });
                 }
               }),
         ),
@@ -838,7 +878,11 @@ class _RoomPageState extends State<RoomPage> {
 
   BuildMessageBox buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
       List<PendingMessage> pendingMessages) {
+    final keyId = ms.data?.id;
+    final key = keyId != null ? ValueKey(keyId) : null;
+
     return BuildMessageBox(
+        key: key,
         message: ms.data!,
         currentRoom: currentRoom,
         pendingMessages: pendingMessages,
@@ -908,68 +952,45 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _selectMultiMessageAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Tooltip(
-          message: _i18n.get("cancel"),
-          child: Badge(
-            animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
-            badgeContent: Text(_selectedMessages.length.toString()),
-            animationDuration: const Duration(milliseconds: 125),
-            child: IconButton(
-                color: Theme.of(context).primaryColor,
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  onDelete();
-                }),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Tooltip(
-          message: _i18n.get("forward"),
-          child: Badge(
-            animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
-            badgeContent: Text(_selectedMessages.length.toString()),
-            animationDuration: const Duration(milliseconds: 125),
-            child: IconButton(
-                color: Theme.of(context).primaryColor,
-                icon: const Icon(
-                  Icons.arrow_forward,
-                  size: 30,
-                ),
-                onPressed: () {
-                  _routingService.openSelectForwardMessage(
-                      forwardedMessages: _selectedMessages.values.toList());
-                  _selectedMessages.clear();
-                }),
-          ),
-        ),
-        Tooltip(
-          message: _i18n.get("delete"),
-          child: Badge(
-            animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
-            badgeContent: Text(_selectedMessages.length.toString()),
-            animationDuration: const Duration(milliseconds: 125),
-            child: IconButton(
-                color: Theme.of(context).primaryColor,
-                icon: const Icon(
-                  Icons.delete,
-                  size: 30,
-                ),
-                onPressed: () {
-                  showDeleteMsgDialog(
-                      _selectedMessages.values.toList(), context, () {
-                    onDelete();
-                  }, _currentRoom.value!.lastMessageId);
-                  _selectedMessages.clear();
-                }),
-          ),
-        )
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(right: 12, top: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Tooltip(
+              message: _i18n.get("forward"),
+              child: IconButton(
+                  color: Theme.of(context).primaryColor,
+                  icon: const Icon(
+                    Icons.forward,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    _routingService.openSelectForwardMessage(
+                        forwardedMessages: _selectedMessages.values.toList());
+                    _selectedMessages.clear();
+                  })),
+          if (!widget.roomId.isMuc() ||
+              _hasPermissionInGroup.value ||
+              (widget.roomId.isChannel() && _hasPermissionInChannel.value))
+            Tooltip(
+              message: _i18n.get("delete"),
+              child: IconButton(
+                  color: Theme.of(context).primaryColor,
+                  icon: const Icon(
+                    Icons.delete,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    showDeleteMsgDialog(
+                        _selectedMessages.values.toList(), context, () {
+                      onDelete();
+                    }, _currentRoom.value!.lastMessageId);
+                    _selectedMessages.clear();
+                  }),
+            )
+        ],
+      ),
     );
   }
 

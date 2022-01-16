@@ -21,7 +21,7 @@ class ContactPic extends StatelessWidget {
     return Stack(
       children: <Widget>[
         CircleAvatarWidget(userUid, 24,
-            showSavedMessageLogoIfNeeded: true),
+            isHeroEnabled: false, showSavedMessageLogoIfNeeded: true),
         if (userUid.category == Categories.USER &&
             !_authRepo.isCurrentUser(userUid.asString()))
           StreamBuilder<LastActivity?>(

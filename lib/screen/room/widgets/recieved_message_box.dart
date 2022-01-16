@@ -30,6 +30,7 @@ class ReceivedMessageBox extends StatelessWidget {
     final boxContent = BoxContent(
       message: message,
       maxWidth: maxWidthOfMessage(context),
+      minWidth: minWidthOfMessage(context),
       onBotCommandClick: onBotCommandClick,
       isSender: false,
       scrollToMessage: scrollToMessage,

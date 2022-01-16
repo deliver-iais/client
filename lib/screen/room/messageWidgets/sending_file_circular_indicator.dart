@@ -45,7 +45,7 @@ class _SendingFileCircularIndicatorState
       return Stack(
         children: [
           StreamBuilder<double>(
-              stream: fileService.filesUploadStatus[widget.file!.uuid],
+              stream: fileService.filesProgressBarStatus[widget.file!.uuid],
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircularPercentIndicator(

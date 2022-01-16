@@ -1,63 +1,98 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
-class CircularFileStatusIndicator extends StatelessWidget {
-  final bool? isExist;
-  final bool isPending;
-  final File file;
-  final Message msg;
-  final void Function(String, String) onPressed;
+class CircularFileStatusIndicator extends StatefulWidget {
+  final Message message;
 
-  const CircularFileStatusIndicator(
-      {Key? key,
-      this.isExist,
-      this.isPending = false,
-      required this.file,
-      required this.msg,
-      required this.onPressed})
-      : super(key: key);
+  const CircularFileStatusIndicator({
+    Key? key,
+    required this.message,
+  }) : super(key: key);
+
+  @override
+  State<CircularFileStatusIndicator> createState() =>
+      _CircularFileStatusIndicatorState();
+}
+
+class _CircularFileStatusIndicatorState
+    extends State<CircularFileStatusIndicator> {
+  final _fileServices = GetIt.I.get<FileService>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+
+  @override
+  void initState() {
+    _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (isExist != null) {
-      if (isExist! && msg.id != null) {
-        return file.type.contains("audio")
-            ? PlayAudioStatus(
-                fileId: file.uuid,
-                fileName: file.name,
-              )
-            : OpenFileStatus(
-                file: file,
-              );
-      } else {
-        return LoadFileStatus(
-          fileId: file.uuid,
-          fileName: file.name,
-          messagePacketId: msg.packetId,
-          roomUid: msg.roomUid,
-          onPressed: onPressed,
-        );
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, top: 4),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: ExtraTheme.of(context).circularFileStatus),
-        child: Icon(
-          Icons.arrow_downward,
-          color: ExtraTheme.of(context).fileMessageDetails,
-          size: 35,
-        ),
-      ),
-    );
+    var file = widget.message.json!.toFile();
+    return FutureBuilder<String?>(
+        future: _fileRepo.getFileIfExist(file.uuid, file.name),
+        builder: (c, fileSnapShot) {
+          if (fileSnapShot.hasData && fileSnapShot.data != null && widget.message.id!= null) {
+            return showExitFile(file, fileSnapShot.data!);
+          } else {
+            return StreamBuilder<double>(
+                stream: _fileServices.filesProgressBarStatus[file.uuid],
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data == DOWNLOAD_COMPLETE) {
+                    return FutureBuilder<String?>(
+                        future: _fileRepo.getFileIfExist(file.uuid, file.name),
+                        builder: (c, s) {
+                          if (s.hasData && s.data != null) {
+                            return showExitFile(file, s.data!);
+                          } else {
+                            return LoadFileStatus(
+                              fileId: file.uuid,
+                              fileName: file.name,
+                              messagePacketId: widget.message.packetId,
+                              roomUid: widget.message.roomUid,
+                              onPressed: () async {
+                                await _fileRepo.getFile(file.uuid, file.name);
+                                setState(() {});
+                              },
+                            );
+                          }
+                        });
+                  } else {
+                    return LoadFileStatus(
+                      fileId: file.uuid,
+                      fileName: file.name,
+                      messagePacketId: widget.message.packetId,
+                      roomUid: widget.message.roomUid,
+                      onPressed: () async {
+                        await _fileRepo.getFile(file.uuid, file.name);
+                      },
+                    );
+                  }
+                });
+          }
+        });
+  }
+
+  Widget showExitFile(File file, String filePath) {
+    return file.type.contains("audio")
+        ? PlayAudioStatus(
+            fileId: file.uuid,
+            fileName: file.name,
+          )
+        : OpenFileStatus(
+            filePath: filePath,
+            file: file,
+          );
   }
 }

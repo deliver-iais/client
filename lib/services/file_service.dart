@@ -1,3 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:dio/adapter.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
@@ -11,6 +17,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
@@ -27,9 +34,7 @@ class FileService {
   final _logger = GetIt.I.get<Logger>();
 
   final _dio = Dio();
-  Map<String, BehaviorSubject<double>> filesUploadStatus = {};
-
-  Map<String, BehaviorSubject<double>> filesDownloadStatus = {};
+  Map<String, BehaviorSubject<double>> filesProgressBarStatus = {};
 
   Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
@@ -68,6 +73,14 @@ class FileService {
   }
 
   FileService() {
+    if(!kIsWeb){
+      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+          (HttpClient client) {
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
+        return client;
+      };
+    }
     _dio.interceptors.add(InterceptorsWrapper(onRequest:
         (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
@@ -86,15 +99,15 @@ class FileService {
   }
 
   Future<String?> _getFile(String uuid, String filename) async {
-    if (filesDownloadStatus[uuid] == null) {
+    if (filesProgressBarStatus[uuid] == null) {
       BehaviorSubject<double> d = BehaviorSubject.seeded(0);
-      filesDownloadStatus[uuid] = d;
+      filesProgressBarStatus[uuid] = d;
     }
     CancelToken cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     try {
       var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-        filesDownloadStatus[uuid]!.add((i / j));
+        filesProgressBarStatus[uuid]!.add((i / j));
       },
           options: Options(responseType: ResponseType.bytes),
           cancelToken: cancelToken);
@@ -147,8 +160,7 @@ class FileService {
       io.File f = io.File('$downloadDir/$name');
       try {
         await f.writeAsBytes(io.File(path).readAsBytesSync());
-      } catch (_) {
-      }
+      } catch (_) {}
     }
   }
 
@@ -157,23 +169,95 @@ class FileService {
     CancelToken cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     var res = await _dio.get(
-        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-        options: Options(responseType: ResponseType.bytes),
-        cancelToken: cancelToken);
+      "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
+      options: Options(responseType: ResponseType.bytes),
+      cancelToken: cancelToken,
+    );
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
     return file.path;
   }
 
-  void initUpoadProgrss(String uploadId) {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject.seeded(0);
-    filesUploadStatus[uploadId] = behaviorSubject;
+  void initProgressBar(String uploadId) {
+    if (filesProgressBarStatus[uploadId] == null) {
+      filesProgressBarStatus[uploadId] = BehaviorSubject.seeded(0);
+    }
+  }
+
+  Future<String> compressImageInDesktop(File file) async {
+    try {
+      if (await file.length() < 500000) {
+        return file.path;
+      }
+      var bytes = await file.readAsBytes();
+      ImageFile input = ImageFile(
+          filePath: file.path, rawBytes: bytes); // set the input image file
+      Configuration config = const Configuration(
+        outputType: ImageOutputType.jpg,
+        // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
+        useJpgPngNativeCompressor: false,
+        // set quality between 0-100
+        quality: 70,
+      );
+
+      final param = ImageFileConfiguration(input: input, config: config);
+      final output = await compressor.compress(param);
+      return output.filePath;
+    } catch (_) {
+      return file.path;
+    }
+  }
+
+  Future<String> compressImageInMobile(
+    File file,
+  ) async {
+    try {
+      if (await file.length() < 300000) {
+        return file.path;
+      }
+      var name = DateTime.now().millisecondsSinceEpoch.toString();
+      var targetFilePath = await localFilePath(name, "jpeg");
+      var result = await FlutterImageCompress.compressAndGetFile(
+        file.path,
+        targetFilePath,
+        minWidth: 480,
+        format: CompressFormat.jpeg,
+        quality: 70,
+      );
+      if (result != null) {
+        return result.path;
+      }
+      return file.path;
+    } catch (_) {
+      return file.path;
+    }
   }
 
   // TODO, refactoring needed
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
     try {
+      if (!kIsWeb) {
+        try {
+          if (MediaType.parse(mime(filePath) ?? filePath)
+              .toString()
+              .contains("image")) {
+            if (isAndroid()) {
+              var compressedImagePath =
+                  await compressImageInMobile(File(filePath));
+              filePath = compressedImagePath;
+            } else {
+              var compressedImagePath =
+                  await compressImageInDesktop(File(filePath));
+              if (compressedImagePath.isNotEmpty) {
+                filePath = compressedImagePath;
+              }
+            }
+          }
+        } catch (_) {
+          _logger.e(_);
+        }
+      }
       CancelToken cancelToken = CancelToken();
       cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
@@ -183,15 +267,16 @@ class FileService {
         );
         formData = FormData.fromMap({
           "file": MultipartFile.fromBytes(r.bodyBytes,
-              filename: filename,
               contentType:
                   MediaType.parse(mime(filename) ?? "application/octet-stream"))
         });
       } else {
         formData = FormData.fromMap({
-          "file": MultipartFile.fromFileSync(filePath,
-              contentType:
-                  MediaType.parse(mime(filePath) ?? "application/octet-stream"))
+          "file": MultipartFile.fromFileSync(
+            filePath,
+            contentType:
+                MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+          )
         });
       }
 
@@ -199,11 +284,11 @@ class FileService {
           (RequestOptions options, RequestInterceptorHandler handler) async {
         options.onSendProgress = (int i, int j) {
           if (sendActivity != null) sendActivity(i);
-          if (filesUploadStatus[uploadKey] == null) {
+          if (filesProgressBarStatus[uploadKey] == null) {
             BehaviorSubject<double> d = BehaviorSubject();
-            filesUploadStatus[uploadKey] = d;
+            filesProgressBarStatus[uploadKey] = d;
           }
-          filesUploadStatus[uploadKey]!.add((i / j));
+          filesProgressBarStatus[uploadKey]!.add((i / j));
         };
         handler.next(options);
       }));
