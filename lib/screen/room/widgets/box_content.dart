@@ -112,13 +112,9 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                         opacity: !hideArrowDopIcon ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 200),
                         child: Container(
-                          margin: const EdgeInsets.all(4),
+                          margin: const EdgeInsets.all(2),
                           child: const BlurContainer(
-                            child: Icon(
-                              Icons.arrow_drop_down_sharp,
-                              // color: Colors.grey,
-                            ),
-                          ),
+                              child: Icon(Icons.arrow_drop_down_sharp)),
                         ),
                       ),
                     ),

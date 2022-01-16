@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/adapter.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as io;
