@@ -28,7 +28,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     return material.showMenu<T>(
       context: context,
       position: RelativeRect.fromLTRB(
-        _tapPosition.dx,
+        _tapPosition.dx - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0),
         _tapPosition.dy - 10,
         overlay!.semanticBounds.size.width +
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) -
