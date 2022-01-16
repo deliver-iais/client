@@ -46,7 +46,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final TextEditingController _editingController = TextEditingController();
 
   late file_pb.File _editableFile;
-  String  _type = "";
+  String _type = "";
   final FocusNode _captionFocusNode = FocusNode();
   model.File? _editedFile;
 
@@ -94,18 +94,22 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                               widget.files!.first.path)
                                           : Image.file(
                                               File(widget.files!.first.path))
-                                      : FutureBuilder<String?>(
-                                          future: _fileRepo.getFileIfExist(
-                                              _editableFile.uuid,
-                                              _editableFile.name),
-                                          builder: (c, s) {
-                                            if (s.hasData && s.data != null) {
-                                              return Image.file(File(s.data!));
-                                            } else {
-                                              return buildRow(0,
-                                                  showManage: false);
-                                            }
-                                          })),
+                                      : _editedFile != null
+                                          ? Image.file(File(_editedFile!.path))
+                                          : FutureBuilder<String?>(
+                                              future: _fileRepo.getFileIfExist(
+                                                  _editableFile.uuid,
+                                                  _editableFile.name),
+                                              builder: (c, s) {
+                                                if (s.hasData &&
+                                                    s.data != null) {
+                                                  return Image.file(
+                                                      File(s.data!));
+                                                } else {
+                                                  return buildRow(0,
+                                                      showManage: false);
+                                                }
+                                              })),
                               Positioned(
                                   right: 5,
                                   top: 2,
@@ -115,11 +119,15 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             ],
                           ))
                       : SizedBox(
-                          height: widget.files!.length * 50.toDouble(),
+                          height: widget.editableMessage != null
+                              ? 50
+                              : widget.files!.length * 50.toDouble(),
                           width: 300,
                           child: ListView.separated(
                             shrinkWrap: true,
-                            itemCount: widget.files!.length,
+                            itemCount: widget.editableMessage != null
+                                ? 1
+                                : widget.files!.length,
                             itemBuilder: (c, index) {
                               return Row(
                                 children: [
@@ -146,7 +154,13 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      widget.files![index].name,
+                                      widget.editableMessage != null
+                                          ? _editedFile != null
+                                              ? _editedFile!.name
+                                              : widget.editableMessage!.json!
+                                                  .toFile()
+                                                  .name
+                                          : widget.files![index].name,
                                       overflow: TextOverflow.ellipsis,
                                       style:
                                           const TextStyle(color: Colors.black),
@@ -326,6 +340,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                       result.files.first.name,
                       extension: result.files.first.extension,
                       size: result.files.first.size);
+                  _type = _editedFile!.extension.toString();
                 } else {
                   widget.files![index] = model.File(
                       kIsWeb

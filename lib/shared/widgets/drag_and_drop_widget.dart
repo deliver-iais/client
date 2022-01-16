@@ -70,9 +70,8 @@ class DragDropWidget extends StatelessWidget {
             onDragDone: (d) async {
               List<model.File> files = [];
               for (var element in d.files) {
-                String path = element.path.replaceAll("%20", " ");
-                files.add(model.File(isWindows() ? path.substring(1) : path,
-                    path.split(".").last));
+                files.add(model.File(element.path, element.name,
+                    extension: element.mimeType));
               }
               if (!roomUid.asUid().isChannel()) {
                 showDialogInDesktop(files, context,
