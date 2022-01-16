@@ -48,7 +48,6 @@ class FileRepo {
     }
     if (value != null) {
       var json = jsonDecode(value.toString());
-      _logger.i(value.statusCode);
       uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();

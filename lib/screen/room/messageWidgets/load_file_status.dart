@@ -1,5 +1,6 @@
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver/services/file_service.dart';
@@ -33,6 +34,7 @@ class LoadFileStatus extends StatefulWidget {
 class _LoadFileStatusState extends State<LoadFileStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
   bool isPendingMes = true;
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
@@ -57,34 +59,57 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     .filesProgressBarStatus[widget.fileId],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    return CircularPercentIndicator(
-                                      radius: 45.0,
-                                      lineWidth: 4.0,
-                                      center: StreamBuilder<CancelToken?>(
-                                        stream: _fileService
-                                            .cancelTokens[widget.fileId],
-                                        builder: (c, s) {
-                                          return GestureDetector(
-                                            child: const Icon(
-                                              Icons.cancel,
+                                    return StreamBuilder<int?>(
+                                        stream: _fileRepo.uploadFileStatusCode[
+                                            widget.fileId],
+                                        builder: (context, statusCode) {
+                                          if (statusCode.hasData &&
+                                              statusCode.data != null &&
+                                              statusCode.data != 0 &&
+                                              statusCode.data != 200) {
+                                            return const Icon(
+                                              Icons.warning_amber_outlined,
                                               size: 35,
-                                            ),
-                                            onTap: () {
-                                              if (s.hasData && s.data != null) {
-                                                s.data!.cancel();
-                                              }
-                                              _messageRepo.deletePendingMessage(
-                                                  widget.messagePacketId!);
-                                            },
-                                          );
-                                        },
-                                      ),
-                                      percent: snapshot.data!,
-                                      backgroundColor: ExtraTheme.of(context)
-                                          .circularFileStatus,
-                                      progressColor: ExtraTheme.of(context)
-                                          .fileMessageDetails,
-                                    );
+                                              color: Colors.red,
+                                            );
+                                          } else {
+                                            return CircularPercentIndicator(
+                                              radius: 45.0,
+                                              lineWidth: 4.0,
+                                              center:
+                                                  StreamBuilder<CancelToken?>(
+                                                stream:
+                                                    _fileService.cancelTokens[
+                                                        widget.fileId],
+                                                builder: (c, s) {
+                                                  return GestureDetector(
+                                                    child: const Icon(
+                                                      Icons.cancel,
+                                                      size: 35,
+                                                    ),
+                                                    onTap: () {
+                                                      if (s.hasData &&
+                                                          s.data != null) {
+                                                        s.data!.cancel();
+                                                      }
+                                                      _messageRepo
+                                                          .deletePendingMessage(
+                                                              widget
+                                                                  .messagePacketId!);
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              percent: snapshot.data!,
+                                              backgroundColor:
+                                                  ExtraTheme.of(context)
+                                                      .circularFileStatus,
+                                              progressColor:
+                                                  ExtraTheme.of(context)
+                                                      .fileMessageDetails,
+                                            );
+                                          }
+                                        });
                                   } else {
                                     return CircularPercentIndicator(
                                       radius: 45.0,
