@@ -38,7 +38,7 @@ class BoxContent extends StatefulWidget {
   final Function? onUsernameClick;
   final String? pattern;
   final Function? onBotCommandClick;
-  final Function? onArrowIconClick;
+  final Function onArrowIconClick;
 
   const BoxContent(
       {Key? key,
@@ -62,31 +62,13 @@ class BoxContent extends StatefulWidget {
   _BoxContentState createState() => _BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> {
+class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
-  final I18N _i18n = GetIt.I.get<I18N>();
   bool hideArrowDopIcon = true;
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-                !widget.isSender)
-              senderNameBox(),
-            if (hasReply()) replyToIdBox(),
-            if (isForwarded())
-              forwardedFromBox(),
-            messageBox()
-          ],
-        ),
-      ),
-    );
     return MouseRegion(
         onHover: (s) {
           hideArrowDopIcon = false;
@@ -97,7 +79,9 @@ class _BoxContentState extends State<BoxContent> {
           setState(() {});
         },
         child: Stack(
-          alignment:widget.message.replyToId!=0 ?Alignment.topRight:  Alignment.topLeft ,
+          alignment: widget.message.replyToId != 0
+              ? Alignment.topRight
+              : Alignment.topLeft,
           children: [
             RepaintBoundary(
               child: Padding(
@@ -110,9 +94,7 @@ class _BoxContentState extends State<BoxContent> {
                         !widget.isSender)
                       senderNameBox(),
                     if (hasReply()) replyToIdBox(),
-                    if (widget.message.forwardedFrom != null &&
-                        widget.message.forwardedFrom!.length > 3)
-                      forwardedFromBox(),
+                    if (isForwarded()) forwardedFromBox(),
                     messageBox()
                   ],
                 ),
@@ -125,7 +107,8 @@ class _BoxContentState extends State<BoxContent> {
                       onTapDown: (tapDownDetails) {
                         storePosition(tapDownDetails);
                       },
-                      onTap: () => widget.onArrowIconClick!(),
+                      onTap: () => widget.onArrowIconClick(
+                          context, widget.message, false, this),
                       child: AnimatedOpacity(
                         opacity: !hideArrowDopIcon ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 500),
