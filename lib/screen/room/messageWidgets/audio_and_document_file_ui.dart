@@ -1,11 +1,11 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/circular_file_status_indicator.dart';
-import 'package:deliver/screen/room/messageWidgets/header_details.dart';
+import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:flutter/widgets.dart';
 
 class AudioAndDocumentFileUI extends StatefulWidget {
   final Message message;
@@ -26,8 +26,6 @@ class AudioAndDocumentFileUI extends StatefulWidget {
 }
 
 class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
-
-
   @override
   Widget build(BuildContext context) {
     var file = widget.message.json!.toFile();
@@ -42,44 +40,37 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
           CircularFileStatusIndicator(
             message: widget.message,
           ),
-          Stack(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0),
-                child: SizedBox(
-                  width: 175,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 155,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0),
-                          child: Text(
-                            file.name,
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                ExtraTheme.of(context).textMessage),
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: false,
-                            maxLines: 1,
-                          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          file.name,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          maxLines: 1,
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                    FileDetails(file: file)
+                  ],
                 ),
-              ),
-              HeaderDetails(file: file),
-              file.caption.isEmpty
-                  ? TimeAndSeenStatus(
-                  widget.message, widget.isSender, widget.isSeen,
-                  needsBackground: true)
-                  : Container(),
-            ],
+                if (file.caption.isEmpty)
+                  TimeAndSeenStatus(
+                      widget.message, widget.isSender, widget.isSeen,
+                      needsPositioned: false, needsBackground: false)
+              ],
+            ),
           ),
         ],
       ),
