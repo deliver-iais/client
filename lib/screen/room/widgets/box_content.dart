@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
@@ -88,6 +89,10 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (isDebugEnabled())
+                      DebugC(label: "message details", children: [
+                        Debug(widget.message.id, label: "id"),
+                      ]),
                     if (widget.message.roomUid.asUid().category ==
                             Categories.GROUP &&
                         !widget.isSender)

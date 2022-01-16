@@ -1,0 +1,75 @@
+import 'dart:math';
+
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+bool isDebugEnabled() => UxService.isDeveloperMode;
+
+class Debug extends StatelessWidget {
+  final String? label;
+  final dynamic data;
+  late final text = data.toString();
+
+  Debug(this.data, {Key? key, this.label = "VAL"}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: text));
+            ToastDisplay.showToast(
+                toastText:
+                    "copied '${text.substring(0, min(4, text.length))}...'",
+                tostContext: context);
+          },
+          child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(width: 1, color: Colors.red),
+                color: const Color(0xAAFFE8E8),
+              ),
+              child: Text("$label: $text"))),
+    );
+  }
+}
+
+class DebugC extends StatelessWidget {
+  final String? label;
+  final List<Widget> children;
+
+  const DebugC({Key? key, required this.children, this.label})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(width: 2, color: Colors.red),
+          color: const Color(0xAAFFE8E8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (label != null)
+              Text(
+                label!,
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            Wrap(
+              children: children,
+              spacing: 16,
+              runSpacing: 16,
+            ),
+          ],
+        ));
+  }
+}

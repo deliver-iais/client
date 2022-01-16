@@ -39,8 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  bool isDeveloperMode = false || kDebugMode;
-  int developerModeCounterCountDown = 10;
+  int developerModeCounterCountDown = kDebugMode ? 1 : 10;
   I18N i18n = GetIt.I.get<I18N>();
 
   @override
@@ -76,9 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     heroTag: "avatar");
                               },
                               child: CircleAvatarWidget(
-                                _authRepo.currentUserUid,
-                                35
-                              )),
+                                  _authRepo.currentUserUid, 35)),
                           const SizedBox(width: 10),
                           Expanded(
                             child: FutureBuilder<Account?>(
@@ -220,7 +217,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                 ],
               ),
-              if (isDeveloperMode)
+              if (UxService.isDeveloperMode)
                 Section(
                   title: 'Developer Mode',
                   children: [
@@ -239,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                       title: i18n.get("version"),
-                      trailing: isDeveloperMode
+                      trailing: UxService.isDeveloperMode
                           ? FutureBuilder<String?>(
                               future: SmsAutoFill().getAppSignature,
                               builder: (c, sms) => Text(sms.data ?? VERSION),
@@ -250,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         developerModeCounterCountDown--;
                         if (developerModeCounterCountDown < 1) {
                           setState(() {
-                            isDeveloperMode = true;
+                            UxService.isDeveloperMode = true;
                           });
                         }
                       }),

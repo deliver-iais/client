@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_and_document_file_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
 
@@ -45,6 +46,10 @@ class _FileMessageUiState extends State<FileMessageUi> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        if (isDebugEnabled())
+          DebugC(
+              label: "file details",
+              children: [Debug(file.uuid)]),
         _buildMainUi(type),
         if (caption.isNotEmpty)
           SizedBox(

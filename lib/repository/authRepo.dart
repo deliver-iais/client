@@ -48,6 +48,9 @@ class AuthRepo {
   String? _refreshToken;
   late String platformVersion;
 
+  get refreshToken => _refreshToken;
+  get accessToken => _accessToken;
+
   late PhoneNumber _tmpPhoneNumber;
 
   Future<bool> isTestUser() async {

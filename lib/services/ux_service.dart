@@ -65,6 +65,8 @@ class LogLevelHelper {
 }
 
 class UxService {
+  static bool isDeveloperMode = false;
+
   final _sharedDao = GetIt.I.get<SharedDao>();
 
   final _theme = BehaviorSubject.seeded(LightTheme);
@@ -147,7 +149,7 @@ class UxService {
   // TODO ???
   final Map _tabIndexMap = <String, int>{};
 
-  int ? getTabIndex(String fileId) {
+  int? getTabIndex(String fileId) {
     return _tabIndexMap[fileId];
   }
 
