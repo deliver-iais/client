@@ -28,12 +28,12 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPinned;
-  final Function onDelete;
+  final void Function() onDelete;
   final int roomLastMessageId;
-  final Function onEdit;
-  final Function onPin;
-  final Function onUnPin;
-  final Function onReply;
+  final void Function() onEdit;
+  final void Function() onPin;
+  final void Function() onUnPin;
+  final void Function() onReply;
 
   const OperationOnMessageEntry(
     this.message, {
@@ -63,17 +63,12 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
 }
 
 class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _autRepo = GetIt.I.get<AuthRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _logger = GetIt.I.get<Logger>();
-
-  onReply() {
-    widget.onReply();
-    Navigator.of(context).pop();
-  }
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _autRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _logger = GetIt.I.get<Logger>();
 
   onCopy() {
     if (widget.message.type == MessageType.TEXT) {
@@ -85,17 +80,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     }
     ToastDisplay.showToast(
         toastText: _i18n.get("copied"), tostContext: context);
-    Navigator.pop(context);
   }
 
   onForward() {
-    Navigator.pop(context);
     _routingServices
         .openSelectForwardMessage(forwardedMessages: [widget.message]);
   }
 
   onEditMessage() {
-    Navigator.pop(context);
     switch (widget.message.type) {
       // ignore: missing_enum_constant_in_switch
       case MessageType.TEXT:
@@ -150,7 +142,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   onResend() {
-    Navigator.of(context).pop();
     _messageRepo.resendMessage(widget.message);
   }
 
@@ -168,50 +159,33 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     } catch (e) {
       _logger.e(e);
     }
-    Navigator.pop(context);
-  }
-
-  onPinMessage() {
-    Navigator.of(context).pop();
-    widget.onPin();
-  }
-
-  onUnPinMessage() {
-    Navigator.of(context).pop();
-    widget.onUnPin();
   }
 
   onSaveTOGallery() {
     var file = widget.message.json!.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
-    Navigator.of(context);
   }
 
   onSaveTODownloads() {
     var file = widget.message.json!.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
-    Navigator.pop(context);
   }
 
   onSaveToMusic() {
-    Navigator.of(context).pop();
     var file = widget.message.json!.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
   }
 
   onDeleteMessage() {
-    Navigator.pop(context);
     showDeleteMsgDialog(
         [widget.message], context, widget.onDelete, widget.roomLastMessageId);
   }
 
   onDeletePendingMessage() {
-    Navigator.of(context).pop();
     _messageRepo.deletePendingMessage(widget.message.packetId);
   }
 
   onReportMessage() {
-    Navigator.of(context).pop();
     ToastDisplay.showToast(
         toastText: _i18n.get("report_message"), tostContext: context);
   }
@@ -226,7 +200,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     } else if (isMacOS()) {
       await shell.run('open ${snapshot.data.parent.path}');
     }
-    Navigator.of(context).pop();
   }
 
   final BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
@@ -243,224 +216,204 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (widget.hasPermissionInChannel && widget.message.id != null)
-          TextButton(
-              onPressed: onReply,
+    return IconTheme(
+      data: IconThemeData(
+        size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 20) + 4,
+        color: PopupMenuTheme.of(context).textStyle?.color,
+      ),
+      child: Column(
+        children: [
+          if (widget.hasPermissionInChannel && widget.message.id != null)
+            PopupMenuItem(
+              onTap: widget.onReply,
               child: Row(children: [
-                const Icon(
-                  Icons.reply,
-                  size: 20,
-                ),
+                const Icon(Icons.reply),
                 const SizedBox(width: 8),
                 Text(_i18n.get("Reply")),
-              ])),
-        if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
-                widget.hasPermissionInGroup) ||
-            (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
-                widget.hasPermissionInChannel))
-          if (!widget.isPinned)
-            TextButton(
-                onPressed: onPinMessage,
+              ]),
+            ),
+          if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
+                  widget.hasPermissionInGroup) ||
+              (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
+                  widget.hasPermissionInChannel))
+            if (!widget.isPinned)
+              PopupMenuItem(
+                  onTap: widget.onPin,
+                  child: Row(children: [
+                    const Icon(Icons.push_pin_outlined),
+                    const SizedBox(width: 8),
+                    Text(_i18n.get("pin")),
+                  ]))
+            else
+              PopupMenuItem(
+                  onTap: widget.onUnPin,
+                  child: Row(children: [
+                    const Icon(Icons.remove),
+                    const SizedBox(width: 8),
+                    Text(_i18n.get("unpin")),
+                  ])),
+          if (widget.message.type == MessageType.TEXT ||
+              (widget.message.type == MessageType.FILE &&
+                  widget.message.json!.toFile().caption.isNotEmpty))
+            PopupMenuItem(
+                onTap: onCopy,
                 child: Row(children: [
                   const Icon(
-                    Icons.push_pin,
-                    size: 20,
+                    Icons.content_copy,
+                    size: 18,
                   ),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("pin")),
-                ]))
-          else
-            TextButton(
-                onPressed: onUnPinMessage,
-                child: Row(children: [
-                  const Icon(
-                    Icons.remove,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("unpin")),
+                  const SizedBox(width: 10),
+                  Text(_i18n.get("copy")),
                 ])),
-        if (widget.message.type == MessageType.TEXT ||
-            (widget.message.type == MessageType.FILE &&
-                widget.message.json!.toFile().caption.isNotEmpty))
-          TextButton(
-              onPressed: onCopy,
-              child: Row(children: [
-                const Icon(
-                  Icons.content_copy,
-                  size: 18,
-                ),
-                const SizedBox(width: 10),
-                Text(_i18n.get("copy")),
-              ])),
-        if (widget.message.type == MessageType.FILE)
-          FutureBuilder(
-              future: _fileRepo.getFileIfExist(
-                  widget.message.json!.toFile().uuid,
-                  widget.message.json!.toFile().name),
-              builder: (c, fe) {
-                if (fe.hasData && fe.data != null) {
-                  _fileIsExist.add(true);
-                  model.File f = widget.message.json!.toFile();
-                  return TextButton(
-                      onPressed: () {
-                        if (f.type.contains("image")) {
-                          onSaveTOGallery();
-                        } else if (f.type.contains("audio") ||
-                            f.type.contains("mp3")) {
-                          // TODO ?????
-                          onSaveToMusic();
-                        } else {
-                          onSaveTODownloads();
-                        }
-                      },
-                      child: Row(children: [
-                        Icon(
-                          f.type.contains("image")
-                              ? Icons.image
+          if (widget.message.type == MessageType.FILE)
+            FutureBuilder(
+                future: _fileRepo.getFileIfExist(
+                    widget.message.json!.toFile().uuid,
+                    widget.message.json!.toFile().name),
+                builder: (c, fe) {
+                  if (fe.hasData && fe.data != null) {
+                    _fileIsExist.add(true);
+                    model.File f = widget.message.json!.toFile();
+                    return PopupMenuItem(
+                        onTap: () {
+                          if (f.type.contains("image")) {
+                            onSaveTOGallery();
+                          } else if (f.type.contains("audio") ||
+                              f.type.contains("mp3")) {
+                            // TODO ?????
+                            onSaveToMusic();
+                          } else {
+                            onSaveTODownloads();
+                          }
+                        },
+                        child: Row(children: [
+                          Icon(f.type.contains("image")
+                              ? Icons.image_outlined
                               : f.type.contains("audio") ||
                                       f.type.contains("mp3")
-                                  ? Icons.queue_music_rounded
-                                  : Icons.download_rounded,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        f.type.contains("image")
-                            ? Text(_i18n.get("save_to_gallery"))
-                            : f.type.contains("audio") ||
-                                    f.type.contains("mp3")
-                                ? Text(_i18n.get("save_in_music"))
-                                : Text(_i18n.get("save_to_downloads")),
-                      ]));
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-        if (widget.message.type == MessageType.FILE && !isDesktop())
-          StreamBuilder<bool>(
-              stream: _fileIsExist.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data!) {
-                  _fileIsExist.add(true);
-                  return TextButton(
-                      onPressed: onShare,
-                      child: Row(children: [
-                        const Icon(
-                          Icons.share,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(_i18n.get("share")),
-                      ]));
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-        if (widget.message.roomUid.isMuc())
-          TextButton(
-              onPressed: onReportMessage,
-              child: Row(children: [
-                const Icon(
-                  Icons.report,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(_i18n.get("report")),
-              ])),
-        if (widget.message.id != null &&
-            widget.message.type != MessageType.PERSISTENT_EVENT)
-          TextButton(
-              onPressed: onForward,
-              child: Row(children: [
-                const Icon(
-                  Icons.forward_outlined,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(_i18n.get("forward")),
-              ])),
-        if (widget.message.id == null)
-          FutureBuilder<PendingMessage?>(
-              future: _messageRepo.getPendingMessage(widget.message.packetId),
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!.failed) {
-                  return TextButton(
-                      onPressed: onResend,
-                      child: Row(children: [
-                        const Icon(
-                          Icons.refresh,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(_i18n.get("resend")),
-                      ]));
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-        if (_hasPermissionToDeleteMsg)
-          widget.message.id != null
-              ? deleteMenuWidget()
-              : FutureBuilder<PendingMessage?>(
-                  future:
-                      _messageRepo.getPendingMessage(widget.message.packetId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data!.failed) {
-                      return deleteMenuWidget();
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-        if (widget.message.id != null &&
-            (widget.message.type == MessageType.TEXT ||
-                widget.message.type == MessageType.FILE) &&
-            _autRepo.isCurrentUserSender(widget.message) &&
-            checkMessageTime(widget.message))
-          TextButton(
-              onPressed: onEditMessage,
-              child: Row(children: [
-                const Icon(
-                  Icons.edit_outlined,
-                  size: 18,
-                ),
-                const SizedBox(width: 10),
-                Text(_i18n.get("edit")),
-              ])),
-        if (isDesktop() && widget.message.type == MessageType.FILE)
-          FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(
-                  widget.message.json!.toFile().uuid,
-                  widget.message.json!.toFile().name),
-              builder: (c, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  return TextButton(
-                      onPressed: () async =>
-                          await onShowInFolder(snapshot, context),
-                      child: Row(children: [
-                        const Icon(
-                          Icons.folder_open_rounded,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(_i18n.get("show_in_folder")),
-                      ]));
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-      ],
+                                  ? Icons.queue_music_outlined
+                                  : Icons.download_outlined),
+                          const SizedBox(width: 8),
+                          f.type.contains("image")
+                              ? Text(_i18n.get("save_to_gallery"))
+                              : f.type.contains("audio") ||
+                                      f.type.contains("mp3")
+                                  ? Text(_i18n.get("save_in_music"))
+                                  : Text(_i18n.get("save_to_downloads")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          if (widget.message.type == MessageType.FILE && !isDesktop())
+            StreamBuilder<bool>(
+                stream: _fileIsExist.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    _fileIsExist.add(true);
+                    return PopupMenuItem(
+                        onTap: onShare,
+                        child: Row(children: [
+                          const Icon(Icons.share),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("share")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          if (widget.message.roomUid.isMuc())
+            PopupMenuItem(
+                onTap: onReportMessage,
+                child: Row(children: [
+                  const Icon(Icons.report_outlined),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("report")),
+                ])),
+          if (widget.message.id != null &&
+              widget.message.type != MessageType.PERSISTENT_EVENT)
+            PopupMenuItem(
+                onTap: onForward,
+                child: Row(children: [
+                  const Icon(Icons.forward_outlined),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("forward")),
+                ])),
+          if (widget.message.id == null)
+            FutureBuilder<PendingMessage?>(
+                future: _messageRepo.getPendingMessage(widget.message.packetId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!.failed) {
+                    return PopupMenuItem(
+                        onTap: onResend,
+                        child: Row(children: [
+                          const Icon(Icons.refresh),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("resend")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          if (_hasPermissionToDeleteMsg)
+            widget.message.id != null
+                ? deleteMenuWidget()
+                : FutureBuilder<PendingMessage?>(
+                    future:
+                        _messageRepo.getPendingMessage(widget.message.packetId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!.failed) {
+                        return deleteMenuWidget();
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+          if (widget.message.id != null &&
+              (widget.message.type == MessageType.TEXT ||
+                  widget.message.type == MessageType.FILE) &&
+              _autRepo.isCurrentUserSender(widget.message) &&
+              checkMessageTime(widget.message))
+            PopupMenuItem(
+                onTap: onEditMessage,
+                child: Row(children: [
+                  const Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(_i18n.get("edit")),
+                ])),
+          if (isDesktop() && widget.message.type == MessageType.FILE)
+            FutureBuilder<String?>(
+                future: _fileRepo.getFileIfExist(
+                    widget.message.json!.toFile().uuid,
+                    widget.message.json!.toFile().name),
+                builder: (c, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return PopupMenuItem(
+                        onTap: () async =>
+                            await onShowInFolder(snapshot, context),
+                        child: Row(children: [
+                          const Icon(Icons.folder_open_rounded),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("show_in_folder")),
+                        ]));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+        ],
+      ),
     );
   }
 
-  TextButton deleteMenuWidget() {
-    return TextButton(
-        onPressed: () {
+  Widget deleteMenuWidget() {
+    return PopupMenuItem(
+        onTap: () {
           widget.message.id != null
               ? onDeleteMessage()
               : onDeletePendingMessage();

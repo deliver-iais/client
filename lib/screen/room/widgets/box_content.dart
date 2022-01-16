@@ -20,6 +20,7 @@ import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -79,9 +80,7 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
           setState(() {});
         },
         child: Stack(
-          alignment: widget.message.replyToId != 0
-              ? Alignment.topRight
-              : Alignment.topLeft,
+          alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
           children: [
             RepaintBoundary(
               child: Padding(
@@ -111,14 +110,14 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                           context, widget.message, false, this),
                       child: AnimatedOpacity(
                         opacity: !hideArrowDopIcon ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 200),
                         child: Container(
-                          color: widget.isSender
-                              ? ExtraTheme.of(context).sentMessageBox
-                              : ExtraTheme.of(context).receivedMessageBox,
-                          child: const Icon(
-                            Icons.arrow_drop_down_sharp,
-                            color: Colors.grey,
+                          margin: const EdgeInsets.all(4),
+                          child: const BlurContainer(
+                            child: Icon(
+                              Icons.arrow_drop_down_sharp,
+                              // color: Colors.grey,
+                            ),
                           ),
                         ),
                       ),
