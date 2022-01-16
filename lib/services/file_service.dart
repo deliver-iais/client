@@ -73,7 +73,7 @@ class FileService {
   }
 
   FileService() {
-    if(!kIsWeb){
+    if (!kIsWeb) {
       (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =
