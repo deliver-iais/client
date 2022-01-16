@@ -19,11 +19,14 @@ import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
@@ -35,6 +38,7 @@ class BoxContent extends StatefulWidget {
   final Function? onUsernameClick;
   final String? pattern;
   final Function? onBotCommandClick;
+  final Function onArrowIconClick;
 
   const BoxContent(
       {Key? key,
@@ -46,36 +50,83 @@ class BoxContent extends StatefulWidget {
       this.pattern,
       this.onUsernameClick,
       this.onBotCommandClick,
-      required this.scrollToMessage})
+      required this.scrollToMessage,
+      required this.onArrowIconClick})
       : super(key: key);
+
+  Type getState() {
+    return _BoxContentState;
+  }
 
   @override
   _BoxContentState createState() => _BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> {
+class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
+  bool hideArrowDopIcon = true;
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return MouseRegion(
+        onHover: (s) {
+          hideArrowDopIcon = false;
+          setState(() {});
+        },
+        onExit: (s) {
+          hideArrowDopIcon = true;
+          setState(() {});
+        },
+        child: Stack(
+          alignment: widget.message.replyToId != 0
+              ? Alignment.topRight
+              : Alignment.topLeft,
           children: [
-            if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-                !widget.isSender)
-              senderNameBox(),
-            if (hasReply()) replyToIdBox(),
-            if (isForwarded())
-              forwardedFromBox(),
-            messageBox()
+            RepaintBoundary(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.message.roomUid.asUid().category ==
+                            Categories.GROUP &&
+                        !widget.isSender)
+                      senderNameBox(),
+                    if (hasReply()) replyToIdBox(),
+                    if (isForwarded()) forwardedFromBox(),
+                    messageBox()
+                  ],
+                ),
+              ),
+            ),
+            isDesktop() | kIsWeb
+                ? MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTapDown: (tapDownDetails) {
+                        storePosition(tapDownDetails);
+                      },
+                      onTap: () => widget.onArrowIconClick(
+                          context, widget.message, false, this),
+                      child: AnimatedOpacity(
+                        opacity: !hideArrowDopIcon ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 500),
+                        child: Container(
+                          color: widget.isSender
+                              ? ExtraTheme.of(context).sentMessageBox
+                              : ExtraTheme.of(context).receivedMessageBox,
+                          child: const Icon(
+                            Icons.arrow_drop_down_sharp,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget replyToIdBox() {

@@ -153,14 +153,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             widget.addForwardMessage();
           } else if (!isDesktop()) {
             FocusScope.of(context).unfocus();
-            _showCustomMenu(context, message, false);
+            _showCustomMenu(context, message, false,this);
           }
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!widget.selectMultiMessageSubject.stream.value) {
-                  _showCustomMenu(context, message, false);
+                  _showCustomMenu(context, message, false,this);
                 }
               },
         onDoubleTap: !isDesktop() ? null : () => widget.onReply,
@@ -191,6 +191,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
       message: message,
+      onArrowIconClick: _showCustomMenu,
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
       pattern: "",
       //todo add search message
@@ -218,6 +219,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
+      onArrowIconClick: _showCustomMenu,
     );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -243,23 +245,19 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void _showCustomMenu(
-      BuildContext context, Message message, bool isPersistentEventMessage) {
-    this.showMenu(
-        color: Theme.of(context).backgroundColor,
-        context: context,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        items: <PopupMenuEntry<OperationOnMessage>>[
-          OperationOnMessageEntry(message,
-              hasPermissionInChannel: widget.hasPermissionInChannel.value,
-              hasPermissionInGroup: widget.hasPermissionInGroup,
-              isPinned: widget.pinMessages.contains(message),
-              roomLastMessageId: widget.currentRoom.lastMessageId!,
-              onDelete: () => widget.onDelete(),
-              onEdit: () => widget.onEdit(),
-              onPin: () => widget.onPin(),
-              onUnPin: () => widget.onUnPin(),
-              onReply: () => widget.addReplyMessage())
-        ]);
+      BuildContext context, Message message, bool isPersistentEventMessage,state) {
+    state.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
+      OperationOnMessageEntry(message,
+          hasPermissionInChannel: widget.hasPermissionInChannel.value,
+          hasPermissionInGroup: widget.hasPermissionInGroup,
+          isPinned: widget.pinMessages.contains(message),
+          roomLastMessageId: widget.currentRoom.lastMessageId!,
+          onDelete: () => widget.onDelete(),
+          onEdit: () => widget.onEdit(),
+          onPin: () => widget.onPin(),
+          onUnPin: () => widget.onUnPin(),
+          onReply: () => widget.addReplyMessage())
+    ]);
   }
 
   _scrollToMessage({required int id}) {
