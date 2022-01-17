@@ -64,16 +64,19 @@ class _DebugCState extends State<DebugC> {
   @override
   Widget build(BuildContext context) {
     if (!isOpen) {
-      return Container(
-        margin: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(width: 2, color: Colors.red),
-          color: const Color(0xAAFFE8E8),
+      return Tooltip(
+        message: widget.label ?? "",
+        child: Container(
+          margin: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(width: 2, color: Colors.red),
+            color: const Color(0xAAFFE8E8),
+          ),
+          child: IconButton(
+              onPressed: () => setState(() => isOpen = true),
+              icon: const Icon(Icons.fullscreen)),
         ),
-        child: IconButton(
-            onPressed: () => setState(() => isOpen = true),
-            icon: const Icon(Icons.fullscreen)),
       );
     }
     return Container(

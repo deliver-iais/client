@@ -28,14 +28,14 @@ class MucAppbarTitle extends StatelessWidget {
             behavior: HitTestBehavior.translucent,
             child: Row(
               children: [
-                CircleAvatarWidget(mucUid.asUid(), 23),
-                const SizedBox(
-                  width: 16,
-                ),
                 if (isDebugEnabled())
                   DebugC(
                     children: [Debug(mucUid, label: "uid")],
                   ),
+                CircleAvatarWidget(mucUid.asUid(), 23),
+                const SizedBox(
+                  width: 16,
+                ),
                 Expanded(
                   child: StreamBuilder<Muc?>(
                       stream: _mucRepo.watchMuc(mucUid),
