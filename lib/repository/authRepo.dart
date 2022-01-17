@@ -31,27 +31,25 @@ import 'package:deliver/web_classes/platform_detect.dart'
     as platform_detect;
 
 class AuthRepo {
-  final _logger = GetIt.I.get<Logger>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _authServiceClient = GetIt.I.get<AuthServiceClient>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final requestLock = Lock();
-
-  var _password = "";
-
-  String currentUsername = "";
+  static final _logger = GetIt.I.get<Logger>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _authServiceClient = GetIt.I.get<AuthServiceClient>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final requestLock = Lock();
+  static final _deviceInfo = DeviceInfoPlugin();
+  
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
     ..node = "";
   Avatar? avatar;
   String? _accessToken;
   String? _refreshToken;
-  late String platformVersion;
+  late PhoneNumber _tmpPhoneNumber;
+  var _localPassword = "";
 
   get refreshToken => _refreshToken;
-  get accessToken => _accessToken;
 
-  late PhoneNumber _tmpPhoneNumber;
+  get accessToken => _accessToken;
 
   Future<bool> isTestUser() async {
     if (currentUserUid.node.isNotEmpty) {
@@ -65,7 +63,7 @@ class AuthRepo {
 
   Future<void> init() async {
     try {
-      _password = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
+      _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
       var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       _setTokensAndCurrentUserUid(accessToken, refreshToken);
@@ -78,22 +76,19 @@ class AuthRepo {
     if (res != null) currentUserUid = (res).asUid();
   }
 
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-  Future getVerificationCode(PhoneNumber p) async {
+  Future<bool> getVerificationCode(PhoneNumber p) async {
     platform_pb.Platform platform = await getPlatformDetails();
 
     try {
       _tmpPhoneNumber = p;
-      var verificationCode =
-          await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
-            ..phoneNumber = p
-            ..type = VerificationType.SMS
-            ..platform = platform);
-      return verificationCode;
+      await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
+        ..phoneNumber = p
+        ..type = VerificationType.SMS
+        ..platform = platform);
+      return true;
     } catch (e) {
       _logger.e(e);
-      return null;
+      return false;
     }
   }
 
@@ -109,12 +104,12 @@ class AuthRepo {
         ..platformType = platform_pb.PlatformsType.WEB
         ..osVersion = platform_detect.browser.version.major.toString();
     } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
       platform
         ..platformType = platform_pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
     } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
 
       platform
         ..platformType = platform_pb.PlatformsType.IOS
@@ -144,10 +139,10 @@ class AuthRepo {
     if (kIsWeb) {
       device = platform_detect.browser.name;
     } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
       device = androidInfo.model;
     } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
       device = iosInfo.model;
     } else if (Platform.isLinux) {
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
@@ -232,14 +227,14 @@ class AuthRepo {
     }
   }
 
-  bool isLocalLockEnabled() => _password != "";
+  bool isLocalLockEnabled() => _localPassword != "";
 
-  bool localPasswordIsCorrect(String pass) => _password == pass;
+  bool localPasswordIsCorrect(String pass) => _localPassword == pass;
 
-  String getLocalPassword() => _password;
+  String getLocalPassword() => _localPassword;
 
   void setLocalPassword(String pass) {
-    _password = pass;
+    _localPassword = pass;
 
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }

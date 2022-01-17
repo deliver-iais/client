@@ -76,10 +76,10 @@ class BuildMessageBox extends StatefulWidget {
 
 class _BuildMessageBoxState extends State<BuildMessageBox>
     with CustomPopupMenu {
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
   Widget build(BuildContext context) {
