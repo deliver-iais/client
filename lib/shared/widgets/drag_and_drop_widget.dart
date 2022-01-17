@@ -10,7 +10,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:universal_html/html.dart';
 

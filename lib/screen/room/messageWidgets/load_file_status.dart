@@ -1,6 +1,5 @@
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/sending_status.dart';
-import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver/services/file_service.dart';
