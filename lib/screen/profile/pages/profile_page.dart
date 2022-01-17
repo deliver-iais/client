@@ -373,19 +373,22 @@ class _ProfilePageState extends State<ProfilePage>
           stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
-              return SettingsTile.switchTile(
-                  title: _i18n.get("notification"),
-                  titleTextStyle:
-                      TextStyle(color: ExtraTheme.of(context).textField),
-                  leading: const Icon(Icons.notifications_active),
-                  switchValue: !snapshot.data!,
-                  onToggle: (state) {
-                    if (state) {
-                      _roomRepo.unmute(widget.roomUid.asString());
-                    } else {
-                      _roomRepo.mute(widget.roomUid.asString());
-                    }
-                  });
+              return Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SettingsTile.switchTile(
+                    title: _i18n.get("notification"),
+                    titleTextStyle:
+                        TextStyle(color: ExtraTheme.of(context).textField),
+                    leading: const Icon(Icons.notifications_active),
+                    switchValue: !snapshot.data!,
+                    onToggle: (state) {
+                      if (state) {
+                        _roomRepo.unmute(widget.roomUid.asString());
+                      } else {
+                        _roomRepo.mute(widget.roomUid.asString());
+                      }
+                    }),
+              );
             } else {
               return const SizedBox.shrink();
             }

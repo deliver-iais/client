@@ -81,81 +81,110 @@ class _ImageUiState extends State<ImageUi> {
                     widget.image.uuid, widget.image.name),
                 builder: (c, s) {
                   if (s.hasData && s.data != null) {
-                    return Stack(
-                      fit: StackFit.passthrough,
-                      alignment: Alignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                builder: (context) {
-                                  return ImageSwiper(message: widget.message);
-                                },
-                              ),
-                            );
-                          },
-                          child: kIsWeb
-                              ? Image.network(
-                                  s.data!,
-                                  fit: BoxFit.fill,
-                                )
-                              : Image.file(
-                                  File(s.data!),
-                                  fit: BoxFit.fill,
+                    return AspectRatio(
+                      aspectRatio: widget.image.width / widget.image.height,
+                      child: Stack(
+                        fit: StackFit.passthrough,
+                        alignment: Alignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return ImageSwiper(message: widget.message);
+                                  },
                                 ),
-                        ),
-                        if (widget.message.id == null)
-                          Center(
-                            child: StreamBuilder<double>(
-                                stream: _fileServices
-                                    .filesProgressBarStatus[widget.image.uuid],
-                                builder: (c, snap) {
-                                  if (snap.hasData &&
-                                      snap.data != null &&
-                                      snap.data! <= 1) {
-                                    return CircularPercentIndicator(
-                                      radius: 45.0,
-                                      lineWidth: 4.0,
-                                      backgroundColor: Colors.blue,
-                                      percent: snap.data!,
-                                      center: StreamBuilder<CancelToken?>(
-                                        stream: _fileServices
-                                            .cancelTokens[widget.image.uuid],
-                                        builder: (c, s) {
-                                          return GestureDetector(
-                                            child: const Icon(
-                                              Icons.cancel,
-                                              color: Colors.blue,
-                                              size: 40,
-                                            ),
-                                            onTap: () {
-                                              if (s.hasData && s.data != null) {
-                                                s.data!.cancel();
-                                              }
-                                              _messageRepo.deletePendingMessage(
-                                                  widget.message.packetId);
-                                            },
-                                          );
-                                        },
-                                      ),
-                                      progressColor: ExtraTheme.of(context)
-                                          .fileMessageDetails,
-                                    );
-                                  } else {
-                                    return const CircularProgressIndicator(
-                                      color: Colors.blue,
-                                      strokeWidth: 4,
-                                    );
-                                  }
-                                }),
+                              );
+                            },
+                            child: kIsWeb
+                                ? Image.network(
+                                    s.data!,
+                                    fit: BoxFit.fill,
+                                  )
+                                : Image.file(
+                                    File(s.data!),
+                                    fit: BoxFit.fill,
+                                  ),
                           ),
-                        if (widget.image.caption.isEmpty)
-                          TimeAndSeenStatus(
-                              widget.message, widget.isSender, widget.isSeen,
-                              needsBackground: true)
-                      ],
+                          if (widget.message.id == null)
+                            Center(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              child: StreamBuilder<double>(
+                                  stream: _fileServices.filesProgressBarStatus[
+                                      widget.image.uuid],
+                                  builder: (c, snap) {
+                                    if (snap.hasData &&
+                                        snap.data != null &&
+                                        snap.data! <= 1 &&
+                                        snap.data! > 0) {
+                                      return CircularPercentIndicator(
+                                        radius: 45.0,
+                                        lineWidth: 4.0,
+                                        backgroundColor: Colors.blue,
+                                        percent: snap.data!,
+                                        center: StreamBuilder<CancelToken?>(
+                                          stream: _fileServices
+                                              .cancelTokens[widget.image.uuid],
+                                          builder: (c, s) {
+                                            return GestureDetector(
+                                              child: const Icon(
+                                                Icons.cancel,
+                                                color: Colors.blue,
+                                                size: 40,
+                                              ),
+                                              onTap: () {
+                                                if (s.hasData &&
+                                                    s.data != null) {
+                                                  s.data!.cancel();
+                                                }
+                                                _messageRepo
+                                                    .deletePendingMessage(widget
+                                                        .message.packetId);
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        progressColor: ExtraTheme.of(context)
+                                            .fileMessageDetails,
+                                      );
+                                    } else {
+                                      return Stack(
+                                        children: [
+                                          const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 1),
+                                            child: Center(
+                                              child: GestureDetector(
+                                                child: const Icon(
+                                                  Icons.cancel,
+                                                  size: 36,
+                                                ),
+                                                onTap: () {
+                                                  _messageRepo
+                                                      .deletePendingMessage(
+                                                          widget.message
+                                                              .packetId);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  }),
+                            ),
+                          if (widget.image.caption.isEmpty)
+                            TimeAndSeenStatus(
+                                widget.message, widget.isSender, widget.isSeen,
+                                needsBackground: true)
+                        ],
+                      ),
                     );
                   } else {
                     return GestureDetector(
@@ -247,8 +276,8 @@ class _ImageUiState extends State<ImageUi> {
                                         await fileRepo.getFile(
                                             widget.image.uuid,
                                             widget.image.name);
-                                       _startDownload.add(false);
-                                       setState(() {});
+                                        _startDownload.add(false);
+                                        setState(() {});
                                       },
                                       shape: const CircleBorder(),
                                       child: const Icon(Icons.arrow_downward),

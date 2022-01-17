@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
-import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'helper_classes.dart';
@@ -32,15 +35,24 @@ class ShareBoxGallery extends StatefulWidget {
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final TextEditingController _captionEditingController =
+      TextEditingController();
+  final _keyboardVisibilityController = KeyboardVisibilityController();
 
   late Future<List<StorageFile>> _future;
   late CameraController _controller;
   late List<CameraDescription> _cameras;
-  late BehaviorSubject<CameraController> _streamController;
+  late BehaviorSubject<CameraController> _cameraController;
+  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
     _future = ImageItem.getImages();
+    _keyboardVisibilityController.onChange.listen((event) {
+      _insertCaption.add(event);
+    });
     _initCamera();
 
     super.initState();
@@ -54,7 +66,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
         if (!mounted) {
           return;
         }
-        _streamController = BehaviorSubject.seeded(_controller);
+        _cameraController = BehaviorSubject.seeded(_controller);
         setState(() {});
       });
     }
@@ -106,7 +118,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         child: _controller.value.isInitialized
                             ? GestureDetector(
                                 onTap: () {
-                                  openCamera();
+                                  openCamera(() {
+                                    widget.pop();
+                                    Navigator.pop(context);
+                                  });
                                 },
                                 child: CameraPreview(
                                   _controller,
@@ -181,13 +196,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     );
   }
 
-  void openCamera() {
+  void openCamera(Function pop) {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return Scaffold(
           body: Stack(
         children: [
           StreamBuilder<CameraController>(
-              stream: _streamController.stream,
+              stream: _cameraController.stream,
               builder: (context, snapshot) {
                 return CameraPreview(
                   snapshot.data ?? _controller,
@@ -200,19 +215,17 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               child: IconButton(
                 onPressed: () async {
                   XFile file = await _controller.takePicture();
-                  widget.pop();
-                  Navigator.pop(context);
-                  widget.selectAvatar
-                      ? widget.setAvatar!(file.path)
-                      : showCaptionDialog(
-                          roomUid: widget.roomUid,
-                          context: context,
-                          files: [model.File(file.path, file.name)],
-                          type: file.path.split(".").last);
+                  if (widget.selectAvatar) {
+                    widget.pop();
+                    Navigator.pop(context);
+                    widget.setAvatar!(file.path);
+                  } else {
+                    openImage(file, pop);
+                  }
                 },
                 icon: const Icon(
                   Icons.photo_camera,
-                  color: Colors.blue,
+                  color: Colors.black45,
                   size: 55,
                 ),
               ),
@@ -231,10 +244,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             : _cameras[1],
                         ResolutionPreset.max);
                     await _controller.initialize();
-                    _streamController.add(_controller);
+                    _cameraController.add(_controller);
                   },
                   icon: const Icon(Icons.flip_camera_ios_outlined),
-                  color: Colors.blueAccent,
+                  color: Colors.black38,
                   iconSize: 40,
                 ),
               ),
@@ -242,5 +255,156 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
         ],
       ));
     }));
+  }
+
+  void openImage(XFile file, Function pop) {
+    String imagePath = file.path;
+    Navigator.push(context, MaterialPageRoute(builder: (c) {
+      return StatefulBuilder(builder: (con, set) {
+        return Scaffold(
+            appBar: AppBar(
+              actions: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        var res = await cropImage(imagePath);
+                        if (res != null) {
+                          set(() {
+                            imagePath = res;
+                          });
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.crop,
+                      ),
+                      iconSize: 30,
+                    ),
+                  ],
+                )
+              ],
+            ),
+            body: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: Image.file(
+                          File(
+                            imagePath,
+                          ),
+                        ).image,
+                        fit: BoxFit.fill),
+                  ),
+                ),
+                buildInputCaption(
+                    file: file,
+                    context: con,
+                    send: () {
+                      pop();
+                      Navigator.of(context).pop();
+                      _messageRepo.sendFileMessage(
+                          widget.roomUid,
+                          model.File(imagePath, file.name,
+                              extension: file.mimeType),
+                          caption: _captionEditingController.text);
+                    })
+              ],
+            ));
+      });
+    }));
+  }
+
+  Stack buildInputCaption(
+      {required XFile file,
+      required BuildContext context,
+      required Function send}) {
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.transparent,
+              ),
+            ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: _i18n.get("caption"),
+                hintStyle: const TextStyle(color: Colors.white),
+                suffixIcon: StreamBuilder<bool>(
+                  stream: _insertCaption.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!) {
+                      return IconButton(
+                        onPressed: () => send(),
+                        icon: const Icon(
+                          Icons.check_circle_outline,
+                          size: 35,
+                        ),
+                        color: Colors.lightBlue,
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              ),
+              style: const TextStyle(color: Colors.white, fontSize: 17),
+              autocorrect: true,
+              textInputAction: TextInputAction.newline,
+              minLines: 1,
+              maxLines: 15,
+              controller: _captionEditingController,
+            ),
+          ),
+        ),
+        Positioned(
+          right: 20,
+          bottom: 20,
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: <Widget>[
+              Container(
+                decoration: const BoxDecoration(
+                  boxShadow: [BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)],
+                  shape: BoxShape.circle,
+                ),
+                child: StreamBuilder<bool>(
+                    stream: _insertCaption.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          !snapshot.data!) {
+                        return ClipOval(
+                          child: Material(
+                            color:
+                                Theme.of(context).primaryColor, // button color
+                            child: InkWell(
+                                splashColor: Colors.red, // inkwell color
+                                child: const SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: Icon(
+                                      Icons.send,
+                                      size: 30,
+                                      color: Colors.white,
+                                    )),
+                                onTap: () => send()),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
   }
 }

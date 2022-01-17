@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -34,6 +36,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
   @override
@@ -104,6 +107,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   _setAvatar(String avatarPath) async {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
+    var statusCode = _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
+    if (statusCode != 200) {
+      ToastDisplay.showToast(
+          tostContext: context, toastText: _i18n.get("error_in_uploading"));
+    }
     _newAvatarPath.add("");
   }
 

@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:deliver/shared/constants.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:deliver/box/dao/file_dao.dart';
@@ -15,11 +16,13 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
+  Map<String, BehaviorSubject<int?>> uploadFileStatusCode = {};
 
   Future<void> cloneFileInLocalDirectory(
       io.File file, String uploadKey, String name) async {
@@ -29,10 +32,23 @@ class FileRepo {
   Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
       {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    var value = await _fileService.uploadFile(clonedFilePath!.path!, name,
-        uploadKey: uploadKey, sendActivity: sendActivity);
+    if (uploadFileStatusCode[uploadKey] == null) {
+      BehaviorSubject<int> d = BehaviorSubject.seeded(0);
+      uploadFileStatusCode[uploadKey] = d;
+    }
+    Response? value;
+    try {
+      value = await _fileService.uploadFile(clonedFilePath!.path!, name,
+          uploadKey: uploadKey, sendActivity: sendActivity);
+    } on DioError catch (e) {
+      if (e.response != null) {
+        uploadFileStatusCode[uploadKey]!.add(e.response!.statusCode);
+      }
+      _logger.e(e);
+    }
     if (value != null) {
       var json = jsonDecode(value.toString());
+      uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();
 

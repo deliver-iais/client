@@ -56,69 +56,89 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   }
 
   Widget buildStreamBuilder() {
-    return StreamBuilder<bool>(
-      stream: _startDownload.stream,
-      builder: (c, start) {
-        if (start.hasData && start.data != null && start.data!) {
-          return StreamBuilder<double>(
-            stream: _fileServices.filesProgressBarStatus[widget.uuid],
-            builder: (c, snapshot) {
-              if (snapshot.hasData &&
-                  snapshot.data != null &&
-                  snapshot.data! > 0 &&
-                  snapshot.data! <= 1) {
-                return CircularPercentIndicator(
-                  radius: 40.0,
-                  lineWidth: 5.0,
-                  backgroundColor: Colors.lightBlue,
-                  percent: snapshot.data!,
-                  center: StreamBuilder<CancelToken?>(
-                    stream: _fileServices.cancelTokens[widget.uuid],
-                    builder: (c, s) {
-                      if (s.hasData && s.data != null) {
-                        return GestureDetector(
-                          child: const Icon(
-                            Icons.cancel,
-                            color: Colors.blue,
-                            size: 40,
-                          ),
-                          onTap: () {
-                            if (s.hasData && s.data != null) {
-                              _startDownload.add(false);
-                              s.data!.cancel();
-                            }
-                          },
-                        );
-                      } else {
-                        return const CircularProgressIndicator(
-                          strokeWidth: 4,
-                        );
-                      }
+    return StreamBuilder<double>(
+      stream: _fileServices.filesProgressBarStatus[widget.uuid],
+      builder: (c, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.data != null &&
+            snapshot.data! > 0 &&
+            snapshot.data! <= 1) {
+          return CircularPercentIndicator(
+            radius: 40.0,
+            lineWidth: 5.0,
+            backgroundColor: Colors.lightBlue,
+            percent: snapshot.data!,
+            center: StreamBuilder<CancelToken?>(
+              stream: _fileServices.cancelTokens[widget.uuid],
+              builder: (c, s) {
+                if (s.hasData && s.data != null) {
+                  return GestureDetector(
+                    child: const Icon(
+                      Icons.cancel,
+                      color: Colors.blue,
+                      size: 35,
+                    ),
+                    onTap: () {
+                      _fileServices.cancelTokens[widget.uuid]!.add(null);
+                      _startDownload.add(false);
+                      s.data!.cancel();
                     },
-                  ),
-                  progressColor: Colors.white,
-                );
-              } else {
-                return const CircularProgressIndicator(
-                  strokeWidth: 4,
-                );
-              }
-            },
+                  );
+                } else {
+                  return StreamBuilder<bool>(
+                      stream: _startDownload.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!) {
+                          return const CircularProgressIndicator(
+                            strokeWidth: 4,
+                            color: Colors.blue,
+                          );
+                        } else {
+                          return GestureDetector(
+                              onTap: () {
+                                _startDownload.add(true);
+                                widget.download();
+                              },
+                              child: Icon(
+                                Icons.arrow_downward,
+                                color:
+                                    ExtraTheme.of(context).fileMessageDetails,
+                                size: 35,
+                              ));
+                        }
+                      });
+                }
+              },
+            ),
+            progressColor: Colors.white,
           );
         } else {
-          return MaterialButton(
-            color: Theme.of(context).primaryColor,
-            onPressed: () {
-              _startDownload.add(true);
-              widget.download();
-            },
-            shape: const CircleBorder(),
-            child: Icon(
-              Icons.download_rounded,
-              color: ExtraTheme.of(context).messageDetails,
-            ),
-            padding: const EdgeInsets.all(10),
-          );
+          return StreamBuilder<bool>(
+              stream: _startDownload.stream,
+              builder: (context, start) {
+                if (start.hasData && start.data != null && start.data!) {
+                  return const CircularProgressIndicator(
+                    strokeWidth: 4,
+                  );
+                } else {
+                  return MaterialButton(
+                    color: Theme.of(context).primaryColor,
+                    onPressed: () {
+                      _startDownload.add(true);
+                      widget.download();
+                    },
+                    shape: const CircleBorder(),
+                    child: const Icon(
+                      Icons.download_rounded,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(10),
+                  );
+                }
+              });
         }
       },
     );

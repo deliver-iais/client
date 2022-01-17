@@ -56,7 +56,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                 stream: _fileService
                                     .filesProgressBarStatus[widget.fileId],
                                 builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
+                                  if (snapshot.hasData &&
+                                      snapshot.data != null &&
+                                      snapshot.data! > 0) {
                                     return CircularPercentIndicator(
                                       radius: 45.0,
                                       lineWidth: 4.0,
@@ -86,24 +88,27 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                           .fileMessageDetails,
                                     );
                                   } else {
-                                    return CircularPercentIndicator(
-                                      radius: 45.0,
-                                      lineWidth: 4.0,
-                                      center: GestureDetector(
-                                        child: const Icon(
-                                          Icons.cancel,
-                                          size: 35,
+                                    return Stack(
+                                      children: [
+                                        const Center(
+                                          child: CircularProgressIndicator(),
                                         ),
-                                        onTap: () {
-                                          _messageRepo.deletePendingMessage(
-                                              widget.messagePacketId!);
-                                        },
-                                      ),
-                                      percent: 0.01,
-                                      backgroundColor: ExtraTheme.of(context)
-                                          .circularFileStatus,
-                                      progressColor: ExtraTheme.of(context)
-                                          .fileMessageDetails,
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 1),
+                                          child: Center(
+                                            child: GestureDetector(
+                                              child: const Icon(
+                                                Icons.cancel,
+                                                size: 36,
+                                              ),
+                                              onTap: () {
+                                                _messageRepo.deletePendingMessage(
+                                                    widget.messagePacketId!);
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     );
                                   }
                                 })

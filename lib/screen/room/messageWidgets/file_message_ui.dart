@@ -69,7 +69,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
   }
 
   Widget _buildMainUi(String type) {
-    if (type.contains('image')) {
+    if (type.contains('image') || type.contains("png")|| type.contains("jpg")) {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,

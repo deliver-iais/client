@@ -135,6 +135,8 @@ dependencies:
   universal_html: 2.0.8
   js: 0.6.3
   platform_detect: 2.0.0
+  flutter_keyboard_visibility: 5.1.1
+
   automatic_animated_list: 1.0.0
 
 dev_dependencies:

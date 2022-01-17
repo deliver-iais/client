@@ -120,6 +120,7 @@ class _InputMessageWidget extends State<InputMessage> {
     if (kIsWeb || isDesktop()) {
       _attachFileInWindowsMode();
     } else {
+      FocusScope.of(context).unfocus();
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
