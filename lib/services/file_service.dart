@@ -206,6 +206,27 @@ class FileService {
     }
   }
 
+  Future<String> compressImageInMobile(
+    File file,
+  ) async {
+    try {
+      var name = DateTime.now().millisecondsSinceEpoch.toString();
+      var targetFilePath = await localFilePath(name, "jpeg");
+      var result = await FlutterImageCompress.compressAndGetFile(
+        file.path,
+        targetFilePath,
+        format: CompressFormat.jpeg,
+        quality: 60,
+      );
+      if (result != null) {
+        return result.path;
+      }
+      return file.path;
+    } catch (_) {
+      return file.path;
+    }
+  }
+
   // TODO, refactoring needed
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
@@ -215,10 +236,10 @@ class FileService {
           if (MediaType.parse(mime(filePath) ?? filePath)
               .toString()
               .contains("image")) {
-            var compressedImagePath =
-                await compressImageInDesktop(File(filePath));
-            if (compressedImagePath.isNotEmpty) {
-              filePath = compressedImagePath;
+            if (isAndroid() || isIOS()) {
+              filePath = await compressImageInMobile(File(filePath));
+            } else {
+              filePath = await compressImageInDesktop(File(filePath));
             }
           }
         } catch (_) {

@@ -120,7 +120,8 @@ class _ImageUiState extends State<ImageUi> {
                                   builder: (c, snap) {
                                     if (snap.hasData &&
                                         snap.data != null &&
-                                        snap.data! <= 1) {
+                                        snap.data! <= 1 &&
+                                        snap.data! > 0) {
                                       return CircularPercentIndicator(
                                         radius: 45.0,
                                         lineWidth: 4.0,
@@ -152,9 +153,30 @@ class _ImageUiState extends State<ImageUi> {
                                             .fileMessageDetails,
                                       );
                                     } else {
-                                      return const CircularProgressIndicator(
-                                        color: Colors.blue,
-                                        strokeWidth: 4,
+                                      return Stack(
+                                        children: [
+                                          const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 1),
+                                            child: Center(
+                                              child: GestureDetector(
+                                                child: const Icon(
+                                                  Icons.cancel,
+                                                  size: 36,
+                                                ),
+                                                onTap: () {
+                                                  _messageRepo
+                                                      .deletePendingMessage(
+                                                          widget.message
+                                                              .packetId);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       );
                                     }
                                   }),
