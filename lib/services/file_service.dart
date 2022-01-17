@@ -186,48 +186,21 @@ class FileService {
 
   Future<String> compressImageInDesktop(File file) async {
     try {
-      if (await file.length() < 500000) {
-        return file.path;
-      }
       var bytes = await file.readAsBytes();
       ImageFile input = ImageFile(
           filePath: file.path, rawBytes: bytes); // set the input image file
       Configuration config = const Configuration(
         outputType: ImageOutputType.jpg,
-        // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
         useJpgPngNativeCompressor: false,
-        // set quality between 0-100
-        quality: 70,
+        quality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compress(param);
-      return output.filePath;
-    } catch (_) {
-      return file.path;
-    }
-  }
-
-  Future<String> compressImageInMobile(
-    File file,
-  ) async {
-    try {
-      if (await file.length() < 300000) {
-        return file.path;
-      }
+      final output = await compressor.compressJpg(param);
       var name = DateTime.now().millisecondsSinceEpoch.toString();
-      var targetFilePath = await localFilePath(name, "jpeg");
-      var result = await FlutterImageCompress.compressAndGetFile(
-        file.path,
-        targetFilePath,
-        minWidth: 480,
-        format: CompressFormat.jpeg,
-        quality: 70,
-      );
-      if (result != null) {
-        return result.path;
-      }
-      return file.path;
+      final outPutFile = await localFile(name, "jpg");
+      outPutFile.writeAsBytesSync(output.rawBytes);
+      return outPutFile.path;
     } catch (_) {
       return file.path;
     }
@@ -242,16 +215,10 @@ class FileService {
           if (MediaType.parse(mime(filePath) ?? filePath)
               .toString()
               .contains("image")) {
-            if (isAndroid()) {
-              var compressedImagePath =
-                  await compressImageInMobile(File(filePath));
+            var compressedImagePath =
+                await compressImageInDesktop(File(filePath));
+            if (compressedImagePath.isNotEmpty) {
               filePath = compressedImagePath;
-            } else {
-              var compressedImagePath =
-                  await compressImageInDesktop(File(filePath));
-              if (compressedImagePath.isNotEmpty) {
-                filePath = compressedImagePath;
-              }
             }
           }
         } catch (_) {

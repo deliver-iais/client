@@ -59,57 +59,34 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     .filesProgressBarStatus[widget.fileId],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    return StreamBuilder<int?>(
-                                        stream: _fileRepo.uploadFileStatusCode[
-                                            widget.fileId],
-                                        builder: (context, statusCode) {
-                                          if (statusCode.hasData &&
-                                              statusCode.data != null &&
-                                              statusCode.data != 0 &&
-                                              statusCode.data != 200) {
-                                            return const Icon(
-                                              Icons.warning_amber_outlined,
+                                    return CircularPercentIndicator(
+                                      radius: 45.0,
+                                      lineWidth: 4.0,
+                                      center: StreamBuilder<CancelToken?>(
+                                        stream: _fileService
+                                            .cancelTokens[widget.fileId],
+                                        builder: (c, s) {
+                                          return GestureDetector(
+                                            child: const Icon(
+                                              Icons.cancel,
                                               size: 35,
-                                              color: Colors.red,
-                                            );
-                                          } else {
-                                            return CircularPercentIndicator(
-                                              radius: 45.0,
-                                              lineWidth: 4.0,
-                                              center:
-                                                  StreamBuilder<CancelToken?>(
-                                                stream:
-                                                    _fileService.cancelTokens[
-                                                        widget.fileId],
-                                                builder: (c, s) {
-                                                  return GestureDetector(
-                                                    child: const Icon(
-                                                      Icons.cancel,
-                                                      size: 35,
-                                                    ),
-                                                    onTap: () {
-                                                      if (s.hasData &&
-                                                          s.data != null) {
-                                                        s.data!.cancel();
-                                                      }
-                                                      _messageRepo
-                                                          .deletePendingMessage(
-                                                              widget
-                                                                  .messagePacketId!);
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                              percent: snapshot.data!,
-                                              backgroundColor:
-                                                  ExtraTheme.of(context)
-                                                      .circularFileStatus,
-                                              progressColor:
-                                                  ExtraTheme.of(context)
-                                                      .fileMessageDetails,
-                                            );
-                                          }
-                                        });
+                                            ),
+                                            onTap: () {
+                                              if (s.hasData && s.data != null) {
+                                                s.data!.cancel();
+                                              }
+                                              _messageRepo.deletePendingMessage(
+                                                  widget.messagePacketId!);
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      percent: snapshot.data!,
+                                      backgroundColor: ExtraTheme.of(context)
+                                          .circularFileStatus,
+                                      progressColor: ExtraTheme.of(context)
+                                          .fileMessageDetails,
+                                    );
                                   } else {
                                     return CircularPercentIndicator(
                                       radius: 45.0,

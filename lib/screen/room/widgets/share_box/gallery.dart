@@ -5,10 +5,10 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -38,16 +38,22 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
-  TextEditingController _captionEditingController = TextEditingController();
+  final TextEditingController _captionEditingController =
+      TextEditingController();
+  final _keyboardVisibilityController = KeyboardVisibilityController();
 
   late Future<List<StorageFile>> _future;
   late CameraController _controller;
   late List<CameraDescription> _cameras;
   late BehaviorSubject<CameraController> _cameraController;
+  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
     _future = ImageItem.getImages();
+    _keyboardVisibilityController.onChange.listen((event) {
+      _insertCaption.add(event);
+    });
     _initCamera();
 
     super.initState();
@@ -199,11 +205,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
           StreamBuilder<CameraController>(
               stream: _cameraController.stream,
               builder: (context, snapshot) {
-                return Hero(
-                  tag: "123456",
-                  child: CameraPreview(
-                    snapshot.data ?? _controller,
-                  ),
+                return CameraPreview(
+                  snapshot.data ?? _controller,
                 );
               }),
           Align(
@@ -284,18 +287,15 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             ),
             body: Stack(
               children: [
-                Hero(
-                  tag: "123456",
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: Image.file(
-                            File(
-                              imagePath,
-                            ),
-                          ).image,
-                          fit: BoxFit.fill),
-                    ),
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: Image.file(
+                          File(
+                            imagePath,
+                          ),
+                        ).image,
+                        fit: BoxFit.fill),
                   ),
                 ),
                 buildInputCaption(
@@ -322,32 +322,47 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
       required Function send}) {
     return Stack(
       children: [
-        !widget.selectAvatar
-            ? Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.transparent,
-                    ),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: _i18n.get("caption"),
-                      hintStyle: const TextStyle(color: Colors.white),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 8),
-                    ),
-                    style: const TextStyle(color: Colors.white, fontSize: 17),
-                    autocorrect: true,
-                    textInputAction: TextInputAction.newline,
-                    minLines: 1,
-                    maxLines: 15,
-                    controller: _captionEditingController,
-                  ),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.transparent,
+              ),
+            ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: _i18n.get("caption"),
+                hintStyle: const TextStyle(color: Colors.white),
+                suffixIcon: StreamBuilder<bool>(
+                  stream: _insertCaption.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!) {
+                      return IconButton(
+                        onPressed: () => send(),
+                        icon: const Icon(
+                          Icons.check_circle_outline,
+                          size: 35,
+                        ),
+                        color: Colors.lightBlue,
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
                 ),
-              )
-            : const SizedBox.shrink(),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              ),
+              style: const TextStyle(color: Colors.white, fontSize: 17),
+              autocorrect: true,
+              textInputAction: TextInputAction.newline,
+              minLines: 1,
+              maxLines: 15,
+              controller: _captionEditingController,
+            ),
+          ),
+        ),
         Positioned(
           right: 20,
           bottom: 20,
@@ -359,22 +374,33 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                   boxShadow: [BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)],
                   shape: BoxShape.circle,
                 ),
-                child: ClipOval(
-                  child: Material(
-                    color: Theme.of(context).primaryColor, // button color
-                    child: InkWell(
-                        splashColor: Colors.red, // inkwell color
-                        child: const SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: Icon(
-                              Icons.send,
-                              size: 30,
-                              color: Colors.white,
-                            )),
-                        onTap: () => send()),
-                  ),
-                ),
+                child: StreamBuilder<bool>(
+                    stream: _insertCaption.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          !snapshot.data!) {
+                        return ClipOval(
+                          child: Material(
+                            color:
+                                Theme.of(context).primaryColor, // button color
+                            child: InkWell(
+                                splashColor: Colors.red, // inkwell color
+                                child: const SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: Icon(
+                                      Icons.send,
+                                      size: 30,
+                                      color: Colors.white,
+                                    )),
+                                onTap: () => send()),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
               ),
             ],
           ),
