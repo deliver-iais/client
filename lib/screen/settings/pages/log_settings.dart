@@ -1,3 +1,5 @@
+import 'package:deliver/debug/commons_widgets.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/services/ux_service.dart';
@@ -17,6 +19,7 @@ class LogSettingsPage extends StatefulWidget {
 class _LogSettingsPageState extends State<LogSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _uxService = GetIt.I.get<UxService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +52,17 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
                         ))
                     .toList(),
               ),
+              if (isDebugEnabled())
+                DebugC(label: "Tokens", children: [
+                  Debug(
+                    _authRepo.refreshToken,
+                    label: "refreshToken",
+                  ),
+                  Debug(
+                    _authRepo.refreshToken,
+                    label: "accessToken",
+                  )
+                ]),
             ],
           ),
         ));

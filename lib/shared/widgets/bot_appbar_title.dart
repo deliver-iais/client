@@ -1,3 +1,4 @@
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -27,6 +28,10 @@ class BotAppbarTitle extends StatelessWidget {
             behavior: HitTestBehavior.translucent,
             child: Row(
               children: [
+                if (isDebugEnabled())
+                  DebugC(
+                    children: [Debug(botUid.asString(), label: "uid")],
+                  ),
                 CircleAvatarWidget(botUid, 23),
                 const SizedBox(
                   width: 16,
