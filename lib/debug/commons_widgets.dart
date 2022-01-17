@@ -27,6 +27,7 @@ class Debug extends StatelessWidget {
                 tostContext: context);
           },
           child: Container(
+              constraints: const BoxConstraints(maxWidth: 350, minWidth: 0),
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
@@ -38,37 +39,78 @@ class Debug extends StatelessWidget {
   }
 }
 
-class DebugC extends StatelessWidget {
+class DebugC extends StatefulWidget {
   final String? label;
   final List<Widget> children;
+  final bool isOpen;
 
-  const DebugC({Key? key, required this.children, this.label})
+  const DebugC(
+      {Key? key, required this.children, this.label, this.isOpen = false})
       : super(key: key);
 
   @override
+  State<DebugC> createState() => _DebugCState();
+}
+
+class _DebugCState extends State<DebugC> {
+  bool isOpen = false;
+
+  @override
+  void initState() {
+    isOpen = widget.isOpen;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.all(8),
+    if (!isOpen) {
+      return Container(
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(width: 2, color: Colors.red),
           color: const Color(0xAAFFE8E8),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: IconButton(
+            onPressed: () => setState(() => isOpen = true),
+            icon: const Icon(Icons.fullscreen)),
+      );
+    }
+    return Container(
+        margin: const EdgeInsets.all(4),
+        constraints: const BoxConstraints(maxWidth: 350, minWidth: 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(width: 2, color: Colors.red),
+          color: const Color(0xAAFFE8E8),
+        ),
+        child: Stack(
+          alignment: Alignment.topRight,
           children: [
-            if (label != null)
-              Text(
-                label!,
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.label != null)
+                    Text(
+                      widget.label!,
+                      style:
+                          const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                  Wrap(
+                    children: widget.children,
+                    spacing: 8,
+                    runSpacing: 16,
+                  ),
+                ],
               ),
-            Wrap(
-              children: children,
-              spacing: 16,
-              runSpacing: 16,
             ),
+            IconButton(
+                padding: const EdgeInsets.all(2.0),
+                iconSize: 16,
+                onPressed: () => setState(() => isOpen = false),
+                icon: const Icon(Icons.close_fullscreen)),
           ],
         ));
   }

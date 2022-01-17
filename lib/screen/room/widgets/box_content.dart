@@ -93,6 +93,7 @@ class _BoxContentState extends State<BoxContent> {
                     if (isDebugEnabled())
                       DebugC(label: "message details", children: [
                         Debug(widget.message.id, label: "id"),
+                        Debug(widget.message.packetId, label: "packetId"),
                       ]),
                     if (widget.message.roomUid.asUid().category ==
                             Categories.GROUP &&

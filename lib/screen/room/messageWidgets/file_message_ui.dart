@@ -49,7 +49,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         if (isDebugEnabled())
           DebugC(
               label: "file details",
-              children: [Debug(file.uuid)]),
+              children: [Debug(file)]),
         _buildMainUi(type),
         if (caption.isNotEmpty)
           SizedBox(
