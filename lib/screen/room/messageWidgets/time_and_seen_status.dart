@@ -51,9 +51,14 @@ class TimeAndSeenStatus extends StatelessWidget {
           style: TextStyle(
             color: needsBackground
                 ? Colors.white
-                : ExtraTheme.of(context).textMessage.withAlpha(130),
-            fontSize: 12,
-            height: 1.2,
+                : (isSender ? ExtraTheme
+                .of(context)
+                .sentMessageBoxForeground : ExtraTheme
+                .of(context)
+                .textMessage
+                .withAlpha(130)),
+            fontSize: 13,
+            // height: 1,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -61,7 +66,9 @@ class TimeAndSeenStatus extends StatelessWidget {
             children: [
               if (message.edited != null && message.edited!)
                 Text(_i18n.get("edited")),
-              MsgTime(time: date(message.time)),
+              MsgTime(
+                time: date(message.time),
+              ),
               if (isSender)
                 Padding(
                   padding: const EdgeInsets.only(left: 2.0),
@@ -70,7 +77,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                     isSeen: isSeen,
                     iconColor: needsBackground
                         ? Colors.white
-                        : ExtraTheme.of(context).seenStatus,
+                        : ExtraTheme.of(context).sentMessageBoxForeground,
                   ),
                 )
             ],

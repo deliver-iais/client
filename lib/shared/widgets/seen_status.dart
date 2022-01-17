@@ -21,6 +21,7 @@ class SeenStatus extends StatelessWidget {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
     final color = iconColor ?? ExtraTheme.of(context).seenStatus;
+    const size = 16.0;
     Widget pendingMessage = Container(
         child: Lottie.asset(
       'assets/animations/clock.json',
@@ -54,7 +55,7 @@ class SeenStatus extends StatelessWidget {
       return Icon(
         Icons.done_all,
         color: color,
-        size: 15,
+        size: size,
       );
     } else {
       return StreamBuilder<Seen?>(
@@ -66,13 +67,13 @@ class SeenStatus extends StatelessWidget {
                   ? Icons.done_all
                   : Icons.done,
               color: color,
-              size: 15,
+              size: size,
             );
           } else {
             return Icon(
               Icons.done,
               color: color,
-              size: 15,
+              size: size,
             );
           }
         },

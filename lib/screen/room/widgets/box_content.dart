@@ -141,7 +141,10 @@ class _BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
-          color: messageExtraContentColor(widget.isSender, context),
+          backgroundColor: messageExtraContentColor(widget.isSender, context),
+          foregroundColor: widget.isSender
+              ? ExtraTheme.of(context).sentMessageBoxForeground
+              : Theme.of(context).primaryColor,
         ),
       ),
     );
@@ -198,7 +201,9 @@ class _BoxContentState extends State<BoxContent> {
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).buttonTheme.colorScheme?.primary,
+        color: widget.isSender
+            ? ExtraTheme.of(context).sentMessageBoxForeground
+            : Theme.of(context).primaryColor,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -212,18 +217,24 @@ class _BoxContentState extends State<BoxContent> {
                 children: [
                   Icon(Icons.keyboard_arrow_right_rounded,
                       size: 15,
-                      color:
-                          Theme.of(context).buttonTheme.colorScheme?.onPrimary),
+                      color: widget.isSender
+                          ? ExtraTheme.of(context).sentMessageBox
+                          : Theme.of(context)
+                              .buttonTheme
+                              .colorScheme
+                              ?.onPrimary),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
-                            color: Theme.of(context)
-                                .buttonTheme
-                                .colorScheme
-                                ?.onPrimary,
+                            color: widget.isSender
+                                ? ExtraTheme.of(context).sentMessageBox
+                                : Theme.of(context)
+                                    .buttonTheme
+                                    .colorScheme
+                                    ?.onPrimary,
                             fontSize: 12)),
                   ),
                 ],

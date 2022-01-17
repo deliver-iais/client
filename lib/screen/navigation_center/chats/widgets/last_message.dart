@@ -19,6 +19,7 @@ class LastMessage extends StatelessWidget {
   final bool showSenderInSeparatedLine;
   final bool showSeenStatus;
   final bool expandContent;
+  final Color? highlightColor;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
@@ -32,7 +33,7 @@ class LastMessage extends StatelessWidget {
       this.showSeenStatus = true,
       this.showSenderInSeparatedLine = false,
       this.expandContent = true,
-      this.pinned = false})
+      this.pinned = false, this.highlightColor})
       : super(key: key);
 
   @override
@@ -54,7 +55,7 @@ class LastMessage extends StatelessWidget {
               if (showSeenStatus && !isReceivedMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
-                  child: SeenStatus(message),
+                  child: SeenStatus(message, iconColor: highlightColor,),
                 ),
               Flexible(
                 fit: expandContent ? FlexFit.tight : FlexFit.loose,
@@ -69,17 +70,17 @@ class LastMessage extends StatelessWidget {
                             text: mb.sender!.trim() +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
                             style:
-                                Theme.of(context).primaryTextTheme.caption),
+                                Theme.of(context).primaryTextTheme.caption?.copyWith(color: highlightColor)),
                       if (mb.typeDetails!.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
                             style:
-                                Theme.of(context).primaryTextTheme.caption),
+                                Theme.of(context).primaryTextTheme.caption?.copyWith(color: highlightColor)),
                       if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty)
                         TextSpan(
                             text: ", ",
                             style:
-                                Theme.of(context).primaryTextTheme.caption),
+                                Theme.of(context).primaryTextTheme.caption?.copyWith(color: highlightColor)),
                       if (mb.text!.isNotEmpty)
                         TextSpan(
                             children: buildText(mb, context),
@@ -91,7 +92,7 @@ class LastMessage extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: highlightColor ?? Theme.of(context).primaryColor,
                       shape: BoxShape.circle),
                   child: const Icon(
                     Icons.alternate_email,
