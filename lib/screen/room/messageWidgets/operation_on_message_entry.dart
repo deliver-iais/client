@@ -6,50 +6,28 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/services/ext_storage_services.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
-import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:share/share.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPinned;
-  final Function onDelete;
-  final int roomLastMessageId;
-  final Function onEdit;
-  final Function onPin;
-  final Function onUnPin;
-  final Function onReply;
 
   const OperationOnMessageEntry(
     this.message, {
     Key? key,
-    this.hasPermissionInChannel = true,
-    this.hasPermissionInGroup = true,
-    this.isPinned = false,
-    required this.onEdit,
-    required this.onPin,
-    required this.onUnPin,
-    required this.onReply,
-    this.onDelete = empty,
-    this.roomLastMessageId = 1,
+    required this.hasPermissionInChannel,
+    required this.hasPermissionInGroup,
+    required this.isPinned,
   }) : super(key: key);
-
-  static empty() {}
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -63,171 +41,10 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
 }
 
 class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _autRepo = GetIt.I.get<AuthRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _logger = GetIt.I.get<Logger>();
-
-  onReply() {
-    widget.onReply();
-    Navigator.of(context).pop();
-  }
-
-  onCopy() {
-    if (widget.message.type == MessageType.TEXT) {
-      Clipboard.setData(
-          ClipboardData(text: widget.message.json!.toText().text));
-    } else {
-      Clipboard.setData(
-          ClipboardData(text: widget.message.json!.toFile().caption));
-    }
-    ToastDisplay.showToast(
-        toastText: _i18n.get("copied"), tostContext: context);
-    Navigator.pop(context);
-  }
-
-  onForward() {
-    Navigator.pop(context);
-    _routingServices
-        .openSelectForwardMessage(forwardedMessages: [widget.message]);
-  }
-
-  onEditMessage() {
-    Navigator.pop(context);
-    switch (widget.message.type) {
-      // ignore: missing_enum_constant_in_switch
-      case MessageType.TEXT:
-        widget.onEdit();
-        break;
-      case MessageType.FILE:
-        showCaptionDialog(
-            roomUid: widget.message.roomUid.asUid(),
-            editableMessage: widget.message,
-            files: [],
-            context: context);
-        break;
-      case MessageType.STICKER:
-        // TODO: Handle this case.
-        break;
-      case MessageType.LOCATION:
-        // TODO: Handle this case.
-        break;
-      case MessageType.LIVE_LOCATION:
-        // TODO: Handle this case.
-        break;
-      case MessageType.POLL:
-        // TODO: Handle this case.
-        break;
-      case MessageType.FORM:
-        // TODO: Handle this case.
-        break;
-      case MessageType.PERSISTENT_EVENT:
-        // TODO: Handle this case.
-        break;
-      case MessageType.NOT_SET:
-        // TODO: Handle this case.
-        break;
-      case MessageType.BUTTONS:
-        // TODO: Handle this case.
-        break;
-      case MessageType.SHARE_UID:
-        // TODO: Handle this case.
-        break;
-      case MessageType.FORM_RESULT:
-        // TODO: Handle this case.
-        break;
-      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-        // TODO: Handle this case.
-        break;
-      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-        // TODO: Handle this case.
-        break;
-      default:
-        break;
-    }
-  }
-
-  onResend() {
-    Navigator.of(context).pop();
-    _messageRepo.resendMessage(widget.message);
-  }
-
-  onShare() async {
-    try {
-      String? result = await _fileRepo.getFileIfExist(
-          widget.message.json!.toFile().uuid,
-          widget.message.json!.toFile().name);
-      if (result!.isNotEmpty) {
-        Share.shareFiles([(result)],
-            text: widget.message.json!.toFile().caption.isNotEmpty
-                ? widget.message.json!.toFile().caption
-                : 'Deliver');
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-    Navigator.pop(context);
-  }
-
-  onPinMessage() {
-    Navigator.of(context).pop();
-    widget.onPin();
-  }
-
-  onUnPinMessage() {
-    Navigator.of(context).pop();
-    widget.onUnPin();
-  }
-
-  onSaveTOGallery() {
-    var file = widget.message.json!.toFile();
-    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
-    Navigator.of(context);
-  }
-
-  onSaveTODownloads() {
-    var file = widget.message.json!.toFile();
-    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
-    Navigator.pop(context);
-  }
-
-  onSaveToMusic() {
-    Navigator.of(context).pop();
-    var file = widget.message.json!.toFile();
-    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
-  }
-
-  onDeleteMessage() {
-    Navigator.pop(context);
-    showDeleteMsgDialog(
-        [widget.message], context, widget.onDelete, widget.roomLastMessageId);
-  }
-
-  onDeletePendingMessage() {
-    Navigator.of(context).pop();
-    _messageRepo.deletePendingMessage(widget.message.packetId);
-  }
-
-  onReportMessage() {
-    Navigator.of(context).pop();
-    ToastDisplay.showToast(
-        toastText: _i18n.get("report_message"), tostContext: context);
-  }
-
-  Future<void> onShowInFolder(
-      AsyncSnapshot<dynamic> snapshot, BuildContext context) async {
-    var shell = Shell();
-    if (isWindows()) {
-      await shell.run('start "" "${snapshot.data.parent.path}"');
-    } else if (isLinux()) {
-      await shell.run('nautilus ${snapshot.data}');
-    } else if (isMacOS()) {
-      await shell.run('open ${snapshot.data.parent.path}');
-    }
-    Navigator.of(context).pop();
-  }
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _autRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
   bool _hasPermissionToDeleteMsg = false;
@@ -243,65 +60,53 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return IconTheme(
+      data: IconThemeData(
+        size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 20) + 4,
+        color: PopupMenuTheme.of(context).textStyle?.color,
+      ),
       child: Column(
         children: [
           if (widget.hasPermissionInChannel && widget.message.id != null)
-            TextButton(
-                onPressed: () {
-                  onReply();
-                },
-                child: Row(children: [
-                  const Icon(
-                    Icons.reply,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("Reply")),
-                ])),
+            PopupMenuItem(
+              value: OperationOnMessage.REPLY,
+              child: Row(children: [
+                const Icon(Icons.reply),
+                const SizedBox(width: 8),
+                Text(_i18n.get("Reply")),
+              ]),
+            ),
           if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
                   widget.hasPermissionInGroup) ||
               (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
                   widget.hasPermissionInChannel))
             if (!widget.isPinned)
-              TextButton(
-                  onPressed: () {
-                    onPinMessage();
-                  },
+              PopupMenuItem(
+                  value: OperationOnMessage.PIN_MESSAGE,
                   child: Row(children: [
-                    const Icon(
-                      Icons.push_pin,
-                      size: 20,
-                    ),
+                    const Icon(Icons.push_pin_outlined),
                     const SizedBox(width: 8),
                     Text(_i18n.get("pin")),
                   ]))
             else
-              TextButton(
-                  onPressed: () {
-                    onUnPinMessage();
-                  },
+              PopupMenuItem(
+                  value: OperationOnMessage.UN_PIN_MESSAGE,
                   child: Row(children: [
-                    const Icon(
-                      Icons.remove,
-                      size: 20,
-                    ),
+                    const Icon(Icons.remove),
                     const SizedBox(width: 8),
                     Text(_i18n.get("unpin")),
                   ])),
           if (widget.message.type == MessageType.TEXT ||
               (widget.message.type == MessageType.FILE &&
                   widget.message.json!.toFile().caption.isNotEmpty))
-            TextButton(
-                onPressed: () {
-                  onCopy();
-                },
+            PopupMenuItem(
+                value: OperationOnMessage.COPY,
                 child: Row(children: [
                   const Icon(
                     Icons.content_copy,
-                    size: 20,
+                    size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Text(_i18n.get("copy")),
                 ])),
           if (widget.message.type == MessageType.FILE)
@@ -313,28 +118,19 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   if (fe.hasData && fe.data != null) {
                     _fileIsExist.add(true);
                     model.File f = widget.message.json!.toFile();
-                    return TextButton(
-                        onPressed: () {
-                          if (f.type.contains("image")) {
-                            onSaveTOGallery();
-                          } else if (f.type.contains("audio") ||
-                              f.type.contains("mp3")) {
-                            // TODO ?????
-                            onSaveToMusic();
-                          } else {
-                            onSaveTODownloads();
-                          }
-                        },
+                    return PopupMenuItem(
+                        value: f.type.contains("image")
+                            ? OperationOnMessage.SAVE_TO_GALLERY
+                            : f.type.contains("audio") || f.type.contains("mp3")
+                                ? OperationOnMessage.SAVE_TO_MUSIC
+                                : OperationOnMessage.SAVE_TO_DOWNLOADS,
                         child: Row(children: [
-                          Icon(
-                            f.type.contains("image")
-                                ? Icons.image
-                                : f.type.contains("audio") ||
-                                        f.type.contains("mp3")
-                                    ? Icons.queue_music_rounded
-                                    : Icons.download_rounded,
-                            size: 20,
-                          ),
+                          Icon(f.type.contains("image")
+                              ? Icons.image_outlined
+                              : f.type.contains("audio") ||
+                                      f.type.contains("mp3")
+                                  ? Icons.queue_music_outlined
+                                  : Icons.download_outlined),
                           const SizedBox(width: 8),
                           f.type.contains("image")
                               ? Text(_i18n.get("save_to_gallery"))
@@ -353,15 +149,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 builder: (c, s) {
                   if (s.hasData && s.data!) {
                     _fileIsExist.add(true);
-                    return TextButton(
-                        onPressed: () {
-                          onShare();
-                        },
+                    return PopupMenuItem(
+                        value: OperationOnMessage.SHARE,
                         child: Row(children: [
-                          const Icon(
-                            Icons.share,
-                            size: 20,
-                          ),
+                          const Icon(Icons.share),
                           const SizedBox(width: 8),
                           Text(_i18n.get("share")),
                         ]));
@@ -370,29 +161,19 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   }
                 }),
           if (widget.message.roomUid.isMuc())
-            TextButton(
-                onPressed: () {
-                  onReportMessage();
-                },
+            PopupMenuItem(
+                value: OperationOnMessage.REPORT,
                 child: Row(children: [
-                  const Icon(
-                    Icons.report,
-                    size: 20,
-                  ),
+                  const Icon(Icons.report_outlined),
                   const SizedBox(width: 8),
                   Text(_i18n.get("report")),
                 ])),
           if (widget.message.id != null &&
               widget.message.type != MessageType.PERSISTENT_EVENT)
-            TextButton(
-                onPressed: () {
-                  onForward();
-                },
+            PopupMenuItem(
+                value: OperationOnMessage.FORWARD,
                 child: Row(children: [
-                  const Icon(
-                    Icons.forward,
-                    size: 20,
-                  ),
+                  const Icon(Icons.forward_outlined),
                   const SizedBox(width: 8),
                   Text(_i18n.get("forward")),
                 ])),
@@ -403,15 +184,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.failed) {
-                    return TextButton(
-                        onPressed: () {
-                          onResend();
-                        },
+                    return PopupMenuItem(
+                        value: OperationOnMessage.RESEND,
                         child: Row(children: [
-                          const Icon(
-                            Icons.refresh,
-                            size: 20,
-                          ),
+                          const Icon(Icons.refresh),
                           const SizedBox(width: 8),
                           Text(_i18n.get("resend")),
                         ]));
@@ -439,16 +215,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   widget.message.type == MessageType.FILE) &&
               _autRepo.isCurrentUserSender(widget.message) &&
               checkMessageTime(widget.message))
-            TextButton(
-                onPressed: () {
-                  onEditMessage();
-                },
+            PopupMenuItem(
+                value: OperationOnMessage.EDIT,
                 child: Row(children: [
                   const Icon(
-                    Icons.edit,
-                    size: 20,
+                    Icons.edit_outlined,
+                    size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Text(_i18n.get("edit")),
                 ])),
           if (isDesktop() && widget.message.type == MessageType.FILE)
@@ -457,16 +231,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     widget.message.json!.toFile().uuid,
                     widget.message.json!.toFile().name),
                 builder: (c, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return TextButton(
-                        onPressed: () async {
-                          await onShowInFolder(snapshot, context);
-                        },
+                  if (snapshot.hasData) {
+                    return PopupMenuItem(
+                        value: OperationOnMessage.SHOW_IN_FOLDER,
                         child: Row(children: [
-                          const Icon(
-                            Icons.folder_open_rounded,
-                            size: 20,
-                          ),
+                          const Icon(Icons.folder_open_rounded),
                           const SizedBox(width: 8),
                           Text(_i18n.get("show_in_folder")),
                         ]));
@@ -479,19 +248,17 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     );
   }
 
-  TextButton deleteMenuWidget() {
-    return TextButton(
-        onPressed: () {
-          widget.message.id != null
-              ? onDeleteMessage()
-              : onDeletePendingMessage();
-        },
+  Widget deleteMenuWidget() {
+    return PopupMenuItem(
+        value: widget.message.id != null
+            ? OperationOnMessage.DELETE
+            : OperationOnMessage.DELETE_PENDING_MESSAGE,
         child: Row(children: [
           const Icon(
-            Icons.delete,
-            size: 20,
+            Icons.delete_outline_rounded,
+            size: 21,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 7),
           Text(_i18n.get("delete")),
         ]));
   }

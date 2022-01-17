@@ -34,14 +34,14 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final _logger = GetIt.I.get<Logger>();
-  final _uxService = GetIt.I.get<UxService>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  bool isDeveloperMode = false || kDebugMode;
-  int developerModeCounterCountDown = 10;
-  I18N i18n = GetIt.I.get<I18N>();
+  static final _logger = GetIt.I.get<Logger>();
+  static final _uxService = GetIt.I.get<UxService>();
+  static final _accountRepo = GetIt.I.get<AccountRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+
+  int developerModeCounterCountDown = kDebugMode ? 1 : 10;
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: AppBar(
             titleSpacing: 8,
             title: Text(
-              i18n.get(
-                "settings",
-              ),
+              _i18n.get("settings"),
               style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
             leading: _routingService.backButtonLeading(),
@@ -76,9 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     heroTag: "avatar");
                               },
                               child: CircleAvatarWidget(
-                                _authRepo.currentUserUid,
-                                35
-                              )),
+                                  _authRepo.currentUserUid, 35)),
                           const SizedBox(width: 10),
                           Expanded(
                             child: FutureBuilder<Account?>(
@@ -134,10 +130,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               Section(
-                title: i18n.get("other"),
+                title: _i18n.get("other"),
                 children: [
                   SettingsTile(
-                    title: i18n.get("qr_share"),
+                    title: _i18n.get("qr_share"),
                     leading: const Icon(Icons.qr_code),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
@@ -151,7 +147,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
-                    title: i18n.get("saved_message"),
+                    title: _i18n.get("saved_message"),
                     leading: const Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
@@ -159,7 +155,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
-                    title: i18n.get("contacts"),
+                    title: _i18n.get("contacts"),
                     leading: const Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
@@ -168,17 +164,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               Section(
-                title: i18n.get("user_experience"),
+                title: _i18n.get("user_experience"),
                 children: [
                   SettingsTile.switchTile(
-                    title: i18n.get("notification"),
+                    title: _i18n.get("notification"),
                     leading: const Icon(Icons.notifications_active),
                     switchValue: !_uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
                   ),
                   SettingsTile(
-                    title: i18n.get("language"),
+                    title: _i18n.get("language"),
                     subtitle: I18N.of(context)!.locale.language().name,
                     leading: const Icon(Icons.language),
                     onPressed: (BuildContext context) {
@@ -186,7 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile.switchTile(
-                    title: i18n.get("dark_mode"),
+                    title: _i18n.get("dark_mode"),
                     leading: const Icon(Icons.brightness_2),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
@@ -196,14 +192,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
-                    title: i18n.get("security"),
+                    title: _i18n.get("security"),
                     leading: const Icon(Icons.security),
                     onPressed: (BuildContext context) =>
                         _routingService.openSecuritySettings(),
                     trailing: const SizedBox.shrink(),
                   ),
                   SettingsTile(
-                    title: i18n.get("devices"),
+                    title: _i18n.get("devices"),
                     leading: const Icon(Icons.devices),
                     onPressed: (c) {
                       _routingService.openDevices();
@@ -211,7 +207,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   if (isDesktop())
                     SettingsTile.switchTile(
-                      title: i18n.get("send_by_shift_enter"),
+                      title: _i18n.get("send_by_shift_enter"),
                       leading: const Icon(Icons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
@@ -220,7 +216,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                 ],
               ),
-              if (isDeveloperMode)
+              if (UxService.isDeveloperMode)
                 Section(
                   title: 'Developer Mode',
                   children: [
@@ -238,8 +234,8 @@ class _SettingsPageState extends State<SettingsPage> {
               Section(
                 children: [
                   SettingsTile(
-                      title: i18n.get("version"),
-                      trailing: isDeveloperMode
+                      title: _i18n.get("version"),
+                      trailing: UxService.isDeveloperMode
                           ? FutureBuilder<String?>(
                               future: SmsAutoFill().getAppSignature,
                               builder: (c, sms) => Text(sms.data ?? VERSION),
@@ -250,15 +246,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         developerModeCounterCountDown--;
                         if (developerModeCounterCountDown < 1) {
                           setState(() {
-                            isDeveloperMode = true;
+                            UxService.isDeveloperMode = true;
                           });
                         }
                       }),
                   SettingsTile(
-                    title: i18n.get("logout"),
+                    title: _i18n.get("logout"),
                     leading: const Icon(Icons.exit_to_app),
                     onPressed: (BuildContext context) =>
-                        openLogoutAlertDialog(context, i18n),
+                        openLogoutAlertDialog(context, _i18n),
                     trailing: const SizedBox.shrink(),
                   ),
                 ],

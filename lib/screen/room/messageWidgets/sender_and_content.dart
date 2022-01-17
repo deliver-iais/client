@@ -10,7 +10,7 @@ class SenderAndContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (messages.isEmpty) {
+    if (messages.isEmpty && messages.first.id == null) {
       return const SizedBox.shrink();
     }
 

@@ -36,12 +36,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _logger = GetIt.I.get<Logger>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _logger = GetIt.I.get<Logger>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  static final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
-  final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   bool _acceptPrivacy = !isAndroid();
@@ -127,8 +127,8 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = true;
         });
         try {
-          var res = await _authRepo.getVerificationCode(phoneNumber!);
-          if (res != null) {
+          var isSent = await _authRepo.getVerificationCode(phoneNumber!);
+          if (isSent) {
             Navigator.push(context, MaterialPageRoute(builder: (c) {
               return const VerificationPage();
             }));

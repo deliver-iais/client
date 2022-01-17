@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.20.1"
+  automatic_animated_list:
+    dependency: "direct main"
+    description:
+      name: automatic_animated_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   badges:
     dependency: "direct main"
     description:
