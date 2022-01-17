@@ -14,6 +14,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final String? pattern;
   final Function onBotCommandClick;
   final Function onArrowIconClick;
+  final void Function(TapDownDetails) storePosition;
 
   const ReceivedMessageBox(
       {Key? key,
@@ -22,6 +23,7 @@ class ReceivedMessageBox extends StatelessWidget {
       required this.scrollToMessage,
       required this.onUsernameClick,
       required this.onArrowIconClick,
+      required this.storePosition,
       this.pattern})
       : super(key: key);
 
@@ -38,6 +40,7 @@ class ReceivedMessageBox extends StatelessWidget {
       isSeen: true,
       onUsernameClick: onUsernameClick,
       onArrowIconClick: onArrowIconClick,
+      storePosition: storePosition,
     );
 
     return doNotNeedsWrapper()

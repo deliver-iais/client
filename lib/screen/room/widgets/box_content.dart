@@ -28,7 +28,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/custom_context_menu.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
@@ -41,6 +40,7 @@ class BoxContent extends StatefulWidget {
   final String? pattern;
   final Function? onBotCommandClick;
   final Function onArrowIconClick;
+  final void Function(TapDownDetails) storePosition;
 
   const BoxContent(
       {Key? key,
@@ -53,7 +53,8 @@ class BoxContent extends StatefulWidget {
       this.onUsernameClick,
       this.onBotCommandClick,
       required this.scrollToMessage,
-      required this.onArrowIconClick})
+      required this.onArrowIconClick,
+      required this.storePosition})
       : super(key: key);
 
   Type getState() {
@@ -64,9 +65,9 @@ class BoxContent extends StatefulWidget {
   _BoxContentState createState() => _BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
+class _BoxContentState extends State<BoxContent> {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
   bool hideArrowDopIcon = true;
 
   @override
@@ -109,10 +110,9 @@ class _BoxContentState extends State<BoxContent> with CustomPopupMenu {
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
                       onTapDown: (tapDownDetails) {
-                        storePosition(tapDownDetails);
+                        widget.storePosition(tapDownDetails);
                       },
-                      onTap: () => widget.onArrowIconClick(
-                          context, widget.message, false, this),
+                      onTap: () => widget.onArrowIconClick(),
                       child: AnimatedOpacity(
                         opacity: !hideArrowDopIcon ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 200),

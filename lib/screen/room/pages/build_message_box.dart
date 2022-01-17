@@ -153,14 +153,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             widget.addForwardMessage();
           } else if (!isDesktop()) {
             FocusScope.of(context).unfocus();
-            _showCustomMenu(context, message, false,this);
+            _showCustomMenu(context, message, false);
           }
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!widget.selectMultiMessageSubject.stream.value) {
-                  _showCustomMenu(context, message, false,this);
+                  _showCustomMenu(context, message, false);
                 }
               },
         onDoubleTap: !isDesktop() ? null : () => widget.onReply,
@@ -190,16 +190,16 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
-      message: message,
-      onArrowIconClick: _showCustomMenu,
-      isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
-      pattern: "",
-      //todo add search message
-      scrollToMessage: (int id) {
-        _scrollToMessage(id: id);
-      },
-      omUsernameClick: onUsernameClick,
-    );
+        message: message,
+        onArrowIconClick: () => _showCustomMenu(context, message, false),
+        isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
+        pattern: "",
+        //todo add search message
+        scrollToMessage: (int id) {
+          _scrollToMessage(id: id);
+        },
+        omUsernameClick: onUsernameClick,
+        storePosition: storePosition);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -219,7 +219,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
-      onArrowIconClick: _showCustomMenu,
+      onArrowIconClick: () => _showCustomMenu(context, message, false),
+      storePosition: storePosition,
     );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -245,8 +246,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void _showCustomMenu(
-      BuildContext context, Message message, bool isPersistentEventMessage,state) {
-    state.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
+      BuildContext context, Message message, bool isPersistentEventMessage) {
+    this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(message,
           hasPermissionInChannel: widget.hasPermissionInChannel.value,
           hasPermissionInGroup: widget.hasPermissionInGroup,

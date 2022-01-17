@@ -28,8 +28,8 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPinned;
-  final void Function() onDelete;
   final int roomLastMessageId;
+  final void Function() onDelete;
   final void Function() onEdit;
   final void Function() onPin;
   final void Function() onUnPin;
@@ -63,12 +63,12 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
 }
 
 class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
+  static final _logger = GetIt.I.get<Logger>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _autRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingServices = GetIt.I.get<RoutingService>();
-  static final _logger = GetIt.I.get<Logger>();
 
   onCopy() {
     if (widget.message.type == MessageType.TEXT) {
@@ -89,7 +89,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   onEditMessage() {
     switch (widget.message.type) {
-      // ignore: missing_enum_constant_in_switch
       case MessageType.TEXT:
         widget.onEdit();
         break;
