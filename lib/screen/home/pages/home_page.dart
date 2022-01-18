@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -7,6 +8,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
+  bool shouldShowNewFeatureDialog = false;
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
@@ -61,6 +64,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (kIsWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
+    checkIfVersionChange();
+    SchedulerBinding.instance?.addPostFrameCallback((_) {
+      if (true) {
+        showDialog(
+            builder: (context) => const NewFeatureDialog(), context: context);
+      }
+    });
     checkAddToHomeInWeb(context);
 
     super.initState();
@@ -112,6 +122,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();
+    }
+  }
+
+  void checkIfVersionChange() async {
+    if (await _accountRepo.shouldShowNewFeatureDialog()) {
+      shouldShowNewFeatureDialog = true;
     }
   }
 }

@@ -211,4 +211,9 @@ class AccountRepo {
 
     return buildName(account.firstName, account.lastName);
   }
+
+  Future<bool> shouldShowNewFeatureDialog() async {
+    String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    return shouldRemoveDB(pv);
+  }
 }
