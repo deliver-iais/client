@@ -1,4 +1,3 @@
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class RecordAudioAnimation extends StatelessWidget {
@@ -6,7 +5,9 @@ class RecordAudioAnimation extends StatelessWidget {
   final double size;
   final animationDuration = const Duration(milliseconds: 100);
 
-  const RecordAudioAnimation({Key? key, required this.rightPadding, required this.size}) : super(key: key);
+  const RecordAudioAnimation(
+      {Key? key, required this.rightPadding, required this.size})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class RecordAudioAnimation extends StatelessWidget {
           height: 50 * size,
           color: (1 - size) == 0
               ? Colors.transparent
-              : ExtraTheme.of(context).textDetails,
+              : Theme.of(context).primaryColor,
           child: Center(
             child: Icon(
               Icons.keyboard_voice,

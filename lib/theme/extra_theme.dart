@@ -25,17 +25,11 @@ class ExtraThemeData {
   Color inputBoxBackground;
   Color fileSharingDetails;
 
-  // TODO refactor all of these
-  Color username; // primary
-  Color textDetails;
-
   ExtraThemeData({
     required this.centerPageDetails,
     required this.boxOuterBackground,
     required this.boxBackground,
-    required this.textDetails,
     required this.menuIconButton,
-    required this.username,
     required this.chatOrContactItemDetails,
     required this.sentMessageBoxBackground,
     required this.defaultBackground,

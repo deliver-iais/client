@@ -62,7 +62,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
   centerPageDetails: const Color(0xFF9D9D9D),
   boxOuterBackground: const Color(0xFF03151d),
   boxBackground: const Color(0xFF032738),
-  textDetails: DarkTheme.primaryColor,
   menuIconButton: secondary.withAlpha(50),
   chatOrContactItemDetails: Colors.white,
   //info chat in extra
@@ -74,7 +73,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
   lowlight: const Color(0xFF03151d),
   circularFileStatus: const Color(0xFFBCE0FD),
   fileMessageDetails: DarkTheme.primaryColor,
-  username: Colors.yellowAccent,
   seenStatus: Colors.white,
   fileSharingDetails: Colors.white54,
   inputBoxBackground: secondary,

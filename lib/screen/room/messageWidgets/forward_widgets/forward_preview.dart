@@ -35,12 +35,7 @@ class ForwardPreview extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             shareUid != null
-                ? Text(
-                    shareUid!.name,
-                    style: TextStyle(
-                        color: ExtraTheme.of(context).textDetails,
-                        fontSize: 20),
-                  )
+                ? Text(shareUid!.name)
                 : Text(
                     '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
             const Spacer(),

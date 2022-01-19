@@ -32,7 +32,6 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -294,7 +293,7 @@ class _ProfilePageState extends State<ProfilePage>
                     leading: const Icon(Icons.alternate_email),
                     trailing: const Icon(Icons.copy),
                     subtitleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).username),
+                        TextStyle(color: Theme.of(context).primaryColor),
                     onPressed: (_) => Clipboard.setData(
                         ClipboardData(text: "@${snapshot.data}")),
                   ),
@@ -316,7 +315,7 @@ class _ProfilePageState extends State<ProfilePage>
                     subtitle: buildPhoneNumber(snapshot.data!.countryCode,
                         snapshot.data!.nationalNumber),
                     subtitleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).username),
+                        TextStyle(color: Theme.of(context).primaryColor),
                     leading: const Icon(Icons.phone),
                     trailing: const Icon(Icons.call),
                     onPressed: (_) => launch(
@@ -350,7 +349,7 @@ class _ProfilePageState extends State<ProfilePage>
                         leading: const Icon(Icons.music_note_sharp),
                         subtitle: snapshot.data!,
                         subtitleTextStyle: TextStyle(
-                            color: ExtraTheme.of(context).username,
+                            color: Theme.of(context).primaryColor,
                             fontSize: 16),
                         onPressed: (_) async {
                           _routingService.openCustomNotificationSoundSelection(
@@ -397,7 +396,7 @@ class _ProfilePageState extends State<ProfilePage>
                         title: _i18n.get("description"),
                         subtitle: muc.data!.info,
                         subtitleTextStyle: TextStyle(
-                            color: ExtraTheme.of(context).username,
+                            color: Theme.of(context).primaryColor,
                             fontSize: 16),
                         leading: const Icon(Icons.info),
                         trailing: const SizedBox.shrink()),
