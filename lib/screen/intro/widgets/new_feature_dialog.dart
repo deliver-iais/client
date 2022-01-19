@@ -1,8 +1,13 @@
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/changelog.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class NewFeatureDialog extends StatelessWidget {
-  const NewFeatureDialog({Key? key}) : super(key: key);
+  final _i18n = GetIt.I.get<I18N>();
+
+  NewFeatureDialog({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,70 +15,81 @@ class NewFeatureDialog extends StatelessWidget {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
       backgroundColor: Colors.white,
-      child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20.0),
-              child: const Image(
-                image: AssetImage('assets/images/wave.png'),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("ABOUT UPDATE",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  Text(
-                    "V"+VERSION,
-                    style: TextStyle(
-                        color: Colors.blue, fontWeight: FontWeight.w600),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width / 4,
+        child: SingleChildScrollView(
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
                   ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 15),
-              child: Column(
-                children: const [
-                  Text(
-                    "1.Fix some Bugs",
-                    style: TextStyle(color: Colors.black54),
+                  child: Image(
+                    image: AssetImage('assets/images/wave.png'),
                   ),
-                  Text(
-                    "2.Fix some Bugs",
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                  Text(
-                    "3.Fix some Bugs",
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ],
-              ),
-            ),
-            Center(
-              child: Container(
-                margin: const EdgeInsets.all(25),
-                child: OutlinedButton(
-                  style: ButtonStyle(
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.blue)),
-                  child: const Text(
-                    "Got it",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
                 ),
-              ),
-            )
-          ]),
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(_i18n.get("about_update"),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black)),
+                      const Text(
+                        "V" + VERSION,
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 15),
+                    child: SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        itemCount: ENGLISH_FEATURE_LIST.length,
+                        itemBuilder: (context, index) {
+                          return Text(
+                            _i18n.isPersian
+                                ? FARSI_FEATURE_LIST[index]
+                                : ENGLISH_FEATURE_LIST[index],
+                            style: const TextStyle(color: Colors.black54),
+                            textDirection: _i18n.isPersian
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
+                          );
+                        },
+                      ),
+                    )),
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(25),
+                    child: OutlinedButton(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20))),
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.blue)),
+                      child: Text(
+                        _i18n.get("got_it"),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                )
+              ]),
+        ),
+      ),
     );
   }
 }

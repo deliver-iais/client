@@ -65,12 +65,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       js.context.callMethod("getNotificationPermission", []);
     }
     checkIfVersionChange();
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
-      if (true) {
-        showDialog(
-            builder: (context) => const NewFeatureDialog(), context: context);
-      }
-    });
     checkAddToHomeInWeb(context);
 
     super.initState();
@@ -129,5 +123,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {
       shouldShowNewFeatureDialog = true;
     }
+    SchedulerBinding.instance?.addPostFrameCallback((_) {
+      if (shouldShowNewFeatureDialog) {
+        showDialog(builder: (context) => NewFeatureDialog(), context: context);
+      }
+    });
   }
 }
