@@ -157,7 +157,7 @@ class _BoxContentState extends State<BoxContent> {
         borderRadius: BorderRadius.circular(16),
         color: widget.isSender
             ? ExtraTheme.of(context).sentMessageBoxBackground
-            : ExtraTheme.of(context).defaultBackground,
+            : Theme.of(context).colorScheme.surface,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),

@@ -6,7 +6,6 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_co
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -33,7 +32,8 @@ class LastMessage extends StatelessWidget {
       this.showSeenStatus = true,
       this.showSenderInSeparatedLine = false,
       this.expandContent = true,
-      this.pinned = false, this.highlightColor})
+      this.pinned = false,
+      this.highlightColor})
       : super(key: key);
 
   @override
@@ -55,7 +55,10 @@ class LastMessage extends StatelessWidget {
               if (showSeenStatus && !isReceivedMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
-                  child: SeenStatus(message, iconColor: highlightColor,),
+                  child: SeenStatus(
+                    message,
+                    iconColor: highlightColor,
+                  ),
                 ),
               Flexible(
                 fit: expandContent ? FlexFit.tight : FlexFit.loose,
@@ -69,18 +72,24 @@ class LastMessage extends StatelessWidget {
                         TextSpan(
                             text: mb.sender!.trim() +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
-                            style:
-                                Theme.of(context).primaryTextTheme.caption?.copyWith(color: highlightColor)),
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .caption
+                                ?.copyWith(color: highlightColor)),
                       if (mb.typeDetails!.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
-                            style:
-                                Theme.of(context).primaryTextTheme.caption?.copyWith(color: highlightColor)),
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .caption
+                                ?.copyWith(color: highlightColor)),
                       if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty)
                         TextSpan(
                             text: ", ",
-                            style:
-                                Theme.of(context).primaryTextTheme.caption?.copyWith(color: highlightColor)),
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .caption
+                                ?.copyWith(color: highlightColor)),
                       if (mb.text!.isNotEmpty)
                         TextSpan(
                             children: buildText(mb, context),
@@ -106,16 +115,10 @@ class LastMessage extends StatelessWidget {
                       message.roomUid, lastMessageId),
                 ),
               if (pinned)
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                      color: Colors.transparent, shape: BoxShape.circle),
-                  child: Icon(
-                    Icons.push_pin,
-                    size: 15,
-                    color: ExtraTheme.of(context).fileSharingDetails,
-                  ),
+                Icon(
+                  Icons.push_pin,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurface.withAlpha(120),
                 ),
             ],
           );

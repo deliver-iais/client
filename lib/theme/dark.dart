@@ -23,6 +23,8 @@ ThemeData DarkTheme = ThemeData(
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: primary,
     scaffoldBackgroundColor: const Color(0xFF021a25),
+    colorScheme:
+        const ColorScheme.dark(primary: primary, surface: Color(0xFF182731)),
     bottomAppBarColor: const Color.fromRGBO(255, 255, 255, 0.2),
     backgroundColor: const Color(0xFF00101A),
     dividerTheme: const DividerThemeData(
@@ -67,14 +69,10 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
   //info chat in extra
   sentMessageBoxBackground: const Color(0xFF0674A1),
   highlightOnSentMessage: primary,
-  defaultBackground: const Color(0xFF182731),
   highlight: primary,
   lowlightOnSentMessage: const Color(0xFF043549),
   lowlight: const Color(0xFF03151d),
   circularFileStatus: const Color(0xFFBCE0FD),
   fileMessageDetails: DarkTheme.primaryColor,
-  seenStatus: Colors.white,
-  fileSharingDetails: Colors.white54,
-  inputBoxBackground: secondary,
   onDetailsBox: Colors.white,
 );

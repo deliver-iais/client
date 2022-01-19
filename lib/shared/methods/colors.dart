@@ -45,7 +45,7 @@ Color messageExtraContentColor(bool isSender, BuildContext context) {
   return (isSender
           ? Color.lerp(ExtraTheme.of(context).sentMessageBoxBackground,
               Theme.of(context).dividerColor, 0.05)
-          : Color.lerp(ExtraTheme.of(context).defaultBackground,
+          : Color.lerp(Theme.of(context).colorScheme.surface,
               Theme.of(context).dividerColor, 0.05)) ??
       Colors.transparent;
 }
