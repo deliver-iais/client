@@ -4,7 +4,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -25,7 +24,6 @@ class _DevicesPageState extends State<DevicesPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -151,9 +149,7 @@ class _DevicesPageState extends State<DevicesPage> {
                 style: Theme.of(context).textTheme.subtitle2,
               ),
               Text(
-                session.ip.isEmpty
-                    ? "No IP Provided"
-                    : session.ip,
+                session.ip.isEmpty ? "No IP Provided" : session.ip,
                 style: Theme.of(context).textTheme.caption,
               ),
               DefaultTextStyle(
@@ -189,7 +185,6 @@ class _DevicesPageState extends State<DevicesPage> {
                   sessions.length > 1
                       ? _i18n.get("terminate_all_other_sessions")
                       : _i18n.get("delete_session"),
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
                 ),
               ],
             ),

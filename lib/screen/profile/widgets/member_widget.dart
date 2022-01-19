@@ -8,7 +8,6 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -79,20 +78,12 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                               overflow: TextOverflow.fade,
                                               maxLines: 1,
                                               softWrap: false,
-                                              style: TextStyle(
-                                                  color: ExtraTheme.of(context)
-                                                      .textField,
+                                              style: const TextStyle(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                             const SizedBox(height: 4),
-                                            DefaultTextStyle(
-                                              child: showMemberRole(member),
-                                              style: TextStyle(
-                                                  color: ExtraTheme.of(context)
-                                                      .textField,
-                                                  fontSize: 11),
-                                            ),
+                                            showMemberRole(member),
                                           ],
                                         );
                                       }),
@@ -152,13 +143,13 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   Widget showMemberRole(Member member) {
     switch (member.role) {
       case MucRole.OWNER:
-        return Text(_i18n.get("owner"));
+        return Text(_i18n.get("owner"), style: const TextStyle(fontSize: 11));
       case MucRole.ADMIN:
-        return Text(_i18n.get("admin"));
+        return Text(_i18n.get("admin"), style: const TextStyle(fontSize: 11));
       case MucRole.MEMBER:
-        return Text(_i18n.get("member"));
+        return Text(_i18n.get("member"), style: const TextStyle(fontSize: 11));
       default:
-        return const Text("");
+        return const Text("", style: TextStyle(fontSize: 11));
     }
   }
 

@@ -10,7 +10,6 @@ import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -121,8 +120,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       tag: widget.heroTag!,
       child: StreamBuilder<List<Avatar?>>(
           key: _streamKey,
-          stream:
-              _avatarRepo.getAvatar(widget.userUid, false),
+          stream: _avatarRepo.getAvatar(widget.userUid, false),
           builder: (cont, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
               return const Center(
@@ -504,10 +502,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             stream: _swipePositionSubject.stream,
             builder: (c, position) {
               if (position.hasData && position.data != null) {
-                return Text(
-                  "${position.data! + 1} of $totalLength",
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
-                );
+                return Text("${position.data! + 1} of $totalLength");
               } else {
                 return const SizedBox.shrink();
               }
@@ -517,9 +512,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         //widget.isAvatar ?
         widget.hasPermissionToDeletePic && widget.isAvatar
             ? PopupMenuButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.more_vert,
-                  color: ExtraTheme.of(context).textField,
                   size: 20,
                 ),
                 itemBuilder: (cc) => [

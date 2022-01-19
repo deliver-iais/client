@@ -29,7 +29,7 @@ class MemberSelectionPage extends StatelessWidget {
         child: AppBar(
           leading: _routingService.backButtonLeading(),
           title: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               mucUid != null
                   ? FutureBuilder<String?>(
@@ -43,12 +43,9 @@ class MemberSelectionPage extends StatelessWidget {
                         }
                       },
                     )
-                  : Text(
-                      isChannel
-                          ? _i18n.get("newChannel")
-                          : _i18n.get("newGroup"),
-                      style: TextStyle(color: ExtraTheme.of(context).textField),
-                    ),
+                  : Text(isChannel
+                      ? _i18n.get("newChannel")
+                      : _i18n.get("newGroup")),
               StreamBuilder<int>(
                   stream: _createMucService.selectedLengthStream(),
                   builder: (context, snapshot) {

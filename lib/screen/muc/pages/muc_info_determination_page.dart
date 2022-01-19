@@ -70,10 +70,9 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           leading: _routingService.backButtonLeading(),
-          title: Text(
-            widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
-            style: TextStyle(color: ExtraTheme.of(context).textField),
-          ),
+          title: Text(widget.isChannel
+              ? _i18n.get("newChannel")
+              : _i18n.get("newGroup")),
         ),
       ),
       body: FluidContainerWidget(
@@ -284,7 +283,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   }
                                   if (mucUid != null) {
                                     _createMucService.reset();
-                                    _routingService.openRoom(mucUid.asString(), popAllBeforePush: true);
+                                    _routingService.openRoom(mucUid.asString(),
+                                        popAllBeforePush: true);
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),

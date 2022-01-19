@@ -7,7 +7,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -86,11 +85,10 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                 left: 15.0, top: 10),
                                             child: Text(
                                               fileName,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: ExtraTheme.of(context)
-                                                      .textMessage),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -126,15 +124,12 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           children: [
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  left: 15.0, top: 10),
+                                                  left: 8.0, top: 8),
                                               child: Text(fileName,
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textMessage)),
+                                                          FontWeight.bold)),
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,

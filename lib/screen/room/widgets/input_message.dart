@@ -296,8 +296,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                           _backSubject.value
                                               ? Icons.keyboard
                                               : Icons.mood,
-                                          color:
-                                              ExtraTheme.of(context).textField,
                                         ),
                                         onPressed: () {
                                           if (_backSubject.value) {
@@ -390,10 +388,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           !sh.data! &&
                                           !widget.waitingForForward) {
                                         return IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.attach_file,
-                                              color: ExtraTheme.of(context)
-                                                  .textField,
                                             ),
                                             onPressed: () {
                                               _backSubject.add(false);
@@ -556,7 +552,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
     String block_1 = widget.textController.text.substring(0, start);
     int indexOf = block_1.lastIndexOf("@");
-    block_1 = block_1.substring(0, indexOf+1);
+    block_1 = block_1.substring(0, indexOf + 1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;

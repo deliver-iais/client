@@ -30,6 +30,7 @@ class _ContactsPageState extends State<ContactsPage> {
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
 
@@ -56,10 +57,7 @@ class _ContactsPageState extends State<ContactsPage> {
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           titleSpacing: 8,
-          title: Text(
-            I18N.of(context)!.get("contacts"),
-            style: TextStyle(color: ExtraTheme.of(context).textField),
-          ),
+          title: Text(_i18n.get("contacts")),
           leading: _routingService.backButtonLeading(),
         ),
       ),
@@ -145,7 +143,7 @@ class _ContactsPageState extends State<ContactsPage> {
                           onPressed: () {
                             _routingService.openNewContact();
                           },
-                          label: Text(I18N.of(context)!.get("add_new_contact")),
+                          label: Text(_i18n.get("add_new_contact")),
                         ),
                       ),
                     ],
@@ -179,7 +177,7 @@ class _ContactsPageState extends State<ContactsPage> {
               ),
               content: SizedBox(
                 width: 200,
-                child: Text(I18N.of(context)!.get("send_contacts_message"),
+                child: Text(_i18n.get("send_contacts_message"),
                     style: Theme.of(context).textTheme.subtitle1),
               ),
               actions: <Widget>[
@@ -191,7 +189,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       _contactRepo.syncContacts();
                     },
                     child: Text(
-                      I18N.of(context)!.get("continue"),
+                      _i18n.get("continue"),
                     ))
               ],
             );

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
@@ -19,7 +18,11 @@ class DocumentAndFileUi extends StatefulWidget {
   final int documentCount;
   final MediaType type;
 
-  const DocumentAndFileUi({Key? key,required this.roomUid,required this.documentCount, required this.type})
+  const DocumentAndFileUi(
+      {Key? key,
+      required this.roomUid,
+      required this.documentCount,
+      required this.type})
       : super(key: key);
 
   @override
@@ -71,8 +74,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           },
                                           child: Row(children: <Widget>[
                                             Padding(
-                                                padding:
-                                                    const EdgeInsets.only(left: 2),
+                                                padding: const EdgeInsets.only(
+                                                    left: 2),
                                                 child: Container(
                                                   width: 50,
                                                   height: 50,
@@ -83,9 +86,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                             .circularFileStatus,
                                                   ),
                                                   child: IconButton(
-                                                    padding:
-                                                        const EdgeInsets.fromLTRB(
-                                                            1, 0, 0, 0),
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(1, 0, 0, 0),
                                                     alignment: Alignment.center,
                                                     icon: Icon(
                                                       Icons
@@ -105,13 +107,11 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                         const EdgeInsets.only(
                                                             left: 15.0, top: 3),
                                                     child: Text(fileName,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontSize: 14,
                                                             fontWeight:
-                                                                FontWeight.bold,
-                                                            color: ExtraTheme
-                                                                    .of(context)
-                                                                .textMessage)),
+                                                                FontWeight
+                                                                    .bold)),
                                                   ),
                                                 ],
                                               ),
@@ -142,13 +142,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                       const EdgeInsets.only(
                                                           left: 15.0, top: 3),
                                                   child: Text(fileName,
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
-                                                          FontWeight.bold,
-                                                          color: ExtraTheme.of(
-                                                                  context)
-                                                              .textMessage)),
+                                                              FontWeight.bold)),
                                                 ),
                                               ],
                                             ),

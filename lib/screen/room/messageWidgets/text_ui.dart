@@ -81,7 +81,8 @@ class TextUI extends StatelessWidget {
           LinkPreview(
             link: link,
             maxWidth: linkPreviewMaxWidth,
-            color: messageExtraContentColor(isSender, context),
+            backgroundColor: messageExtraContentColor(isSender, context),
+            foregroundColor: highlight(isSender, context),
           ),
           TimeAndSeenStatus(
             message,

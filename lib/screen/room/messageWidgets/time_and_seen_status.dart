@@ -50,13 +50,11 @@ class TimeAndSeenStatus extends StatelessWidget {
         child: DefaultTextStyle(
           style: TextStyle(
             color: needsBackground
-                ? Colors.white
-                : (isSender ? ExtraTheme
-                .of(context)
-                .sentMessageBoxForeground : ExtraTheme
-                .of(context)
-                .textMessage
-                .withAlpha(130)),
+                ? ExtraTheme.of(context).onDetailsBox
+                : (isSender
+                    ? ExtraTheme.of(context).highlightOnSentMessage
+                    : Theme.of(context)
+                        .colorScheme.onSurface.withAlpha(120)),
             fontSize: 13,
             // height: 1,
           ),
@@ -76,8 +74,8 @@ class TimeAndSeenStatus extends StatelessWidget {
                     message,
                     isSeen: isSeen,
                     iconColor: needsBackground
-                        ? Colors.white
-                        : ExtraTheme.of(context).sentMessageBoxForeground,
+                        ? ExtraTheme.of(context).onDetailsBox
+                        : ExtraTheme.of(context).highlightOnSentMessage,
                   ),
                 )
             ],

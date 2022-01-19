@@ -1,5 +1,4 @@
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -37,14 +36,12 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                         builder: (context, snapshot2) {
                           if (snapshot2.hasData && snapshot2.data != null) {
                             return Text(
-                              snapshot2.data.toString().substring(0,7) +
+                              snapshot2.data.toString().substring(0, 7) +
                                   " / " +
                                   Duration(seconds: widget.duration.toInt())
                                       .toString()
                                       .substring(0, 7),
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: ExtraTheme.of(context).textField),
+                              style: const TextStyle(fontSize: 11),
                             );
                           } else {
                             return buildText(context);
@@ -64,7 +61,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
     return Text(
       "00:00:00" " / " +
           Duration(seconds: widget.duration.toInt()).toString().substring(0, 7),
-      style: TextStyle(fontSize: 11, color: ExtraTheme.of(context).textField),
+      style: const TextStyle(fontSize: 11),
     );
   }
 }

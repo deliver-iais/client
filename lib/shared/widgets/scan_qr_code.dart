@@ -190,8 +190,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             children: <Widget>[
               Text(
                 _i18n.get("sure_add_contact"),
-                style: TextStyle(
-                  color: ExtraTheme.of(context).textField,
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
@@ -206,8 +205,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               ),
               Text(
                 buildPhoneNumber(countryCode, nationalNumber),
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
               const SizedBox(
                 height: 40,
@@ -261,8 +259,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           children: <Widget>[
             Text(
               "${_i18n.get("send_msg_to")} $botId",
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
@@ -339,16 +336,14 @@ class _ScanQrCode extends State<ScanQrCode> {
           children: <Widget>[
             Text(
               botId,
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
             Text(
               _i18n.get("get_private_data_access_${privateDataType.name}"),
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),

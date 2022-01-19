@@ -143,7 +143,7 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.minWidth,
           backgroundColor: messageExtraContentColor(widget.isSender, context),
           foregroundColor: widget.isSender
-              ? ExtraTheme.of(context).sentMessageBoxForeground
+              ? ExtraTheme.of(context).highlightOnSentMessage
               : Theme.of(context).primaryColor,
         ),
       ),
@@ -156,8 +156,8 @@ class _BoxContentState extends State<BoxContent> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: widget.isSender
-            ? ExtraTheme.of(context).sentMessageBox
-            : ExtraTheme.of(context).receivedMessageBox,
+            ? ExtraTheme.of(context).sentMessageBoxBackground
+            : ExtraTheme.of(context).defaultBackground,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),
@@ -202,7 +202,7 @@ class _BoxContentState extends State<BoxContent> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: widget.isSender
-            ? ExtraTheme.of(context).sentMessageBoxForeground
+            ? ExtraTheme.of(context).highlightOnSentMessage
             : Theme.of(context).primaryColor,
       ),
       child: FutureBuilder<String>(
@@ -218,7 +218,7 @@ class _BoxContentState extends State<BoxContent> {
                   Icon(Icons.keyboard_arrow_right_rounded,
                       size: 15,
                       color: widget.isSender
-                          ? ExtraTheme.of(context).sentMessageBox
+                          ? ExtraTheme.of(context).sentMessageBoxBackground
                           : Theme.of(context)
                               .buttonTheme
                               .colorScheme
@@ -230,7 +230,7 @@ class _BoxContentState extends State<BoxContent> {
                         overflow: TextOverflow.fade,
                         style: TextStyle(
                             color: widget.isSender
-                                ? ExtraTheme.of(context).sentMessageBox
+                                ? ExtraTheme.of(context).sentMessageBoxBackground
                                 : Theme.of(context)
                                     .buttonTheme
                                     .colorScheme

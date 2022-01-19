@@ -92,7 +92,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _logger = GetIt.I.get<Logger>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _autRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
   @override

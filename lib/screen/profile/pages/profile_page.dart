@@ -290,8 +290,6 @@ class _ProfilePageState extends State<ProfilePage>
                   padding: const EdgeInsets.only(top: 8.0),
                   child: SettingsTile(
                     title: _i18n.get("username"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     subtitle: "${snapshot.data}",
                     leading: const Icon(Icons.alternate_email),
                     trailing: const Icon(Icons.copy),
@@ -315,8 +313,6 @@ class _ProfilePageState extends State<ProfilePage>
                   padding: const EdgeInsets.only(top: 8.0),
                   child: SettingsTile(
                     title: _i18n.get("phone"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     subtitle: buildPhoneNumber(snapshot.data!.countryCode,
                         snapshot.data!.nationalNumber),
                     subtitleTextStyle:
@@ -337,8 +333,6 @@ class _ProfilePageState extends State<ProfilePage>
             padding: const EdgeInsets.only(top: 8.0),
             child: SettingsTile(
                 title: _i18n.get("send_message"),
-                titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
                 leading: const Icon(Icons.message),
                 onPressed: (_) =>
                     _routingService.openRoom(widget.roomUid.asString())),
@@ -353,8 +347,6 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
                         title: _i18n.get("custom_notifications"),
-                        titleTextStyle:
-                            TextStyle(color: ExtraTheme.of(context).textField),
                         leading: const Icon(Icons.music_note_sharp),
                         subtitle: snapshot.data!,
                         subtitleTextStyle: TextStyle(
@@ -377,8 +369,6 @@ class _ProfilePageState extends State<ProfilePage>
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile.switchTile(
                     title: _i18n.get("notification"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: const Icon(Icons.notifications_active),
                     switchValue: !snapshot.data!,
                     onToggle: (state) {
@@ -405,8 +395,6 @@ class _ProfilePageState extends State<ProfilePage>
                     padding: const EdgeInsets.only(top: 8.0),
                     child: SettingsTile(
                         title: _i18n.get("description"),
-                        titleTextStyle:
-                            TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: muc.data!.info,
                         subtitleTextStyle: TextStyle(
                             color: ExtraTheme.of(context).username,
@@ -423,8 +411,6 @@ class _ProfilePageState extends State<ProfilePage>
             padding: const EdgeInsets.only(top: 8.0),
             child: SettingsTile(
               title: _i18n.get("add_member"),
-              titleTextStyle:
-                  TextStyle(color: ExtraTheme.of(context).textField),
               leading: const Icon(Icons.person_add),
               onPressed: (_) => _routingService.openMemberSelection(
                   isChannel: true, mucUid: widget.roomUid),
@@ -447,10 +433,7 @@ class _ProfilePageState extends State<ProfilePage>
             future: _roomRepo.getName(widget.roomUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-              return RoomName(
-                  uid: widget.roomUid,
-                  name: _roomName,
-                  style: TextStyle(color: ExtraTheme.of(context).textField));
+              return RoomName(uid: widget.roomUid, name: _roomName);
             },
           ),
         ),
@@ -998,8 +981,6 @@ class _ProfilePageState extends State<ProfilePage>
                             child: Column(
                               children: [
                                 TextField(
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
                                   onChanged: (str) {
                                     List<String> searchRes = [];
                                     for (var uid in nameOfGroup.keys) {

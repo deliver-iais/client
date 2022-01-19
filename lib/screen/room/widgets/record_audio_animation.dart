@@ -26,7 +26,6 @@ class RecordAudioAnimation extends StatelessWidget {
             child: Icon(
               Icons.keyboard_voice,
               size: 14 * (size - 1) + IconTheme.of(context).size!,
-              color: ExtraTheme.of(context).textField,
             ),
           ),
         ),

@@ -53,8 +53,7 @@ class _SearchBoxState extends State<SearchBox> {
           horizontal: _focusNode.hasFocus ? 0 : 8, vertical: 4),
       duration: ANIMATION_DURATION,
       child: TextField(
-        style: TextStyle(
-            color: ExtraTheme.of(context).textField, fontSize: 16, height: 1.2),
+        style: const TextStyle(fontSize: 16, height: 1.2),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
         focusNode: _focusNode,

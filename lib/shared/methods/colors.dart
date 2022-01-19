@@ -43,11 +43,23 @@ Color changeColorLightness(Color color, double lightness) =>
 
 Color messageExtraContentColor(bool isSender, BuildContext context) {
   return (isSender
-      ? Color.lerp(ExtraTheme.of(context).sentMessageBox,
-      Theme.of(context).dividerColor, 0.05)
-      : Color.lerp(ExtraTheme.of(context).receivedMessageBox,
-      Theme.of(context).dividerColor, 0.05)) ??
+          ? Color.lerp(ExtraTheme.of(context).sentMessageBoxBackground,
+              Theme.of(context).dividerColor, 0.05)
+          : Color.lerp(ExtraTheme.of(context).defaultBackground,
+              Theme.of(context).dividerColor, 0.05)) ??
       Colors.transparent;
+}
+
+Color lowlight(bool isSender, BuildContext context) {
+  return isSender
+      ? ExtraTheme.of(context).lowlightOnSentMessage
+      : ExtraTheme.of(context).lowlight;
+}
+
+Color highlight(bool isSender, BuildContext context) {
+  return isSender
+      ? ExtraTheme.of(context).highlightOnSentMessage
+      : ExtraTheme.of(context).highlight;
 }
 
 class RandomColor {

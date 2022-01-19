@@ -34,8 +34,8 @@ class MessageWrapper extends StatelessWidget {
                       height: 20,
                       child: CustomPaint(
                         foregroundPainter: OPainter(isSent
-                            ? ExtraTheme.of(context).sentMessageBox
-                            : ExtraTheme.of(context).receivedMessageBox),
+                            ? ExtraTheme.of(context).sentMessageBoxBackground
+                            : ExtraTheme.of(context).defaultBackground),
                       ))
                   : Transform(
                       alignment: Alignment.center,
@@ -45,8 +45,8 @@ class MessageWrapper extends StatelessWidget {
                           height: 20,
                           child: CustomPaint(
                             foregroundPainter: OPainter(isSent
-                                ? ExtraTheme.of(context).sentMessageBox
-                                : ExtraTheme.of(context).receivedMessageBox),
+                                ? ExtraTheme.of(context).sentMessageBoxBackground
+                                : ExtraTheme.of(context).defaultBackground),
                           )),
                     ),
             ),
@@ -54,8 +54,8 @@ class MessageWrapper extends StatelessWidget {
                 borderRadius: border,
                 child: Container(
                     color: isSent
-                        ? ExtraTheme.of(context).sentMessageBox
-                        : ExtraTheme.of(context).receivedMessageBox,
+                        ? ExtraTheme.of(context).sentMessageBoxBackground
+                        : ExtraTheme.of(context).defaultBackground,
                     child: child)),
           ],
         ),
