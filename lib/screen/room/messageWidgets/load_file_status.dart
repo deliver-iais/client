@@ -3,7 +3,6 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -16,15 +15,19 @@ class LoadFileStatus extends StatefulWidget {
   final String? messagePacketId; // TODO Needs to be refactored
   final String? roomUid;
   final Function onPressed;
+  final Color background;
+  final Color foreground;
 
-  const LoadFileStatus(
-      {Key? key,
-      required this.fileId,
-      required this.fileName,
-      this.messagePacketId,
-      this.roomUid,
-      required this.onPressed})
-      : super(key: key);
+  const LoadFileStatus({
+    Key? key,
+    required this.fileId,
+    required this.fileName,
+    this.messagePacketId,
+    this.roomUid,
+    required this.onPressed,
+    required this.background,
+    required this.foreground,
+  }) : super(key: key);
 
   @override
   _LoadFileStatusState createState() => _LoadFileStatusState();
@@ -82,10 +85,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                         },
                                       ),
                                       percent: snapshot.data!,
-                                      backgroundColor: ExtraTheme.of(context)
-                                          .circularFileStatus,
-                                      progressColor: ExtraTheme.of(context)
-                                          .fileMessageDetails,
+                                      backgroundColor: widget.background,
+                                      progressColor: widget.foreground,
                                     );
                                   } else {
                                     return Stack(
@@ -94,7 +95,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                           child: CircularProgressIndicator(),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 1),
+                                          padding:
+                                              const EdgeInsets.only(left: 1),
                                           child: Center(
                                             child: GestureDetector(
                                               child: const Icon(
@@ -102,8 +104,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                                 size: 36,
                                               ),
                                               onTap: () {
-                                                _messageRepo.deletePendingMessage(
-                                                    widget.messagePacketId!);
+                                                _messageRepo
+                                                    .deletePendingMessage(widget
+                                                        .messagePacketId!);
                                               },
                                             ),
                                           ),
@@ -138,7 +141,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               radius: 45.0,
               lineWidth: 4.0,
               percent: snapshot.data!,
-              backgroundColor: ExtraTheme.of(context).circularFileStatus,
+              backgroundColor: widget.background,
               center: StreamBuilder<CancelToken?>(
                 stream: _fileService.cancelTokens[widget.fileId],
                 builder: (c, s) {
@@ -161,9 +164,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                           if (snapshot.hasData &&
                               snapshot.data != null &&
                               snapshot.data!) {
-                            return const CircularProgressIndicator(
+                            return CircularProgressIndicator(
                               strokeWidth: 4,
-                              color: Colors.blue,
+                              color: widget.foreground,
                             );
                           } else {
                             return GestureDetector(
@@ -173,8 +176,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                 },
                                 child: Icon(
                                   Icons.arrow_downward,
-                                  color:
-                                      ExtraTheme.of(context).fileMessageDetails,
+                                  color: widget.foreground,
                                   size: 35,
                                 ));
                           }
@@ -189,16 +191,16 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                 height: 50,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: ExtraTheme.of(context).circularFileStatus),
+                    color: widget.background),
                 child: StreamBuilder<bool>(
                     stream: _starDownload.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data!) {
-                        return const CircularProgressIndicator(
+                        return CircularProgressIndicator(
                           strokeWidth: 4,
-                          color: Colors.blue,
+                          color: widget.foreground,
                         );
                       } else {
                         return IconButton(
@@ -206,7 +208,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                           alignment: Alignment.center,
                           icon: Icon(
                             Icons.arrow_downward,
-                            color: ExtraTheme.of(context).fileMessageDetails,
+                            color: widget.foreground,
                             size: 35,
                           ),
                           onPressed: () {

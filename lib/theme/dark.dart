@@ -44,7 +44,7 @@ ThemeData DarkTheme = ThemeData(
         textStyle: TextStyle(color: primary, fontSize: 14),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10))),
-        color: Color(0xFF032738)),
+        color: Color(0xFF1E303B)),
     sliderTheme: const SliderThemeData(
       thumbColor: Colors.white,
       trackHeight: 2.25,
@@ -64,14 +64,14 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
   centerPageDetails: const Color(0xFF9D9D9D),
   boxOuterBackground: const Color(0xFF03151d),
   boxBackground: const Color(0xFF032738),
-  menuIconButton: secondary.withAlpha(50),
   chatOrContactItemDetails: Colors.white,
-  //info chat in extra
   sentMessageBoxBackground: const Color(0xFF0674A1),
   highlightOnSentMessage: primary,
   highlight: primary,
-  lowlightOnSentMessage: const Color(0xFF043549),
-  lowlight: const Color(0xFF03151d),
+  onHighlightOnSentMessage: Colors.white,
+  onHighlight: Colors.white,
+  lowlightOnSentMessage: const Color(0xFF064F6C),
+  lowlight: const Color(0xFF1E303B),
   circularFileStatus: const Color(0xFFBCE0FD),
   fileMessageDetails: DarkTheme.primaryColor,
   onDetailsBox: Colors.white,

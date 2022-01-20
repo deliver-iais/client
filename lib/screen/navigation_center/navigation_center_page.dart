@@ -108,14 +108,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: ExtraTheme.of(context).menuIconButton,
+                      color: ExtraTheme.of(context).lowlight,
                     ),
                     child: IconButton(
                         onPressed: () {
                           _routingService.openScanQrCode();
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.qr_code,
+                          color: ExtraTheme.of(context).highlight,
                         )),
                   ),
                 const SizedBox(
@@ -159,7 +160,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: ExtraTheme.of(context).menuIconButton,
+          color: ExtraTheme.of(context).lowlight,
         ),
         child: IconTheme(
           data: IconThemeData(
@@ -167,8 +168,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             color: PopupMenuTheme.of(context).textStyle?.color,
           ),
           child: PopupMenuButton(
-              icon: Icon(Icons.create,
-                  color: Theme.of(context).colorScheme.onSurface),
+              icon: Icon(Icons.create, color: ExtraTheme.of(context).highlight),
               onSelected: selectChatMenu,
               itemBuilder: (context) => [
                     PopupMenuItem<String>(

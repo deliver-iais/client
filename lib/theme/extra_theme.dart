@@ -4,14 +4,15 @@ class ExtraThemeData {
   Color centerPageDetails;
   Color boxOuterBackground = const Color(0xfde2f8f0);
   Color boxBackground = const Color(0xfde2f8f0);
-  Color menuIconButton;
   Color chatOrContactItemDetails;
   Color sentMessageBoxBackground;
   Color circularFileStatus;
   Color fileMessageDetails;
   Color highlightOnSentMessage;
+  Color onHighlightOnSentMessage;
   Color lowlightOnSentMessage;
   Color highlight;
+  Color onHighlight;
   Color lowlight;
   Color onDetailsBox;
 
@@ -19,14 +20,15 @@ class ExtraThemeData {
     required this.centerPageDetails,
     required this.boxOuterBackground,
     required this.boxBackground,
-    required this.menuIconButton,
     required this.chatOrContactItemDetails,
     required this.sentMessageBoxBackground,
     required this.circularFileStatus,
     required this.fileMessageDetails,
     required this.highlightOnSentMessage,
+    required this.onHighlightOnSentMessage,
     required this.lowlightOnSentMessage,
     required this.highlight,
+    required this.onHighlight,
     required this.lowlight,
     required this.onDetailsBox,
   });
@@ -49,7 +51,6 @@ class ExtraTheme extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ExtraTheme oldWidget) {
-    // TODO ???
-    return true;
+    return false;
   }
 }

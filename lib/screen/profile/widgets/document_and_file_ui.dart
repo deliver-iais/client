@@ -83,7 +83,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                     shape: BoxShape.circle,
                                                     color:
                                                         ExtraTheme.of(context)
-                                                            .circularFileStatus,
+                                                            .lowlight,
                                                   ),
                                                   child: IconButton(
                                                     padding: const EdgeInsets
@@ -133,6 +133,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             fileId: fileId,
                                             fileName: fileName,
                                             onPressed: download,
+                                            background: ExtraTheme.of(context).lowlight,
+                                            foreground: ExtraTheme.of(context).highlight,
                                           ),
                                           Expanded(
                                             child: Stack(
