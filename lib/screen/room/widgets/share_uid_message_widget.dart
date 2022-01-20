@@ -44,7 +44,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                 primary: highlight(isSender, context),
                 backgroundColor: lowlight(isSender, context),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 side:
                     BorderSide(color: highlight(isSender, context), width: 2)),
