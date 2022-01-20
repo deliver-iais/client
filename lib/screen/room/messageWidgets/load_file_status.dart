@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -69,18 +71,21 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                         stream: _fileService
                                             .cancelTokens[widget.fileId],
                                         builder: (c, s) {
-                                          return GestureDetector(
-                                            child: const Icon(
-                                              Icons.cancel,
-                                              size: 35,
+                                          return MouseRegion(
+                                            cursor: SystemMouseCursors.click,
+                                            child: GestureDetector(
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 35,
+                                              ),
+                                              onTap: () {
+                                                if (s.hasData && s.data != null) {
+                                                  s.data!.cancel();
+                                                }
+                                                _messageRepo.deletePendingMessage(
+                                                    widget.messagePacketId!);
+                                              },
                                             ),
-                                            onTap: () {
-                                              if (s.hasData && s.data != null) {
-                                                s.data!.cancel();
-                                              }
-                                              _messageRepo.deletePendingMessage(
-                                                  widget.messagePacketId!);
-                                            },
                                           );
                                         },
                                       ),
@@ -100,7 +105,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                           child: Center(
                                             child: GestureDetector(
                                               child: const Icon(
-                                                Icons.cancel,
+                                                Icons.close,
                                                 size: 36,
                                               ),
                                               onTap: () {
@@ -138,24 +143,28 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null && snapshot.data! > 0) {
             return CircularPercentIndicator(
-              radius: 45.0,
+              radius: 50.0,
               lineWidth: 4.0,
-              percent: snapshot.data!,
+              percent: min(snapshot.data!, 1.0),
               backgroundColor: widget.background,
               center: StreamBuilder<CancelToken?>(
                 stream: _fileService.cancelTokens[widget.fileId],
                 builder: (c, s) {
                   if (s.hasData && s.data != null) {
-                    return GestureDetector(
-                      child: const Icon(
-                        Icons.cancel,
-                        size: 35,
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        child: Icon(
+                          Icons.close,
+                          color: widget.foreground,
+                          size: 35,
+                        ),
+                        onTap: () {
+                          _starDownload.add(false);
+                          s.data!.cancel();
+                          _fileService.cancelTokens[widget.fileId]!.add(null);
+                        },
                       ),
-                      onTap: () {
-                        _starDownload.add(false);
-                        s.data!.cancel();
-                        _fileService.cancelTokens[widget.fileId]!.add(null);
-                      },
                     );
                   } else {
                     return StreamBuilder<bool>(
@@ -169,16 +178,19 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                               color: widget.foreground,
                             );
                           } else {
-                            return GestureDetector(
-                                onTap: () {
-                                  _starDownload.add(true);
-                                  widget.onPressed();
-                                },
-                                child: Icon(
-                                  Icons.arrow_downward,
-                                  color: widget.foreground,
-                                  size: 35,
-                                ));
+                            return MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                  onTap: () {
+                                    _starDownload.add(true);
+                                    widget.onPressed();
+                                  },
+                                  child: Icon(
+                                    Icons.arrow_downward,
+                                    color: widget.foreground,
+                                    size: 35,
+                                  )),
+                            );
                           }
                         });
                   }
@@ -190,8 +202,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.background),
+                    shape: BoxShape.circle, color: widget.background),
                 child: StreamBuilder<bool>(
                     stream: _starDownload.stream,
                     builder: (context, snapshot) {
