@@ -147,6 +147,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               lineWidth: 4.0,
               percent: min(snapshot.data!, 1.0),
               backgroundColor: widget.background,
+              progressColor: widget.foreground,
               center: StreamBuilder<CancelToken?>(
                 stream: _fileService.cancelTokens[widget.fileId],
                 builder: (c, s) {
