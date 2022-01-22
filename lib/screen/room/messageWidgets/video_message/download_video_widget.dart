@@ -84,9 +84,9 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                     return MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        child: const Icon(
+                        child: Icon(
                           Icons.close,
-                          color: Colors.blue,
+                          color: widget.foreground,
                           size: 35,
                         ),
                         onTap: () {
