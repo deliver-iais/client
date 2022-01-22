@@ -61,7 +61,6 @@ ThemeData DarkTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
-  boxBackground: const Color(0xFF032738),
   chatOrContactItemDetails: Colors.white,
   sentMessageBoxBackground: const Color(0xFF0674A1),
   highlightOnSentMessage: primary,

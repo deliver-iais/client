@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ExtraThemeData {
-  Color boxBackground = const Color(0xfde2f8f0);
   Color chatOrContactItemDetails;
   Color sentMessageBoxBackground;
   Color highlightOnSentMessage;
@@ -13,7 +12,6 @@ class ExtraThemeData {
   Color onDetailsBox;
 
   ExtraThemeData({
-    required this.boxBackground,
     required this.chatOrContactItemDetails,
     required this.sentMessageBoxBackground,
     required this.highlightOnSentMessage,
