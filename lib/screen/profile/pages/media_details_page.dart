@@ -10,6 +10,7 @@ import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -413,6 +414,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                 download: () async {
                   await download(fileId, fileName);
                 },
+                background: lowlight(false, context),
+                foreground: highlight(false, context),
               )
             ],
           ),

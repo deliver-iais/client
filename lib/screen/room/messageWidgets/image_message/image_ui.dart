@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -48,26 +49,21 @@ class _ImageUiState extends State<ImageUi> {
   static final _fileServices = GetIt.I.get<FileService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  static const radius = Radius.circular(10);
-  static const border = BorderRadius.all(radius);
-
   @override
   void initState() {
     if (widget.message.id == null) {
       _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
-      super.initState();
     }
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    double width = widget.maxWidth;
-    double height = widget.maxWidth;
     try {
       return Hero(
         tag: "${widget.message.id}-${widget.image.uuid}",
         child: ClipRRect(
-          borderRadius: border,
+          borderRadius: mainBorder,
           child: Container(
             constraints: BoxConstraints(
                 minWidth: widget.minWidth,
@@ -118,35 +114,44 @@ class _ImageUiState extends State<ImageUi> {
                                         snap.data != null &&
                                         snap.data! <= 1 &&
                                         snap.data! > 0) {
-                                      return CircularPercentIndicator(
-                                        radius: 45.0,
-                                        lineWidth: 4.0,
-                                        backgroundColor: Colors.blue,
-                                        percent: snap.data!,
-                                        center: StreamBuilder<CancelToken?>(
-                                          stream: _fileServices
-                                              .cancelTokens[widget.image.uuid],
-                                          builder: (c, s) {
-                                            return GestureDetector(
-                                              child: const Icon(
-                                                Icons.cancel,
-                                                color: Colors.blue,
-                                                size: 40,
-                                              ),
-                                              onTap: () {
-                                                if (s.hasData &&
-                                                    s.data != null) {
-                                                  s.data!.cancel();
-                                                }
-                                                _messageRepo
-                                                    .deletePendingMessage(widget
-                                                        .message.packetId);
-                                              },
-                                            );
-                                          },
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                            color: lowlight(
+                                                widget.isSender, context),
+                                            shape: BoxShape.circle),
+                                        child: CircularPercentIndicator(
+                                          radius: 50.0,
+                                          lineWidth: 4.0,
+                                          backgroundColor: lowlight(
+                                              widget.isSender, context),
+                                          percent: snap.data!,
+                                          center: StreamBuilder<CancelToken?>(
+                                            stream: _fileServices.cancelTokens[
+                                                widget.image.uuid],
+                                            builder: (c, s) {
+                                              return GestureDetector(
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: highlight(
+                                                      widget.isSender, context),
+                                                  size: 35,
+                                                ),
+                                                onTap: () {
+                                                  if (s.hasData &&
+                                                      s.data != null) {
+                                                    s.data!.cancel();
+                                                  }
+                                                  _messageRepo
+                                                      .deletePendingMessage(
+                                                          widget.message
+                                                              .packetId);
+                                                },
+                                              );
+                                            },
+                                          ),
+                                          progressColor: ExtraTheme.of(context)
+                                              .fileMessageDetails,
                                         ),
-                                        progressColor: ExtraTheme.of(context)
-                                            .fileMessageDetails,
                                       );
                                     } else {
                                       return Stack(
@@ -154,22 +159,17 @@ class _ImageUiState extends State<ImageUi> {
                                           const Center(
                                             child: CircularProgressIndicator(),
                                           ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 1),
-                                            child: Center(
-                                              child: GestureDetector(
-                                                child: const Icon(
-                                                  Icons.cancel,
-                                                  size: 36,
-                                                ),
-                                                onTap: () {
-                                                  _messageRepo
-                                                      .deletePendingMessage(
-                                                          widget.message
-                                                              .packetId);
-                                                },
+                                          Center(
+                                            child: GestureDetector(
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 35,
                                               ),
+                                              onTap: () {
+                                                _messageRepo
+                                                    .deletePendingMessage(widget
+                                                        .message.packetId);
+                                              },
                                             ),
                                           ),
                                         ],
@@ -195,17 +195,17 @@ class _ImageUiState extends State<ImageUi> {
                           ),
                           Center(
                               child: LoadFileStatus(
-                                fileId: widget.image.uuid,
-                                fileName: widget.image.name,
-                                messagePacketId: widget.message.packetId,
-                                onPressed: () async {
-                                  await _fileRepo.getFile(
-                                      widget.image.uuid, widget.image.name);
-                                  setState(() {});
-                                },
-                                background: lowlight(widget.isSender, context),
-                                foreground: highlight(widget.isSender, context),
-                              )),
+                            fileId: widget.image.uuid,
+                            fileName: widget.image.name,
+                            messagePacketId: widget.message.packetId,
+                            onPressed: () async {
+                              await _fileRepo.getFile(
+                                  widget.image.uuid, widget.image.name);
+                              setState(() {});
+                            },
+                            background: lowlight(widget.isSender, context),
+                            foreground: highlight(widget.isSender, context),
+                          )),
                           if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
                                 widget.message, widget.isSender, widget.isSeen,
@@ -219,10 +219,16 @@ class _ImageUiState extends State<ImageUi> {
         ),
       );
     } catch (e) {
-      return SizedBox(
-        width: width,
-        height: height,
-      );
+      return ClipRRect(
+          borderRadius: mainBorder,
+          child: Container(
+            constraints: BoxConstraints(
+                minWidth: widget.minWidth,
+                maxWidth: widget.maxWidth,
+                maxHeight: widget.maxWidth),
+            child: AspectRatio(
+                aspectRatio: widget.image.width / widget.image.height),
+          ));
     }
   }
 }
