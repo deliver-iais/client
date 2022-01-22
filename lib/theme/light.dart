@@ -60,7 +60,6 @@ ThemeData LightTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
-  centerPageDetails: const Color(0xff6a6a6a),
   boxOuterBackground: Colors.white,
   boxBackground: const Color(0xFFEFEFF4),
   chatOrContactItemDetails: Colors.black,

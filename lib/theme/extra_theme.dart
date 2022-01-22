@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ExtraThemeData {
-  Color centerPageDetails;
   Color boxOuterBackground = const Color(0xfde2f8f0);
   Color boxBackground = const Color(0xfde2f8f0);
   Color chatOrContactItemDetails;
@@ -15,7 +14,6 @@ class ExtraThemeData {
   Color onDetailsBox;
 
   ExtraThemeData({
-    required this.centerPageDetails,
     required this.boxOuterBackground,
     required this.boxBackground,
     required this.chatOrContactItemDetails,

@@ -61,7 +61,6 @@ ThemeData DarkTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
-  centerPageDetails: const Color(0xFF9D9D9D),
   boxOuterBackground: const Color(0xFF03151d),
   boxBackground: const Color(0xFF032738),
   chatOrContactItemDetails: Colors.white,

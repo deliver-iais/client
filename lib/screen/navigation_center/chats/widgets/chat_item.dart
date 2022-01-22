@@ -10,7 +10,6 @@ import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -157,9 +156,7 @@ class _ChatItemState extends State<ChatItem> {
                                     dateTimeFormat(
                                         date(widget.room.lastUpdateTime!)),
                                     maxLines: 1,
-                                    style: TextStyle(
-                                      color: ExtraTheme.of(context)
-                                          .centerPageDetails,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w100,
                                       fontSize: 11,
                                     ),
@@ -179,11 +176,6 @@ class _ChatItemState extends State<ChatItem> {
                                           ActivityStatus(
                                             activity: s.data!,
                                             roomUid: widget.room.uid.asUid(),
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: ExtraTheme.of(context)
-                                                  .centerPageDetails,
-                                            ),
                                           ),
                                         ],
                                       );
