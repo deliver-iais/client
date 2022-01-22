@@ -96,10 +96,12 @@ class _CircularFileStatusIndicatorState
         ? PlayAudioStatus(
             fileId: file.uuid,
             fileName: file.name,
+            isSender: widget.isSender,
           )
         : OpenFileStatus(
             filePath: filePath,
             file: file,
-          );
+      isSender: widget.isSender,
+    );
   }
 }

@@ -18,7 +18,6 @@ import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;

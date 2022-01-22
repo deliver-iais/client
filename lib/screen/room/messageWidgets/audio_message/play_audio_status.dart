@@ -1,7 +1,7 @@
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -10,9 +10,13 @@ import 'package:open_file/open_file.dart';
 class PlayAudioStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
+  final bool isSender;
 
   const PlayAudioStatus(
-      {Key? key, required this.fileId, required this.fileName})
+      {Key? key,
+      required this.fileId,
+      required this.fileName,
+      this.isSender = false})
       : super(key: key);
 
   @override
@@ -35,7 +39,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: ExtraTheme.of(context).circularFileStatus,
+                color: lowlight(widget.isSender, context),
               ),
               child: StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioCurrentState(),
@@ -52,8 +56,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                                 alignment: Alignment.center,
                                 icon: Icon(
                                   Icons.pause,
-                                  color:
-                                      ExtraTheme.of(context).fileMessageDetails,
+                                  color: highlight(widget.isSender, context),
                                   size: 40,
                                 ),
                                 onPressed: () {
@@ -75,12 +78,12 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
 
   IconButton buildPlay(BuildContext context, AsyncSnapshot<String?> audio) {
     return IconButton(
-        padding: const EdgeInsets.all(0),
+        padding: EdgeInsets.zero,
         alignment: Alignment.center,
         icon: Icon(
           Icons.play_arrow,
-          color: ExtraTheme.of(context).fileMessageDetails,
-          size: 40,
+          color: highlight(widget.isSender, context),
+          size: 42,
         ),
         onPressed: () {
           if (isAndroid() || isIOS()) {
