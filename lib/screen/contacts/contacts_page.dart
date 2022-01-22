@@ -11,7 +11,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -66,7 +65,7 @@ class _ContactsPageState extends State<ContactsPage> {
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).boxOuterBackground,
+            color: Theme.of(context).colorScheme.surface,
           ),
           child: StreamBuilder<List<Contact>>(
               stream: _contactRepo.watchAll(),

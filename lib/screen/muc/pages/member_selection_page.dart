@@ -4,7 +4,6 @@ import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -69,7 +68,7 @@ class MemberSelectionPage extends StatelessWidget {
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).boxOuterBackground,
+            color: Theme.of(context).colorScheme.surface,
           ),
           child: SelectiveContactsList(
             isChannel: isChannel,
