@@ -6,8 +6,6 @@ class ExtraThemeData {
   Color boxBackground = const Color(0xfde2f8f0);
   Color chatOrContactItemDetails;
   Color sentMessageBoxBackground;
-  Color circularFileStatus;
-  Color fileMessageDetails;
   Color highlightOnSentMessage;
   Color onHighlightOnSentMessage;
   Color lowlightOnSentMessage;
@@ -22,8 +20,6 @@ class ExtraThemeData {
     required this.boxBackground,
     required this.chatOrContactItemDetails,
     required this.sentMessageBoxBackground,
-    required this.circularFileStatus,
-    required this.fileMessageDetails,
     required this.highlightOnSentMessage,
     required this.onHighlightOnSentMessage,
     required this.lowlightOnSentMessage,

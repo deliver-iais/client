@@ -9,7 +9,6 @@ import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -149,8 +148,8 @@ class _ImageUiState extends State<ImageUi> {
                                               );
                                             },
                                           ),
-                                          progressColor: ExtraTheme.of(context)
-                                              .fileMessageDetails,
+                                          progressColor: highlight(
+                                              widget.isSender, context),
                                         ),
                                       );
                                     } else {

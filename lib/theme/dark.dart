@@ -72,7 +72,5 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
   onHighlight: Colors.white,
   lowlightOnSentMessage: const Color(0xFF064F6C),
   lowlight: const Color(0xFF1E303B),
-  circularFileStatus: const Color(0xFFBCE0FD),
-  fileMessageDetails: DarkTheme.primaryColor,
   onDetailsBox: Colors.white,
 );

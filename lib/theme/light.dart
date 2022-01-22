@@ -71,7 +71,5 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   onHighlight: Colors.white,
   lowlightOnSentMessage: Colors.white,
   lowlight: const Color(0xffeef7ff),
-  circularFileStatus: LightTheme.backgroundColor,
-  fileMessageDetails: const Color(0xff00a394),
   onDetailsBox: Colors.white,
 );

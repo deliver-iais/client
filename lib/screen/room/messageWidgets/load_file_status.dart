@@ -129,9 +129,11 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     );
                                   }
                                 })
-                            : const SendingFileCircularIndicator(
+                            : SendingFileCircularIndicator(
                                 loadProgress: 0.9,
                                 isMedia: false,
+                                background: widget.background,
+                                foreground: widget.foreground,
                               )
                         : Container(),
                     if (!isPendingMes) buildDownload()
