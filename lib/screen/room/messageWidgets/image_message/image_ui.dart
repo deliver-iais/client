@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
@@ -43,19 +45,16 @@ class ImageUi extends StatefulWidget {
 class _ImageUiState extends State<ImageUi> {
   final globalKey = GlobalKey();
 
-  static final fileRepo = GetIt.I.get<FileRepo>();
-  static const radius = Radius.circular(8);
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  static const radius = Radius.circular(10);
   static const border = BorderRadius.all(radius);
-
-  final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
-  final _fileServices = GetIt.I.get<FileService>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   void initState() {
     if (widget.message.id == null) {
-      _startDownload.add(true);
       _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
       super.initState();
     }
@@ -77,7 +76,7 @@ class _ImageUiState extends State<ImageUi> {
                 maxHeight: widget.maxWidth),
             child: FutureBuilder<String?>(
                 key: globalKey,
-                future: fileRepo.getFileIfExist(
+                future: _fileRepo.getFileIfExist(
                     widget.image.uuid, widget.image.name),
                 builder: (c, s) {
                   if (s.hasData && s.data != null) {
@@ -187,112 +186,32 @@ class _ImageUiState extends State<ImageUi> {
                       ),
                     );
                   } else {
-                    return GestureDetector(
-                      onTap: () async {
-                        if (widget.message.id != null) {
-                          if (!_startDownload.value) {
-                            _startDownload.add(true);
-                            await fileRepo.getFile(
-                              widget.image.uuid,
-                              widget.image.name,
-                            );
-                            _startDownload.add(false);
-                            setState(() {});
-                          }
-                        }
-                      },
-                      child: AspectRatio(
-                        aspectRatio: widget.image.width / widget.image.height,
-                        child: Stack(
-                          children: [
-                            BlurHash(
-                              hash: widget.image.blurHash,
-                              imageFit: BoxFit.cover,
-                            ),
-                            Center(
-                              child: StreamBuilder<bool>(
-                                stream: _startDownload.stream,
-                                builder: (c, s) {
-                                  if (s.hasData && s.data!) {
-                                    return StreamBuilder<double>(
-                                        stream: _fileServices
-                                                .filesProgressBarStatus[
-                                            widget.image.uuid],
-                                        builder: (c, snap) {
-                                          if (snap.hasData &&
-                                              snap.data != null &&
-                                              snap.data! <= 1) {
-                                            return CircularPercentIndicator(
-                                              radius: 45.0,
-                                              lineWidth: 4.0,
-                                              center:
-                                                  StreamBuilder<CancelToken?>(
-                                                stream:
-                                                    _fileServices.cancelTokens[
-                                                        widget.image.uuid],
-                                                builder: (c, s) {
-                                                  return GestureDetector(
-                                                    child: const Icon(
-                                                      Icons.cancel,
-                                                      size: 35,
-                                                    ),
-                                                    onTap: () {
-                                                      if (s.hasData &&
-                                                          s.data != null) {
-                                                        s.data!.cancel();
-                                                      }
-
-                                                      if (widget.message.id !=
-                                                          null) {
-                                                        _messageRepo
-                                                            .deletePendingMessage(
-                                                                widget.message
-                                                                    .packetId);
-                                                      }
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                              percent: snap.data!,
-                                              backgroundColor:
-                                                  ExtraTheme.of(context)
-                                                      .circularFileStatus,
-                                              progressColor:
-                                                  ExtraTheme.of(context)
-                                                      .fileMessageDetails,
-                                            );
-                                          } else {
-                                            return const CircularProgressIndicator(
-                                              color: Colors.blue,
-                                              strokeWidth: 4,
-                                            );
-                                          }
-                                        });
-                                  } else {
-                                    return MaterialButton(
-                                      color: Theme.of(context).primaryColor,
-                                      onPressed: () async {
-                                        _startDownload.add(true);
-                                        await fileRepo.getFile(
-                                            widget.image.uuid,
-                                            widget.image.name);
-                                        _startDownload.add(false);
-                                        setState(() {});
-                                      },
-                                      shape: const CircleBorder(),
-                                      child: const Icon(Icons.arrow_downward),
-                                      padding: const EdgeInsets.all(20),
-                                    );
-                                  }
+                    return AspectRatio(
+                      aspectRatio: widget.image.width / widget.image.height,
+                      child: Stack(
+                        children: [
+                          BlurHash(
+                            hash: widget.image.blurHash,
+                            imageFit: BoxFit.cover,
+                          ),
+                          Center(
+                              child: LoadFileStatus(
+                                fileId: widget.image.uuid,
+                                fileName: widget.image.name,
+                                messagePacketId: widget.message.packetId,
+                                onPressed: () async {
+                                  await _fileRepo.getFile(
+                                      widget.image.uuid, widget.image.name);
+                                  setState(() {});
                                 },
-                              ),
-                            ),
-                            if (widget.image.caption.isEmpty)
-                              TimeAndSeenStatus(widget.message, widget.isSender,
-                                  widget.isSeen,
-                                  needsBackground: true)
-                          ],
-                        ),
+                                background: lowlight(widget.isSender, context),
+                                foreground: highlight(widget.isSender, context),
+                              )),
+                          if (widget.image.caption.isEmpty)
+                            TimeAndSeenStatus(
+                                widget.message, widget.isSender, widget.isSeen,
+                                needsBackground: true)
+                        ],
                       ),
                     );
                   }

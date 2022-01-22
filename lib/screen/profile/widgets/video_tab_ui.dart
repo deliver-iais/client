@@ -80,7 +80,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
                           return LoadFileStatus(
                             fileId: fileId,
                             fileName: fileName,
-                            roomUid: "_",
                             onPressed: (fId, fName) async {
                               await fileRepo.getFile(fileId, fileName);
                               setState(() {});

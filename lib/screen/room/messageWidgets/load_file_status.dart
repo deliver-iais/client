@@ -15,7 +15,6 @@ class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
   final String? messagePacketId; // TODO Needs to be refactored
-  final String? roomUid;
   final Function onPressed;
   final Color background;
   final Color foreground;
@@ -25,7 +24,6 @@ class LoadFileStatus extends StatefulWidget {
     required this.fileId,
     required this.fileName,
     this.messagePacketId,
-    this.roomUid,
     required this.onPressed,
     required this.background,
     required this.foreground,
@@ -43,6 +41,15 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+        width: 50,
+        height: 50,
+        decoration:
+            BoxDecoration(shape: BoxShape.circle, color: widget.background),
+        child: builds(context));
+  }
+
+  Widget builds(BuildContext context) {
     if (widget.messagePacketId != null) {
       return StreamBuilder<PendingMessage?>(
           stream: _messageRepo.watchPendingMessage(widget.messagePacketId!),
@@ -79,11 +86,13 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                                 size: 35,
                                               ),
                                               onTap: () {
-                                                if (s.hasData && s.data != null) {
+                                                if (s.hasData &&
+                                                    s.data != null) {
                                                   s.data!.cancel();
                                                 }
-                                                _messageRepo.deletePendingMessage(
-                                                    widget.messagePacketId!);
+                                                _messageRepo
+                                                    .deletePendingMessage(widget
+                                                        .messagePacketId!);
                                               },
                                             ),
                                           );

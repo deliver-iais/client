@@ -65,7 +65,6 @@ class _CircularFileStatusIndicatorState
                               fileId: file.uuid,
                               fileName: file.name,
                               messagePacketId: widget.message.packetId,
-                              roomUid: widget.message.roomUid,
                               onPressed: () async {
                                 await _fileRepo.getFile(file.uuid, file.name);
                                 setState(() {});
@@ -80,7 +79,6 @@ class _CircularFileStatusIndicatorState
                       fileId: file.uuid,
                       fileName: file.name,
                       messagePacketId: widget.message.packetId,
-                      roomUid: widget.message.roomUid,
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
                       },
