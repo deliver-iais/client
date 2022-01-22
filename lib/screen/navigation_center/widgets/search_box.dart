@@ -28,7 +28,7 @@ class SearchBox extends StatefulWidget {
 class _SearchBoxState extends State<SearchBox> {
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _focusNode = FocusNode(canRequestFocus: false);
-  final i18n = GetIt.I.get<I18N>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
@@ -42,9 +42,7 @@ class _SearchBoxState extends State<SearchBox> {
     super.dispose();
   }
 
-  void _onFocusChange() {
-    setState(() {});
-  }
+  void _onFocusChange() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +52,6 @@ class _SearchBoxState extends State<SearchBox> {
       duration: ANIMATION_DURATION,
       child: TextField(
         style: const TextStyle(fontSize: 16, height: 1.2),
-        textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
         focusNode: _focusNode,
         controller: widget.controller,
@@ -68,7 +65,6 @@ class _SearchBoxState extends State<SearchBox> {
           }
           widget.onChange(str);
         },
-        cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderRadius: widget.borderRadius / 10,
@@ -81,12 +77,10 @@ class _SearchBoxState extends State<SearchBox> {
               width: 0.0,
             ),
           ),
-          contentPadding: const EdgeInsets.all(12),
           filled: true,
           isDense: true,
-          prefixIcon: Icon(
+          prefixIcon: const Icon(
             Icons.search,
-            color: ExtraTheme.of(context).centerPageDetails,
             size: 20,
           ),
           suffixIcon: StreamBuilder<bool?>(
@@ -94,9 +88,8 @@ class _SearchBoxState extends State<SearchBox> {
             builder: (c, ht) {
               if (ht.hasData && ht.data!) {
                 return IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.close,
-                    color: ExtraTheme.of(context).centerPageDetails,
                     size: 20,
                   ),
                   onPressed: () {
@@ -111,7 +104,7 @@ class _SearchBoxState extends State<SearchBox> {
               }
             },
           ),
-          hintText: i18n.get("search"),
+          hintText: _i18n.get("search"),
         ),
       ),
     );
