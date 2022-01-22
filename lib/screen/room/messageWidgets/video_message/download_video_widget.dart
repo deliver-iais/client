@@ -32,10 +32,13 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   final _fileServices = GetIt.I.get<FileService>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
+  final _futureKey = GlobalKey();
+  final _streamKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
+      key: _futureKey,
       future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
           thumbnailSize: ThumbnailSize.medium),
       builder: (c, thumbnail) {
@@ -60,6 +63,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
 
   Widget buildStreamBuilder() {
     return StreamBuilder<double>(
+      key: _streamKey,
       stream: _fileServices.filesProgressBarStatus[widget.uuid],
       builder: (c, snapshot) {
         if (snapshot.hasData &&
