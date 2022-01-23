@@ -324,8 +324,8 @@ Future<String?> cropImage(String imagePath) async {
       aspectRatioPresets: Platform.isAndroid
           ? [CropAspectRatioPreset.square]
           : [
-        CropAspectRatioPreset.square,
-      ],
+              CropAspectRatioPreset.square,
+            ],
       cropStyle: CropStyle.rectangle,
       androidUiSettings: const AndroidUiSettings(
           toolbarTitle: "image",
