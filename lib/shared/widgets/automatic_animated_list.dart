@@ -6,15 +6,22 @@ import 'package:rxdart/rxdart.dart';
 
 const Duration _kDuration = Duration(milliseconds: 0);
 
+class Update<T> {
+  final List<T> list;
+  final List<Key>? onlyChanges;
+
+  Update(this.list, this.onlyChanges);
+}
+
 class AutomaticAnimatedListController<T> {
-  late final _subject = BehaviorSubject<List<T>>.seeded([]);
+  late final _subject = BehaviorSubject<Update<T>>.seeded(Update([], null));
 
-  ValueStream<List<T>> get stream => _subject.stream;
+  ValueStream<Update<T>> get stream => _subject.stream;
 
-  List<T> get values => _subject.value;
+  List<T> get values => _subject.value.list;
 
-  void update(List<T> list) {
-    _subject.add(list);
+  void update(List<T> list, {List<Key>? onlyChanges}) {
+    _subject.add(Update(list, onlyChanges));
   }
 }
 
@@ -122,11 +129,11 @@ class AutomaticAnimatedList<T> extends StatefulWidget {
 class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
   List<T> oldList = [];
   List<T> list = [];
-  late final StreamSubscription<List<T>> streamSubscription;
+  late final StreamSubscription<Update<T>> streamSubscription;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   static final Function eq = const ListEquality().equals;
 
-  Map<Key, T> lcsDynamic(List<T> a, List<T> b) {
+  Set<Key> lcsDynamic(List<T> a, List<T> b) {
     final key = widget.keyingFunction;
 
     var lengths = List<List<int>>.generate(
@@ -145,14 +152,14 @@ class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
     }
 
     // read the substring out from the matrix
-    Map<Key, T> reversedLcsBuffer = {};
+    Set<Key> reversedLcsBuffer = {};
     for (int x = a.length, y = b.length; x != 0 && y != 0;) {
       if (lengths[x][y] == lengths[x - 1][y]) {
         x--;
       } else if (lengths[x][y] == lengths[x][y - 1]) {
         y--;
       } else {
-        reversedLcsBuffer.putIfAbsent(key(a[x - 1]), () => a[x - 1]);
+        reversedLcsBuffer.add(key(a[x - 1]));
         x--;
         y--;
       }
@@ -174,33 +181,43 @@ class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
   @override
   void initState() {
     super.initState();
+
     streamSubscription =
-        widget.automaticAnimatedListController.stream.listen((newList) {
+        widget.automaticAnimatedListController.stream.listen((update) {
       // Fast Change Detector
       if (eq(oldList.map((e) => widget.keyingFunction(e)).toList(),
-          newList.map((e) => widget.keyingFunction(e)).toList())) return;
+          update.list.map((e) => widget.keyingFunction(e)).toList())) return;
 
-      list = newList;
-      final commons = lcsDynamic(oldList, list);
+      list = update.list;
+
+      late final Set<Key> commons;
+
+      if (update.onlyChanges != null) {
+        commons = list
+            .whereNot((element) =>
+                update.onlyChanges!.contains(widget.keyingFunction(element)))
+            .fold(<Key>{},
+                (value, element) => value..add(widget.keyingFunction(element)));
+      } else {
+        commons = lcsDynamic(oldList, list);
+      }
 
       print(
           "commons: ${commons.length}, list: ${list.length}, oldList: ${oldList.length} ");
 
       oldList.forEachIndexed((index, element) {
-        if (!commons.containsKey(widget.keyingFunction(element))) {
+        if (!commons.contains(widget.keyingFunction(element))) {
           removeItem(index, element);
         }
       });
 
       list.forEachIndexed((index, element) {
-        if (!commons.containsKey(widget.keyingFunction(element))) {
+        if (!commons.contains(widget.keyingFunction(element))) {
           insertItem(index);
         }
       });
 
       oldList = list;
-
-      setState(() {});
     });
   }
 
