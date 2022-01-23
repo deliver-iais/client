@@ -121,8 +121,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       tag: widget.heroTag!,
       child: StreamBuilder<List<Avatar?>>(
           key: _streamKey,
-          stream:
-              _avatarRepo.getAvatar(widget.userUid, false),
+          stream: _avatarRepo.getAvatar(widget.userUid, false),
           builder: (cont, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
               return const Center(
@@ -523,22 +522,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   size: 20,
                 ),
                 itemBuilder: (cc) => [
-                      if (widget.hasPermissionToDeletePic && widget.isAvatar)
-                        PopupMenuItem(
-                            child: GestureDetector(
-                          child: const Text("delete"),
-                          onTap: () async {
-                            await _avatarRepo.deleteAvatar(
-                                _allAvatars[_swipePositionSubject.value]!);
-                            setState(() {});
-                          },
-                        )),
-                      if (widget.hasPermissionToDeletePic && !widget.isAvatar)
-                        PopupMenuItem(
-                            child: GestureDetector(
-                          child: const Text("delete"),
-                          onTap: () {},
-                        )),
+                      PopupMenuItem(
+                        child: const Text("delete"),
+                        onTap: () async {
+                          await _avatarRepo.deleteAvatar(
+                              _allAvatars[_swipePositionSubject.value]!);
+                          setState(() {});
+                        },
+                      ),
                     ])
             : const SizedBox.shrink()
       ],
