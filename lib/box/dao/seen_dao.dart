@@ -9,7 +9,7 @@ abstract class SeenDao {
 
   Future<Seen?> getMySeen(String uid);
 
-  Stream<Seen?> watchMySeen(String uid);
+  Stream<Seen> watchMySeen(String uid);
 
   Future<void> saveOthersSeen(Seen seen);
 
@@ -41,12 +41,14 @@ class SeenDaoImpl implements SeenDao {
   }
 
   @override
-  Stream<Seen?> watchMySeen(String uid) async* {
+  Stream<Seen> watchMySeen(String uid) async* {
     var box = await _openMySeen();
 
-    yield box.get(uid);
+    yield box.get(uid) ?? Seen(uid: uid, messageId: 0);
 
-    yield* box.watch(key: uid).map((event) => box.get(uid));
+    yield* box
+        .watch(key: uid)
+        .map((event) => box.get(uid) ?? Seen(uid: uid, messageId: 0));
   }
 
   @override

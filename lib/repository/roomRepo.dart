@@ -272,7 +272,7 @@ class RoomRepo {
   Future<void> createRoomIfNotExist(String roomUid) =>
       _roomDao.updateRoom(Room(uid: roomUid));
 
-  Stream<Seen?> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
+  Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
   Future<Seen?> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
 
