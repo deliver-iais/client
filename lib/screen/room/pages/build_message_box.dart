@@ -92,7 +92,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _logger = GetIt.I.get<Logger>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _autRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
   @override
@@ -232,7 +231,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
         message: message,
-        onArrowIconClick: () => _showCustomMenu(context, message, false),
+        onArrowIconClick: () => _showCustomMenu(context, message),
         isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
         pattern: "",
         //todo add search message
@@ -260,7 +259,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
-      onArrowIconClick: () => _showCustomMenu(context, message, false),
+      onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
     );
     return Row(
@@ -287,8 +286,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void _showCustomMenu(
-      BuildContext context, Message message, bool isPersistentEventMessage) {
-    this.showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
+    BuildContext context,
+    Message message,
+  ) async {
+    var selectedValue = await this
+        .showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(message,
           hasPermissionInChannel: widget.hasPermissionInChannel.value,
           hasPermissionInGroup: widget.hasPermissionInGroup,
