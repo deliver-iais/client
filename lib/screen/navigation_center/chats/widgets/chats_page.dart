@@ -1,3 +1,4 @@
+import 'package:automatic_animated_list/automatic_animated_list.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -87,45 +88,50 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                 return PageStorage(
                   bucket: PageStorage.of(context)!,
                   child: Scrollbar(
-                    controller: widget.scrollController,
-                    child: ListView.separated(
-                      key: const PageStorageKey<String>('chats_page'),
                       controller: widget.scrollController,
-                      itemCount: rooms.length,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        return GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          child: ChatItem(
-                            key: ValueKey("chatItem/${rooms[index].uid}"),
-                            room: rooms[index],
-                            isSelected: _routingService.isInRoom(rooms[index].uid),
-                          ),
-                          onTap: () {
-                            _routingService.openRoom(rooms[index].uid, popAllBeforePush: true);
-                          },
-                          onLongPress: () {
-                            //ToDo new design for android
-                            _showCustomMenu(
-                                context, rooms[index], canPin(rooms));
-                          },
-                          onTapDown: storePosition,
-                          onSecondaryTapDown: storePosition,
-                          onSecondaryTap: !isDesktop()
-                              ? null
-                              : () {
-                                  _showCustomMenu(
-                                      context, rooms[index], canPin(rooms));
-                                },
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return const Padding(
-                          padding: EdgeInsets.only(left: 64),
-                          child: Divider(),
-                        );
-                      },
-                    ),
-                  ),
+                      child: AutomaticAnimatedList<Room>(
+                        items: snapshot.data!,
+                        controller: widget.scrollController,
+                        itemBuilder: (BuildContext ctx, Room room, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: Column(
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  child: ChatItem(
+                                    key: ValueKey("chatItem/${room.uid}"),
+                                    room: room,
+                                    isSelected:
+                                        _routingService.isInRoom(room.uid),
+                                  ),
+                                  onTap: () {
+                                    _routingService.openRoom(room.uid,
+                                        popAllBeforePush: true);
+                                  },
+                                  onLongPress: () {
+                                    //ToDo new design for android
+                                    _showCustomMenu(context, room, canPin(rooms));
+                                  },
+                                  onTapDown: storePosition,
+                                  onSecondaryTapDown: storePosition,
+                                  onSecondaryTap: !isDesktop()
+                                      ? null
+                                      : () {
+                                          _showCustomMenu(
+                                              context, room, canPin(rooms));
+                                        },
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 64),
+                                  child: Divider(),
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                        keyingFunction: (room) => ValueKey(room.uid),
+                      )),
                 );
               } else {
                 return Container();
