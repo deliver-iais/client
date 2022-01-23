@@ -38,7 +38,11 @@ ThemeData DarkTheme = ThemeData(
         elevation: 0,
         titleTextStyle: textTheme.headline5,
         toolbarTextStyle: textTheme.headline6),
-    popupMenuTheme: const PopupMenuThemeData(color: Color(0xFF032738)),
+    popupMenuTheme: const PopupMenuThemeData(
+        textStyle: TextStyle(color: primary, fontSize: 14),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        color: Color(0xFF032738)),
     sliderTheme: const SliderThemeData(
       thumbColor: Colors.white,
       trackHeight: 2.25,
@@ -63,6 +67,7 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     chatOrContactItemDetails: Colors.white,
     //info chat in extra
     sentMessageBox: const Color(0xFF0674A1),
+    sentMessageBoxForeground: primary,
     receivedMessageBox: const Color(0xFF182731),
     textMessage: Colors.white,
     messageDetails: const Color(0xFF00396C),

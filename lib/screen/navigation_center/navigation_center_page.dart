@@ -161,35 +161,42 @@ class _NavigationCenterState extends State<NavigationCenter> {
           shape: BoxShape.circle,
           color: ExtraTheme.of(context).menuIconButton,
         ),
-        child: PopupMenuButton(
-            icon: const Icon(Icons.create),
-            onSelected: selectChatMenu,
-            itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.group),
-                        const SizedBox(width: 8),
-                        Text(_i18n.get("newGroup")),
-                      ],
+        child: IconTheme(
+          data: IconThemeData(
+            size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
+            color: PopupMenuTheme.of(context).textStyle?.color,
+          ),
+          child: PopupMenuButton(
+              icon: Icon(Icons.create,
+                  color: Theme.of(context).colorScheme.onSurface),
+              onSelected: selectChatMenu,
+              itemBuilder: (context) => [
+                    PopupMenuItem<String>(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.group),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("newGroup")),
+                        ],
+                      ),
+                      value: "newGroup",
                     ),
-                    value: "newGroup",
-                  ),
-                  PopupMenuItem<String>(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.rss_feed_rounded),
-                        const SizedBox(width: 8),
-                        Text(
-                          _i18n.get("newChannel"),
-                        )
-                      ],
-                    ),
-                    value: "newChannel",
-                  )
-                ]));
+                    PopupMenuItem<String>(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.rss_feed_rounded),
+                          const SizedBox(width: 8),
+                          Text(
+                            _i18n.get("newChannel"),
+                          )
+                        ],
+                      ),
+                      value: "newChannel",
+                    )
+                  ]),
+        ));
   }
 
   selectChatMenu(String key) {

@@ -9,8 +9,8 @@ class BoxInfo {
     try{
       var box = await Hive.openBox<String>(_key());
       box.put(key, key);
-    }catch(e){
-      _logger.e(e);
+    }catch(_){
+    //  _logger.e(e);
     }
 
   }

@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/adapter.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as io;
@@ -73,7 +71,7 @@ class FileService {
   }
 
   FileService() {
-    if(!kIsWeb){
+    if (!kIsWeb) {
       (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =
@@ -186,23 +184,21 @@ class FileService {
 
   Future<String> compressImageInDesktop(File file) async {
     try {
-      if (await file.length() < 500000) {
-        return file.path;
-      }
       var bytes = await file.readAsBytes();
       ImageFile input = ImageFile(
           filePath: file.path, rawBytes: bytes); // set the input image file
       Configuration config = const Configuration(
         outputType: ImageOutputType.jpg,
-        // can only be true for Android and iOS while using ImageOutputType.jpg or ImageOutputType.pngÏ
         useJpgPngNativeCompressor: false,
-        // set quality between 0-100
-        quality: 70,
+        quality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compress(param);
-      return output.filePath;
+      final output = await compressor.compressJpg(param);
+      var name = DateTime.now().millisecondsSinceEpoch.toString();
+      final outPutFile = await localFile(name, "jpg");
+      outPutFile.writeAsBytesSync(output.rawBytes);
+      return outPutFile.path;
     } catch (_) {
       return file.path;
     }
@@ -212,17 +208,13 @@ class FileService {
     File file,
   ) async {
     try {
-      if (await file.length() < 300000) {
-        return file.path;
-      }
       var name = DateTime.now().millisecondsSinceEpoch.toString();
       var targetFilePath = await localFilePath(name, "jpeg");
       var result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
-        minWidth: 480,
         format: CompressFormat.jpeg,
-        quality: 70,
+        quality: 60,
       );
       if (result != null) {
         return result.path;
@@ -242,16 +234,10 @@ class FileService {
           if (MediaType.parse(mime(filePath) ?? filePath)
               .toString()
               .contains("image")) {
-            if (isAndroid()) {
-              var compressedImagePath =
-                  await compressImageInMobile(File(filePath));
-              filePath = compressedImagePath;
+            if (isAndroid() || isIOS()) {
+              filePath = await compressImageInMobile(File(filePath));
             } else {
-              var compressedImagePath =
-                  await compressImageInDesktop(File(filePath));
-              if (compressedImagePath.isNotEmpty) {
-                filePath = compressedImagePath;
-              }
+              filePath = await compressImageInDesktop(File(filePath));
             }
           }
         } catch (_) {
@@ -297,5 +283,32 @@ class FileService {
       _logger.e(e);
       return null;
     }
+  }
+
+  bool isFileFormatAccepted(String format) {
+    return format == "doc" ||
+        format == "pdf" ||
+        format == "svg" ||
+        format == "csv" ||
+        format == "xls" ||
+        format == "txt" ||
+        format == "jpg" ||
+        format == "jpeg" ||
+        format == "png" ||
+        format == "txt" ||
+        format == "rar" ||
+        format == "zip" ||
+        format == "mp3" ||
+        format == "mp4" ||
+        format == "m4a" ||
+        format == "ogg" ||
+        format == "xml" ||
+        format == "pptx" ||
+        format == "docx" ||
+        format == "xlsm" ||
+        format == "xlsx" ||
+        format == "crt" ||
+        format == "tgs" ||
+        format == "apk";
   }
 }
