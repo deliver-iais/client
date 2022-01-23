@@ -28,6 +28,9 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final I18N _i18n = GetIt.I.get<I18N>();
+  final GlobalKey _listKey = GlobalKey();
+  final AutomaticAnimatedListController<Room> controller =
+      AutomaticAnimatedListController();
 
   void _showCustomMenu(BuildContext context, Room room, bool canPin) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
@@ -75,70 +78,65 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   @override
+  void initState() {
+    _roomRepo.watchAllRooms().listen((event) {
+      rearrangeChatItem(event);
+      controller.update(event);
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Room>>(
-        stream: _roomRepo.watchAllRooms(),
-        builder: (context, snapshot) {
-          return StreamBuilder(
-            stream: _routingService.currentRouteStream,
-            builder: (BuildContext c, AsyncSnapshot<Object> s) {
-              if (snapshot.hasData) {
-                var rooms = snapshot.data!.toList();
-                rearangChatItem(rooms);
-                return PageStorage(
-                  bucket: PageStorage.of(context)!,
-                  child: Scrollbar(
-                      controller: widget.scrollController,
-                      child: AutomaticAnimatedList<Room>(
-                        items: snapshot.data!,
-                        controller: widget.scrollController,
-                        itemBuilder: (BuildContext ctx, Room room, animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                  behavior: HitTestBehavior.translucent,
-                                  child: ChatItem(
-                                    key: ValueKey("chatItem/${room.uid}"),
-                                    room: room,
-                                    isSelected:
-                                        _routingService.isInRoom(room.uid),
-                                  ),
-                                  onTap: () {
-                                    _routingService.openRoom(room.uid,
-                                        popAllBeforePush: true);
-                                  },
-                                  onLongPress: () {
-                                    //ToDo new design for android
-                                    _showCustomMenu(context, room, canPin(rooms));
-                                  },
-                                  onTapDown: storePosition,
-                                  onSecondaryTapDown: storePosition,
-                                  onSecondaryTap: !isDesktop()
-                                      ? null
-                                      : () {
-                                          _showCustomMenu(
-                                              context, room, canPin(rooms));
-                                        },
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 64),
-                                  child: Divider(),
-                                )
-                              ],
-                            ),
-                          );
-                        },
-                        keyingFunction: (room) => ValueKey(room.uid),
-                      )),
-                );
-              } else {
-                return Container();
-              }
+    return PageStorage(
+      bucket: PageStorage.of(context)!,
+      child: Scrollbar(
+          controller: widget.scrollController,
+          child: AutomaticAnimatedList<Room>(
+            key: _listKey,
+            controller: widget.scrollController,
+            automaticAnimatedListController: controller,
+            itemBuilder: (BuildContext ctx, Room room, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      child: ChatItem(
+                        key: ValueKey("chatItem/${room.uid}"),
+                        room: room,
+                      ),
+                      onTap: () {
+                        _routingService.openRoom(room.uid,
+                            popAllBeforePush: true);
+                      },
+                      onLongPress: () {
+                        //ToDo new design for android
+                        _showCustomMenu(
+                            context, room, canPin(controller.values));
+                      },
+                      onTapDown: storePosition,
+                      onSecondaryTapDown: storePosition,
+                      onSecondaryTap: !isDesktop()
+                          ? null
+                          : () {
+                              _showCustomMenu(
+                                  context, room, canPin(controller.values));
+                            },
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 64),
+                      child: Divider(),
+                    )
+                  ],
+                ),
+              );
             },
-          );
-        });
+            keyingFunction: (room) => ValueKey(room.uid),
+            changeKeyingFunction: (room) => room.lastMessageId,
+          )),
+    );
   }
 
   bool canPin(List<Room> rooms) {
@@ -147,7 +145,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         : false;
   }
 
-  void rearangChatItem(List<Room> rooms) {
+  void rearrangeChatItem(List<Room> rooms) {
     for (var room in rooms) {
       if (room.pinned == true) {
         rooms.remove(room);

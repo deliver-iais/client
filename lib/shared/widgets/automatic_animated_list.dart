@@ -1,14 +1,30 @@
+import 'dart:async';
+import 'dart:math';
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
+import 'package:rxdart/rxdart.dart';
 
-const Duration _kDuration = Duration(milliseconds: 300);
+const Duration _kDuration = Duration(milliseconds: 0);
+
+class AutomaticAnimatedListController<T> {
+  late final _subject = BehaviorSubject<List<T>>.seeded([]);
+
+  ValueStream<List<T>> get stream => _subject.stream;
+
+  List<T> get values => _subject.value;
+
+  void update(List<T> list) {
+    _subject.add(list);
+  }
+}
 
 class AutomaticAnimatedList<T> extends StatefulWidget {
   const AutomaticAnimatedList({
     Key? key,
-    required this.items,
     required this.itemBuilder,
     required this.keyingFunction,
-    this.orderingFunction,
+    required this.automaticAnimatedListController,
+    required this.changeKeyingFunction,
     this.scrollDirection = Axis.vertical,
     this.reverse = false,
     this.controller,
@@ -20,10 +36,10 @@ class AutomaticAnimatedList<T> extends StatefulWidget {
     this.removeDuration = _kDuration,
   }) : super(key: key);
 
-  final List<T> items;
   final Widget Function(BuildContext, T, Animation<double>) itemBuilder;
   final Key Function(T item) keyingFunction;
-  final Key Function(T item)? orderingFunction;
+  final dynamic Function(T item) changeKeyingFunction;
+  final AutomaticAnimatedListController<T> automaticAnimatedListController;
 
   /// The axis along which the scroll view scrolls.
   ///
@@ -104,63 +120,94 @@ class AutomaticAnimatedList<T> extends StatefulWidget {
 }
 
 class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
+  List<T> oldList = [];
+  List<T> list = [];
+  late final StreamSubscription<List<T>> streamSubscription;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  static final Function eq = const ListEquality().equals;
 
-  @override
-  void didUpdateWidget(AutomaticAnimatedList<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    List<Key> oldKeys =
-        oldWidget.items.map((e) => oldWidget.keyingFunction(e)).toList();
-    List<Key> newKeys =
-        widget.items.map((e) => widget.keyingFunction(e)).toList();
+  Map<Key, T> lcsDynamic(List<T> a, List<T> b) {
+    final key = widget.keyingFunction;
 
-    // This variable holds the current offset between the lists. it thrives to make
-    int offset = 0;
-    for (int i = 0; i < oldKeys.length; i++) {
-      // We reached the end if the new list, this means all other old items here were removed.
-      if (newKeys.length < i + offset + 1) {
-        // This item is not present in the new list. which means it was removed.
-        _listKey.currentState!.removeItem(
-            i,
-            (context, animation) =>
-                oldWidget.itemBuilder(context, oldWidget.items[i], animation),
-            duration: widget.removeDuration);
-        offset--;
-        continue;
-      }
+    var lengths = List<List<int>>.generate(
+        a.length + 1, (_) => List.filled(b.length + 1, 0),
+        growable: false);
 
-      // Check if the current item is the same item.
-      if (oldKeys[i] != newKeys[i + offset]) {
-        // The current items differ, check if this item was removed or just moved index.
-        int tempOffset = newKeys.indexOf(oldKeys[i]);
-        if (tempOffset != -1) {
-          // This item exists in the new list!, this means all items between them are new ones.
-          for (int j = i; j < tempOffset; j++) {
-            _listKey.currentState!
-                .insertItem(j, duration: widget.insertDuration);
-            offset++;
-          }
+    // row 0 and column 0 are initialized to 0 already
+    for (int i = 0; i < a.length; i++) {
+      for (int j = 0; j < b.length; j++) {
+        if (key(a[i]) == key(b[j])) {
+          lengths[i + 1][j + 1] = lengths[i][j] + 1;
         } else {
-          // This item is not present in the new list. which means it was removed.
-          _listKey.currentState!.removeItem(
-              i,
-              (context, animation) =>
-                  oldWidget.itemBuilder(context, oldWidget.items[i], animation),
-              duration: widget.removeDuration);
-          offset--;
+          lengths[i + 1][j + 1] = max(lengths[i + 1][j], lengths[i][j + 1]);
         }
       }
     }
 
-    // All the rest.
-    for (int i = oldKeys.length; i < newKeys.length - offset; i++) {
-      _listKey.currentState!.insertItem(i, duration: widget.insertDuration);
+    // read the substring out from the matrix
+    Map<Key, T> reversedLcsBuffer = {};
+    for (int x = a.length, y = b.length; x != 0 && y != 0;) {
+      if (lengths[x][y] == lengths[x - 1][y]) {
+        x--;
+      } else if (lengths[x][y] == lengths[x][y - 1]) {
+        y--;
+      } else {
+        reversedLcsBuffer.putIfAbsent(key(a[x - 1]), () => a[x - 1]);
+        x--;
+        y--;
+      }
     }
+
+    return reversedLcsBuffer;
+  }
+
+  removeItem(int index, T element) {
+    _listKey.currentState?.removeItem(index,
+        (context, animation) => widget.itemBuilder(context, element, animation),
+        duration: widget.removeDuration);
+  }
+
+  insertItem(int index) {
+    _listKey.currentState?.insertItem(index, duration: widget.removeDuration);
   }
 
   @override
   void initState() {
     super.initState();
+    streamSubscription =
+        widget.automaticAnimatedListController.stream.listen((newList) {
+      // Fast Change Detector
+      if (eq(oldList.map((e) => widget.keyingFunction(e)).toList(),
+          newList.map((e) => widget.keyingFunction(e)).toList())) return;
+
+      list = newList;
+      final commons = lcsDynamic(oldList, list);
+
+      print(
+          "commons: ${commons.length}, list: ${list.length}, oldList: ${oldList.length} ");
+
+      oldList.forEachIndexed((index, element) {
+        if (!commons.containsKey(widget.keyingFunction(element))) {
+          removeItem(index, element);
+        }
+      });
+
+      list.forEachIndexed((index, element) {
+        if (!commons.containsKey(widget.keyingFunction(element))) {
+          insertItem(index);
+        }
+      });
+
+      oldList = list;
+
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    streamSubscription.cancel();
   }
 
   @override
@@ -174,10 +221,9 @@ class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
       physics: widget.physics,
       shrinkWrap: widget.shrinkWrap,
       padding: widget.padding,
-      initialItemCount: widget.items.length,
       itemBuilder: (BuildContext context, int index, Animation animation) =>
           widget.itemBuilder(
-              context, widget.items[index], animation as Animation<double>),
+              context, list[index], animation as Animation<double>),
     );
   }
 }
