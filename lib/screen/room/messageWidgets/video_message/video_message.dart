@@ -66,7 +66,7 @@ class _VideoMessageState extends State<VideoMessage> {
       decoration: BoxDecoration(
           color: Colors.black, borderRadius: BorderRadius.circular(10)),
       child: AspectRatio(
-        aspectRatio: video.width / video.height,
+        aspectRatio: video.width > 0 ? video.width / video.height : 1,
         child: StreamBuilder(
             stream: _messageRepo.watchPendingMessage(widget.message.packetId),
             builder: (c, p) {
