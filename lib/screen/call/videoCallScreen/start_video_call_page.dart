@@ -1,5 +1,6 @@
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -40,7 +41,8 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WithForegroundTask(
+        child: Scaffold(
         body: Stack(children: [
       RTCVideoView(
         widget.localRenderer,
@@ -65,6 +67,6 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
           ),
         ),
       )
-    ]));
+    ])));
   }
 }

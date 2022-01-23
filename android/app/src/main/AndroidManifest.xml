@@ -187,7 +187,7 @@
                 android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
 
-        <service android:name="changjoopark.com.flutter_foreground_plugin.FlutterForegroundService"
+        <service android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
                  android:foregroundServiceType="mediaProjection"
                  tools:targetApi="q"
                  android:enabled="true"
@@ -214,7 +214,4 @@
         </provider>
 
     </application>
-    <uses-sdk
-            android:minSdkVersion="23"
-            tools:overrideLibrary="changjoopark.com.flutter_foreground_plugin" />
 </manifest>

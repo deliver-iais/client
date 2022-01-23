@@ -92,14 +92,15 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         child: const Icon(Icons.mic_off),
                         onPressed: () => _muteMic(),
                       ),
-                      FloatingActionButton(
-                        heroTag: 55,
-                        backgroundColor: _screenShareIcon,
-                        child: (isAndroid())
-                            ? const Icon(Icons.mobile_screen_share)
-                            : const Icon(Icons.screen_share_outlined),
-                        onPressed: () => _shareScreen(),
-                      ),
+                      //TODO after 3 issue fix on flutter-webRtc
+                      // FloatingActionButton(
+                      //   heroTag: 55,
+                      //   backgroundColor: _screenShareIcon,
+                      //   child: (isAndroid())
+                      //       ? const Icon(Icons.mobile_screen_share)
+                      //       : const Icon(Icons.screen_share_outlined),
+                      //   onPressed: () => _shareScreen(),
+                      // ),
                       FloatingActionButton(
                         heroTag: 66,
                         onPressed: () => widget.hangUp(),

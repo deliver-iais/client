@@ -10,6 +10,7 @@ import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 
 class AudioCallScreen extends StatefulWidget {
@@ -67,8 +68,9 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   @override
   Widget build(BuildContext context) {
     callRepo.isCallInBackground = false;
-    return Scaffold(
-        body: Stack(children: [
+    return WithForegroundTask(
+        child: Scaffold(
+            body: Stack(children: [
       FutureBuilder<Avatar?>(
           future: _avatarRepo.getLastAvatar(widget.roomUid, false),
           builder: (context, snapshot) {
@@ -118,6 +120,6 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         hangUp: widget.hangUp,
         isIncomingCall: widget.isIncomingCall,
       )
-    ]));
+    ])));
   }
 }

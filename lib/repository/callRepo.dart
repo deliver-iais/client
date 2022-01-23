@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/models/call_event_type.dart';
@@ -11,9 +12,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -63,6 +62,7 @@ class CallRepo {
 
   bool _onCalling = false;
   bool _isSharing = false;
+  bool _screenShared = false;
   bool _isCaller = false;
   bool _isVideo = false;
   bool _isConnected = false;
@@ -95,6 +95,8 @@ class CallRepo {
   bool isCallInBackground = false;
   Timer? timer;
   late Function timerFunction;
+
+  ReceivePort? _receivePort;
 
   CallRepo() {
     _coreServices.callEvents.listen((event) async {
@@ -370,9 +372,10 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() async{
-    if (isAndroid()) {
-      await startForegroundService();
-    }
+    // if (isAndroid()) {
+    //   await _initForegroundTask();
+    //   await _startForegroundTask();
+    // }
     if (!isVideo) startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
@@ -507,122 +510,91 @@ class CallRepo {
     return stream;
   }
 
+  //https://github.com/flutter-webrtc/flutter-webrtc/issues/831 issue for Android
+  //https://github.com/flutter-webrtc/flutter-webrtc/issues/799 issue for Windows
   shareScreen() async {
     if (!_isSharing) {
-      _localStreamShare ??= await _getUserDisplay();
+      _localStreamShare = await _getUserDisplay();
       var screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
-      _videoSender!.replaceTrack(screenVideoTrack);
+      await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
       _isSharing = true;
       _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
     } else {
       var camVideoTrack = _localStream!.getVideoTracks()[0];
-      _videoSender!.replaceTrack(camVideoTrack);
+      await _videoSender!.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream!);
       _isSharing = false;
       _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
     }
   }
 
-  startForegroundService() async {
-    await FlutterForegroundPlugin.setServiceMethodInterval(seconds: 5);
-    //await FlutterForegroundPlugin.setServiceMethod(globalForegroundService);
-    await FlutterForegroundPlugin.startForegroundService(
-      holdWakeLock: false,
-      onStarted: () {
-        print("Foreground on Started");
-      },
-      onStopped: () {
-        print("Foreground on Stopped");
-      },
-      title: "Deliver",
-      content: "Deliver sharing your screen.",
-      iconName: "ic_stat_mobile_screen_share",
-    );
-    return true;
-  }
-
-  stopForegroundService() async {
-    await FlutterForegroundPlugin.stopForegroundService();
-    return true;
-  }
-
-  void globalForegroundService() {
-    debugPrint("current datetime is ${DateTime.now()}");
-  }
-
-  Future<void> initializeBackGroundService() async {
-    final service = FlutterBackgroundService();
-    await service.configure(
-      androidConfiguration: AndroidConfiguration(
-        // this will executed when app is in foreground or background in separated isolate
-        onStart: onStart,
-
-        // auto start service
-        autoStart: true,
-        isForegroundMode: false,
+  _initForegroundTask() async {
+    await FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'notification_channel_id',
+        channelName: 'Foreground Notification',
+        channelDescription:
+        'This notification appears when the foreground service is running.',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+        iconData: const NotificationIconData(
+          resType: ResourceType.mipmap,
+          resPrefix: ResourcePrefix.ic,
+          name: 'launcher',
+        ),
+        buttons: [
+          const NotificationButton(id: 'endCall', text: 'End Call'),
+        ],
       ),
-      iosConfiguration: IosConfiguration(
-        // auto start service
-        autoStart: true,
-
-        // this will executed when app is in foreground in separated isolate
-        onForeground: onStart,
-
-        // you have to enable background fetch capability on xcode project
-        onBackground: onIosBackground,
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
       ),
+      foregroundTaskOptions: const ForegroundTaskOptions(
+        interval: 5000,
+        autoRunOnBoot: true,
+        allowWifiLock: true,
+      ),
+      printDevLog: true,
     );
   }
 
-  stopBackGroundService() async {
-    final service = FlutterBackgroundService();
-    var isRunning = await service.isServiceRunning();
-    if (isRunning) {
-      service.sendData(
-        {"action": "stopService"},
+  Future<bool> _startForegroundTask() async {
+    // You can save data using the saveData function.
+    await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
+
+    ReceivePort? receivePort;
+    if (await FlutterForegroundTask.isRunningService) {
+      receivePort = await FlutterForegroundTask.restartService();
+    } else {
+      receivePort = await FlutterForegroundTask.startService(
+        notificationTitle: 'Deliver Call on BackGround',
+        notificationText: 'Tap to return to the app',
+        callback: startCallback,
       );
     }
+
+    if (receivePort != null) {
+      _receivePort = receivePort;
+      _receivePort?.listen((message) {
+        if (message is DateTime) {
+          print('receive timestamp: $message');
+        } else if (message is int) {
+          print('receive updateCount: $message');
+        }
+      });
+
+      return true;
+    }
+
+    return false;
   }
 
-  // to ensure this executed
-  // run app from xcode, then from xcode menu, select Simulate Background Fetch
-  void onIosBackground() {
-    WidgetsFlutterBinding.ensureInitialized();
-    print('FLUTTER BACKGROUND FETCH');
+  Future<bool> _stopForegroundTask() async {
+    return await FlutterForegroundTask.stopService();
   }
 
-  void onStart() {
-    WidgetsFlutterBinding.ensureInitialized();
-    final service = FlutterBackgroundService();
-    service.onDataReceived.listen((event) {
-      if (event!["action"] == "setAsForeground") {
-        service.setForegroundMode(true);
-        return;
-      }
-
-      if (event["action"] == "setAsBackground") {
-        service.setForegroundMode(false);
-      }
-
-      if (event["action"] == "stopService") {
-        service.stopBackgroundService();
-      }
-    });
-
-    // bring to foreground
-    service.setForegroundMode(false);
-    Timer.periodic(Duration(seconds: 1), (timer) async {
-      if (!(await service.isServiceRunning())) timer.cancel();
-      service.setNotificationInfo(
-        title: "My App Service",
-        content: "Updated at ${DateTime.now()}",
-      );
-      service.sendData(
-        {"current_date": DateTime.now().toIso8601String()},
-      );
-    });
-  }
 
   /*
   * For Close Microphone
@@ -918,9 +890,11 @@ class CallRepo {
     }
   }
 
+  //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   _dispose() async {
     if (isAndroid()) {
-      await stopForegroundService();
+      _receivePort?.close();
+      await _stopForegroundTask();
     }
     if (timer != null) {
       _logger.i("timer canceled");
@@ -936,6 +910,7 @@ class CallRepo {
     }
     _logger.i("end call in service");
     await _cleanLocalStream();
+    //await _cleanRtpSender();
     await _peerConnection?.close();
     await _peerConnection?.dispose();
     _candidate = [];
@@ -1003,7 +978,13 @@ class CallRepo {
     });
   }
 
+  _cleanRtpSender() async {
+    await _videoSender?.dispose();
+    await _audioSender?.dispose();
+  }
+
   _cleanLocalStream() async {
+    await _stopSharingStream();
     if (_localStream != null) {
       _localStream!.getTracks().forEach((element) async {
         await element.stop();
@@ -1011,6 +992,9 @@ class CallRepo {
       await _localStream!.dispose();
       _localStream = null;
     }
+  }
+
+  _stopSharingStream() async {
     if (_localStreamShare != null) {
       _localStreamShare!.getTracks().forEach((element) async {
         await element.stop();
@@ -1024,4 +1008,45 @@ class CallRepo {
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus =
       BehaviorSubject.seeded(CallStatus.NO_CALL);
+}
+
+// The callback function should always be a top-level function.
+void startCallback() {
+  // The setTaskHandler function must be called to handle the task in the background.
+  FlutterForegroundTask.setTaskHandler(FirstTaskHandler());
+}
+
+class FirstTaskHandler extends TaskHandler {
+
+  final callRepo = GetIt.I.get<CallRepo>();
+  int updateCount = 0;
+
+  @override
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+    // You can use the getData function to get the data you saved.
+    final customData =
+    await FlutterForegroundTask.getData<String>(key: 'customData');
+    print('customData: $customData');
+  }
+
+  @override
+  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
+    // Send data to the main isolate.
+    sendPort?.send(timestamp);
+    sendPort?.send(updateCount);
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp) async {
+    // You can use the clearAllData function to clear all the stored data.
+    await FlutterForegroundTask.clearAllData();
+  }
+
+  @override
+  void onButtonPressed(String id) {
+    // Called when the notification button on the Android platform is pressed.
+    if(id == "endCall"){
+      callRepo.endCall();
+    }
+  }
 }
