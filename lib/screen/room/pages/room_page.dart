@@ -715,7 +715,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
-      initialScrollIndex:initialScrollIndex,
+     initialScrollIndex:initialScrollIndex,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
@@ -840,8 +840,6 @@ class _RoomPageState extends State<RoomPage> {
             _currentMessageSearchId = -1;
           }
 
-          if (!(ms.data!.from.isSameEntity(_authRepo.currentUserUid))) {}
-
           if (index == 0) {
             return Column(
               children: [
@@ -862,7 +860,7 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  BuildMessageBox buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
+  Widget buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
       List<PendingMessage> pendingMessages) {
     final keyId = ms.data?.id;
     final key = keyId != null ? ValueKey(keyId) : null;
