@@ -80,8 +80,13 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   @override
   void initState() {
     _roomRepo.watchAllRooms().listen((event) {
-      rearrangeChatItem(event);
-      controller.update(event);
+      rearrangePinnedChatItems(event.item1);
+      if (event.item2 != null) {
+        controller.update(event.item1,
+            onlyChanges: [ValueKey(event.item2!.key as String)]);
+      } else {
+        controller.update(event.item1);
+      }
     });
     super.initState();
   }
@@ -145,7 +150,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         : false;
   }
 
-  void rearrangeChatItem(List<Room> rooms) {
+  void rearrangePinnedChatItems(List<Room> rooms) {
     for (var room in rooms) {
       if (room.pinned == true) {
         rooms.remove(room);

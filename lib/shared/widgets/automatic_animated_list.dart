@@ -186,24 +186,23 @@ class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
         widget.automaticAnimatedListController.stream.listen((update) {
       // Fast Change Detector
       if (eq(oldList.map((e) => widget.keyingFunction(e)).toList(),
-          update.list.map((e) => widget.keyingFunction(e)).toList())) return;
+          update.list.map((e) => widget.keyingFunction(e)).toList())) {
+        return;
+      }
 
       list = update.list;
 
       late final Set<Key> commons;
 
-      if (update.onlyChanges != null) {
+      if (update.onlyChanges != null && update.onlyChanges!.isNotEmpty) {
         commons = list
-            .whereNot((element) =>
-                update.onlyChanges!.contains(widget.keyingFunction(element)))
+            .where((element) =>
+                !update.onlyChanges!.contains(widget.keyingFunction(element)))
             .fold(<Key>{},
                 (value, element) => value..add(widget.keyingFunction(element)));
       } else {
         commons = lcsDynamic(oldList, list);
       }
-
-      print(
-          "commons: ${commons.length}, list: ${list.length}, oldList: ${oldList.length} ");
 
       oldList.forEachIndexed((index, element) {
         if (!commons.contains(widget.keyingFunction(element))) {

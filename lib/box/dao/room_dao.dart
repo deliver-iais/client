@@ -3,6 +3,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:tuple/tuple.dart';
 
 abstract class RoomDao {
   Future<void> updateRoom(Room room);
@@ -11,7 +12,7 @@ abstract class RoomDao {
 
   Future<List<Room>> getAllRooms();
 
-  Stream<List<Room>> watchAllRooms();
+  Stream<Tuple2<List<Room>, BoxEvent?>> watchAllRooms();
 
   Future<Room?> getRoom(String roomUid);
 
@@ -44,21 +45,25 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<List<Room>> watchAllRooms() async* {
+  Stream<Tuple2<List<Room>, BoxEvent?>> watchAllRooms() async* {
     var box = await _openRoom();
-    if(box.isEmpty){
-      box = await  _openRoom();
+    if (box.isEmpty) {
+      box = await _openRoom();
     }
-    yield sorted(box.values
-        .where((element) =>
-            (element.deleted == null || !element.deleted!) &&
-            element.lastMessageId != null)
-        .toList());
+    yield Tuple2(
+        sorted(box.values
+            .where((element) =>
+                (element.deleted == null || !element.deleted!) &&
+                element.lastMessageId != null)
+            .toList()),
+        null);
 
-    yield* box.watch().map((event) => sorted(box.values
-        .where((element) => (element.lastMessageId != null &&
-            (element.deleted == null || element.deleted == false)))
-        .toList()));
+    yield* box.watch().map((event) => Tuple2(
+        sorted(box.values
+            .where((element) => (element.lastMessageId != null &&
+                (element.deleted == null || element.deleted == false)))
+            .toList()),
+        event));
   }
 
   List<Room> sorted(List<Room> list) {
