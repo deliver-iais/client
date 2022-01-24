@@ -108,10 +108,15 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                   children: [
                     GestureDetector(
                       behavior: HitTestBehavior.translucent,
-                      child: ChatItem(
-                        key: ValueKey("chatItem/${room.uid}"),
-                        room: room,
-                      ),
+                      child: StreamBuilder<Room?>(
+                          initialData: room,
+                          stream: _roomRepo.watchRoom(room.uid),
+                          builder: (context, snapshot) {
+                            return ChatItem(
+                              key: ValueKey("chatItem/${snapshot.data!.uid}"),
+                              room: room,
+                            );
+                          }),
                       onTap: () {
                         _routingService.openRoom(room.uid,
                             popAllBeforePush: true);
