@@ -1,5 +1,6 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -11,7 +12,6 @@ class HasCallRow extends StatefulWidget {
   _HasCallRowState createState() => _HasCallRowState();
 }
 
-//TODO SHOW AUDIO CALL
 class _HasCallRowState extends State<HasCallRow> {
   final callRepo = GetIt.I.get<CallRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -41,6 +41,15 @@ class _HasCallRowState extends State<HasCallRow> {
                 },
                 child: callRepo.roomUid != null
                     ? Container(
+                        decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Color.fromARGB(255, 23, 218, 255),
+                            Color.fromARGB(255, 1, 99, 246),
+                          ],
+                        )),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: Row(
@@ -59,16 +68,44 @@ class _HasCallRowState extends State<HasCallRow> {
                                       return const SizedBox.shrink();
                                     }
                                   }),
-                              callRepo.isVideo
-                                  ? const Icon(Icons.videocam,
-                                      color: Colors.white)
-                                  : const Icon(Icons.call, color: Colors.white)
+                              Row(
+                                children: [
+                                  Icon(
+                                      callRepo.isVideo
+                                          ? Icons.videocam
+                                          : Icons.call,
+                                      color: Colors.white),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  if (snapshot.data == CallStatus.CONNECTED)
+                                    StreamBuilder<CallTimer>(
+                                        stream: callRepo.callTimer,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData &&
+                                              snapshot.data != null) {
+                                            return Text(
+                                              snapshot.data!.hours.toString() +
+                                                  ":" +
+                                                  snapshot.data!.minutes
+                                                      .toString() +
+                                                  ":" +
+                                                  snapshot.data!.seconds
+                                                      .toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.white54),
+                                            );
+                                          } else {
+                                            return const SizedBox.shrink();
+                                          }
+                                        }),
+                                ],
+                              ),
                             ],
                           ),
                         ),
                         width: MediaQuery.of(context).size.width,
                         height: 30,
-                        color: Colors.greenAccent[400],
                       )
                     : const SizedBox.shrink());
           } else {

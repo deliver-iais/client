@@ -188,6 +188,7 @@ flutter:
     - assets/animations/audio_wave.tgs
     - assets/emoji/
     - android/app/src/main/res/raw/
+    - assets/images/no-profile-pic.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

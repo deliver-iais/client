@@ -7,6 +7,7 @@ import 'dart:isolate';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -62,7 +63,6 @@ class CallRepo {
 
   bool _onCalling = false;
   bool _isSharing = false;
-  bool _screenShared = false;
   bool _isCaller = false;
   bool _isVideo = false;
   bool _isConnected = false;
@@ -88,13 +88,9 @@ class CallRepo {
   Timer? timerDeclined;
   Timer? timerConnectionFailed;
   Timer? timerDisconnected;
-
-  int seconds = 0;
-  int minutes = 0;
-  int hours = 0;
-  bool isCallInBackground = false;
+  BehaviorSubject<CallTimer> callTimer =
+      BehaviorSubject.seeded(CallTimer(0, 0, 0));
   Timer? timer;
-  late Function timerFunction;
 
   ReceivePort? _receivePort;
 
@@ -371,12 +367,12 @@ class CallRepo {
     return pc;
   }
 
-  void _startCallTimerAndChangeStatus() async{
+  void _startCallTimerAndChangeStatus() async {
     if (isAndroid()) {
       await _initForegroundTask();
       await _startForegroundTask();
     }
-    if (!isVideo) startCallTimer();
+    startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
     }
@@ -535,7 +531,7 @@ class CallRepo {
         channelId: 'notification_channel_id',
         channelName: 'Foreground Notification',
         channelDescription:
-        'This notification appears when the foreground service is running.',
+            'This notification appears when the foreground service is running.',
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
         iconData: const NotificationIconData(
@@ -578,8 +574,8 @@ class CallRepo {
     if (receivePort != null) {
       _receivePort = receivePort;
       _receivePort?.listen((message) {
-        if (message=="endCall") {
-            endCall();
+        if (message == "endCall") {
+          endCall();
         } else {
           _logger.i('receive callStatus: $message');
         }
@@ -899,7 +895,7 @@ class CallRepo {
       _logger.i("timer canceled");
       timer!.cancel();
     }
-    seconds = minutes = hours = 0;
+
     if (_isCaller) {
       if (_isConnected) {
         await _dataChannel?.close();
@@ -930,6 +926,7 @@ class CallRepo {
     _startCallTime = 0;
     _callDuration = 0;
     _sdpConstraints = {};
+    callTimer.add(CallTimer(0, 0, 0));
   }
 
   initRenderer() async {
@@ -957,23 +954,19 @@ class CallRepo {
     if (timer != null && timer!.isActive) {
       timer!.cancel();
     }
-    _logger.i(
-        "call connected and timer must be shown ++ is back $isCallInBackground");
     const oneSec = Duration(seconds: 1);
     timer = Timer.periodic(oneSec, (Timer timer) {
-      if (isCallInBackground) {
-        seconds = seconds + 1;
-        if (seconds > 59) {
-          minutes += 1;
-          seconds = 0;
-          if (minutes > 59) {
-            hours += 1;
-            minutes = 0;
-          }
+      callTimer.value.seconds = callTimer.value.seconds + 1;
+      if (callTimer.value.seconds > 59) {
+        callTimer.value.minutes += 1;
+        callTimer.value.seconds = 0;
+        if (callTimer.value.minutes > 59) {
+          callTimer.value.hours += 1;
+          callTimer.value.minutes = 0;
         }
-      } else {
-        timerFunction();
       }
+      callTimer.add(CallTimer(callTimer.value.seconds, callTimer.value.minutes,
+          callTimer.value.hours));
     });
   }
 
@@ -1011,15 +1004,13 @@ void startCallback() {
 }
 
 class FirstTaskHandler extends TaskHandler {
-
   late final callStatus;
   late final sPort;
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     // You can use the getData function to get the data you saved.
-    callStatus =
-    await FlutterForegroundTask.getData<String>(key: 'callStatus');
+    callStatus = await FlutterForegroundTask.getData<String>(key: 'callStatus');
     sPort = sendPort;
   }
 
@@ -1038,7 +1029,7 @@ class FirstTaskHandler extends TaskHandler {
   @override
   void onButtonPressed(String id) {
     // Called when the notification button on the Android platform is pressed.
-    if(id == "endCall"){
+    if (id == "endCall") {
       sPort?.send("endCall");
     }
   }

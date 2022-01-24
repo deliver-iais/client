@@ -5,13 +5,14 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
-import 'package:deliver/screen/call/call_bottom_row.dart';
+import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
+
+import '../../../models/call_timer.dart';
 
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
@@ -37,39 +38,9 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   final callRepo = GetIt.I.get<CallRepo>();
 
   @override
-  void initState() {
-    callRepo.timerFunction = setCallTimerFunction;
-    callRepo.isCallInBackground = false;
-    super.initState();
-  }
-
-  setCallTimerFunction() {
-    setState(
-      () {
-        callRepo.seconds = callRepo.seconds + 1;
-        if (callRepo.seconds > 59) {
-          callRepo.minutes += 1;
-          callRepo.seconds = 0;
-          if (callRepo.minutes > 59) {
-            callRepo.hours += 1;
-            callRepo.minutes = 0;
-          }
-        }
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    callRepo.isCallInBackground = true;
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    callRepo.isCallInBackground = false;
     return Scaffold(
-            body: Stack(children: [
+        body: Stack(children: [
       FutureBuilder<Avatar?>(
           future: _avatarRepo.getLastAvatar(widget.roomUid, false),
           builder: (context, snapshot) {
@@ -102,14 +73,22 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
             roomUid: widget.roomUid,
           ),
           if (widget.callStatus == "Connected")
-            Text(
-              callRepo.hours.toString() +
-                  ":" +
-                  callRepo.minutes.toString() +
-                  ":" +
-                  callRepo.seconds.toString(),
-              style: const TextStyle(color: Colors.white54),
-            )
+            StreamBuilder<CallTimer>(
+                stream: callRepo.callTimer,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return Text(
+                      snapshot.data!.hours.toString() +
+                          ":" +
+                          snapshot.data!.minutes.toString() +
+                          ":" +
+                          snapshot.data!.seconds.toString(),
+                      style: const TextStyle(color: Colors.white54),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                })
           else
             Text(widget.callStatus,
                 style: const TextStyle(color: Colors.white70))
