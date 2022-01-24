@@ -68,8 +68,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   @override
   Widget build(BuildContext context) {
     callRepo.isCallInBackground = false;
-    return WithForegroundTask(
-        child: Scaffold(
+    return Scaffold(
             body: Stack(children: [
       FutureBuilder<Avatar?>(
           future: _avatarRepo.getLastAvatar(widget.roomUid, false),
@@ -120,6 +119,6 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         hangUp: widget.hangUp,
         isIncomingCall: widget.isIncomingCall,
       )
-    ])));
+    ]));
   }
 }

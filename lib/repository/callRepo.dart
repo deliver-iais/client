@@ -372,10 +372,10 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() async{
-    // if (isAndroid()) {
-    //   await _initForegroundTask();
-    //   await _startForegroundTask();
-    // }
+    if (isAndroid()) {
+      await _initForegroundTask();
+      await _startForegroundTask();
+    }
     if (!isVideo) startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
@@ -562,7 +562,7 @@ class CallRepo {
 
   Future<bool> _startForegroundTask() async {
     // You can save data using the saveData function.
-    await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
+    await FlutterForegroundTask.saveData(key: 'callStatus', value: "Connected");
 
     ReceivePort? receivePort;
     if (await FlutterForegroundTask.isRunningService) {
@@ -578,10 +578,10 @@ class CallRepo {
     if (receivePort != null) {
       _receivePort = receivePort;
       _receivePort?.listen((message) {
-        if (message is DateTime) {
-          print('receive timestamp: $message');
-        } else if (message is int) {
-          print('receive updateCount: $message');
+        if (message=="endCall") {
+            endCall();
+        } else {
+          _logger.i('receive callStatus: $message');
         }
       });
 
@@ -594,7 +594,6 @@ class CallRepo {
   Future<bool> _stopForegroundTask() async {
     return await FlutterForegroundTask.stopService();
   }
-
 
   /*
   * For Close Microphone
@@ -978,11 +977,6 @@ class CallRepo {
     });
   }
 
-  _cleanRtpSender() async {
-    await _videoSender?.dispose();
-    await _audioSender?.dispose();
-  }
-
   _cleanLocalStream() async {
     await _stopSharingStream();
     if (_localStream != null) {
@@ -1018,22 +1012,21 @@ void startCallback() {
 
 class FirstTaskHandler extends TaskHandler {
 
-  final callRepo = GetIt.I.get<CallRepo>();
-  int updateCount = 0;
+  late final callStatus;
+  late final sPort;
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     // You can use the getData function to get the data you saved.
-    final customData =
-    await FlutterForegroundTask.getData<String>(key: 'customData');
-    print('customData: $customData');
+    callStatus =
+    await FlutterForegroundTask.getData<String>(key: 'callStatus');
+    sPort = sendPort;
   }
 
   @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     // Send data to the main isolate.
-    sendPort?.send(timestamp);
-    sendPort?.send(updateCount);
+    sendPort?.send(callStatus);
   }
 
   @override
@@ -1046,7 +1039,7 @@ class FirstTaskHandler extends TaskHandler {
   void onButtonPressed(String id) {
     // Called when the notification button on the Android platform is pressed.
     if(id == "endCall"){
-      callRepo.endCall();
+      sPort?.send("endCall");
     }
   }
 }

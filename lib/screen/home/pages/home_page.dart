@@ -7,6 +7,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -103,7 +104,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _routingService.maybePop();
         return false;
       },
-      child: _routingService.outlet(context),
+      child: WithForegroundTask(
+      child: _routingService.outlet(context)),
     );
   }
 
