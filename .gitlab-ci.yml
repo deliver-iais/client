@@ -48,6 +48,7 @@ variables:
 dev_build:
   needs: [ ]
   extends:
+    - .only-master
     - .deliver-web-builder
     - .dev
 
@@ -55,12 +56,14 @@ dev_deploy:
   needs: [ dev_build ]
   when: manual
   extends:
+    - .only-master
     - .deliver-web-deployer
     - .dev
 
 prod_and_staging_build:
   needs: [ ]
   extends:
+    - .only-master
     - .deliver-web-builder
     - .staging
 
@@ -73,6 +76,7 @@ staging_deploy:
 
 prod_deploy:
   needs: [ prod_and_staging_build ]
+
   extends:
     - .deliver-web-deployer
     - .prod
