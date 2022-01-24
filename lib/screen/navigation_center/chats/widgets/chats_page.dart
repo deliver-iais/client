@@ -28,7 +28,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final I18N _i18n = GetIt.I.get<I18N>();
-  final GlobalKey _listKey = GlobalKey();
   final AutomaticAnimatedListController<Room> controller =
       AutomaticAnimatedListController();
 
@@ -98,48 +97,44 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       child: Scrollbar(
           controller: widget.scrollController,
           child: AutomaticAnimatedList<Room>(
-            key: _listKey,
             controller: widget.scrollController,
             automaticAnimatedListController: controller,
             itemBuilder: (BuildContext ctx, Room room, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      child: StreamBuilder<Room?>(
-                          initialData: room,
-                          stream: _roomRepo.watchRoom(room.uid),
-                          builder: (context, snapshot) {
-                            return ChatItem(
-                              key: ValueKey("chatItem/${snapshot.data!.uid}"),
-                              room: room,
-                            );
-                          }),
-                      onTap: () {
-                        _routingService.openRoom(room.uid,
-                            popAllBeforePush: true);
-                      },
-                      onLongPress: () {
-                        //ToDo new design for android
-                        _showCustomMenu(
-                            context, room, canPin(controller.values));
-                      },
-                      onTapDown: storePosition,
-                      onSecondaryTapDown: storePosition,
-                      onSecondaryTap: !isDesktop()
-                          ? null
-                          : () {
-                              _showCustomMenu(
-                                  context, room, canPin(controller.values));
-                            },
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 64),
-                      child: Divider(),
-                    )
-                  ],
+              return SizeTransition(
+                key: ValueKey("ChatItem/${room.uid}"),
+                sizeFactor: animation,
+                child: FadeTransition(
+                  opacity: animation,
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        child: ChatItem(
+                            roomUid: room.uid, initialRoomObject: room),
+                        onTap: () {
+                          _routingService.openRoom(room.uid,
+                              popAllBeforePush: true);
+                        },
+                        onLongPress: () {
+                          // TODO new design for android
+                          _showCustomMenu(
+                              context, room, canPin(controller.values));
+                        },
+                        onTapDown: storePosition,
+                        onSecondaryTapDown: storePosition,
+                        onSecondaryTap: !isDesktop()
+                            ? null
+                            : () {
+                                _showCustomMenu(
+                                    context, room, canPin(controller.values));
+                              },
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 64),
+                        child: Divider(),
+                      )
+                    ],
+                  ),
                 ),
               );
             },

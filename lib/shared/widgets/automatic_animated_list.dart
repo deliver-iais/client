@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 
-const Duration _kDuration = Duration(milliseconds: 0);
+const Duration _kDuration = Duration(milliseconds: 300);
 
 class Update<T> {
   final List<T> list;
@@ -127,7 +127,6 @@ class AutomaticAnimatedList<T> extends StatefulWidget {
 }
 
 class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
-  List<T> oldList = [];
   List<T> list = [];
   late final StreamSubscription<Update<T>> streamSubscription;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
@@ -175,7 +174,7 @@ class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
   }
 
   insertItem(int index) {
-    _listKey.currentState?.insertItem(index, duration: widget.removeDuration);
+    _listKey.currentState?.insertItem(index, duration: widget.insertDuration);
   }
 
   @override
@@ -185,38 +184,40 @@ class _AutomaticAnimatedListState<T> extends State<AutomaticAnimatedList<T>> {
     streamSubscription =
         widget.automaticAnimatedListController.stream.listen((update) {
       // Fast Change Detector
-      if (eq(oldList.map((e) => widget.keyingFunction(e)).toList(),
+      if (eq(list.map((e) => widget.keyingFunction(e)).toList(),
           update.list.map((e) => widget.keyingFunction(e)).toList())) {
         return;
       }
 
-      list = update.list;
-
       late final Set<Key> commons;
 
       if (update.onlyChanges != null && update.onlyChanges!.isNotEmpty) {
-        commons = list
+        commons = update.list
             .where((element) =>
                 !update.onlyChanges!.contains(widget.keyingFunction(element)))
             .fold(<Key>{},
                 (value, element) => value..add(widget.keyingFunction(element)));
       } else {
-        commons = lcsDynamic(oldList, list);
+        commons = lcsDynamic(list, update.list);
       }
 
-      oldList.forEachIndexed((index, element) {
+      for (int i = 0; i < list.length && list.isNotEmpty; i++) {
+        final element = list[i];
         if (!commons.contains(widget.keyingFunction(element))) {
-          removeItem(index, element);
+          list.removeAt(i);
+          removeItem(i, element);
+          i--;
         }
-      });
+      }
 
-      list.forEachIndexed((index, element) {
+      update.list.forEachIndexed((index, element) {
         if (!commons.contains(widget.keyingFunction(element))) {
+          list.insert(index, element);
           insertItem(index);
         }
       });
 
-      oldList = list;
+      list = list;
     });
   }
 

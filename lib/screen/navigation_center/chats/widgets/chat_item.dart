@@ -1,4 +1,3 @@
-import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -13,19 +12,20 @@ import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:hovering/hovering.dart';
 
 import 'contact_pic.dart';
 import 'last_message.dart';
 
 class ChatItem extends StatefulWidget {
-  final Room room;
+  final String roomUid;
+  final Room initialRoomObject;
 
-  const ChatItem({Key? key, required this.room}) : super(key: key);
+  const ChatItem(
+      {Key? key, required this.roomUid, required this.initialRoomObject})
+      : super(key: key);
 
   @override
   _ChatItemState createState() => _ChatItemState();
@@ -41,47 +41,48 @@ class _ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
-    if (widget.room.uid.asUid().category == Categories.USER) {
-      _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
-    }
+    print("reinit");
     super.initState();
+    if (widget.roomUid.asUid().category == Categories.USER) {
+      _lastActivityRepo.updateLastActivity(widget.roomUid.asUid());
+    }
+    // fetchMessages();
+    _roomRepo.initActivity(widget.roomUid.asUid().node);
+  }
+
+  void fetchMessages() {
+    // _messageRepo.fetchLastMessages(
+    //     widget.roomUid.asUid(),
+    //     widget.room.lastMessageId!,
+    //     widget.room.firstMessageId,
+    //     widget.room,
+    //     limit: 5,
+    //     type: FetchMessagesReq_Type.BACKWARD_FETCH);
   }
 
   @override
   Widget build(BuildContext context) {
-    _roomRepo.initActivity(widget.room.uid.asUid().node);
-    return widget.room.lastMessage != null &&
-            widget.room.lastMessage!.json!.chatIsDeleted()
-        ? const SizedBox.shrink()
-        : widget.room.lastMessage == null ||
-                widget.room.lastMessage!.json!.isDeletedMessage()
-            ? FutureBuilder<Message?>(
-                future: _messageRepo.fetchLastMessages(
-                    widget.room.uid.asUid(),
-                    widget.room.lastMessageId!,
-                    widget.room.firstMessageId,
-                    widget.room,
-                    limit: 5,
-                    type: FetchMessagesReq_Type.BACKWARD_FETCH),
-                builder: (c, s) {
-                  if (s.hasData &&
-                      s.data != null &&
-                      !s.data!.json!.chatIsDeleted()) {
-                    return buildLastMessageWidget(s.data!);
-                  }
-                  return const SizedBox.shrink();
-                })
-            : buildLastMessageWidget(widget.room.lastMessage!);
+    print("repaint");
+    return StreamBuilder<Room?>(
+        initialData: widget.initialRoomObject,
+        // key: widget.key,
+        stream: _roomRepo.watchRoom(widget.roomUid),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data?.lastMessage == null) {
+            return const SizedBox.shrink();
+          }
+          return buildLastMessageWidget(snapshot.data!);
+        });
   }
 
-  buildLastMessageWidget(Message lastMessage) {
+  buildLastMessageWidget(Room room) {
     return FutureBuilder<String>(
-        initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
-        future: _roomRepo.getName(widget.room.uid.asUid()),
+        initialData: _roomRepo.fastForwardName(widget.roomUid.asUid()),
+        future: _roomRepo.getName(widget.roomUid.asUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data!.isNotEmpty) {
             return DragDropWidget(
-                roomUid: widget.room.uid,
+                roomUid: widget.roomUid,
                 height: 66,
                 child: HoverContainer(
                   hoverColor: Theme.of(context).dividerColor,
@@ -92,13 +93,13 @@ class _ChatItemState extends State<ChatItem> {
                       builder: (context, snapshot) {
                         return Container(
                           padding: const EdgeInsets.all(8),
-                          color: _routingService.isInRoom(widget.room.uid)
+                          color: _routingService.isInRoom(widget.roomUid)
                               ? Theme.of(context).focusColor
                               : Colors.transparent,
                           height: 66,
                           child: Row(
                             children: <Widget>[
-                              ContactPic(widget.room.uid.asUid()),
+                              ContactPic(widget.roomUid.asUid()),
                               const SizedBox(
                                 width: 8,
                               ),
@@ -110,7 +111,7 @@ class _ChatItemState extends State<ChatItem> {
                                   children: <Widget>[
                                     Row(
                                       children: [
-                                        if (widget.room.uid.asUid().category ==
+                                        if (widget.roomUid.asUid().category ==
                                             Categories.GROUP)
                                           const Flexible(
                                             child: Icon(
@@ -118,7 +119,7 @@ class _ChatItemState extends State<ChatItem> {
                                               size: 16,
                                             ),
                                           ),
-                                        if (widget.room.uid.asUid().category ==
+                                        if (widget.roomUid.asUid().category ==
                                             Categories.CHANNEL)
                                           const Flexible(
                                             child: Icon(
@@ -126,7 +127,7 @@ class _ChatItemState extends State<ChatItem> {
                                               size: 15,
                                             ),
                                           ),
-                                        if (widget.room.uid.asUid().category ==
+                                        if (widget.roomUid.asUid().category ==
                                             Categories.BOT)
                                           const Flexible(
                                             child: Icon(
@@ -137,30 +138,29 @@ class _ChatItemState extends State<ChatItem> {
                                         Expanded(
                                             flex: 80,
                                             child: Padding(
-                                                padding: widget.room.uid
+                                                padding: widget.roomUid
                                                             .asUid()
                                                             .isGroup() ||
-                                                        widget.room.uid
+                                                        widget.roomUid
                                                             .asUid()
                                                             .isChannel() ||
-                                                        widget.room.uid
+                                                        widget.roomUid
                                                             .asUid()
                                                             .isBot()
                                                     ? const EdgeInsets.only(
                                                         left: 16.0)
                                                     : EdgeInsets.zero,
                                                 child: RoomName(
-                                                    uid:
-                                                        widget.room.uid.asUid(),
+                                                    uid: widget.roomUid.asUid(),
                                                     name:
                                                         _authRepo.isCurrentUser(
-                                                                widget.room.uid)
+                                                                widget.roomUid)
                                                             ? _i18n.get(
                                                                 "saved_message")
                                                             : name.data!))),
                                         Text(
-                                          dateTimeFormat(date(
-                                              widget.room.lastUpdateTime!)),
+                                          dateTimeFormat(
+                                              date(room.lastUpdateTime!)),
                                           maxLines: 1,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w100,
@@ -171,7 +171,7 @@ class _ChatItemState extends State<ChatItem> {
                                     ),
                                     StreamBuilder<Activity>(
                                         stream: _roomRepo.activityObject[
-                                            widget.room.uid.asUid().node],
+                                            widget.roomUid.asUid().node],
                                         builder: (c, s) {
                                           if (s.hasData &&
                                               s.data != null &&
@@ -182,17 +182,16 @@ class _ChatItemState extends State<ChatItem> {
                                                 ActivityStatus(
                                                   activity: s.data!,
                                                   roomUid:
-                                                      widget.room.uid.asUid(),
+                                                      widget.roomUid.asUid(),
                                                 ),
                                               ],
                                             );
                                           } else {
-                                            return widget.room.draft != null &&
-                                                    widget
-                                                        .room.draft!.isNotEmpty
+                                            return room.draft != null &&
+                                                    room.draft!.isNotEmpty
                                                 ? buildDraftMessageWidget(
-                                                    _i18n, context)
-                                                : buildLastMessage(lastMessage);
+                                                    room, context)
+                                                : buildLastMessage(room);
                                           }
                                         }),
                                   ],
@@ -249,18 +248,20 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 
-  LastMessage buildLastMessage(Message message) {
+  LastMessage buildLastMessage(Room room) {
+    final message = room.lastMessage!;
+
     return LastMessage(
       message: message,
-      lastMessageId: widget.room.lastMessageId!,
-      hasMentioned: widget.room.mentioned == true,
+      lastMessageId: room.lastMessageId!,
+      hasMentioned: room.mentioned == true,
       showSender:
-          widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
-      pinned: widget.room.pinned ?? false,
+          widget.roomUid.isMuc() || _authRepo.isCurrentUser(message.from),
+      pinned: room.pinned ?? false,
     );
   }
 
-  Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+  Widget buildDraftMessageWidget(Room room, BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -275,7 +276,7 @@ class _ChatItemState extends State<ChatItem> {
                       text: "${_i18n.get("draft")}: ",
                       style: Theme.of(context).primaryTextTheme.bodyText2),
                   TextSpan(
-                      text: widget.room.draft,
+                      text: room.draft,
                       style: Theme.of(context).textTheme.bodyText2)
                 ],
               )),
