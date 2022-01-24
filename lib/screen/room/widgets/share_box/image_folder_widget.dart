@@ -123,32 +123,6 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     );
   }
 
-  Future<String?> cropImage(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
-        sourcePath: imagePath,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square]
-            : [
-                CropAspectRatioPreset.square,
-              ],
-        cropStyle: CropStyle.rectangle,
-        androidUiSettings: const AndroidUiSettings(
-            toolbarTitle: "image",
-            toolbarColor: Colors.blueAccent,
-            hideBottomControls: true,
-            showCropGrid: false,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: const IOSUiSettings(
-          title: "image",
-        ));
-    if (croppedFile != null) {
-      return croppedFile.path;
-    }
-    return null;
-  }
-
   Stack buildInputCaption({required bool canPop}) {
     return Stack(
       children: [
@@ -343,4 +317,29 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
       });
     }));
   }
+}
+Future<String?> cropImage(String imagePath) async {
+  File? croppedFile = await ImageCropper.cropImage(
+      sourcePath: imagePath,
+      aspectRatioPresets: Platform.isAndroid
+          ? [CropAspectRatioPreset.square]
+          : [
+        CropAspectRatioPreset.square,
+      ],
+      cropStyle: CropStyle.rectangle,
+      androidUiSettings: const AndroidUiSettings(
+          toolbarTitle: "image",
+          toolbarColor: Colors.blueAccent,
+          hideBottomControls: true,
+          showCropGrid: false,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false),
+      iosUiSettings: const IOSUiSettings(
+        title: "image",
+      ));
+  if (croppedFile != null) {
+    return croppedFile.path;
+  }
+  return null;
 }

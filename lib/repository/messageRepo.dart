@@ -461,7 +461,9 @@ class MessageRepo {
     var f = dart_file.File(file.path);
     // Get size of image
     try {
-      if (tempType.split('/')[0] == 'image') {
+      if (tempType.split('/')[0] == 'image' ||
+          tempType.contains("jpg") ||
+          tempType.contains("png")) {
         tempDimension = ImageSizeGetter.getSize(FileInput(f));
         if (tempDimension == Size.zero) {
           tempDimension = Size(200, 200);
@@ -623,7 +625,7 @@ class MessageRepo {
         switch (pendingMessage.status) {
           case SendingStatus.SENDING_FILE:
             var pm = await _sendFileToServerOfPendingMessage(pendingMessage);
-            if(pm!=null) {
+            if (pm != null) {
               await _sendMessageToServer(pm);
             }
             break;

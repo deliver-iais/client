@@ -7,7 +7,6 @@ import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
@@ -70,11 +69,9 @@ class _VideoMessageState extends State<VideoMessage> {
               0.7,
           400),
       padding: const EdgeInsets.all(4),
-      height:  200,
+      height: 200,
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(10)
-      ),
+          color: Colors.black, borderRadius: BorderRadius.circular(10)),
       child: MouseRegion(
         onEnter: (PointerEvent details) {
           if (isDesktop()) {
@@ -116,7 +113,8 @@ class _VideoMessageState extends State<VideoMessage> {
                                     if (s.hasData && s.data != null) {
                                       return GestureDetector(
                                         child: const Icon(
-                                          Icons.cancel,color: Colors.blue,
+                                          Icons.cancel,
+                                          color: Colors.blue,
                                           size: 35,
                                         ),
                                         onTap: () {
@@ -126,11 +124,30 @@ class _VideoMessageState extends State<VideoMessage> {
                                         },
                                       );
                                     } else {
-                                      return Icon(
-                                        Icons.arrow_upward,
-                                        color: ExtraTheme.of(context)
-                                            .fileMessageDetails,
-                                        size: 35,
+                                      return Stack(
+                                        children: [
+                                          const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 1),
+                                            child: Center(
+                                              child: GestureDetector(
+                                                child: const Icon(
+                                                  Icons.cancel,
+                                                  size: 36,
+                                                ),
+                                                onTap: () {
+                                                  _messageRepo
+                                                      .deletePendingMessage(
+                                                          widget.message
+                                                              .packetId);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       );
                                     }
                                   },

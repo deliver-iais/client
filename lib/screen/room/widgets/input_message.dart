@@ -120,6 +120,7 @@ class _InputMessageWidget extends State<InputMessage> {
     if (kIsWeb || isDesktop()) {
       _attachFileInWindowsMode();
     } else {
+      FocusScope.of(context).unfocus();
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -551,8 +552,11 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onMentionSelected(s) {
-    int start = _textSelection.base.offset;
+    int start = _textSelection.baseOffset;
+
     String block_1 = widget.textController.text.substring(0, start);
+    int indexOf = block_1.lastIndexOf("@");
+    block_1 = block_1.substring(0, indexOf+1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;
@@ -576,7 +580,13 @@ class _InputMessageWidget extends State<InputMessage> {
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         if (event is RawKeyDownEvent) {
-          sendMessage();
+          if (widget.currentRoom.uid.isGroup() &&
+              mentionSelectedIndex >= 0 &&
+              _mentionData != "_") {
+            sendMentionByEnter();
+          } else {
+            sendMessage();
+          }
         }
         return KeyEventResult.handled;
       } else if (_uxService.sendByEnter &&
@@ -584,7 +594,13 @@ class _InputMessageWidget extends State<InputMessage> {
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         if (event is RawKeyDownEvent) {
-          sendMessage();
+          if (widget.currentRoom.uid.isGroup() &&
+              mentionSelectedIndex >= 0 &&
+              _mentionData != "_") {
+            sendMentionByEnter();
+          } else {
+            sendMessage();
+          }
         }
         return KeyEventResult.handled;
       }
@@ -639,8 +655,8 @@ class _InputMessageWidget extends State<InputMessage> {
         query: _mentionData);
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id!);
-      sendMessage();
     }
+    sendMessage();
   }
 
   scrollDownInBotCommand() {

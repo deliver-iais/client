@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
@@ -20,8 +21,11 @@ import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -36,6 +40,8 @@ class BoxContent extends StatefulWidget {
   final Function? onUsernameClick;
   final String? pattern;
   final Function? onBotCommandClick;
+  final Function onArrowIconClick;
+  final void Function(TapDownDetails) storePosition;
 
   const BoxContent(
       {Key? key,
@@ -47,36 +53,82 @@ class BoxContent extends StatefulWidget {
       this.pattern,
       this.onUsernameClick,
       this.onBotCommandClick,
-      required this.scrollToMessage})
+      required this.scrollToMessage,
+      required this.onArrowIconClick,
+      required this.storePosition})
       : super(key: key);
+
+  Type getState() {
+    return _BoxContentState;
+  }
 
   @override
   _BoxContentState createState() => _BoxContentState();
 }
 
 class _BoxContentState extends State<BoxContent> {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  bool hideArrowDopIcon = true;
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return MouseRegion(
+        onHover: (s) {
+          hideArrowDopIcon = false;
+          setState(() {});
+        },
+        onExit: (s) {
+          hideArrowDopIcon = true;
+          setState(() {});
+        },
+        child: Stack(
+          alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
           children: [
-            if (widget.message.roomUid.asUid().category == Categories.GROUP &&
-                !widget.isSender)
-              senderNameBox(),
-            if (hasReply()) replyToIdBox(),
-            if (isForwarded())
-              forwardedFromBox(),
-            messageBox()
+            RepaintBoundary(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isDebugEnabled())
+                      DebugC(label: "message details", children: [
+                        Debug(widget.message.id, label: "id"),
+                        Debug(widget.message.packetId, label: "packetId"),
+                      ]),
+                    if (widget.message.roomUid.asUid().category ==
+                            Categories.GROUP &&
+                        !widget.isSender)
+                      senderNameBox(),
+                    if (hasReply()) replyToIdBox(),
+                    if (isForwarded()) forwardedFromBox(),
+                    messageBox()
+                  ],
+                ),
+              ),
+            ),
+            isDesktop() | kIsWeb
+                ? MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTapDown: (tapDownDetails) {
+                        widget.storePosition(tapDownDetails);
+                      },
+                      onTap: () => widget.onArrowIconClick(),
+                      child: AnimatedOpacity(
+                        opacity: !hideArrowDopIcon ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          margin: const EdgeInsets.all(2),
+                          child: const BlurContainer(
+                              child: Icon(Icons.arrow_drop_down_sharp)),
+                        ),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget replyToIdBox() {

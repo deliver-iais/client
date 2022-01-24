@@ -6,8 +6,13 @@ class BoxInfo {
   static final Logger _logger = GetIt.I.get<Logger>();
 
   static addBox(String key) async {
-    var box = await Hive.openBox<String>(_key());
-    box.put(key, key);
+    try{
+      var box = await Hive.openBox<String>(_key());
+      box.put(key, key);
+    }catch(_){
+    //  _logger.e(e);
+    }
+
   }
 
   static _deleteBox(String key) async {
