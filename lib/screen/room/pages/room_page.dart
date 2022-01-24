@@ -177,11 +177,8 @@ class _RoomPageState extends State<RoomPage> {
                                             currentRoomStream
                                                 .data!.firstMessageId!;
                                       }
-                                      return PageStorage(
-                                          bucket: PageStorage.of(context)!,
-                                          key: PageStorageKey(widget.roomId),
-                                          child: buildMessagesListView(
-                                              pendingMessages));
+                                      return buildMessagesListView(
+                                          pendingMessages);
                                     } else {
                                       return const SizedBox(
                                         height: 50,
@@ -190,7 +187,7 @@ class _RoomPageState extends State<RoomPage> {
                                   });
                             }),
                       ),
-                      positionsView,
+                      // positionsView,
                       StreamBuilder(
                           stream: _repliedMessage.stream,
                           builder: (c, rm) {
@@ -251,26 +248,6 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  Widget get positionsView => ValueListenableBuilder<Iterable<ItemPosition>>(
-      valueListenable: _itemPositionsListener.itemPositions,
-      builder: (context, positions, child) {
-        int? firstItem;
-        if (positions.isNotEmpty) {
-          // Determine the first visible item by finding the item with the
-          firstItem = positions
-              .where((ItemPosition position) => position.itemTrailingEdge > 0)
-              .reduce((ItemPosition first, ItemPosition position) =>
-                  position.itemTrailingEdge < first.itemTrailingEdge
-                      ? position
-                      : first)
-              .index;
-        }
-
-        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
-            firstItem.toString());
-        return const SizedBox.shrink();
-      });
-
   _getScrollPosition() async {
     String? scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
@@ -298,7 +275,17 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      if (_itemPositionsListener.itemPositions.value.isNotEmpty) {
+      var position = _itemPositionsListener.itemPositions.value;
+      if (position.isNotEmpty) {
+        int firstItem = position
+            .where((ItemPosition position) => position.itemTrailingEdge > 0)
+            .reduce((ItemPosition first, ItemPosition position) =>
+                position.itemTrailingEdge < first.itemTrailingEdge
+                    ? position
+                    : first)
+            .index;
+        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
+            firstItem.toString());
         _positionSubject.add(_itemPositionsListener.itemPositions.value
             .map((e) => e.index)
             .reduce(max));
@@ -728,7 +715,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
-      initialScrollIndex: initialScrollIndex,
+      initialScrollIndex:initialScrollIndex,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
