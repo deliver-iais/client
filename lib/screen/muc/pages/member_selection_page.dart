@@ -4,7 +4,6 @@ import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -29,7 +28,7 @@ class MemberSelectionPage extends StatelessWidget {
         child: AppBar(
           leading: _routingService.backButtonLeading(),
           title: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               mucUid != null
                   ? FutureBuilder<String?>(
@@ -43,12 +42,9 @@ class MemberSelectionPage extends StatelessWidget {
                         }
                       },
                     )
-                  : Text(
-                      isChannel
-                          ? _i18n.get("newChannel")
-                          : _i18n.get("newGroup"),
-                      style: TextStyle(color: ExtraTheme.of(context).textField),
-                    ),
+                  : Text(isChannel
+                      ? _i18n.get("newChannel")
+                      : _i18n.get("newGroup")),
               StreamBuilder<int>(
                   stream: _createMucService.selectedLengthStream(),
                   builder: (context, snapshot) {
@@ -72,7 +68,7 @@ class MemberSelectionPage extends StatelessWidget {
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).boxOuterBackground,
+            color: Theme.of(context).colorScheme.surface,
           ),
           child: SelectiveContactsList(
             isChannel: isChannel,

@@ -13,8 +13,6 @@ import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
-
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart'
     as contact_pb;
@@ -190,8 +188,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             children: <Widget>[
               Text(
                 _i18n.get("sure_add_contact"),
-                style: TextStyle(
-                  color: ExtraTheme.of(context).textField,
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
@@ -202,12 +199,11 @@ class _ScanQrCode extends State<ScanQrCode> {
               Text(
                 buildName(firstName, lastName),
                 style: TextStyle(
-                    color: ExtraTheme.of(context).username, fontSize: 20),
+                    color: Theme.of(context).primaryColor, fontSize: 20),
               ),
               Text(
                 buildPhoneNumber(countryCode, nationalNumber),
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
               const SizedBox(
                 height: 40,
@@ -261,8 +257,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           children: <Widget>[
             Text(
               "${_i18n.get("send_msg_to")} $botId",
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
@@ -273,7 +268,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             Text(
               text,
               style: TextStyle(
-                  color: ExtraTheme.of(context).username, fontSize: 25),
+                  color: Theme.of(context).primaryColor, fontSize: 25),
             ),
             const SizedBox(
               height: 40,
@@ -339,16 +334,14 @@ class _ScanQrCode extends State<ScanQrCode> {
           children: <Widget>[
             Text(
               botId,
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
             Text(
               _i18n.get("get_private_data_access_${privateDataType.name}"),
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),

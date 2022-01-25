@@ -17,13 +17,15 @@ class LinkPreview extends StatelessWidget {
   final double maxWidth;
   final double maxHeight;
   final bool isProfile;
-  final Color? color;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   const LinkPreview(
       {Key? key,
       required this.link,
       required this.maxWidth,
-      this.color,
+      this.backgroundColor,
+      this.foregroundColor,
       this.maxHeight = double.infinity,
       this.isProfile = false})
       : super(key: key);
@@ -88,10 +90,12 @@ class LinkPreview extends StatelessWidget {
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
     return Container(
         margin: const EdgeInsets.only(top: 10),
+        padding:
+        const EdgeInsets.symmetric(vertical: 4.0),
         constraints: BoxConstraints(
             minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: color),
+            borderRadius: BorderRadius.circular(10), color: backgroundColor),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +111,10 @@ class LinkPreview extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: Theme.of(context).primaryTextTheme.bodyText2,
+                style: Theme.of(context)
+                    .primaryTextTheme
+                    .bodyText2
+                    ?.copyWith(color: foregroundColor),
               ),
             ),
             if (data.description != null)

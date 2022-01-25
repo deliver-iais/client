@@ -9,16 +9,12 @@ import 'package:get_it/get_it.dart';
 
 class ActivityStatus extends StatelessWidget {
   final Activity activity;
-  final TextStyle style;
   final Uid roomUid;
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
-  ActivityStatus(
-      {Key? key,
-      required this.activity,
-      required this.style,
-      required this.roomUid})
+  const ActivityStatus(
+      {Key? key, required this.activity, required this.roomUid})
       : super(key: key);
 
   TextStyle textStyle(BuildContext context) {

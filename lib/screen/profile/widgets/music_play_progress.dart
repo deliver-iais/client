@@ -17,7 +17,7 @@ class MusicPlayProgress extends StatelessWidget {
     return Stack(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(top: 10.0),
+          padding: const EdgeInsets.only(top: 8.0),
           child: StreamBuilder<AudioPlayerState>(
               stream: _audioPlayerService.audioCurrentState(),
               builder: (c, state) {
@@ -47,7 +47,7 @@ class MusicPlayProgress extends StatelessWidget {
               }),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, top: 44),
+          padding: const EdgeInsets.only(left: 8.0, top: 28),
           child: TimeProgressIndicator(
             audioUuid: audioUuid,
             duration: duration,

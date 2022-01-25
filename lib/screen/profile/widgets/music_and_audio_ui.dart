@@ -86,11 +86,10 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                 left: 15.0, top: 10),
                                             child: Text(
                                               fileName,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: ExtraTheme.of(context)
-                                                      .textMessage),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -120,21 +119,20 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         fileId: fileId,
                                         fileName: fileName,
                                         onPressed: download,
+                                        background: ExtraTheme.of(context).lowlight,
+                                        foreground: ExtraTheme.of(context).highlight,
                                       ),
                                       Expanded(
                                         child: Stack(
                                           children: [
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  left: 15.0, top: 10),
+                                                  left: 8.0, top: 8),
                                               child: Text(fileName,
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textMessage)),
+                                                          FontWeight.bold)),
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,

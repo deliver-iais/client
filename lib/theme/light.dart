@@ -28,7 +28,7 @@ ThemeData LightTheme = ThemeData(
         textStyle: TextStyle(color: primary, fontSize: 14),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10))),
-        color: Color(0xfdf0fff7)),
+        color: Color(0xffeef7ff)),
     dividerTheme: const DividerThemeData(
         space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
     focusColor: Colors.lightBlue[300]!.withOpacity(0.6),
@@ -60,23 +60,13 @@ ThemeData LightTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
-  centerPageDetails: const Color(0xff6a6a6a),
-  boxOuterBackground: Colors.white,
-  boxBackground: const Color(0xFFEFEFF4),
-  textDetails: Colors.black,
-  menuIconButton: secondary!.withAlpha(50),
   chatOrContactItemDetails: Colors.black,
-  sentMessageBox: const Color(0xffdcf8c6),
-  sentMessageBoxForeground: const Color(0xff376b04),
-  receivedMessageBox: Colors.white,
-  textMessage: secondary!,
-  messageDetails: secondary!.withAlpha(200),
-  persistentEventMessage: LightTheme.backgroundColor,
-  circularFileStatus: LightTheme.backgroundColor,
-  fileMessageDetails: const Color(0xff00a394),
-  textField: secondary!,
-  username: Colors.blue[900]!,
-  seenStatus: Colors.blue,
-  inputBoxBackground: Colors.white,
-  fileSharingDetails: Colors.black54,
+  sentMessageBoxBackground: const Color(0xffeffdde),
+  highlightOnSentMessage: const Color(0xff57b84c),
+  highlight: LightTheme.primaryColor,
+  onHighlightOnSentMessage: Colors.white,
+  onHighlight: Colors.white,
+  lowlightOnSentMessage: Colors.white,
+  lowlight: const Color(0xffeef7ff),
+  onDetailsBox: Colors.white,
 );
