@@ -71,12 +71,13 @@ staging_deploy:
   needs: [ prod_and_staging_build ]
   when: manual
   extends:
+    - .only-master
     - .deliver-web-deployer
     - .staging
 
 prod_deploy:
   needs: [ prod_and_staging_build ]
-
   extends:
+    - .only-master
     - .deliver-web-deployer
     - .prod
