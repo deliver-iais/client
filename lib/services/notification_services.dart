@@ -13,7 +13,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:desktoasts/desktoasts.dart'
     if (dart.library.html) 'package:deliver/web_classes/web_desktoasts.dart'
     as windows_notify;
-import 'package:desktoasts/desktoasts.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -175,10 +174,10 @@ class WindowsNotifier implements Notifier {
         }
       }
       _windowsNotificationServices.stream.listen((event) {
-        if (event is ToastActivated) {
+        if (event is windows_notify.ToastActivated) {
           _routingService.openRoom(message.roomUid!.asString());
           DesktopWindow.focus();
-        } else if (event is ToastInteracted) {
+        } else if (event is windows_notify.ToastInteracted) {
           if (event.action == 1) {
             //Decline
             callRepo.declineCall();
