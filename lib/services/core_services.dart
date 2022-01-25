@@ -240,23 +240,17 @@ class CoreServices {
   }
 
   sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
-    if (!_clientPacketStream.isClosed) {
-      _clientPacketStream.add(ClientPacket()
+      ClientPacket clientPacket = ClientPacket()
         ..callAnswer = callAnswerByClient
-        ..id = callAnswerByClient.id.toString());
-    } else {
-      startStream();
-    }
+        ..id = callAnswerByClient.id.toString();
+      _sendPacket(clientPacket);
   }
 
   sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
-    if (!_clientPacketStream.isClosed) {
-      _clientPacketStream.add(ClientPacket()
+    ClientPacket clientPacket = ClientPacket()
         ..callOffer = callOfferByClient
-        ..id = callOfferByClient.id.toString());
-    } else {
-      startStream();
-    }
+        ..id = callOfferByClient.id.toString();
+    _sendPacket(clientPacket);
   }
 
   sendActivity(ActivityByClient activity, String id) {

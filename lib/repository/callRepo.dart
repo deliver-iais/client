@@ -13,6 +13,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -241,7 +242,9 @@ class CallRepo {
           // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
-          _startCallTimerAndChangeStatus();
+          if(!kIsWeb) {
+            _startCallTimerAndChangeStatus();
+          }
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
           callingStatus.add(CallStatus.DISCONNECTED);
