@@ -17,7 +17,6 @@ import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/dark.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -50,10 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
-            title: Text(
-              _i18n.get("settings"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
+            title: Text(_i18n.get("settings")),
             leading: _routingService.backButtonLeading(),
           ),
         ),

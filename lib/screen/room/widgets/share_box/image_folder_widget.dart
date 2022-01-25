@@ -3,7 +3,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -54,8 +53,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 _selectedImage.isNotEmpty
                     ? "selected: ${_selectedImage.length}"
                     : widget.storageFile.folderName,
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 19),
+                style: const TextStyle(fontSize: 19),
               )
             : const SizedBox.shrink(),
       ),
@@ -142,7 +140,6 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 15, vertical: 8),
                     ),
-                    style: TextStyle(color: ExtraTheme.of(context).textField),
                     autocorrect: true,
                     textInputAction: TextInputAction.newline,
                     minLines: 1,
@@ -255,9 +252,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     if (_selectedImage.isNotEmpty)
                       Text(
                         _selectedImage.length.toString(),
-                        style: TextStyle(
-                            fontSize: 25,
-                            color: ExtraTheme.of(context).textField),
+                        style: const TextStyle(fontSize: 25),
                       ),
                     IconButton(
                       onPressed: () async {
@@ -318,6 +313,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     }));
   }
 }
+
 Future<String?> cropImage(String imagePath) async {
   File? croppedFile = await ImageCropper.cropImage(
       sourcePath: imagePath,

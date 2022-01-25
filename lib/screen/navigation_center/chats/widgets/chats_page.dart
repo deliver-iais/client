@@ -10,6 +10,7 @@ import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:great_list_view/great_list_view.dart';
 
 final bucketGlobal = PageStorageBucket();
 
@@ -22,11 +23,24 @@ class ChatsPage extends StatefulWidget {
   _ChatsPageState createState() => _ChatsPageState();
 }
 
+const Duration kDismissOrIncomingAnimationDuration =
+    Duration(milliseconds: 200);
+
+/// Default duration of a resizing animation.
+const Duration kResizeAnimationDuration = Duration(milliseconds: 200);
+
+/// Default duration of a reordering animation.
+const Duration kReorderAnimationDuration = Duration(milliseconds: 100);
+
+/// Default duration of a moving animation.
+const Duration kMovingAnimationDuration = Duration(milliseconds: 100);
+
 class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
-  final I18N _i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _controller = AnimatedListController();
 
   void _showCustomMenu(BuildContext context, Room room, bool canPin) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
@@ -88,43 +102,49 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                   bucket: PageStorage.of(context)!,
                   child: Scrollbar(
                     controller: widget.scrollController,
-                    child: ListView.separated(
-                      key: const PageStorageKey<String>('chats_page'),
-                      controller: widget.scrollController,
-                      itemCount: rooms.length,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        return GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          child: ChatItem(
-                            key: ValueKey("chatItem/${rooms[index].uid}"),
-                            room: rooms[index],
-                            isSelected: _routingService.isInRoom(rooms[index].uid),
-                          ),
-                          onTap: () {
-                            _routingService.openRoom(rooms[index].uid, popAllBeforePush: true);
-                          },
-                          onLongPress: () {
-                            //ToDo new design for android
-                            _showCustomMenu(
-                                context, rooms[index], canPin(rooms));
-                          },
-                          onTapDown: storePosition,
-                          onSecondaryTapDown: storePosition,
-                          onSecondaryTap: !isDesktop()
-                              ? null
-                              : () {
-                                  _showCustomMenu(
-                                      context, rooms[index], canPin(rooms));
-                                },
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return const Padding(
-                          padding: EdgeInsets.only(left: 64),
-                          child: Divider(),
-                        );
-                      },
-                    ),
+                    child: AutomaticAnimatedListView<Room>(
+                        scrollController: widget.scrollController,
+                        list: rooms,
+                        listController: _controller,
+                        animator: const DefaultAnimatedListAnimator(
+                            dismissIncomingDuration:
+                                kDismissOrIncomingAnimationDuration,
+                            reorderDuration: kReorderAnimationDuration,
+                            resizeDuration: kResizeAnimationDuration,
+                            movingDuration: kMovingAnimationDuration),
+                        comparator: AnimatedListDiffListComparator<Room>(
+                            sameItem: (a, b) => a.uid == b.uid,
+                            sameContent: (a, b) =>
+                                a.lastMessage?.id == b.lastMessage?.id &&
+                                a.mentioned == b.mentioned &&
+                                a.pinned == b.pinned &&
+                                a.draft == b.draft),
+                        itemBuilder: (BuildContext ctx, Room room,
+                            AnimatedWidgetBuilderData data) {
+                          return GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            child: ChatItem(
+                              key: ValueKey("chatItem/${room.uid}"),
+                              room: room,
+                            ),
+                            onTap: () {
+                              _routingService.openRoom(room.uid,
+                                  popAllBeforePush: true);
+                            },
+                            onLongPress: () {
+                              //ToDo new design for android
+                              _showCustomMenu(context, room, canPin(rooms));
+                            },
+                            onTapDown: storePosition,
+                            onSecondaryTapDown: storePosition,
+                            onSecondaryTap: !isDesktop()
+                                ? null
+                                : () {
+                                    _showCustomMenu(
+                                        context, room, canPin(rooms));
+                                  },
+                          );
+                        }),
                   ),
                 );
               } else {

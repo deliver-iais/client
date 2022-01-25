@@ -1,7 +1,6 @@
 library intl_phone_field;
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:fixnum/fixnum.dart';
@@ -34,7 +33,8 @@ class IntlPhoneField extends StatefulWidget {
 
   final List<TextInputFormatter>? inputFormatters;
 
-  const IntlPhoneField({Key? key,
+  const IntlPhoneField({
+    Key? key,
     this.initialCountryCode,
     this.obscureText = false,
     this.textAlign = TextAlign.left,
@@ -88,7 +88,6 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                       suffixIcon: const Icon(Icons.search),
                       labelText: _i18n.get("search_by_country_name"),
                     ),
-                    style: TextStyle(color: ExtraTheme.of(context).textField),
                     onChanged: (value) {
                       setState(() {
                         filteredCountries = countries
@@ -109,21 +108,18 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                           ListTile(
                             leading: Text(
                               filteredCountries[index]['flag']!,
-                              style: TextStyle(
-                                  fontSize: 30,
-                                  color: ExtraTheme.of(context).textField),
+                              style: const TextStyle(fontSize: 30),
                             ),
                             title: Text(
                               filteredCountries[index]['code']!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: ExtraTheme.of(context).textField),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700),
                             ),
                             trailing: Text(
                               filteredCountries[index]['dial_code']!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: ExtraTheme.of(context).textField),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             onTap: () {
                               _selectedCountry = filteredCountries[index];
@@ -175,18 +171,14 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                 ..nationalNumber = Int64.parseInt(s));
             },
             decoration: InputDecoration(
-              suffixIcon: Icon(
+              suffixIcon: const Icon(
                 Icons.phone,
-                color: ExtraTheme.of(context).textField,
               ),
               prefix: Text(
                 "${_selectedCountry['dial_code']}  ",
-                style: TextStyle(color: ExtraTheme.of(context).textField),
               ),
               labelText: _i18n.get("phone_number"),
-              labelStyle: TextStyle(color: ExtraTheme.of(context).textField),
             ),
-            style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
               if (widget.onSaved != null && value != null) {
                 widget.onSaved!(PhoneNumber()
@@ -226,16 +218,13 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             ],
             Text(
               _selectedCountry['flag']!,
-              style: TextStyle(
-                  fontSize: 24, color: ExtraTheme.of(context).textField),
+              style: const TextStyle(fontSize: 24),
             ),
             const SizedBox(width: 8),
             FittedBox(
               child: Text(
                 _selectedCountry['code']!,
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: ExtraTheme.of(context).textField),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(width: 8),

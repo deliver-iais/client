@@ -42,7 +42,6 @@ import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -615,9 +614,7 @@ class _RoomPageState extends State<RoomPage> {
                                   }),
                               Text(
                                 _selectedMessages.length.toString(),
-                                style: TextStyle(
-                                    color: ExtraTheme.of(context).textField,
-                                    fontSize: 14),
+                                style: const TextStyle(fontSize: 14),
                               ),
                             ],
                           );
@@ -650,7 +647,6 @@ class _RoomPageState extends State<RoomPage> {
                       onChanged: (s) {
                         checkSearchResult.add(false);
                       },
-                      style: TextStyle(color: ExtraTheme.of(context).textField),
                       textInputAction: TextInputAction.search,
                       onSubmitted: (str) async {
                         //   searchMessage(str, checkSearchResult);

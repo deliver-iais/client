@@ -1,6 +1,5 @@
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -12,10 +11,12 @@ class BotCommands extends StatefulWidget {
   final int botCommandSelectedIndex;
 
   const BotCommands(
-      {Key? key, required this.botUid,
+      {Key? key,
+      required this.botUid,
       required this.onCommandClick,
       this.query,
-      required this.botCommandSelectedIndex}) : super(key: key);
+      required this.botCommandSelectedIndex})
+      : super(key: key);
 
   @override
   _BotCommandsState createState() => _BotCommandsState();
@@ -38,8 +39,8 @@ class _BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color: ExtraTheme.of(context).boxBackground,
-            height: botCommands.keys.length * (26.0 + 16),
+            color: Theme.of(context).backgroundColor,
+            height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
                 child: ListView.separated(
               itemCount: botCommands.length,
@@ -87,7 +88,7 @@ class _BotCommandsState extends State<BotCommands> {
                 );
               },
               separatorBuilder: (BuildContext context, int index) =>
-                  Divider(color: ExtraTheme.of(context).boxOuterBackground),
+                  const Divider(),
             )),
           );
         } else {

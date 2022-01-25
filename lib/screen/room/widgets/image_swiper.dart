@@ -15,7 +15,6 @@ import 'package:deliver/repository/messageRepo.dart';
 
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 class ImageSwiper extends StatefulWidget {
   final Message message;
@@ -124,8 +123,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
             return Text(
               mes.data!.json!.toFile().caption,
               overflow: TextOverflow.fade,
-              style: TextStyle(
-                  color: ExtraTheme.of(context).textField, fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             );
           } else {
             return const SizedBox.shrink();

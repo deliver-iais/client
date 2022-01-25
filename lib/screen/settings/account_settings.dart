@@ -12,7 +12,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
@@ -68,7 +67,9 @@ class _AccountSettingsState extends State<AccountSettings> {
         FilePickerResult? result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
-          path = kIsWeb?Uri.dataFromBytes(result.files.first.bytes!.toList()).toString():result.files.first.path;
+          path = kIsWeb
+              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
+              : result.files.first.path;
         }
       }
 
@@ -250,7 +251,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                               .withOpacity(0.9),
                                         ),
                                         child: CircleAvatarWidget(
-                                            _authRepo.currentUserUid, 130,hideName: true,)),
+                                          _authRepo.currentUserUid,
+                                          130,
+                                          hideName: true,
+                                        )),
                                   ),
                                   Center(
                                     child: Padding(
@@ -284,9 +288,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   key: _usernameFormKey,
                                   child: TextFormField(
                                       minLines: 1,
-                                      style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).textField),
                                       initialValue: snapshot.data!.userName,
                                       textInputAction: TextInputAction.send,
                                       onChanged: (str) {
@@ -338,8 +339,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 TextFormField(
                                   initialValue: snapshot.data!.firstName ?? "",
                                   minLines: 1,
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
                                   textInputAction: TextInputAction.send,
                                   onChanged: (str) {
                                     setState(() {
@@ -356,9 +355,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 TextFormField(
                                     initialValue: snapshot.data!.lastName ?? "",
                                     minLines: 1,
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).textField),
                                     textInputAction: TextInputAction.send,
                                     onChanged: (str) {
                                       setState(() {
@@ -373,9 +369,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 TextFormField(
                                     initialValue: snapshot.data!.email ?? "",
                                     minLines: 1,
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).textField),
                                     textInputAction: TextInputAction.send,
                                     onChanged: (str) {
                                       setState(() {

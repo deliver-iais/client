@@ -5,6 +5,7 @@ import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_s
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/colors.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,12 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 
 class CircularFileStatusIndicator extends StatefulWidget {
   final Message message;
+  final bool isSender;
 
   const CircularFileStatusIndicator({
     Key? key,
     required this.message,
+    required this.isSender,
   }) : super(key: key);
 
   @override
@@ -41,7 +44,9 @@ class _CircularFileStatusIndicatorState
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
         builder: (c, fileSnapShot) {
-          if (fileSnapShot.hasData && fileSnapShot.data != null && widget.message.id!= null) {
+          if (fileSnapShot.hasData &&
+              fileSnapShot.data != null &&
+              widget.message.id != null) {
             return showExitFile(file, fileSnapShot.data!);
           } else {
             return StreamBuilder<double>(
@@ -60,11 +65,12 @@ class _CircularFileStatusIndicatorState
                               fileId: file.uuid,
                               fileName: file.name,
                               messagePacketId: widget.message.packetId,
-                              roomUid: widget.message.roomUid,
                               onPressed: () async {
                                 await _fileRepo.getFile(file.uuid, file.name);
                                 setState(() {});
                               },
+                              background: lowlight(widget.isSender, context),
+                              foreground: highlight(widget.isSender, context),
                             );
                           }
                         });
@@ -73,10 +79,11 @@ class _CircularFileStatusIndicatorState
                       fileId: file.uuid,
                       fileName: file.name,
                       messagePacketId: widget.message.packetId,
-                      roomUid: widget.message.roomUid,
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
                       },
+                      background: lowlight(widget.isSender, context),
+                      foreground: highlight(widget.isSender, context),
                     );
                   }
                 });
@@ -89,10 +96,12 @@ class _CircularFileStatusIndicatorState
         ? PlayAudioStatus(
             fileId: file.uuid,
             fileName: file.name,
+            isSender: widget.isSender,
           )
         : OpenFileStatus(
             filePath: filePath,
             file: file,
-          );
+      isSender: widget.isSender,
+    );
   }
 }

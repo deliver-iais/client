@@ -23,6 +23,8 @@ ThemeData DarkTheme = ThemeData(
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: primary,
     scaffoldBackgroundColor: const Color(0xFF021a25),
+    colorScheme:
+        const ColorScheme.dark(primary: primary, surface: Color(0xFF182731)),
     bottomAppBarColor: const Color.fromRGBO(255, 255, 255, 0.2),
     backgroundColor: const Color(0xFF00101A),
     dividerTheme: const DividerThemeData(
@@ -42,7 +44,7 @@ ThemeData DarkTheme = ThemeData(
         textStyle: TextStyle(color: primary, fontSize: 14),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10))),
-        color: Color(0xFF032738)),
+        color: Color(0xFF1E303B)),
     sliderTheme: const SliderThemeData(
       thumbColor: Colors.white,
       trackHeight: 2.25,
@@ -59,23 +61,13 @@ ThemeData DarkTheme = ThemeData(
 
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
-    centerPageDetails: const Color(0xFF9D9D9D),
-    boxOuterBackground: const Color(0xFF03151d),
-    boxBackground: const Color(0xFF032738),
-    textDetails: DarkTheme.primaryColor,
-    menuIconButton: secondary.withAlpha(50),
-    chatOrContactItemDetails: Colors.white,
-    //info chat in extra
-    sentMessageBox: const Color(0xFF0674A1),
-    sentMessageBoxForeground: primary,
-    receivedMessageBox: const Color(0xFF182731),
-    textMessage: Colors.white,
-    messageDetails: const Color(0xFF00396C),
-    persistentEventMessage: secondary.withAlpha(50),
-    circularFileStatus: const Color(0xFFBCE0FD),
-    fileMessageDetails: DarkTheme.primaryColor,
-    textField: Colors.white,
-    username: Colors.yellowAccent,
-    seenStatus: Colors.white,
-    fileSharingDetails: Colors.white54,
-    inputBoxBackground: secondary);
+  chatOrContactItemDetails: Colors.white,
+  sentMessageBoxBackground: const Color(0xFF0674A1),
+  highlightOnSentMessage: primary,
+  highlight: primary,
+  onHighlightOnSentMessage: Colors.white,
+  onHighlight: Colors.white,
+  lowlightOnSentMessage: const Color(0xFF064F6C),
+  lowlight: const Color(0xFF1E303B),
+  onDetailsBox: Colors.white,
+);

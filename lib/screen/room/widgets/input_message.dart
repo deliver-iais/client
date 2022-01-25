@@ -23,7 +23,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -263,7 +262,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 );
               }),
           Container(
-            color: ExtraTheme.of(context).inputBoxBackground,
+            color: Theme.of(context).colorScheme.surface,
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
@@ -296,8 +295,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                           _backSubject.value
                                               ? Icons.keyboard
                                               : Icons.mood,
-                                          color:
-                                              ExtraTheme.of(context).textField,
                                         ),
                                         onPressed: () {
                                           if (_backSubject.value) {
@@ -390,10 +387,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           !sh.data! &&
                                           !widget.waitingForForward) {
                                         return IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.attach_file,
-                                              color: ExtraTheme.of(context)
-                                                  .textField,
                                             ),
                                             onPressed: () {
                                               _backSubject.add(false);
@@ -556,7 +551,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
     String block_1 = widget.textController.text.substring(0, start);
     int indexOf = block_1.lastIndexOf("@");
-    block_1 = block_1.substring(0, indexOf+1);
+    block_1 = block_1.substring(0, indexOf + 1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;
