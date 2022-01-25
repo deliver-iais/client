@@ -1,47 +1,27 @@
 import 'package:flutter/material.dart';
 
 class ExtraThemeData {
-  Color centerPageDetails;
-  Color boxOuterBackground = const Color(0xfde2f8f0);
-  Color boxBackground = const Color(0xfde2f8f0);
-  Color menuIconButton;
   Color chatOrContactItemDetails;
-  Color sentMessageBox;
-  Color sentMessageBoxForeground;
-  Color receivedMessageBox;
-  Color persistentEventMessage;
-  Color seenStatus; //green white
-  Color messageDetails;
-  Color circularFileStatus;
-  Color fileMessageDetails;
-  Color inputBoxBackground;
-  Color fileSharingDetails;
+  Color sentMessageBoxBackground;
+  Color highlightOnSentMessage;
+  Color onHighlightOnSentMessage;
+  Color lowlightOnSentMessage;
+  Color highlight;
+  Color onHighlight;
+  Color lowlight;
+  Color onDetailsBox;
 
-  // TODO refactor all of these
-  Color username; // primary
-  Color textMessage; // -> normal
-  Color textField; //green white -> normal
-  Color textDetails;
-
-  ExtraThemeData(
-      {required this.centerPageDetails,
-      required this.boxOuterBackground,
-      required this.boxBackground,
-      required this.textDetails,
-      required this.menuIconButton,
-      required this.username,
-      required this.chatOrContactItemDetails,
-      required this.sentMessageBox,
-      required this.receivedMessageBox,
-      required this.textMessage,
-      required this.seenStatus,
-      required this.messageDetails,
-      required this.persistentEventMessage,
-      required this.circularFileStatus,
-      required this.fileMessageDetails,
-      required this.textField,
-      required this.inputBoxBackground,
-      required this.fileSharingDetails, required this.sentMessageBoxForeground});
+  ExtraThemeData({
+    required this.chatOrContactItemDetails,
+    required this.sentMessageBoxBackground,
+    required this.highlightOnSentMessage,
+    required this.onHighlightOnSentMessage,
+    required this.lowlightOnSentMessage,
+    required this.highlight,
+    required this.onHighlight,
+    required this.lowlight,
+    required this.onDetailsBox,
+  });
 }
 
 class ExtraTheme extends InheritedWidget {
@@ -51,7 +31,7 @@ class ExtraTheme extends InheritedWidget {
     Key? key,
     required Widget child,
     required this.extraThemeData,
-  })  : super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
     return context
@@ -61,7 +41,6 @@ class ExtraTheme extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ExtraTheme oldWidget) {
-    // TODO ???
-    return true;
+    return false;
   }
 }

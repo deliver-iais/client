@@ -80,22 +80,23 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   widget.hasPermissionInGroup) ||
               (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
                   widget.hasPermissionInChannel))
-            if (!widget.isPinned)
-              PopupMenuItem(
-                  value: OperationOnMessage.PIN_MESSAGE,
-                  child: Row(children: [
-                    const Icon(Icons.push_pin_outlined),
-                    const SizedBox(width: 8),
-                    Text(_i18n.get("pin")),
-                  ]))
-            else
-              PopupMenuItem(
-                  value: OperationOnMessage.UN_PIN_MESSAGE,
-                  child: Row(children: [
-                    const Icon(Icons.remove),
-                    const SizedBox(width: 8),
-                    Text(_i18n.get("unpin")),
-                  ])),
+            if (widget.message.type != MessageType.PERSISTENT_EVENT)
+              if (!widget.isPinned)
+                PopupMenuItem(
+                    value: OperationOnMessage.PIN_MESSAGE,
+                    child: Row(children: [
+                      const Icon(Icons.push_pin_outlined),
+                      const SizedBox(width: 8),
+                      Text(_i18n.get("pin")),
+                    ]))
+              else
+                PopupMenuItem(
+                    value: OperationOnMessage.UN_PIN_MESSAGE,
+                    child: Row(children: [
+                      const Icon(Icons.remove),
+                      const SizedBox(width: 8),
+                      Text(_i18n.get("unpin")),
+                    ])),
           if (widget.message.type == MessageType.TEXT ||
               (widget.message.type == MessageType.FILE &&
                   widget.message.json!.toFile().caption.isNotEmpty))

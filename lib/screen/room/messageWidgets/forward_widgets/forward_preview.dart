@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -19,7 +18,7 @@ class ForwardPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(100),
+      color: Theme.of(context).colorScheme.surface.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -35,12 +34,7 @@ class ForwardPreview extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             shareUid != null
-                ? Text(
-                    shareUid!.name,
-                    style: TextStyle(
-                        color: ExtraTheme.of(context).textDetails,
-                        fontSize: 20),
-                  )
+                ? Text(shareUid!.name)
                 : Text(
                     '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
             const Spacer(),

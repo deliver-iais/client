@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
-const SPDA="spda";
-const TEXT="text";
-const JOIN="join";
-const LOGIN="login";
-const VERSION =
-    "1.6.6"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+const SPDA = "spda";
+const TEXT = "text";
+const JOIN = "join";
+const LOGIN = "login";
+// if change the VERSION , is necessary to change version in pubspec.yaml file
+const VERSION = "1.6.6";
 const LOG_OUT = "log_out";
 const double DOWNLOAD_COMPLETE = 200;
 const String TEST_USER_ACCESS_TOKEN =
@@ -100,24 +100,41 @@ const String feature1 = 'feature1',
     feature3 = 'feature3';
 
 
+const mainRadius = Radius.circular(10);
+const mainBorder = BorderRadius.all(mainRadius);
+
 // Screen Breakdown
 bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
 
 bool isLarge(BuildContext context) =>
-    isLargeWidth(MediaQuery.of(context).size.width);
+    isLargeWidth(MediaQuery
+        .of(context)
+        .size
+        .width);
 
 // Dynamics
 // ignore: non_constant_identifier_names
-double animationSquareSize(BuildContext context) => isLarge(context)
-    ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-    : min(MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height * 0.7);
+double animationSquareSize(BuildContext context) =>
+    isLarge(context)
+        ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
+        : min(MediaQuery
+        .of(context)
+        .size
+        .width * 0.7,
+        MediaQuery
+            .of(context)
+            .size
+            .height * 0.7);
 
-double maxWidthOfMessage(BuildContext context) => min(
-    (MediaQuery.of(context).size.width -
+double maxWidthOfMessage(BuildContext context) =>
+    min(
+        (MediaQuery
+            .of(context)
+            .size
+            .width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-        0.7,
-    400);
+            0.7,
+        400);
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

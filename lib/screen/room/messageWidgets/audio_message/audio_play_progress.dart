@@ -3,7 +3,6 @@ import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_i
 import 'package:deliver/screen/room/messageWidgets/size_formater.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -13,7 +12,8 @@ class AudioPlayProgress extends StatelessWidget {
   final String audioUuid;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  AudioPlayProgress({Key? key, required this.audioUuid, required this.audio}) : super(key: key);
+  AudioPlayProgress({Key? key, required this.audioUuid, required this.audio})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class AudioPlayProgress extends StatelessWidget {
   Widget buildPadding(BuildContext context) {
     return Text(
       sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
-      style: TextStyle(fontSize: 10, color: ExtraTheme.of(context).textField),
+      style: const TextStyle(fontSize: 10),
     );
   }
 }

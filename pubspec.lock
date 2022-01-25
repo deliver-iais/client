@@ -50,13 +50,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.20.1"
-  automatic_animated_list:
-    dependency: "direct main"
-    description:
-      name: automatic_animated_list
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   badges:
     dependency: "direct main"
     description:
@@ -198,7 +191,7 @@ packages:
     source: hosted
     version: "4.1.0"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       url: "https://pub.dartlang.org"
@@ -327,6 +320,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  diffutil_dart:
+    dependency: transitive
+    description:
+      name: diffutil_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   dio:
     dependency: "direct main"
     description:
@@ -669,6 +669,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  great_list_view:
+    dependency: "direct main"
+    description:
+      name: great_list_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   grpc:
     dependency: "direct main"
     description:
@@ -1461,7 +1468,7 @@ packages:
     source: hosted
     version: "2.0.0"
   tuple:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: tuple
       url: "https://pub.dartlang.org"
@@ -1693,6 +1700,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  worker_manager:
+    dependency: transitive
+    description:
+      name: worker_manager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.2.5"
   xdg_directories:
     dependency: transitive
     description:

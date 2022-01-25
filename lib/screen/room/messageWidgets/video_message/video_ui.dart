@@ -11,12 +11,16 @@ class VideoUi extends StatefulWidget {
   final String videoFilePath;
   final pb.File videoMessage;
   final double duration;
+  final Color background;
+  final Color foreground;
 
   const VideoUi(
       {Key? key,
       required this.videoFilePath,
       required this.duration,
-      required this.videoMessage})
+      required this.videoMessage,
+      required this.background,
+      required this.foreground})
       : super(key: key);
 
   @override
@@ -84,24 +88,32 @@ class _VideoUiState extends State<VideoUi> {
           ),
         ),
         Center(
-          child: IconButton(
-            icon: const Icon(Icons.play_circle_fill),
-            iconSize: 40,
-            color: Colors.cyanAccent,
-            onPressed: () {
-              if (isDesktop()) {
-                OpenFile.open(widget.videoFilePath);
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Hero(
-                    tag: widget.videoMessage.uuid,
-                    child: VideoPlayerWidget(
-                      videoFilePath: widget.videoFilePath,
-                    ),
-                  );
-                }));
-              }
-            },
+          child: Container(
+            height: 50,
+            width: 50,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.background,
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(Icons.play_arrow, color: widget.foreground),
+              iconSize: 42,
+              onPressed: () {
+                if (isDesktop()) {
+                  OpenFile.open(widget.videoFilePath);
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Hero(
+                      tag: widget.videoMessage.uuid,
+                      child: VideoPlayerWidget(
+                        videoFilePath: widget.videoFilePath,
+                      ),
+                    );
+                  }));
+                }
+              },
+            ),
           ),
         )
       ],

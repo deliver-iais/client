@@ -1,4 +1,3 @@
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 
@@ -47,10 +46,8 @@ class BotRadioGroup extends FormField<String> {
                               f,
                               style: TextStyle(
                                   fontSize: 16,
-                                  color: field.value == f
-                                      ? Colors.green
-                                      : ExtraTheme.of(field.context)
-                                          .textField),
+                                  color:
+                                      field.value == f ? Colors.green : null),
                             ),
                           ),
                           leading: Radio<String?>(

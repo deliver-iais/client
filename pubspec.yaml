@@ -139,6 +139,9 @@ dependencies:
 
   automatic_animated_list: 1.0.0
   feature_discovery:
+  collection: 1.15.0
+  tuple: 2.0.0
+  great_list_view: 0.1.4
 
 dev_dependencies:
   build_runner: ^2.1.5
