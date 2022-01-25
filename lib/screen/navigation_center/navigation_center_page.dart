@@ -44,21 +44,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      FeatureDiscovery.discoverFeatures(
-        context,
-        isAndroid() || isIOS()
-            ? const <String>{
-                feature1,
-                feature2,
-                feature3,
-              }
-            : const <String>{
-                feature1,
-                feature3,
-              },
-      );
-    });
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
