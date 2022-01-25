@@ -115,24 +115,51 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: msg.json == "{}" ? 0.0 : 4.0),
-                child: PersistentEventMessage(
-                  message: msg,
-                  maxWidth: maxWidthOfMessage(context),
-                  onPinMessageClick: (int id) {
-                    widget.changeReplyMessageId(id);
-                    widget.itemScrollController.scrollTo(
-                        alignment: .5,
-                        curve: Curves.easeOut,
-                        opacityAnimationWeights: [20, 20, 60],
-                        index: id,
-                        duration: const Duration(milliseconds: 1000));
-                    Timer(const Duration(seconds: 1), () {
-                      widget.changeReplyMessageId(-1);
-                    });
-                  },
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  if (widget.selectMultiMessageSubject.stream.value) {
+                    widget.addForwardMessage();
+                  } else if (!isDesktop()) {
+                    FocusScope.of(context).unfocus();
+                    _showCustomMenu(context, msg);
+                  }
+                },
+                onSecondaryTap: !isDesktop()
+                    ? null
+                    : () {
+                        if (!widget.selectMultiMessageSubject.stream.value) {
+                          _showCustomMenu(context, msg);
+                        }
+                      },
+                onDoubleTap: !isDesktop() ? null : () => widget.onReply,
+                onLongPress: () {
+                  if (!widget.selectMultiMessageSubject.stream.value) {
+                    widget.selectMultiMessageSubject.add(true);
+                  }
+                  widget.addForwardMessage();
+                },
+                onTapDown: storePosition,
+                onSecondaryTapDown: storePosition,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: msg.json == "{}" ? 0.0 : 4.0),
+                  child: PersistentEventMessage(
+                    message: msg,
+                    maxWidth: maxWidthOfMessage(context),
+                    onPinMessageClick: (int id) {
+                      widget.changeReplyMessageId(id);
+                      widget.itemScrollController.scrollTo(
+                          alignment: .5,
+                          curve: Curves.easeOut,
+                          opacityAnimationWeights: [20, 20, 60],
+                          index: id,
+                          duration: const Duration(milliseconds: 1000));
+                      Timer(const Duration(seconds: 1), () {
+                        widget.changeReplyMessageId(-1);
+                      });
+                    },
+                  ),
                 ),
               ),
             ],
@@ -166,14 +193,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             widget.addForwardMessage();
           } else if (!isDesktop()) {
             FocusScope.of(context).unfocus();
-            _showCustomMenu(context, message, false);
+            _showCustomMenu(context, message);
           }
         },
         onSecondaryTap: !isDesktop()
             ? null
             : () {
                 if (!widget.selectMultiMessageSubject.stream.value) {
-                  _showCustomMenu(context, message, false);
+                  _showCustomMenu(context, message);
                 }
               },
         onDoubleTap: !isDesktop() ? null : () => widget.onReply,
@@ -204,7 +231,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget showSentMessage(Message message) {
     var messageWidget = SentMessageBox(
         message: message,
-        onArrowIconClick: () => _showCustomMenu(context, message, false),
+        onArrowIconClick: () => _showCustomMenu(context, message),
         isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
         pattern: "",
         //todo add search message
@@ -232,7 +259,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
-      onArrowIconClick: () => _showCustomMenu(context, message, false),
+      onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
     );
     return Row(
@@ -258,8 +285,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  void _showCustomMenu(BuildContext context, Message message,
-      bool isPersistentEventMessage) async {
+  void _showCustomMenu(
+    BuildContext context,
+    Message message,
+  ) async {
     var selectedValue = await this
         .showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(message,
