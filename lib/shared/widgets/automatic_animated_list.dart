@@ -25,6 +25,7 @@ class AutomaticAnimatedListController<T> {
   }
 }
 
+@Deprecated("great_list_view is better implementation")
 class AutomaticAnimatedList<T> extends StatefulWidget {
   const AutomaticAnimatedList({
     Key? key,

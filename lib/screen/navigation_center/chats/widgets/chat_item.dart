@@ -5,6 +5,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
@@ -24,10 +25,7 @@ import 'last_message.dart';
 class ChatItem extends StatefulWidget {
   final Room room;
 
-  final bool isSelected;
-
-  const ChatItem({Key? key, required this.room, required this.isSelected})
-      : super(key: key);
+  const ChatItem({Key? key, required this.room}) : super(key: key);
 
   @override
   _ChatItemState createState() => _ChatItemState();
@@ -39,6 +37,7 @@ class _ChatItemState extends State<ChatItem> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -52,27 +51,27 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
     return widget.room.lastMessage != null &&
-        widget.room.lastMessage!.json!.chatIsDeleted()
+            widget.room.lastMessage!.json!.chatIsDeleted()
         ? const SizedBox.shrink()
         : widget.room.lastMessage == null ||
-        widget.room.lastMessage!.json!.isDeletedMessage()
-        ? FutureBuilder<Message?>(
-        future: _messageRepo.fetchLastMessages(
-            widget.room.uid.asUid(),
-            widget.room.lastMessageId!,
-            widget.room.firstMessageId,
-            widget.room,
-            limit: 5,
-            type: FetchMessagesReq_Type.BACKWARD_FETCH),
-        builder: (c, s) {
-          if (s.hasData &&
-              s.data != null &&
-              !s.data!.json!.chatIsDeleted()) {
-            return buildLastMessageWidget(s.data!);
-          }
-          return const SizedBox.shrink();
-        })
-        : buildLastMessageWidget(widget.room.lastMessage!);
+                widget.room.lastMessage!.json!.isDeletedMessage()
+            ? FutureBuilder<Message?>(
+                future: _messageRepo.fetchLastMessages(
+                    widget.room.uid.asUid(),
+                    widget.room.lastMessageId!,
+                    widget.room.firstMessageId,
+                    widget.room,
+                    limit: 5,
+                    type: FetchMessagesReq_Type.BACKWARD_FETCH),
+                builder: (c, s) {
+                  if (s.hasData &&
+                      s.data != null &&
+                      !s.data!.json!.chatIsDeleted()) {
+                    return buildLastMessageWidget(s.data!);
+                  }
+                  return const SizedBox.shrink();
+                })
+            : buildLastMessageWidget(widget.room.lastMessage!);
   }
 
   buildLastMessageWidget(Message lastMessage) {
@@ -88,111 +87,121 @@ class _ChatItemState extends State<ChatItem> {
                   hoverColor: Theme.of(context).dividerColor,
                   cursor: SystemMouseCursors.click,
                   color: Colors.transparent,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    color: widget.isSelected
-                        ? Theme.of(context).focusColor
-                        : Colors.transparent,
-                    height: 66,
-                    child: Row(
-                      children: <Widget>[
-                        ContactPic(widget.room.uid.asUid()),
-                        const SizedBox(
-                          width: 8,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: StreamBuilder<String>(
+                      stream: _routingService.currentRouteStream,
+                      builder: (context, snapshot) {
+                        return Container(
+                          padding: const EdgeInsets.all(8),
+                          color: _routingService.isInRoom(widget.room.uid)
+                              ? Theme.of(context).focusColor
+                              : Colors.transparent,
+                          height: 66,
+                          child: Row(
                             children: <Widget>[
-                              Row(
-                                children: [
-                                  if (widget.room.uid.asUid().category ==
-                                      Categories.GROUP)
-                                    const Flexible(
-                                      child: Icon(
-                                        Icons.group_outlined,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  if (widget.room.uid.asUid().category ==
-                                      Categories.CHANNEL)
-                                    const Flexible(
-                                      child: Icon(
-                                        Icons.rss_feed_outlined,
-                                        size: 15,
-                                      ),
-                                    ),
-                                  if (widget.room.uid.asUid().category ==
-                                      Categories.BOT)
-                                    const Flexible(
-                                      child: Icon(
-                                        Icons.smart_toy_outlined,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  Expanded(
-                                      flex: 80,
-                                      child: Padding(
-                                          padding: widget.room.uid
-                                              .asUid()
-                                              .isGroup() ||
-                                              widget.room.uid
-                                                  .asUid()
-                                                  .isChannel() ||
-                                              widget.room.uid
-                                                  .asUid()
-                                                  .isBot()
-                                              ? const EdgeInsets.only(
-                                              left: 16.0)
-                                              : EdgeInsets.zero,
-                                          child: RoomName(
-                                              uid: widget.room.uid.asUid(),
-                                              name: _authRepo.isCurrentUser(
-                                                  widget.room.uid)
-                                                  ? _i18n.get("saved_message")
-                                                  : name.data!))),
-                                  Text(
-                                    dateTimeFormat(
-                                        date(widget.room.lastUpdateTime!)),
-                                    maxLines: 1,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w100,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
+                              ContactPic(widget.room.uid.asUid()),
+                              const SizedBox(
+                                width: 8,
                               ),
-                              StreamBuilder<Activity>(
-                                  stream: _roomRepo.activityObject[
-                                  widget.room.uid.asUid().node],
-                                  builder: (c, s) {
-                                    if (s.hasData &&
-                                        s.data != null &&
-                                        s.data!.typeOfActivity !=
-                                            ActivityType.NO_ACTIVITY) {
-                                      return Row(
-                                        children: [
-                                          ActivityStatus(
-                                            activity: s.data!,
-                                            roomUid: widget.room.uid.asUid(),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Row(
+                                      children: [
+                                        if (widget.room.uid.asUid().category ==
+                                            Categories.GROUP)
+                                          const Flexible(
+                                            child: Icon(
+                                              Icons.group_outlined,
+                                              size: 16,
+                                            ),
                                           ),
-                                        ],
-                                      );
-                                    } else {
-                                      return widget.room.draft != null &&
-                                          widget.room.draft!.isNotEmpty
-                                          ? buildDraftMessageWidget(
-                                          _i18n, context)
-                                          : buildLastMessage(lastMessage);
-                                    }
-                                  }),
+                                        if (widget.room.uid.asUid().category ==
+                                            Categories.CHANNEL)
+                                          const Flexible(
+                                            child: Icon(
+                                              Icons.rss_feed_outlined,
+                                              size: 15,
+                                            ),
+                                          ),
+                                        if (widget.room.uid.asUid().category ==
+                                            Categories.BOT)
+                                          const Flexible(
+                                            child: Icon(
+                                              Icons.smart_toy_outlined,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        Expanded(
+                                            flex: 80,
+                                            child: Padding(
+                                                padding: widget.room.uid
+                                                            .asUid()
+                                                            .isGroup() ||
+                                                        widget.room.uid
+                                                            .asUid()
+                                                            .isChannel() ||
+                                                        widget.room.uid
+                                                            .asUid()
+                                                            .isBot()
+                                                    ? const EdgeInsets.only(
+                                                        left: 16.0)
+                                                    : EdgeInsets.zero,
+                                                child: RoomName(
+                                                    uid:
+                                                        widget.room.uid.asUid(),
+                                                    name:
+                                                        _authRepo.isCurrentUser(
+                                                                widget.room.uid)
+                                                            ? _i18n.get(
+                                                                "saved_message")
+                                                            : name.data!))),
+                                        Text(
+                                          dateTimeFormat(date(
+                                              widget.room.lastUpdateTime!)),
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w100,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    StreamBuilder<Activity>(
+                                        stream: _roomRepo.activityObject[
+                                            widget.room.uid.asUid().node],
+                                        builder: (c, s) {
+                                          if (s.hasData &&
+                                              s.data != null &&
+                                              s.data!.typeOfActivity !=
+                                                  ActivityType.NO_ACTIVITY) {
+                                            return Row(
+                                              children: [
+                                                ActivityStatus(
+                                                  activity: s.data!,
+                                                  roomUid:
+                                                      widget.room.uid.asUid(),
+                                                ),
+                                              ],
+                                            );
+                                          } else {
+                                            return widget.room.draft != null &&
+                                                    widget
+                                                        .room.draft!.isNotEmpty
+                                                ? buildDraftMessageWidget(
+                                                    _i18n, context)
+                                                : buildLastMessage(lastMessage);
+                                          }
+                                        }),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        );
+                      }),
                 ));
           } else {
             return defaultChatItem();
@@ -246,7 +255,7 @@ class _ChatItemState extends State<ChatItem> {
       lastMessageId: widget.room.lastMessageId!,
       hasMentioned: widget.room.mentioned == true,
       showSender:
-      widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
+          widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
       pinned: widget.room.pinned ?? false,
     );
   }
