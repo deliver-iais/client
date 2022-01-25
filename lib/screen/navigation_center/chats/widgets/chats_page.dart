@@ -90,7 +90,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
-        stream: _roomRepo.watchAllRooms().map((event) => event.item1),
+        stream: _roomRepo.watchAllRooms(),
         builder: (context, snapshot) {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,

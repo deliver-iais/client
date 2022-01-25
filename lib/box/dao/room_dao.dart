@@ -12,7 +12,7 @@ abstract class RoomDao {
 
   Future<List<Room>> getAllRooms();
 
-  Stream<Tuple2<List<Room>, BoxEvent?>> watchAllRooms();
+  Stream<List<Room>> watchAllRooms();
 
   Future<Room?> getRoom(String roomUid);
 
@@ -45,25 +45,21 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<Tuple2<List<Room>, BoxEvent?>> watchAllRooms() async* {
+  Stream<List<Room>> watchAllRooms() async* {
     var box = await _openRoom();
     if (box.isEmpty) {
       box = await _openRoom();
     }
-    yield Tuple2(
-        sorted(box.values
-            .where((element) =>
-                (element.deleted == null || !element.deleted!) &&
-                element.lastMessageId != null)
-            .toList()),
-        null);
+    yield sorted(box.values
+        .where((element) =>
+            (element.deleted == null || !element.deleted!) &&
+            element.lastMessageId != null)
+        .toList());
 
-    yield* box.watch().map((event) => Tuple2(
-        sorted(box.values
-            .where((element) => (element.lastMessageId != null &&
-                (element.deleted == null || element.deleted == false)))
-            .toList()),
-        event));
+    yield* box.watch().map((event) => sorted(box.values
+        .where((element) => (element.lastMessageId != null &&
+            (element.deleted == null || element.deleted == false)))
+        .toList()));
   }
 
   List<Room> sorted(List<Room> list) {

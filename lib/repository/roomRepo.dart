@@ -262,7 +262,7 @@ class RoomRepo {
 
   Stream<bool?> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
 
-  Stream<Tuple2<List<Room>, BoxEvent?>> watchAllRooms() => _roomDao.watchAllRooms();
+  Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
   Stream<Room?> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
