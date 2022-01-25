@@ -2,7 +2,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,11 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   SharePrivateDataRequestMessageWidget(
-      {Key? key, required this.message, required this.isSender, required this.isSeen}) : super(key: key);
+      {Key? key,
+      required this.message,
+      required this.isSender,
+      required this.isSeen})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +70,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                       : sharePrivateDataRequest.data == PrivateDataType.NAME
                           ? _i18n.get("access_name")
                           : _i18n.get("access_username"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
             actions: [
               GestureDetector(

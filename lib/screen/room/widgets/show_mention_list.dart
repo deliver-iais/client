@@ -1,7 +1,6 @@
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/profile/widgets/muc_member_mention_widget.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -37,7 +36,7 @@ class ShowMentionList extends StatelessWidget {
                         ? HEIGHT * 4
                         : (members.data!.length * HEIGHT),
                     child: Container(
-                        color: ExtraTheme.of(context).boxBackground,
+                        color: Theme.of(context).backgroundColor,
                         child: ListView.separated(
                           itemCount: members.data!.length,
                           shrinkWrap: true,
@@ -56,9 +55,7 @@ class ShowMentionList extends StatelessWidget {
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) =>
-                              Divider(
-                                  color: ExtraTheme.of(context)
-                                      .boxOuterBackground),
+                              const Divider(),
                         )))),
           ]);
         }

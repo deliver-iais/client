@@ -129,8 +129,8 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: isSender
-                ? ExtraTheme.of(context).sentMessageBox
-                : ExtraTheme.of(context).receivedMessageBox,
+                ? ExtraTheme.of(context).sentMessageBoxBackground
+                : Theme.of(context).colorScheme.surface,
           ),
           child: TimeAndSeenStatus(
             widget.message,

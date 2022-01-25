@@ -127,7 +127,6 @@ class _TitleStatusState extends State<TitleStatus> {
               return ActivityStatus(
                 activity: activity.data!,
                 roomUid: widget.currentRoomUid!,
-                style: widget.style,
               );
             }
           } else {

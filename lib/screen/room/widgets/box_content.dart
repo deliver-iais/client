@@ -141,7 +141,10 @@ class _BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
-          color: messageExtraContentColor(widget.isSender, context),
+          backgroundColor: lowlight(widget.isSender, context),
+          foregroundColor: widget.isSender
+              ? ExtraTheme.of(context).highlightOnSentMessage
+              : Theme.of(context).primaryColor,
         ),
       ),
     );
@@ -153,8 +156,8 @@ class _BoxContentState extends State<BoxContent> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: widget.isSender
-            ? ExtraTheme.of(context).sentMessageBox
-            : ExtraTheme.of(context).receivedMessageBox,
+            ? ExtraTheme.of(context).sentMessageBoxBackground
+            : Theme.of(context).colorScheme.surface,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),
@@ -198,7 +201,7 @@ class _BoxContentState extends State<BoxContent> {
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).buttonTheme.colorScheme?.primary,
+        color: highlight(widget.isSender, context),
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -211,19 +214,14 @@ class _BoxContentState extends State<BoxContent> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.keyboard_arrow_right_rounded,
-                      size: 15,
-                      color:
-                          Theme.of(context).buttonTheme.colorScheme?.onPrimary),
+                      size: 15, color: onHighlight(widget.isSender, context)),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
-                            color: Theme.of(context)
-                                .buttonTheme
-                                .colorScheme
-                                ?.onPrimary,
+                            color: onHighlight(widget.isSender, context),
                             fontSize: 12)),
                   ),
                 ],

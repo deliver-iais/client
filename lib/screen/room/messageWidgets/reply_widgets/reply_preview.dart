@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class ReplyPreview extends StatelessWidget {
@@ -15,7 +14,7 @@ class ReplyPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(200),
+      color: Theme.of(context).colorScheme.surface.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,

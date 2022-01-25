@@ -1,4 +1,4 @@
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:universal_html/html.dart' as html;
 
@@ -11,8 +11,13 @@ import 'package:universal_html/html.dart';
 class OpenFileStatus extends StatelessWidget {
   final file_pb.File file;
   final String filePath;
+  final bool isSender;
 
-  const OpenFileStatus({Key? key, required this.file, required this.filePath})
+  const OpenFileStatus(
+      {Key? key,
+      required this.file,
+      required this.filePath,
+      required this.isSender})
       : super(key: key);
 
   @override
@@ -22,15 +27,15 @@ class OpenFileStatus extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: ExtraTheme.of(context).circularFileStatus,
+          color: lowlight(isSender, context),
         ),
         child: IconButton(
-          padding: const EdgeInsets.all(0),
+          padding: EdgeInsets.zero,
           alignment: Alignment.center,
           icon: Icon(
             Icons.insert_drive_file,
-            color: ExtraTheme.of(context).fileMessageDetails,
-            size: 33,
+            color: highlight(isSender, context),
+            size: 27,
           ),
           onPressed: () async {
             if (kIsWeb) {

@@ -6,7 +6,6 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/services/firebase_services.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -113,14 +112,14 @@ class _VerificationPageState extends State<VerificationPage> {
                   const SizedBox(height: 10),
                   Text(
                     _i18n.get("enter_code"),
-                    style: TextStyle(
-                        fontSize: 17, color: ExtraTheme.of(context).textField),
+                    style: const TextStyle(
+                        fontSize: 17),
                   ),
                   const SizedBox(height: 30),
                   Text(
                     _i18n.get("we_have_send_a_code"),
-                    style: TextStyle(
-                        fontSize: 17, color: ExtraTheme.of(context).textField),
+                    style: const TextStyle(
+                        fontSize: 17),
                   ),
                   const SizedBox(height: 30),
                   Padding(

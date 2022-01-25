@@ -7,7 +7,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -173,7 +172,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                         child: Material(
                                             color: Theme.of(context)
                                                 .primaryColor, // button color
-                                            child: InkWell(
+                                            child: const InkWell(
                                                 splashColor: Colors
                                                     .blue, // inkwell color
                                                 child: SizedBox(
@@ -182,9 +181,6 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                                   child: Icon(
                                                     Icons.insert_drive_file,
                                                     size: 20,
-                                                    color:
-                                                        ExtraTheme.of(context)
-                                                            .textField,
                                                   ),
                                                 ))),
                                       ),
@@ -353,7 +349,6 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 ? widget.files![index].name
                 : _editableFile.name,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: ExtraTheme.of(context).textField),
           ),
         ),
         if (showManage)
