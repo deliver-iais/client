@@ -44,6 +44,21 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      FeatureDiscovery.discoverFeatures(
+        context,
+        isAndroid() || isIOS()
+            ? const <String>{
+                feature1,
+                feature2,
+                feature3,
+              }
+            : const <String>{
+                feature1,
+                feature3,
+              },
+      );
+    });
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
@@ -90,7 +105,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     backgroundColor: Colors.indigo,
                     targetColor: Colors.indigoAccent,
                     title: const Text('You can go to setting'),
+                    overflowMode: OverflowMode.extendBackground,
                     description: _featureDiscoveryDescriptionWidget(
+                        isCircleAvatarWidget: true,
                         description:
                             "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app language"),
                     child: GestureDetector(
@@ -358,35 +375,64 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  Widget _featureDiscoveryDescriptionWidget({
-    required String description,
-  }) {
+  Widget _featureDiscoveryDescriptionWidget(
+      {required String description, bool isCircleAvatarWidget = false}) {
     return Column(
       children: [
         Text(description),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Column(
           children: [
-            TextButton(
-              onPressed: () async =>
-                  FeatureDiscovery.completeCurrentStep(context),
-              child: Text(
-                'Understood',
-                style: Theme.of(context)
-                    .textTheme
-                    .button!
-                    .copyWith(color: Colors.white),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () async =>
+                      FeatureDiscovery.completeCurrentStep(context),
+                  child: Text(
+                    'Understood',
+                    style: Theme.of(context)
+                        .textTheme
+                        .button!
+                        .copyWith(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                    onPressed: () => FeatureDiscovery.dismissAll(context),
+                    child: Text(
+                      'Dismiss',
+                      style: Theme.of(context)
+                          .textTheme
+                          .button!
+                          .copyWith(color: Colors.white),
+                    )),
+              ],
             ),
-            TextButton(
-                onPressed: () => FeatureDiscovery.dismissAll(context),
-                child: Text(
-                  'Dismiss',
-                  style: Theme.of(context)
-                      .textTheme
-                      .button!
-                      .copyWith(color: Colors.white),
-                )),
+            const SizedBox(
+              height: 30,
+            ),
+            isAndroid() && isCircleAvatarWidget
+                ? InkWell(
+                    onTap: () {
+                      FeatureDiscovery.dismissAll(context);
+                      _routingService.openContacts();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'sync contacts',
+                          style: Theme.of(context)
+                              .textTheme
+                              .button!
+                              .copyWith(color: Colors.lightGreenAccent),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.lightGreenAccent,
+                        )
+                      ],
+                    ))
+                : const SizedBox.shrink(),
           ],
         ),
       ],
