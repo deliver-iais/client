@@ -289,5 +289,7 @@
   "choose_other_files": "انتخاب دیگر فایل ها ...",
   "error" : "خطا",
   "cant_sent": "را نمیتوان ارسال کرد",
-  "error_in_uploading" : "مشکلی در آپلود فایل به وجود آمده"
+  "error_in_uploading" : "مشکلی در آپلود فایل به وجود آمده",
+  "about_update": "در مورد آپدیت",
+  "got_it": "باشه"
 }
