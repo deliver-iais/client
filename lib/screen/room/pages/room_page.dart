@@ -848,7 +848,7 @@ class _RoomPageState extends State<RoomPage> {
           }
         } else if (_currentMessageSearchId == -1) {
           _currentMessageSearchId = index;
-          return const SizedBox(width: 50, height: 50, child: Text(""));
+          return const SizedBox(width: 50, height:50, child: Text(""));
         } else {
           return const SizedBox(width: 50, height: 50, child: Text(""));
         }
