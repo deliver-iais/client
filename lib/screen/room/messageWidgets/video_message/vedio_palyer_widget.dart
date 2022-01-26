@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -49,9 +50,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return Scaffold(
       appBar: AppBar(),
       body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.black,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: secondaryBorder,
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),

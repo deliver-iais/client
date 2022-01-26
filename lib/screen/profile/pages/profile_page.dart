@@ -598,7 +598,7 @@ class _ProfilePageState extends State<ProfilePage>
         _showInviteLinkDialog(token);
       } else {
         ToastDisplay.showToast(
-            toastText: _i18n.get("error_occurred"), tostContext: context);
+            toastText: _i18n.get("error_occurred"), toastContext: context);
       }
     }
   }
@@ -637,7 +637,7 @@ class _ProfilePageState extends State<ProfilePage>
                             ClipboardData(text: generateInviteLink(token)));
                         ToastDisplay.showToast(
                             toastText: _i18n.get("copied"),
-                            tostContext: context);
+                            toastContext: context);
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -933,7 +933,7 @@ class _ProfilePageState extends State<ProfilePage>
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
         ToastDisplay.showToast(
-            toastText: _i18n.get("report_result"), tostContext: context);
+            toastText: _i18n.get("report_result"), toastContext: context);
         break;
       case "manage":
         showManageDialog();

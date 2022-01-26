@@ -520,22 +520,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   size: 20,
                 ),
                 itemBuilder: (cc) => [
-                      if (widget.hasPermissionToDeletePic && widget.isAvatar)
-                        PopupMenuItem(
-                            child: GestureDetector(
-                          child: const Text("delete"),
-                          onTap: () async {
-                            await _avatarRepo.deleteAvatar(
-                                _allAvatars[_swipePositionSubject.value]!);
-                            setState(() {});
-                          },
-                        )),
-                      if (widget.hasPermissionToDeletePic && !widget.isAvatar)
-                        PopupMenuItem(
-                            child: GestureDetector(
-                          child: const Text("delete"),
-                          onTap: () {},
-                        )),
+                      PopupMenuItem(
+                        child: const Text("delete"),
+                        onTap: () async {
+                          await _avatarRepo.deleteAvatar(
+                              _allAvatars[_swipePositionSubject.value]!);
+                          setState(() {});
+                        },
+                      ),
                     ])
             : const SizedBox.shrink()
       ],

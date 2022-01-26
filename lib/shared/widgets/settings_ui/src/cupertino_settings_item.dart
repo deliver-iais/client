@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -290,8 +291,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         },
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            color: calculateBackgroundColor(context),
+            borderRadius: mainBorder,
+            color: Theme.of(context).colorScheme.surface,
           ),
           height: widget.subtitle == null ? 44.0 : 57.0,
           child: Row(
@@ -301,15 +302,6 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       ),
     );
   }
-
-  Color calculateBackgroundColor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.light
-          ? pressed
-              ? iosPressedTileColorLight
-              : Colors.white
-          : pressed
-              ? iosPressedTileColorDark
-              : iosTileDarkColor;
 
   Color? _iconColor(ThemeData theme, ListTileThemeData tileTheme) {
     if (tileTheme.selectedColor != null) {

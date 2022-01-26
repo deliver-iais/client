@@ -3,6 +3,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -86,8 +87,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),
+                            borderRadius: secondaryBorder,
                             image: DecorationImage(
                                 image: Image.file(
                                   File(imagePath),

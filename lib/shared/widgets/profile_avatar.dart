@@ -110,7 +110,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     var statusCode = _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
     if (statusCode != 200) {
       ToastDisplay.showToast(
-          tostContext: context, toastText: _i18n.get("error_in_uploading"));
+          toastContext: context, toastText: _i18n.get("error_in_uploading"));
     }
     _newAvatarPath.add("");
   }

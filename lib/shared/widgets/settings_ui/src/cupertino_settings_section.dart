@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -62,10 +63,8 @@ class CupertinoSection extends StatelessWidget {
 
     columnChildren.add(Container(
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-          color: Theme.of(context).brightness == Brightness.light
-              ? CupertinoColors.white
-              : iosTileDarkColor,
+          borderRadius: mainBorder,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.15),

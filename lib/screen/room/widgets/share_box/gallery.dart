@@ -4,6 +4,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
+import 'package:deliver/shared/constants.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -112,8 +113,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         margin: const EdgeInsets.all(4.0),
                         decoration: BoxDecoration(
                           color: Theme.of(co).primaryColor,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5)),
+                          borderRadius: secondaryBorder,
                         ),
                         child: _controller.value.isInitialized
                             ? GestureDetector(
@@ -158,8 +158,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                   width: 100,
                                   height: 100,
                                   decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5)),
+                                    borderRadius: secondaryBorder,
                                     image: DecorationImage(
                                         image: Image.file(
                                           File(
@@ -174,10 +173,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       alignment: Alignment.bottomLeft,
                                       widthFactor: 200,
                                       child: Container(
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                                          borderRadius: mainBorder,
                                         ),
                                         child: Text(
                                           folder.folderName,

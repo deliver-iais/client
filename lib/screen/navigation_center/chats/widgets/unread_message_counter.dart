@@ -1,5 +1,6 @@
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -36,7 +37,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderRadius: mainBorder,
                     // shape: BoxShape.circle,
                   ),
                 )

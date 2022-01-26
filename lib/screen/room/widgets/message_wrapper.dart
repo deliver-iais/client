@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -12,13 +13,11 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const radius = Radius.circular(10);
-    const border = BorderRadius.all(radius);
     return Container(
       padding: const EdgeInsets.all(4.0),
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Container(
-        decoration: const BoxDecoration(borderRadius: border, boxShadow: [
+        decoration: const BoxDecoration(borderRadius: secondaryBorder, boxShadow: [
           BoxShadow(
               color: Colors.black38, blurRadius: 0.5, offset: Offset(0, 0.5))
         ]),
@@ -45,13 +44,14 @@ class MessageWrapper extends StatelessWidget {
                           height: 20,
                           child: CustomPaint(
                             foregroundPainter: OPainter(isSent
-                                ? ExtraTheme.of(context).sentMessageBoxBackground
+                                ? ExtraTheme.of(context)
+                                    .sentMessageBoxBackground
                                 : Theme.of(context).colorScheme.surface),
                           )),
                     ),
             ),
             ClipRRect(
-                borderRadius: border,
+                borderRadius: secondaryBorder,
                 child: Container(
                     color: isSent
                         ? ExtraTheme.of(context).sentMessageBoxBackground

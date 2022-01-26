@@ -3,7 +3,9 @@ import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -31,6 +33,21 @@ class _IntroPageState extends State<IntroPage> {
       setState(() {
         introAnimationController.play(pauseTime: d - 0.05);
       });
+    });
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      FeatureDiscovery.discoverFeatures(
+        context,
+        isAndroid() || isIOS()
+            ? const <String>{
+                feature1,
+                feature2,
+                feature3,
+              }
+            : const <String>{
+                feature1,
+                feature3,
+              },
+      );
     });
     super.initState();
   }

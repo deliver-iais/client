@@ -281,6 +281,8 @@
   "choose_other_files": "ُSelect other files...",
   "error" : "Error",
   "error_in_uploading" : "Error in uploading...",
-  "cant_sent": "Cant sent"
-
+  "cant_sent": "Cant sent",
+  "about_update": "ABOUT UPDATE",
+  "got_it": "Got it",
+  "please_select_a_chat_to_start_messaging": "Please select a chat to start messaging"
 }

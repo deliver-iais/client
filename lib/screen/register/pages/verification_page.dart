@@ -46,12 +46,12 @@ class _VerificationPageState extends State<VerificationPage> {
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         ToastDisplay.showToast(
-            toastText: "PASSWORD_PROTECTED", tostContext: context);
+            toastText: "PASSWORD_PROTECTED", toastContext: context);
         // TODO navigate to password validation page
       } else {
         ToastDisplay.showToast(
             toastText: _i18n.get("verification_code_not_valid"),
-            tostContext: context);
+            toastContext: context);
         _setErrorAndResetCode();
       }
     }).catchError((e) {

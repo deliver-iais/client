@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -47,7 +48,7 @@ class PinMessageAppBar extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).appBarTheme.backgroundColor,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: secondaryBorder,
                     boxShadow: [
                       BoxShadow(
                         color: Theme.of(context).shadowColor.withAlpha(60),
