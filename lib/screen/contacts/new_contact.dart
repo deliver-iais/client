@@ -110,10 +110,10 @@ class _NewContactState extends State<NewContact> {
         pn.countryCode.toString(), pn.nationalNumber.toString());
     if (result) {
       ToastDisplay.showToast(
-          toastText: _i18n.get("contactAdd"), tostContext: context);
+          toastText: _i18n.get("contactAdd"), toastContext: context);
     } else {
       ToastDisplay.showToast(
-          toastText: _i18n.get("contact_not_exist"), tostContext: context);
+          toastText: _i18n.get("contact_not_exist"), toastContext: context);
     }
   }
 }

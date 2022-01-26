@@ -26,7 +26,7 @@ class FluidWidget extends StatelessWidget {
           child: Center(
             child: ClipRRect(
               borderRadius: isLargeWidth(constraints.maxWidth)
-                  ? const BorderRadius.all(Radius.circular(8))
+                  ? mainBorder
                   : BorderRadius.zero,
               child: Container(
                 color: Theme.of(context).backgroundColor,

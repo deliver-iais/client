@@ -404,21 +404,6 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   InputDecoration buildInputDecoration(label, bool isOptional) {
     return InputDecoration(
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        disabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Colors.red,
-          ),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
         suffixIcon: isOptional
             ? const Padding(
                 padding: EdgeInsets.only(top: 20, left: 25),
@@ -428,8 +413,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                 ),
               )
             : const SizedBox.shrink(),
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.blue));
+        labelText: label);
   }
 
   String? validateFirstName(String? value) {

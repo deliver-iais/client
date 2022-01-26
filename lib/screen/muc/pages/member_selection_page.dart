@@ -3,6 +3,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class MemberSelectionPage extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: mainBorder,
             color: Theme.of(context).colorScheme.surface,
           ),
           child: SelectiveContactsList(

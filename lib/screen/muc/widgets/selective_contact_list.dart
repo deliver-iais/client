@@ -109,7 +109,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(
-                  borderRadius: BorderRadius.circular(8),
                   onChange: (str) => filterSearchResults(str),
                   onCancel: () => filterSearchResults(""),
                   controller: editingController),
@@ -195,7 +194,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               } else {
                                 ToastDisplay.showToast(
                                     toastText: i18n.get("error_occurred"),
-                                    tostContext: context);
+                                    toastContext: context);
                                 // _routingService.pop();
                               }
                             })

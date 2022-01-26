@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -32,8 +33,7 @@ ThemeData DarkTheme = ThemeData(
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
     inputDecorationTheme: const InputDecorationTheme(
-      border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12))),
+      border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),
     appBarTheme: AppBarTheme(
         color: const Color(0xFF03151d),
@@ -42,8 +42,7 @@ ThemeData DarkTheme = ThemeData(
         toolbarTextStyle: textTheme.headline6),
     popupMenuTheme: const PopupMenuThemeData(
         textStyle: TextStyle(color: primary, fontSize: 14),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10))),
+        shape: RoundedRectangleBorder(borderRadius: mainBorder),
         color: Color(0xFF1E303B)),
     sliderTheme: const SliderThemeData(
       thumbColor: Colors.white,
@@ -52,6 +51,16 @@ ThemeData DarkTheme = ThemeData(
       inactiveTrackColor: Color(0xFFBCE0FD),
       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+        )),
+    textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+        )),
+    dialogTheme: const DialogTheme(
+        shape: RoundedRectangleBorder(borderRadius: mainBorder)),
     tabBarTheme: const TabBarTheme(
         indicator: UnderlineTabIndicator(
             borderSide: BorderSide(width: 2.0, color: Colors.blue),

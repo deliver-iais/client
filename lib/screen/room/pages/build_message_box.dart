@@ -362,7 +362,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           ClipboardData(text: widget.message.json!.toFile().caption));
     }
     ToastDisplay.showToast(
-        toastText: _i18n.get("copied"), tostContext: context);
+        toastText: _i18n.get("copied"), toastContext: context);
   }
 
   onForward() {
@@ -467,7 +467,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   onReportMessage() {
     ToastDisplay.showToast(
-        toastText: _i18n.get("report_message"), tostContext: context);
+        toastText: _i18n.get("report_message"), toastContext: context);
   }
 
   Future<void> onShowInFolder(path) async {

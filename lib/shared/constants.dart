@@ -83,8 +83,6 @@ const LIVE_LOCATION_TRACK_ID = 19;
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 
 // UI
-const MAIN_BORDER_RADIUS = 10.0;
-
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
 
@@ -99,42 +97,30 @@ const String feature1 = 'feature1',
     feature2 = 'feature2',
     feature3 = 'feature3';
 
+const mainBorder = BorderRadius.all(Radius.circular(28));
 
-const mainRadius = Radius.circular(10);
-const mainBorder = BorderRadius.all(mainRadius);
+const secondaryBorder = BorderRadius.all(Radius.circular(12));
+
+const buttonBorder = BorderRadius.all(Radius.circular(20));
 
 // Screen Breakdown
 bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
 
 bool isLarge(BuildContext context) =>
-    isLargeWidth(MediaQuery
-        .of(context)
-        .size
-        .width);
+    isLargeWidth(MediaQuery.of(context).size.width);
 
 // Dynamics
 // ignore: non_constant_identifier_names
-double animationSquareSize(BuildContext context) =>
-    isLarge(context)
-        ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-        : min(MediaQuery
-        .of(context)
-        .size
-        .width * 0.7,
-        MediaQuery
-            .of(context)
-            .size
-            .height * 0.7);
+double animationSquareSize(BuildContext context) => isLarge(context)
+    ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
+    : min(MediaQuery.of(context).size.width * 0.7,
+        MediaQuery.of(context).size.height * 0.7);
 
-double maxWidthOfMessage(BuildContext context) =>
-    min(
-        (MediaQuery
-            .of(context)
-            .size
-            .width -
+double maxWidthOfMessage(BuildContext context) => min(
+    (MediaQuery.of(context).size.width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-            0.7,
-        400);
+        0.7,
+    400);
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

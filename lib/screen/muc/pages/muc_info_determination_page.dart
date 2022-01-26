@@ -78,7 +78,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         child: Container(
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: mainBorder,
             color: Theme.of(context).colorScheme.surface,
           ),
           child: Padding(
@@ -287,7 +287,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   } else {
                                     ToastDisplay.showToast(
                                         toastText: _i18n.get("error_occurred"),
-                                        tostContext: context);
+                                        toastContext: context);
                                     setState(() {
                                       _showIcon = true;
                                     });
@@ -330,19 +330,12 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   InputDecoration buildInputDecoration(
       label, bool isOptional, BuildContext context) {
     return InputDecoration(
-        enabledBorder: const OutlineInputBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
-        focusedBorder: const OutlineInputBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
-        border: const OutlineInputBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
+        enabledBorder: const OutlineInputBorder(borderRadius: mainBorder),
+        focusedBorder: const OutlineInputBorder(borderRadius: mainBorder),
+        border: const OutlineInputBorder(borderRadius: mainBorder),
         disabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
-            borderRadius:
-                BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS))),
+            borderRadius: mainBorder),
         suffixIcon: isOptional
             ? const Padding(
                 padding: EdgeInsets.only(top: 20, left: 25),

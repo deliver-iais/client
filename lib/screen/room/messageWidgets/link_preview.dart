@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -91,11 +92,11 @@ class LinkPreview extends StatelessWidget {
     return Container(
         margin: const EdgeInsets.only(top: 10),
         padding:
-        const EdgeInsets.symmetric(vertical: 4.0),
+        const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
         constraints: BoxConstraints(
             minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: backgroundColor),
+            borderRadius: secondaryBorder, color: backgroundColor),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

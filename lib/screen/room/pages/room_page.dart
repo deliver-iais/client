@@ -417,7 +417,7 @@ class _RoomPageState extends State<RoomPage> {
       _lastPinedMessage.add(_pinMessages.last.id!);
     } else {
       ToastDisplay.showToast(
-          toastText: _i18n.get("error_occurred"), tostContext: context);
+          toastText: _i18n.get("error_occurred"), toastContext: context);
     }
   }
 

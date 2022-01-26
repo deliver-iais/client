@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
             ToastDisplay.showToast(
-                toastText: "PASSWORD_PROTECTED", tostContext: context);
+                toastText: "PASSWORD_PROTECTED", toastContext: context);
             // TODO navigate to password validation page
           }
         } catch (e) {
@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
             ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
               toastText: _i18n.get("error_occurred"),
-              tostContext: context,
+              toastContext: context,
             );
             setState(() {
               _isLoading = false;
@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
             toastText: _i18n.get("error_occurred"),
-            tostContext: context,
+            toastContext: context,
           );
         }
       }

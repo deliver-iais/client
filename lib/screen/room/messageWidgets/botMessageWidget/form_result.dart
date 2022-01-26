@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
@@ -54,12 +55,10 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           decoration: InputDecoration(
                               enabledBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.blue),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
+                                borderRadius: secondaryBorder,
                               ),
                               border: const OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
+                                  borderRadius: secondaryBorder),
                               labelText: key,
                               labelStyle: const TextStyle(
                                   color: Colors.blue, fontSize: 16)),
