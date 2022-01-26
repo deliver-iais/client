@@ -39,6 +39,7 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
         children: <Widget>[
           CircularFileStatusIndicator(
             message: widget.message,
+            isSender: widget.isSender
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),

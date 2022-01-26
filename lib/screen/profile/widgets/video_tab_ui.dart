@@ -5,6 +5,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -79,11 +80,12 @@ class _VideoTabUiState extends State<VideoTabUi> {
                           return LoadFileStatus(
                             fileId: fileId,
                             fileName: fileName,
-                            roomUid: "_",
                             onPressed: (fId, fName) async {
                               await fileRepo.getFile(fileId, fileName);
                               setState(() {});
                             },
+                            background: ExtraTheme.of(context).lowlight,
+                            foreground: ExtraTheme.of(context).highlight,
                           );
                         }
                       });

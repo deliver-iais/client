@@ -8,7 +8,8 @@ class ReplyBrief extends StatelessWidget {
   final String roomId;
   final int replyToId;
   final double maxWidth;
-  final Color color;
+  final Color backgroundColor;
+  final Color foregroundColor;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ReplyBrief({
@@ -16,7 +17,8 @@ class ReplyBrief extends StatelessWidget {
     required this.roomId,
     required this.replyToId,
     required this.maxWidth,
-    required this.color,
+    required this.backgroundColor,
+    required this.foregroundColor,
   }) : super(key: key);
 
   @override
@@ -34,7 +36,7 @@ class ReplyBrief extends StatelessWidget {
                     left: 4.0, top: 4, bottom: 4, right: 8),
                 margin: const EdgeInsets.only(left: 2.0),
                 decoration: BoxDecoration(
-                  color: color,
+                  color: backgroundColor,
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
                 ),
                 child: Row(
@@ -43,13 +45,14 @@ class ReplyBrief extends StatelessWidget {
                     Icon(
                       Icons.reply,
                       size: 20,
-                      color: Theme.of(context).primaryColor,
+                      color:foregroundColor,
                     ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: SenderAndContent(
                         messages: [snapshot.data!],
                         expandContent: false,
+                        highlightColor: foregroundColor,
                       ),
                     ),
                   ],

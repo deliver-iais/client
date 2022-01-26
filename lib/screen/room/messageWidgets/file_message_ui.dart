@@ -81,6 +81,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
       return VideoMessage(
         message: widget.message,
         maxWidth: widget.maxWidth,
+        minWidth: widget.minWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
       );

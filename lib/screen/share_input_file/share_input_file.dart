@@ -4,7 +4,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/share_input_file/share_file_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -36,7 +35,6 @@ class _ShareInputFileState extends State<ShareInputFile> {
       appBar: AppBar(
         title: Text(
           i18n.get("send_To"),
-          style: TextStyle(color: ExtraTheme.of(context).textField),
         ),
         leading: _routingServices.backButtonLeading(),
       ),

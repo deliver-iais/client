@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 class FormResultWidget extends StatefulWidget {
   final Message message;
@@ -12,7 +11,11 @@ class FormResultWidget extends StatefulWidget {
   final bool isSender;
 
   const FormResultWidget(
-      {Key? key, required this.message, required this.isSeen, required this.isSender}) : super(key: key);
+      {Key? key,
+      required this.message,
+      required this.isSeen,
+      required this.isSender})
+      : super(key: key);
 
   @override
   _FormResultWidgetState createState() => _FormResultWidgetState();
@@ -51,13 +54,15 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           decoration: InputDecoration(
                               enabledBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.blue),
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                               ),
                               border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
                               labelText: key,
-                              labelStyle:
-                                  const TextStyle(color: Colors.blue, fontSize: 16)),
+                              labelStyle: const TextStyle(
+                                  color: Colors.blue, fontSize: 16)),
                         ),
                       )
                 ],
@@ -71,7 +76,10 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.6,
-                      color: ExtraTheme.of(context).textMessage.withAlpha(150),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withAlpha(120),
                     )),
                 TimeAndSeenStatus(
                   widget.message,
