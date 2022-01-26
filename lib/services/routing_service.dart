@@ -1,5 +1,6 @@
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -291,6 +292,8 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
 }
 
 class Empty extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   const Empty({Key? key}) : super(key: key);
 
   @override
@@ -303,10 +306,7 @@ class Empty extends StatelessWidget {
               skew: 4,
               padding:
                   const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-              // decoration: BoxDecoration(
-              //     borderRadius: const BorderRadius.all(Radius.circular(20)),
-              //     color: Theme.of(context).dividerColor.withOpacity(0.25)),
-              child: Text("Please select a chat to start messaging",
+              child: Text(_i18n.get("please_select_a_chat_to_start_messaging"),
                   style: Theme.of(context)
                       .textTheme
                       .bodyText2!

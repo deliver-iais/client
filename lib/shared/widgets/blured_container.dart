@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class BlurContainer extends StatelessWidget {
@@ -26,7 +27,7 @@ class BlurContainer extends StatelessWidget {
       return Container(padding: padding, decoration: decoration, child: child);
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: mainBorder,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: -skew, sigmaY: skew),
         child: Container(

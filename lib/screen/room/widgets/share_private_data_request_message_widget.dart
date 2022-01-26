@@ -2,6 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -32,15 +33,8 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
             width: 240,
             margin: const EdgeInsets.only(bottom: 17),
             child: OutlinedButton(
-                onPressed: () {
-                  _showGetAccessPrivateData(context, sharePrivateDataRequest);
-                },
-                style: OutlinedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    side: BorderSide(color: Theme.of(context).primaryColor)),
+                onPressed: () =>
+                    _showGetAccessPrivateData(context, sharePrivateDataRequest),
                 child: Text(
                     sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
                         ? _i18n.get("get_access_phone_number")

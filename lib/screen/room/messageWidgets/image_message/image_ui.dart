@@ -62,7 +62,7 @@ class _ImageUiState extends State<ImageUi> {
       return Hero(
         tag: "${widget.message.id}-${widget.image.uuid}",
         child: ClipRRect(
-          borderRadius: mainBorder,
+          borderRadius: secondaryBorder,
           child: Container(
             constraints: BoxConstraints(
                 minWidth: widget.minWidth,
@@ -219,7 +219,7 @@ class _ImageUiState extends State<ImageUi> {
       );
     } catch (e) {
       return ClipRRect(
-          borderRadius: mainBorder,
+          borderRadius: secondaryBorder,
           child: Container(
             constraints: BoxConstraints(
                 minWidth: widget.minWidth,

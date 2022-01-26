@@ -177,7 +177,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       ToastDisplay.showToast(
           toastText:
               "$firstName $lastName ${I18N.of(context)!.get("contact_exist")}",
-          tostContext: context);
+          toastContext: context);
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -229,7 +229,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                         ToastDisplay.showToast(
                             toastText:
                                 "$firstName$lastName ${_i18n.get("contact_add")}",
-                            tostContext: context);
+                            toastContext: context);
                         Navigator.of(context).pop();
                       }
                     },

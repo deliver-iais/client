@@ -19,6 +19,7 @@ import 'package:deliver/screen/room/widgets/share_private_data_request_message_w
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
@@ -154,7 +155,7 @@ class _BoxContentState extends State<BoxContent> {
     return Container(
       padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: mainBorder,
         color: widget.isSender
             ? ExtraTheme.of(context).sentMessageBoxBackground
             : Theme.of(context).colorScheme.surface,
@@ -200,7 +201,7 @@ class _BoxContentState extends State<BoxContent> {
       padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: mainBorder,
         color: highlight(widget.isSender, context),
       ),
       child: FutureBuilder<String>(

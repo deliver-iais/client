@@ -54,7 +54,7 @@ class PersistentEventMessage extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).dividerColor.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: mainBorder,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

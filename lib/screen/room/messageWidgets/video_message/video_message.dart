@@ -63,8 +63,8 @@ class _VideoMessageState extends State<VideoMessage> {
           maxWidth: widget.maxWidth,
           maxHeight: widget.maxWidth),
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-          color: Colors.black, borderRadius: BorderRadius.circular(10)),
+      decoration: const BoxDecoration(
+          color: Colors.black, borderRadius: secondaryBorder),
       child: AspectRatio(
         aspectRatio: video.width > 0 ? video.width / video.height : 1,
         child: StreamBuilder(

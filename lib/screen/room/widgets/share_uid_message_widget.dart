@@ -4,6 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
 
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -39,51 +40,44 @@ class ShareUidMessageWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          OutlinedButton(
+          OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
                 primary: highlight(isSender, context),
-                backgroundColor: lowlight(isSender, context),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                side:
-                    BorderSide(color: highlight(isSender, context), width: 2)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-              child: Row(
-                children: [
-                  CircleAvatarWidget(_shareUid.uid, 18,
-                      forceText: _shareUid.name),
-                  if (_shareUid.uid.category == Categories.GROUP)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4.0),
-                      child: Icon(
-                        Icons.group_rounded,
-                        size: 18,
-                      ),
-                    ),
-                  if (_shareUid.uid.category == Categories.CHANNEL)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4.0),
-                      child: Icon(
-                        Icons.rss_feed_rounded,
-                        size: 18,
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4.0),
-                    child: Text(
-                      _shareUid.name +
-                          (_shareUid.uid.category != Categories.USER
-                              ? " ${_i18n.get("invite_link")}"
-                              : ""),
-                      style: TextStyle(
-                          fontSize: 16, color: highlight(isSender, context)),
+                backgroundColor: lowlight(isSender, context)),
+            icon: Padding(
+              padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+              child: CircleAvatarWidget(_shareUid.uid, 14,
+                  forceText: _shareUid.name),
+            ),
+            label: Row(
+              children: [
+                if (_shareUid.uid.category == Categories.GROUP)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0),
+                    child: Icon(
+                      Icons.group_rounded,
+                      size: 18,
                     ),
                   ),
-                  const Icon(Icons.chevron_right)
-                ],
-              ),
+                if (_shareUid.uid.category == Categories.CHANNEL)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0),
+                    child: Icon(
+                      Icons.rss_feed_rounded,
+                      size: 18,
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    _shareUid.name +
+                        (_shareUid.uid.category != Categories.USER
+                            ? " ${_i18n.get("invite_link")}"
+                            : ""),
+                  ),
+                ),
+                const Icon(Icons.chevron_right, size: 18)
+              ],
             ),
             onPressed: () async {
               if ((_shareUid.uid.category == Categories.GROUP ||

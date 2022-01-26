@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -24,13 +25,13 @@ class Debug extends StatelessWidget {
             ToastDisplay.showToast(
                 toastText:
                     "copied '${text.substring(0, min(4, text.length))}...'",
-                tostContext: context);
+                toastContext: context);
           },
           child: Container(
               constraints: const BoxConstraints(maxWidth: 350, minWidth: 0),
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: mainBorder,
                 border: Border.all(width: 1, color: Colors.red),
                 color: const Color(0xAAFFE8E8),
               ),
@@ -69,7 +70,7 @@ class _DebugCState extends State<DebugC> {
         child: Container(
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: mainBorder,
             border: Border.all(width: 2, color: Colors.red),
             color: const Color(0xAAFFE8E8),
           ),
@@ -83,7 +84,7 @@ class _DebugCState extends State<DebugC> {
         margin: const EdgeInsets.all(4),
         constraints: const BoxConstraints(maxWidth: 350, minWidth: 0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: mainBorder,
           border: Border.all(width: 2, color: Colors.red),
           color: const Color(0xAAFFE8E8),
         ),

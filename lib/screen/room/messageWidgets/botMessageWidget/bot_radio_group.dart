@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 
@@ -22,13 +23,13 @@ class BotRadioGroup extends FormField<String> {
                     ),
                   ),
                   errorText: field.hasError ? field.errorText : null,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(10),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                    borderRadius: secondaryBorder,
                   ),
                   focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: secondaryBorder,
                   ),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10)),

@@ -234,7 +234,7 @@ class IntroSliderState extends State<IntroSlider>
   static TextStyle defaultBtnNameTextStyle =
       const TextStyle(color: Colors.white);
 
-  static double defaultBtnBorderRadius = 30.0;
+  static double defaultBtnBorderRadius = 28.0;
 
   static Color defaultBtnColor = Colors.transparent;
 

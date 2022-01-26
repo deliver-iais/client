@@ -12,13 +12,11 @@ class NewFeatureDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0))),
       backgroundColor: Colors.white,
       child: SizedBox(
         width: maxWidthOfMessage(context),
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          borderRadius: mainBorder,
           child: SingleChildScrollView(
             child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -28,7 +26,7 @@ class NewFeatureDialog extends StatelessWidget {
                     image: AssetImage('assets/images/wave.png'),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -45,7 +43,7 @@ class NewFeatureDialog extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                      padding: const EdgeInsets.only(left: 15, right: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: SizedBox(
                         height: 200,
                         child: ListView.builder(
@@ -65,21 +63,10 @@ class NewFeatureDialog extends StatelessWidget {
                       )),
                   Center(
                     child: Container(
-                      margin: const EdgeInsets.all(25),
-                      child: OutlinedButton(
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20))),
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.blue)),
-                        child: Text(
-                          _i18n.get("got_it"),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                      margin: const EdgeInsets.all(8),
+                      child: TextButton(
+                        child: Text(_i18n.get("got_it")),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ),
                   )

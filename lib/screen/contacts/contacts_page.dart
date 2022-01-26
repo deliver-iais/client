@@ -64,7 +64,7 @@ class _ContactsPageState extends State<ContactsPage> {
         child: Container(
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: mainBorder,
             color: Theme.of(context).colorScheme.surface,
           ),
           child: StreamBuilder<List<Contact>>(
@@ -82,7 +82,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: SearchBox(
-                            borderRadius: BorderRadius.circular(8),
+                            // borderRadius: mainBorder,
                             onChange: _queryTermDebouncedSubject.add,
                             onCancel: () => _queryTermDebouncedSubject.add("")),
                       ),
