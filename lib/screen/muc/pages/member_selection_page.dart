@@ -67,6 +67,7 @@ class MemberSelectionPage extends StatelessWidget {
       body: FluidContainerWidget(
         child: Container(
           margin: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.only(bottom: 16.0),
           decoration: BoxDecoration(
             borderRadius: mainBorder,
             color: Theme.of(context).colorScheme.surface,

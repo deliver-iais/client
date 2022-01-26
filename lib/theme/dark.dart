@@ -42,7 +42,7 @@ ThemeData DarkTheme = ThemeData(
         toolbarTextStyle: textTheme.headline6),
     popupMenuTheme: const PopupMenuThemeData(
         textStyle: TextStyle(color: primary, fontSize: 14),
-        shape: RoundedRectangleBorder(borderRadius: mainBorder),
+        shape: RoundedRectangleBorder(borderRadius: secondaryBorder),
         color: Color(0xFF1E303B)),
     sliderTheme: const SliderThemeData(
       thumbColor: Colors.white,

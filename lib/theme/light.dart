@@ -27,7 +27,7 @@ ThemeData LightTheme = ThemeData(
     backgroundColor: const Color(0xfdf0fff7),
     popupMenuTheme: const PopupMenuThemeData(
         textStyle: TextStyle(color: primary, fontSize: 14),
-        shape: RoundedRectangleBorder(borderRadius: mainBorder),
+        shape: RoundedRectangleBorder(borderRadius: secondaryBorder),
         color: Color(0xffeef7ff)),
     dividerTheme: const DividerThemeData(
         space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
