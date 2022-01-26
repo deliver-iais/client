@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -61,6 +62,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (kIsWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
+    checkIfVersionChange();
     checkAddToHomeInWeb(context);
 
     super.initState();
@@ -112,6 +114,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();
+    }
+  }
+
+  void checkIfVersionChange() async {
+    if (await _accountRepo.shouldShowNewFeatureDialog()) {
+      showDialog(builder: (context) => NewFeatureDialog(), context: context);
     }
   }
 }
