@@ -185,6 +185,10 @@ class AccountRepo {
     return previousVersion != VERSION;
   }
 
+  shouldShowNewFeaturesDialog(String? previousVersion) {
+    return previousVersion != VERSION;
+  }
+
   Future<bool> verifyQrCodeToken(String token) async {
     try {
       await _sessionServicesClient.verifyQrCodeToken(VerifyQrCodeTokenReq()
@@ -214,6 +218,6 @@ class AccountRepo {
 
   Future<bool> shouldShowNewFeatureDialog() async {
     String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
-    return shouldRemoveDB(pv);
+    return shouldShowNewFeaturesDialog(pv);
   }
 }
