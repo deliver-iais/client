@@ -139,6 +139,10 @@ class MessageRepo {
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+          if (room == null) {
+            _seenDao.saveMySeen(
+                Seen(uid: roomMetadata.roomUid.asString(), messageId: -1));
+          }
           if (roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
                 room.lastMessage != null &&
@@ -160,7 +164,7 @@ class MessageRepo {
                   firstMessageId: roomMetadata.firstMessageId.toInt(),
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
             }
-            fetchLastMessages(
+            await fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
@@ -270,7 +274,7 @@ class MessageRepo {
           break;
         }
       }
-      _roomDao.updateRoom(Room(
+      await _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
         firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
         lastUpdateTime: lastMessage!.time,
@@ -361,6 +365,7 @@ class MessageRepo {
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
           lastSeen.messageId != null &&
+          lastSeen.messageId != -1 &&
           lastSeen.messageId! >
               max(fetchCurrentUserSeenData.seen.id.toInt(),
                   room.lastCurrentUserSentMessageId.toInt())) return;
@@ -370,6 +375,11 @@ class MessageRepo {
               lastSeen != null ? lastSeen.hiddenMessageCount ?? 0 : 0,
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
+    } on GrpcError catch (e) {
+      _logger.e(e);
+      if (e.code == StatusCode.notFound) {
+        _seenDao.saveMySeen(Seen(uid: room.roomUid.asString(), messageId: 0));
+      }
     } catch (e) {
       _logger.e(e);
     }

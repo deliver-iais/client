@@ -298,7 +298,11 @@ class CoreServices {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       var msg = pm.msg.copyWith(id: id, time: time);
-      _messageDao.deletePendingMessage(packetId);
+      try{
+        _messageDao.deletePendingMessage(packetId);
+      }catch(e){
+        _logger.e(e);
+      }
       _messageDao.saveMessage(msg);
       _roomDao.updateRoom(
           Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id));

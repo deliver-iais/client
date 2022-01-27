@@ -292,9 +292,18 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
         );
       case MessageType.FORM:
-        return BotFormMessage(message: widget.message, isSeen: true);
+        return BotFormMessage(
+          message: widget.message,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
       case MessageType.BUTTONS:
-        return BotButtonsWidget(message: widget.message);
+        return BotButtonsWidget(
+          message: widget.message,
+          maxWidth: widget.maxWidth * 0.85,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
       case MessageType.PERSISTENT_EVENT:
         // we show peristant event message in roompage
         break;

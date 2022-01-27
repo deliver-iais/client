@@ -106,25 +106,25 @@ class _ProfilePageState extends State<ProfilePage>
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data!.imagesCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.videosCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.linkCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.filesCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.documentsCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.musicsCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.audiosCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
               }
 

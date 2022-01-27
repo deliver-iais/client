@@ -14,10 +14,12 @@ class UnreadMessageCounterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Seen?>(
+    return StreamBuilder<Seen>(
       stream: _roomRepo.watchMySeen(roomUid),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData &&
+            snapshot.data != null &&
+            snapshot.data!.messageId! >= 0) {
           int lastSeen = snapshot.data?.messageId ?? 0;
           int unreadCount = lastMessageId - lastSeen;
           if (snapshot.data?.hiddenMessageCount != null) {

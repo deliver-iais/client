@@ -54,6 +54,7 @@ ThemeData DarkTheme = ThemeData(
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+          side: const BorderSide(width: 1.0, color: Color(0xB3175B93)),
         )),
     textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
