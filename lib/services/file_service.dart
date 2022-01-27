@@ -309,6 +309,9 @@ class FileService {
         format == "xlsx" ||
         format == "crt" ||
         format == "tgs" ||
-        format == "apk";
+        format == "apk" ||
+        format == "mkv" ||
+        format == "jfif" ||
+        format == "webm";
   }
 }
