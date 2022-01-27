@@ -580,131 +580,128 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  PreferredSize buildAppbar() {
+  PreferredSizeWidget buildAppbar() {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(54),
-      child: AppBar(
-        leading: GestureDetector(
-          child: StreamBuilder<bool>(
-              stream: _searchMode.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data!) {
-                  return IconButton(
-                      icon: const Icon(Icons.search),
-                      onPressed: () {
-                        //   searchMessage(controller.text, checkSearchResult);
-                      });
-                } else {
-                  return StreamBuilder<bool>(
-                      stream: _selectMultiMessageSubject.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!) {
-                          return Row(
-                            children: [
-                              Badge(
-                                child: IconButton(
-                                    color: Theme.of(context).primaryColor,
-                                    icon: const Icon(
-                                      Icons.clear,
-                                      size: 25,
-                                    ),
-                                    onPressed: () {
-                                      onDelete();
-                                    }),
-                                badgeColor: Theme.of(context).primaryColor,
-                                badgeContent: Text(
-                                  _selectedMessages.length.toString(),
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                                ),
+    return AppBar(
+      leading: GestureDetector(
+        child: StreamBuilder<bool>(
+            stream: _searchMode.stream,
+            builder: (c, s) {
+              if (s.hasData && s.data!) {
+                return IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      //   searchMessage(controller.text, checkSearchResult);
+                    });
+              } else {
+                return StreamBuilder<bool>(
+                    stream: _selectMultiMessageSubject.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!) {
+                        return Row(
+                          children: [
+                            Badge(
+                              child: IconButton(
+                                  color: Theme.of(context).primaryColor,
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    size: 25,
+                                  ),
+                                  onPressed: () {
+                                    onDelete();
+                                  }),
+                              badgeColor: Theme.of(context).primaryColor,
+                              badgeContent: Text(
+                                _selectedMessages.length.toString(),
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
                               ),
-                            ],
-                          );
-                        } else {
-                          return _routingService.backButtonLeading(
-                            back: () {
-                              // _notificationServices.reset("\t");
-                            },
-                          );
-                        }
-                      });
-                }
-              }),
-        ),
-        titleSpacing: 0.0,
-        title: StreamBuilder<bool>(
-          stream: _searchMode.stream,
-          builder: (c, s) {
-            if (s.hasData && s.data!) {
-              return Row(
-                children: [
-                  Flexible(
-                    child: TextField(
-                      minLines: 1,
-                      controller: controller,
-                      autofocus: true,
-                      onTap: () {
-                        checkSearchResult.add(false);
-                      },
-                      onChanged: (s) {
-                        checkSearchResult.add(false);
-                      },
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (str) async {
-                        //   searchMessage(str, checkSearchResult);
-                      },
-                      decoration: InputDecoration(
-                          hintText: _i18n.get("search"),
-                          suffix: StreamBuilder<bool>(
-                            stream: checkSearchResult.stream,
-                            builder: (c, s) {
-                              if (s.hasData && s.data!) {
-                                return Text(_i18n.get("not_found"));
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            },
-                          ),
-                          fillColor: Colors.white),
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return StreamBuilder<bool>(
-                stream: _selectMultiMessageSubject.stream,
-                builder: (c, sm) {
-                  if (sm.hasData && sm.data!) {
-                    return _selectMultiMessageAppBar();
-                  } else {
-                    if (widget.roomId.isMuc()) {
-                      return MucAppbarTitle(mucUid: widget.roomId);
-                    } else if (widget.roomId.asUid().category ==
-                        Categories.BOT) {
-                      return BotAppbarTitle(botUid: widget.roomId.asUid());
-                    } else {
-                      return UserAppbarTitle(
-                        userUid: widget.roomId.asUid(),
-                      );
-                    }
-                  }
-                },
-              );
-            }
-          },
-        ),
-        bottom: const PreferredSize(
-          child: Divider(),
-          preferredSize: Size.fromHeight(1),
-        ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return _routingService.backButtonLeading(
+                          back: () {
+                            // _notificationServices.reset("\t");
+                          },
+                        );
+                      }
+                    });
+              }
+            }),
       ),
+      titleSpacing: 0.0,
+      title: StreamBuilder<bool>(
+        stream: _searchMode.stream,
+        builder: (c, s) {
+          if (s.hasData && s.data!) {
+            return Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    minLines: 1,
+                    controller: controller,
+                    autofocus: true,
+                    onTap: () {
+                      checkSearchResult.add(false);
+                    },
+                    onChanged: (s) {
+                      checkSearchResult.add(false);
+                    },
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (str) async {
+                      //   searchMessage(str, checkSearchResult);
+                    },
+                    decoration: InputDecoration(
+                        hintText: _i18n.get("search"),
+                        suffix: StreamBuilder<bool>(
+                          stream: checkSearchResult.stream,
+                          builder: (c, s) {
+                            if (s.hasData && s.data!) {
+                              return Text(_i18n.get("not_found"));
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                        fillColor: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return StreamBuilder<bool>(
+              stream: _selectMultiMessageSubject.stream,
+              builder: (c, sm) {
+                if (sm.hasData && sm.data!) {
+                  return _selectMultiMessageAppBar();
+                } else {
+                  if (widget.roomId.isMuc()) {
+                    return MucAppbarTitle(mucUid: widget.roomId);
+                  } else if (widget.roomId.asUid().category ==
+                      Categories.BOT) {
+                    return BotAppbarTitle(botUid: widget.roomId.asUid());
+                  } else {
+                    return UserAppbarTitle(
+                      userUid: widget.roomId.asUid(),
+                    );
+                  }
+                }
+              },
+            );
+          }
+        },
+      ),
+      // bottom: const PreferredSize(
+      //   child: Divider(),
+      //   preferredSize: Size.fromHeight(1),
+      // ),
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class Background extends StatelessWidget {
@@ -65,80 +66,90 @@ class Background extends StatelessWidget {
 
     return Center(
       child: Container(
-        color: backgroundColor,
-        width: double.infinity,
-        child: Stack(
-          children: [
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
+        color: Theme.of(context).appBarTheme.backgroundColor,
+        child: Container(
+          width: double.infinity,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: isLarge(context)
+                ? backgroundSecondaryBorder
+                : BorderRadius.zero,
+          ),
+          child: Stack(
+            children: [
+              AnimatedContainer(
+                  duration: duration,
+                  curve: curve,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                    colors: [
+                      dark,
+                      darkTransparent,
+                    ],
+                    center: b,
+                  ))),
+              AnimatedContainer(
+                  duration: duration,
+                  curve: curve,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                    colors: [
+                      yellow,
+                      yellowTransparent,
+                    ],
+                    center: y,
+                  ))),
+              AnimatedContainer(
+                  duration: duration,
+                  curve: curve,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                    colors: [
+                      yellow,
+                      yellowTransparent,
+                    ],
+                    center: y2,
+                  ))),
+              AnimatedContainer(
+                  duration: duration,
+                  curve: curve,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                    colors: [
+                      white,
+                      whiteTransparent,
+                    ],
+                    center: w,
+                  ))),
+              AnimatedContainer(
+                  duration: duration,
+                  curve: curve,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                    colors: [
+                      white,
+                      whiteTransparent,
+                    ],
+                    center: w2,
+                  ))),
+              SizedBox(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    dark,
-                    darkTransparent,
-                  ],
-                  center: b,
-                ))),
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    yellow,
-                    yellowTransparent,
-                  ],
-                  center: y,
-                ))),
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    yellow,
-                    yellowTransparent,
-                  ],
-                  center: y2,
-                ))),
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    white,
-                    whiteTransparent,
-                  ],
-                  center: w,
-                ))),
-            AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                  colors: [
-                    white,
-                    whiteTransparent,
-                  ],
-                  center: w2,
-                ))),
-            SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Image(
-                  image: const AssetImage("assets/backgrounds/pattern-24.png"),
-                  fit: BoxFit.scaleDown,
-                  color: foregroundColor,
-                  repeat: ImageRepeat.repeat),
-            ),
-          ],
+                height: double.infinity,
+                child: Image(
+                    image:
+                        const AssetImage("assets/backgrounds/pattern-24.png"),
+                    fit: BoxFit.scaleDown,
+                    color: foregroundColor,
+                    repeat: ImageRepeat.repeat),
+              ),
+            ],
+          ),
         ),
       ),
     );

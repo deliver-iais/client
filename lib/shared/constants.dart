@@ -101,6 +101,9 @@ const mainBorder = BorderRadius.all(Radius.circular(28));
 
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 
+const backgroundSecondaryBorder =
+    BorderRadius.only(topLeft: Radius.circular(18));
+
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 
 // Screen Breakdown

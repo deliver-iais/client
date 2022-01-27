@@ -225,7 +225,6 @@ class RoutingService {
         if (isLarge(context))
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
-        if (isLarge(context)) const VerticalDivider(),
         Expanded(
             child: ClipRect(
           child: Navigator(
@@ -298,21 +297,24 @@ class Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const Background(),
-        Center(
-          child: BlurContainer(
-              skew: 4,
-              padding:
-                  const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-              child: Text(_i18n.get("please_select_a_chat_to_start_messaging"),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText2!
-                      .copyWith(color: Colors.white))),
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(),
+      body: Stack(
+        children: [
+          const Background(),
+          Center(
+            child: BlurContainer(
+                skew: 4,
+                padding:
+                    const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
+                child: Text(_i18n.get("please_select_a_chat_to_start_messaging"),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText2!
+                        .copyWith(color: Colors.white))),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -57,7 +57,7 @@ class PinMessageAppBar extends StatelessWidget {
                       ),
                     ],
                   ),
-                  height: 58,
+                  height: 60,
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Row(
