@@ -204,6 +204,10 @@ public class StoragePathPlugin {
         String mp4 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp4");
         String zip = MimeTypeMap.getSingleton().getMimeTypeFromExtension("zip");
         String rar = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rar");
+        String mkv = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mkv");
+        String webm = MimeTypeMap.getSingleton().getMimeTypeFromExtension("webm");
+
+
 
         String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
@@ -219,8 +223,10 @@ public class StoragePathPlugin {
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk, mp4, zip, rar};
+        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk, mp4, zip, rar,mkv,webm};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
