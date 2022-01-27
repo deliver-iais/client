@@ -1,7 +1,7 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/material.dart';
-import '../box_ui.dart';
 
 import 'colors.dart';
 import 'defines.dart';

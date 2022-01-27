@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
@@ -122,9 +123,8 @@ class _RoomPageState extends State<RoomPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        _logger.wtf("message");
         if ((_repliedMessage.value?.id ?? 0) > 0 ||
-            _editableMessage.value != null) {
+            _editableMessage.value != null || _selectedMessages.isNotEmpty) {
           _resetRoomPageDetails();
           return false;
         } else {
@@ -176,11 +176,8 @@ class _RoomPageState extends State<RoomPage> {
                                             currentRoomStream
                                                 .data!.firstMessageId!;
                                       }
-                                      return PageStorage(
-                                          bucket: PageStorage.of(context)!,
-                                          key: PageStorageKey(widget.roomId),
-                                          child: buildMessagesListView(
-                                              pendingMessages));
+                                      return buildMessagesListView(
+                                          pendingMessages);
                                     } else {
                                       return const SizedBox(
                                         height: 50,
@@ -189,7 +186,6 @@ class _RoomPageState extends State<RoomPage> {
                                   });
                             }),
                       ),
-                      positionsView,
                       StreamBuilder(
                           stream: _repliedMessage.stream,
                           builder: (c, rm) {
@@ -250,26 +246,6 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  Widget get positionsView => ValueListenableBuilder<Iterable<ItemPosition>>(
-      valueListenable: _itemPositionsListener.itemPositions,
-      builder: (context, positions, child) {
-        int? firstItem;
-        if (positions.isNotEmpty) {
-          // Determine the first visible item by finding the item with the
-          firstItem = positions
-              .where((ItemPosition position) => position.itemTrailingEdge > 0)
-              .reduce((ItemPosition first, ItemPosition position) =>
-                  position.itemTrailingEdge < first.itemTrailingEdge
-                      ? position
-                      : first)
-              .index;
-        }
-
-        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
-            firstItem.toString());
-        return const SizedBox.shrink();
-      });
-
   _getScrollPosition() async {
     String? scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
@@ -297,7 +273,17 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      if (_itemPositionsListener.itemPositions.value.isNotEmpty) {
+      var position = _itemPositionsListener.itemPositions.value;
+      if (position.isNotEmpty) {
+        int firstItem = position
+            .where((ItemPosition position) => position.itemTrailingEdge > 0)
+            .reduce((ItemPosition first, ItemPosition position) =>
+                position.itemTrailingEdge < first.itemTrailingEdge
+                    ? position
+                    : first)
+            .index;
+        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
+            firstItem.toString());
         _positionSubject.add(_itemPositionsListener.itemPositions.value
             .map((e) => e.index)
             .reduce(max));
@@ -381,6 +367,9 @@ class _RoomPageState extends State<RoomPage> {
     _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
+    _selectMultiMessageSubject.add(false);
+    _selectedMessages.clear();
+    setState(() {});
   }
 
   void _sendForwardMessage() async {
@@ -616,18 +605,25 @@ class _RoomPageState extends State<RoomPage> {
                             snapshot.data!) {
                           return Row(
                             children: [
-                              IconButton(
-                                  color: Theme.of(context).primaryColor,
-                                  icon: const Icon(
-                                    Icons.clear,
-                                    size: 25,
-                                  ),
-                                  onPressed: () {
-                                    onDelete();
-                                  }),
-                              Text(
-                                _selectedMessages.length.toString(),
-                                style: const TextStyle(fontSize: 14),
+                              Badge(
+                                child: IconButton(
+                                    color: Theme.of(context).primaryColor,
+                                    icon: const Icon(
+                                      Icons.clear,
+                                      size: 25,
+                                    ),
+                                    onPressed: () {
+                                      onDelete();
+                                    }),
+                                badgeColor: Theme.of(context).primaryColor,
+                                badgeContent: Text(
+                                  _selectedMessages.length.toString(),
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
                               ),
                             ],
                           );
@@ -849,8 +845,6 @@ class _RoomPageState extends State<RoomPage> {
             _currentMessageSearchId = -1;
           }
 
-          if (!(ms.data!.from.isSameEntity(_authRepo.currentUserUid))) {}
-
           if (index == 0) {
             return Column(
               children: [
@@ -871,7 +865,7 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  BuildMessageBox buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
+  Widget buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
       List<PendingMessage> pendingMessages) {
     final keyId = ms.data?.id;
     final key = keyId != null ? ValueKey(keyId) : null;

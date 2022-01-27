@@ -9,35 +9,48 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class BotButtonsWidget extends StatelessWidget {
   final Message message;
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final double maxWidth;
+  final bool isSender;
+  final bool isSeen;
 
-  BotButtonsWidget({Key? key, required this.message}) : super(key: key);
+  BotButtonsWidget(
+      {Key? key,
+      required this.message,
+      required this.maxWidth,
+      required this.isSender,
+      required this.isSeen})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var buttons = message.json!.toButtons();
     return Container(
-        padding: const EdgeInsets.only(top: 2, right: 2, left: 2),
+        padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
+        width: maxWidth,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             for (final btn in buttons.buttons)
               Container(
-                constraints: const BoxConstraints(minHeight: 35),
-                width: 240,
-                margin: const EdgeInsets.only(bottom: 5),
+                constraints: const BoxConstraints(minHeight: 40),
+                width: maxWidth,
+                margin: const EdgeInsets.only(bottom: 6),
                 child: OutlinedButton(
                     onPressed: () {
                       _messageRepo.sendTextMessage(message.from.asUid(), btn);
                     },
                     child: Text(btn, textAlign: TextAlign.center)),
               ),
-            TimeAndSeenStatus(
-              message,
-              false,
-              false,
-              needsPadding: false,
-              needsBackground: false,
-              needsPositioned: false,
+            Padding(
+              padding: const EdgeInsets.only(right: 6.0, left: 6.0),
+              child: TimeAndSeenStatus(
+                message,
+                isSender,
+                isSeen,
+                needsPadding: false,
+                needsBackground: false,
+                needsPositioned: false,
+              ),
             ),
           ],
         ));

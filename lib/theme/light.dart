@@ -51,12 +51,13 @@ ThemeData LightTheme = ThemeData(
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-            shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-        )),
+      shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+      side: const BorderSide(width: 1.0, color: Color(0x80175E9A)),
+    )),
     textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-        )),
+      shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+    )),
     dialogTheme: const DialogTheme(
         shape: RoundedRectangleBorder(borderRadius: mainBorder)),
     tabBarTheme: const TabBarTheme(

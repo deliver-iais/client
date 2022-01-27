@@ -176,7 +176,7 @@ class _ImageUiState extends State<ImageUi> {
                                     }
                                   }),
                             ),
-                          if (widget.image.caption.isEmpty)
+                         if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
                                 widget.message, widget.isSender, widget.isSeen,
                                 needsBackground: true)
@@ -205,7 +205,7 @@ class _ImageUiState extends State<ImageUi> {
                             background: lowlight(widget.isSender, context),
                             foreground: highlight(widget.isSender, context),
                           )),
-                          if (widget.image.caption.isEmpty)
+                         if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
                                 widget.message, widget.isSender, widget.isSeen,
                                 needsBackground: true)
