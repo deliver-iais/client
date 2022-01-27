@@ -16,8 +16,13 @@ import 'package:get_it/get_it.dart';
 class BotFormMessage extends StatefulWidget {
   final Message message;
   final bool isSeen;
+  final bool isSender;
 
-  const BotFormMessage({Key? key, required this.message, required this.isSeen})
+  const BotFormMessage(
+      {Key? key,
+      required this.message,
+      required this.isSeen,
+      required this.isSender})
       : super(key: key);
 
   @override
@@ -153,7 +158,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             const SizedBox(height: 8),
           ],
         ),
-        TimeAndSeenStatus(widget.message, false, widget.isSeen,
+        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
             needsBackground: false),
       ],
     );

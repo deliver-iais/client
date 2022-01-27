@@ -83,6 +83,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   @override
   void initState() {
+    super.initState();
     _keyboardVisibilityController.onChange.listen((event) {
       _insertCaption.add(event);
     });
