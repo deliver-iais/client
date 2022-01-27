@@ -186,7 +186,6 @@ class _RoomPageState extends State<RoomPage> {
                                   });
                             }),
                       ),
-                      // positionsView,
                       StreamBuilder(
                           stream: _repliedMessage.stream,
                           builder: (c, rm) {
@@ -711,7 +710,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
-     initialScrollIndex:initialScrollIndex,
+      initialScrollIndex: initialScrollIndex,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
@@ -848,7 +847,7 @@ class _RoomPageState extends State<RoomPage> {
           }
         } else if (_currentMessageSearchId == -1) {
           _currentMessageSearchId = index;
-          return const SizedBox(width: 50, height:50, child: Text(""));
+          return const SizedBox(width: 50, height: 50, child: Text(""));
         } else {
           return const SizedBox(width: 50, height: 50, child: Text(""));
         }
