@@ -25,7 +25,8 @@ class BotButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var buttons = message.json!.toButtons();
     return Container(
-        padding: const EdgeInsets.all(2),
+        padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
+        width: maxWidth,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -33,7 +34,7 @@ class BotButtonsWidget extends StatelessWidget {
               Container(
                 constraints: const BoxConstraints(minHeight: 40),
                 width: maxWidth,
-                margin: const EdgeInsets.only(bottom: 4),
+                margin: const EdgeInsets.only(bottom: 6),
                 child: OutlinedButton(
                     onPressed: () {
                       _messageRepo.sendTextMessage(message.from.asUid(), btn);
