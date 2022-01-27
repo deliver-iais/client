@@ -11,8 +11,6 @@ enum SettingsItemType {
 
 typedef PressOperationCallback = void Function();
 
-const _spacer = Expanded(child: SizedBox.shrink());
-
 class CupertinoSettingsItem extends StatefulWidget {
   const CupertinoSettingsItem({
     Key? key,
@@ -171,25 +169,23 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
       case SettingsItemType.modal:
         if (widget.value == null) {
-          rowChildren.add(_spacer);
+          // rowChildren.add(const Expanded(child: SizedBox.shrink()));
         } else {
           rowChildren.add(
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  top: 1.5,
-                  end: 2.25,
-                ),
-                child: Text(
-                  widget.value!,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: widget.valueTextStyle ??
-                      const TextStyle(
-                        color: CupertinoColors.inactiveGray,
-                        fontSize: 16,
-                      ),
-                ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(
+                top: 1.5,
+                end: 2.25,
+              ),
+              child: Text(
+                widget.value!,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                style: widget.valueTextStyle ??
+                    const TextStyle(
+                      color: CupertinoColors.inactiveGray,
+                      fontSize: 16,
+                    ),
               ),
             ),
           );
