@@ -85,6 +85,7 @@ class _RoomPageState extends State<RoomPage> {
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _autRepo = GetIt.I.get<AuthRepo>();
   int _lastSeenMessageId = -1;
 
   int _lastShowedMessageId = -1;
@@ -124,7 +125,8 @@ class _RoomPageState extends State<RoomPage> {
     return WillPopScope(
       onWillPop: () async {
         if ((_repliedMessage.value?.id ?? 0) > 0 ||
-            _editableMessage.value != null || _selectedMessages.isNotEmpty) {
+            _editableMessage.value != null ||
+            _selectedMessages.isNotEmpty) {
           _resetRoomPageDetails();
           return false;
         } else {
@@ -938,6 +940,15 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _selectMultiMessageAppBar() {
+    bool _hasPermissionToDeleteMsg = true;
+    for (Message message in _selectedMessages.values.toList()) {
+      if ((_autRepo.isCurrentUserSender(message) ||
+              (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
+              (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
+          false) {
+        _hasPermissionToDeleteMsg = false;
+      }
+    }
     return Padding(
       padding: const EdgeInsets.only(right: 12, top: 5),
       child: Row(
@@ -956,9 +967,7 @@ class _RoomPageState extends State<RoomPage> {
                         forwardedMessages: _selectedMessages.values.toList());
                     _selectedMessages.clear();
                   })),
-          if (!widget.roomId.isMuc() ||
-              _hasPermissionInGroup.value ||
-              (widget.roomId.isChannel() && _hasPermissionInChannel.value))
+          if (_hasPermissionToDeleteMsg)
             Tooltip(
               message: _i18n.get("delete"),
               child: IconButton(
