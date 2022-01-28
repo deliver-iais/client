@@ -112,6 +112,9 @@ class _InputMessageWidget extends State<InputMessage> {
   final _botRepo = GetIt.I.get<BotRepo>();
   var record = Record();
 
+  final ValueNotifier<TextDirection> _textDir =
+      ValueNotifier(TextDirection.ltr);
+
   var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
   var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
@@ -318,50 +321,51 @@ class _InputMessageWidget extends State<InputMessage> {
                                   Flexible(
                                     child: RawKeyboardListener(
                                       focusNode: keyboardRawFocusNode,
-                                      child: TextField(
-                                        focusNode: widget.focusNode,
-                                        autofocus: widget.replyMessageId! > 0 ||
-                                            isDesktop(),
-                                        controller: widget.textController,
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 4, vertical: 8),
-                                          border: InputBorder.none,
-                                          hintText: i18n.get("message"),
+                                      child:
+                                          ValueListenableBuilder<TextDirection>(
+                                        valueListenable: _textDir,
+                                        builder: (context, value, child) =>
+                                            TextField(
+                                          focusNode: widget.focusNode,
+                                          autofocus:
+                                              widget.replyMessageId! > 0 ||
+                                                  isDesktop(),
+                                          controller: widget.textController,
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 4, vertical: 8),
+                                            border: InputBorder.none,
+                                            hintText: i18n.get("message"),
+                                          ),
+                                          autocorrect: true,
+                                          textInputAction:
+                                              TextInputAction.newline,
+                                          minLines: 1,
+                                          maxLines: 15,
+                                          textDirection: value,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle1,
+                                          onTap: () => _backSubject.add(false),
+                                          onChanged: (str) {
+                                            if (str.trim().length < 2) {
+                                              final dir = getDirection(str);
+                                              if (dir != value) {
+                                                _textDir.value = dir;
+                                              }
+                                            }
+                                            _textSelection =
+                                                widget.textController.selection;
+                                            if (str.isNotEmpty) {
+                                              isTypingActivitySubject
+                                                  .add(ActivityType.TYPING);
+                                            } else {
+                                              noActivitySubject.add(
+                                                  ActivityType.NO_ACTIVITY);
+                                            }
+                                          },
                                         ),
-                                        autocorrect: true,
-                                        textInputAction:
-                                            TextInputAction.newline,
-                                        minLines: 1,
-                                        maxLines: 15,
-                                        textAlign: widget.textController.text
-                                                    .isNotEmpty &&
-                                                widget.textController.text
-                                                    .isPersian()
-                                            ? TextAlign.right
-                                            : TextAlign.left,
-                                        textDirection: widget.textController
-                                                    .text.isNotEmpty &&
-                                                widget.textController.text
-                                                    .isPersian()
-                                            ? TextDirection.rtl
-                                            : TextDirection.ltr,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle1,
-                                        onTap: () => _backSubject.add(false),
-                                        onChanged: (str) {
-                                          _textSelection =
-                                              widget.textController.selection;
-                                          if (str.isNotEmpty) {
-                                            isTypingActivitySubject
-                                                .add(ActivityType.TYPING);
-                                          } else {
-                                            noActivitySubject
-                                                .add(ActivityType.NO_ACTIVITY);
-                                          }
-                                        },
                                       ),
                                     ),
                                   ),
@@ -816,4 +820,13 @@ class _InputMessageWidget extends State<InputMessage> {
     }
     return text + " ";
   }
+}
+
+TextDirection getDirection(String v) {
+  final string = v.trim();
+  if (string.isEmpty) return TextDirection.ltr;
+  if (string.isPersian()) {
+    return TextDirection.rtl;
+  }
+  return TextDirection.ltr;
 }

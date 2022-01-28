@@ -181,8 +181,7 @@ class RoutingService {
 
   bool isInRoomPage() => _path().contains("/room/");
 
-  bool isInRoom(String roomId) =>
-      _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
+  bool isInRoom(String roomId) => _path() == "/room/$roomId";
 
   String _path() => _navigatorObserver.currentRoute.value;
 
