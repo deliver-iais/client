@@ -686,8 +686,7 @@ class _RoomPageState extends State<RoomPage> {
                 } else {
                   if (widget.roomId.isMuc()) {
                     return MucAppbarTitle(mucUid: widget.roomId);
-                  } else if (widget.roomId.asUid().category ==
-                      Categories.BOT) {
+                  } else if (widget.roomId.asUid().category == Categories.BOT) {
                     return BotAppbarTitle(botUid: widget.roomId.asUid());
                   } else {
                     return UserAppbarTitle(
