@@ -85,7 +85,6 @@ class _RoomPageState extends State<RoomPage> {
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _autRepo = GetIt.I.get<AuthRepo>();
   int _lastSeenMessageId = -1;
 
   int _lastShowedMessageId = -1;
@@ -941,7 +940,7 @@ class _RoomPageState extends State<RoomPage> {
   Widget _selectMultiMessageAppBar() {
     bool _hasPermissionToDeleteMsg = true;
     for (Message message in _selectedMessages.values.toList()) {
-      if ((_autRepo.isCurrentUserSender(message) ||
+      if ((_authRepo.isCurrentUserSender(message) ||
               (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
               (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
           false) {
