@@ -89,7 +89,7 @@ const double FLUID_MAX_HEIGHT = 540;
 const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;
 
-const double NAVIGATION_PANEL_SIZE = 342;
+const double NAVIGATION_PANEL_SIZE = 352;
 const double MIN_WIDTH = 200;
 
 //FEATURE DISCOVERY ID
