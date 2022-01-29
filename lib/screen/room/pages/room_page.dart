@@ -739,8 +739,8 @@ class _RoomPageState extends State<RoomPage> {
             : _itemCount > _currentRoom.value!.lastMessageId! &&
                 _itemCount - index <= pendingMessages.length;
 
-        return _buildMessage(
-            isPendingMessage, pendingMessages, index, _currentRoom.value!);
+        return _buildMessage(isPendingMessage, pendingMessages, index,
+            _currentRoom.value!, initialScrollIndex);
       },
       separatorBuilder: (context, index) {
         int firstIndex = index;
@@ -832,7 +832,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
-      int index, Room currentRoom) {
+      int index, Room currentRoom, int initscrollIndex) {
+    print("$index       ${(initscrollIndex - index).abs()}");
     if (currentRoom.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
@@ -840,14 +841,11 @@ class _RoomPageState extends State<RoomPage> {
       );
     }
 
-    if (_widgetCache.get(index) != null
-        &&
+    if (_widgetCache.get(index) != null &&
         (currentRoom.lastUpdatedMessageId == null ||
             (currentRoom.lastUpdatedMessageId != null &&
                 index + 1 !=
-                    _currentRoom.stream.value!.lastUpdatedMessageId!)
-        )
-    ) {
+                    _currentRoom.stream.value!.lastUpdatedMessageId!))) {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
@@ -870,8 +868,6 @@ class _RoomPageState extends State<RoomPage> {
             late Widget widget;
 
             if (index == 0) {
-
-
               widget = Column(
                 children: [
                   ChatTime(currentMessageTime: date(ms.data!.time)),
@@ -891,9 +887,17 @@ class _RoomPageState extends State<RoomPage> {
             }
           } else if (_currentMessageSearchId == -1) {
             _currentMessageSearchId = index;
-            return const SizedBox(height: 50, child: Text(""));
+            return SizedBox(
+                height: (initscrollIndex - index).abs() <= 50
+                    ? 600
+                    : 1,
+                child: Text(""));
           } else {
-            return const SizedBox(height:50, child: Text(""));
+            return SizedBox(
+                height: (initscrollIndex - index).abs() <= 50
+                    ? 600
+                    : 1,
+                child: Text(""));
           }
         },
       );

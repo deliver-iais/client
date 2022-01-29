@@ -389,7 +389,8 @@ class CoreServices {
                   roomUid,
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
-                      .toInt());
+                      .toInt(),
+                  message.time.toInt());
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
               var mes = await _messageDao.getMessage(
@@ -427,7 +428,7 @@ class CoreServices {
     }
   }
 
-  messageEdited(Uid roomUid, int id) async {
+  messageEdited(Uid roomUid, int id, int time) async {
     var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -438,12 +439,12 @@ class CoreServices {
     var room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
       _roomDao.updateRoom(room.copyWith(
-          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+          lastUpdateTime: time,
           lastUpdatedMessageId: res.messages.first.id.toInt()));
     } else {
       _roomDao.updateRoom(room.copyWith(
         lastMessage: msg,
-        lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+        lastUpdateTime: time,
         lastUpdatedMessageId: res.messages.first.id.toInt(),
       ));
     }

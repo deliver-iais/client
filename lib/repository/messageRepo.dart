@@ -789,7 +789,7 @@ class MessageRepo {
                       roomUid,
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
-                          .toInt());
+                          .toInt(),message.time.toInt());
                   break;
                 case MessageManipulationPersistentEvent_Action.DELETED:
                   var mes = await _messageDao.getMessage(
@@ -818,7 +818,7 @@ class MessageRepo {
     return msgList;
   }
 
-  getEditedMsg(Uid roomUid, int id) async {
+  getEditedMsg(Uid roomUid, int id, int time) async {
     var res = await _queryServiceClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -829,7 +829,7 @@ class MessageRepo {
     var room = await _roomDao.getRoom(roomUid.asString());
     await _roomDao.updateRoom(room!.copyWith(
         lastUpdatedMessageId: id,
-        lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+        lastUpdateTime: time));
     if (room.lastMessageId == id) {
       _roomDao.updateRoom(room.copyWith(lastMessage: msg));
     }
