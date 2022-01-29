@@ -107,7 +107,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             duration: const Duration(milliseconds: 200),
             color: widget.selectedMessages.containsKey(msg.id) ||
                     (msg.id != null && msg.id == widget.replyMessageId)
-                ? Theme.of(context).disabledColor
+                ? Theme.of(context).focusColor.withAlpha(100)
                 : Colors.transparent,
             child: _createWidget(context, msg, currentRoom, pendingMessages),
           )

@@ -124,7 +124,8 @@ class _RoomPageState extends State<RoomPage> {
     return WillPopScope(
       onWillPop: () async {
         if ((_repliedMessage.value?.id ?? 0) > 0 ||
-            _editableMessage.value != null || _selectedMessages.isNotEmpty) {
+            _editableMessage.value != null ||
+            _selectedMessages.isNotEmpty) {
           _resetRoomPageDetails();
           return false;
         } else {
@@ -684,8 +685,7 @@ class _RoomPageState extends State<RoomPage> {
                 } else {
                   if (widget.roomId.isMuc()) {
                     return MucAppbarTitle(mucUid: widget.roomId);
-                  } else if (widget.roomId.asUid().category ==
-                      Categories.BOT) {
+                  } else if (widget.roomId.asUid().category == Categories.BOT) {
                     return BotAppbarTitle(botUid: widget.roomId.asUid());
                   } else {
                     return UserAppbarTitle(
@@ -938,6 +938,15 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _selectMultiMessageAppBar() {
+    bool _hasPermissionToDeleteMsg = true;
+    for (Message message in _selectedMessages.values.toList()) {
+      if ((_authRepo.isCurrentUserSender(message) ||
+              (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
+              (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
+          false) {
+        _hasPermissionToDeleteMsg = false;
+      }
+    }
     return Padding(
       padding: const EdgeInsets.only(right: 12, top: 5),
       child: Row(
@@ -956,9 +965,7 @@ class _RoomPageState extends State<RoomPage> {
                         forwardedMessages: _selectedMessages.values.toList());
                     _selectedMessages.clear();
                   })),
-          if (!widget.roomId.isMuc() ||
-              _hasPermissionInGroup.value ||
-              (widget.roomId.isChannel() && _hasPermissionInChannel.value))
+          if (_hasPermissionToDeleteMsg)
             Tooltip(
               message: _i18n.get("delete"),
               child: IconButton(

@@ -69,8 +69,11 @@ class RoutingService {
       _navigatorObserver.currentRoute.stream;
 
   // Functions
-  void openSettings({bool popAllBeforePush = false}) =>
+  void openSettings({bool popAllBeforePush = false}) {
+    if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
+    }
+  }
 
   void openLanguageSettings() => _push(_languageSettings);
 
@@ -306,7 +309,8 @@ class Empty extends StatelessWidget {
                 skew: 4,
                 padding:
                     const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-                child: Text(_i18n.get("please_select_a_chat_to_start_messaging"),
+                child: Text(
+                    _i18n.get("please_select_a_chat_to_start_messaging"),
                     style: Theme.of(context)
                         .textTheme
                         .bodyText2!

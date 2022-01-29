@@ -21,6 +21,7 @@ class SenderAndContent extends StatelessWidget {
       showSender: true,
       showSenderInSeparatedLine: true,
       showSeenStatus: false,
+      showRoomDetails: false,
       lastMessageId: messages.first.id!,
       expandContent: expandContent,
       highlightColor: highlightColor
