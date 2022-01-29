@@ -93,7 +93,7 @@ class _ChatItemState extends State<ChatItem> {
                     builder: (context, snapshot) {
                       return HoverContainer(
                         cursor: SystemMouseCursors.click,
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
                         padding: const EdgeInsets.all(8),
                         hoverDecoration: BoxDecoration(
                             color: _routingService.isInRoom(widget.room.uid)

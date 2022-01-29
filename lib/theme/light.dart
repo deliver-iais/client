@@ -1,4 +1,3 @@
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,7 @@ const _colorScheme = Material3ColorScheme(
   onError: Color(0xFFffffff),
   errorContainer: Color(0xFFffdad4),
   onErrorContainer: Color(0xFF410001),
-  background: Color(0xFFfdfcff),
+  background: Color(0xFFedf2f9),
   onBackground: Color(0xFF1b1b1b),
   surface: Color(0xFFfdfcff),
   onSurface: Color(0xFF1b1b1b),

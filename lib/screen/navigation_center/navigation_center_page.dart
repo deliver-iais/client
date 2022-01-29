@@ -62,97 +62,95 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0.0),
-          child: GestureDetector(
-            onTap: () {
-              if (_scrollController.hasClients) {
-                _scrollController.animateTo(
-                  0.0,
-                  curve: Curves.easeOut,
-                  duration: ANIMATION_DURATION * 3,
-                );
-              }
-            },
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              leading: Row(
-                children: [
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  DescribedFeatureOverlay(
-                    featureId: feature3,
-                    tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                    backgroundColor: Colors.indigo,
-                    targetColor: Colors.indigoAccent,
-                    title: const Text('You can go to setting'),
-                    overflowMode: OverflowMode.extendBackground,
-                    description: _featureDiscoveryDescriptionWidget(
-                        isCircleAvatarWidget: true,
-                        description:
-                            "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app"),
-                    child: GestureDetector(
-                      child: Center(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child:
-                              CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                        ),
-                      ),
-                      onTap: () {
-                        _routingServices.openSettings(popAllBeforePush: true);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              titleSpacing: 8.0,
-              title: TitleStatus(
-                style: Theme.of(context).textTheme.headline6!,
-                normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                    style: Theme.of(context).textTheme.headline6,
-                    key: ValueKey(randomString(10))),
-              ),
-              actions: [
-                if (!isDesktop())
-                  DescribedFeatureOverlay(
-                    featureId: feature2,
-                    tapTarget: const Icon(
-                      Icons.qr_code,
-                    ),
-                    backgroundColor: Colors.deepPurple,
-                    targetColor: Colors.deepPurpleAccent,
-                    title: const Text('You can scan QR Code'),
-                    description: _featureDiscoveryDescriptionWidget(
-                        description:
-                            'for desktop app you can scan QR Code and login to your account'),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      child: IconButton(
-                          onPressed: () {
-                            _routingService.openScanQrCode();
-                          },
-                          icon: Icon(
-                            Icons.qr_code,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          )),
-                    ),
-                  ),
+        child: GestureDetector(
+          onTap: () {
+            if (_scrollController.hasClients) {
+              _scrollController.animateTo(
+                0.0,
+                curve: Curves.easeOut,
+                duration: ANIMATION_DURATION * 3,
+              );
+            }
+          },
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            leading: Row(
+              children: [
                 const SizedBox(
-                  width: 8,
+                  width: 10,
                 ),
-                buildMenu(context),
-                const SizedBox(
-                  width: 8,
-                )
+                DescribedFeatureOverlay(
+                  featureId: feature3,
+                  tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                  backgroundColor: Colors.indigo,
+                  targetColor: Colors.indigoAccent,
+                  title: const Text('You can go to setting'),
+                  overflowMode: OverflowMode.extendBackground,
+                  description: _featureDiscoveryDescriptionWidget(
+                      isCircleAvatarWidget: true,
+                      description:
+                          "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app"),
+                  child: GestureDetector(
+                    child: Center(
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child:
+                            CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                      ),
+                    ),
+                    onTap: () {
+                      _routingServices.openSettings(popAllBeforePush: true);
+                    },
+                  ),
+                ),
               ],
             ),
+            titleSpacing: 8.0,
+            title: TitleStatus(
+              style: Theme.of(context).textTheme.headline6!,
+              normalConditionWidget: Text(I18N.of(context)!.get("chats"),
+                  style: Theme.of(context).textTheme.headline6,
+                  key: ValueKey(randomString(10))),
+            ),
+            actions: [
+              if (!isDesktop())
+                DescribedFeatureOverlay(
+                  featureId: feature2,
+                  tapTarget: const Icon(
+                    Icons.qr_code,
+                  ),
+                  backgroundColor: Colors.deepPurple,
+                  targetColor: Colors.deepPurpleAccent,
+                  title: const Text('You can scan QR Code'),
+                  description: _featureDiscoveryDescriptionWidget(
+                      description:
+                          'for desktop app you can scan QR Code and login to your account'),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    child: IconButton(
+                        onPressed: () {
+                          _routingService.openScanQrCode();
+                        },
+                        icon: Icon(
+                          Icons.qr_code,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        )),
+                  ),
+                ),
+              const SizedBox(
+                width: 8,
+              ),
+              buildMenu(context),
+              const SizedBox(
+                width: 8,
+              )
+            ],
           ),
         ),
       ),

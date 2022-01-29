@@ -15,7 +15,7 @@ class MessageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4.0),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Container(
         decoration: const BoxDecoration(
             borderRadius: secondaryBorder,

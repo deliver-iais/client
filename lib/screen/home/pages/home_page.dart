@@ -105,7 +105,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _routingService.maybePop();
         return false;
       },
-      child: _routingService.outlet(context),
+      child: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: _routingService.outlet(context)),
     );
   }
 

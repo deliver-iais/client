@@ -104,16 +104,15 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           fontFamily: "Vazir",
           primaryColor: colorScheme.primary,
           colorScheme: getColorScheme(colorScheme),
-          backgroundColor: colorScheme.background,
+          scaffoldBackgroundColor: colorScheme.primaryContainer,
           primaryTextTheme: primaryTextTheme,
           textTheme: textTheme,
           cardColor: colorScheme.surface,
+          backgroundColor: colorScheme.background,
           highlightColor: colorScheme.primary,
           focusColor: colorScheme.primary.withAlpha(50))
       .copyWith(
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          primaryColor: colorScheme.primary,
-          scaffoldBackgroundColor: colorScheme.background,
           snackBarTheme: SnackBarThemeData(
               backgroundColor: colorScheme.inverseSurface,
               actionTextColor: colorScheme.primaryInverse,

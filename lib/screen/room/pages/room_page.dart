@@ -38,7 +38,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
-import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
@@ -47,7 +46,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -139,20 +137,14 @@ class _RoomPageState extends State<RoomPage> {
         roomUid: widget.roomId,
         height: MediaQuery.of(context).size.height,
         child: Scaffold(
-          backgroundColor: ExtraTheme.of(context).colorScheme.secondaryContainer,
           appBar: buildAppbar(),
           body: Stack(
             children: [
-              // StreamBuilder<Room?>(
-              //     stream: _roomRepo.watchRoom(widget.roomId),
-              //     builder: (context, snapshot) {
-              //       return Background(id: snapshot.data?.lastMessageId ?? 0);
-              //     }),
               SingleChildScrollView(
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height -
-                      buildAppbar().preferredSize.height -
-                      MediaQuery.of(context).padding.top,
+                      MediaQuery.of(context).padding.top -
+                      8,
                   child: Column(
                     children: <Widget>[
                       Expanded(
@@ -841,14 +833,11 @@ class _RoomPageState extends State<RoomPage> {
       );
     }
 
-    if (_widgetCache.get(index) != null
-        &&
+    if (_widgetCache.get(index) != null &&
         (currentRoom.lastUpdatedMessageId == null ||
             (currentRoom.lastUpdatedMessageId != null &&
                 index + 1 !=
-                    _currentRoom.stream.value!.lastUpdatedMessageId!)
-        )
-    ) {
+                    _currentRoom.stream.value!.lastUpdatedMessageId!))) {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
@@ -871,8 +860,6 @@ class _RoomPageState extends State<RoomPage> {
             late Widget widget;
 
             if (index == 0) {
-
-
               widget = Column(
                 children: [
                   ChatTime(currentMessageTime: date(ms.data!.time)),
@@ -894,7 +881,7 @@ class _RoomPageState extends State<RoomPage> {
             _currentMessageSearchId = index;
             return const SizedBox(height: 50, child: Text(""));
           } else {
-            return const SizedBox(height:50, child: Text(""));
+            return const SizedBox(height: 50, child: Text(""));
           }
         },
       );

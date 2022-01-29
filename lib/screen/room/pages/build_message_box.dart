@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
@@ -264,7 +263,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
+                padding: const EdgeInsets.only(top: 4.0, left: 8.0),
                 child: CircleAvatarWidget(message.from.asUid(), 18,
                     isHeroEnabled: false),
               ),

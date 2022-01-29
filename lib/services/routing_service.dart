@@ -21,13 +21,11 @@ import 'package:deliver/screen/settings/pages/log_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -228,7 +226,14 @@ class RoutingService {
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
         Expanded(
-            child: ClipRect(
+            child: Container(
+          margin: isLarge(context)
+              ? const EdgeInsets.only(top: 8, right: 8)
+              : EdgeInsets.zero,
+          decoration: isLarge(context)
+              ? const BoxDecoration(borderRadius: backgroundBorder)
+              : const BoxDecoration(borderRadius: BorderRadius.zero),
+          clipBehavior: Clip.antiAlias,
           child: Navigator(
             key: _homeNavigatorState,
             observers: [HeroController(), _navigatorObserver],
@@ -300,10 +305,8 @@ class Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Stack(
         children: [
-          const Background(),
           Center(
             child: BlurContainer(
                 skew: 4,

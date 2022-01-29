@@ -20,6 +20,7 @@ import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -233,99 +234,107 @@ class _InputMessageWidget extends State<InputMessage> {
           return true;
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border(
-                left: BorderSide(color: Theme.of(context).dividerColor, width: 0.5))),
-        child: Column(
-          children: <Widget>[
-            StreamBuilder<String>(
-                stream: _mentionQuery.stream.distinct(),
-                builder: (c, showMention) {
-                  _mentionData = showMention.data ?? "-";
-                  if (showMention.hasData) {
-                    return ShowMentionList(
-                      query: _mentionData,
-                      onSelected: (s) {
-                        onMentionSelected(s);
-                      },
-                      roomUid: widget.currentRoom.uid,
-                      mentionSelectedIndex: mentionSelectedIndex,
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-            StreamBuilder<String>(
-                stream: _botCommandQuery.stream.distinct(),
-                builder: (c, show) {
-                  _botCommandData = show.data ?? "-";
-                  return BotCommands(
-                    botUid: widget.currentRoom.uid.asUid(),
-                    query: _botCommandData,
-                    onCommandClick: (String command) {
-                      onCommandClick(command);
+      child: Column(
+        children: <Widget>[
+          StreamBuilder<String>(
+              stream: _mentionQuery.stream.distinct(),
+              builder: (c, showMention) {
+                _mentionData = showMention.data ?? "-";
+                if (showMention.hasData) {
+                  return ShowMentionList(
+                    query: _mentionData,
+                    onSelected: (s) {
+                      onMentionSelected(s);
                     },
-                    botCommandSelectedIndex: botCommandSelectedIndex,
+                    roomUid: widget.currentRoom.uid,
+                    mentionSelectedIndex: mentionSelectedIndex,
                   );
-                }),
-            Container(
+                }
+                return const SizedBox.shrink();
+              }),
+          StreamBuilder<String>(
+              stream: _botCommandQuery.stream.distinct(),
+              builder: (c, show) {
+                _botCommandData = show.data ?? "-";
+                return BotCommands(
+                  botUid: widget.currentRoom.uid.asUid(),
+                  query: _botCommandData,
+                  onCommandClick: (String command) {
+                    onCommandClick(command);
+                  },
+                  botCommandSelectedIndex: botCommandSelectedIndex,
+                );
+              }),
+          Container(
+            constraints: const BoxConstraints(minHeight: 60),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              // borderRadius: backgroundBorder,
               color: Theme.of(context).colorScheme.surface,
-              child: Stack(
-                // overflow: Overflow.visible,
-                children: <Widget>[
-                  StreamBuilder<bool>(
-                      stream: _showSendIcon.stream,
-                      builder: (c, sh) {
-                        if (sh.hasData &&
-                            !sh.data! &&
-                            !widget.waitingForForward &&
-                            !isDesktop()) {
-                          return RecordAudioAnimation(
-                            rightPadding: x,
-                            size: size,
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      }),
-                  Row(
-                    children: <Widget>[
-                      !startAudioRecorder
-                          ? Expanded(
-                              child: Row(
-                                children: <Widget>[
-                                  StreamBuilder<bool>(
-                                      stream: _backSubject.stream,
-                                      builder: (context, snapshot) {
-                                        return IconButton(
-                                          icon: Icon(
-                                            _backSubject.value
-                                                ? Icons.keyboard
-                                                : Icons.mood,
-                                          ),
-                                          onPressed: () {
-                                            if (_backSubject.value) {
-                                              _backSubject.add(false);
-                                              FocusScope.of(context).unfocus();
-                                            } else if (!_backSubject.value) {
-                                              FocusScope.of(context).unfocus();
-                                              Timer(
-                                                  const Duration(
-                                                      milliseconds: 50), () {
-                                                _backSubject.add(true);
-                                              });
-                                            }
-                                          },
-                                        );
-                                      }),
-                                  Flexible(
-                                    child: RawKeyboardListener(
-                                      focusNode: keyboardRawFocusNode,
-                                      child:
-                                          ValueListenableBuilder<TextDirection>(
-                                        valueListenable: _textDir,
-                                        builder: (context, value, child) =>
-                                            TextField(
+            ),
+            child: Stack(
+              // overflow: Overflow.visible,
+              children: <Widget>[
+                StreamBuilder<bool>(
+                    stream: _showSendIcon.stream,
+                    builder: (c, sh) {
+                      if (sh.hasData &&
+                          !sh.data! &&
+                          !widget.waitingForForward &&
+                          !isDesktop()) {
+                        return RecordAudioAnimation(
+                          rightPadding: x,
+                          size: size,
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+                Row(
+                  children: <Widget>[
+                    !startAudioRecorder
+                        ? Expanded(
+                            child: Row(
+                              children: <Widget>[
+                                StreamBuilder<bool>(
+                                    stream: _backSubject.stream,
+                                    builder: (context, snapshot) {
+                                      return IconButton(
+                                        icon: Icon(
+                                          _backSubject.value
+                                              ? Icons.keyboard
+                                              : Icons.mood,
+                                        ),
+                                        onPressed: () {
+                                          if (_backSubject.value) {
+                                            _backSubject.add(false);
+                                            FocusScope.of(context).unfocus();
+                                          } else if (!_backSubject.value) {
+                                            FocusScope.of(context).unfocus();
+                                            Timer(
+                                                const Duration(
+                                                    milliseconds: 50), () {
+                                              _backSubject.add(true);
+                                            });
+                                          }
+                                        },
+                                      );
+                                    }),
+                                Flexible(
+                                  child: RawKeyboardListener(
+                                    focusNode: keyboardRawFocusNode,
+                                    child:
+                                        ValueListenableBuilder<TextDirection>(
+                                      valueListenable: _textDir,
+                                      builder: (context, value, child) =>
+                                          Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: mainBorder,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background,
+                                        ),
+                                        child: TextField(
                                           focusNode: widget.focusNode,
                                           autofocus:
                                               widget.replyMessageId! > 0 ||
@@ -334,7 +343,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           decoration: InputDecoration(
                                             contentPadding:
                                                 const EdgeInsets.symmetric(
-                                                    horizontal: 4, vertical: 8),
+                                                    horizontal: 14, vertical: 12),
                                             border: InputBorder.none,
                                             hintText: i18n.get("message"),
                                           ),
@@ -369,192 +378,190 @@ class _InputMessageWidget extends State<InputMessage> {
                                       ),
                                     ),
                                   ),
-                                  if (currentRoom.uid.asUid().category ==
-                                      Categories.BOT)
-                                    StreamBuilder<bool>(
-                                        stream: _showSendIcon.stream,
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData &&
-                                              !snapshot.data!) {
-                                            return IconButton(
-                                              icon: const Icon(
-                                                Icons.workspaces_outline,
-                                              ),
-                                              onPressed: () => _botCommandQuery
-                                                  .add(_botCommandQuery.value ==
-                                                          "-"
-                                                      ? ""
-                                                      : "-"),
-                                            );
-                                          } else {
-                                            return const SizedBox.shrink();
-                                          }
-                                        }),
+                                ),
+                                if (currentRoom.uid.asUid().category ==
+                                    Categories.BOT)
                                   StreamBuilder<bool>(
                                       stream: _showSendIcon.stream,
-                                      builder: (c, sh) {
-                                        if (sh.hasData &&
-                                            !sh.data! &&
-                                            !widget.waitingForForward) {
-                                          return IconButton(
-                                              icon: const Icon(
-                                                Icons.attach_file,
-                                              ),
-                                              onPressed: () {
-                                                _backSubject.add(false);
-                                                showButtonSheet();
-                                              });
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      }),
-                                  StreamBuilder<bool>(
-                                      stream: _showSendIcon.stream,
-                                      builder: (c, sh) {
-                                        if ((sh.hasData && sh.data!) ||
-                                            widget.waitingForForward) {
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData &&
+                                            !snapshot.data!) {
                                           return IconButton(
                                             icon: const Icon(
-                                              Icons.send,
-                                              color: Colors.blue,
+                                              Icons.workspaces_outline,
                                             ),
-                                            onPressed: widget.textController
-                                                        .text.isEmpty &&
-                                                    !widget.waitingForForward
-                                                ? () async {}
-                                                : () {
-                                                    sendMessage();
-                                                  },
+                                            onPressed: () => _botCommandQuery
+                                                .add(_botCommandQuery.value ==
+                                                        "-"
+                                                    ? ""
+                                                    : "-"),
                                           );
                                         } else {
                                           return const SizedBox.shrink();
                                         }
-                                      })
-                                ],
-                              ),
-                            )
-                          : RecordAudioSlideWidget(
-                              opacity: opacity(),
-                              time: time,
-                              running: startAudioRecorder,
-                              streamTime: recordSubject,
-                            ),
-                      StreamBuilder<bool>(
-                          stream: _showSendIcon.stream,
-                          builder: (c, sm) {
-                            if (sm.hasData &&
-                                !sm.data! &&
-                                !widget.waitingForForward &&
-                                !isDesktop()) {
-                              return GestureDetector(
-                                  onTapDown: (_) async {
-                                    recordAudioPermission =
-                                        await checkPermission
-                                            .checkAudioRecorderPermission();
-                                  },
-                                  onLongPressMoveUpdate: (tg) {
-                                    if (tg.offsetFromOrigin.dx > -dx &&
-                                        started) {
-                                      setState(() {
-                                        x = -tg.offsetFromOrigin.dx;
-                                        startAudioRecorder = true;
-                                      });
-                                    } else {
-                                      if (started) {
-                                        started = false;
-                                        _tickTimer.cancel();
-                                        Vibration.vibrate(duration: 200);
-                                        setState(() {
-                                          startAudioRecorder = false;
-                                          x = 0;
-                                          size = 1;
-                                        });
+                                      }),
+                                StreamBuilder<bool>(
+                                    stream: _showSendIcon.stream,
+                                    builder: (c, sh) {
+                                      if (sh.hasData &&
+                                          !sh.data! &&
+                                          !widget.waitingForForward) {
+                                        return IconButton(
+                                            icon: const Icon(
+                                              Icons.attach_file,
+                                            ),
+                                            onPressed: () {
+                                              _backSubject.add(false);
+                                              showButtonSheet();
+                                            });
+                                      } else {
+                                        return const SizedBox.shrink();
                                       }
-                                    }
-                                  },
-                                  onLongPressStart: (dw) async {
-                                    if (recordAudioPermission) {
-                                      var s =
-                                          await getApplicationDocumentsDirectory();
-                                      String path = s.path +
-                                          "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
-                                      recordSubject.add(DateTime.now());
-                                      setTime();
-                                      sendRecordActivity();
+                                    }),
+                                StreamBuilder<bool>(
+                                    stream: _showSendIcon.stream,
+                                    builder: (c, sh) {
+                                      if ((sh.hasData && sh.data!) ||
+                                          widget.waitingForForward) {
+                                        return IconButton(
+                                          icon: const Icon(
+                                            Icons.send,
+                                            color: Colors.blue,
+                                          ),
+                                          onPressed: widget.textController.text
+                                                      .isEmpty &&
+                                                  !widget.waitingForForward
+                                              ? () async {}
+                                              : () {
+                                                  sendMessage();
+                                                },
+                                        );
+                                      } else {
+                                        return const SizedBox.shrink();
+                                      }
+                                    })
+                              ],
+                            ),
+                          )
+                        : RecordAudioSlideWidget(
+                            opacity: opacity(),
+                            time: time,
+                            running: startAudioRecorder,
+                            streamTime: recordSubject,
+                          ),
+                    StreamBuilder<bool>(
+                        stream: _showSendIcon.stream,
+                        builder: (c, sm) {
+                          if (sm.hasData &&
+                              !sm.data! &&
+                              !widget.waitingForForward &&
+                              !isDesktop()) {
+                            return GestureDetector(
+                                onTapDown: (_) async {
+                                  recordAudioPermission = await checkPermission
+                                      .checkAudioRecorderPermission();
+                                },
+                                onLongPressMoveUpdate: (tg) {
+                                  if (tg.offsetFromOrigin.dx > -dx && started) {
+                                    setState(() {
+                                      x = -tg.offsetFromOrigin.dx;
+                                      startAudioRecorder = true;
+                                    });
+                                  } else {
+                                    if (started) {
+                                      started = false;
+                                      _tickTimer.cancel();
                                       Vibration.vibrate(duration: 200);
-                                      // Start recording
-                                      await record.start(
-                                        path: path,
-                                        encoder: AudioEncoder.AAC, // by default
-                                        bitRate: 128000, // by default
-                                        samplingRate: 16000, // by default
-                                      );
                                       setState(() {
-                                        startAudioRecorder = true;
-                                        size = 2;
-                                        started = true;
-                                        time = DateTime.now();
+                                        startAudioRecorder = false;
+                                        x = 0;
+                                        size = 1;
                                       });
                                     }
-                                  },
-                                  onLongPressEnd: (s) async {
-                                    _tickTimer.cancel();
-                                    var res = await record.stop();
-
-                                    // _soundRecorder.closeAudioSession();
-                                    recordAudioTimer.cancel();
-                                    noActivitySubject
-                                        .add(ActivityType.NO_ACTIVITY);
+                                  }
+                                },
+                                onLongPressStart: (dw) async {
+                                  if (recordAudioPermission) {
+                                    var s =
+                                        await getApplicationDocumentsDirectory();
+                                    String path = s.path +
+                                        "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
+                                    recordSubject.add(DateTime.now());
+                                    setTime();
+                                    sendRecordActivity();
+                                    Vibration.vibrate(duration: 200);
+                                    // Start recording
+                                    await record.start(
+                                      path: path,
+                                      encoder: AudioEncoder.AAC, // by default
+                                      bitRate: 128000, // by default
+                                      samplingRate: 16000, // by default
+                                    );
                                     setState(() {
-                                      startAudioRecorder = false;
-                                      x = 0;
-                                      size = 1;
+                                      startAudioRecorder = true;
+                                      size = 2;
+                                      started = true;
+                                      time = DateTime.now();
                                     });
-                                    if (started) {
-                                      try {
-                                        messageRepo.sendFileMessage(
-                                            widget.currentRoom.uid.asUid(),
-                                            File(res!, res));
-                                      } catch (_) {}
-                                    }
-                                  },
-                                  child: const Opacity(
-                                    opacity: 0,
-                                    child: Material(
-                                      // button color
-                                      child: SizedBox(
-                                        width: 50,
-                                        height: 50,
-                                      ),
+                                  }
+                                },
+                                onLongPressEnd: (s) async {
+                                  _tickTimer.cancel();
+                                  var res = await record.stop();
+
+                                  // _soundRecorder.closeAudioSession();
+                                  recordAudioTimer.cancel();
+                                  noActivitySubject
+                                      .add(ActivityType.NO_ACTIVITY);
+                                  setState(() {
+                                    startAudioRecorder = false;
+                                    x = 0;
+                                    size = 1;
+                                  });
+                                  if (started) {
+                                    try {
+                                      messageRepo.sendFileMessage(
+                                          widget.currentRoom.uid.asUid(),
+                                          File(res!, res));
+                                    } catch (_) {}
+                                  }
+                                },
+                                child: const Opacity(
+                                  opacity: 0,
+                                  child: Material(
+                                    // button color
+                                    child: SizedBox(
+                                      width: 50,
+                                      height: 50,
                                     ),
-                                  ));
-                            } else {
-                              return const SizedBox(height: 50);
-                            }
-                          })
-                    ],
-                  ),
-                ],
-              ),
+                                  ),
+                                ));
+                          } else {
+                            return const SizedBox(height: 50);
+                          }
+                        })
+                  ],
+                ),
+              ],
             ),
-            StreamBuilder<bool>(
-                stream: _backSubject.stream,
-                builder: (context, back) {
-                  if (back.hasData && back.data!) {
-                    return SizedBox(
-                        height: 270.0,
-                        child: EmojiKeyboard(
-                          onTap: (emoji) {
-                            widget.textController.text =
-                                widget.textController.text + emoji.toString();
-                          },
-                        ));
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
-          ],
-        ),
+          ),
+          StreamBuilder<bool>(
+              stream: _backSubject.stream,
+              builder: (context, back) {
+                if (back.hasData && back.data!) {
+                  return SizedBox(
+                      height: 270.0,
+                      child: EmojiKeyboard(
+                        onTap: (emoji) {
+                          widget.textController.text =
+                              widget.textController.text + emoji.toString();
+                        },
+                      ));
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
+        ],
       ),
     );
   }

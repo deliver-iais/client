@@ -73,7 +73,7 @@ class Background extends StatelessWidget {
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: isLarge(context)
-                ? backgroundSecondaryBorder
+                ? backgroundBorder
                 : BorderRadius.zero,
           ),
           child: Stack(
