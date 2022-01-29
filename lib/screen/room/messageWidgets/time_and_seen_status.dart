@@ -52,7 +52,7 @@ class TimeAndSeenStatus extends StatelessWidget {
             color: needsBackground
                 ? ExtraTheme.of(context).onDetailsBox
                 : (isSender
-                    ? ExtraTheme.of(context).highlightOnSentMessage
+                    ? ExtraTheme.of(context).colorScheme.onPrimaryContainer
                     : Theme.of(context)
                         .colorScheme.onSurface.withAlpha(120)),
             fontSize: 13,
@@ -75,7 +75,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                     isSeen: isSeen,
                     iconColor: needsBackground
                         ? ExtraTheme.of(context).onDetailsBox
-                        : ExtraTheme.of(context).highlightOnSentMessage,
+                        : ExtraTheme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 )
             ],

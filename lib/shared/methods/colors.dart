@@ -42,21 +42,15 @@ Color changeColorLightness(Color color, double lightness) =>
     HSLColor.fromColor(color).withLightness(lightness).toColor();
 
 Color lowlight(bool isSender, BuildContext context) {
-  return isSender
-      ? ExtraTheme.of(context).lowlightOnSentMessage
-      : ExtraTheme.of(context).lowlight;
+  return !isSender
+      ? Theme.of(context).colorScheme.onPrimary
+      : ExtraTheme.of(context).colorScheme.onTertiary;
 }
 
 Color highlight(bool isSender, BuildContext context) {
-  return isSender
-      ? ExtraTheme.of(context).highlightOnSentMessage
-      : ExtraTheme.of(context).highlight;
-}
-
-Color onHighlight(bool isSender, BuildContext context) {
-  return isSender
-      ? ExtraTheme.of(context).onHighlightOnSentMessage
-      : ExtraTheme.of(context).onHighlight;
+  return !isSender
+      ? Theme.of(context).colorScheme.primary
+      : ExtraTheme.of(context).colorScheme.tertiary;
 }
 
 class RandomColor {

@@ -17,10 +17,14 @@ class MessageWrapper extends StatelessWidget {
       padding: const EdgeInsets.all(4.0),
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Container(
-        decoration: const BoxDecoration(borderRadius: secondaryBorder, boxShadow: [
-          BoxShadow(
-              color: Colors.black38, blurRadius: 0.5, offset: Offset(0, 0.5))
-        ]),
+        decoration: const BoxDecoration(
+            borderRadius: secondaryBorder,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 0.5,
+                  offset: Offset(0, 0.5))
+            ]),
         child: Stack(
           children: [
             Positioned(
@@ -32,9 +36,8 @@ class MessageWrapper extends StatelessWidget {
                       width: 20,
                       height: 20,
                       child: CustomPaint(
-                        foregroundPainter: OPainter(isSent
-                            ? ExtraTheme.of(context).sentMessageBoxBackground
-                            : Theme.of(context).colorScheme.surface),
+                        foregroundPainter:
+                            OPainter(Theme.of(context).colorScheme.surface),
                       ))
                   : Transform(
                       alignment: Alignment.center,
@@ -43,10 +46,9 @@ class MessageWrapper extends StatelessWidget {
                           width: 20,
                           height: 20,
                           child: CustomPaint(
-                            foregroundPainter: OPainter(isSent
-                                ? ExtraTheme.of(context)
-                                    .sentMessageBoxBackground
-                                : Theme.of(context).colorScheme.surface),
+                            foregroundPainter: OPainter(ExtraTheme.of(context)
+                                .colorScheme
+                                .tertiaryContainer),
                           )),
                     ),
             ),
@@ -54,7 +56,7 @@ class MessageWrapper extends StatelessWidget {
                 borderRadius: secondaryBorder,
                 child: Container(
                     color: isSent
-                        ? ExtraTheme.of(context).sentMessageBoxBackground
+                        ? ExtraTheme.of(context).colorScheme.tertiaryContainer
                         : Theme.of(context).colorScheme.surface,
                     child: child)),
           ],

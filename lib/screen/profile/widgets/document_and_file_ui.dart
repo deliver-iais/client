@@ -7,7 +7,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -82,8 +82,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
                                                     color:
-                                                        ExtraTheme.of(context)
-                                                            .lowlight,
+                                                        lowlight(false, context),
                                                   ),
                                                   child: IconButton(
                                                     padding: const EdgeInsets
@@ -133,8 +132,12 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             fileId: fileId,
                                             fileName: fileName,
                                             onPressed: download,
-                                            background: ExtraTheme.of(context).lowlight,
-                                            foreground: ExtraTheme.of(context).highlight,
+                                            background: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            foreground: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
                                           ),
                                           Expanded(
                                             child: Stack(

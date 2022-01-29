@@ -7,7 +7,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -119,8 +118,12 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         fileId: fileId,
                                         fileName: fileName,
                                         onPressed: download,
-                                        background: ExtraTheme.of(context).lowlight,
-                                        foreground: ExtraTheme.of(context).highlight,
+                                        background: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        foreground: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
                                       ),
                                       Expanded(
                                         child: Stack(

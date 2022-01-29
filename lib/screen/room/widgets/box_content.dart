@@ -143,9 +143,7 @@ class _BoxContentState extends State<BoxContent> {
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
           backgroundColor: lowlight(widget.isSender, context),
-          foregroundColor: widget.isSender
-              ? ExtraTheme.of(context).highlightOnSentMessage
-              : Theme.of(context).primaryColor,
+          foregroundColor: highlight(widget.isSender, context),
         ),
       ),
     );
@@ -157,7 +155,7 @@ class _BoxContentState extends State<BoxContent> {
       decoration: BoxDecoration(
         borderRadius: mainBorder,
         color: widget.isSender
-            ? ExtraTheme.of(context).sentMessageBoxBackground
+            ? ExtraTheme.of(context).colorScheme.primaryContainer
             : Theme.of(context).colorScheme.surface,
       ),
       child: FutureBuilder<String>(
@@ -215,14 +213,14 @@ class _BoxContentState extends State<BoxContent> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.keyboard_arrow_right_rounded,
-                      size: 15, color: onHighlight(widget.isSender, context)),
+                      size: 15, color: lowlight(widget.isSender, context)),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
-                            color: onHighlight(widget.isSender, context),
+                            color: lowlight(widget.isSender, context),
                             fontSize: 12)),
                   ),
                 ],

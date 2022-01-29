@@ -1,25 +1,48 @@
 import 'package:flutter/material.dart';
 
+class ExtraThemeDataColorScheme {
+  Color primaryContainer;
+  Color onPrimaryContainer;
+
+  Color secondaryContainer;
+  Color onSecondaryContainer;
+
+  Color tertiary;
+  Color onTertiary;
+  Color tertiaryContainer;
+  Color onTertiaryContainer;
+
+  Color errorContainer;
+  Color onErrorContainer;
+
+  Color inverseSurface;
+  Color onInverseSurface;
+  Color primaryInverse;
+
+  ExtraThemeDataColorScheme({
+    required this.primaryContainer,
+    required this.onPrimaryContainer,
+    required this.secondaryContainer,
+    required this.onSecondaryContainer,
+    required this.tertiary,
+    required this.onTertiary,
+    required this.tertiaryContainer,
+    required this.onTertiaryContainer,
+    required this.errorContainer,
+    required this.onErrorContainer,
+    required this.inverseSurface,
+    required this.onInverseSurface,
+    required this.primaryInverse,
+  });
+}
+
 class ExtraThemeData {
-  Color chatOrContactItemDetails;
-  Color sentMessageBoxBackground;
-  Color highlightOnSentMessage;
-  Color onHighlightOnSentMessage;
-  Color lowlightOnSentMessage;
-  Color highlight;
-  Color onHighlight;
-  Color lowlight;
+  ExtraThemeDataColorScheme colorScheme;
+
   Color onDetailsBox;
 
   ExtraThemeData({
-    required this.chatOrContactItemDetails,
-    required this.sentMessageBoxBackground,
-    required this.highlightOnSentMessage,
-    required this.onHighlightOnSentMessage,
-    required this.lowlightOnSentMessage,
-    required this.highlight,
-    required this.onHighlight,
-    required this.lowlight,
+    required this.colorScheme,
     required this.onDetailsBox,
   });
 }

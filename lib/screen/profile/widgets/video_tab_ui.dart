@@ -84,8 +84,8 @@ class _VideoTabUiState extends State<VideoTabUi> {
                               await fileRepo.getFile(fileId, fileName);
                               setState(() {});
                             },
-                            background: ExtraTheme.of(context).lowlight,
-                            foreground: ExtraTheme.of(context).highlight,
+                            background: ExtraTheme.of(context).colorScheme.primaryContainer,
+                            foreground: ExtraTheme.of(context).colorScheme.onPrimaryContainer,
                           );
                         }
                       });
