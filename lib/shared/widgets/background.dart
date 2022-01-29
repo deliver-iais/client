@@ -69,7 +69,7 @@ class Background extends StatelessWidget {
         color: Theme.of(context).appBarTheme.backgroundColor,
         child: Container(
           width: double.infinity,
-          clipBehavior: Clip.hardEdge,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: isLarge(context)

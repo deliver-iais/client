@@ -18,6 +18,7 @@ class LastMessage extends StatelessWidget {
   final bool showSenderInSeparatedLine;
   final bool showSeenStatus;
   final bool expandContent;
+  final bool showRoomDetails;
   final Color? highlightColor;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -32,6 +33,7 @@ class LastMessage extends StatelessWidget {
       this.showSeenStatus = true,
       this.showSenderInSeparatedLine = false,
       this.expandContent = true,
+      this.showRoomDetails = true,
       this.pinned = false,
       this.highlightColor})
       : super(key: key);
@@ -96,7 +98,7 @@ class LastMessage extends StatelessWidget {
                             style: Theme.of(context).textTheme.caption),
                     ])),
               ),
-              if (hasMentioned)
+              if (showRoomDetails && hasMentioned)
                 Container(
                   width: 24,
                   height: 24,
@@ -108,13 +110,13 @@ class LastMessage extends StatelessWidget {
                     size: 15,
                   ),
                 ),
-              if (!_authRepo.isCurrentUser(message.from))
+              if (showRoomDetails && !_authRepo.isCurrentUser(message.from))
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0),
                   child: UnreadMessageCounterWidget(
                       message.roomUid, lastMessageId),
                 ),
-              if (pinned)
+              if (showRoomDetails && pinned)
                 Icon(
                   Icons.push_pin,
                   size: 16,
