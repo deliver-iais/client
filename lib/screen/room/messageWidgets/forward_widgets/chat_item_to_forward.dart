@@ -51,7 +51,7 @@ class ChatItemToForward extends StatelessWidget {
                       );
                     } else {
                       return Text(
-                        "unKnown",
+                        "Unknown",
                         style: TextStyle(
                           color:
                               ExtraTheme.of(context).chatOrContactItemDetails,
@@ -62,7 +62,8 @@ class ChatItemToForward extends StatelessWidget {
                   }),
               onTap: () {
                 _routingService.openRoom(uid.asString(),
-                    forwardedMessages: forwardedMessages??[],
+                    forwardedMessages: forwardedMessages ?? [],
+                    popAllBeforePush: true,
                     shareUid: shareUid);
               },
             ),
