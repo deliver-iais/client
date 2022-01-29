@@ -307,5 +307,6 @@ void showDeleteMsgDialog(List<Message> messages, BuildContext context,
                 },
               ),
             ],
+            actionsPadding: const EdgeInsets.only(right: 12, bottom: 5),
           ));
 }

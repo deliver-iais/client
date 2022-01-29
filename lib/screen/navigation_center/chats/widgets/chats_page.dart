@@ -118,6 +118,9 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                 a.lastMessage?.id == b.lastMessage?.id &&
                                 a.mentioned == b.mentioned &&
                                 a.pinned == b.pinned &&
+                                a.lastUpdatedMessageId ==
+                                    b.lastUpdatedMessageId &&
+                                a.lastUpdateTime == b.lastUpdateTime &&
                                 a.draft == b.draft),
                         itemBuilder: (BuildContext ctx, Room room,
                             AnimatedWidgetBuilderData data) {
