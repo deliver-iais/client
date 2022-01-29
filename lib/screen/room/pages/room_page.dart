@@ -833,7 +833,6 @@ class _RoomPageState extends State<RoomPage> {
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
       int index, Room currentRoom, int initscrollIndex) {
-    print("$index       ${(initscrollIndex - index).abs()}");
     if (currentRoom.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
