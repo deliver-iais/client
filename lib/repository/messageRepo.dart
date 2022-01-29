@@ -827,7 +827,9 @@ class MessageRepo {
     var msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
-    await _roomDao.updateRoom(room!.copyWith(lastUpdatedMessageId: id));
+    await _roomDao.updateRoom(room!.copyWith(
+        lastUpdatedMessageId: id,
+        lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
     if (room.lastMessageId == id) {
       _roomDao.updateRoom(room.copyWith(lastMessage: msg));
     }

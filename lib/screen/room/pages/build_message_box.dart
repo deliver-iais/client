@@ -39,7 +39,6 @@ import 'package:process_run/shell.dart';
 class BuildMessageBox extends StatefulWidget {
   final Message message;
   final Room currentRoom;
-  final List<PendingMessage> pendingMessages;
   final ItemScrollController itemScrollController;
   final Function addReplyMessage;
   final Function onReply;
@@ -48,7 +47,6 @@ class BuildMessageBox extends StatefulWidget {
   final Function onDelete;
   final Function onPin;
   final Function onUnPin;
-  final Map<int, Message> selectedMessages;
   final int lastSeenMessageId;
   final List<Message> pinMessages;
   final int replyMessageId;
@@ -61,7 +59,6 @@ class BuildMessageBox extends StatefulWidget {
       {Key? key,
       required this.message,
       required this.currentRoom,
-      required this.pendingMessages,
       required this.replyMessageId,
       required this.itemScrollController,
       required this.lastSeenMessageId,
@@ -76,8 +73,7 @@ class BuildMessageBox extends StatefulWidget {
       required this.selectMultiMessageSubject,
       required this.hasPermissionInGroup,
       required this.hasPermissionInChannel,
-      required this.addForwardMessage,
-      required this.selectedMessages})
+      required this.addForwardMessage})
       : super(key: key);
 
   @override
@@ -96,21 +92,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(
-        context, widget.message, widget.currentRoom, widget.pendingMessages);
+    return _buildMessageBox(context, widget.message, widget.currentRoom);
   }
 
-  Widget _buildMessageBox(BuildContext context, Message msg, Room? currentRoom,
-      List<PendingMessage> pendingMessages) {
+  Widget _buildMessageBox(
+      BuildContext context, Message msg, Room? currentRoom) {
     return msg.type != MessageType.PERSISTENT_EVENT
-        ? AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            color: widget.selectedMessages.containsKey(msg.id) ||
-                    (msg.id != null && msg.id == widget.replyMessageId)
-                ? Theme.of(context).focusColor.withAlpha(100)
-                : Colors.transparent,
-            child: _createWidget(context, msg, currentRoom, pendingMessages),
-          )
+        ? _createWidget(context, msg, currentRoom)
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -166,9 +154,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           );
   }
 
-  Widget _createWidget(BuildContext context, Message message, Room? currentRoom,
-      List pendingMessages) {
-    if (message.json == "{}") return const SizedBox.shrink();
+  Widget _createWidget(
+      BuildContext context, Message message, Room? currentRoom) {
+    if (message.json == "{}") {
+      return const SizedBox(
+        height: 1,
+        child: Text(""),
+      );
+    }
     Widget messageWidget;
     if (_authRepo.isCurrentUser(message.from)) {
       messageWidget = showSentMessage(message);
