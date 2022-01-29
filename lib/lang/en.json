@@ -284,5 +284,6 @@
   "cant_sent": "Cant sent",
   "about_update": "ABOUT UPDATE",
   "got_it": "Got it",
-  "please_select_a_chat_to_start_messaging": "Please select a chat to start messaging"
+  "please_select_a_chat_to_start_messaging": "Please select a chat to start messaging",
+  "select_an_image": "Select an image"
 }

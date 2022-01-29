@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 var lastAvatar =
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
-                                if (lastAvatar?.createdOn != null) {
+                                if (lastAvatar?.createdOn != null && lastAvatar!.createdOn > 0) {
                                   _routingService.openShowAllAvatars(
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
