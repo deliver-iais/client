@@ -183,8 +183,6 @@ class RoutingService {
   void openShareFile({required List<String> path}) => _push(ShareInputFile(
       key: const ValueKey("/share_file_page"), inputSharedFilePath: path));
 
-  bool isInRoomPage() => _path().contains("/room/");
-
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
