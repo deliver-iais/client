@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 
 class ExtraThemeDataColorScheme {
-  Color primaryContainer;
-  Color onPrimaryContainer;
+  final Color primaryContainer;
+  final Color onPrimaryContainer;
 
-  Color secondaryContainer;
-  Color onSecondaryContainer;
+  final Color secondaryContainer;
+  final Color onSecondaryContainer;
 
-  Color tertiary;
-  Color onTertiary;
-  Color tertiaryContainer;
-  Color onTertiaryContainer;
+  final Color tertiary;
+  final Color onTertiary;
+  final Color tertiaryContainer;
+  final Color onTertiaryContainer;
 
-  Color errorContainer;
-  Color onErrorContainer;
+  final Color errorContainer;
+  final Color onErrorContainer;
 
-  Color inverseSurface;
-  Color onInverseSurface;
-  Color primaryInverse;
+  final Color surfaceVariant;
+  final Color onSurfaceVariant;
+  final Color inverseSurface;
+  final Color onInverseSurface;
+  final Color primaryInverse;
 
   ExtraThemeDataColorScheme({
     required this.primaryContainer,
@@ -30,6 +32,8 @@ class ExtraThemeDataColorScheme {
     required this.onTertiaryContainer,
     required this.errorContainer,
     required this.onErrorContainer,
+    required this.surfaceVariant,
+    required this.onSurfaceVariant,
     required this.inverseSurface,
     required this.onInverseSurface,
     required this.primaryInverse,

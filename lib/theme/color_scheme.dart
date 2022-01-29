@@ -173,6 +173,8 @@ ExtraThemeData getExtraThemeData(Material3ColorScheme colorScheme) {
         onTertiaryContainer: colorScheme.onTertiaryContainer,
         errorContainer: colorScheme.errorContainer,
         onErrorContainer: colorScheme.error,
+        surfaceVariant: colorScheme.surfaceVariant,
+        onSurfaceVariant: colorScheme.onSurfaceVariant,
         inverseSurface: colorScheme.inverseSurface,
         onInverseSurface: colorScheme.onInverseSurface,
         primaryInverse: colorScheme.primaryInverse,

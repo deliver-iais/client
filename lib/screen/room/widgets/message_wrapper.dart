@@ -52,13 +52,14 @@ class MessageWrapper extends StatelessWidget {
                           )),
                     ),
             ),
-            ClipRRect(
-                borderRadius: secondaryBorder,
-                child: Container(
-                    color: isSent
-                        ? ExtraTheme.of(context).colorScheme.tertiaryContainer
-                        : Theme.of(context).colorScheme.surface,
-                    child: child)),
+            Container(
+                decoration: BoxDecoration(
+                  borderRadius: secondaryBorder,
+                  color: isSent
+                      ? ExtraTheme.of(context).colorScheme.tertiaryContainer
+                      : Theme.of(context).colorScheme.surface,
+                ),
+                child: child),
           ],
         ),
       ),
