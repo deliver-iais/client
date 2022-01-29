@@ -46,6 +46,7 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -99,6 +100,7 @@ class _RoomPageState extends State<RoomPage> {
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(80));
+  final _widgetCache = LruCache<int, Widget>(storage: InMemoryStorage(4000));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -739,7 +741,7 @@ class _RoomPageState extends State<RoomPage> {
                 _itemCount - index <= pendingMessages.length;
 
         return _buildMessage(
-            isPendingMessage, pendingMessages, index, _currentRoom.value);
+            isPendingMessage, pendingMessages, index, _currentRoom.value!);
       },
       separatorBuilder: (context, index) {
         int firstIndex = index;
@@ -753,7 +755,11 @@ class _RoomPageState extends State<RoomPage> {
           children: [
             if (_currentRoom.value!.lastMessageId != null &&
                 _lastShowedMessageId != -1 &&
-                _lastShowedMessageId == firstIndex + 1)
+                _lastShowedMessageId == firstIndex + 1 &&
+                (_currentRoom.value!.lastUpdatedMessageId == null ||
+                    (_currentRoom.value!.lastUpdatedMessageId != null &&
+                        _currentRoom.value!.lastUpdatedMessageId! <
+                            _currentRoom.value!.lastMessageId!)))
               FutureBuilder<Message?>(
                   future: _messageAt(pendingMessages, index + 1),
                   builder: (context, snapshot) {
@@ -827,40 +833,72 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
-      int index, Room? currentRoom) {
-    if (currentRoom!.firstMessageId != null &&
+      int index, Room currentRoom) {
+    if (currentRoom.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
         height: 20,
       );
     }
 
-    return FutureBuilder<Message?>(
-      future: _messageAt(pendingMessages, index),
-      builder: (context, ms) {
-        if (ms.hasData && ms.data != null) {
-          if (index - _currentMessageSearchId > 49) {
-            _currentMessageSearchId = -1;
-          }
+    if (_widgetCache.get(index) != null
+        &&
+        (currentRoom.lastUpdatedMessageId == null ||
+            (currentRoom.lastUpdatedMessageId != null &&
+                index + 1 !=
+                    _currentRoom.stream.value!.lastUpdatedMessageId!)
+        )
+    ) {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        color: _selectedMessages.containsKey(index + 1) ||
+                (_replyMessageId == index + 1)
+            ? Theme.of(context).focusColor.withAlpha(100)
+            : Colors.transparent,
+        child: _widgetCache.get(index),
+      );
+    } else {
+      return FutureBuilder<Message?>(
+        initialData: index + 1 != _currentRoom.value!.lastUpdatedMessageId
+            ? _messageCache.get(index + 1)
+            : null,
+        future: _messageAt(pendingMessages, index),
+        builder: (context, ms) {
+          if (ms.hasData && ms.data != null) {
+            if (index - _currentMessageSearchId > 49) {
+              _currentMessageSearchId = -1;
+            }
+            late Widget widget;
 
-          if (index == 0) {
-            return Column(
-              children: [
-                ChatTime(currentMessageTime: date(ms.data!.time)),
-                buildBox(ms, currentRoom, pendingMessages)
-              ],
-            );
+            if (index == 0) {
+
+
+              widget = Column(
+                children: [
+                  ChatTime(currentMessageTime: date(ms.data!.time)),
+                  buildBox(ms, currentRoom, pendingMessages)
+                ],
+              );
+              if (ms.hasData && ms.data != null && ms.data!.id != null) {
+                _widgetCache.set(index, widget);
+              }
+              return widget;
+            } else {
+              widget = buildBox(ms, currentRoom, pendingMessages);
+              if (ms.hasData && ms.data != null && ms.data!.id != null) {
+                _widgetCache.set(index, widget);
+              }
+              return widget;
+            }
+          } else if (_currentMessageSearchId == -1) {
+            _currentMessageSearchId = index;
+            return const SizedBox(height: 50, child: Text(""));
           } else {
-            return buildBox(ms, currentRoom, pendingMessages);
+            return const SizedBox(height:50, child: Text(""));
           }
-        } else if (_currentMessageSearchId == -1) {
-          _currentMessageSearchId = index;
-          return const SizedBox(width: 50, height: 50, child: Text(""));
-        } else {
-          return const SizedBox(width: 50, height: 50, child: Text(""));
-        }
-      },
-    );
+        },
+      );
+    }
   }
 
   Widget buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
@@ -869,26 +907,25 @@ class _RoomPageState extends State<RoomPage> {
     final key = keyId != null ? ValueKey(keyId) : null;
 
     return BuildMessageBox(
-        key: key,
-        message: ms.data!,
-        currentRoom: currentRoom,
-        pendingMessages: pendingMessages,
-        itemScrollController: _itemScrollController,
-        lastSeenMessageId: _lastSeenMessageId,
-        addReplyMessage: () => onReply(ms.data!),
-        onEdit: () => onEdit(ms.data!),
-        onPin: () => onPin(ms.data!),
-        onUnPin: () => onUnPin(ms.data!),
-        onDelete: () => onDelete,
-        pinMessages: _pinMessages,
-        changeReplyMessageId: (int id) => _changeReplyMessageId(id),
-        replyMessageId: _replyMessageId,
-        onReply: () => onReply(ms.data!),
-        selectMultiMessageSubject: _selectMultiMessageSubject,
-        hasPermissionInGroup: _hasPermissionInGroup.value,
-        hasPermissionInChannel: _hasPermissionInChannel,
-        addForwardMessage: () => _addForwardMessage(ms.data!),
-        selectedMessages: _selectedMessages);
+      key: key,
+      message: ms.data!,
+      currentRoom: currentRoom,
+      itemScrollController: _itemScrollController,
+      lastSeenMessageId: _lastSeenMessageId,
+      addReplyMessage: () => onReply(ms.data!),
+      onEdit: () => onEdit(ms.data!),
+      onPin: () => onPin(ms.data!),
+      onUnPin: () => onUnPin(ms.data!),
+      onDelete: () => onDelete,
+      pinMessages: _pinMessages,
+      changeReplyMessageId: (int id) => _changeReplyMessageId(id),
+      replyMessageId: _replyMessageId,
+      onReply: () => onReply(ms.data!),
+      selectMultiMessageSubject: _selectMultiMessageSubject,
+      hasPermissionInGroup: _hasPermissionInGroup.value,
+      hasPermissionInChannel: _hasPermissionInChannel,
+      addForwardMessage: () => _addForwardMessage(ms.data!),
+    );
   }
 
   _addForwardMessage(Message message) {
