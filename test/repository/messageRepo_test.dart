@@ -204,6 +204,7 @@ void main() {
       test(
           'When called should fetch all room from roomDao and if last message id be null should return',
           () async {
+        final seenDo = getAndRegisterSeenDao();
         final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
         getAndRegisterRoomDao(rooms: [
           Room(
@@ -217,6 +218,7 @@ void main() {
         ]);
         await MessageRepo().updatingLastSeen();
         verifyNever(authRepo.isCurrentUser(testUid.asString()));
+        verifyNever(seenDo.getOthersSeen(testUid.asString()));
       });
       test(
           'When called should fetch all room from roomDao and if last message id not be null should check isCurrentUser',
@@ -261,6 +263,23 @@ void main() {
         verify(queryServiceClient
             .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid));
       });
+      test('When called if lastMessage id not be null should getOthersSeen ',
+          () async {
+        final seenDo = getAndRegisterSeenDao();
+        getAndRegisterRoomDao(rooms: [
+          Room(
+              uid: testUid.asString(),
+              lastMessage: Message(
+                  to: testUid.asString(),
+                  from: testUid.asString(),
+                  packetId: testUid.asString(),
+                  roomUid: testUid.asString(),
+                  id: 0,
+                  time: 0))
+        ]);
+        await MessageRepo().updatingLastSeen();
+        verify(seenDo.getOthersSeen(testUid.asString()));
+      });
     });
     group('fetchCurrentUserLastSeen -', () {
       RoomMetadata roomMetadata = RoomMetadata(
@@ -289,9 +308,7 @@ void main() {
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
         verify(await seenDo.saveMySeen(Seen(
-            uid: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
-            hiddenMessageCount: 0,
-            messageId: 0)));
+            uid: testUid.asString(), hiddenMessageCount: 0, messageId: 0)));
       });
       test(
           'When called should get My Seen if lastSeen messageId not be null and last seen messageId be greater than lastCurrentUserSentMessageId should return',
@@ -299,9 +316,24 @@ void main() {
         final seenDo = getAndRegisterSeenDao(messageId: 1);
         await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
         verifyNever(await seenDo.saveMySeen(Seen(
-            uid: "0:3049987b-e15d-4288-97cd-42dbc6d73abd",
-            hiddenMessageCount: 0,
-            messageId: 0)));
+            uid: testUid.asString(), hiddenMessageCount: 0, messageId: 0)));
+      });
+    });
+
+    group('fetchOtherSeen -', () {
+      test(
+          'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
+          () async {
+        final seenDo = getAndRegisterSeenDao();
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().fetchOtherSeen(testUid);
+        verify(queryServiceClient.fetchLastOtherUserSeenData(
+            FetchLastOtherUserSeenDataReq()..roomUid = testUid));
+
+        //No matching calls. All calls: MockSeenDao.saveOthersSeen(Instance of 'Seen')
+        // (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+        verify(
+            seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
       });
     });
   });

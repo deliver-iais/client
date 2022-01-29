@@ -185,6 +185,13 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
         FetchCurrentUserSeenDataRes(
             seen: seen_pb.Seen(from: testUid, to: testUid)));
   });
+  when(service.fetchLastOtherUserSeenData(
+          FetchLastOtherUserSeenDataReq()..roomUid = testUid))
+      .thenAnswer((realInvocation) {
+    return MockResponseFuture<FetchLastOtherUserSeenDataRes>(
+        FetchLastOtherUserSeenDataRes(
+            seen: seen_pb.Seen(from: testUid, to: testUid)));
+  });
 
   return service;
 }
