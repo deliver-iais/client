@@ -78,7 +78,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       onTap: () async {
                         var lastAvatar = await _avatarRepo.getLastAvatar(
                             widget.roomUid, false);
-                        if (lastAvatar?.createdOn != null) {
+                        if (lastAvatar?.createdOn != null &&
+                            lastAvatar!.createdOn > 0) {
                           _routingService.openShowAllAvatars(
                               uid: widget.roomUid,
                               hasPermissionToDeleteAvatar: widget.canSetAvatar,
@@ -94,7 +95,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
                         onPressed: () => selectAvatar(),
-                        child: const Text("select an image")),
+                        child: Text(_i18n.get("select_an_image"))),
                   )
               ],
             );

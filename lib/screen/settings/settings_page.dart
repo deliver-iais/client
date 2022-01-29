@@ -3,6 +3,7 @@ import 'package:deliver/models/account.dart';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 
 import 'package:deliver/services/routing_service.dart';
 
@@ -39,6 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
 
@@ -64,10 +66,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                _routingService.openShowAllAvatars(
-                                    uid: _authRepo.currentUserUid,
-                                    hasPermissionToDeleteAvatar: true,
-                                    heroTag: "avatar");
+                                var lastAvatar =
+                                    await _avatarRepo.getLastAvatar(
+                                        _authRepo.currentUserUid, false);
+                                if (lastAvatar?.createdOn != null && lastAvatar!.createdOn > 0) {
+                                  _routingService.openShowAllAvatars(
+                                      uid: _authRepo.currentUserUid,
+                                      hasPermissionToDeleteAvatar: true,
+                                      heroTag: "avatar");
+                                }
                               },
                               child: CircleAvatarWidget(
                                   _authRepo.currentUserUid, 35)),

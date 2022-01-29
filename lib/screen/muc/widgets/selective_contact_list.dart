@@ -187,8 +187,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                   widget.mucUid!, users);
                               if (usersAdd) {
                                 _routingService
-                                    .openRoom(widget.mucUid!.asString());
-                                // _routingService.reset();
+                                    .openRoom(widget.mucUid!.asString(), popAllBeforePush: true);
                                 // _createMucService.reset();
 
                               } else {
