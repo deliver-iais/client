@@ -109,7 +109,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           textTheme: textTheme,
           cardColor: colorScheme.surface,
           highlightColor: colorScheme.primary,
-          focusColor: colorScheme.primary.withAlpha(100))
+          focusColor: colorScheme.primary.withAlpha(50))
       .copyWith(
           visualDensity: VisualDensity.adaptivePlatformDensity,
           primaryColor: colorScheme.primary,

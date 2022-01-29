@@ -43,6 +43,7 @@ import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -138,15 +139,15 @@ class _RoomPageState extends State<RoomPage> {
         roomUid: widget.roomId,
         height: MediaQuery.of(context).size.height,
         child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor: ExtraTheme.of(context).colorScheme.secondaryContainer,
           appBar: buildAppbar(),
           body: Stack(
             children: [
-              StreamBuilder<Room?>(
-                  stream: _roomRepo.watchRoom(widget.roomId),
-                  builder: (context, snapshot) {
-                    return Background(id: snapshot.data?.lastMessageId ?? 0);
-                  }),
+              // StreamBuilder<Room?>(
+              //     stream: _roomRepo.watchRoom(widget.roomId),
+              //     builder: (context, snapshot) {
+              //       return Background(id: snapshot.data?.lastMessageId ?? 0);
+              //     }),
               SingleChildScrollView(
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height -

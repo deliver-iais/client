@@ -160,9 +160,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: <Widget>[
             RepaintBoundary(
-              child: SearchBox(
-                  onChange: _queryTermDebouncedSubject.add,
-                  onCancel: () => _queryTermDebouncedSubject.add("")),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                child: SearchBox(
+                    onChange: _queryTermDebouncedSubject.add,
+                    onCancel: () => _queryTermDebouncedSubject.add("")),
+              ),
             ),
             if (!isLarge(context)) AudioPlayerAppBar(),
             StreamBuilder<String>(
