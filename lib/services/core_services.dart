@@ -298,9 +298,9 @@ class CoreServices {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       var msg = pm.msg.copyWith(id: id, time: time);
-      try{
+      try {
         _messageDao.deletePendingMessage(packetId);
-      }catch(e){
+      } catch (e) {
         _logger.e(e);
       }
       _messageDao.saveMessage(msg);
@@ -400,7 +400,7 @@ class CoreServices {
               _messageDao.saveMessage(mes!..json = "{}");
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
-              break;
+              return;
           }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
@@ -437,11 +437,13 @@ class CoreServices {
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
-      _roomDao.updateRoom(
-          room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
+      _roomDao.updateRoom(room.copyWith(
+          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+          lastUpdatedMessageId: res.messages.first.id.toInt()));
     } else {
       _roomDao.updateRoom(room.copyWith(
         lastMessage: msg,
+        lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
         lastUpdatedMessageId: res.messages.first.id.toInt(),
       ));
     }

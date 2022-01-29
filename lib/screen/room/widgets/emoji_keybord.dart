@@ -232,7 +232,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                             child: Text(
                               emoji.toString(),
                               style: GoogleFonts.notoColorEmojiCompat(
-                                fontSize: 22,
+                                fontSize: 25,
                               ),
                             ),
                           ),
