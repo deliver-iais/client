@@ -334,7 +334,7 @@ class _ProfilePageState extends State<ProfilePage>
                 title: _i18n.get("send_message"),
                 leading: const Icon(Icons.message),
                 onPressed: (_) =>
-                    _routingService.openRoom(widget.roomUid.asString())),
+                    _routingService.openRoom(widget.roomUid.asString(),forceToOpenRoom: true)),
           ),
         if (isAndroid())
           FutureBuilder<String?>(
