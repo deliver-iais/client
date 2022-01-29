@@ -28,6 +28,7 @@ import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
 import '../repository/messageRepo_test.dart';
+import 'package:fixnum/fixnum.dart' as $fixnum;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -87,8 +88,8 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   _removeRegistrationIfExists<RoomDao>();
   final service = MockRoomDao();
   GetIt.I.registerSingleton<RoomDao>(service);
-  when(service.getRoom(testUid.asString())).thenAnswer(
-      (realInvocation) => Future.value(Room(uid: testUid.asString())));
+  when(service.getRoom(testUid.asString())).thenAnswer((realInvocation) =>
+      Future.value(rooms?.first ?? Room(uid: testUid.asString())));
   rooms ??= [
     Room(
       uid: testUid.asString(),
@@ -128,14 +129,15 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   return service;
 }
 
-MockSeenDao getAndRegisterSeenDao() {
+MockSeenDao getAndRegisterSeenDao({int? messageId}) {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
   GetIt.I.registerSingleton<SeenDao>(service);
   when(service.getOthersSeen(testUid.asString())).thenAnswer(
       (realInvocation) => Future.value(seen_box.Seen(uid: testUid.asString())));
-  when(service.getMySeen(testUid.asString())).thenAnswer(
-          (realInvocation) => Future.value(seen_box.Seen(uid: testUid.asString())));
+  when(service.getMySeen(testUid.asString())).thenAnswer((realInvocation) =>
+      Future.value(
+          seen_box.Seen(uid: testUid.asString(), messageId: messageId)));
   return service;
 }
 
@@ -146,24 +148,30 @@ MockMucServices getAndRegisterMucServices() {
   return service;
 }
 
-MockQueryServiceClient getAndRegisterQueryServiceClient() {
+MockQueryServiceClient getAndRegisterQueryServiceClient(
+    {bool finished = true,
+    PresenceType presenceType = PresenceType.ACTIVE,
+    int? lastMessageId,
+    int? lastUpdate}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
   RoomMetadata roomMetadata = RoomMetadata(
       roomUid: testUid,
-      lastMessageId: null,
+      lastMessageId:
+          lastMessageId != null ? $fixnum.Int64(lastMessageId) : null,
       firstMessageId: null,
-      lastCurrentUserSentMessageId: null,
+      lastCurrentUserSentMessageId:
+          lastUpdate != null ? $fixnum.Int64(lastUpdate) : null,
       lastUpdate: null,
-      presenceType: PresenceType.ACTIVE);
+      presenceType: presenceType);
   Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
   when(service.getAllUserRoomMeta(GetAllUserRoomMetaReq()
         ..pointer = 0
         ..limit = 10))
       .thenAnswer((realInvocation) {
     return MockResponseFuture<GetAllUserRoomMetaRes>(
-        GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: true));
+        GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: finished));
   });
   when(service.getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid))
       .thenAnswer((realInvocation) {
