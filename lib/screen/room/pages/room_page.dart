@@ -48,6 +48,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -981,7 +982,45 @@ class _RoomPageState extends State<RoomPage> {
                     }, _currentRoom.value!.lastMessageId);
                     _selectedMessages.clear();
                   }),
-            )
+            ),
+          Tooltip(
+            message: _i18n.get("copy"),
+            child: IconButton(
+                color: Theme.of(context).primaryColor,
+                icon: const Icon(
+                  Icons.copy,
+                  size: 25,
+                ),
+                onPressed: () async {
+                  String copyText = "";
+                  List<Message> messages = _selectedMessages.values.toList();
+                  messages.sort((a, b) => a.id == null
+                      ? 1
+                      : b.id == null
+                          ? -1
+                          : a.id!.compareTo(b.id!));
+                  for (Message message in messages) {
+                    if (message.type == MessageType.TEXT) {
+                      copyText = copyText +
+                          await _roomRepo.getName(message.from.asUid()) +
+                          ":\n" +
+                          message.json!.toText().text +
+                          "\n";
+                    } else if (message.type == MessageType.FILE &&
+                        message.json!.toFile().caption.isNotEmpty) {
+                      copyText = copyText +
+                          await _roomRepo.getName(message.from.asUid()) +
+                          ":\n" +
+                          message.json!.toFile().caption +
+                          "\n";
+                    }
+                  }
+                  Clipboard.setData(ClipboardData(text: copyText));
+                  onDelete();
+                  ToastDisplay.showToast(
+                      toastText: _i18n.get("copied"), toastContext: context);
+                }),
+          )
         ],
       ),
     );
