@@ -77,25 +77,26 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
         primary: true,
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor:theme.backgroundColor,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Theme.of(context).buttonTheme.colorScheme!.onPrimary,
+          backgroundColor:theme.primaryColor,
+          foregroundColor:theme.buttonTheme.colorScheme!.onPrimary,
           child: const Icon(Icons.arrow_forward),
           onPressed: () {
             _sendVerificationCode();
           },
         ),
         appBar: AppBar(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor:theme.backgroundColor,
           title: Text(
             _i18n.get("verification"),
             style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor),
+                color:theme.primaryColor),
           ),
         ),
         body: Padding(
@@ -131,12 +132,12 @@ class _VerificationPageState extends State<VerificationPage> {
                       codeLength: 5,
                       decoration: UnderlineDecoration(
                           colorBuilder: PinListenColorBuilder(
-                              Theme.of(context).primaryColor,
-                              Theme.of(context).colorScheme.secondary),
-                          textStyle: Theme.of(context)
+                             theme.primaryColor,
+                             theme.colorScheme.secondary),
+                          textStyle:theme
                               .primaryTextTheme
                               .headline5!
-                              .copyWith(color: Theme.of(context).primaryColor)),
+                              .copyWith(color:theme.primaryColor)),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;
@@ -157,10 +158,10 @@ class _VerificationPageState extends State<VerificationPage> {
                   _showError
                       ? Text(
                           _i18n.get("wrong_code"),
-                          style: Theme.of(context)
+                          style:theme
                               .primaryTextTheme
                               .subtitle1!
-                              .copyWith(color: Theme.of(context).errorColor),
+                              .copyWith(color:theme.errorColor),
                         )
                       : Container(),
                 ],

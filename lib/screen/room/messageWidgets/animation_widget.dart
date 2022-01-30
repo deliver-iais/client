@@ -97,6 +97,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final extraThemeData = ExtraTheme.of(context);
     final isSender =
         AnimatedEmoji._authRepo.isCurrentUserSender(widget.message);
@@ -132,7 +133,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
             borderRadius: mainBorder,
             color: isSender
                 ? extraThemeData.colorScheme.tertiaryContainer
-                : Theme.of(context).colorScheme.surface,
+                :theme.colorScheme.surface,
           ),
           child: TimeAndSeenStatus(
             widget.message,

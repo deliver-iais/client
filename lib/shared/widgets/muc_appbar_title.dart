@@ -20,6 +20,7 @@ class MucAppbarTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -47,16 +48,16 @@ class MucAppbarTitle extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,
-                            style: Theme.of(context).textTheme.subtitle1,
+                            style:theme.textTheme.subtitle1,
                           ),
                           TitleStatus(
-                            style: Theme.of(context).textTheme.caption!,
+                            style:theme.textTheme.caption!,
                             normalConditionWidget: Text(
                               "${snapshot.data!.population} ${i18n.get("members")}",
                               maxLines: 1,
                               overflow: TextOverflow.fade,
                               softWrap: false,
-                              style: Theme.of(context).textTheme.caption,
+                              style:theme.textTheme.caption,
                             ),
                             currentRoomUid: mucUid.asUid(),
                           )
@@ -70,7 +71,7 @@ class MucAppbarTitle extends StatelessWidget {
                                 width: 200,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                    color: Theme.of(context).brightness ==
+                                    color:theme.brightness ==
                                             Brightness.light
                                         ? Colors.grey[200]
                                         : Colors.grey[800])),
@@ -79,7 +80,7 @@ class MucAppbarTitle extends StatelessWidget {
                                 width: 100,
                                 height: 11,
                                 decoration: BoxDecoration(
-                                    color: Theme.of(context).brightness ==
+                                    color:theme.brightness ==
                                             Brightness.light
                                         ? Colors.grey[200]
                                         : Colors.grey[800])),

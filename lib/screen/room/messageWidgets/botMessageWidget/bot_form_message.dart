@@ -98,6 +98,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         Column(
@@ -113,7 +114,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   child: Center(
                     child: Text(
                       form.title.titleCase,
-                      style: Theme.of(context).primaryTextTheme.subtitle1,
+                      style:theme.primaryTextTheme.subtitle1,
                     ),
                   ),
                 ),

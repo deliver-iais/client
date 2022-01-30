@@ -24,6 +24,7 @@ class UserAppbarTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -49,7 +50,7 @@ class UserAppbarTitle extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.fade,
                       softWrap: false,
-                      style: Theme.of(context).textTheme.subtitle1,
+                      style:theme.textTheme.subtitle1,
                     ),
                   )
                 : Expanded(
@@ -64,10 +65,10 @@ class UserAppbarTitle extends StatelessWidget {
                               RoomName(
                                   uid: userUid,
                                   name: (snapshot.data)!.trim(),
-                                  style: Theme.of(context).textTheme.subtitle1),
+                                  style:theme.textTheme.subtitle1),
                               TitleStatus(
                                 currentRoomUid: userUid,
-                                style: Theme.of(context).textTheme.caption!,
+                                style:theme.textTheme.caption!,
                                 normalConditionWidget: userUid.category ==
                                         Categories.SYSTEM
                                     ? Text("Notification Service",
@@ -75,7 +76,7 @@ class UserAppbarTitle extends StatelessWidget {
                                         overflow: TextOverflow.fade,
                                         softWrap: false,
                                         style:
-                                            Theme.of(context).textTheme.caption)
+                                           theme.textTheme.caption)
                                     : const SizedBox(key: ValueKey("10")),
                               )
                             ],
@@ -88,7 +89,7 @@ class UserAppbarTitle extends StatelessWidget {
                                     width: 200,
                                     height: 20,
                                     decoration: BoxDecoration(
-                                        color: Theme.of(context).brightness ==
+                                        color:theme.brightness ==
                                                 Brightness.light
                                             ? Colors.grey[200]
                                             : Colors.grey[800])),
@@ -97,7 +98,7 @@ class UserAppbarTitle extends StatelessWidget {
                                     width: 100,
                                     height: 11,
                                     decoration: BoxDecoration(
-                                        color: Theme.of(context).brightness ==
+                                        color:theme.brightness ==
                                                 Brightness.light
                                             ? Colors.grey[200]
                                             : Colors.grey[800])),

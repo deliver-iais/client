@@ -16,6 +16,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     I18N i18n = GetIt.I.get<I18N>();
     var spda = message.json!.toSharePrivateDataAcceptance();
 
@@ -27,7 +28,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
             children: [
               Icon(
                 Icons.verified_user_rounded,
-                color: Theme.of(context).primaryColor,
+                color:theme.primaryColor,
               ),
               Text(
                 spda.data == PrivateDataType.PHONE_NUMBER
@@ -39,7 +40,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                             : spda.data == PrivateDataType.EMAIL
                                 ? i18n.get("email_granted")
                                 : i18n.get("private_data_granted"),
-                style: Theme.of(context)
+                style:theme
                     .primaryTextTheme
                     .bodyText2!
                     .copyWith(fontWeight: FontWeight.w400),

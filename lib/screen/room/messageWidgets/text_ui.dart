@@ -40,6 +40,7 @@ class TextUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final extraThemeData = ExtraTheme.of(context);
 
     String text = extractText(message);
@@ -75,8 +76,7 @@ class TextUI extends StatelessWidget {
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
           RichText(
-            text: TextSpan(
-                children: spans, style: Theme.of(context).textTheme.bodyText2),
+            text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
@@ -160,10 +160,10 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, regex, "id",
-      onTap: (id) => onUsernameClick(id),
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "id",
+          onTap: (id) => onUsernameClick(id),
+          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class BoldTextParser implements Parser {
@@ -216,10 +216,10 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, regex, "bot",
-      onTap: (id) => onBotCommandClick(id),
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "bot",
+          onTap: (id) => onBotCommandClick(id),
+          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class SearchTermParser implements Parser {
@@ -228,9 +228,9 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, RegExp(searchTerm), "search",
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, RegExp(searchTerm), "search",
+          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class Block {

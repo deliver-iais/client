@@ -150,6 +150,7 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget senderNameBox() {
+    final theme = Theme.of(context);
     final extraThemeData = ExtraTheme.of(context);
     return Container(
       padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
@@ -157,7 +158,7 @@ class _BoxContentState extends State<BoxContent> {
         borderRadius: mainBorder,
         color: widget.isSender
             ? extraThemeData.colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.surface,
+            :theme.colorScheme.surface,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),
@@ -173,6 +174,7 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget showName(String name) {
+    final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -184,7 +186,7 @@ class _BoxContentState extends State<BoxContent> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: Theme.of(context).primaryTextTheme.bodyText2,
+            style:theme.primaryTextTheme.bodyText2,
           ),
         ),
         onTap: () {

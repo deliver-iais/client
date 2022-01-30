@@ -11,6 +11,7 @@ class RecordAudioAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AnimatedPositioned(
       duration: animationDuration,
       bottom: (1 - size) * 25,
@@ -22,7 +23,7 @@ class RecordAudioAnimation extends StatelessWidget {
           height: 50 * size,
           color: (1 - size) == 0
               ? Colors.transparent
-              : Theme.of(context).primaryColor,
+              :theme.primaryColor,
           child: Center(
             child: Icon(
               Icons.keyboard_voice,

@@ -47,6 +47,7 @@ class _SendingFileCircularIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (widget.file != null) {
       return Stack(
         children: [
@@ -71,8 +72,8 @@ class _SendingFileCircularIndicatorState
             icon: Icon(
               Icons.close,
               color: widget.isMedia
-                  ? Theme.of(context).colorScheme.secondary //?????TODO
-                  : Theme.of(context).primaryColor,
+                  ?theme.colorScheme.secondary //?????TODO
+                  :theme.primaryColor,
               size: 38,
             ),
             onPressed: null,

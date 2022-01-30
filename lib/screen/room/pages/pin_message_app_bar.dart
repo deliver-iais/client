@@ -31,6 +31,7 @@ class PinMessageAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final extraThemeData = ExtraTheme.of(context);
     return StreamBuilder<int>(
         stream: lastPinedMessage.stream,
@@ -110,7 +111,7 @@ class PinMessageAppBar extends StatelessWidget {
                                 if (mes != null)
                                   Text(
                                     i18n.get("pinned_message"),
-                                    style: Theme.of(context)
+                                    style:theme
                                         .primaryTextTheme
                                         .subtitle2
                                         ?.copyWith(

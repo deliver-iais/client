@@ -51,6 +51,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -65,7 +66,7 @@ class _ContactsPageState extends State<ContactsPage> {
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color: Theme.of(context).colorScheme.surface,
+            color:theme.colorScheme.surface,
           ),
           child: StreamBuilder<List<Contact>>(
               stream: _contactRepo.watchAll(),
@@ -155,6 +156,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   _showSyncContactDialog(BuildContext context) async {
+    final theme = Theme.of(context);
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
@@ -177,7 +179,7 @@ class _ContactsPageState extends State<ContactsPage> {
               content: SizedBox(
                 width: 200,
                 child: Text(_i18n.get("send_contacts_message"),
-                    style: Theme.of(context).textTheme.subtitle1),
+                    style:theme.textTheme.subtitle1),
               ),
               actions: <Widget>[
                 TextButton(

@@ -41,7 +41,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
 
   @override
   Widget build(BuildContext context) {
-    var extraThemeData = ExtraTheme.of(context);
+    final extraThemeData = ExtraTheme.of(context);
+    final theme = Theme.of(context);
 
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
@@ -93,7 +94,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                     icon: Icon(
                                                       Icons
                                                           .insert_drive_file_sharp,
-                                                      color: Theme.of(context)
+                                                      color:theme
                                                           .primaryColor,
                                                       size: 35,
                                                     ),
@@ -134,10 +135,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             fileId: fileId,
                                             fileName: fileName,
                                             onPressed: download,
-                                            background: Theme.of(context)
+                                            background:theme
                                                 .colorScheme
                                                 .primary,
-                                            foreground: Theme.of(context)
+                                            foreground:theme
                                                 .colorScheme
                                                 .onPrimary,
                                           ),

@@ -27,6 +27,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     var formResult = widget.message.json!.toFormResult();
 
     return PageStorage(
@@ -75,7 +76,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.6,
-                      color: Theme.of(context)
+                      color:theme
                           .colorScheme
                           .onSurface
                           .withAlpha(120),

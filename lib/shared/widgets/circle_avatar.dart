@@ -36,6 +36,7 @@ class CircleAvatarWidget extends StatelessWidget {
       : super(key: key);
 
   Color colorFor(BuildContext context, String text) {
+    final theme = Theme.of(context);
     var hash = 0;
     for (var i = 0; i < text.length; i++) {
       hash = text.codeUnitAt(i) + ((hash << 5) - hash);
@@ -49,7 +50,7 @@ class CircleAvatarWidget extends StatelessWidget {
           ColorHue.red,
           ColorHue.orange
         ], random: r),
-        colorBrightness: Theme.of(context).brightness == Brightness.dark
+        colorBrightness: theme.brightness == Brightness.dark
             ? ColorBrightness.light
             : ColorBrightness.dark,
         colorSaturation: ColorSaturation.highSaturation);

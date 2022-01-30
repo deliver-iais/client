@@ -40,6 +40,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
+    final theme = Theme.of(context);
     final extraThemeData = ExtraTheme.of(context);
     return RepaintBoundary(
       child: BlurContainer(
@@ -54,7 +55,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                 ? extraThemeData.onDetailsBox
                 : (isSender
                     ? extraThemeData.colorScheme.onPrimaryContainer
-                    : Theme.of(context)
+                    :theme
                         .colorScheme.onSurface.withAlpha(120)),
             fontSize: 13,
             // height: 1,

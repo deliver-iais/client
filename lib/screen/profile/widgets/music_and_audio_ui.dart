@@ -43,6 +43,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
             widget.userUid, MediaType.MUSIC, widget.mediaCount),
@@ -118,12 +119,8 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         fileId: fileId,
                                         fileName: fileName,
                                         onPressed: download,
-                                        background: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        foreground: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
+                                        background: theme.colorScheme.primary,
+                                        foreground: theme.colorScheme.onPrimary,
                                       ),
                                       Expanded(
                                         child: Stack(

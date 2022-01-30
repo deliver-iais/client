@@ -299,6 +299,7 @@ class Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -309,7 +310,7 @@ class Empty extends StatelessWidget {
                     const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
                 child: Text(
                     _i18n.get("please_select_a_chat_to_start_messaging"),
-                    style: Theme.of(context)
+                    style:theme
                         .textTheme
                         .bodyText2!
                         .copyWith(color: Colors.white))),

@@ -61,8 +61,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor:theme.colorScheme.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: GestureDetector(
@@ -110,9 +111,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
             ),
             titleSpacing: 8.0,
             title: TitleStatus(
-              style: Theme.of(context).textTheme.headline6!,
+              style:theme.textTheme.headline6!,
               normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                  style: Theme.of(context).textTheme.headline6,
+                  style:theme.textTheme.headline6,
                   key: ValueKey(randomString(10))),
             ),
             actions: [
@@ -131,7 +132,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.primary,
+                      color:theme.colorScheme.primary,
                     ),
                     child: IconButton(
                         onPressed: () {
@@ -139,7 +140,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         },
                         icon: Icon(
                           Icons.qr_code,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color:theme.colorScheme.onPrimary,
                         )),
                   ),
                 ),
@@ -180,10 +181,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget buildMenu(BuildContext context) {
+    final theme = Theme.of(context);
     return DescribedFeatureOverlay(
       featureId: feature1,
       tapTarget:
-          Icon(Icons.create, color: Theme.of(context).colorScheme.onSurface),
+          Icon(Icons.create, color:theme.colorScheme.onSurface),
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,
       title: const Text('You can create new group and new channel'),
@@ -193,7 +195,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
       child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).colorScheme.primary,
+            color:theme.colorScheme.primary,
           ),
           child: IconTheme(
             data: IconThemeData(
@@ -203,7 +205,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             child: PopupMenuButton(
                 icon: Icon(
                   Icons.create,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color:theme.colorScheme.onPrimary,
                 ),
                 onSelected: selectChatMenu,
                 itemBuilder: (context) => [
@@ -248,6 +250,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget searchResult(String query) {
+    final theme = Theme.of(context);
     return Expanded(
         child: FutureBuilder<List<List<Uid>>>(
             future: searchUidList(query),
@@ -273,7 +276,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     Text(_i18n.get("not_found"),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headline6),
+                        style:theme.textTheme.headline6),
                   ],
                 );
               }
@@ -292,14 +295,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget buildTitle(String title) {
+    final theme = Theme.of(context);
     return Container(
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 4),
         width: double.infinity,
-        color: Theme.of(context).dividerColor.withAlpha(10),
+        color:theme.dividerColor.withAlpha(10),
         child: Text(title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).primaryTextTheme.caption));
+            style:theme.primaryTextTheme.caption));
   }
 
   Future<List<List<Uid>>> searchUidList(String query) async {
@@ -335,6 +339,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget _contactResultWidget(
       {required Uid uid, required BuildContext context}) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Row(
@@ -349,7 +354,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                   return Text(
                     snaps.data ?? "",
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style:theme.textTheme.subtitle1,
                   );
                 }),
           ],
@@ -362,6 +367,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget _featureDiscoveryDescriptionWidget(
       {required String description, bool isCircleAvatarWidget = false}) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Text(description),
@@ -375,7 +381,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
                     'Understood',
-                    style: Theme.of(context)
+                    style:theme
                         .textTheme
                         .button!
                         .copyWith(color: Colors.white),
@@ -385,7 +391,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     onPressed: () => FeatureDiscovery.dismissAll(context),
                     child: Text(
                       'Dismiss',
-                      style: Theme.of(context)
+                      style:theme
                           .textTheme
                           .button!
                           .copyWith(color: Colors.white),
@@ -406,7 +412,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                           'sync contacts',
-                          style: Theme.of(context)
+                          style:theme
                               .textTheme
                               .button!
                               .copyWith(color: Colors.lightGreenAccent),

@@ -23,6 +23,7 @@ class CupertinoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final List<Widget> columnChildren = [];
     if (header != null) {
       columnChildren.add(DefaultTextStyle(
@@ -63,7 +64,7 @@ class CupertinoSection extends StatelessWidget {
     columnChildren.add(Container(
       decoration: BoxDecoration(
           borderRadius: mainBorder,
-          color: Theme.of(context).colorScheme.surface,
+          color:theme.colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.15),

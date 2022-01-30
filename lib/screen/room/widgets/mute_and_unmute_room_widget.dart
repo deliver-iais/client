@@ -20,6 +20,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<bool>(
         future: _mucRepo.isMucAdminOrOwner(
             _authRepo.currentUserUid.asString(), roomId),
@@ -28,7 +29,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
             return inputMessage;
           } else {
             return Container(
-              color: Theme.of(context).primaryColor,
+              color:theme.primaryColor,
               height: 45,
               child: Center(
                   child: GestureDetector(

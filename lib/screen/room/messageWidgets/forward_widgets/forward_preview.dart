@@ -16,9 +16,10 @@ class ForwardPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      color: Theme.of(context).colorScheme.surface.withAlpha(200),
+      color:theme.colorScheme.surface.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -29,7 +30,7 @@ class ForwardPreview extends StatelessWidget {
           children: [
             Icon(
               Icons.arrow_forward,
-              color: Theme.of(context).primaryColor,
+              color:theme.primaryColor,
               size: 25,
             ),
             const SizedBox(width: 10),

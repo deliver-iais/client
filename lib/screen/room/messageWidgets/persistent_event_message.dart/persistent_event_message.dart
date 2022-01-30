@@ -40,6 +40,7 @@ class PersistentEventMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return message.json == "{}"
         ? Container(
             height: 0.0,
@@ -53,7 +54,7 @@ class PersistentEventMessage extends StatelessWidget {
                     maxWidth: maxWidth,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).dividerColor.withOpacity(0.25),
+                    color:theme.dividerColor.withOpacity(0.25),
                     borderRadius: mainBorder,
                   ),
                   child: Column(
@@ -66,7 +67,7 @@ class PersistentEventMessage extends StatelessWidget {
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style: Theme.of(context).textTheme.headline5),
+                            style:theme.textTheme.headline5),
                     ],
                   ),
                 ),

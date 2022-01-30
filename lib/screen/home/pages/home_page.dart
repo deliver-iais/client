@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (!_routingService.canPop()) return true;
@@ -106,7 +107,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return false;
       },
       child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color:theme.colorScheme.background,
           child: _routingService.outlet(context)),
     );
   }

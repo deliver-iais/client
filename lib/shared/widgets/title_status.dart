@@ -136,6 +136,7 @@ class _TitleStatusState extends State<TitleStatus> {
   }
 
   Widget normalActivity() {
+    final theme = Theme.of(context);
     if (widget.currentRoomUid!.category == Categories.USER) {
       return StreamBuilder<LastActivity?>(
           stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
@@ -149,7 +150,7 @@ class _TitleStatusState extends State<TitleStatus> {
                   overflow: TextOverflow.fade,
                   softWrap: false,
                   style: widget.style
-                      .copyWith(color: Theme.of(context).primaryColor),
+                      .copyWith(color:theme.primaryColor),
                 );
               } else {
                 String lastActivityTime =
@@ -161,7 +162,7 @@ class _TitleStatusState extends State<TitleStatus> {
                     overflow: TextOverflow.fade,
                     softWrap: false,
                     style: widget.style
-                        .copyWith(color: Theme.of(context).primaryColor));
+                        .copyWith(color:theme.primaryColor));
               }
             }
             return const SizedBox.shrink();

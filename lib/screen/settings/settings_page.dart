@@ -46,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -96,14 +97,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style: Theme.of(context)
+                                        style:theme
                                             .textTheme
                                             .headline6,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         snapshot.data!.userName ?? "",
-                                        style: Theme.of(context)
+                                        style:theme
                                             .primaryTextTheme
                                             .subtitle1,
                                       ),
@@ -112,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         buildPhoneNumber(
                                             snapshot.data!.countryCode!,
                                             snapshot.data!.nationalNumber!),
-                                        style: Theme.of(context)
+                                        style:theme
                                             .textTheme
                                             .subtitle1,
                                       )

@@ -30,6 +30,7 @@ class _ImageWidget extends State<ShowImagePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue,
@@ -62,7 +63,7 @@ class _ImageWidget extends State<ShowImagePage> {
               } else {
                 return Text(
                   "Unknown",
-                  style: TextStyle(color: Theme.of(context).primaryColor),
+                  style: TextStyle(color:theme.primaryColor),
                 );
               }
             },
@@ -70,7 +71,7 @@ class _ImageWidget extends State<ShowImagePage> {
           leading: _routingServices.backButtonLeading(),
           backgroundColor: Colors.blue,
         ),
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor:theme.backgroundColor,
         body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(

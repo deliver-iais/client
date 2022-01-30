@@ -565,6 +565,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   PreferredSizeWidget buildAppbar() {
+    final theme = Theme.of(context);
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return AppBar(
@@ -589,7 +590,7 @@ class _RoomPageState extends State<RoomPage> {
                           children: [
                             Badge(
                               child: IconButton(
-                                  color: Theme.of(context).primaryColor,
+                                  color:theme.primaryColor,
                                   icon: const Icon(
                                     Icons.clear,
                                     size: 25,
@@ -597,12 +598,12 @@ class _RoomPageState extends State<RoomPage> {
                                   onPressed: () {
                                     onDelete();
                                   }),
-                              badgeColor: Theme.of(context).primaryColor,
+                              badgeColor:theme.primaryColor,
                               badgeContent: Text(
                                 _selectedMessages.length.toString(),
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: Theme.of(context)
+                                    color:theme
                                         .colorScheme
                                         .onPrimary),
                               ),
@@ -689,6 +690,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget buildMessagesListView(List<PendingMessage> pendingMessages) {
+    final theme = Theme.of(context);
     int scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
             ? _lastShowedMessageId
@@ -749,18 +751,18 @@ class _RoomPageState extends State<RoomPage> {
                       return const SizedBox.shrink();
                     }
                     return Container(
-                      color: Theme.of(context).backgroundColor,
+                      color:theme.backgroundColor,
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       padding: const EdgeInsets.all(4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.keyboard_arrow_down,
-                              color: Theme.of(context).primaryColor),
+                              color:theme.primaryColor),
                           Text(
                             _i18n.get("unread_messages"),
                             style: TextStyle(
-                                color: Theme.of(context).primaryColor),
+                                color:theme.primaryColor),
                           ),
                         ],
                       ),
@@ -814,6 +816,7 @@ class _RoomPageState extends State<RoomPage> {
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
       int index, Room currentRoom) {
+    final theme = Theme.of(context);
     if (currentRoom.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
@@ -830,7 +833,7 @@ class _RoomPageState extends State<RoomPage> {
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
                 (_replyMessageId == index + 1)
-            ? Theme.of(context).focusColor.withAlpha(100)
+            ?theme.focusColor.withAlpha(100)
             : Colors.transparent,
         child: _widgetCache.get(index),
       );
@@ -951,6 +954,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _selectMultiMessageAppBar() {
+    final theme = Theme.of(context);
     bool _hasPermissionToDeleteMsg = true;
     for (Message message in _selectedMessages.values.toList()) {
       if ((_authRepo.isCurrentUserSender(message) ||
@@ -968,7 +972,7 @@ class _RoomPageState extends State<RoomPage> {
           Tooltip(
               message: _i18n.get("forward"),
               child: IconButton(
-                  color: Theme.of(context).primaryColor,
+                  color:theme.primaryColor,
                   icon: const Icon(
                     Icons.forward,
                     size: 25,
@@ -982,7 +986,7 @@ class _RoomPageState extends State<RoomPage> {
             Tooltip(
               message: _i18n.get("delete"),
               child: IconButton(
-                  color: Theme.of(context).primaryColor,
+                  color:theme.primaryColor,
                   icon: const Icon(
                     Icons.delete,
                     size: 25,

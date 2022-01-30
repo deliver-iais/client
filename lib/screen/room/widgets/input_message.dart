@@ -223,6 +223,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return WillPopScope(
       onWillPop: () async {
@@ -266,7 +267,7 @@ class _InputMessageWidget extends State<InputMessage> {
               }),
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: theme.colorScheme.surface,
             ),
             child: Stack(
               // overflow: Overflow.visible,
@@ -341,9 +342,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         minLines: 1,
                                         maxLines: 15,
                                         textDirection: value,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle1,
+                                        style: theme.textTheme.subtitle1,
                                         onTap: () => _backSubject.add(false),
                                         onChanged: (str) {
                                           if (str.trim().length < 2) {

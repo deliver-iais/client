@@ -266,6 +266,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildInfo(BuildContext context) {
+    final theme = Theme.of(context);
     return SliverList(
         delegate: SliverChildListDelegate([
       BoxList(largePageBorderRadius: BorderRadius.zero, children: [
@@ -293,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage>
                     leading: const Icon(Icons.alternate_email),
                     trailing: const Icon(Icons.copy),
                     subtitleTextStyle:
-                        TextStyle(color: Theme.of(context).primaryColor),
+                        TextStyle(color:theme.primaryColor),
                     onPressed: (_) => Clipboard.setData(
                         ClipboardData(text: "@${snapshot.data}")),
                   ),
@@ -315,7 +316,7 @@ class _ProfilePageState extends State<ProfilePage>
                     subtitle: buildPhoneNumber(snapshot.data!.countryCode,
                         snapshot.data!.nationalNumber),
                     subtitleTextStyle:
-                        TextStyle(color: Theme.of(context).primaryColor),
+                        TextStyle(color:theme.primaryColor),
                     leading: const Icon(Icons.phone),
                     trailing: const Icon(Icons.call),
                     onPressed: (_) => launch(
@@ -349,7 +350,7 @@ class _ProfilePageState extends State<ProfilePage>
                         leading: const Icon(Icons.music_note_sharp),
                         subtitle: snapshot.data!,
                         subtitleTextStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color:theme.primaryColor,
                             fontSize: 16),
                         onPressed: (_) async {
                           _routingService.openCustomNotificationSoundSelection(
@@ -396,7 +397,7 @@ class _ProfilePageState extends State<ProfilePage>
                         title: _i18n.get("description"),
                         subtitle: muc.data!.info,
                         subtitleTextStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color:theme.primaryColor,
                             fontSize: 16),
                         leading: const Icon(Icons.info),
                         trailing: const SizedBox.shrink()),

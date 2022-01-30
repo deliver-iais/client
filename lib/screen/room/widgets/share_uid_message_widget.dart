@@ -33,6 +33,7 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final extraThemeData = ExtraTheme.of(context);
     var _shareUid = message.json!.toShareUid();
     return Padding(
@@ -97,7 +98,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                               forceText: _shareUid.name),
                           Text(
                             _shareUid.name,
-                            style: Theme.of(context).textTheme.headline6,
+                            style: theme.textTheme.headline6,
                           ),
                           const SizedBox(height: 10),
                           Row(

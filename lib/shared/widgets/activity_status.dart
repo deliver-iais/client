@@ -18,7 +18,7 @@ class ActivityStatus extends StatelessWidget {
       : super(key: key);
 
   TextStyle textStyle(BuildContext context) {
-    return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
+    return TextStyle(fontSize: 14, color:Theme.of(context).primaryColor);
   }
 
   @override
