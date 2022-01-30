@@ -46,7 +46,6 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -92,7 +91,6 @@ class _RoomPageState extends State<RoomPage> {
   int _itemCount = 0;
   int _replyMessageId = -1;
   int _lastReceivedMessageId = 0;
-  int _currentMessageSearchId = -1;
   int _lastSeenScrollPotion = -1;
   List<Message> searchResult = [];
 
@@ -148,6 +146,9 @@ class _RoomPageState extends State<RoomPage> {
                     return Background(id: snapshot.data?.lastMessageId ?? 0);
                   }),
               SingleChildScrollView(
+                physics: isAndroid()
+                    ? const AlwaysScrollableScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height -
                       buildAppbar().preferredSize.height -
@@ -332,17 +333,20 @@ class _RoomPageState extends State<RoomPage> {
         .distinct()
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
-      var msg = await _getMessage(
-          event, widget.roomId, _currentRoom.value!.lastMessageId,
-          lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
+      if (_currentRoom.value != null &&
+          _currentRoom.value!.lastMessageId != null) {
+        var msg = await _getMessage(
+            event, widget.roomId, _currentRoom.value!.lastMessageId,
+            lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
 
-      if (msg == null) return;
+        if (msg == null) return;
 
-      if (!_authRepo.isCurrentUser(msg.from)) {
-        _messageRepo.sendSeen(event, widget.roomId.asUid());
+        if (!_authRepo.isCurrentUser(msg.from)) {
+          _messageRepo.sendSeen(event, widget.roomId.asUid());
+        }
+
+        _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
       }
-
-      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
     });
   }
 
@@ -832,7 +836,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
-      int index, Room currentRoom, int initscrollIndex) {
+      int index, Room currentRoom, int initScrollIndex) {
     if (currentRoom.firstMessageId != null &&
         index < currentRoom.firstMessageId!) {
       return Container(
@@ -861,9 +865,6 @@ class _RoomPageState extends State<RoomPage> {
         future: _messageAt(pendingMessages, index),
         builder: (context, ms) {
           if (ms.hasData && ms.data != null) {
-            if (index - _currentMessageSearchId > 49) {
-              _currentMessageSearchId = -1;
-            }
             late Widget widget;
 
             if (index == 0) {
@@ -884,19 +885,14 @@ class _RoomPageState extends State<RoomPage> {
               }
               return widget;
             }
-          } else if (_currentMessageSearchId == -1) {
-            _currentMessageSearchId = index;
-            return SizedBox(
-                height: (initscrollIndex - index).abs() <= 50
-                    ? 600
-                    : 1,
-                child: Text(""));
           } else {
             return SizedBox(
-                height: (initscrollIndex - index).abs() <= 50
-                    ? 600
-                    : 1,
-                child: Text(""));
+                height: _itemCount <= 50
+                    ? 4
+                    : (initScrollIndex - index).abs() <= 50
+                        ? 600
+                        : 4,
+                child: const Text(""));
           }
         },
       );

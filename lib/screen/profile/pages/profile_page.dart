@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -383,28 +384,30 @@ class _ProfilePageState extends State<ProfilePage>
             }
           },
         ),
-        if (widget.roomUid.isMuc())
-          StreamBuilder<Muc?>(
-              stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-              builder: (c, muc) {
-                if (muc.hasData &&
-                    muc.data != null &&
-                    muc.data!.info!.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SettingsTile(
-                        title: _i18n.get("description"),
-                        subtitle: muc.data!.info,
-                        subtitleTextStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 16),
-                        leading: const Icon(Icons.info),
-                        trailing: const SizedBox.shrink()),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
+        if (widget.roomUid.isMuc() || widget.roomUid.isBot())
+          widget.roomUid.isBot()
+              ? FutureBuilder<BotInfo?>(
+                  future: _botRepo.getBotInfo(widget.roomUid),
+                  builder: (c, s) {
+                    if (s.hasData &&
+                        s.data != null &&
+                        s.data!.description!.isNotEmpty) {
+                      return description(s.data!.description!, context);
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  })
+              : StreamBuilder<Muc?>(
+                  stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                  builder: (c, muc) {
+                    if (muc.hasData &&
+                        muc.data != null &&
+                        muc.data!.info!.isNotEmpty) {
+                      return description(muc.data!.info!, context);
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  }),
         if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
@@ -418,6 +421,19 @@ class _ProfilePageState extends State<ProfilePage>
         const Divider(height: 4, thickness: 4)
       ])
     ]));
+  }
+
+  Padding description(String info, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: SettingsTile(
+          title: _i18n.get("description"),
+          subtitle: info,
+          subtitleTextStyle:
+              TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+          leading: const Icon(Icons.info),
+          trailing: const SizedBox.shrink()),
+    );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {

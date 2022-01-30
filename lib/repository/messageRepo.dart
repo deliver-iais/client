@@ -401,6 +401,34 @@ class MessageRepo {
 
   Future<void> sendTextMessage(Uid room, String text,
       {int? replyId, String? forwardedFrom}) async {
+    final List<String> textsBlocks = text.split("\n").toList();
+    final List<String> result = [];
+    for (text in textsBlocks) {
+      if (text.length > 40) {
+        int i = 0;
+        while (i < (text.length / 40).ceil()) {
+          result.add(text.substring(i * 40, min((i + 1) * 40, text.length)));
+          i++;
+        }
+      } else {
+        result.add(text);
+      }
+    }
+
+    int i = 0;
+    while (i < (result.length / 20).ceil()) {
+      List<String> block = result.sublist(i * 20, min((i+1) * 20, result.length));
+      String finalText = "";
+      for (var element in block) {
+        finalText = finalText + element+"\n";
+      }
+      _sendTextMessage(finalText, room, replyId, forwardedFrom);
+      i++;
+    }
+  }
+
+  void _sendTextMessage(
+      String text, Uid room, int? replyId, String? forwardedFrom) {
     String json = (message_pb.Text()..text = text).writeToJson();
     Message msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
@@ -789,7 +817,7 @@ class MessageRepo {
                       roomUid,
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
-                          .toInt(),message.time.toInt());
+                          .toInt());
                   break;
                 case MessageManipulationPersistentEvent_Action.DELETED:
                   var mes = await _messageDao.getMessage(
@@ -818,7 +846,10 @@ class MessageRepo {
     return msgList;
   }
 
-  getEditedMsg(Uid roomUid, int id, int time) async {
+  getEditedMsg(
+    Uid roomUid,
+    int id,
+  ) async {
     var res = await _queryServiceClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -828,8 +859,8 @@ class MessageRepo {
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
     await _roomDao.updateRoom(room!.copyWith(
-        lastUpdatedMessageId: id,
-        lastUpdateTime: time));
+      lastUpdatedMessageId: id,
+    ));
     if (room.lastMessageId == id) {
       _roomDao.updateRoom(room.copyWith(lastMessage: msg));
     }
