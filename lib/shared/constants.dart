@@ -13,7 +13,7 @@ const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.6.7";
+const VERSION = "1.6.8";
 const LOG_OUT = "log_out";
 const double DOWNLOAD_COMPLETE = 200;
 const int TEXT_MESSAGE_MAX_LENGTH = 50;
