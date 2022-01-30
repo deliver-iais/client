@@ -101,8 +101,10 @@ const mainBorder = BorderRadius.all(Radius.circular(28));
 
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 
-const backgroundBorder =
-    BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12));
+const messageBorder = BorderRadius.all(Radius.circular(12));
+
+const backgroundBorder = BorderRadius.only(
+    topLeft: Radius.circular(12), topRight: Radius.circular(12));
 
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 

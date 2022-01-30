@@ -41,6 +41,7 @@ class BoxContent extends StatefulWidget {
   final Function? onBotCommandClick;
   final Function onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
+  final bool isFirstMessageInGroupedMessages;
 
   const BoxContent(
       {Key? key,
@@ -52,6 +53,7 @@ class BoxContent extends StatefulWidget {
       this.pattern,
       this.onUsernameClick,
       this.onBotCommandClick,
+      required this.isFirstMessageInGroupedMessages,
       required this.scrollToMessage,
       required this.onArrowIconClick,
       required this.storePosition})
@@ -95,7 +97,8 @@ class _BoxContentState extends State<BoxContent> {
                         Debug(widget.message.id, label: "id"),
                         Debug(widget.message.packetId, label: "packetId"),
                       ]),
-                    if (widget.message.roomUid.asUid().category ==
+                    if (widget.isFirstMessageInGroupedMessages &&
+                        widget.message.roomUid.asUid().category ==
                             Categories.GROUP &&
                         !widget.isSender)
                       senderNameBox(),
@@ -158,7 +161,7 @@ class _BoxContentState extends State<BoxContent> {
         borderRadius: mainBorder,
         color: widget.isSender
             ? extraThemeData.colorScheme.primaryContainer
-            :theme.colorScheme.surface,
+            : theme.colorScheme.surface,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.from.asUid()),
@@ -186,7 +189,7 @@ class _BoxContentState extends State<BoxContent> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style:theme.primaryTextTheme.bodyText2,
+            style: theme.primaryTextTheme.bodyText2,
           ),
         ),
         onTap: () {

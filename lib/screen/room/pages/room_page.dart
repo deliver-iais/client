@@ -51,6 +51,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:tuple/tuple.dart';
 
 // ignore: constant_identifier_names
 const int PAGE_SIZE = 16;
@@ -329,6 +330,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Future<Message?> _getMessage(int id, String roomId, int? lastMessageId,
       {int? lastUpdatedMessageId}) async {
+    if (id <= 0) return null;
     if (lastMessageId != null) {
       var msg = _messageCache.get(id);
       if (msg != null && id != lastUpdatedMessageId) {
@@ -590,7 +592,7 @@ class _RoomPageState extends State<RoomPage> {
                           children: [
                             Badge(
                               child: IconButton(
-                                  color:theme.primaryColor,
+                                  color: theme.primaryColor,
                                   icon: const Icon(
                                     Icons.clear,
                                     size: 25,
@@ -598,14 +600,12 @@ class _RoomPageState extends State<RoomPage> {
                                   onPressed: () {
                                     onDelete();
                                   }),
-                              badgeColor:theme.primaryColor,
+                              badgeColor: theme.primaryColor,
                               badgeContent: Text(
                                 _selectedMessages.length.toString(),
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color:theme
-                                        .colorScheme
-                                        .onPrimary),
+                                    color: theme.colorScheme.onPrimary),
                               ),
                             ),
                           ],
@@ -751,18 +751,17 @@ class _RoomPageState extends State<RoomPage> {
                       return const SizedBox.shrink();
                     }
                     return Container(
-                      color:theme.backgroundColor,
+                      color: theme.backgroundColor,
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       padding: const EdgeInsets.all(4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.keyboard_arrow_down,
-                              color:theme.primaryColor),
+                              color: theme.primaryColor),
                           Text(
                             _i18n.get("unread_messages"),
-                            style: TextStyle(
-                                color:theme.primaryColor),
+                            style: TextStyle(color: theme.primaryColor),
                           ),
                         ],
                       ),
@@ -779,6 +778,12 @@ class _RoomPageState extends State<RoomPage> {
         );
       },
     );
+  }
+
+  Future<Tuple2<Message?, Message?>> _fetchMessageAndMessageBefore(
+      List<PendingMessage> pendingMessages, int index) async {
+    return Tuple2(await _messageAt(pendingMessages, index - 1),
+        await _messageAt(pendingMessages, index));
   }
 
   Future<Message?> _messageAt(List<PendingMessage> pendingMessages, int index) {
@@ -833,37 +838,42 @@ class _RoomPageState extends State<RoomPage> {
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
                 (_replyMessageId == index + 1)
-            ?theme.focusColor.withAlpha(100)
+            ? theme.focusColor.withAlpha(100)
             : Colors.transparent,
         child: _widgetCache.get(index),
       );
     } else {
-      return FutureBuilder<Message?>(
+      return FutureBuilder<Tuple2<Message?, Message?>>(
+        // TODO change condition later by unset cache on changes
         initialData: index + 1 != _currentRoom.value!.lastUpdatedMessageId
-            ? _messageCache.get(index + 1)
+            ? Tuple2(_messageCache.get(index + 1), _messageCache.get(index))
             : null,
-        future: _messageAt(pendingMessages, index),
+        future: _fetchMessageAndMessageBefore(pendingMessages, index),
         builder: (context, ms) {
-          if (ms.hasData && ms.data != null) {
+          if (ms.hasData && ms.data != null && ms.data!.item2 != null) {
+            final tuple = ms.data!;
+            final messageBefore = tuple.item1;
+            final message = tuple.item2!;
+
             if (index - _currentMessageSearchId > 49) {
               _currentMessageSearchId = -1;
             }
-            late Widget widget;
 
             if (index == 0) {
-              widget = Column(
+              final widget = Column(
                 children: [
-                  ChatTime(currentMessageTime: date(ms.data!.time)),
-                  buildBox(ms, currentRoom, pendingMessages)
+                  ChatTime(currentMessageTime: date(message.time)),
+                  buildBox(message, messageBefore, currentRoom, pendingMessages)
                 ],
               );
-              if (ms.hasData && ms.data != null && ms.data!.id != null) {
+              if (message.id != null) {
                 _widgetCache.set(index, widget);
               }
               return widget;
             } else {
-              widget = buildBox(ms, currentRoom, pendingMessages);
-              if (ms.hasData && ms.data != null && ms.data!.id != null) {
+              final widget = buildBox(
+                  message, messageBefore, currentRoom, pendingMessages);
+              if (message.id != null) {
                 _widgetCache.set(index, widget);
               }
               return widget;
@@ -879,30 +889,31 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  Widget buildBox(AsyncSnapshot<Message?> ms, Room currentRoom,
+  Widget buildBox(Message message, Message? messageBefore, Room currentRoom,
       List<PendingMessage> pendingMessages) {
-    final keyId = ms.data?.id;
+    final keyId = message.id;
     final key = keyId != null ? ValueKey(keyId) : null;
 
     return BuildMessageBox(
       key: key,
-      message: ms.data!,
+      message: message,
+      messageBefore: messageBefore,
       currentRoom: currentRoom,
       itemScrollController: _itemScrollController,
       lastSeenMessageId: _lastSeenMessageId,
-      addReplyMessage: () => onReply(ms.data!),
-      onEdit: () => onEdit(ms.data!),
-      onPin: () => onPin(ms.data!),
-      onUnPin: () => onUnPin(ms.data!),
+      addReplyMessage: () => onReply(message),
+      onEdit: () => onEdit(message),
+      onPin: () => onPin(message),
+      onUnPin: () => onUnPin(message),
       onDelete: () => onDelete,
       pinMessages: _pinMessages,
       changeReplyMessageId: (int id) => _changeReplyMessageId(id),
       replyMessageId: _replyMessageId,
-      onReply: () => onReply(ms.data!),
+      onReply: () => onReply(message),
       selectMultiMessageSubject: _selectMultiMessageSubject,
       hasPermissionInGroup: _hasPermissionInGroup.value,
       hasPermissionInChannel: _hasPermissionInChannel,
-      addForwardMessage: () => _addForwardMessage(ms.data!),
+      addForwardMessage: () => _addForwardMessage(message),
     );
   }
 
@@ -972,7 +983,7 @@ class _RoomPageState extends State<RoomPage> {
           Tooltip(
               message: _i18n.get("forward"),
               child: IconButton(
-                  color:theme.primaryColor,
+                  color: theme.primaryColor,
                   icon: const Icon(
                     Icons.forward,
                     size: 25,
@@ -986,7 +997,7 @@ class _RoomPageState extends State<RoomPage> {
             Tooltip(
               message: _i18n.get("delete"),
               child: IconButton(
-                  color:theme.primaryColor,
+                  color: theme.primaryColor,
                   icon: const Icon(
                     Icons.delete,
                     size: 25,

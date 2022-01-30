@@ -10,6 +10,7 @@ class SentMessageBox extends StatelessWidget {
   final Message message;
   final Function scrollToMessage;
   final bool isSeen;
+  final bool isFirstMessageInGroupedMessages;
   final Function omUsernameClick;
   final String? pattern;
   final Function onArrowIconClick;
@@ -19,6 +20,7 @@ class SentMessageBox extends StatelessWidget {
       {Key? key,
       required this.message,
       required this.isSeen,
+      required this.isFirstMessageInGroupedMessages,
       required this.scrollToMessage,
       this.pattern,
       required this.omUsernameClick,
@@ -36,6 +38,7 @@ class SentMessageBox extends StatelessWidget {
       scrollToMessage: scrollToMessage,
       isSeen: isSeen,
       pattern: pattern,
+      isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: omUsernameClick,
       onArrowIconClick: onArrowIconClick,
       storePosition: storePosition,
@@ -43,7 +46,8 @@ class SentMessageBox extends StatelessWidget {
 
     return doNotNeedsWrapper()
         ? boxContent
-        : MessageWrapper(child: boxContent, isSender: true);
+        : MessageWrapper(
+            child: boxContent, isSender: true, isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
   }
 
   doNotNeedsWrapper() {

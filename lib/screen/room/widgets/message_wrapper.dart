@@ -7,49 +7,43 @@ import 'package:flutter/material.dart';
 class MessageWrapper extends StatelessWidget {
   final Widget child;
   final bool isSender;
+  final bool isFirstMessageInGroupedMessages;
 
-  const MessageWrapper({Key? key, required this.child, required this.isSender})
+  const MessageWrapper(
+      {Key? key,
+      required this.child,
+      required this.isSender,
+      this.isFirstMessageInGroupedMessages = true})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final extraThemeData = ExtraTheme.of(context);
     final background = extraThemeData.messageBackground(isSender);
+
+    var border = messageBorder;
+
+    if (isFirstMessageInGroupedMessages) {
+      if (isSender) {
+        border = border.copyWith(
+            topRight: const Radius.circular(4),
+            topLeft: const Radius.circular(16));
+      } else {
+        border = border.copyWith(
+            topRight: const Radius.circular(16),
+            topLeft: const Radius.circular(4));
+      }
+    }
+
     return Container(
-      padding: const EdgeInsets.all(4.0),
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: const BoxDecoration(
-        borderRadius: secondaryBorder,
+      padding: const EdgeInsets.all(2.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2)
+          .copyWith(top: isFirstMessageInGroupedMessages ? 16 : 4),
+      decoration: BoxDecoration(
+        borderRadius: border,
+        color: background,
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: isSender ? null : 0,
-            right: !isSender ? null : 0,
-            top: 0,
-            child: !isSender
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CustomPaint(foregroundPainter: OPainter(background)))
-                : Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationY(pi),
-                    child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CustomPaint(
-                            foregroundPainter: OPainter(background))),
-                  ),
-          ),
-          Container(
-              decoration: BoxDecoration(
-                borderRadius: secondaryBorder,
-                color: background,
-              ),
-              child: child),
-        ],
-      ),
+      child: child,
     );
   }
 }

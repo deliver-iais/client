@@ -22,6 +22,7 @@ import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ import 'package:process_run/shell.dart';
 
 class BuildMessageBox extends StatefulWidget {
   final Message message;
+  final Message? messageBefore;
   final Room currentRoom;
   final ItemScrollController itemScrollController;
   final Function addReplyMessage;
@@ -57,6 +59,7 @@ class BuildMessageBox extends StatefulWidget {
   const BuildMessageBox(
       {Key? key,
       required this.message,
+      this.messageBefore,
       required this.currentRoom,
       required this.replyMessageId,
       required this.itemScrollController,
@@ -91,13 +94,29 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(context, widget.message, widget.currentRoom);
+    return _buildMessageBox(
+        context, widget.message, widget.messageBefore, widget.currentRoom);
   }
 
-  Widget _buildMessageBox(
-      BuildContext context, Message msg, Room? currentRoom) {
+  Widget _buildMessageBox(BuildContext context, Message msg, Message? msgBefore,
+      Room? currentRoom) {
+    var isFirstMessageInGroupedMessages = true;
+
+    if (msgBefore?.from == msg.from &&
+        ((msgBefore?.time ?? 0) - msg.time).abs() < 1000 * 60 * 5) {
+      final d1 = date(msgBefore?.time ?? 0);
+      final d2 = date(msg.time);
+
+      if (d1.day == d2.day && d1.month == d2.month && d1.year == d2.year) {
+        if (!msgBefore!.json!.isDeletedMessage()) {
+          isFirstMessageInGroupedMessages = false;
+        }
+      }
+    }
+
     return msg.type != MessageType.PERSISTENT_EVENT
-        ? _createWidget(context, msg, currentRoom)
+        ? _createWidget(
+            context, msg, isFirstMessageInGroupedMessages, currentRoom)
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -153,8 +172,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           );
   }
 
-  Widget _createWidget(
-      BuildContext context, Message message, Room? currentRoom) {
+  Widget _createWidget(BuildContext context, Message message,
+      bool isFirstMessageInGroupedMessages, Room? currentRoom) {
     if (message.json == "{}") {
       return const SizedBox(
         height: 1,
@@ -163,9 +182,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
     Widget messageWidget;
     if (_authRepo.isCurrentUser(message.from)) {
-      messageWidget = showSentMessage(message);
+      messageWidget = showSentMessage(message, isFirstMessageInGroupedMessages);
     } else {
-      messageWidget = showReceivedMessage(message);
+      messageWidget =
+          showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
     var dismissibleWidget = SwipeTo(
         onLeftSwipe: () async {
@@ -220,7 +240,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                   ));
   }
 
-  Widget showSentMessage(Message message) {
+  Widget showSentMessage(
+      Message message, bool isFirstMessageInGroupedMessages) {
     var messageWidget = SentMessageBox(
         message: message,
         onArrowIconClick: () => _showCustomMenu(context, message),
@@ -230,6 +251,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         scrollToMessage: (int id) {
           _scrollToMessage(id: id);
         },
+        isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
         omUsernameClick: onUsernameClick,
         storePosition: storePosition);
 
@@ -244,13 +266,15 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     _messageRepo.sendTextMessage(widget.currentRoom.uid.asUid(), command);
   }
 
-  Widget showReceivedMessage(Message message) {
+  Widget showReceivedMessage(
+      Message message, bool isFirstMessageInGroupedMessages) {
     var messageWidget = ReceivedMessageBox(
       message: message,
       pattern: "",
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
+      isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
     );
@@ -258,12 +282,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        if (widget.message.roomUid.asUid().category == Categories.GROUP)
+        if (isFirstMessageInGroupedMessages &&
+            widget.message.roomUid.asUid().category == Categories.GROUP)
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                padding: const EdgeInsets.only(top: 12.0, left: 8.0),
                 child: CircleAvatarWidget(message.from.asUid(), 18,
                     isHeroEnabled: false),
               ),
@@ -272,6 +297,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               },
             ),
           ),
+        if (!isFirstMessageInGroupedMessages &&
+            widget.message.roomUid.asUid().category == Categories.GROUP)
+          const SizedBox(width: 44),
         messageWidget
       ],
     );
