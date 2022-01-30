@@ -1,7 +1,7 @@
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -39,7 +39,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: lowlight(widget.isSender, context),
+                color: ExtraTheme.of(context).lowlight(widget.isSender),
               ),
               child: StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioCurrentState(),
@@ -56,7 +56,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                                 alignment: Alignment.center,
                                 icon: Icon(
                                   Icons.pause,
-                                  color: highlight(widget.isSender, context),
+                                  color: ExtraTheme.of(context).highlight(widget.isSender),
                                   size: 40,
                                 ),
                                 onPressed: () {
@@ -82,7 +82,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         alignment: Alignment.center,
         icon: Icon(
           Icons.play_arrow,
-          color: highlight(widget.isSender, context),
+          color: ExtraTheme.of(context).highlight(widget.isSender),
           size: 42,
         ),
         onPressed: () {

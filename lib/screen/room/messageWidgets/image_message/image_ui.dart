@@ -8,7 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -115,14 +115,14 @@ class _ImageUiState extends State<ImageUi> {
                                         snap.data! > 0) {
                                       return Container(
                                         decoration: BoxDecoration(
-                                            color: lowlight(
-                                                widget.isSender, context),
+                                            color: ExtraTheme.of(context).lowlight(
+                                                widget.isSender),
                                             shape: BoxShape.circle),
                                         child: CircularPercentIndicator(
                                           radius: 50.0,
                                           lineWidth: 4.0,
-                                          backgroundColor: lowlight(
-                                              widget.isSender, context),
+                                          backgroundColor: ExtraTheme.of(context).lowlight(
+                                              widget.isSender),
                                           percent: snap.data!,
                                           center: StreamBuilder<CancelToken?>(
                                             stream: _fileServices.cancelTokens[
@@ -131,8 +131,8 @@ class _ImageUiState extends State<ImageUi> {
                                               return GestureDetector(
                                                 child: Icon(
                                                   Icons.close,
-                                                  color: highlight(
-                                                      widget.isSender, context),
+                                                  color: ExtraTheme.of(context).highlight(
+                                                      widget.isSender),
                                                   size: 35,
                                                 ),
                                                 onTap: () {
@@ -148,8 +148,8 @@ class _ImageUiState extends State<ImageUi> {
                                               );
                                             },
                                           ),
-                                          progressColor: highlight(
-                                              widget.isSender, context),
+                                          progressColor: ExtraTheme.of(context).highlight(
+                                              widget.isSender),
                                         ),
                                       );
                                     } else {
@@ -202,8 +202,8 @@ class _ImageUiState extends State<ImageUi> {
                                   widget.image.uuid, widget.image.name);
                               setState(() {});
                             },
-                            background: lowlight(widget.isSender, context),
-                            foreground: highlight(widget.isSender, context),
+                            background: ExtraTheme.of(context).lowlight(widget.isSender),
+                            foreground: ExtraTheme.of(context).highlight(widget.isSender),
                           )),
                          if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(

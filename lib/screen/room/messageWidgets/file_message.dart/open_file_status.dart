@@ -1,4 +1,4 @@
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:universal_html/html.dart' as html;
 
@@ -27,14 +27,14 @@ class OpenFileStatus extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: lowlight(isSender, context),
+          color: ExtraTheme.of(context).lowlight(isSender),
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
           alignment: Alignment.center,
           icon: Icon(
             Icons.insert_drive_file,
-            color: highlight(isSender, context),
+            color: ExtraTheme.of(context).highlight(isSender),
             size: 27,
           ),
           onPressed: () async {

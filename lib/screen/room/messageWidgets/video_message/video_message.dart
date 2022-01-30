@@ -6,7 +6,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +52,8 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    Color background = lowlight(widget.isSender, context);
-    Color foreground = highlight(widget.isSender, context);
+    Color background = ExtraTheme.of(context).lowlight(widget.isSender);
+    Color foreground = ExtraTheme.of(context).highlight(widget.isSender);
     File video = widget.message.json!.toFile();
     Duration duration = Duration(seconds: video.duration.round());
     String videoLength = calculateVideoLength(duration);
@@ -187,10 +187,10 @@ class _VideoMessageState extends State<VideoMessage> {
                                               await _fileRepo.getFile(
                                                   video.uuid, video.name);
                                             },
-                                            background: lowlight(
-                                                widget.isSender, context),
-                                            foreground: highlight(
-                                                widget.isSender, context),
+                                            background: ExtraTheme.of(context)
+                                                .lowlight(widget.isSender),
+                                            foreground: ExtraTheme.of(context)
+                                                .highlight(widget.isSender),
                                           ),
                                           video: video,
                                           videoLength: videoLength);
@@ -205,10 +205,10 @@ class _VideoMessageState extends State<VideoMessage> {
                                       await _fileRepo.getFile(
                                           video.uuid, video.name);
                                     },
-                                    background:
-                                        lowlight(widget.isSender, context),
-                                    foreground:
-                                        highlight(widget.isSender, context),
+                                    background: ExtraTheme.of(context)
+                                        .lowlight(widget.isSender),
+                                    foreground: ExtraTheme.of(context)
+                                        .highlight(widget.isSender),
                                   ),
                                   video: video,
                                   videoLength: videoLength);

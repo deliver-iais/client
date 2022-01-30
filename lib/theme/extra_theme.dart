@@ -6,6 +6,15 @@ class ExtraThemeData {
 
   Color onDetailsBox;
 
+  Color lowlight(bool isSender) =>
+      !isSender ? colorScheme.onPrimary : colorScheme.onTertiary;
+
+  Color highlight(bool isSender) =>
+      !isSender ? colorScheme.primary : colorScheme.tertiary;
+
+  Color surfaceElevation(int number) =>
+      elevation(colorScheme.surface, colorScheme.primary, number);
+
   ExtraThemeData({
     required this.colorScheme,
     required this.onDetailsBox,
@@ -28,7 +37,5 @@ class ExtraTheme extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(ExtraTheme oldWidget) {
-    return false;
-  }
+  bool updateShouldNotify(ExtraTheme oldWidget) => false;
 }

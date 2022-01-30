@@ -7,7 +7,7 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -41,8 +41,8 @@ class ShareUidMessageWidget extends StatelessWidget {
         children: [
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-                primary: highlight(isSender, context),
-                backgroundColor: lowlight(isSender, context)),
+                primary: ExtraTheme.of(context).highlight(isSender),
+                backgroundColor: ExtraTheme.of(context).lowlight(isSender)),
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(_shareUid.uid, 14,

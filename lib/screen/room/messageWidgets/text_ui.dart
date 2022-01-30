@@ -6,7 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -81,8 +81,8 @@ class TextUI extends StatelessWidget {
           LinkPreview(
             link: link,
             maxWidth: linkPreviewMaxWidth,
-            backgroundColor: lowlight(isSender, context),
-            foregroundColor: highlight(isSender, context),
+            backgroundColor: ExtraTheme.of(context).lowlight(isSender),
+            foregroundColor: ExtraTheme.of(context).highlight(isSender),
           ),
           TimeAndSeenStatus(
             message,

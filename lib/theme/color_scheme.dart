@@ -71,18 +71,6 @@ class Material3ColorScheme {
   });
 }
 
-Color lowlight(bool isSender, BuildContext context) {
-  return !isSender
-      ? ExtraTheme.of(context).colorScheme.onPrimary
-      : ExtraTheme.of(context).colorScheme.onTertiary;
-}
-
-Color highlight(bool isSender, BuildContext context) {
-  return !isSender
-      ? ExtraTheme.of(context).colorScheme.primary
-      : ExtraTheme.of(context).colorScheme.tertiary;
-}
-
 Color elevation(Color surface, Color primary, int number) =>
     Color.lerp(surface, primary, number * 3 / 100)!;
 

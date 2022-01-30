@@ -22,7 +22,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -142,8 +141,8 @@ class _BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
-          backgroundColor: lowlight(widget.isSender, context),
-          foregroundColor: highlight(widget.isSender, context),
+          backgroundColor: ExtraTheme.of(context).lowlight(widget.isSender),
+          foregroundColor: ExtraTheme.of(context).highlight(widget.isSender),
         ),
       ),
     );
@@ -200,7 +199,7 @@ class _BoxContentState extends State<BoxContent> {
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: mainBorder,
-        color: highlight(widget.isSender, context),
+        color: ExtraTheme.of(context).highlight(widget.isSender),
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -213,14 +212,16 @@ class _BoxContentState extends State<BoxContent> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.keyboard_arrow_right_rounded,
-                      size: 15, color: lowlight(widget.isSender, context)),
+                      size: 15,
+                      color: ExtraTheme.of(context).lowlight(widget.isSender)),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
-                            color: lowlight(widget.isSender, context),
+                            color: ExtraTheme.of(context)
+                                .lowlight(widget.isSender),
                             fontSize: 12)),
                   ),
                 ],
