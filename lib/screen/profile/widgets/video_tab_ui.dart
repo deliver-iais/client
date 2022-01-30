@@ -30,6 +30,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
 
   @override
   Widget build(BuildContext context) {
+    var extraThemeData = ExtraTheme.of(context);
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
             widget.userUid, MediaType.VIDEO, widget.videoCount),
@@ -84,8 +85,10 @@ class _VideoTabUiState extends State<VideoTabUi> {
                               await fileRepo.getFile(fileId, fileName);
                               setState(() {});
                             },
-                            background: ExtraTheme.of(context).colorScheme.primaryContainer,
-                            foreground: ExtraTheme.of(context).colorScheme.onPrimaryContainer,
+                            background:
+                                extraThemeData.colorScheme.primaryContainer,
+                            foreground:
+                                extraThemeData.colorScheme.onPrimaryContainer,
                           );
                         }
                       });

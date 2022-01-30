@@ -385,6 +385,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       required DateTime createdOn,
       required String senderName,
       var fileId}) {
+    var extraThemeData = ExtraTheme.of(context);
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
@@ -414,8 +415,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                 download: () async {
                   await download(fileId, fileName);
                 },
-                background: ExtraTheme.of(context).lowlight(false),
-                foreground: ExtraTheme.of(context).highlight(false),
+                background: extraThemeData.lowlight(false),
+                foreground: extraThemeData.highlight(false),
               )
             ],
           ),

@@ -131,6 +131,7 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget replyToIdBox() {
+    final extraThemeData = ExtraTheme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -141,20 +142,21 @@ class _BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
-          backgroundColor: ExtraTheme.of(context).lowlight(widget.isSender),
-          foregroundColor: ExtraTheme.of(context).highlight(widget.isSender),
+          backgroundColor: extraThemeData.lowlight(widget.isSender),
+          foregroundColor: extraThemeData.highlight(widget.isSender),
         ),
       ),
     );
   }
 
   Widget senderNameBox() {
+    final extraThemeData = ExtraTheme.of(context);
     return Container(
       padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
       decoration: BoxDecoration(
         borderRadius: mainBorder,
         color: widget.isSender
-            ? ExtraTheme.of(context).colorScheme.primaryContainer
+            ? extraThemeData.colorScheme.primaryContainer
             : Theme.of(context).colorScheme.surface,
       ),
       child: FutureBuilder<String>(
@@ -193,13 +195,14 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget forwardedFromBox() {
+    final extraThemeData = ExtraTheme.of(context);
     return Container(
       margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
       padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: mainBorder,
-        color: ExtraTheme.of(context).highlight(widget.isSender),
+        color: extraThemeData.highlight(widget.isSender),
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -213,7 +216,7 @@ class _BoxContentState extends State<BoxContent> {
                 children: [
                   Icon(Icons.keyboard_arrow_right_rounded,
                       size: 15,
-                      color: ExtraTheme.of(context).lowlight(widget.isSender)),
+                      color: extraThemeData.lowlight(widget.isSender)),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,

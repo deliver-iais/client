@@ -13,6 +13,7 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     return Container(
       padding: const EdgeInsets.all(4.0),
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -56,7 +57,7 @@ class MessageWrapper extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: secondaryBorder,
                   color: isSent
-                      ? ExtraTheme.of(context).colorScheme.tertiaryContainer
+                      ? extraThemeData.colorScheme.tertiaryContainer
                       : Theme.of(context).colorScheme.surface,
                 ),
                 child: child),

@@ -29,6 +29,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     return FutureBuilder<String?>(
         future: fileRepo.getFileIfExist(widget.fileId, widget.fileName),
         builder: (context, audio) {
@@ -39,7 +40,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: ExtraTheme.of(context).lowlight(widget.isSender),
+                color: extraThemeData.lowlight(widget.isSender),
               ),
               child: StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioCurrentState(),
@@ -56,7 +57,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                                 alignment: Alignment.center,
                                 icon: Icon(
                                   Icons.pause,
-                                  color: ExtraTheme.of(context).highlight(widget.isSender),
+                                  color: extraThemeData.highlight(widget.isSender),
                                   size: 40,
                                 ),
                                 onPressed: () {
@@ -77,12 +78,13 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
   }
 
   IconButton buildPlay(BuildContext context, AsyncSnapshot<String?> audio) {
+    final extraThemeData = ExtraTheme.of(context);
     return IconButton(
         padding: EdgeInsets.zero,
         alignment: Alignment.center,
         icon: Icon(
           Icons.play_arrow,
-          color: ExtraTheme.of(context).highlight(widget.isSender),
+          color: extraThemeData.highlight(widget.isSender),
           size: 42,
         ),
         onPressed: () {

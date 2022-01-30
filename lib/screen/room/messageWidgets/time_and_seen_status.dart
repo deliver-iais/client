@@ -40,6 +40,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     return RepaintBoundary(
       child: BlurContainer(
         padding: needsPadding
@@ -50,9 +51,9 @@ class TimeAndSeenStatus extends StatelessWidget {
         child: DefaultTextStyle(
           style: TextStyle(
             color: needsBackground
-                ? ExtraTheme.of(context).onDetailsBox
+                ? extraThemeData.onDetailsBox
                 : (isSender
-                    ? ExtraTheme.of(context).colorScheme.onPrimaryContainer
+                    ? extraThemeData.colorScheme.onPrimaryContainer
                     : Theme.of(context)
                         .colorScheme.onSurface.withAlpha(120)),
             fontSize: 13,
@@ -74,8 +75,8 @@ class TimeAndSeenStatus extends StatelessWidget {
                     message,
                     isSeen: isSeen,
                     iconColor: needsBackground
-                        ? ExtraTheme.of(context).onDetailsBox
-                        : ExtraTheme.of(context).colorScheme.onPrimaryContainer,
+                        ? extraThemeData.onDetailsBox
+                        : extraThemeData.colorScheme.onPrimaryContainer,
                   ),
                 )
             ],

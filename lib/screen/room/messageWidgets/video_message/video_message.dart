@@ -52,8 +52,9 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    Color background = ExtraTheme.of(context).lowlight(widget.isSender);
-    Color foreground = ExtraTheme.of(context).highlight(widget.isSender);
+    final extraThemeData = ExtraTheme.of(context);
+    Color background = extraThemeData.lowlight(widget.isSender);
+    Color foreground = extraThemeData.highlight(widget.isSender);
     File video = widget.message.json!.toFile();
     Duration duration = Duration(seconds: video.duration.round());
     String videoLength = calculateVideoLength(duration);

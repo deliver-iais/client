@@ -58,6 +58,7 @@ class _ImageUiState extends State<ImageUi> {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     try {
       return Hero(
         tag: "${widget.message.id}-${widget.image.uuid}",
@@ -115,13 +116,13 @@ class _ImageUiState extends State<ImageUi> {
                                         snap.data! > 0) {
                                       return Container(
                                         decoration: BoxDecoration(
-                                            color: ExtraTheme.of(context).lowlight(
+                                            color: extraThemeData.lowlight(
                                                 widget.isSender),
                                             shape: BoxShape.circle),
                                         child: CircularPercentIndicator(
                                           radius: 50.0,
                                           lineWidth: 4.0,
-                                          backgroundColor: ExtraTheme.of(context).lowlight(
+                                          backgroundColor: extraThemeData.lowlight(
                                               widget.isSender),
                                           percent: snap.data!,
                                           center: StreamBuilder<CancelToken?>(
@@ -131,7 +132,7 @@ class _ImageUiState extends State<ImageUi> {
                                               return GestureDetector(
                                                 child: Icon(
                                                   Icons.close,
-                                                  color: ExtraTheme.of(context).highlight(
+                                                  color: extraThemeData.highlight(
                                                       widget.isSender),
                                                   size: 35,
                                                 ),
@@ -148,7 +149,7 @@ class _ImageUiState extends State<ImageUi> {
                                               );
                                             },
                                           ),
-                                          progressColor: ExtraTheme.of(context).highlight(
+                                          progressColor: extraThemeData.highlight(
                                               widget.isSender),
                                         ),
                                       );
@@ -202,8 +203,8 @@ class _ImageUiState extends State<ImageUi> {
                                   widget.image.uuid, widget.image.name);
                               setState(() {});
                             },
-                            background: ExtraTheme.of(context).lowlight(widget.isSender),
-                            foreground: ExtraTheme.of(context).highlight(widget.isSender),
+                            background: extraThemeData.lowlight(widget.isSender),
+                            foreground: extraThemeData.highlight(widget.isSender),
                           )),
                          if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(

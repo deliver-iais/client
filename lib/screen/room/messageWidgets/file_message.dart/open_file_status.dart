@@ -22,19 +22,20 @@ class OpenFileStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     return Container(
         width: 50,
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: ExtraTheme.of(context).lowlight(isSender),
+          color: extraThemeData.lowlight(isSender),
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
           alignment: Alignment.center,
           icon: Icon(
             Icons.insert_drive_file,
-            color: ExtraTheme.of(context).highlight(isSender),
+            color: extraThemeData.highlight(isSender),
             size: 27,
           ),
           onPressed: () async {

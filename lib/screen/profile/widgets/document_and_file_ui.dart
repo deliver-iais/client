@@ -41,6 +41,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
 
   @override
   Widget build(BuildContext context) {
+    var extraThemeData = ExtraTheme.of(context);
+
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
             widget.roomUid, widget.type, widget.documentCount),
@@ -81,9 +83,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   height: 50,
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color:
-                                                        ExtraTheme.of(context)
-                                                            .lowlight(false),
+                                                    color: extraThemeData
+                                                        .lowlight(false),
                                                   ),
                                                   child: IconButton(
                                                     padding: const EdgeInsets

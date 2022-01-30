@@ -33,6 +33,7 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     var _shareUid = message.json!.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
@@ -41,8 +42,8 @@ class ShareUidMessageWidget extends StatelessWidget {
         children: [
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-                primary: ExtraTheme.of(context).highlight(isSender),
-                backgroundColor: ExtraTheme.of(context).lowlight(isSender)),
+                primary: extraThemeData.highlight(isSender),
+                backgroundColor: extraThemeData.lowlight(isSender)),
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(_shareUid.uid, 14,

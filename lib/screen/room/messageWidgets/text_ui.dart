@@ -40,6 +40,8 @@ class TextUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
+
     String text = extractText(message);
     List<Block> blocks = extractBlocks(text, context);
     List<TextSpan> spans = blocks.map<TextSpan>((b) {
@@ -81,8 +83,8 @@ class TextUI extends StatelessWidget {
           LinkPreview(
             link: link,
             maxWidth: linkPreviewMaxWidth,
-            backgroundColor: ExtraTheme.of(context).lowlight(isSender),
-            foregroundColor: ExtraTheme.of(context).highlight(isSender),
+            backgroundColor: extraThemeData.lowlight(isSender),
+            foregroundColor: extraThemeData.highlight(isSender),
           ),
           TimeAndSeenStatus(
             message,

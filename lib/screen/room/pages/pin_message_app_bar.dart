@@ -31,6 +31,7 @@ class PinMessageAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     return StreamBuilder<int>(
         stream: lastPinedMessage.stream,
         builder: (c, id) {
@@ -55,7 +56,7 @@ class PinMessageAppBar extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color:
-                            ExtraTheme.of(context).colorScheme.inverseSurface,
+                            extraThemeData.colorScheme.inverseSurface,
                         borderRadius: secondaryBorder,
                       ),
                       height: 60,
@@ -159,10 +160,11 @@ class PinMessageAppBar extends StatelessWidget {
   }
 
   Color color(BuildContext context, int index) {
+    final extraThemeData = ExtraTheme.of(context);
     return shouldHighlight(index, lastPinedMessage.value)
-        ? ExtraTheme.of(context).colorScheme.primaryInverse
-        : Color.lerp(ExtraTheme.of(context).colorScheme.primaryInverse,
-            ExtraTheme.of(context).colorScheme.inverseSurface, 0.8)!;
+        ? extraThemeData.colorScheme.primaryInverse
+        : Color.lerp(extraThemeData.colorScheme.primaryInverse,
+            extraThemeData.colorScheme.inverseSurface, 0.8)!;
   }
 
   bool shouldHighlight(int index, int id) {

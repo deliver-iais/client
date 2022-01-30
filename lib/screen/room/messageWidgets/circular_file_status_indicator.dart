@@ -40,6 +40,7 @@ class _CircularFileStatusIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final extraThemeData = ExtraTheme.of(context);
     var file = widget.message.json!.toFile();
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
@@ -71,7 +72,7 @@ class _CircularFileStatusIndicatorState
                               },
                               background: ExtraTheme.of(context)
                                   .lowlight(widget.isSender),
-                              foreground: ExtraTheme.of(context).highlight(widget.isSender),
+                              foreground: extraThemeData.highlight(widget.isSender),
                             );
                           }
                         });
@@ -83,8 +84,8 @@ class _CircularFileStatusIndicatorState
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
                       },
-                      background: ExtraTheme.of(context).lowlight(widget.isSender),
-                      foreground: ExtraTheme.of(context).highlight(widget.isSender),
+                      background: extraThemeData.lowlight(widget.isSender),
+                      foreground: extraThemeData.highlight(widget.isSender),
                     );
                   }
                 });
