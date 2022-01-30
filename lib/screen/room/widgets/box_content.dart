@@ -189,7 +189,7 @@ class _BoxContentState extends State<BoxContent> {
           ),
         ),
         onTap: () {
-          _routingServices.openRoom(widget.message.from);
+          _routingServices.openProfile(widget.message.from);
         },
       ),
     );

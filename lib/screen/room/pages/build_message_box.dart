@@ -269,7 +269,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                     isHeroEnabled: false),
               ),
               onTap: () {
-                _routingServices.openRoom(message.from);
+                _routingServices.openProfile(message.from);
               },
             ),
           ),
