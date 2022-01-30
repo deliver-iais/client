@@ -5,7 +5,7 @@ import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_s
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/theme/color_scheme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';

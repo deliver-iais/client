@@ -1,4 +1,4 @@
-import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:universal_html/html.dart' as html;
 

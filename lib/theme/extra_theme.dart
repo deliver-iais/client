@@ -1,47 +1,8 @@
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 
-class ExtraThemeDataColorScheme {
-  final Color primaryContainer;
-  final Color onPrimaryContainer;
-
-  final Color secondaryContainer;
-  final Color onSecondaryContainer;
-
-  final Color tertiary;
-  final Color onTertiary;
-  final Color tertiaryContainer;
-  final Color onTertiaryContainer;
-
-  final Color errorContainer;
-  final Color onErrorContainer;
-
-  final Color surfaceVariant;
-  final Color onSurfaceVariant;
-  final Color inverseSurface;
-  final Color onInverseSurface;
-  final Color primaryInverse;
-
-  ExtraThemeDataColorScheme({
-    required this.primaryContainer,
-    required this.onPrimaryContainer,
-    required this.secondaryContainer,
-    required this.onSecondaryContainer,
-    required this.tertiary,
-    required this.onTertiary,
-    required this.tertiaryContainer,
-    required this.onTertiaryContainer,
-    required this.errorContainer,
-    required this.onErrorContainer,
-    required this.surfaceVariant,
-    required this.onSurfaceVariant,
-    required this.inverseSurface,
-    required this.onInverseSurface,
-    required this.primaryInverse,
-  });
-}
-
 class ExtraThemeData {
-  ExtraThemeDataColorScheme colorScheme;
+  Material3ColorScheme colorScheme;
 
   Color onDetailsBox;
 

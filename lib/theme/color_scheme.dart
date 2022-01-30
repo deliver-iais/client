@@ -71,6 +71,18 @@ class Material3ColorScheme {
   });
 }
 
+Color lowlight(bool isSender, BuildContext context) {
+  return !isSender
+      ? ExtraTheme.of(context).colorScheme.onPrimary
+      : ExtraTheme.of(context).colorScheme.onTertiary;
+}
+
+Color highlight(bool isSender, BuildContext context) {
+  return !isSender
+      ? ExtraTheme.of(context).colorScheme.primary
+      : ExtraTheme.of(context).colorScheme.tertiary;
+}
+
 Color elevation(Color surface, Color primary, int number) =>
     Color.lerp(surface, primary, number * 3 / 100)!;
 
@@ -165,22 +177,5 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
 
 ExtraThemeData getExtraThemeData(Material3ColorScheme colorScheme) {
   return ExtraThemeData(
-      onDetailsBox: colorScheme.onPrimaryContainer,
-      colorScheme: ExtraThemeDataColorScheme(
-        primaryContainer: colorScheme.primaryContainer,
-        onPrimaryContainer: colorScheme.onPrimaryContainer,
-        secondaryContainer: colorScheme.secondaryContainer,
-        onSecondaryContainer: colorScheme.onSecondaryContainer,
-        tertiary: colorScheme.tertiary,
-        onTertiary: colorScheme.onTertiary,
-        tertiaryContainer: colorScheme.tertiaryContainer,
-        onTertiaryContainer: colorScheme.onTertiaryContainer,
-        errorContainer: colorScheme.errorContainer,
-        onErrorContainer: colorScheme.error,
-        surfaceVariant: colorScheme.surfaceVariant,
-        onSurfaceVariant: colorScheme.onSurfaceVariant,
-        inverseSurface: colorScheme.inverseSurface,
-        onInverseSurface: colorScheme.onInverseSurface,
-        primaryInverse: colorScheme.primaryInverse,
-      ));
+      onDetailsBox: colorScheme.onPrimaryContainer, colorScheme: colorScheme);
 }

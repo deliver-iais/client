@@ -4,10 +4,10 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/colors.dart';
 
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
