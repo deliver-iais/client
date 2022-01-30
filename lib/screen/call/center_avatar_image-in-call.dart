@@ -1,5 +1,6 @@
 // ignore_for_file: file_names
 
+import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -17,6 +18,7 @@ class CenterAvatarInCall extends StatefulWidget {
 
 class _CenterAvatarInCallState extends State<CenterAvatarInCall> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,23 @@ class _CenterAvatarInCallState extends State<CenterAvatarInCall> {
         child: Align(
             alignment: Alignment.topCenter,
             child: Column(children: [
-              CircleAvatarWidget(widget.roomUid, 60),
+              StreamBuilder<Object>(
+                  stream: _avatarRepo.getLastAvatarFilePathStream(
+                      widget.roomUid, false),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return CircleAvatarWidget(widget.roomUid, 60);
+                    } else {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(60),
+                        child: const Image(
+                          width: 120,
+                          height: 120,
+                          image: AssetImage('assets/images/no-profile-pic.png'),
+                        ),
+                      );
+                    }
+                  }),
               FutureBuilder<String>(
                   future: _roomRepo.getName(widget.roomUid),
                   builder: (context, snapshot) {
