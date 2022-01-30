@@ -1015,7 +1015,7 @@ class _RoomPageState extends State<RoomPage> {
                     showDeleteMsgDialog(
                         _selectedMessages.values.toList(), context, () {
                       onDelete();
-                    }, _currentRoom.value!.lastMessageId);
+                    }, );
                     _selectedMessages.clear();
                   }),
             ),

@@ -450,8 +450,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   onDeleteMessage() {
-    showDeleteMsgDialog([widget.message], context, widget.onDelete,
-        widget.currentRoom.lastMessageId ?? -1);
+    showDeleteMsgDialog([widget.message], context, widget.onDelete,);
   }
 
   onDeletePendingMessage() {

@@ -1004,20 +1004,23 @@ class MessageRepo {
     }
   }
 
-  deleteMessage(List<Message> messages, int roomLastMessageId) async {
+  deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            if (msg.id == roomLastMessageId) {
-              _roomDao.updateRoom(Room(
-                  uid: msg.roomUid,
-                  lastMessageId: roomLastMessageId,
-                  lastMessage: msg.copyWith(json: "{}"),
-                  lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+            Room? room = await  _roomRepo.getRoom(msg.roomUid);
+            if(room!= null){
+              if (msg.id == room.lastMessageId) {
+                _roomDao.updateRoom(Room(
+                    uid: msg.roomUid,
+                    lastMessage: msg.copyWith(json: "{}"),
+                    lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+              }
             }
+
 
             msg.json = "{}";
             _messageDao.saveMessage(msg);
