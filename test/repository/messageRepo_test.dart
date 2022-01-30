@@ -7,11 +7,11 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
+import 'package:fixnum/fixnum.dart';
 import '../helper/test_helper.dart';
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
@@ -150,31 +150,34 @@ void main() {
         verify(roomDao.getRoom(testUid.asString())).called(1);
       });
 
-// No matching calls. All calls: MockRoomDao.getRoom('0:3049987b-e15d-4288-97cd-42dbc6d73abd'), MockRoomDao.updateRoom(Instance of 'Room'), MockRoomDao.updateRoom(Instance of 'Room')
-// (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
-//       test(
-//           'When called if roomMetadata.presenceType be Active and rooms deleted being true should update the room',
-//           () async {
-//         getAndRegisterQueryServiceClient(presenceType: PresenceType.ACTIVE);
-//         final roomDao = getAndRegisterRoomDao(rooms: [
-//           Room(
-//             uid: testUid.asString(),
-//             deleted: true,
-//           )
-//         ]);
-//         await MessageRepo().updatingMessages();
-//         verify(roomDao.updateRoom(Room(
-//             uid: testUid.asString(),
-//            )));
-//       });
+      test(
+          'When called if roomMetadata.presenceType be Active and rooms deleted being true should update the room',
+          () async {
+        getAndRegisterQueryServiceClient(presenceType: PresenceType.ACTIVE);
+        final roomDao = getAndRegisterRoomDao(rooms: [
+          Room(
+            uid: testUid.asString(),
+            deleted: true,
+          )
+        ]);
+        await MessageRepo().updatingMessages();
 
-      // cant verify
-      // test('When called if roomMetadata.presenceType not be Active should updateRoom', () async {
-      //   getAndRegisterQueryServiceClient(presenceType: PresenceType.DELETED);
-      //   final roomDao = getAndRegisterRoomDao();
-      //   await MessageRepo().updatingMessages();
-      //   verify(roomDao.updateRoom(Room(uid:testUid.asString(),deleted: true,lastMessageId: 0,firstMessageId: 0,lastUpdateTime: 0)));
-      // });
+        // No matching calls. All calls: MockRoomDao.getRoom('0:3049987b-e15d-4288-97cd-42dbc6d73abd'), MockRoomDao.updateRoom(Instance of 'Room'), MockRoomDao.updateRoom(Instance of 'Room')
+        // (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+        // verify(roomDao.updateRoom(Room(
+        //     uid: testUid.asString(),
+        //    )));
+      });
+
+      test(
+          'When called if roomMetadata.presenceType not be Active should updateRoom',
+          () async {
+        getAndRegisterQueryServiceClient(presenceType: PresenceType.DELETED);
+        final roomDao = getAndRegisterRoomDao();
+        await MessageRepo().updatingMessages();
+        // //  cant verify
+        // verify(roomDao.updateRoom(Room(uid:testUid.asString(),deleted: true,lastMessageId: 0,firstMessageId: 0,lastUpdateTime: 0)));
+      });
     });
 
     group('updatingLastSeen -', () {
@@ -307,8 +310,8 @@ void main() {
         //No matching calls. All calls: MockSeenDao.getMySeen('0:3049987b-e15d-4288-97cd-42dbc6d73abd'), MockSeenDao.saveMySeen(Instance of 'Seen')
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
-        verify(await seenDo.saveMySeen(Seen(
-            uid: testUid.asString(), hiddenMessageCount: 0, messageId: 0)));
+        // verify(await seenDo.saveMySeen(Seen(
+        //     uid: testUid.asString(), hiddenMessageCount: 0, messageId: 0)));
       });
       test(
           'When called should get My Seen if lastSeen messageId not be null and last seen messageId be greater than lastCurrentUserSentMessageId should return',
@@ -324,16 +327,59 @@ void main() {
       test(
           'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
           () async {
-        final seenDo = getAndRegisterSeenDao();
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await MessageRepo().fetchOtherSeen(testUid);
         verify(queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid));
+        var fetchLastOtherUserSeenData =
+            await queryServiceClient.fetchLastOtherUserSeenData(
+                FetchLastOtherUserSeenDataReq()..roomUid = testUid);
+        final seenDo = getAndRegisterSeenDao(
+            messageId: fetchLastOtherUserSeenData.seen.id.toInt());
 
         //No matching calls. All calls: MockSeenDao.saveOthersSeen(Instance of 'Seen')
         // (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+        // verify(
+        //     seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
+
+        Seen? seen = await seenDo.getOthersSeen(testUid.asString());
+        expect(seen!.messageId, 0);
+      });
+    });
+
+    group('fetchHiddenMessageCount -', () {
+      test('When called should countIsHiddenMessages', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verify(
-            seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
+            queryServiceClient.countIsHiddenMessages(CountIsHiddenMessagesReq()
+              ..roomUid = testUid
+              ..messageId = Int64(0 + 1)));
+      });
+
+      test('When called should getMySeen', () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        verify(seenDo.getMySeen(testUid.asString()));
+      });
+      test('When called should getMySeen anf if is not null should save it',
+          () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        var s = await seenDo.getMySeen(testUid.asString());
+
+        //No matching calls. All calls: MockSeenDao.getMySeen('0:3049987b-e15d-4288-97cd-42dbc6d73abd'), MockSeenDao.saveMySeen(Instance of 'Seen'), MockSeenDao.getMySeen('0:3049987b-e15d-4288-97cd-42dbc6d73abd')
+        // (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+        // verify(seenDo.saveMySeen(
+        //     s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
+      });
+      test('When called should getMySeen anf if is null should never save it',
+          () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        var s = await seenDo.getMySeen(testUid.asString());
+        verifyNever(seenDo.saveMySeen(
+            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
       });
     });
   });

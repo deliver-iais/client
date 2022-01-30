@@ -28,7 +28,7 @@ import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
 import '../repository/messageRepo_test.dart';
-import 'package:fixnum/fixnum.dart' as $fixnum;
+import 'package:fixnum/fixnum.dart';
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -133,8 +133,9 @@ MockSeenDao getAndRegisterSeenDao({int? messageId}) {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
   GetIt.I.registerSingleton<SeenDao>(service);
-  when(service.getOthersSeen(testUid.asString())).thenAnswer(
-      (realInvocation) => Future.value(seen_box.Seen(uid: testUid.asString())));
+  when(service.getOthersSeen(testUid.asString())).thenAnswer((realInvocation) =>
+      Future.value(
+          seen_box.Seen(uid: testUid.asString(), messageId: messageId)));
   when(service.getMySeen(testUid.asString())).thenAnswer((realInvocation) =>
       Future.value(
           seen_box.Seen(uid: testUid.asString(), messageId: messageId)));
@@ -158,11 +159,10 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   GetIt.I.registerSingleton<QueryServiceClient>(service);
   RoomMetadata roomMetadata = RoomMetadata(
       roomUid: testUid,
-      lastMessageId:
-          lastMessageId != null ? $fixnum.Int64(lastMessageId) : null,
+      lastMessageId: lastMessageId != null ? Int64(lastMessageId) : null,
       firstMessageId: null,
       lastCurrentUserSentMessageId:
-          lastUpdate != null ? $fixnum.Int64(lastUpdate) : null,
+          lastUpdate != null ? Int64(lastUpdate) : null,
       lastUpdate: null,
       presenceType: presenceType);
   Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
@@ -192,6 +192,12 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
         FetchLastOtherUserSeenDataRes(
             seen: seen_pb.Seen(from: testUid, to: testUid)));
   });
+  when(service.countIsHiddenMessages(CountIsHiddenMessagesReq()
+        ..roomUid = testUid
+        ..messageId = Int64(0 + 1)))
+      .thenAnswer((realInvocation) =>
+          MockResponseFuture<CountIsHiddenMessagesRes>(
+              CountIsHiddenMessagesRes(count: 0)));
 
   return service;
 }
