@@ -1,6 +1,8 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:material_color_utilities/blend/blend.dart';
+import 'package:material_color_utilities/palettes/tonal_palette.dart';
 
 class CustomColorScheme {
   final Color primary;
@@ -10,6 +12,18 @@ class CustomColorScheme {
 
   const CustomColorScheme(this.primary, this.onPrimary, this.primaryContainer,
       this.onPrimaryContainer);
+
+  CustomColorScheme.light(TonalPalette tones, Color primary)
+      : primary = _harmonizeColor(Color(tones.get(40)), primary),
+        onPrimary = _harmonizeColor(Color(tones.get(100)), primary),
+        primaryContainer = _harmonizeColor(Color(tones.get(90)), primary),
+        onPrimaryContainer = _harmonizeColor(Color(tones.get(10)), primary);
+
+  CustomColorScheme.dark(TonalPalette tones, Color primary)
+      : primary = _harmonizeColor(Color(tones.get(80)), primary),
+        onPrimary = _harmonizeColor(Color(tones.get(20)), primary),
+        primaryContainer = _harmonizeColor(Color(tones.get(30)), primary),
+        onPrimaryContainer = _harmonizeColor(Color(tones.get(90)), primary);
 }
 
 // Material 3 Design Color Schema
@@ -79,6 +93,81 @@ class Material3ColorScheme {
     required this.onInverseSurface,
     required this.primaryInverse,
   });
+
+  Material3ColorScheme.light(
+      TonalPalette primaryTones,
+      TonalPalette secondaryTones,
+      TonalPalette tertiaryTones,
+      TonalPalette errorTones,
+      TonalPalette naturalTones,
+      TonalPalette naturalVariantTones)
+      : brightness = Brightness.light,
+        primary = Color(primaryTones.get(40)),
+        onPrimary = Color(primaryTones.get(100)),
+        primaryContainer = Color(primaryTones.get(90)),
+        onPrimaryContainer = Color(primaryTones.get(10)),
+        secondary = Color(secondaryTones.get(40)),
+        onSecondary = Color(secondaryTones.get(100)),
+        secondaryContainer = Color(secondaryTones.get(90)),
+        onSecondaryContainer = Color(secondaryTones.get(10)),
+        tertiary = Color(tertiaryTones.get(40)),
+        onTertiary = Color(tertiaryTones.get(100)),
+        tertiaryContainer = Color(tertiaryTones.get(90)),
+        onTertiaryContainer = Color(tertiaryTones.get(10)),
+        surface = Color(naturalTones.get(99)),
+        onSurface = Color(naturalTones.get(10)),
+        surfaceVariant = Color(naturalVariantTones.get(90)),
+        onSurfaceVariant = Color(naturalVariantTones.get(30)),
+        error = Color(errorTones.get(40)),
+        onError = Color(errorTones.get(100)),
+        errorContainer = Color(errorTones.get(90)),
+        onErrorContainer = Color(errorTones.get(10)),
+        outline = Color(naturalVariantTones.get(50)),
+        inverseSurface = Color(naturalTones.get(20)),
+        onInverseSurface = Color(naturalTones.get(95)),
+        primaryInverse = Color(primaryTones.get(80)),
+        background = Color(naturalTones.get(99)),
+        onBackground = Color(naturalTones.get(10));
+
+  Material3ColorScheme.dark(
+      TonalPalette primaryTones,
+      TonalPalette secondaryTones,
+      TonalPalette tertiaryTones,
+      TonalPalette errorTones,
+      TonalPalette naturalTones,
+      TonalPalette naturalVariantTones)
+      : brightness = Brightness.dark,
+        primary = Color(primaryTones.get(80)),
+        onPrimary = Color(primaryTones.get(20)),
+        primaryContainer = Color(primaryTones.get(30)),
+        onPrimaryContainer = Color(primaryTones.get(90)),
+        secondary = Color(secondaryTones.get(80)),
+        onSecondary = Color(secondaryTones.get(20)),
+        secondaryContainer = Color(secondaryTones.get(30)),
+        onSecondaryContainer = Color(secondaryTones.get(90)),
+        tertiary = Color(tertiaryTones.get(80)),
+        onTertiary = Color(tertiaryTones.get(20)),
+        tertiaryContainer = Color(tertiaryTones.get(30)),
+        onTertiaryContainer = Color(tertiaryTones.get(90)),
+        surface = Color(naturalTones.get(10)),
+        onSurface = Color(naturalTones.get(90)),
+        surfaceVariant = Color(naturalVariantTones.get(30)),
+        onSurfaceVariant = Color(naturalVariantTones.get(80)),
+        error = Color(errorTones.get(80)),
+        onError = Color(errorTones.get(20)),
+        errorContainer = Color(errorTones.get(30)),
+        onErrorContainer = Color(errorTones.get(90)),
+        outline = Color(naturalVariantTones.get(60)),
+        inverseSurface = Color(naturalTones.get(90)),
+        onInverseSurface = Color(naturalTones.get(20)),
+        primaryInverse = Color(primaryTones.get(40)),
+        background = Color(naturalTones.get(10)),
+        onBackground = Color(naturalTones.get(90));
+}
+
+Color _harmonizeColor(Color from, Color to) {
+  if (from == to) return from;
+  return Color(Blend.harmonize(from.value, to.value));
 }
 
 Color elevation(Color surface, Color primary, int number) =>

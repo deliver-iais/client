@@ -17,7 +17,7 @@ import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/dark.dart';
+import 'package:deliver/theme/light.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
