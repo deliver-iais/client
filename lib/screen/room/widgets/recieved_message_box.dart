@@ -45,7 +45,7 @@ class ReceivedMessageBox extends StatelessWidget {
 
     return doNotNeedsWrapper()
         ? boxContent
-        : MessageWrapper(child: boxContent, isSent: false);
+        : MessageWrapper(child: boxContent, isSender: false);
   }
 
   doNotNeedsWrapper() {

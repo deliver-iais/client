@@ -12,8 +12,13 @@ class ExtraThemeData {
   Color highlight(bool isSender) =>
       !isSender ? colorScheme.primary : colorScheme.tertiary;
 
-  Color surfaceElevation(int number) =>
-      elevation(colorScheme.surface, colorScheme.primary, number);
+  Color surfaceElevation(int number, {isSender = false}) => elevation(
+      colorScheme.surface,
+      isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer,
+      number);
+
+  Color messageBackground(isSender) =>
+      isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer;
 
   ExtraThemeData({
     required this.colorScheme,

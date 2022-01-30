@@ -123,7 +123,8 @@ class _ChatItemState extends State<ChatItem> {
                                     children: [
                                       if (widget.room.uid.asUid().category ==
                                           Categories.GROUP)
-                                        const Flexible(
+                                        const SizedBox(
+                                          width: 16,
                                           child: Icon(
                                             Icons.group_outlined,
                                             size: 16,
@@ -131,15 +132,17 @@ class _ChatItemState extends State<ChatItem> {
                                         ),
                                       if (widget.room.uid.asUid().category ==
                                           Categories.CHANNEL)
-                                        const Flexible(
+                                        const SizedBox(
+                                          width: 16,
                                           child: Icon(
                                             Icons.rss_feed_outlined,
-                                            size: 15,
+                                            size: 16,
                                           ),
                                         ),
                                       if (widget.room.uid.asUid().category ==
                                           Categories.BOT)
-                                        const Flexible(
+                                        const SizedBox(
+                                          width: 16,
                                           child: Icon(
                                             Icons.smart_toy_outlined,
                                             size: 16,
@@ -158,7 +161,7 @@ class _ChatItemState extends State<ChatItem> {
                                                           .asUid()
                                                           .isBot()
                                                   ? const EdgeInsets.only(
-                                                      left: 16.0)
+                                                      left: 4.0)
                                                   : EdgeInsets.zero,
                                               child: RoomName(
                                                   uid: widget.room.uid.asUid(),

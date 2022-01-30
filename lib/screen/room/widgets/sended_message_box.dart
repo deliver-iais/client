@@ -43,7 +43,7 @@ class SentMessageBox extends StatelessWidget {
 
     return doNotNeedsWrapper()
         ? boxContent
-        : MessageWrapper(child: boxContent, isSent: true);
+        : MessageWrapper(child: boxContent, isSender: true);
   }
 
   doNotNeedsWrapper() {

@@ -108,7 +108,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           primaryColor: colorScheme.primary,
           colorScheme: getColorScheme(colorScheme),
           scaffoldBackgroundColor:
-              elevation(colorScheme.surface, colorScheme.primary, 2),
+              elevation(colorScheme.surface, colorScheme.secondary, 1),
           primaryTextTheme: primaryTextTheme,
           textTheme: textTheme,
           cardColor: colorScheme.surface,
@@ -132,7 +132,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
             border: OutlineInputBorder(borderRadius: secondaryBorder),
           ),
           appBarTheme: AppBarTheme(
-              color: elevation(colorScheme.surface, colorScheme.primary, 5),
+              color: colorScheme.surface,
               elevation: 0,
               titleTextStyle: textTheme.headline5,
               toolbarTextStyle: textTheme.headline6,

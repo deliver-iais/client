@@ -22,8 +22,9 @@ class RoomName extends StatelessWidget {
         future: getName(),
         builder: (context, snapshot) {
           var name = (snapshot.data ?? "");
-          if (name.length > 35) {
-            name = name.substring(0, 32) + "...";
+          const maxNameLength = 28;
+          if (name.length > maxNameLength) {
+            name = name.substring(0, maxNameLength - 3) + "...";
           }
           return Row(
             children: [
