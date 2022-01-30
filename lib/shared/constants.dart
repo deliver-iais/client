@@ -13,9 +13,11 @@ const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.6.6";
+const VERSION = "1.6.7";
 const LOG_OUT = "log_out";
 const double DOWNLOAD_COMPLETE = 200;
+const int TEXT_MESSAGE_MAX_LENGTH = 50;
+const int TEXT_MESSAGE_MAX_LINE = 20;
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
 // ignore: non_constant_identifier_names

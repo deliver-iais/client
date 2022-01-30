@@ -58,6 +58,8 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
+import '../shared/constants.dart';
+
 // ignore: constant_identifier_names
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
@@ -404,10 +406,11 @@ class MessageRepo {
     final List<String> textsBlocks = text.split("\n").toList();
     final List<String> result = [];
     for (text in textsBlocks) {
-      if (text.length > 40) {
+      if (text.length > TEXT_MESSAGE_MAX_LENGTH) {
         int i = 0;
-        while (i < (text.length / 40).ceil()) {
-          result.add(text.substring(i * 40, min((i + 1) * 40, text.length)));
+        while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
+          result.add(text.substring(i * TEXT_MESSAGE_MAX_LENGTH,
+              min((i + 1) * TEXT_MESSAGE_MAX_LENGTH, text.length)));
           i++;
         }
       } else {
@@ -416,13 +419,15 @@ class MessageRepo {
     }
 
     int i = 0;
-    while (i < (result.length / 20).ceil()) {
-      List<String> block = result.sublist(i * 20, min((i+1) * 20, result.length));
-      String finalText = "";
-      for (var element in block) {
-        finalText = finalText + element+"\n";
-      }
-      _sendTextMessage(finalText, room, replyId, forwardedFrom);
+    while (i < (result.length / TEXT_MESSAGE_MAX_LINE).ceil()) {
+      _sendTextMessage(
+          result
+              .sublist(i * TEXT_MESSAGE_MAX_LINE,
+                  min((i + 1) * TEXT_MESSAGE_MAX_LINE, result.length))
+              .join(),
+          room,
+          replyId,
+          forwardedFrom);
       i++;
     }
   }
