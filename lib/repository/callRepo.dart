@@ -916,6 +916,7 @@ class CallRepo {
     Timer(const Duration(seconds: 2), () {
       callingStatus.add(CallStatus.NO_CALL);
     });
+    switching.add(false);
     _offerSdp = "";
     _answerSdp = "";
     _callId = "";
@@ -998,6 +999,7 @@ class CallRepo {
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus =
       BehaviorSubject.seeded(CallStatus.NO_CALL);
+  BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 }
 
 // The callback function should always be a top-level function.

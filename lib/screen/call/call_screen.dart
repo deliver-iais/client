@@ -93,12 +93,29 @@ class _CallScreenState extends State<CallScreen> {
             case CallStatus.CONNECTED:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
-                  ? InVideoCallPage(
-                      localRenderer: _localRenderer,
-                      remoteRenderer: _remoteRenderer,
-                      roomUid: widget.roomUid,
-                      hangUp: _hangUp,
-                    )
+                  ? StreamBuilder<bool>(
+                      stream: callRepo.switching,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          if (snapshot.data == false) {
+                            return InVideoCallPage(
+                              localRenderer: _localRenderer,
+                              remoteRenderer: _remoteRenderer,
+                              roomUid: widget.roomUid,
+                              hangUp: _hangUp,
+                            );
+                          } else {
+                            return InVideoCallPage(
+                              localRenderer: _remoteRenderer,
+                              remoteRenderer: _localRenderer,
+                              roomUid: widget.roomUid,
+                              hangUp: _hangUp,
+                            );
+                          }
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      })
                   : AudioCallScreen(
                       roomUid: widget.roomUid,
                       callStatus: "Connected",

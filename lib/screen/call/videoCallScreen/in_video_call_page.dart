@@ -1,5 +1,6 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -60,19 +61,34 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                         child: SizedBox(
                           width: width,
                           height: height,
-                          child: RTCVideoView(
-                            widget.localRenderer,
-                            objectFit: RTCVideoViewObjectFit
-                                .RTCVideoViewObjectFitCover,
-                            mirror: true,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                child: RTCVideoView(
+                                  widget.localRenderer,
+                                  objectFit: RTCVideoViewObjectFit
+                                      .RTCVideoViewObjectFitCover,
+                                  mirror: true,
+                                ),
+                                onTap: () {
+                                  callRepo.switching
+                                      .add(!callRepo.switching.value);
+                                },
+                              ),
+                            ),
                           ),
                         ),
                         feedback: SizedBox(
-                          child: RTCVideoView(
-                            widget.localRenderer,
-                            objectFit: RTCVideoViewObjectFit
-                                .RTCVideoViewObjectFitCover,
-                            mirror: true,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: RTCVideoView(
+                              widget.localRenderer,
+                              objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
+                              mirror: true,
+                            ),
                           ),
                           width: width,
                           height: height,
@@ -80,18 +96,22 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                         onDraggableCanceled:
                             (Velocity velocity, Offset offset) {
                           setState(() {
-                            if (offset.dx > x / 2 && offset.dy > y / 2) {
-                              position =
-                                  Offset(x - width - 10, y - height - 30);
-                            }
-                            if (offset.dx < x / 2 && offset.dy > y / 2) {
-                              position = Offset(10, y - height - 30);
-                            }
-                            if (offset.dx > x / 2 && offset.dy < y / 2) {
-                              position = Offset(x - width - 10, 30);
-                            }
-                            if (offset.dx < x / 2 && offset.dy < y / 2) {
-                              position = const Offset(10, 30);
+                            if (isDesktop()) {
+                              position = const Offset(20, 40);
+                            } else {
+                              if (offset.dx > x / 2 && offset.dy > y / 2) {
+                                position =
+                                    Offset(x - width - 20, y - height - 40);
+                              }
+                              if (offset.dx < x / 2 && offset.dy > y / 2) {
+                                position = Offset(20, y - height - 40);
+                              }
+                              if (offset.dx > x / 2 && offset.dy < y / 2) {
+                                position = Offset(x - 500, 40);
+                              }
+                              if (offset.dx < x / 2 && offset.dy < y / 2) {
+                                position = const Offset(20, 40);
+                              }
                             }
                           });
                         },
