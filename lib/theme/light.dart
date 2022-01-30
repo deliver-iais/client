@@ -50,15 +50,15 @@ final _custom5Light = CustomColorScheme.light(
     TonalPalette.of(purpleHct.hue, purpleHct.chroma),
     _colorSchemeLight.primary);
 
-final _custom1Dark = CustomColorScheme.light(
+final _custom1Dark = CustomColorScheme.dark(
     TonalPalette.of(orangeHct.hue, orangeHct.chroma), _colorSchemeDark.primary);
-final _custom2Dark = CustomColorScheme.light(
+final _custom2Dark = CustomColorScheme.dark(
     TonalPalette.of(yellowHct.hue, yellowHct.chroma), _colorSchemeDark.primary);
-final _custom3Dark = CustomColorScheme.light(
+final _custom3Dark = CustomColorScheme.dark(
     TonalPalette.of(greenHct.hue, greenHct.chroma), _colorSchemeDark.primary);
-final _custom4Dark = CustomColorScheme.light(
+final _custom4Dark = CustomColorScheme.dark(
     TonalPalette.of(redHct.hue, redHct.chroma), _colorSchemeDark.primary);
-final _custom5Dark = CustomColorScheme.light(
+final _custom5Dark = CustomColorScheme.dark(
     TonalPalette.of(purpleHct.hue, purpleHct.chroma), _colorSchemeDark.primary);
 
 // ignore: constant_identifier_names
