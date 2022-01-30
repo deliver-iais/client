@@ -83,8 +83,8 @@ const LIVE_LOCATION_TRACK_ID = 19;
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 
 // UI
-const double FLUID_MAX_WIDTH = 400;
-const double FLUID_MAX_HEIGHT = 540;
+const double FLUID_MAX_WIDTH = 100;
+const double FLUID_MAX_HEIGHT = 140;
 
 const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;

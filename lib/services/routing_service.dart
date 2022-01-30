@@ -226,14 +226,7 @@ class RoutingService {
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
         Expanded(
-            child: Container(
-          margin: isLarge(context)
-              ? const EdgeInsets.only(top: 8, right: 8)
-              : EdgeInsets.zero,
-          decoration: isLarge(context)
-              ? const BoxDecoration(borderRadius: backgroundBorder)
-              : const BoxDecoration(borderRadius: BorderRadius.zero),
-          clipBehavior: Clip.antiAlias,
+            child: ClipRect(
           child: Navigator(
             key: _homeNavigatorState,
             observers: [HeroController(), _navigatorObserver],
