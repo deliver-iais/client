@@ -2,6 +2,16 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
+class CustomColorScheme {
+  final Color primary;
+  final Color onPrimary;
+  final Color primaryContainer;
+  final Color onPrimaryContainer;
+
+  const CustomColorScheme(this.primary, this.onPrimary, this.primaryContainer,
+      this.onPrimaryContainer);
+}
+
 // Material 3 Design Color Schema
 class Material3ColorScheme {
   final Brightness brightness;
@@ -163,7 +173,20 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           ));
 }
 
-ExtraThemeData getExtraThemeData(Material3ColorScheme colorScheme) {
+ExtraThemeData getExtraThemeData(
+    Material3ColorScheme colorScheme,
+    CustomColorScheme custom1,
+    CustomColorScheme custom2,
+    CustomColorScheme custom3,
+    CustomColorScheme custom4,
+    CustomColorScheme custom5) {
   return ExtraThemeData(
-      onDetailsBox: colorScheme.onPrimaryContainer, colorScheme: colorScheme);
+    onDetailsBox: colorScheme.onPrimaryContainer,
+    colorScheme: colorScheme,
+    custom1: custom1,
+    custom2: custom2,
+    custom3: custom3,
+    custom4: custom4,
+    custom5: custom5,
+  );
 }

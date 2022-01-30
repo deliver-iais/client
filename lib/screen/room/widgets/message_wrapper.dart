@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
   final Widget child;
+  final String uid;
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
 
   const MessageWrapper(
       {Key? key,
       required this.child,
+      required this.uid,
       required this.isSender,
       this.isFirstMessageInGroupedMessages = true})
       : super(key: key);
@@ -19,7 +21,7 @@ class MessageWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final extraThemeData = ExtraTheme.of(context);
-    final background = extraThemeData.messageBackground(isSender);
+    final scheme = extraThemeData.messageBackground(uid, isSender);
 
     var border = messageBorder;
 
@@ -41,7 +43,7 @@ class MessageWrapper extends StatelessWidget {
           .copyWith(top: isFirstMessageInGroupedMessages ? 16 : 4),
       decoration: BoxDecoration(
         borderRadius: border,
-        color: background,
+        color: scheme.primaryContainer.withAlpha(180),
       ),
       child: child,
     );

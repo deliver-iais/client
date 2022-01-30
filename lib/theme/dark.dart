@@ -35,8 +35,20 @@ const _colorScheme = Material3ColorScheme(
   primaryInverse: Color(0xFF004880),
 );
 
+const _custom1 = CustomColorScheme(
+    Color(0xFFacc6ff), Color(0xFF002e6c), Color(0xFFd6e2ff), Color(0xFFd6e2ff));
+const _custom2 = CustomColorScheme(
+    Color(0xFF33dec0), Color(0xFF00382e), Color(0xFF005144), Color(0xFF5cfbdd));
+const _custom3 = CustomColorScheme(
+    Color(0xFFffb4a8), Color(0xFF680001), Color(0xFF930002), Color(0xFFffdad3));
+const _custom4 = CustomColorScheme(
+    Color(0xFFcace00), Color(0xFF313300), Color(0xFF484a00), Color(0xFFe7eb00));
+const _custom5 = CustomColorScheme(
+    Color(0xFFffb77c), Color(0xFF4e2600), Color(0xFF6f3800), Color(0xFFffdcc2));
+
 // ignore: non_constant_identifier_names
-ExtraThemeData DarkExtraTheme = getExtraThemeData(_colorScheme);
+ExtraThemeData DarkExtraTheme = getExtraThemeData(
+    _colorScheme, _custom1, _custom2, _custom3, _custom4, _custom5);
 
 // ignore: non_constant_identifier_names
 ThemeData DarkTheme = getThemeData(_colorScheme);
