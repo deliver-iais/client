@@ -47,35 +47,3 @@ class MessageWrapper extends StatelessWidget {
     );
   }
 }
-
-class OPainter extends CustomPainter {
-  final Color color;
-
-  OPainter(this.color);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()..color = color;
-
-    var path = Path();
-
-    path.moveTo(20, 4);
-
-    path.lineTo(-5, 2);
-
-    path.arcToPoint(
-      const Offset(0, 20),
-      radius: const Radius.circular(40),
-      clockwise: true,
-    );
-
-    path.lineTo(20, 5);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
