@@ -20,11 +20,9 @@ import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -267,10 +265,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 );
               }),
           Container(
-            constraints: const BoxConstraints(minHeight: 60),
-            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              // borderRadius: backgroundBorder,
               color: Theme.of(context).colorScheme.surface,
             ),
             child: Stack(
@@ -328,55 +323,45 @@ class _InputMessageWidget extends State<InputMessage> {
                                         ValueListenableBuilder<TextDirection>(
                                       valueListenable: _textDir,
                                       builder: (context, value, child) =>
-                                          Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: mainBorder,
-                                          color: ExtraTheme.of(context)
-                                              .colorScheme
-                                              .surfaceVariant,
+                                          TextField(
+                                        focusNode: widget.focusNode,
+                                        autofocus: widget.replyMessageId! > 0 ||
+                                            isDesktop(),
+                                        controller: widget.textController,
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 14, vertical: 12),
+                                          border: InputBorder.none,
+                                          hintText: i18n.get("message"),
                                         ),
-                                        child: TextField(
-                                          focusNode: widget.focusNode,
-                                          autofocus:
-                                              widget.replyMessageId! > 0 ||
-                                                  isDesktop(),
-                                          controller: widget.textController,
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 14,
-                                                    vertical: 12),
-                                            border: InputBorder.none,
-                                            hintText: i18n.get("message"),
-                                          ),
-                                          autocorrect: true,
-                                          textInputAction:
-                                              TextInputAction.newline,
-                                          minLines: 1,
-                                          maxLines: 15,
-                                          textDirection: value,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle1,
-                                          onTap: () => _backSubject.add(false),
-                                          onChanged: (str) {
-                                            if (str.trim().length < 2) {
-                                              final dir = getDirection(str);
-                                              if (dir != value) {
-                                                _textDir.value = dir;
-                                              }
+                                        autocorrect: true,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        minLines: 1,
+                                        maxLines: 15,
+                                        textDirection: value,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1,
+                                        onTap: () => _backSubject.add(false),
+                                        onChanged: (str) {
+                                          if (str.trim().length < 2) {
+                                            final dir = getDirection(str);
+                                            if (dir != value) {
+                                              _textDir.value = dir;
                                             }
-                                            _textSelection =
-                                                widget.textController.selection;
-                                            if (str.isNotEmpty) {
-                                              isTypingActivitySubject
-                                                  .add(ActivityType.TYPING);
-                                            } else {
-                                              noActivitySubject.add(
-                                                  ActivityType.NO_ACTIVITY);
-                                            }
-                                          },
-                                        ),
+                                          }
+                                          _textSelection =
+                                              widget.textController.selection;
+                                          if (str.isNotEmpty) {
+                                            isTypingActivitySubject
+                                                .add(ActivityType.TYPING);
+                                          } else {
+                                            noActivitySubject
+                                                .add(ActivityType.NO_ACTIVITY);
+                                          }
+                                        },
                                       ),
                                     ),
                                   ),

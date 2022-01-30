@@ -225,6 +225,8 @@ class RoutingService {
         if (isLarge(context))
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
+        if (isLarge(context))
+          const VerticalDivider(),
         Expanded(
             child: ClipRect(
           child: Navigator(

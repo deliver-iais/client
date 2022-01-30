@@ -71,6 +71,9 @@ class Material3ColorScheme {
   });
 }
 
+Color elevation(Color surface, Color primary, int number) =>
+    Color.lerp(surface, primary, number * 3 / 100)!;
+
 ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
   return ColorScheme(
       primary: colorScheme.primary,
@@ -104,7 +107,8 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           fontFamily: "Vazir",
           primaryColor: colorScheme.primary,
           colorScheme: getColorScheme(colorScheme),
-          scaffoldBackgroundColor: colorScheme.primaryContainer,
+          scaffoldBackgroundColor:
+              elevation(colorScheme.surface, colorScheme.primary, 2),
           primaryTextTheme: primaryTextTheme,
           textTheme: textTheme,
           cardColor: colorScheme.surface,
@@ -128,7 +132,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
             border: OutlineInputBorder(borderRadius: secondaryBorder),
           ),
           appBarTheme: AppBarTheme(
-              color: colorScheme.surface,
+              color: elevation(colorScheme.surface, colorScheme.primary, 5),
               elevation: 0,
               titleTextStyle: textTheme.headline5,
               toolbarTextStyle: textTheme.headline6,

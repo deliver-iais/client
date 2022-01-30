@@ -23,7 +23,7 @@ const _colorScheme = Material3ColorScheme(
   onError: Color(0xFFffffff),
   errorContainer: Color(0xFFffdad4),
   onErrorContainer: Color(0xFF410001),
-  background: Color(0xFFedf2f9),
+  background: Color(0xFFfdfcff),
   onBackground: Color(0xFF1b1b1b),
   surface: Color(0xFFfdfcff),
   onSurface: Color(0xFF1b1b1b),

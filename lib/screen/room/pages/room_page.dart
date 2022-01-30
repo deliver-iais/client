@@ -42,7 +42,6 @@ import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -569,7 +568,6 @@ class _RoomPageState extends State<RoomPage> {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
       leading: GestureDetector(
         child: StreamBuilder<bool>(
             stream: _searchMode.stream,
