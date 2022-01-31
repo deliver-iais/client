@@ -169,6 +169,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (widget.forceToSetUsernameAndName) return false;
@@ -184,7 +185,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               if (widget.forceToSetUsernameAndName)
                 Text(
                   _i18n.get("should_set_username_and_name"),
-                  style: Theme.of(context)
+                  style:theme
                       .textTheme
                       .headline6!
                       .copyWith(fontSize: 10),

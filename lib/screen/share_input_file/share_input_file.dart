@@ -29,9 +29,10 @@ class _ShareInputFileState extends State<ShareInputFile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor:theme.backgroundColor,
       appBar: AppBar(
         title: Text(
           i18n.get("send_To"),

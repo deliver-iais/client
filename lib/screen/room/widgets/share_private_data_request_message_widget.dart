@@ -2,6 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
@@ -19,6 +21,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
       {Key? key,
       required this.message,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -46,7 +49,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                                 ? _i18n.get("get_access_name")
                                 : _i18n.get("get_access_username"),
                     textAlign: TextAlign.center))),
-        TimeAndSeenStatus(message, isSender, isSeen, needsBackground: false)
+        TimeAndSeenStatus(message, isSender, isSeen)
       ],
     );
   }

@@ -1,4 +1,3 @@
-import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:universal_html/html.dart' as html;
 
@@ -11,13 +10,15 @@ import 'package:universal_html/html.dart';
 class OpenFileStatus extends StatelessWidget {
   final file_pb.File file;
   final String filePath;
-  final bool isSender;
+  final Color backgroundColor;
+  final Color foregroundColor;
 
   const OpenFileStatus(
       {Key? key,
       required this.file,
       required this.filePath,
-      required this.isSender})
+      required this.backgroundColor,
+      required this.foregroundColor})
       : super(key: key);
 
   @override
@@ -27,14 +28,14 @@ class OpenFileStatus extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: lowlight(isSender, context),
+          color: backgroundColor,
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
           alignment: Alignment.center,
           icon: Icon(
             Icons.insert_drive_file,
-            color: highlight(isSender, context),
+            color: foregroundColor,
             size: 27,
           ),
           onPressed: () async {

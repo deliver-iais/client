@@ -14,6 +14,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return StreamBuilder<Seen>(
       stream: _roomRepo.watchMySeen(roomUid),
       builder: (context, snapshot) {
@@ -36,7 +37,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
+                    color:theme.primaryColor,
                     borderRadius: mainBorder,
                     // shape: BoxShape.circle,
                   ),

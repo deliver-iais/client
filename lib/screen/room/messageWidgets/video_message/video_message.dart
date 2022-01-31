@@ -4,9 +4,9 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +24,7 @@ class VideoMessage extends StatefulWidget {
   final double minWidth;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   const VideoMessage(
       {Key? key,
@@ -31,6 +32,7 @@ class VideoMessage extends StatefulWidget {
       required this.maxWidth,
       required this.minWidth,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -52,8 +54,8 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    Color background = lowlight(widget.isSender, context);
-    Color foreground = highlight(widget.isSender, context);
+    Color background = widget.colorScheme.onPrimary;
+    Color foreground = widget.colorScheme.primary;
     File video = widget.message.json!.toFile();
     Duration duration = Duration(seconds: video.duration.round());
     String videoLength = calculateVideoLength(duration);
@@ -187,10 +189,8 @@ class _VideoMessageState extends State<VideoMessage> {
                                               await _fileRepo.getFile(
                                                   video.uuid, video.name);
                                             },
-                                            background: lowlight(
-                                                widget.isSender, context),
-                                            foreground: highlight(
-                                                widget.isSender, context),
+                                            background: background,
+                                            foreground: foreground,
                                           ),
                                           video: video,
                                           videoLength: videoLength);
@@ -205,10 +205,8 @@ class _VideoMessageState extends State<VideoMessage> {
                                       await _fileRepo.getFile(
                                           video.uuid, video.name);
                                     },
-                                    background:
-                                        lowlight(widget.isSender, context),
-                                    foreground:
-                                        highlight(widget.isSender, context),
+                                    background: background,
+                                    foreground: foreground,
                                   ),
                                   video: video,
                                   videoLength: videoLength);
@@ -235,12 +233,10 @@ class _VideoMessageState extends State<VideoMessage> {
             ? (!isDesktop()) | (isDesktop() & false)
                 ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
-                    widget.message, widget.isSender, widget.isSeen,
-                    needsBackground: true)
+                    widget.message, widget.isSender, widget.isSeen)
             : Container(),
         if (video.caption.isEmpty)
-          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-              needsBackground: true)
+          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen)
       ],
     );
   }

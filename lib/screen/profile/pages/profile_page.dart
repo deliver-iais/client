@@ -267,6 +267,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildInfo(BuildContext context) {
+    final theme = Theme.of(context);
     return SliverList(
         delegate: SliverChildListDelegate([
       BoxList(largePageBorderRadius: BorderRadius.zero, children: [
@@ -293,8 +294,7 @@ class _ProfilePageState extends State<ProfilePage>
                     subtitle: "${snapshot.data}",
                     leading: const Icon(Icons.alternate_email),
                     trailing: const Icon(Icons.copy),
-                    subtitleTextStyle:
-                        TextStyle(color: Theme.of(context).primaryColor),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
                     onPressed: (_) => Clipboard.setData(
                         ClipboardData(text: "@${snapshot.data}")),
                   ),
@@ -315,8 +315,7 @@ class _ProfilePageState extends State<ProfilePage>
                     title: _i18n.get("phone"),
                     subtitle: buildPhoneNumber(snapshot.data!.countryCode,
                         snapshot.data!.nationalNumber),
-                    subtitleTextStyle:
-                        TextStyle(color: Theme.of(context).primaryColor),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
                     leading: const Icon(Icons.phone),
                     trailing: const Icon(Icons.call),
                     onPressed: (_) => launch(
@@ -334,8 +333,9 @@ class _ProfilePageState extends State<ProfilePage>
             child: SettingsTile(
                 title: _i18n.get("send_message"),
                 leading: const Icon(Icons.message),
-                onPressed: (_) =>
-                    _routingService.openRoom(widget.roomUid.asString(),forceToOpenRoom: true)),
+                onPressed: (_) => _routingService.openRoom(
+                    widget.roomUid.asString(),
+                    forceToOpenRoom: true)),
           ),
         if (isAndroid())
           FutureBuilder<String?>(
@@ -349,9 +349,8 @@ class _ProfilePageState extends State<ProfilePage>
                         title: _i18n.get("custom_notifications"),
                         leading: const Icon(Icons.music_note_sharp),
                         subtitle: snapshot.data!,
-                        subtitleTextStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 16),
+                        subtitleTextStyle:
+                            TextStyle(color: theme.primaryColor, fontSize: 16),
                         onPressed: (_) async {
                           _routingService.openCustomNotificationSoundSelection(
                               widget.roomUid.asString());
@@ -384,30 +383,30 @@ class _ProfilePageState extends State<ProfilePage>
             }
           },
         ),
-        if (widget.roomUid.isMuc() || widget.roomUid.isBot())
-          widget.roomUid.isBot()
-              ? FutureBuilder<BotInfo?>(
-                  future: _botRepo.getBotInfo(widget.roomUid),
-                  builder: (c, s) {
-                    if (s.hasData &&
-                        s.data != null &&
-                        s.data!.description!.isNotEmpty) {
-                      return description(s.data!.description!, context);
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  })
-              : StreamBuilder<Muc?>(
-                  stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-                  builder: (c, muc) {
-                    if (muc.hasData &&
-                        muc.data != null &&
-                        muc.data!.info!.isNotEmpty) {
-                      return description(muc.data!.info!, context);
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
+        if (widget.roomUid.isBot())
+          FutureBuilder<BotInfo?>(
+              future: _botRepo.getBotInfo(widget.roomUid),
+              builder: (c, s) {
+                if (s.hasData &&
+                    s.data != null &&
+                    s.data!.description!.isNotEmpty) {
+                  return description(s.data!.description!, context);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
+        if (widget.roomUid.isMuc())
+          StreamBuilder<Muc?>(
+              stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+              builder: (c, muc) {
+                if (muc.hasData &&
+                    muc.data != null &&
+                    muc.data!.info!.isNotEmpty) {
+                  return description(muc.data!.info!, context);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
         if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),

@@ -7,7 +7,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -41,6 +40,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
             widget.roomUid, widget.type, widget.documentCount),
@@ -81,9 +82,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   height: 50,
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color:
-                                                        ExtraTheme.of(context)
-                                                            .lowlight,
+                                                    color: theme
+                                                        .colorScheme.onPrimary,
                                                   ),
                                                   child: IconButton(
                                                     padding: const EdgeInsets
@@ -92,8 +92,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                     icon: Icon(
                                                       Icons
                                                           .insert_drive_file_sharp,
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
+                                                      color: theme.primaryColor,
                                                       size: 35,
                                                     ),
                                                     onPressed: () {},
@@ -133,8 +132,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             fileId: fileId,
                                             fileName: fileName,
                                             onPressed: download,
-                                            background: ExtraTheme.of(context).lowlight,
-                                            foreground: ExtraTheme.of(context).highlight,
+                                            background:
+                                                theme.colorScheme.primary,
+                                            foreground:
+                                                theme.colorScheme.onPrimary,
                                           ),
                                           Expanded(
                                             child: Stack(

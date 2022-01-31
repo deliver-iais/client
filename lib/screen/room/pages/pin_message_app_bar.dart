@@ -4,6 +4,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -30,6 +31,8 @@ class PinMessageAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final extraThemeData = ExtraTheme.of(context);
     return StreamBuilder<int>(
         stream: lastPinedMessage.stream,
         builder: (c, id) {
@@ -46,86 +49,107 @@ class PinMessageAppBar extends StatelessWidget {
               child: GestureDetector(
                 onTap: onTap,
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).appBarTheme.backgroundColor,
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: Material(
+                    elevation: 4,
                     borderRadius: secondaryBorder,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor.withAlpha(60),
-                        blurRadius: 10,
-                        offset: const Offset(1, 1), // Shadow position
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color:
+                            extraThemeData.colorScheme.inverseSurface,
+                        borderRadius: secondaryBorder,
                       ),
-                    ],
-                  ),
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: Row(
-                    children: [
-                      Column(
+                      height: 60,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      child: Row(
                         children: [
-                          if (pinMessages.length > 2)
-                            Container(
-                              width: 3,
-                              height:
-                                  (52 / min(pinMessages.length.toDouble(), 3)) -
+                          Column(
+                            children: [
+                              if (pinMessages.length > 2)
+                                Container(
+                                  width: 3,
+                                  height: (52 /
+                                          min(pinMessages.length.toDouble(),
+                                              3)) -
                                       4,
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              color: color(context, 0),
-                            ),
-                          if (pinMessages.length > 1)
-                            Container(
-                              width: 3,
-                              height:
-                                  (52 / min(pinMessages.length.toDouble(), 3)) -
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  color: color(context, 0),
+                                ),
+                              if (pinMessages.length > 1)
+                                Container(
+                                  width: 3,
+                                  height: (52 /
+                                          min(pinMessages.length.toDouble(),
+                                              3)) -
                                       4,
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              color: color(context, 1),
-                            ),
-                          if (pinMessages.length > 1)
-                            Container(
-                              width: 3,
-                              height:
-                                  (52 / min(pinMessages.length.toDouble(), 3)) -
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  color: color(context, 1),
+                                ),
+                              if (pinMessages.length > 1)
+                                Container(
+                                  width: 3,
+                                  height: (52 /
+                                          min(pinMessages.length.toDouble(),
+                                              3)) -
                                       4,
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              color: color(context, 2),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  color: color(context, 2),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (mes != null)
+                                  Text(
+                                    i18n.get("pinned_message"),
+                                    style:theme
+                                        .primaryTextTheme
+                                        .subtitle2
+                                        ?.copyWith(
+                                          color: ExtraTheme.of(context)
+                                              .colorScheme
+                                              .primaryInverse,
+                                        ),
+                                  ),
+                                if (mes != null)
+                                  LastMessage(
+                                      message: mes,
+                                      lastMessageId: mes.id!,
+                                      hasMentioned: false,
+                                      showSeenStatus: false,
+                                      primaryColor: ExtraTheme.of(context)
+                                          .colorScheme
+                                          .primaryInverse,
+                                      naturalColor: ExtraTheme.of(context)
+                                          .colorScheme
+                                          .onInverseSurface,
+                                      showSender: false),
+                              ],
                             ),
+                          ),
+                          IconButton(
+                              iconSize: 20,
+                              onPressed: () {
+                                onCancel();
+                              },
+                              icon: Icon(
+                                Icons.close,
+                                color: ExtraTheme.of(context)
+                                    .colorScheme
+                                    .primaryInverse,
+                              ))
                         ],
                       ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (mes != null)
-                              Text(
-                                i18n.get("pinned_message"),
-                                style: Theme.of(context)
-                                    .primaryTextTheme
-                                    .subtitle2,
-                              ),
-                            if (mes != null)
-                              LastMessage(
-                                  message: mes,
-                                  lastMessageId: mes.id!,
-                                  hasMentioned: false,
-                                  showSeenStatus: false,
-                                  showSender: false),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                          iconSize: 20,
-                          onPressed: () {
-                            onCancel();
-                          },
-                          icon: Icon(
-                            Icons.close,
-                            color: Theme.of(context).primaryColor,
-                          ))
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -137,12 +161,14 @@ class PinMessageAppBar extends StatelessWidget {
   }
 
   Color color(BuildContext context, int index) {
-    return highlight(index, lastPinedMessage.value)
-        ? Theme.of(context).primaryColor
-        : Theme.of(context).dividerColor;
+    final extraThemeData = ExtraTheme.of(context);
+    return shouldHighlight(index, lastPinedMessage.value)
+        ? extraThemeData.colorScheme.primaryInverse
+        : Color.lerp(extraThemeData.colorScheme.primaryInverse,
+            extraThemeData.colorScheme.inverseSurface, 0.8)!;
   }
 
-  bool highlight(int index, int id) {
+  bool shouldHighlight(int index, int id) {
     return (index == 2 && id == pinMessages.last.id) ||
         (index == 0 && id == pinMessages.first.id) ||
         (index == 1 && pinMessages.length == 2 && id == pinMessages.first.id) ||

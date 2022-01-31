@@ -156,7 +156,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             padding: const EdgeInsetsDirectional.only(end: 11.0),
             child: CupertinoSwitch(
               value: widget.switchValue!,
-              activeColor: Theme.of(context).primaryColor,
+              activeColor: theme.primaryColor,
               onChanged: !widget.enabled
                   ? null
                   : (bool value) {
@@ -287,7 +287,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color: Theme.of(context).colorScheme.surface,
+            color: theme.colorScheme.surface,
           ),
           height: widget.subtitle == null ? 44.0 : 57.0,
           child: Row(

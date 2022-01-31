@@ -2,7 +2,6 @@ import 'package:deliver/repository/roomRepo.dart';
 
 import 'package:deliver/screen/navigation_center/chats/widgets/contact_pic.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -47,11 +46,7 @@ class ChatItemToShareFile extends StatelessWidget {
                         ),
                         Text(
                           snapshot.data!,
-                          style: TextStyle(
-                            color:
-                                ExtraTheme.of(context).chatOrContactItemDetails,
-                            fontSize: 18,
-                          ),
+                          style: const TextStyle(fontSize: 18),
                         ),
                         const Spacer(),
                       ],

@@ -4,10 +4,10 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/colors.dart';
 
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +18,7 @@ class ShareUidMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
@@ -28,11 +29,13 @@ class ShareUidMessageWidget extends StatelessWidget {
       {Key? key,
       required this.message,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     var _shareUid = message.json!.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
@@ -41,8 +44,8 @@ class ShareUidMessageWidget extends StatelessWidget {
         children: [
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-                primary: highlight(isSender, context),
-                backgroundColor: lowlight(isSender, context)),
+                primary: colorScheme.primary,
+                backgroundColor: colorScheme.onPrimary),
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(_shareUid.uid, 14,
@@ -96,7 +99,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                               forceText: _shareUid.name),
                           Text(
                             _shareUid.name,
-                            style: Theme.of(context).textTheme.headline6,
+                            style: theme.textTheme.headline6,
                           ),
                           const SizedBox(height: 10),
                           Row(

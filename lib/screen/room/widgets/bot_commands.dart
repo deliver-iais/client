@@ -27,6 +27,7 @@ class _BotCommandsState extends State<BotCommands> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<BotInfo?>(
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
@@ -39,7 +40,7 @@ class _BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color: Theme.of(context).backgroundColor,
+            color:theme.backgroundColor,
             height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
                 child: ListView.separated(
@@ -48,7 +49,7 @@ class _BotCommandsState extends State<BotCommands> {
                 Color _botCommandItemColor = Colors.transparent;
                 if (widget.botCommandSelectedIndex == index &&
                     widget.botCommandSelectedIndex != -1) {
-                  _botCommandItemColor = Theme.of(context).focusColor;
+                  _botCommandItemColor =theme.focusColor;
                 }
                 return Container(
                   color: _botCommandItemColor,
@@ -64,7 +65,7 @@ class _BotCommandsState extends State<BotCommands> {
                           children: [
                             Text(
                               "/" + botCommands.keys.toList()[index],
-                              style: Theme.of(context).textTheme.subtitle1,
+                              style:theme.textTheme.subtitle1,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -72,7 +73,7 @@ class _BotCommandsState extends State<BotCommands> {
                                 opacity: 0.6,
                                 child: Text(
                                   botCommands.values.toList()[index],
-                                  style: Theme.of(context).textTheme.bodyText2,
+                                  style:theme.textTheme.bodyText2,
                                 ),
                               ),
                             ),

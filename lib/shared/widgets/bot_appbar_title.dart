@@ -20,56 +20,55 @@ class BotAppbarTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Theme.of(context).appBarTheme.backgroundColor,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            child: Row(
-              children: [
-                if (isDebugEnabled())
-                  DebugC(
-                    children: [Debug(botUid.asString(), label: "uid")],
-                  ),
-                CircleAvatarWidget(botUid, 23),
-                const SizedBox(
-                  width: 16,
-                ),
-                Expanded(
-                  child: FutureBuilder<String>(
-                      future: _roomRepo.getName(botUid),
-                      builder: (c, name) {
-                        if (name.hasData && name.data != null) {
-                          return buildColumn(name.data!, context);
-                        } else {
-                          return buildColumn(botUid.node, context);
-                        }
-                      }),
-                )
-              ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: Row(
+          children: [
+            if (isDebugEnabled())
+              DebugC(
+                children: [Debug(botUid.asString(), label: "uid")],
+              ),
+            CircleAvatarWidget(botUid, 23),
+            const SizedBox(
+              width: 16,
             ),
-            onTap: () {
-              _routingService.openProfile(botUid.asString());
-            },
-          ),
-        ));
+            Expanded(
+              child: FutureBuilder<String>(
+                  future: _roomRepo.getName(botUid),
+                  builder: (c, name) {
+                    if (name.hasData && name.data != null) {
+                      return buildColumn(name.data!, context);
+                    } else {
+                      return buildColumn(botUid.node, context);
+                    }
+                  }),
+            )
+          ],
+        ),
+        onTap: () {
+          _routingService.openProfile(botUid.asString());
+        },
+      ),
+    );
   }
 
   Column buildColumn(String name, BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RoomName(uid: botUid, name: name, style: Theme.of(context).textTheme.subtitle1),
+        RoomName(uid: botUid, name: name, style:theme.textTheme.subtitle1),
         TitleStatus(
           currentRoomUid: botUid,
-          style: Theme.of(context).textTheme.caption!,
+          style:theme.textTheme.caption!,
           normalConditionWidget: Text(
             I18N.of(context)!.get("bot"),
             maxLines: 1,
             overflow: TextOverflow.fade,
             softWrap: false,
-            style: Theme.of(context).textTheme.caption,
+            style:theme.textTheme.caption,
           ),
         )
       ],

@@ -63,6 +63,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
@@ -76,7 +77,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color: Theme.of(context).colorScheme.surface,
+            color:theme.colorScheme.surface,
           ),
           child: Stack(
             children: [
@@ -147,7 +148,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         if (e.hasData && e.data!) {
                           return Text(
                             _i18n.get("channel_id_is_exist"),
-                            style: Theme.of(context)
+                            style:theme
                                 .textTheme
                                 .overline!
                                 .copyWith(color: Colors.red),
@@ -197,7 +198,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         return Text(
                             '${snapshot.data} ${_i18n.get("members")}',
                             style:
-                                Theme.of(context).primaryTextTheme.subtitle2);
+                               theme.primaryTextTheme.subtitle2);
                       }),
                   const SizedBox(
                     height: 8,
@@ -230,7 +231,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           height: 40,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Theme.of(context).primaryColor,
+                            color:theme.primaryColor,
                           ),
                           child: IconButton(
                             alignment: Alignment.center,
@@ -302,7 +303,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor,
+                    color:theme.primaryColor,
                   ),
                   child: IconButton(
                     alignment: Alignment.center,

@@ -76,6 +76,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return !_isFileFormatAccept
         ? AlertDialog(
             title: Text(
@@ -170,7 +171,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     children: [
                                       ClipOval(
                                         child: Material(
-                                            color: Theme.of(context)
+                                            color:theme
                                                 .primaryColor, // button color
                                             child: const InkWell(
                                                 splashColor: Colors
@@ -323,11 +324,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   Row buildRow(int index, {bool showManage = true}) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         ClipOval(
           child: Material(
-              color: Theme.of(context).primaryColor, // button color
+              color:theme.primaryColor, // button color
               child: const InkWell(
                   splashColor: Colors.blue, // inkwell color
                   child: SizedBox(

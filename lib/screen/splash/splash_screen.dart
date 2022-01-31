@@ -109,6 +109,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget desktopLock() {
+    final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
         backgroundColor: const Color(0xffeefef7),
@@ -128,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 20),
               Text(
                 "Enter your local password",
-                style: Theme.of(context).primaryTextTheme.subtitle1,
+                style:theme.primaryTextTheme.subtitle1,
               ),
               SizedBox(
                 width: 190,

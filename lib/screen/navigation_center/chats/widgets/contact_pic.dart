@@ -18,6 +18,7 @@ class ContactPic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: <Widget>[
         CircleAvatarWidget(userUid, 24,
@@ -38,7 +39,7 @@ class ContactPic extends StatelessWidget {
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color:
-                                    Theme.of(context).scaffoldBackgroundColor,
+                                   theme.scaffoldBackgroundColor,
                                 width: 2,
                               ),
                             ),

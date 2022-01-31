@@ -17,9 +17,10 @@ class SeenStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
-    final color = iconColor ?? Theme.of(context).primaryColor;
+    final color = iconColor ?? theme.primaryColor;
     const size = 16.0;
     Widget pendingMessage = Container(
         child: Lottie.asset(

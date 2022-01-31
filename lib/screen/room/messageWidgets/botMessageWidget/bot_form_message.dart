@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_wi
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
@@ -17,11 +18,13 @@ class BotFormMessage extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
+  final CustomColorScheme colorScheme;
 
   const BotFormMessage(
       {Key? key,
       required this.message,
       required this.isSeen,
+      required this.colorScheme,
       required this.isSender})
       : super(key: key);
 
@@ -98,6 +101,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         Column(
@@ -113,7 +117,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   child: Center(
                     child: Text(
                       form.title.titleCase,
-                      style: Theme.of(context).primaryTextTheme.subtitle1,
+                      style: theme.primaryTextTheme.subtitle1,
                     ),
                   ),
                 ),
@@ -158,8 +162,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             const SizedBox(height: 8),
           ],
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-            needsBackground: false),
+        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen),
       ],
     );
   }
