@@ -99,11 +99,7 @@ class _BoxContentState extends State<BoxContent> {
                         Debug(widget.message.id, label: "id"),
                         Debug(widget.message.packetId, label: "packetId"),
                       ]),
-                    if (widget.isFirstMessageInGroupedMessages &&
-                        widget.message.roomUid.asUid().category ==
-                            Categories.GROUP &&
-                        !widget.isSender)
-                      senderNameBox(),
+                    if (showSenderNameBox()) senderNameBox(),
                     if (hasReply()) replyToIdBox(),
                     if (isForwarded()) forwardedFromBox(),
                     messageBox()
@@ -238,6 +234,7 @@ class _BoxContentState extends State<BoxContent> {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     }
 
@@ -246,7 +243,9 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: widget.minWidth,
+          minWidth: isForwarded() || hasReply() || showSenderNameBox()
+              ? widget.minWidth
+              : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
@@ -358,5 +357,11 @@ class _BoxContentState extends State<BoxContent> {
 
   bool isForwarded() {
     return (widget.message.forwardedFrom?.length ?? 0) > 3;
+  }
+
+  bool showSenderNameBox() {
+    return widget.isFirstMessageInGroupedMessages &&
+        widget.message.roomUid.asUid().category == Categories.GROUP &&
+        !widget.isSender;
   }
 }
