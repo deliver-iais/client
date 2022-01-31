@@ -13,6 +13,8 @@ class CustomColorScheme {
   const CustomColorScheme(this.primary, this.onPrimary, this.primaryContainer,
       this.onPrimaryContainer);
 
+  Color onPrimaryContainerVariant() => onPrimaryContainer.withAlpha(150);
+
   CustomColorScheme.light(TonalPalette tones, Color primary)
       : primary = _harmonizeColor(Color(tones.get(40)), primary),
         onPrimary = _harmonizeColor(Color(tones.get(100)), primary),
