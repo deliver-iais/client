@@ -288,6 +288,161 @@ void main() {
         verify(seenDo.getOthersSeen(testUid.asString()));
       });
     });
+
+    group('fetchHiddenMessageCount -', () {
+      test('When called should countIsHiddenMessages', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        verify(
+            queryServiceClient.countIsHiddenMessages(CountIsHiddenMessagesReq()
+              ..roomUid = testUid
+              ..messageId = Int64(0 + 1)));
+      });
+
+      test('When called should getMySeen', () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        verify(seenDo.getMySeen(testUid.asString()));
+      });
+      test('When called should getMySeen anf if is not null should save it',
+          () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        var s = await seenDo.getMySeen(testUid.asString());
+        verify(seenDo.saveMySeen(
+            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
+      });
+      test('When called should getMySeen and if is null should never save it',
+          () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        var s = await seenDo.getMySeen(testUid.asString());
+        verifyNever(seenDo.saveMySeen(
+            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
+      });
+    });
+
+    group('fetchLastMessages -', () {
+      test('When called should getMessage from messageDao', () async {
+        final messageDao = getAndRegisterMessageDao();
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 2,
+        );
+        verify(messageDao.getMessage(testUid.asString(), 0));
+      });
+      test(
+          'When called should getMessage from messageDao if msg be null and get error should returned null',
+          () async {
+        getAndRegisterMessageDao(getError: true);
+        expect(
+            await MessageRepo().fetchLastMessages(
+              testUid,
+              0,
+              0,
+              Room(uid: testUid.asString()),
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
+              limit: 2,
+            ),
+            null);
+      });
+      test(
+          'When called should getMessage from messageDao if msg be null  and get error should updateRoom',
+          () async {
+        getAndRegisterMessageDao(getError: true);
+        final roomDao = getAndRegisterRoomDao();
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          lastUpdateTime: 0,
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 2,
+        );
+        verify(roomDao.updateRoom(Room(
+          uid: testUid.asString(),
+          firstMessageId: 0,
+          lastUpdateTime: 0,
+          lastMessageId: 0,
+        )));
+      });
+      test(
+          'When called should getMessage from messageDao if msg be null and get error should see logger',
+          () async {
+        getAndRegisterMessageDao(getError: true);
+        final logger = getAndRegisterLogger();
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          lastUpdateTime: 0,
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 2,
+        );
+        verify(logger.wtf(testUid));
+        verify(logger.wtf(Room(uid: testUid.asString())));
+      });
+
+      //todo add for test for null when write getLastMessageFromServer
+
+      test(
+          'When called should getMessage from messageDao if msg not be null should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterMessageDao(
+            message: Message(
+                id: 0,
+                from: testUid.asString(),
+                to: testUid.asString(),
+                packetId: testUid.asString(),
+                time: 0,
+                roomUid: testUid.asString()));
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          lastUpdateTime: 0,
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 2,
+        );
+        verify(roomDao.updateRoom(
+          Room(
+              uid: testUid.asString(),
+              firstMessageId: 0,
+              lastUpdateTime: 0,
+              lastMessageId: 0,
+              lastMessage: Message(
+                  id: 0,
+                  from: testUid.asString(),
+                  to: testUid.asString(),
+                  packetId: testUid.asString(),
+                  time: 0,
+                  json: "{DELETED}",
+                  roomUid: testUid.asString())),
+        ));
+      });
+    });
+
+    group('fetchOtherSeen -', () {
+      test(
+          'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
+          () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().fetchOtherSeen(testUid);
+        verify(queryServiceClient.fetchLastOtherUserSeenData(
+            FetchLastOtherUserSeenDataReq()..roomUid = testUid));
+        verify(
+            seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
+      });
+    });
     group('fetchCurrentUserLastSeen -', () {
       RoomMetadata roomMetadata = RoomMetadata(
           roomUid: testUid,
@@ -323,53 +478,6 @@ void main() {
         await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
         verifyNever(await seenDo.saveMySeen(Seen(
             uid: testUid.asString(), hiddenMessageCount: 0, messageId: 0)));
-      });
-    });
-
-    group('fetchOtherSeen -', () {
-      test(
-          'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
-          () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
-        final seenDo = getAndRegisterSeenDao();
-        await MessageRepo().fetchOtherSeen(testUid);
-        verify(queryServiceClient.fetchLastOtherUserSeenData(
-            FetchLastOtherUserSeenDataReq()..roomUid = testUid));
-        verify(
-            seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
-      });
-    });
-
-    group('fetchHiddenMessageCount -', () {
-      test('When called should countIsHiddenMessages', () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
-        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        verify(
-            queryServiceClient.countIsHiddenMessages(CountIsHiddenMessagesReq()
-              ..roomUid = testUid
-              ..messageId = Int64(0 + 1)));
-      });
-
-      test('When called should getMySeen', () async {
-        final seenDo = getAndRegisterSeenDao();
-        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        verify(seenDo.getMySeen(testUid.asString()));
-      });
-      test('When called should getMySeen anf if is not null should save it',
-          () async {
-        final seenDo = getAndRegisterSeenDao();
-        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        var s = await seenDo.getMySeen(testUid.asString());
-        verify(seenDo.saveMySeen(
-            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
-      });
-      test('When called should getMySeen and if is null should never save it',
-          () async {
-        final seenDo = getAndRegisterSeenDao();
-        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        var s = await seenDo.getMySeen(testUid.asString());
-        verifyNever(seenDo.saveMySeen(
-            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
       });
     });
   });
