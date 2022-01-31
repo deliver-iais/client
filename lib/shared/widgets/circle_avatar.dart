@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -66,8 +67,9 @@ class CircleAvatarWidget extends StatelessWidget {
           key: _globalKey,
           width: radius * 2,
           height: radius * 2,
+          clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(radius / 1.25),
               gradient: !isSystem()
                   ? LinearGradient(colors: [
                       changeColor(color, saturation: 0.8, lightness: 0.4),
@@ -101,12 +103,12 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<String?> snapshot, Color textColor) {
     if (snapshot.hasData) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: kIsWeb
-            ? Image.network(snapshot.data!).image
-            : Image.file(File(snapshot.data!)).image,
-      );
+      return kIsWeb
+          ? Image.network(snapshot.data!, fit: BoxFit.fill)
+          : Image.file(
+              File(snapshot.data!),
+              fit: BoxFit.cover,
+            );
     } else {
       return showDisplayName(textColor);
     }
