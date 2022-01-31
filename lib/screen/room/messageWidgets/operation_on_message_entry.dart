@@ -271,7 +271,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 }
 
 void showDeleteMsgDialog(List<Message> messages, BuildContext context,
-    Function? onDelete, int? roomLastMessageId) {
+    Function? onDelete) {
   var _i18n = GetIt.I.get<I18N>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
@@ -300,7 +300,7 @@ void showDeleteMsgDialog(List<Message> messages, BuildContext context,
                   style: const TextStyle(color: Colors.red),
                 ),
                 onTap: () {
-                  _messageRepo.deleteMessage(messages, roomLastMessageId!);
+                  _messageRepo.deleteMessage(messages);
 
                   onDelete!();
                   Navigator.pop(c);

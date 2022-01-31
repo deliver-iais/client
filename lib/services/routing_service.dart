@@ -92,8 +92,9 @@ class RoutingService {
       {List<Message> forwardedMessages = const [],
       bool popAllBeforePush = false,
       List<String>? inputFilePaths,
-      pro.ShareUid? shareUid}) {
-    if (!isInRoom(roomId)) {
+      pro.ShareUid? shareUid,
+      bool forceToOpenRoom=false}) {
+    if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
           RoomPage(
             key: ValueKey("/room/$roomId"),

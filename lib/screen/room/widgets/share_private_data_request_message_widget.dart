@@ -35,8 +35,10 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
             width: 240,
             margin: const EdgeInsets.only(bottom: 17),
             child: OutlinedButton(
-                onPressed: () =>
-                    _showGetAccessPrivateData(context, sharePrivateDataRequest),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _showGetAccessPrivateData(context, sharePrivateDataRequest);
+                },
                 child: Text(
                     sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
                         ? _i18n.get("get_access_phone_number")
@@ -67,11 +69,12 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                           ? _i18n.get("access_name")
                           : _i18n.get("access_username"),
             ),
+            actionsPadding: const EdgeInsets.only(right: 8, bottom: 5),
             actions: [
               GestureDetector(
                   child: Text(
                     _i18n.get("cancel"),
-                    style: const TextStyle(fontSize: 15),
+                    style: const TextStyle(fontSize: 16, color: Colors.red),
                   ),
                   onTap: () => Navigator.pop(c)),
               const SizedBox(
@@ -80,7 +83,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               GestureDetector(
                 child: Text(
                   _i18n.get("ok"),
-                  style: const TextStyle(color: Colors.red, fontSize: 15),
+                  style: const TextStyle(color: Colors.blue, fontSize: 16),
                 ),
                 onTap: () {
                   _messageRepo.sendPrivateMessageAccept(

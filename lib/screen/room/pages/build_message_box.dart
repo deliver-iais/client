@@ -293,7 +293,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                     isHeroEnabled: false),
               ),
               onTap: () {
-                _routingServices.openRoom(message.from);
+                _routingServices.openProfile(message.from);
               },
             ),
           ),
@@ -477,8 +477,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   onDeleteMessage() {
-    showDeleteMsgDialog([widget.message], context, widget.onDelete,
-        widget.currentRoom.lastMessageId ?? -1);
+    showDeleteMsgDialog([widget.message], context, widget.onDelete,);
   }
 
   onDeletePendingMessage() {

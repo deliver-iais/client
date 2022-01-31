@@ -114,7 +114,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                   } else {
                                     return GestureDetector(
                                       onTap: () {
-                                        _rootingServices.openRoom(c.uid);
+                                          _rootingServices.openRoom(c.uid);
                                       },
                                       child: ContactWidget(
                                           contact: c,
