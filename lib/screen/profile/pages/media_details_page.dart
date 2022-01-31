@@ -415,8 +415,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                 download: () async {
                   await download(fileId, fileName);
                 },
-                background: extraThemeData.lowlight(false),
-                foreground: extraThemeData.highlight(false),
+                background: extraThemeData.colorScheme.onPrimary,
+                foreground: extraThemeData.colorScheme.primary,
               )
             ],
           ),

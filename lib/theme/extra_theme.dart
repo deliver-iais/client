@@ -14,11 +14,9 @@ class ExtraThemeData {
   // TODO: Remove later on
   Color onDetailsBox;
 
-  Color lowlight(bool isSender) =>
-      !isSender ? colorScheme.onPrimary : colorScheme.onTertiary;
+  Color lowlight() => colorScheme.onPrimary;
 
-  Color highlight(bool isSender) =>
-      !isSender ? colorScheme.primary : colorScheme.tertiary;
+  Color highlight() => colorScheme.primary;
 
   Color surfaceElevation(int number, {isSender = false}) => elevation(
       colorScheme.surface,

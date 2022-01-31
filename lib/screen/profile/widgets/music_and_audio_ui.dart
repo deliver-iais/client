@@ -77,6 +77,10 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     PlayAudioStatus(
                                       fileId: fileId,
                                       fileName: fileName,
+                                      backgroundColor:
+                                          theme.colorScheme.onPrimary,
+                                      foregroundColor:
+                                          theme.colorScheme.primary,
                                     ),
                                     Expanded(
                                       child: Stack(

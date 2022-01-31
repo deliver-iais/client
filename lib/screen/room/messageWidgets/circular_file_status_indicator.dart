@@ -5,8 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_s
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/extra_theme.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -14,12 +12,14 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 
 class CircularFileStatusIndicator extends StatefulWidget {
   final Message message;
-  final bool isSender;
+  final Color backgroundColor;
+  final Color foregroundColor;
 
   const CircularFileStatusIndicator({
     Key? key,
     required this.message,
-    required this.isSender,
+    required this.backgroundColor,
+    required this.foregroundColor,
   }) : super(key: key);
 
   @override
@@ -40,7 +40,6 @@ class _CircularFileStatusIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    final extraThemeData = ExtraTheme.of(context);
     var file = widget.message.json!.toFile();
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
@@ -70,9 +69,8 @@ class _CircularFileStatusIndicatorState
                                 await _fileRepo.getFile(file.uuid, file.name);
                                 setState(() {});
                               },
-                              background: ExtraTheme.of(context)
-                                  .lowlight(widget.isSender),
-                              foreground: extraThemeData.highlight(widget.isSender),
+                              background: widget.backgroundColor,
+                              foreground: widget.foregroundColor,
                             );
                           }
                         });
@@ -84,8 +82,8 @@ class _CircularFileStatusIndicatorState
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
                       },
-                      background: extraThemeData.lowlight(widget.isSender),
-                      foreground: extraThemeData.highlight(widget.isSender),
+                      background: widget.backgroundColor,
+                      foreground: widget.foregroundColor,
                     );
                   }
                 });
@@ -98,12 +96,14 @@ class _CircularFileStatusIndicatorState
         ? PlayAudioStatus(
             fileId: file.uuid,
             fileName: file.name,
-            isSender: widget.isSender,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
           )
         : OpenFileStatus(
             filePath: filePath,
             file: file,
-            isSender: widget.isSender,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
           );
   }
 }

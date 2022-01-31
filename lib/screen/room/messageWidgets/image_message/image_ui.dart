@@ -8,7 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,6 +25,7 @@ class ImageUi extends StatefulWidget {
   final double minWidth;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   late final file_pb.File image = message.json!.toFile();
 
@@ -34,6 +35,7 @@ class ImageUi extends StatefulWidget {
       required this.maxWidth,
       required this.minWidth,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -58,7 +60,8 @@ class _ImageUiState extends State<ImageUi> {
 
   @override
   Widget build(BuildContext context) {
-    final extraThemeData = ExtraTheme.of(context);
+    final lowlight = widget.colorScheme.onPrimary;
+    final highlight = widget.colorScheme.primary;
     try {
       return Hero(
         tag: "${widget.message.id}-${widget.image.uuid}",
@@ -116,14 +119,12 @@ class _ImageUiState extends State<ImageUi> {
                                         snap.data! > 0) {
                                       return Container(
                                         decoration: BoxDecoration(
-                                            color: extraThemeData
-                                                .lowlight(widget.isSender),
+                                            color: lowlight,
                                             shape: BoxShape.circle),
                                         child: CircularPercentIndicator(
                                           radius: 50.0,
                                           lineWidth: 4.0,
-                                          backgroundColor: extraThemeData
-                                              .lowlight(widget.isSender),
+                                          backgroundColor: lowlight,
                                           percent: snap.data!,
                                           center: StreamBuilder<CancelToken?>(
                                             stream: _fileServices.cancelTokens[
@@ -132,9 +133,7 @@ class _ImageUiState extends State<ImageUi> {
                                               return GestureDetector(
                                                 child: Icon(
                                                   Icons.close,
-                                                  color:
-                                                      extraThemeData.highlight(
-                                                          widget.isSender),
+                                                  color: highlight,
                                                   size: 35,
                                                 ),
                                                 onTap: () {
@@ -150,8 +149,7 @@ class _ImageUiState extends State<ImageUi> {
                                               );
                                             },
                                           ),
-                                          progressColor: extraThemeData
-                                              .highlight(widget.isSender),
+                                          progressColor: highlight,
                                         ),
                                       );
                                     } else {
@@ -203,10 +201,8 @@ class _ImageUiState extends State<ImageUi> {
                                   widget.image.uuid, widget.image.name);
                               setState(() {});
                             },
-                            background:
-                                extraThemeData.lowlight(widget.isSender),
-                            foreground:
-                                extraThemeData.highlight(widget.isSender),
+                            background: lowlight,
+                            foreground: highlight,
                           )),
                           if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(

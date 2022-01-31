@@ -80,6 +80,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         minWidth: widget.minWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     } else if (type.contains('video')) {
       return VideoMessage(
@@ -88,6 +89,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         minWidth: widget.minWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     } else {
       return AudioAndDocumentFileUI(
@@ -95,6 +97,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         maxWidth: widget.maxWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     }
   }

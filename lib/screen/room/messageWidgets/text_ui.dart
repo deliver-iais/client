@@ -77,7 +77,10 @@ class TextUI extends StatelessWidget {
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
           RichText(
-            text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
+            text: TextSpan(
+                children: spans,
+                style: theme.textTheme.bodyText2
+                    ?.copyWith(color: colorScheme.onPrimaryContainer)),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
