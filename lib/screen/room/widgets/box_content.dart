@@ -329,6 +329,7 @@ class _BoxContentState extends State<BoxContent> {
         return SharePrivateDataRequestMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
+          maxWidth: widget.maxWidth * 0.75,
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );

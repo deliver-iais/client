@@ -12,6 +12,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
+  static final _i18n = GetIt.I.get<I18N>();
 
   const SharePrivateDataAcceptMessageWidget({
     Key? key,
@@ -24,8 +25,8 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    I18N i18n = GetIt.I.get<I18N>();
-    var spda = message.json!.toSharePrivateDataAcceptance();
+    var sharePrivateDataAcceptance =
+        message.json!.toSharePrivateDataAcceptance();
 
     return Row(
       children: [
@@ -35,26 +36,31 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
             children: [
               Icon(
                 Icons.verified_user_rounded,
-                color: theme.primaryColor,
+                color: colorScheme.onPrimaryContainer,
               ),
               Text(
-                spda.data == PrivateDataType.PHONE_NUMBER
-                    ? i18n.get("phone_number_granted")
-                    : spda.data == PrivateDataType.NAME
-                        ? i18n.get("name_granted")
-                        : spda.data == PrivateDataType.USERNAME
-                            ? i18n.get("username_granted")
-                            : spda.data == PrivateDataType.EMAIL
-                                ? i18n.get("email_granted")
-                                : i18n.get("private_data_granted"),
-                style: theme.primaryTextTheme.bodyText2!
-                    .copyWith(fontWeight: FontWeight.w400),
+                sharePrivateDataAcceptance.data == PrivateDataType.PHONE_NUMBER
+                    ? _i18n.get("phone_number_granted")
+                    : sharePrivateDataAcceptance.data == PrivateDataType.NAME
+                        ? _i18n.get("name_granted")
+                        : sharePrivateDataAcceptance.data ==
+                                PrivateDataType.USERNAME
+                            ? _i18n.get("username_granted")
+                            : sharePrivateDataAcceptance.data ==
+                                    PrivateDataType.EMAIL
+                                ? _i18n.get("email_granted")
+                                : _i18n.get("private_data_granted"),
+                style: theme.textTheme.bodyText2!.copyWith(
+                    color: colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w400),
               ),
             ],
           ),
         ),
         TimeAndSeenStatus(message, isSender, isSeen,
-            needsPositioned: false),
+            needsPositioned: false,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerVariant()),
       ],
     );
   }
