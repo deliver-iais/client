@@ -1,4 +1,5 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive/hive.dart';
 
 part 'seen.g.dart';
@@ -23,4 +24,22 @@ class Seen {
       uid: seen.uid,
       messageId: seen.messageId ?? messageId,
       hiddenMessageCount: seen.hiddenMessageCount ?? hiddenMessageCount);
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is Seen &&
+            const DeepCollectionEquality().equals(other.uid, uid) &&
+            const DeepCollectionEquality().equals(other.messageId, messageId) &&
+            const DeepCollectionEquality()
+                .equals(other.hiddenMessageCount, hiddenMessageCount));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(uid),
+      const DeepCollectionEquality().hash(messageId),
+      const DeepCollectionEquality().hash(hiddenMessageCount));
 }

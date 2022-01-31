@@ -81,7 +81,7 @@ dependencies:
       url: https://github.com/deliver-iais/grpc-dart
       ref: 42d8ba98d34c06377ced074562d0eaa278501b89
 
- ## (WEB NOT SUPPORTED BI-Directional Streaming)
+  ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
@@ -134,6 +134,8 @@ dependencies:
   universal_html: 2.0.8
   js: ^0.6.3
   platform_detect: 2.0.0
+  freezed_annotation: ^1.1.0
+
 
 
 dev_dependencies:
