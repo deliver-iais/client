@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -293,8 +294,7 @@ class _ProfilePageState extends State<ProfilePage>
                     subtitle: "${snapshot.data}",
                     leading: const Icon(Icons.alternate_email),
                     trailing: const Icon(Icons.copy),
-                    subtitleTextStyle:
-                        TextStyle(color:theme.primaryColor),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
                     onPressed: (_) => Clipboard.setData(
                         ClipboardData(text: "@${snapshot.data}")),
                   ),
@@ -315,8 +315,7 @@ class _ProfilePageState extends State<ProfilePage>
                     title: _i18n.get("phone"),
                     subtitle: buildPhoneNumber(snapshot.data!.countryCode,
                         snapshot.data!.nationalNumber),
-                    subtitleTextStyle:
-                        TextStyle(color:theme.primaryColor),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
                     leading: const Icon(Icons.phone),
                     trailing: const Icon(Icons.call),
                     onPressed: (_) => launch(
@@ -334,8 +333,9 @@ class _ProfilePageState extends State<ProfilePage>
             child: SettingsTile(
                 title: _i18n.get("send_message"),
                 leading: const Icon(Icons.message),
-                onPressed: (_) =>
-                    _routingService.openRoom(widget.roomUid.asString())),
+                onPressed: (_) => _routingService.openRoom(
+                    widget.roomUid.asString(),
+                    forceToOpenRoom: true)),
           ),
         if (isAndroid())
           FutureBuilder<String?>(
@@ -349,9 +349,8 @@ class _ProfilePageState extends State<ProfilePage>
                         title: _i18n.get("custom_notifications"),
                         leading: const Icon(Icons.music_note_sharp),
                         subtitle: snapshot.data!,
-                        subtitleTextStyle: TextStyle(
-                            color:theme.primaryColor,
-                            fontSize: 16),
+                        subtitleTextStyle:
+                            TextStyle(color: theme.primaryColor, fontSize: 16),
                         onPressed: (_) async {
                           _routingService.openCustomNotificationSoundSelection(
                               widget.roomUid.asString());
@@ -384,6 +383,18 @@ class _ProfilePageState extends State<ProfilePage>
             }
           },
         ),
+        if (widget.roomUid.isBot())
+          FutureBuilder<BotInfo?>(
+              future: _botRepo.getBotInfo(widget.roomUid),
+              builder: (c, s) {
+                if (s.hasData &&
+                    s.data != null &&
+                    s.data!.description!.isNotEmpty) {
+                  return description(s.data!.description!, context);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
         if (widget.roomUid.isMuc())
           StreamBuilder<Muc?>(
               stream: _mucRepo.watchMuc(widget.roomUid.asString()),
@@ -391,17 +402,7 @@ class _ProfilePageState extends State<ProfilePage>
                 if (muc.hasData &&
                     muc.data != null &&
                     muc.data!.info!.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SettingsTile(
-                        title: _i18n.get("description"),
-                        subtitle: muc.data!.info,
-                        subtitleTextStyle: TextStyle(
-                            color:theme.primaryColor,
-                            fontSize: 16),
-                        leading: const Icon(Icons.info),
-                        trailing: const SizedBox.shrink()),
-                  );
+                  return description(muc.data!.info!, context);
                 } else {
                   return const SizedBox.shrink();
                 }
@@ -419,6 +420,19 @@ class _ProfilePageState extends State<ProfilePage>
         const Divider(height: 4, thickness: 4)
       ])
     ]));
+  }
+
+  Padding description(String info, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: SettingsTile(
+          title: _i18n.get("description"),
+          subtitle: info,
+          subtitleTextStyle:
+              TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+          leading: const Icon(Icons.info),
+          trailing: const SizedBox.shrink()),
+    );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
