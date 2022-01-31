@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Darken a color by [percent] amount (100 = black)
@@ -40,24 +39,6 @@ Color changeColorSaturation(Color color, double saturation) =>
 
 Color changeColorLightness(Color color, double lightness) =>
     HSLColor.fromColor(color).withLightness(lightness).toColor();
-
-Color lowlight(bool isSender, BuildContext context) {
-  return isSender
-      ? ExtraTheme.of(context).lowlightOnSentMessage
-      : ExtraTheme.of(context).lowlight;
-}
-
-Color highlight(bool isSender, BuildContext context) {
-  return isSender
-      ? ExtraTheme.of(context).highlightOnSentMessage
-      : ExtraTheme.of(context).highlight;
-}
-
-Color onHighlight(bool isSender, BuildContext context) {
-  return isSender
-      ? ExtraTheme.of(context).onHighlightOnSentMessage
-      : ExtraTheme.of(context).onHighlight;
-}
 
 class RandomColor {
   /// Constructor for random generator

@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -12,12 +13,14 @@ class BotButtonsWidget extends StatelessWidget {
   final double maxWidth;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   BotButtonsWidget(
       {Key? key,
       required this.message,
       required this.maxWidth,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -48,7 +51,6 @@ class BotButtonsWidget extends StatelessWidget {
                 isSender,
                 isSeen,
                 needsPadding: false,
-                needsBackground: false,
                 needsPositioned: false,
               ),
             ),

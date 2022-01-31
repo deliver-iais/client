@@ -519,12 +519,13 @@ showCaptionDialog(
 
 Widget circleButton(Function() onTap, IconData icon, String text, double size,
     {required BuildContext context}) {
+  final theme = Theme.of(context);
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
       ClipOval(
         child: Material(
-          color: Theme.of(context).primaryColor, // button color
+          color:theme.primaryColor, // button color
           child: InkWell(
               splashColor: Colors.red, // inkwell color
               child: SizedBox(
@@ -540,7 +541,7 @@ Widget circleButton(Function() onTap, IconData icon, String text, double size,
       Text(
         text,
         style:
-            TextStyle(fontSize: 10, color: Theme.of(context).backgroundColor),
+            TextStyle(fontSize: 10, color:theme.backgroundColor),
       ),
     ],
   );

@@ -89,6 +89,7 @@ class LinkPreview extends StatelessWidget {
   }
 
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
         margin: const EdgeInsets.only(top: 10),
         padding:
@@ -112,7 +113,7 @@ class LinkPreview extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: Theme.of(context)
+                style:theme
                     .primaryTextTheme
                     .bodyText2
                     ?.copyWith(color: foregroundColor),
@@ -127,7 +128,7 @@ class LinkPreview extends StatelessWidget {
                   textDirection: data.description!.isPersian()
                       ? TextDirection.rtl
                       : TextDirection.ltr,
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style:theme.textTheme.bodyText2,
                 ),
               ),
           ],

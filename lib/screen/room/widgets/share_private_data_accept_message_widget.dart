@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +11,19 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
-  const SharePrivateDataAcceptMessageWidget(
-      {Key? key, required this.message, required this.isSender, required this.isSeen}) : super(key: key);
+  const SharePrivateDataAcceptMessageWidget({
+    Key? key,
+    required this.message,
+    required this.isSender,
+    required this.isSeen,
+    required this.colorScheme,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     I18N i18n = GetIt.I.get<I18N>();
     var spda = message.json!.toSharePrivateDataAcceptance();
 
@@ -27,7 +35,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
             children: [
               Icon(
                 Icons.verified_user_rounded,
-                color: Theme.of(context).primaryColor,
+                color: theme.primaryColor,
               ),
               Text(
                 spda.data == PrivateDataType.PHONE_NUMBER
@@ -39,16 +47,14 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                             : spda.data == PrivateDataType.EMAIL
                                 ? i18n.get("email_granted")
                                 : i18n.get("private_data_granted"),
-                style: Theme.of(context)
-                    .primaryTextTheme
-                    .bodyText2!
+                style: theme.primaryTextTheme.bodyText2!
                     .copyWith(fontWeight: FontWeight.w400),
               ),
             ],
           ),
         ),
         TimeAndSeenStatus(message, isSender, isSeen,
-            needsPositioned: false, needsBackground: false),
+            needsPositioned: false),
       ],
     );
   }

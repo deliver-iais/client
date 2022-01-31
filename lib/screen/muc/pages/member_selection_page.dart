@@ -23,6 +23,7 @@ class MemberSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -57,7 +58,7 @@ class MemberSelectionPage extends StatelessWidget {
                       members >= 1
                           ? '$members ${_i18n.get("of_max_member")}'
                           : _i18n.get("max_member"),
-                      style: Theme.of(context).textTheme.subtitle2,
+                      style:theme.textTheme.subtitle2,
                     );
                   })
             ],
@@ -70,7 +71,7 @@ class MemberSelectionPage extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 16.0),
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color: Theme.of(context).colorScheme.surface,
+            color:theme.colorScheme.surface,
           ),
           child: SelectiveContactsList(
             isChannel: isChannel,

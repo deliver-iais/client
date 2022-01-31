@@ -324,6 +324,7 @@ Stack buildInputCaption(
     required BuildContext context,
     required Function send,
     required int count}) {
+  final theme = Theme.of(context);
   return Stack(
     children: [
       Align(
@@ -389,7 +390,7 @@ Stack buildInputCaption(
                         !snapshot.data!) {
                       return ClipOval(
                         child: Material(
-                          color: Theme.of(context).primaryColor, // button color
+                          color: theme.primaryColor, // button color
                           child: InkWell(
                               splashColor: Colors.red, // inkwell color
                               child: const SizedBox(
@@ -424,7 +425,7 @@ Stack buildInputCaption(
                   width: 16.0,
                   height: 18.0,
                   decoration: BoxDecoration(
-                    // color: Theme.of(context).dialogBackgroundColor,
+                    // color:theme.dialogBackgroundColor,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Colors.lightBlue,

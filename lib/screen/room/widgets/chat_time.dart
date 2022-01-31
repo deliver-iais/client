@@ -10,6 +10,7 @@ class ChatTime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final ValueNotifier<int> day = ValueNotifier<int>(DateTime.now().day);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -33,7 +34,7 @@ class ChatTime extends StatelessWidget {
               }
               return Text(
                 outT,
-                style: Theme.of(context)
+                style:theme
                     .textTheme
                     .bodyText2!
                     .copyWith(height: 1, color: Colors.white),

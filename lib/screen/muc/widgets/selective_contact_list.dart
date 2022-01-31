@@ -102,6 +102,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         Column(
@@ -142,7 +143,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           return Center(
                             child: Text(
                               i18n.get("no_results"),
-                              style: Theme.of(context)
+                              style:theme
                                   .textTheme
                                   .subtitle1!
                                   .copyWith(color: Colors.red),
@@ -170,7 +171,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                     height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).primaryColor,
+                      color:theme.primaryColor,
                     ),
                     child: widget.mucUid != null
                         ? IconButton(

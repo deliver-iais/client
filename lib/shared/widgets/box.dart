@@ -18,13 +18,14 @@ class Box extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
       child: ClipRRect(
         borderRadius: borderRadius ??
             (isLarge(context) ? largePageBorderRadius : BorderRadius.zero),
         child: Container(
-          color: Theme.of(context).colorScheme.surface,
+          color:theme.colorScheme.surface,
           child: child,
         ),
       ),

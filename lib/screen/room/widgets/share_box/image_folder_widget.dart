@@ -122,6 +122,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   }
 
   Stack buildInputCaption({required bool canPop}) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         _selectedImage.isNotEmpty && !widget.selectAvatar
@@ -129,7 +130,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 alignment: Alignment.bottomLeft,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).dialogBackgroundColor,
+                    color:theme.dialogBackgroundColor,
                     border: Border.all(
                       color: Colors.transparent,
                     ),
@@ -165,7 +166,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       ),
                       child: ClipOval(
                         child: Material(
-                          color: Theme.of(context).primaryColor, // button color
+                          color:theme.primaryColor, // button color
                           child: InkWell(
                               splashColor: Colors.red, // inkwell color
                               child: const SizedBox(
@@ -208,7 +209,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                         width: 16.0,
                         height: 16.0,
                         decoration: BoxDecoration(
-                          // color: Theme.of(context).dialogBackgroundColor,
+                          // color:theme.dialogBackgroundColor,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: Colors.lightBlue,

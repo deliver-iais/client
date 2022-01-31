@@ -21,13 +21,11 @@ import 'package:deliver/screen/settings/pages/log_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -228,6 +226,8 @@ class RoutingService {
         if (isLarge(context))
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
+        if (isLarge(context))
+          const VerticalDivider(),
         Expanded(
             child: ClipRect(
           child: Navigator(
@@ -300,11 +300,10 @@ class Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(),
       body: Stack(
         children: [
-          const Background(),
           Center(
             child: BlurContainer(
                 skew: 4,
@@ -312,7 +311,7 @@ class Empty extends StatelessWidget {
                     const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
                 child: Text(
                     _i18n.get("please_select_a_chat_to_start_messaging"),
-                    style: Theme.of(context)
+                    style:theme
                         .textTheme
                         .bodyText2!
                         .copyWith(color: Colors.white))),

@@ -25,6 +25,7 @@ class ShowMentionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<List<UidIdName?>?>(
       future: _mucRepo.getFilteredMember(roomUid, query: query),
       builder: (c, members) {
@@ -36,7 +37,7 @@ class ShowMentionList extends StatelessWidget {
                         ? HEIGHT * 4
                         : (members.data!.length * HEIGHT),
                     child: Container(
-                        color: Theme.of(context).backgroundColor,
+                        color:theme.backgroundColor,
                         child: ListView.separated(
                           itemCount: members.data!.length,
                           shrinkWrap: true,
@@ -46,7 +47,7 @@ class ShowMentionList extends StatelessWidget {
                             if (mentionSelectedIndex == i &&
                                 mentionSelectedIndex != -1) {
                               _mucMemberMentionColor =
-                                  Theme.of(context).focusColor;
+                                 theme.focusColor;
                             }
                             return Container(
                               color: _mucMemberMentionColor,

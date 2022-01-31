@@ -7,6 +7,7 @@ class Bubbles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: List.generate(
         _size,
@@ -17,7 +18,7 @@ class Bubbles extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _current == index
-                ? Theme.of(context).primaryColor
+                ?theme.primaryColor
                 : const Color(0xFFBCE0FD),
           ),
         ),

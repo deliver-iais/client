@@ -19,6 +19,7 @@ class FluidWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Container(
@@ -29,7 +30,7 @@ class FluidWidget extends StatelessWidget {
                   ? mainBorder
                   : BorderRadius.zero,
               child: Container(
-                color: Theme.of(context).backgroundColor,
+                color:theme.backgroundColor,
                 constraints: BoxConstraints(
                     maxWidth: isLargeWidth(constraints.maxWidth)
                         ? FLUID_MAX_WIDTH

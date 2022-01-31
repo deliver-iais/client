@@ -23,6 +23,7 @@ class BlurContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (!blurIsEnabled) {
       return Container(padding: padding, decoration: decoration, child: child);
     }
@@ -35,7 +36,7 @@ class BlurContainer extends StatelessWidget {
             margin: margin,
             decoration: decoration ??
                 BoxDecoration(
-                  color: Theme.of(context).dividerColor.withOpacity(0.15),
+                  color:theme.dividerColor.withOpacity(0.15),
                 ),
             child: child),
       ),

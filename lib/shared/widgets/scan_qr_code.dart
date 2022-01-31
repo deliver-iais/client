@@ -71,6 +71,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   Widget _buildQrView(BuildContext context) {
+    final theme = Theme.of(context);
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
         ? 250.0
@@ -82,7 +83,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       onQRViewCreated: (QRViewController controller) =>
           _onQRViewCreated(controller, context),
       overlay: QrScannerOverlayShape(
-          borderColor: Theme.of(context).primaryColor,
+          borderColor:theme.primaryColor,
           borderRadius: 10,
           borderLength: 30,
           borderWidth: 10,
@@ -172,6 +173,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       String? countryCode,
       String? nationalNumber,
       required BuildContext context}) async {
+    final theme = Theme.of(context);
     var res = await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
@@ -199,7 +201,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               Text(
                 buildName(firstName, lastName),
                 style: TextStyle(
-                    color: Theme.of(context).primaryColor, fontSize: 20),
+                    color:theme.primaryColor, fontSize: 20),
               ),
               Text(
                 buildPhoneNumber(countryCode, nationalNumber),
@@ -246,6 +248,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   void handleSendMsgToBot(
       BuildContext context, String botId, String text) async {
+    final theme = Theme.of(context);
     controller.pauseCamera();
 
     showFloatingModalBottomSheet(
@@ -268,7 +271,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             Text(
               text,
               style: TextStyle(
-                  color: Theme.of(context).primaryColor, fontSize: 25),
+                  color:theme.primaryColor, fontSize: 25),
             ),
             const SizedBox(
               height: 40,

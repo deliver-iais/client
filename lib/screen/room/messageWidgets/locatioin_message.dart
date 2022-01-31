@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/theme/color_scheme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,9 +15,15 @@ class LocationMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
-  const LocationMessageWidget(
-      {Key? key, required this.message, required this.isSeen, required this.isSender}) : super(key: key);
+  const LocationMessageWidget({
+    Key? key,
+    required this.message,
+    required this.isSeen,
+    required this.isSender,
+    required this.colorScheme,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +50,15 @@ class LocationMessageWidget extends StatelessWidget {
                     width: 30.0,
                     height: 30.0,
                     point: LatLng(location.latitude, location.longitude),
-                    builder: (ctx) => CircleAvatarWidget(message.from.asUid(), 20),
+                    builder: (ctx) =>
+                        CircleAvatarWidget(message.from.asUid(), 20),
                   ),
                 ],
               ),
             ],
           ),
         ),
-        TimeAndSeenStatus(message, isSender, isSeen, needsBackground: true),
+        TimeAndSeenStatus(message, isSender, isSeen),
       ],
     );
   }

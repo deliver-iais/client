@@ -115,6 +115,7 @@ class _CustomNotificationSoundSelectionState
   }
 
   Widget _buildSelectIcon(bool isSelected, String data) {
+    final theme = Theme.of(context);
     return StreamBuilder<Object>(
         stream: widget._player.fixedPlayer!.onPlayerStateChanged,
         builder: (context, snapshot) {
@@ -136,7 +137,7 @@ class _CustomNotificationSoundSelectionState
                       isSelected
                           ? Icons.radio_button_checked_outlined
                           : Icons.radio_button_off,
-                      color: Theme.of(context).primaryColor,
+                      color:theme.primaryColor,
                     ),
                   )
                 ],

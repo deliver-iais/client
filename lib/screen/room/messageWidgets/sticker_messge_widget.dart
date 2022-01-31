@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -9,8 +10,11 @@ class StickerMessageWidget extends StatefulWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
-  const StickerMessageWidget(this.message, this.isSender, this.isSeen, {Key? key}) : super(key: key);
+  const StickerMessageWidget(this.message, this.isSender, this.isSeen,
+      {Key? key, required this.colorScheme})
+      : super(key: key);
 
   @override
   _StickerMessageWidgetState createState() => _StickerMessageWidgetState();
@@ -26,7 +30,7 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
     // FileProto.File stickerMessage = widget.message.json.toFile();
     // i18n = AppLocalization.of(context);
     // return Container(
-    //     color: Theme.of(context).backgroundColor,
+    //     color:theme.backgroundColor,
     //     child: Stack(
     //       children: [
     //         FutureBuilder<File>(
@@ -151,7 +155,7 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
     //                                                 .getTraslateValue(
     //                                                     "add_sticker"),
     //                                             style: TextStyle(
-    //                                                 color: Theme.of(context)
+    //                                                 color:theme
     //                                                     .primaryColor),
     //                                           ),
     //                                           onTap: () {

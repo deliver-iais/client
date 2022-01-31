@@ -22,12 +22,13 @@ class ContactWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
         color: currentMember
-            ? Theme.of(context).colorScheme.secondary
+            ? theme.colorScheme.secondary
             : isSelected
-                ? Theme.of(context).focusColor
+                ? theme.focusColor
                 : null,
       ),
       padding: const EdgeInsets.all(8),
@@ -45,7 +46,7 @@ class ContactWidget extends StatelessWidget {
               overflow: TextOverflow.fade,
               maxLines: 1,
               softWrap: false,
-              style: Theme.of(context).textTheme.subtitle1,
+              style: theme.textTheme.subtitle1,
             ),
           ),
           if (circleIcon != null)

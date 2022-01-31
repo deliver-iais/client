@@ -76,9 +76,10 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   buildLastMessageWidget(Message lastMessage) {
-    final activeHoverColor = Color.lerp(
-        Theme.of(context).focusColor, Theme.of(context).dividerColor, 0.1);
-    final hoverColor = Theme.of(context).hoverColor;
+    final theme = Theme.of(context);
+    final activeHoverColor =
+        Color.lerp(theme.focusColor, theme.dividerColor, 0.1);
+    final hoverColor = theme.hoverColor;
 
     return FutureBuilder<String>(
         initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
@@ -93,7 +94,7 @@ class _ChatItemState extends State<ChatItem> {
                     builder: (context, snapshot) {
                       return HoverContainer(
                         cursor: SystemMouseCursors.click,
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        margin: const EdgeInsets.only(right: 6, left: 6),
                         padding: const EdgeInsets.all(8),
                         hoverDecoration: BoxDecoration(
                             color: _routingService.isInRoom(widget.room.uid)
@@ -102,7 +103,7 @@ class _ChatItemState extends State<ChatItem> {
                             borderRadius: secondaryBorder),
                         decoration: BoxDecoration(
                             color: _routingService.isInRoom(widget.room.uid)
-                                ? Theme.of(context).focusColor
+                                ? theme.focusColor
                                 : Colors.transparent,
                             borderRadius: secondaryBorder),
                         height: 66,
@@ -122,7 +123,8 @@ class _ChatItemState extends State<ChatItem> {
                                     children: [
                                       if (widget.room.uid.asUid().category ==
                                           Categories.GROUP)
-                                        const Flexible(
+                                        const SizedBox(
+                                          width: 16,
                                           child: Icon(
                                             Icons.group_outlined,
                                             size: 16,
@@ -130,15 +132,17 @@ class _ChatItemState extends State<ChatItem> {
                                         ),
                                       if (widget.room.uid.asUid().category ==
                                           Categories.CHANNEL)
-                                        const Flexible(
+                                        const SizedBox(
+                                          width: 16,
                                           child: Icon(
                                             Icons.rss_feed_outlined,
-                                            size: 15,
+                                            size: 16,
                                           ),
                                         ),
                                       if (widget.room.uid.asUid().category ==
                                           Categories.BOT)
-                                        const Flexible(
+                                        const SizedBox(
+                                          width: 16,
                                           child: Icon(
                                             Icons.smart_toy_outlined,
                                             size: 16,
@@ -157,7 +161,7 @@ class _ChatItemState extends State<ChatItem> {
                                                           .asUid()
                                                           .isBot()
                                                   ? const EdgeInsets.only(
-                                                      left: 16.0)
+                                                      left: 4.0)
                                                   : EdgeInsets.zero,
                                               child: RoomName(
                                                   uid: widget.room.uid.asUid(),
@@ -216,6 +220,7 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   Padding defaultChatItem() {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 11.0),
       child: Row(
@@ -224,7 +229,7 @@ class _ChatItemState extends State<ChatItem> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.light
+                color: theme.brightness == Brightness.light
                     ? Colors.grey[300]
                     : Colors.grey[800],
                 shape: BoxShape.circle),
@@ -236,7 +241,7 @@ class _ChatItemState extends State<ChatItem> {
               Container(
                 width: 100,
                 height: 16,
-                color: Theme.of(context).brightness == Brightness.light
+                color: theme.brightness == Brightness.light
                     ? Colors.grey[300]
                     : Colors.grey[800],
               ),
@@ -244,7 +249,7 @@ class _ChatItemState extends State<ChatItem> {
               Container(
                 width: 200,
                 height: 13,
-                color: Theme.of(context).brightness == Brightness.light
+                color: theme.brightness == Brightness.light
                     ? Colors.grey[300]
                     : Colors.grey[800],
               ),
@@ -267,6 +272,7 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         Expanded(
@@ -279,10 +285,9 @@ class _ChatItemState extends State<ChatItem> {
                 children: [
                   TextSpan(
                       text: "${_i18n.get("draft")}: ",
-                      style: Theme.of(context).primaryTextTheme.bodyText2),
+                      style: theme.primaryTextTheme.bodyText2),
                   TextSpan(
-                      text: widget.room.draft,
-                      style: Theme.of(context).textTheme.bodyText2)
+                      text: widget.room.draft, style: theme.textTheme.bodyText2)
                 ],
               )),
         ),

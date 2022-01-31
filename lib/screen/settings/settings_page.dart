@@ -17,7 +17,7 @@ import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/dark.dart';
+import 'package:deliver/theme/light.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -46,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -96,14 +97,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style: Theme.of(context)
+                                        style:theme
                                             .textTheme
                                             .headline6,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         snapshot.data!.userName ?? "",
-                                        style: Theme.of(context)
+                                        style:theme
                                             .primaryTextTheme
                                             .subtitle1,
                                       ),
@@ -112,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         buildPhoneNumber(
                                             snapshot.data!.countryCode!,
                                             snapshot.data!.nationalNumber!),
-                                        style: Theme.of(context)
+                                        style:theme
                                             .textTheme
                                             .subtitle1,
                                       )
