@@ -1,5 +1,4 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -16,23 +16,11 @@ class BotRadioGroup extends FormField<String> {
             ) {
               return InputDecorator(
                 decoration: InputDecoration(
-                  label: Center(
-                    child: Text(
-                      formField.id,
-                      style: const TextStyle(color: Colors.blue, fontSize: 16),
-                    ),
+                  label: Text(
+                    formField.id,
+                    style: const TextStyle(fontSize: 16),
                   ),
                   errorText: field.hasError ? field.errorText : null,
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                    borderRadius: secondaryBorder,
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                    borderRadius: secondaryBorder,
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
                 ),
                 child: Column(
                   children: [
@@ -41,16 +29,8 @@ class BotRadioGroup extends FormField<String> {
                             ? formField.list.values
                             : formField.radioButtonList.values)
                       ListTile(
-                          title: GestureDetector(
-                            onTap: () {},
-                            child: Text(
-                              f,
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color:
-                                      field.value == f ? Colors.green : null),
-                            ),
-                          ),
+                          dense: true,
+                          title: Text(f, style: const TextStyle(fontSize: 16)),
                           leading: Radio<String?>(
                             value: f,
                             groupValue: field.value,
