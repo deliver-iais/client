@@ -18,12 +18,14 @@ class BotFormMessage extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
+  final double maxWidth;
   final CustomColorScheme colorScheme;
 
   const BotFormMessage(
       {Key? key,
       required this.message,
       required this.isSeen,
+      required this.maxWidth,
       required this.colorScheme,
       required this.isSender})
       : super(key: key);
@@ -33,9 +35,11 @@ class BotFormMessage extends StatefulWidget {
 }
 
 class _BotFormMessageState extends State<BotFormMessage> {
-  final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
   final Map<String, String> formResultMap = {};
   final Map<String, GlobalKey<FormState>> formFieldsKey = {};
+  final List<Widget> _widgets = [];
 
   late proto_pb.Form form;
 
@@ -96,73 +100,66 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
-  final _i18n = GetIt.I.get<I18N>();
-  final List<Widget> _widgets = [];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Stack(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (form.title.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: SizedBox(
-                  width: isDesktop()
-                      ? 270
-                      : MediaQuery.of(context).size.width * 2 / 3,
+        SizedBox(
+          width: widget.maxWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (form.title.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6.0),
                   child: Center(
                     child: Text(
                       form.title.titleCase,
-                      style: theme.primaryTextTheme.subtitle1,
+                      style: theme.textTheme.subtitle1?.copyWith(
+                          color: widget.colorScheme.onPrimaryContainer),
                     ),
                   ),
                 ),
-              ),
-            if (form.title.isNotEmpty)
+              if (form.title.isNotEmpty) const Divider(),
+              if (form.title.isNotEmpty) const SizedBox(height: 8),
+              ..._widgets,
               const SizedBox(
-                height: 4,
+                height: 3,
               ),
-            SizedBox(
-              width: 250,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                key: PageStorageKey(widget.message.roomUid),
-                children: _widgets,
-              ),
-            ),
-            const SizedBox(
-              height: 3,
-            ),
-            if (widget.message.roomUid.isBot())
-              TextButton(
-                onPressed: () {
-                  var validate = true;
+              if (widget.message.roomUid.isBot())
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: widget.colorScheme.primary),
+                    onPressed: () {
+                      var validate = true;
 
-                  for (var field in formFieldsKey.values) {
-                    if (field.currentState == null ||
-                        !field.currentState!.validate()) {
-                      validate = false;
-                      break;
-                    }
-                  }
-                  if (validate) {
-                    _messageRepo.sendFormResultMessage(
-                        widget.message.from, formResultMap, widget.message.id!);
-                  }
-                },
-                child: Text(
-                  _i18n.get("submit"),
-                  style: const TextStyle(color: Colors.blueAccent),
+                      for (var field in formFieldsKey.values) {
+                        if (field.currentState == null ||
+                            !field.currentState!.validate()) {
+                          validate = false;
+                          break;
+                        }
+                      }
+                      if (validate) {
+                        _messageRepo.sendFormResultMessage(widget.message.from,
+                            formResultMap, widget.message.id!);
+                      }
+                    },
+                    child: Text(
+                      _i18n.get("submit"),
+                    ),
+                  ),
                 ),
-              ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen),
+        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+            backgroundColor: widget.colorScheme.primaryContainer,
+            foregroundColor: widget.colorScheme.onPrimaryContainerVariant()),
       ],
     );
   }

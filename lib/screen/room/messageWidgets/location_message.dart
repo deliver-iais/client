@@ -58,7 +58,9 @@ class LocationMessageWidget extends StatelessWidget {
             ],
           ),
         ),
-        TimeAndSeenStatus(message, isSender, isSeen),
+        TimeAndSeenStatus(message, isSender, isSeen,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerVariant()),
       ],
     );
   }

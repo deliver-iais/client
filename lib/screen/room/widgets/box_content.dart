@@ -9,7 +9,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_mes
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.dart';
 import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 
-import 'package:deliver/screen/room/messageWidgets/locatioin_message.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
@@ -302,6 +302,7 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.FORM:
         return BotFormMessage(
           message: widget.message,
+          maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,

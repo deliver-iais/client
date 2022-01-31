@@ -250,6 +250,10 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
             shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
             side: BorderSide(width: 1.0, color: colorScheme.outline),
           )),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+            shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+          )),
           textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
             shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
