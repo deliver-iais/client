@@ -162,8 +162,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             const SizedBox(height: 8),
           ],
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-            needsBackground: false),
+        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen),
       ],
     );
   }

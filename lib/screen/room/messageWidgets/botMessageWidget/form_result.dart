@@ -85,7 +85,6 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   widget.message,
                   widget.isSender,
                   widget.isSeen,
-                  needsBackground: false,
                   needsPositioned: false,
                 ),
               ],

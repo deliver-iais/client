@@ -139,7 +139,6 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
             widget.message,
             isSender,
             widget.isSeen,
-            needsBackground: false,
             needsPositioned: false,
           ),
         ),

@@ -116,14 +116,14 @@ class _ImageUiState extends State<ImageUi> {
                                         snap.data! > 0) {
                                       return Container(
                                         decoration: BoxDecoration(
-                                            color: extraThemeData.lowlight(
-                                                widget.isSender),
+                                            color: extraThemeData
+                                                .lowlight(widget.isSender),
                                             shape: BoxShape.circle),
                                         child: CircularPercentIndicator(
                                           radius: 50.0,
                                           lineWidth: 4.0,
-                                          backgroundColor: extraThemeData.lowlight(
-                                              widget.isSender),
+                                          backgroundColor: extraThemeData
+                                              .lowlight(widget.isSender),
                                           percent: snap.data!,
                                           center: StreamBuilder<CancelToken?>(
                                             stream: _fileServices.cancelTokens[
@@ -132,8 +132,9 @@ class _ImageUiState extends State<ImageUi> {
                                               return GestureDetector(
                                                 child: Icon(
                                                   Icons.close,
-                                                  color: extraThemeData.highlight(
-                                                      widget.isSender),
+                                                  color:
+                                                      extraThemeData.highlight(
+                                                          widget.isSender),
                                                   size: 35,
                                                 ),
                                                 onTap: () {
@@ -149,8 +150,8 @@ class _ImageUiState extends State<ImageUi> {
                                               );
                                             },
                                           ),
-                                          progressColor: extraThemeData.highlight(
-                                              widget.isSender),
+                                          progressColor: extraThemeData
+                                              .highlight(widget.isSender),
                                         ),
                                       );
                                     } else {
@@ -177,10 +178,9 @@ class _ImageUiState extends State<ImageUi> {
                                     }
                                   }),
                             ),
-                         if (widget.image.caption.isEmpty)
+                          if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
-                                widget.message, widget.isSender, widget.isSeen,
-                                needsBackground: true)
+                                widget.message, widget.isSender, widget.isSeen)
                         ],
                       ),
                     );
@@ -203,13 +203,14 @@ class _ImageUiState extends State<ImageUi> {
                                   widget.image.uuid, widget.image.name);
                               setState(() {});
                             },
-                            background: extraThemeData.lowlight(widget.isSender),
-                            foreground: extraThemeData.highlight(widget.isSender),
+                            background:
+                                extraThemeData.lowlight(widget.isSender),
+                            foreground:
+                                extraThemeData.highlight(widget.isSender),
                           )),
-                         if (widget.image.caption.isEmpty)
+                          if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
-                                widget.message, widget.isSender, widget.isSeen,
-                                needsBackground: true)
+                                widget.message, widget.isSender, widget.isSeen)
                         ],
                       ),
                     );

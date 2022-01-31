@@ -7,7 +7,6 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/color_scheme.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,7 +43,6 @@ class TextUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final extraThemeData = ExtraTheme.of(context);
 
     String text = extractText(message);
     List<Block> blocks = extractBlocks(text, context);
@@ -86,14 +84,15 @@ class TextUI extends StatelessWidget {
           LinkPreview(
             link: link,
             maxWidth: linkPreviewMaxWidth,
-            backgroundColor: extraThemeData.lowlight(isSender),
-            foregroundColor: extraThemeData.highlight(isSender),
+            backgroundColor: colorScheme.onPrimary,
+            foregroundColor: colorScheme.primary,
           ),
           TimeAndSeenStatus(
             message,
             isSender,
             isSeen,
-            needsBackground: false,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainer.withAlpha(150),
             needsPositioned: false,
             needsPadding: false,
           )

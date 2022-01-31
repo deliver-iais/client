@@ -54,7 +54,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
           ),
         ),
         TimeAndSeenStatus(message, isSender, isSeen,
-            needsPositioned: false, needsBackground: false),
+            needsPositioned: false),
       ],
     );
   }

@@ -236,12 +236,10 @@ class _VideoMessageState extends State<VideoMessage> {
             ? (!isDesktop()) | (isDesktop() & false)
                 ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
-                    widget.message, widget.isSender, widget.isSeen,
-                    needsBackground: true)
+                    widget.message, widget.isSender, widget.isSeen)
             : Container(),
         if (video.caption.isEmpty)
-          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-              needsBackground: true)
+          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen)
       ],
     );
   }

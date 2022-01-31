@@ -69,7 +69,7 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                 if (file.caption.isEmpty)
                   TimeAndSeenStatus(
                       widget.message, widget.isSender, widget.isSeen,
-                      needsPositioned: false, needsBackground: false)
+                      needsPositioned: false)
               ],
             ),
           ),

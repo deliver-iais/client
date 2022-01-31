@@ -2,26 +2,27 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
 import 'package:deliver/shared/methods/time.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class TimeAndSeenStatus extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
-  final bool needsBackground;
   final bool needsPositioned;
   final bool needsPadding;
-  final _i18n = GetIt.I.get<I18N>();
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
-  TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
+  const TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
       {Key? key,
       this.needsPositioned = true,
-      this.needsBackground = false,
-      this.needsPadding = true})
+      this.needsPadding = true,
+      this.backgroundColor,
+      this.foregroundColor})
       : super(key: key);
 
   @override
@@ -40,23 +41,15 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
-    final theme = Theme.of(context);
-    final extraThemeData = ExtraTheme.of(context);
     return RepaintBoundary(
-      child: BlurContainer(
+      child: Container(
         padding: needsPadding
             ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
             : null,
-        skew: 5,
-        blurIsEnabled: needsBackground,
+        color: backgroundColor,
         child: DefaultTextStyle(
           style: TextStyle(
-            color: needsBackground
-                ? extraThemeData.onDetailsBox
-                : (isSender
-                    ? extraThemeData.colorScheme.onPrimaryContainer
-                    :theme
-                        .colorScheme.onSurface.withAlpha(120)),
+            color: foregroundColor,
             fontSize: 13,
             // height: 1,
           ),
@@ -75,9 +68,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                   child: SeenStatus(
                     message,
                     isSeen: isSeen,
-                    iconColor: needsBackground
-                        ? extraThemeData.onDetailsBox
-                        : extraThemeData.colorScheme.onPrimaryContainer,
+                    iconColor: foregroundColor,
                   ),
                 )
             ],

@@ -51,7 +51,6 @@ class BotButtonsWidget extends StatelessWidget {
                 isSender,
                 isSeen,
                 needsPadding: false,
-                needsBackground: false,
                 needsPositioned: false,
               ),
             ),

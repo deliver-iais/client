@@ -47,7 +47,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                                 ? _i18n.get("get_access_name")
                                 : _i18n.get("get_access_username"),
                     textAlign: TextAlign.center))),
-        TimeAndSeenStatus(message, isSender, isSeen, needsBackground: false)
+        TimeAndSeenStatus(message, isSender, isSeen)
       ],
     );
   }
