@@ -6,6 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class TextUI extends StatelessWidget {
   final Function? onUsernameClick;
   final bool isBotMessage;
   final Function? onBotCommandClick;
+  final CustomColorScheme colorScheme;
 
   const TextUI(
       {Key? key,
@@ -35,6 +37,7 @@ class TextUI extends StatelessWidget {
       this.searchTerm,
       this.onUsernameClick,
       this.isBotMessage = false,
+      required this.colorScheme,
       this.onBotCommandClick})
       : super(key: key);
 
@@ -160,10 +163,10 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "id",
-          onTap: (id) => onUsernameClick(id),
-          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+      blocks, regex, "id",
+      onTap: (id) => onUsernameClick(id),
+      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class BoldTextParser implements Parser {
@@ -216,10 +219,10 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "bot",
-          onTap: (id) => onBotCommandClick(id),
-          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+      blocks, regex, "bot",
+      onTap: (id) => onBotCommandClick(id),
+      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class SearchTermParser implements Parser {
@@ -228,9 +231,9 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, RegExp(searchTerm), "search",
-          style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+      blocks, RegExp(searchTerm), "search",
+      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
 }
 
 class Block {

@@ -26,49 +26,45 @@ class ExtraThemeData {
       number);
 
   Color avatarBackground(String uid) {
-      var hash = 0;
-      for (var i = 0; i < uid.length; i++) {
-        hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
-      }
-      final finalHash = hash.abs() % (100);
-      var r = Random(finalHash);
-      switch (r.nextInt(5)) {
-        case 1:
-          return custom2.primary;
-        case 2:
-          return custom3.primary;
-        case 3:
-          return custom4.primary;
-        case 4:
-          return custom5.primary;
-        default:
-          return custom1.primary;
-      }
+    var hash = 0;
+    for (var i = 0; i < uid.length; i++) {
+      hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    final finalHash = hash.abs() % (100);
+    var r = Random(finalHash);
+    switch (r.nextInt(5)) {
+      case 1:
+        return custom2.primary;
+      case 2:
+        return custom3.primary;
+      case 3:
+        return custom4.primary;
+      case 4:
+        return custom5.primary;
+      default:
+        return custom1.primary;
+    }
   }
 
-  CustomColorScheme messageBackground(String uid, bool isSender) {
-    if (isSender) {
-      return CustomColorScheme(colorScheme.tertiary, colorScheme.onTertiary,
-          colorScheme.tertiaryContainer, colorScheme.onTertiaryContainer);
-    } else {
-      var hash = 0;
-      for (var i = 0; i < uid.length; i++) {
-        hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
-      }
-      final finalHash = hash.abs() % (100);
-      var r = Random(finalHash);
-      switch (r.nextInt(5)) {
-        case 1:
-          return custom2;
-        case 2:
-          return custom3;
-        case 3:
-          return custom4;
-        case 4:
-          return custom5;
-        default:
-          return custom1;
-      }
+  // TODO refactor this
+  CustomColorScheme messageColorScheme(String uid) {
+    var hash = 0;
+    for (var i = 0; i < uid.length; i++) {
+      hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    final finalHash = hash.abs() % (100);
+    var r = Random(finalHash);
+    switch (r.nextInt(5)) {
+      case 1:
+        return custom2;
+      case 2:
+        return custom3;
+      case 3:
+        return custom4;
+      case 4:
+        return custom5;
+      default:
+        return custom1;
     }
   }
 

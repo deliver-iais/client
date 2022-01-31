@@ -3,6 +3,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'message_wrapper.dart';
@@ -31,6 +32,8 @@ class ReceivedMessageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
+
     final boxContent = BoxContent(
       message: message,
       maxWidth: maxWidthOfMessage(context),
@@ -43,6 +46,7 @@ class ReceivedMessageBox extends StatelessWidget {
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
       onArrowIconClick: onArrowIconClick,
+      colorScheme: colorScheme,
       storePosition: storePosition,
     );
 
@@ -50,6 +54,7 @@ class ReceivedMessageBox extends StatelessWidget {
         ? boxContent
         : MessageWrapper(
             uid: message.from,
+            colorScheme: colorScheme,
             child: boxContent,
             isSender: false,
             isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);

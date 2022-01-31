@@ -22,7 +22,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +42,7 @@ class BoxContent extends StatefulWidget {
   final Function onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
+  final CustomColorScheme colorScheme;
 
   const BoxContent(
       {Key? key,
@@ -56,6 +57,7 @@ class BoxContent extends StatefulWidget {
       required this.isFirstMessageInGroupedMessages,
       required this.scrollToMessage,
       required this.onArrowIconClick,
+      required this.colorScheme,
       required this.storePosition})
       : super(key: key);
 
@@ -134,7 +136,6 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget replyToIdBox() {
-    final extraThemeData = ExtraTheme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -145,8 +146,8 @@ class _BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId!,
           maxWidth: widget.minWidth,
-          backgroundColor: extraThemeData.lowlight(widget.isSender),
-          foregroundColor: extraThemeData.highlight(widget.isSender),
+          backgroundColor: widget.colorScheme.onPrimary,
+          foregroundColor: widget.colorScheme.primary,
         ),
       ),
     );
@@ -169,8 +170,6 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget showName(String name) {
-    final theme = Theme.of(context);
-    final extraTheme = ExtraTheme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -182,9 +181,8 @@ class _BoxContentState extends State<BoxContent> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: theme.primaryTextTheme.bodyText2?.copyWith(
-                color: extraTheme.colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.bold),
+            style: TextStyle(
+                inherit: true, color: widget.colorScheme.onPrimaryContainer),
           ),
         ),
         onTap: () {
@@ -195,14 +193,13 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget forwardedFromBox() {
-    final extraThemeData = ExtraTheme.of(context);
     return Container(
       margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
       padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: mainBorder,
-        color: extraThemeData.highlight(widget.isSender),
+        color: widget.colorScheme.primary,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -215,17 +212,14 @@ class _BoxContentState extends State<BoxContent> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.keyboard_arrow_right_rounded,
-                      size: 15,
-                      color: extraThemeData.lowlight(widget.isSender)),
+                      size: 15, color: widget.colorScheme.onPrimary),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
-                            color: ExtraTheme.of(context)
-                                .lowlight(widget.isSender),
-                            fontSize: 12)),
+                            color: widget.colorScheme.onPrimary, fontSize: 12)),
                   ),
                 ],
               ),
@@ -255,6 +249,7 @@ class _BoxContentState extends State<BoxContent> {
           minWidth: widget.minWidth,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
+          colorScheme: widget.colorScheme,
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick!,
           isBotMessage: widget.message.from.asUid().category == Categories.BOT,
@@ -265,24 +260,34 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           maxWidth: widget.maxWidth,
           minWidth: widget.minWidth,
+          colorScheme: widget.colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
         );
 
       case MessageType.STICKER:
         return StickerMessageWidget(
-            widget.message, widget.isSender, widget.isSeen);
+          widget.message,
+          widget.isSender,
+          widget.isSeen,
+          colorScheme: widget.colorScheme,
+        );
 
       case MessageType.LOCATION:
         return LocationMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
 
       case MessageType.LIVE_LOCATION:
         return LiveLocationMessageWidget(
-            widget.message, widget.isSender, widget.isSeen);
+          widget.message,
+          widget.isSender,
+          widget.isSeen,
+          colorScheme: widget.colorScheme,
+        );
 
       case MessageType.POLL:
         // TODO: Handle this case.
@@ -292,12 +297,14 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.FORM:
         return BotFormMessage(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.BUTTONS:
         return BotButtonsWidget(
@@ -305,6 +312,7 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.PERSISTENT_EVENT:
         // we show peristant event message in roompage
@@ -314,20 +322,24 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return SharePrivateDataRequestMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return SharePrivateDataAcceptMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.NOT_SET:
+        // TODO: Show not supported in this version...
         // TODO: Handle this case.
         break;
       default:
