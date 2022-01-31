@@ -58,6 +58,8 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
+import '../shared/constants.dart';
+
 // ignore: constant_identifier_names
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
@@ -401,6 +403,37 @@ class MessageRepo {
 
   Future<void> sendTextMessage(Uid room, String text,
       {int? replyId, String? forwardedFrom}) async {
+    final List<String> textsBlocks = text.split("\n").toList();
+    final List<String> result = [];
+    for (text in textsBlocks) {
+      if (text.length > TEXT_MESSAGE_MAX_LENGTH) {
+        int i = 0;
+        while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
+          result.add(text.substring(i * TEXT_MESSAGE_MAX_LENGTH,
+              min((i + 1) * TEXT_MESSAGE_MAX_LENGTH, text.length)));
+          i++;
+        }
+      } else {
+        result.add(text);
+      }
+    }
+
+    int i = 0;
+    while (i < (result.length / TEXT_MESSAGE_MAX_LINE).ceil()) {
+      _sendTextMessage(
+          result
+              .sublist(i * TEXT_MESSAGE_MAX_LINE,
+                  min((i + 1) * TEXT_MESSAGE_MAX_LINE, result.length))
+              .join(),
+          room,
+          replyId,
+          forwardedFrom);
+      i++;
+    }
+  }
+
+  void _sendTextMessage(
+      String text, Uid room, int? replyId, String? forwardedFrom) {
     String json = (message_pb.Text()..text = text).writeToJson();
     Message msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
@@ -818,7 +851,10 @@ class MessageRepo {
     return msgList;
   }
 
-  getEditedMsg(Uid roomUid, int id) async {
+  getEditedMsg(
+    Uid roomUid,
+    int id,
+  ) async {
     var res = await _queryServiceClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -828,8 +864,8 @@ class MessageRepo {
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
     await _roomDao.updateRoom(room!.copyWith(
-        lastUpdatedMessageId: id,
-        lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+      lastUpdatedMessageId: id,
+    ));
     if (room.lastMessageId == id) {
       _roomDao.updateRoom(room.copyWith(lastMessage: msg));
     }
@@ -968,20 +1004,23 @@ class MessageRepo {
     }
   }
 
-  deleteMessage(List<Message> messages, int roomLastMessageId) async {
+  deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            if (msg.id == roomLastMessageId) {
-              _roomDao.updateRoom(Room(
-                  uid: msg.roomUid,
-                  lastMessageId: roomLastMessageId,
-                  lastMessage: msg.copyWith(json: "{}"),
-                  lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+            Room? room = await  _roomRepo.getRoom(msg.roomUid);
+            if(room!= null){
+              if (msg.id == room.lastMessageId) {
+                _roomDao.updateRoom(Room(
+                    uid: msg.roomUid,
+                    lastMessage: msg.copyWith(json: "{}"),
+                    lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+              }
             }
+
 
             msg.json = "{}";
             _messageDao.saveMessage(msg);
