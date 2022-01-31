@@ -38,7 +38,9 @@ class BotButtonsWidget extends StatelessWidget {
                 constraints: const BoxConstraints(minHeight: 40),
                 width: maxWidth,
                 margin: const EdgeInsets.only(bottom: 6),
-                child: OutlinedButton(
+                child: ElevatedButton(
+                    style:
+                        ElevatedButton.styleFrom(primary: colorScheme.primary),
                     onPressed: () {
                       _messageRepo.sendTextMessage(message.from.asUid(), btn);
                     },
@@ -46,13 +48,11 @@ class BotButtonsWidget extends StatelessWidget {
               ),
             Padding(
               padding: const EdgeInsets.only(right: 6.0, left: 6.0),
-              child: TimeAndSeenStatus(
-                message,
-                isSender,
-                isSeen,
-                needsPadding: false,
-                needsPositioned: false,
-              ),
+              child: TimeAndSeenStatus(message, isSender, isSeen,
+                  needsPadding: false,
+                  needsPositioned: false,
+                  backgroundColor: colorScheme.primaryContainer,
+                  foregroundColor: colorScheme.onPrimaryContainerVariant()),
             ),
           ],
         ));
