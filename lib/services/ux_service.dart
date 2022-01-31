@@ -1,7 +1,6 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/dark.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/light.dart';
 import 'package:flutter/foundation.dart';
@@ -65,6 +64,8 @@ class LogLevelHelper {
 }
 
 class UxService {
+  static bool isDeveloperMode = false;
+
   final _sharedDao = GetIt.I.get<SharedDao>();
 
   final _theme = BehaviorSubject.seeded(LightTheme);
@@ -147,7 +148,7 @@ class UxService {
   // TODO ???
   final Map _tabIndexMap = <String, int>{};
 
-  int ? getTabIndex(String fileId) {
+  int? getTabIndex(String fileId) {
     return _tabIndexMap[fileId];
   }
 

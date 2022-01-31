@@ -102,6 +102,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         Column(
@@ -109,10 +110,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(
-                  borderRadius: BorderRadius.circular(8),
-                  onChange: (str) {
-                    filterSearchResults(str);
-                  },
+                  onChange: (str) => filterSearchResults(str),
+                  onCancel: () => filterSearchResults(""),
                   controller: editingController),
             ),
             Expanded(
@@ -144,7 +143,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           return Center(
                             child: Text(
                               i18n.get("no_results"),
-                              style: Theme.of(context)
+                              style:theme
                                   .textTheme
                                   .subtitle1!
                                   .copyWith(color: Colors.red),
@@ -172,7 +171,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                     height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).primaryColor,
+                      color:theme.primaryColor,
                     ),
                     child: widget.mucUid != null
                         ? IconButton(
@@ -189,14 +188,13 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                   widget.mucUid!, users);
                               if (usersAdd) {
                                 _routingService
-                                    .openRoom(widget.mucUid!.asString());
-                                // _routingService.reset();
+                                    .openRoom(widget.mucUid!.asString(), popAllBeforePush: true);
                                 // _createMucService.reset();
 
                               } else {
                                 ToastDisplay.showToast(
                                     toastText: i18n.get("error_occurred"),
-                                    tostContext: context);
+                                    toastContext: context);
                                 // _routingService.pop();
                               }
                             })

@@ -12,7 +12,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +40,7 @@ class PersistentEventMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return message.json == "{}"
         ? Container(
             height: 0.0,
@@ -54,22 +54,20 @@ class PersistentEventMessage extends StatelessWidget {
                     maxWidth: maxWidth,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).dividerColor.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(20),
+                    color:theme.dividerColor.withOpacity(0.25),
+                    borderRadius: mainBorder,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(_i18n.get("bot_not_responding"),
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: ExtraTheme.of(context).textField)),
+                          style: const TextStyle(fontSize: 16)),
                       if (persistentEventMessage
                           .botSpecificPersistentEvent.errorMessage.isNotEmpty)
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style: Theme.of(context).textTheme.headline5),
+                            style:theme.textTheme.headline5),
                     ],
                   ),
                 ),
@@ -138,58 +136,75 @@ class PersistentEventMessage extends StatelessWidget {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         String? issuer = await _roomRepo.getSlangName(
             persistentEventMessage.mucSpecificPersistentEvent.issuer);
-        var issuerWidget = GestureDetector(
-          child: Text(
-            issuer!,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style:
-                const TextStyle(fontSize: 14, height: 1, color: Colors.white),
-          ),
-          onTap: () => _routingServices.openRoom(persistentEventMessage
-              .mucSpecificPersistentEvent.issuer
-              .asString()),
-        );
+        Widget issuerWidget = MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Text(
+                issuer,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                    fontSize: 14,
+                    height: 1,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+              onTap: () => _routingServices.openRoom(persistentEventMessage
+                  .mucSpecificPersistentEvent.issuer
+                  .asString()),
+            ));
         Widget? assigneeWidget;
         if ({
           MucSpecificPersistentEvent_Issue.ADD_USER,
           MucSpecificPersistentEvent_Issue.MUC_CREATED,
           MucSpecificPersistentEvent_Issue.KICK_USER
         }.contains(persistentEventMessage.mucSpecificPersistentEvent.issue)) {
-          String? assignee = await _roomRepo.getSlangName(
+          String assignee = await _roomRepo.getSlangName(
               persistentEventMessage.mucSpecificPersistentEvent.assignee);
-          assigneeWidget = GestureDetector(
-            child: Text(
-              assignee!,
-              overflow: TextOverflow.ellipsis,
-              softWrap: false,
-              style:
-                  const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+          assigneeWidget = MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Text(
+                assignee.trim(),
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                    fontSize: 14,
+                    height: 1,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
+              ),
+              onTap: () => _routingServices.openRoom(persistentEventMessage
+                  .mucSpecificPersistentEvent.assignee
+                  .asString()),
             ),
-            onTap: () => _routingServices.openRoom(persistentEventMessage
-                .mucSpecificPersistentEvent.assignee
-                .asString()),
           );
         }
         Widget? pinedMessageWidget;
         if (persistentEventMessage.mucSpecificPersistentEvent.issue ==
             MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
           var content = await getPinnedMessageContent();
-          pinedMessageWidget = GestureDetector(
-            child: Text(
-              "<<${content!.substring(0, min(content.length, 15))} >>",
-              overflow: TextOverflow.ellipsis,
-              softWrap: false,
-              style:
-                  const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+          pinedMessageWidget = MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: Text(
+                content.substring(0, min(content.length, 15)),
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    height: 1,
+                    color: Colors.white),
+              ),
+              onTap: () => onPinMessageClick!(persistentEventMessage
+                  .mucSpecificPersistentEvent.messageId
+                  .toInt()),
             ),
-            onTap: () => onPinMessageClick!(persistentEventMessage
-                .mucSpecificPersistentEvent.messageId
-                .toInt()),
           );
         }
 
-        var s = Text(
+        var issueWidget = Text(
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
@@ -197,13 +212,9 @@ class PersistentEventMessage extends StatelessWidget {
         );
         return [
           issuerWidget,
-          const SizedBox(
-            width: 2,
-          ),
-          s,
-          const SizedBox(
-            width: 2,
-          ),
+          const SizedBox(width: 3),
+          issueWidget,
+          const SizedBox(width: 3),
           if (assigneeWidget != null) assigneeWidget,
           if (pinedMessageWidget != null) pinedMessageWidget,
         ];
@@ -280,7 +291,7 @@ class PersistentEventMessage extends StatelessWidget {
     }
   }
 
-  Future<String?> getPinnedMessageContent() async {
+  Future<String> getPinnedMessageContent() async {
     Message? m = await _messageDao.getMessage(message.roomUid,
         persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt());
     if (m != null) {
@@ -340,5 +351,7 @@ class PersistentEventMessage extends StatelessWidget {
           return "";
       }
     }
+
+    return "";
   }
 }

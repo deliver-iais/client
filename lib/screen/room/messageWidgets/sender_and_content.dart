@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
 
-  const SenderAndContent({Key? key, required this.messages}) : super(key: key);
+  final bool expandContent;
+  final Color? highlightColor;
+  const SenderAndContent({Key? key, required this.messages, this.expandContent = true, this.highlightColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (messages.isEmpty) {
+    if (messages.isEmpty && messages.first.id == null) {
       return const SizedBox.shrink();
     }
 
@@ -19,7 +21,10 @@ class SenderAndContent extends StatelessWidget {
       showSender: true,
       showSenderInSeparatedLine: true,
       showSeenStatus: false,
+      showRoomDetails: false,
       lastMessageId: messages.first.id!,
+      expandContent: expandContent,
+      primaryColor: highlightColor
     );
   }
 }

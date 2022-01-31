@@ -1,7 +1,6 @@
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/profile/widgets/muc_member_mention_widget.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -26,6 +25,7 @@ class ShowMentionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<List<UidIdName?>?>(
       future: _mucRepo.getFilteredMember(roomUid, query: query),
       builder: (c, members) {
@@ -37,7 +37,7 @@ class ShowMentionList extends StatelessWidget {
                         ? HEIGHT * 4
                         : (members.data!.length * HEIGHT),
                     child: Container(
-                        color: ExtraTheme.of(context).boxBackground,
+                        color:theme.backgroundColor,
                         child: ListView.separated(
                           itemCount: members.data!.length,
                           shrinkWrap: true,
@@ -47,7 +47,7 @@ class ShowMentionList extends StatelessWidget {
                             if (mentionSelectedIndex == i &&
                                 mentionSelectedIndex != -1) {
                               _mucMemberMentionColor =
-                                  Theme.of(context).focusColor;
+                                 theme.focusColor;
                             }
                             return Container(
                               color: _mucMemberMentionColor,
@@ -56,9 +56,7 @@ class ShowMentionList extends StatelessWidget {
                             );
                           },
                           separatorBuilder: (BuildContext context, int index) =>
-                              Divider(
-                                  color: ExtraTheme.of(context)
-                                      .boxOuterBackground),
+                              const Divider(),
                         )))),
           ]);
         }

@@ -58,6 +58,8 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
+import '../shared/constants.dart';
+
 // ignore: constant_identifier_names
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
@@ -139,6 +141,10 @@ class MessageRepo {
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+          if (room == null) {
+            _seenDao.saveMySeen(
+                Seen(uid: roomMetadata.roomUid.asString(), messageId: -1));
+          }
           if (roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
                 room.lastMessage != null &&
@@ -160,7 +166,7 @@ class MessageRepo {
                   firstMessageId: roomMetadata.firstMessageId.toInt(),
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
             }
-            fetchLastMessages(
+            await fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
@@ -272,7 +278,7 @@ class MessageRepo {
           break;
         }
       }
-      _roomDao.updateRoom(Room(
+      await _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
         firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
         lastUpdateTime: lastMessage!.time,
@@ -363,6 +369,7 @@ class MessageRepo {
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
           lastSeen.messageId != null &&
+          lastSeen.messageId != -1 &&
           lastSeen.messageId! >
               max(fetchCurrentUserSeenData.seen.id.toInt(),
                   room.lastCurrentUserSentMessageId.toInt())) return;
@@ -372,6 +379,11 @@ class MessageRepo {
               lastSeen != null ? lastSeen.hiddenMessageCount ?? 0 : 0,
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
+    } on GrpcError catch (e) {
+      _logger.e(e);
+      if (e.code == StatusCode.notFound) {
+        _seenDao.saveMySeen(Seen(uid: room.roomUid.asString(), messageId: 0));
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -393,6 +405,37 @@ class MessageRepo {
 
   Future<void> sendTextMessage(Uid room, String text,
       {int? replyId, String? forwardedFrom}) async {
+    final List<String> textsBlocks = text.split("\n").toList();
+    final List<String> result = [];
+    for (text in textsBlocks) {
+      if (text.length > TEXT_MESSAGE_MAX_LENGTH) {
+        int i = 0;
+        while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
+          result.add(text.substring(i * TEXT_MESSAGE_MAX_LENGTH,
+              min((i + 1) * TEXT_MESSAGE_MAX_LENGTH, text.length)));
+          i++;
+        }
+      } else {
+        result.add(text);
+      }
+    }
+
+    int i = 0;
+    while (i < (result.length / TEXT_MESSAGE_MAX_LINE).ceil()) {
+      _sendTextMessage(
+          result
+              .sublist(i * TEXT_MESSAGE_MAX_LINE,
+                  min((i + 1) * TEXT_MESSAGE_MAX_LINE, result.length))
+              .join(),
+          room,
+          replyId,
+          forwardedFrom);
+      i++;
+    }
+  }
+
+  void _sendTextMessage(
+      String text, Uid room, int? replyId, String? forwardedFrom) {
     String json = (message_pb.Text()..text = text).writeToJson();
     Message msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
@@ -446,7 +489,9 @@ class MessageRepo {
     var f = dart_file.File(file.path);
     // Get size of image
     try {
-      if (tempType.split('/')[0] == 'image') {
+      if (tempType.split('/')[0] == 'image' ||
+          tempType.contains("jpg") ||
+          tempType.contains("png")) {
         tempDimension = ImageSizeGetter.getSize(FileInput(f));
         if (tempDimension == Size.zero) {
           tempDimension = Size(200, 200);
@@ -604,8 +649,10 @@ class MessageRepo {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
           case SendingStatus.SENDING_FILE:
-            await _sendFileToServerOfPendingMessage(pendingMessage);
-            await _sendMessageToServer(pendingMessage);
+            var pm = await _sendFileToServerOfPendingMessage(pendingMessage);
+            if (pm != null) {
+              await _sendMessageToServer(pm);
+            }
             break;
           case SendingStatus.PENDING:
             await _sendMessageToServer(pendingMessage);
@@ -806,7 +853,10 @@ class MessageRepo {
     return msgList;
   }
 
-  getEditedMsg(Uid roomUid, int id) async {
+  getEditedMsg(
+    Uid roomUid,
+    int id,
+  ) async {
     var res = await _queryServiceClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -815,7 +865,9 @@ class MessageRepo {
     var msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
-    await _roomDao.updateRoom(room!.copyWith(lastUpdatedMessageId: id));
+    await _roomDao.updateRoom(room!.copyWith(
+      lastUpdatedMessageId: id,
+    ));
     if (room.lastMessageId == id) {
       _roomDao.updateRoom(room.copyWith(lastMessage: msg));
     }
@@ -954,20 +1006,23 @@ class MessageRepo {
     }
   }
 
-  deleteMessage(List<Message> messages, int roomLastMessageId) async {
+  deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            if (msg.id == roomLastMessageId) {
-              _roomDao.updateRoom(Room(
-                  uid: msg.roomUid,
-                  lastMessageId: roomLastMessageId,
-                  lastMessage: msg.copyWith(json: "{}"),
-                  lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+            Room? room = await  _roomRepo.getRoom(msg.roomUid);
+            if(room!= null){
+              if (msg.id == room.lastMessageId) {
+                _roomDao.updateRoom(Room(
+                    uid: msg.roomUid,
+                    lastMessage: msg.copyWith(json: "{}"),
+                    lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+              }
             }
+
 
             msg.json = "{}";
             _messageDao.saveMessage(msg);

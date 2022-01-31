@@ -17,19 +17,21 @@ class RoomName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<String>(
         future: getName(),
         builder: (context, snapshot) {
           var name = (snapshot.data ?? "");
-          if (name.length > 35) {
-            name = name.substring(0, 32) + "...";
+          const maxNameLength = 28;
+          if (name.length > maxNameLength) {
+            name = name.substring(0, maxNameLength - 3) + "...";
           }
           return Row(
             children: [
               Text(
                 name,
-                style: (style ?? Theme.of(context).textTheme.subtitle2)!
-                    .copyWith(height: 1),
+                style:
+                    (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.fade,
@@ -42,8 +44,7 @@ class RoomName extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: Icon(
                             Icons.verified,
-                            size: (style ??
-                                        Theme.of(context).textTheme.subtitle2)!
+                            size: (style ?? theme.textTheme.subtitle2)!
                                     .fontSize ??
                                 15,
                             color: DELIVER_COLOR,

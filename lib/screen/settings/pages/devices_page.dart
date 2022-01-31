@@ -4,7 +4,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -25,7 +24,7 @@ class _DevicesPageState extends State<DevicesPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -64,7 +63,7 @@ class _DevicesPageState extends State<DevicesPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
                             _i18n.get("this_device"),
-                            style: Theme.of(context).primaryTextTheme.subtitle2,
+                            style:theme.primaryTextTheme.subtitle2,
                           ),
                         ),
                         sessionWidget(currentSession),
@@ -93,7 +92,7 @@ class _DevicesPageState extends State<DevicesPage> {
                         vertical: 16.0, horizontal: 24.0),
                     child: Center(
                       child: Text(_i18n.get("active_sessions"),
-                          style: Theme.of(context).primaryTextTheme.subtitle1),
+                          style:theme.primaryTextTheme.subtitle1),
                     ),
                   ),
                 if (otherSessions.isNotEmpty)
@@ -129,6 +128,7 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Widget sessionWidget(Session session) {
+    final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: Container(
@@ -148,16 +148,14 @@ class _DevicesPageState extends State<DevicesPage> {
                 maxLines: 1,
                 overflow: TextOverflow.fade,
                 softWrap: false,
-                style: Theme.of(context).textTheme.subtitle2,
+                style:theme.textTheme.subtitle2,
               ),
               Text(
-                session.ip.isEmpty
-                    ? "No IP Provided"
-                    : session.ip,
-                style: Theme.of(context).textTheme.caption,
+                session.ip.isEmpty ? "No IP Provided" : session.ip,
+                style:theme.textTheme.caption,
               ),
               DefaultTextStyle(
-                style: Theme.of(context).textTheme.caption!,
+                style:theme.textTheme.caption!,
                 child: Row(
                   children: [
                     const Text("Created On: "),
@@ -189,7 +187,6 @@ class _DevicesPageState extends State<DevicesPage> {
                   sessions.length > 1
                       ? _i18n.get("terminate_all_other_sessions")
                       : _i18n.get("delete_session"),
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
                 ),
               ],
             ),

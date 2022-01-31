@@ -6,6 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +24,7 @@ class TextUI extends StatelessWidget {
   final Function? onUsernameClick;
   final bool isBotMessage;
   final Function? onBotCommandClick;
+  final CustomColorScheme colorScheme;
 
   const TextUI(
       {Key? key,
@@ -34,11 +36,14 @@ class TextUI extends StatelessWidget {
       this.searchTerm,
       this.onUsernameClick,
       this.isBotMessage = false,
+      required this.colorScheme,
       this.onBotCommandClick})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     String text = extractText(message);
     List<Block> blocks = extractBlocks(text, context);
     List<TextSpan> spans = blocks.map<TextSpan>((b) {
@@ -73,16 +78,24 @@ class TextUI extends StatelessWidget {
         children: [
           RichText(
             text: TextSpan(
-                children: spans, style: Theme.of(context).textTheme.bodyText2),
+                children: spans,
+                style: theme.textTheme.bodyText2
+                    ?.copyWith(color: colorScheme.onPrimaryContainer)),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
-          LinkPreview(link: link, maxWidth: linkPreviewMaxWidth),
+          LinkPreview(
+            link: link,
+            maxWidth: linkPreviewMaxWidth,
+            backgroundColor: colorScheme.onPrimary,
+            foregroundColor: colorScheme.primary,
+          ),
           TimeAndSeenStatus(
             message,
             isSender,
             isSeen,
-            needsBackground: false,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerVariant(),
             needsPositioned: false,
             needsPadding: false,
           )
@@ -133,7 +146,9 @@ class UrlParser implements Parser {
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "url", onTap: (uri) async {
-        if (uri.toString().contains(APPLICATION_DOMAIN)) {
+        if (uri.toString().contains("$APPLICATION_DOMAIN/$JOIN".toString()) ||
+            uri.toString().contains("$APPLICATION_DOMAIN/$SPDA".toString()) ||
+            uri.toString().contains("$APPLICATION_DOMAIN/$TEXT".toString())) {
           handleJoinUri(context, uri);
         } else {
           await launch(uri);

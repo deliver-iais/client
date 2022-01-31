@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart' hide showMenu;
 import 'package:flutter/material.dart' as material show showMenu;
 
@@ -15,7 +16,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,
     T? initialValue,
-    double? elevation,
+    double elevation = 4,
     String? semanticLabel,
     ShapeBorder? shape,
     Color? color,
@@ -27,9 +28,11 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     return material.showMenu<T>(
       context: context,
       position: RelativeRect.fromLTRB(
-        _tapPosition.dx,
-        _tapPosition.dy - 30,
-        overlay!.semanticBounds.size.width - _tapPosition.dx,
+        _tapPosition.dx - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0),
+        _tapPosition.dy - 10,
+        overlay!.semanticBounds.size.width +
+            (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) -
+            _tapPosition.dx,
         overlay.semanticBounds.size.height + _tapPosition.dy,
       ),
       items: items,

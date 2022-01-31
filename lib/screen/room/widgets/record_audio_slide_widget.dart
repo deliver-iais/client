@@ -1,6 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/methods/time.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
@@ -14,11 +13,15 @@ class RecordAudioSlideWidget extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   RecordAudioSlideWidget(
-      {Key? key, required this.opacity,required  this.time, required this.running,required this.streamTime}) : super(key: key);
+      {Key? key,
+      required this.opacity,
+      required this.time,
+      required this.running,
+      required this.streamTime})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -67,7 +70,6 @@ class RecordAudioSlideWidget extends StatelessWidget {
               if (t.hasData && t.data != null && t.data!.isAfter(time)) {
                 return Text(
                   durationTimeFormat(t.data!.difference(time)),
-                  style: TextStyle(color: ExtraTheme.of(context).textField),
                 );
               } else {
                 return const SizedBox.shrink();
@@ -80,9 +82,8 @@ class RecordAudioSlideWidget extends StatelessWidget {
               const Icon(Icons.chevron_left),
               Text(
                 _i18n.get("slideToCancel"),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
-                  color: ExtraTheme.of(context).textField,
                 ),
               ),
             ],

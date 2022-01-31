@@ -3,10 +3,11 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class ImageFolderWidget extends StatefulWidget {
   final StorageFile storageFile;
@@ -53,8 +54,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 _selectedImage.isNotEmpty
                     ? "selected: ${_selectedImage.length}"
                     : widget.storageFile.folderName,
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 19),
+                style: const TextStyle(fontSize: 19),
               )
             : const SizedBox.shrink(),
       ),
@@ -68,9 +68,15 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             itemBuilder: (c, index) {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
-                  onTap: () => widget.selectAvatar
-                      ? widget.setAvatar!(imagePath)
-                      : openImage(imagePath),
+                  onTap: () {
+                    if (widget.selectAvatar) {
+                      widget.pop();
+                      Navigator.pop(context);
+                      widget.setAvatar!(imagePath);
+                    } else {
+                      openImage(imagePath, index);
+                    }
+                  },
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsets.all(
@@ -81,8 +87,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),
+                            borderRadius: secondaryBorder,
                             image: DecorationImage(
                                 image: Image.file(
                                   File(imagePath),
@@ -110,13 +115,14 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   ));
             },
           ),
-          buildInputCaption()
+          buildInputCaption(canPop: false)
         ],
       ),
     );
   }
 
-  Stack buildInputCaption() {
+  Stack buildInputCaption({required bool canPop}) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         _selectedImage.isNotEmpty && !widget.selectAvatar
@@ -124,7 +130,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 alignment: Alignment.bottomLeft,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).dialogBackgroundColor,
+                    color:theme.dialogBackgroundColor,
                     border: Border.all(
                       color: Colors.transparent,
                     ),
@@ -135,7 +141,6 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 15, vertical: 8),
                     ),
-                    style: TextStyle(color: ExtraTheme.of(context).textField),
                     autocorrect: true,
                     textInputAction: TextInputAction.newline,
                     minLines: 1,
@@ -161,7 +166,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       ),
                       child: ClipOval(
                         child: Material(
-                          color: Theme.of(context).primaryColor, // button color
+                          color:theme.primaryColor, // button color
                           child: InkWell(
                               splashColor: Colors.red, // inkwell color
                               child: const SizedBox(
@@ -174,7 +179,10 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                   )),
                               onTap: () {
                                 widget.pop();
-                                Navigator.pop(context);
+                                if (canPop) {
+                                  Navigator.pop(context);
+                                }
+
                                 _messageRepo.sendMultipleFilesMessages(
                                     widget.roomUid,
                                     _selectedImage
@@ -201,7 +209,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                         width: 16.0,
                         height: 16.0,
                         decoration: BoxDecoration(
-                          // color: Theme.of(context).dialogBackgroundColor,
+                          // color:theme.dialogBackgroundColor,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: Colors.lightBlue,
@@ -234,7 +242,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     }
   }
 
-  void openImage(String imagePath) {
+  void openImage(String imagePath, int index) {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return StatefulBuilder(builder: (c, set) {
         return Scaffold(
@@ -245,10 +253,29 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     if (_selectedImage.isNotEmpty)
                       Text(
                         _selectedImage.length.toString(),
-                        style: TextStyle(
-                            fontSize: 25,
-                            color: ExtraTheme.of(context).textField),
+                        style: const TextStyle(fontSize: 25),
                       ),
+                    IconButton(
+                      onPressed: () async {
+                        var res = await cropImage(imagePath);
+                        if (res != null) {
+                          if (_selectedImage.contains(imagePath)) {
+                            _selectedImage.remove(imagePath);
+                            _selectedImage.add(res);
+                          }
+                          set(() {
+                            imagePath = res;
+                          });
+                          setState(() {
+                            widget.storageFile.files[index] = res;
+                          });
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.crop,
+                      ),
+                      iconSize: 35,
+                    ),
                     IconButton(
                       onPressed: () {
                         set(() {
@@ -280,10 +307,36 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     ),
                   ),
                 ),
-                buildInputCaption()
+                buildInputCaption(canPop: true)
               ],
             ));
       });
     }));
   }
+}
+
+Future<String?> cropImage(String imagePath) async {
+  File? croppedFile = await ImageCropper.cropImage(
+      sourcePath: imagePath,
+      aspectRatioPresets: Platform.isAndroid
+          ? [CropAspectRatioPreset.square]
+          : [
+              CropAspectRatioPreset.square,
+            ],
+      cropStyle: CropStyle.rectangle,
+      androidUiSettings: const AndroidUiSettings(
+          toolbarTitle: "image",
+          toolbarColor: Colors.blueAccent,
+          hideBottomControls: true,
+          showCropGrid: false,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false),
+      iosUiSettings: const IOSUiSettings(
+        title: "image",
+      ));
+  if (croppedFile != null) {
+    return croppedFile.path;
+  }
+  return null;
 }

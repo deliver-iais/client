@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class OnEditMessageWidget extends StatelessWidget {
@@ -13,9 +12,10 @@ class OnEditMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(200),
+      color:theme.colorScheme.surface.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -26,7 +26,7 @@ class OnEditMessageWidget extends StatelessWidget {
           children: [
             Icon(
               Icons.edit,
-              color: Theme.of(context).primaryColor,
+              color:theme.primaryColor,
               size: 25,
             ),
             const SizedBox(width: 10),

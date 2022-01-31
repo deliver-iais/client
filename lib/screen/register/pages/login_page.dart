@@ -36,12 +36,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _logger = GetIt.I.get<Logger>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _logger = GetIt.I.get<Logger>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  static final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
-  final _i18n = GetIt.I.get<I18N>();
   bool _isLoading = false;
   var loginWithQrCode = isDesktop();
   bool _acceptPrivacy = !isAndroid();
@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
             ToastDisplay.showToast(
-                toastText: "PASSWORD_PROTECTED", tostContext: context);
+                toastText: "PASSWORD_PROTECTED", toastContext: context);
             // TODO navigate to password validation page
           }
         } catch (e) {
@@ -127,8 +127,8 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = true;
         });
         try {
-          var res = await _authRepo.getVerificationCode(phoneNumber!);
-          if (res != null) {
+          var isSent = await _authRepo.getVerificationCode(phoneNumber!);
+          if (isSent) {
             Navigator.push(context, MaterialPageRoute(builder: (c) {
               return const VerificationPage();
             }));
@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
             ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
               toastText: _i18n.get("error_occurred"),
-              tostContext: context,
+              toastContext: context,
             );
             setState(() {
               _isLoading = false;
@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
             toastText: _i18n.get("error_occurred"),
-            tostContext: context,
+            toastContext: context,
           );
         }
       }
@@ -163,14 +163,15 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FluidWidget(
       child: Form(
         key: _formKey,
         child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor: theme.backgroundColor,
           appBar: AppBar(
             title: Text(_i18n.get("login")),
-            backgroundColor: Theme.of(context).backgroundColor,
+            backgroundColor: theme.backgroundColor,
           ),
           body: loginWithQrCode
               ? buildLoginWithQrCode(_i18n, context)
@@ -243,6 +244,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
+    final theme = Theme.of(context);
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : Padding(
@@ -276,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
                         i18n.get("insert_phone_and_code"),
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
-                          color: Theme.of(context).primaryColor,
+                          color: theme.primaryColor,
                           fontSize: 15,
                         ),
                       ),
@@ -287,7 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                               "Login with QR Code",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor,
+                                color: theme.primaryColor,
                                 fontSize: 13,
                               ),
                             ),
@@ -314,22 +316,19 @@ class _LoginPageState extends State<LoginPage> {
                                 });
                               },
                               child: RichText(
-                                text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                          text: "شرایط حریم خصوصی",
-                                          style: const TextStyle(
-                                              color: Colors.blue, fontSize: 13),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () => launch(
-                                                "https://deliver-co.ir/#/termofuse")),
-                                      const TextSpan(
-                                          text:
-                                              " را مطالعه نموده ام و آن را قبول می کنم",
-                                          style: TextStyle(fontSize: 13)),
-                                    ],
-                                    style:
-                                        Theme.of(context).textTheme.bodyText2),
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                      text: "شرایط حریم خصوصی",
+                                      style: const TextStyle(
+                                          color: Colors.blue, fontSize: 13),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () => launch(
+                                            "https://deliver-co.ir/#/termofuse")),
+                                  const TextSpan(
+                                      text:
+                                          " را مطالعه نموده ام و آن را قبول می کنم",
+                                      style: TextStyle(fontSize: 13)),
+                                ], style: theme.textTheme.bodyText2),
                                 textDirection: TextDirection.rtl,
                               ),
                             ),
@@ -348,7 +347,7 @@ class _LoginPageState extends State<LoginPage> {
                             i18n.get("next"),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
+                              color: theme.primaryColor,
                               fontSize: 14.5,
                             ),
                           ),

@@ -27,6 +27,7 @@ class VideoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
         onTap: () {
           openVideo(context);
@@ -46,7 +47,7 @@ class VideoWidget extends StatelessWidget {
                       ),
                       border: Border.all(
                         width: 1,
-                        color: Theme.of(context).dividerColor,
+                        color:theme.dividerColor,
                       ),
                     )),
                   )
@@ -60,7 +61,7 @@ class VideoWidget extends StatelessWidget {
                     ),
                     border: Border.all(
                       width: 1,
-                      color: Theme.of(context).dividerColor,
+                      color:theme.dividerColor,
                     ),
                   )),
             if (isExist)

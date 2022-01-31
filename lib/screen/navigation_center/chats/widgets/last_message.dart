@@ -6,7 +6,6 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_co
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -18,23 +17,32 @@ class LastMessage extends StatelessWidget {
   final bool showSender;
   final bool showSenderInSeparatedLine;
   final bool showSeenStatus;
+  final bool expandContent;
+  final bool showRoomDetails;
+  final Color? primaryColor;
+  final Color? naturalColor;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  LastMessage(
-      {Key? key,
-      required this.message,
-      required this.lastMessageId,
-      this.hasMentioned = false,
-      this.showSender = true,
-      this.showSeenStatus = true,
-      this.showSenderInSeparatedLine = false,
-      this.pinned = false})
-      : super(key: key);
+  LastMessage({
+    Key? key,
+    required this.message,
+    required this.lastMessageId,
+    this.hasMentioned = false,
+    this.showSender = true,
+    this.showSeenStatus = true,
+    this.showSenderInSeparatedLine = false,
+    this.expandContent = true,
+    this.showRoomDetails = true,
+    this.pinned = false,
+    this.primaryColor,
+    this.naturalColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     var isReceivedMessage = !_authRepo.isCurrentUser(message.from);
 
     return FutureBuilder<MessageBrief>(
@@ -42,18 +50,22 @@ class LastMessage extends StatelessWidget {
             _i18n, _roomRepo, _authRepo, extractProtocolBufferMessage(message)),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Container(
-                height: Theme.of(context).textTheme.bodyText2!.fontSize! + 7);
+            return Container(height: theme.textTheme.bodyText2!.fontSize! + 7);
           }
           final mb = snapshot.data;
           return Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (showSeenStatus && !isReceivedMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
-                  child: SeenStatus(message),
+                  child: SeenStatus(
+                    message,
+                    iconColor: primaryColor,
+                  ),
                 ),
-              Expanded(
+              Flexible(
+                fit: expandContent ? FlexFit.tight : FlexFit.loose,
                 child: RichText(
                     maxLines: showSenderInSeparatedLine && showSender ? 2 : 1,
                     overflow: TextOverflow.fade,
@@ -64,53 +76,48 @@ class LastMessage extends StatelessWidget {
                         TextSpan(
                             text: mb.sender!.trim() +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
-                            style:
-                                Theme.of(context).primaryTextTheme.caption),
+                            style: theme.primaryTextTheme.caption
+                                ?.copyWith(color: primaryColor)),
                       if (mb.typeDetails!.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
-                            style:
-                                Theme.of(context).primaryTextTheme.caption),
+                            style: theme.primaryTextTheme.caption
+                                ?.copyWith(color: primaryColor)),
                       if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty)
                         TextSpan(
                             text: ", ",
-                            style:
-                                Theme.of(context).primaryTextTheme.caption),
+                            style: theme.primaryTextTheme.caption
+                                ?.copyWith(color: primaryColor)),
                       if (mb.text!.isNotEmpty)
                         TextSpan(
                             children: buildText(mb, context),
-                            style: Theme.of(context).textTheme.caption),
+                            style: theme.textTheme.caption
+                                ?.copyWith(color: naturalColor)),
                     ])),
               ),
-              if (hasMentioned)
+              if (showRoomDetails && hasMentioned)
                 Container(
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: primaryColor ?? theme.primaryColor,
                       shape: BoxShape.circle),
                   child: const Icon(
                     Icons.alternate_email,
                     size: 15,
                   ),
                 ),
-              if (!_authRepo.isCurrentUser(message.from))
+              if (showRoomDetails && !_authRepo.isCurrentUser(message.from))
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0),
                   child: UnreadMessageCounterWidget(
                       message.roomUid, lastMessageId),
                 ),
-              if (pinned)
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                      color: Colors.transparent, shape: BoxShape.circle),
-                  child: Icon(
-                    Icons.push_pin,
-                    size: 15,
-                    color: ExtraTheme.of(context).fileSharingDetails,
-                  ),
+              if (showRoomDetails && pinned)
+                Icon(
+                  Icons.push_pin,
+                  size: 16,
+                  color: theme.colorScheme.onSurface.withAlpha(120),
                 ),
             ],
           );

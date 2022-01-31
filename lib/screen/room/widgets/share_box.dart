@@ -13,6 +13,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flutter/material.dart';
@@ -56,6 +57,10 @@ class _ShareBoxState extends State<ShareBox> {
 
   final CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
+  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
+  final _keyboardVisibilityController = KeyboardVisibilityController();
+  final TextEditingController _captionEditingController =
+      TextEditingController();
 
   int playAudioIndex = -1;
 
@@ -72,7 +77,16 @@ class _ShareBoxState extends State<ShareBox> {
   @override
   void dispose() {
     _audioPlayer.stop();
+    captionTextController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _keyboardVisibilityController.onChange.listen((event) {
+      _insertCaption.add(event);
+    });
   }
 
   @override
@@ -143,7 +157,7 @@ class _ShareBoxState extends State<ShareBox> {
                                           scrollController: scrollController,
                                           selectAvatar: false,
                                           pop: () {
-                                            Navigator.of(context);
+                                            Navigator.pop(context);
                                           },
                                           roomUid: widget.currentRoomId,
                                         )
@@ -156,147 +170,97 @@ class _ShareBoxState extends State<ShareBox> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
                           if (isSelected())
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      child: circleButton(() {
-                                        _audioPlayer.stop();
-                                        Navigator.pop(co);
-                                        if (widget.replyMessageId! > 0) {
-                                          messageRepo.sendMultipleFilesMessages(
-                                              widget.currentRoomId,
-                                              finalSelected.values
-                                                  .toList()
-                                                  .map((e) => model.File(e, e))
-                                                  .toList(),
-                                              replyToId: widget.replyMessageId);
-                                        } else {
-                                          showCaptionDialog(
-                                              type: "file",
-                                              files: finalSelected.values
-                                                  .toList()
-                                                  .map((e) => model.File(e, e))
-                                                  .toList(),
-                                              roomUid: widget.currentRoomId,
-                                              context: context);
-                                        }
-                                        setState(() {
-                                          finalSelected.clear();
-                                          selectedAudio.clear();
-                                          selectedImages.clear();
-                                          selectedFiles.clear();
-                                        });
-                                      }, Icons.send, "", 50, context: co),
-                                      decoration: const BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 20.0,
-                                              spreadRadius: 0.0)
-                                        ],
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      child: Container(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text(
-                                              finalSelected.values.length
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            ),
-                                          ],
-                                        ),
-                                        width: 16.0,
-                                        height: 16.0,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(co)
-                                              .dialogBackgroundColor,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      top: 35.0,
-                                      right: 0.0,
-                                      left: 31,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  width: 30,
-                                )
-                              ],
-                            )
+                            Padding(
+                                padding: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context)
+                                        .viewInsets
+                                        .bottom),
+                                child: SizedBox(
+                                  height: 80,
+                                  child: buildInputCaption(
+                                    insertCaption: _insertCaption,
+                                    context: context,
+                                    count: finalSelected.length,
+                                    send: () {
+                                      _audioPlayer.stop();
+                                      Navigator.pop(co);
+                                      messageRepo.sendMultipleFilesMessages(
+                                          widget.currentRoomId,
+                                          finalSelected.values
+                                              .toList()
+                                              .map((path) => model.File(
+                                                  path, path.split("/").last))
+                                              .toList(),
+                                          replyToId: widget.replyMessageId,
+                                          caption:
+                                              _captionEditingController.text);
+
+                                      setState(() {
+                                        finalSelected.clear();
+                                        selectedAudio.clear();
+                                        selectedImages.clear();
+                                        selectedFiles.clear();
+                                      });
+                                    },
+                                    captionEditingController:
+                                        _captionEditingController,
+                                    i18n: i18n,
+                                  ),
+                                ))
                           else
                             Container(
                               padding:
                                   const EdgeInsetsDirectional.only(bottom: 10),
                               color: Colors.white,
-                              child: Column(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: <Widget>[
-                                      circleButton(() async {
+                                  circleButton(() async {
+                                    setState(() {
+                                      _audioPlayer.stop();
+                                      currentPage = Page.gallery;
+                                    });
+                                  }, Icons.insert_drive_file,
+                                      i18n.get("gallery"), 40,
+                                      context: co),
+                                  circleButton(() async {
+                                    setState(() {
+                                      _audioPlayer.stop();
+                                      currentPage = Page.files;
+                                    });
+                                  }, Icons.file_upload, i18n.get("file"), 40,
+                                      context: co),
+                                  circleButton(() async {
+                                    if (await _checkPermissionsService
+                                            .checkLocationPermission() ||
+                                        isIOS()) {
+                                      if (!await Geolocator
+                                          .isLocationServiceEnabled()) {
+                                        const AndroidIntent intent =
+                                            AndroidIntent(
+                                          action:
+                                              'android.settings.LOCATION_SOURCE_SETTINGS',
+                                        );
+                                        await intent.launch();
+                                      } else {
                                         setState(() {
                                           _audioPlayer.stop();
-                                          currentPage = Page.gallery;
+                                          currentPage = Page.location;
+                                          initialChildSize.add(0.5);
                                         });
-                                      }, Icons.insert_drive_file,
-                                          i18n.get("gallery"), 40,
-                                          context: co),
-                                      circleButton(() async {
-                                        setState(() {
-                                          _audioPlayer.stop();
-                                          currentPage = Page.files;
-                                        });
-                                      }, Icons.file_upload, i18n.get("file"),
-                                          40,
-                                          context: co),
-                                      circleButton(() async {
-                                        if (await _checkPermissionsService
-                                                .checkLocationPermission() ||
-                                            isIOS()) {
-                                          if (!await Geolocator
-                                              .isLocationServiceEnabled()) {
-                                            const AndroidIntent intent =
-                                                AndroidIntent(
-                                              action:
-                                                  'android.settings.LOCATION_SOURCE_SETTINGS',
-                                            );
-                                            await intent.launch();
-                                          } else {
-                                            setState(() {
-                                              _audioPlayer.stop();
-                                              currentPage = Page.location;
-                                              initialChildSize.add(0.5);
-                                            });
-                                          }
-                                        }
-                                      }, Icons.location_on,
-                                          i18n.get("location"), 40,
-                                          context: co),
-                                      circleButton(() async {
-                                        setState(() {
-                                          currentPage = Page.music;
-                                        });
-                                      }, Icons.music_note, i18n.get("music"),
-                                          40,
-                                          context: co),
-                                    ],
-                                  ),
+                                      }
+                                    }
+                                  }, Icons.location_on, i18n.get("location"),
+                                      40,
+                                      context: co),
+                                  circleButton(() async {
+                                    setState(() {
+                                      currentPage = Page.music;
+                                    });
+                                  }, Icons.music_note, i18n.get("music"), 40,
+                                      context: co),
                                 ],
                               ),
                             )
@@ -555,12 +519,13 @@ showCaptionDialog(
 
 Widget circleButton(Function() onTap, IconData icon, String text, double size,
     {required BuildContext context}) {
+  final theme = Theme.of(context);
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
       ClipOval(
         child: Material(
-          color: Theme.of(context).primaryColor, // button color
+          color:theme.primaryColor, // button color
           child: InkWell(
               splashColor: Colors.red, // inkwell color
               child: SizedBox(
@@ -576,7 +541,7 @@ Widget circleButton(Function() onTap, IconData icon, String text, double size,
       Text(
         text,
         style:
-            TextStyle(fontSize: 10, color: Theme.of(context).backgroundColor),
+            TextStyle(fontSize: 10, color:theme.backgroundColor),
       ),
     ],
   );

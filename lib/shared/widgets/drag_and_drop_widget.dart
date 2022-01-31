@@ -10,7 +10,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:universal_html/html.dart';
 
@@ -69,10 +68,9 @@ class DragDropWidget extends StatelessWidget {
             child: child,
             onDragDone: (d) async {
               List<model.File> files = [];
-              for (var element in d.urls) {
-                String path = element.path.replaceAll("%20", " ");
-                files.add(model.File(isWindows() ? path.substring(1) : path,
-                    path.split(".").last));
+              for (var element in d.files) {
+                files.add(model.File(element.path, element.name,
+                    extension: element.mimeType));
               }
               if (!roomUid.asUid().isChannel()) {
                 showDialogInDesktop(files, context,

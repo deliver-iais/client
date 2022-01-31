@@ -1,6 +1,5 @@
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,8 @@ class MucMemberMentionWidget extends StatelessWidget {
   final UidIdName member;
   final Function onSelected;
 
-  const MucMemberMentionWidget(this.member, this.onSelected, {Key? key}) : super(key: key);
+  const MucMemberMentionWidget(this.member, this.onSelected, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +40,7 @@ class MucMemberMentionWidget extends StatelessWidget {
                 Text(
                   ((name ?? username).isNotEmpty ? name : username)!.trim(),
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: ExtraTheme.of(context).textField,
+                  style: const TextStyle(
                     fontSize: 16,
                   ),
                 ),
@@ -52,8 +51,7 @@ class MucMemberMentionWidget extends StatelessWidget {
                   Text(
                     "@$username",
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 12, color: ExtraTheme.of(context).textField),
+                    style: const TextStyle(fontSize: 12),
                   ),
               ],
             ),

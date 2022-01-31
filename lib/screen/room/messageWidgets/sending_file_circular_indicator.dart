@@ -1,5 +1,4 @@
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -9,9 +8,16 @@ class SendingFileCircularIndicator extends StatefulWidget {
   final double loadProgress;
   final bool isMedia;
   final File? file;
+  final Color background;
+  final Color foreground;
 
   const SendingFileCircularIndicator(
-      {Key? key, required this.loadProgress, required this.isMedia, this.file})
+      {Key? key,
+      required this.loadProgress,
+      required this.isMedia,
+      this.file,
+      required this.background,
+      required this.foreground})
       : super(key: key);
 
   @override
@@ -41,19 +47,20 @@ class _SendingFileCircularIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (widget.file != null) {
       return Stack(
         children: [
           StreamBuilder<double>(
-              stream: fileService.filesUploadStatus[widget.file!.uuid],
+              stream: fileService.filesProgressBarStatus[widget.file!.uuid],
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircularPercentIndicator(
-                    backgroundColor: ExtraTheme.of(context).circularFileStatus,
+                    backgroundColor: widget.foreground,
                     radius: 55.0,
                     lineWidth: 5.0,
                     percent: snapshot.data!,
-                    progressColor: ExtraTheme.of(context).fileMessageDetails,
+                    progressColor: widget.foreground,
                   );
                 } else {
                   return const SizedBox.shrink();
@@ -65,8 +72,8 @@ class _SendingFileCircularIndicatorState
             icon: Icon(
               Icons.close,
               color: widget.isMedia
-                  ? Theme.of(context).colorScheme.secondary //?????TODO
-                  : Theme.of(context).primaryColor,
+                  ?theme.colorScheme.secondary //?????TODO
+                  :theme.primaryColor,
               size: 38,
             ),
             onPressed: null,

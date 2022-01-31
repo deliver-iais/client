@@ -13,9 +13,10 @@ class BotStartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       height: 45,
-      color: Theme.of(context).primaryColor,
+      color:theme.primaryColor,
       child: Center(
         child: GestureDetector(
           child: Text(

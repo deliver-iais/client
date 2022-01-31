@@ -1,30 +1,41 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/image_swiper.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final double minWidth;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
-  const ImageUi(
+  late final file_pb.File image = message.json!.toFile();
+
+  ImageUi(
       {Key? key,
       required this.message,
       required this.maxWidth,
+      required this.minWidth,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -33,175 +44,188 @@ class ImageUi extends StatefulWidget {
 }
 
 class _ImageUiState extends State<ImageUi> {
-  var fileRepo = GetIt.I.get<FileRepo>();
-  late file_pb.File image;
-  final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
+  final globalKey = GlobalKey();
+
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+
+  @override
+  void initState() {
+    if (widget.message.id == null) {
+      _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    double width = widget.maxWidth;
-    double height = widget.maxWidth;
-
-    const radius = Radius.circular(8);
-    const border = BorderRadius.all(radius);
-
+    final lowlight = widget.colorScheme.onPrimary;
+    final highlight = widget.colorScheme.primary;
     try {
-      image = widget.message.json!.toFile();
-
-      var dimensions =
-          getImageDimensions(image.width.toDouble(), image.height.toDouble());
-      width = dimensions.width;
-      height = dimensions.height;
-
-      return ClipRRect(
-        borderRadius: border,
-        child: FutureBuilder<String?>(
-            future: fileRepo.getFileIfExist(image.uuid, image.name),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (isDesktop()) {
-                          _showImageInDesktop(s.data!);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return ImageSwiper(
-                                  message: widget.message,
-                                );
-                              },
-                            ),
-                          );
-                        }
-                      },
-                      child: Hero(
-                        tag: image.uuid,
-                        child: kIsWeb
-                            ? Image.network(
-                                s.data!,
-                                width: width,
-                                height: height,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.file(
-                                File(
-                                  s.data!,
-                                ),
-                                width: width,
-                                height: height,
-                                fit: BoxFit.fill,
-                              ),
-                      ),
-                    ),
-                    if (image.caption.isEmpty)
-                      TimeAndSeenStatus(
-                          widget.message, widget.isSender, widget.isSeen,
-                          needsBackground: true)
-                  ],
-                );
-              } else {
-                return GestureDetector(
-                  onTap: () async {
-                    _startDownload.add(true);
-                    await fileRepo.getFile(
-                      image.uuid,
-                      image.name,
-                    );
-                    _startDownload.add(false);
-                    setState(() {});
-                  },
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Stack(
-                      children: [
-                        SizedBox(
-                            width: width,
-                            height: height,
-                            child: BlurHash(hash: image.blurHash)),
-                        Center(
-                          child: StreamBuilder<bool>(
-                            stream: _startDownload.stream,
-                            builder: (c, s) {
-                              if (s.hasData && s.data!) {
-                                return const CircularProgressIndicator(
-                                  strokeWidth: 4,
-                                );
-                              } else {
-                                return MaterialButton(
-                                  color: Theme.of(context).primaryColor,
-                                  onPressed: () async {
-                                    _startDownload.add(true);
-                                    await fileRepo.getFile(
-                                        image.uuid, image.name);
-                                    _startDownload.add(false);
-                                    setState(() {
-
-                                    });
+      return Hero(
+        tag: "${widget.message.id}-${widget.image.uuid}",
+        child: ClipRRect(
+          borderRadius: secondaryBorder,
+          child: Container(
+            constraints: BoxConstraints(
+                minWidth: widget.minWidth,
+                maxWidth: widget.maxWidth,
+                maxHeight: widget.maxWidth),
+            child: FutureBuilder<String?>(
+                key: globalKey,
+                future: _fileRepo.getFileIfExist(
+                    widget.image.uuid, widget.image.name),
+                builder: (c, s) {
+                  if (s.hasData && s.data != null) {
+                    return AspectRatio(
+                      aspectRatio: widget.image.width / widget.image.height,
+                      child: Stack(
+                        fit: StackFit.passthrough,
+                        alignment: Alignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) {
+                                    return ImageSwiper(message: widget.message);
                                   },
-                                  shape: const CircleBorder(),
-                                  child: const Icon(Icons.arrow_downward),
-                                  padding: const EdgeInsets.all(20),
-                                );
-                              }
+                                ),
+                              );
                             },
+                            child: kIsWeb
+                                ? Image.network(
+                                    s.data!,
+                                    fit: BoxFit.fill,
+                                  )
+                                : Image.file(
+                                    File(s.data!),
+                                    fit: BoxFit.fill,
+                                  ),
                           ),
-                        ),
-                        if (image.caption.isEmpty)
-                          TimeAndSeenStatus(
-                              widget.message, widget.isSender, widget.isSeen,
-                              needsBackground: true)
-                      ],
-                    ),
-                  ),
-                );
-              }
-            }),
+                          if (widget.message.id == null)
+                            Center(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              child: StreamBuilder<double>(
+                                  stream: _fileServices.filesProgressBarStatus[
+                                      widget.image.uuid],
+                                  builder: (c, snap) {
+                                    if (snap.hasData &&
+                                        snap.data != null &&
+                                        snap.data! <= 1 &&
+                                        snap.data! > 0) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                            color: lowlight,
+                                            shape: BoxShape.circle),
+                                        child: CircularPercentIndicator(
+                                          radius: 50.0,
+                                          lineWidth: 4.0,
+                                          backgroundColor: lowlight,
+                                          percent: snap.data!,
+                                          center: StreamBuilder<CancelToken?>(
+                                            stream: _fileServices.cancelTokens[
+                                                widget.image.uuid],
+                                            builder: (c, s) {
+                                              return GestureDetector(
+                                                child: Icon(
+                                                  Icons.close,
+                                                  color: highlight,
+                                                  size: 35,
+                                                ),
+                                                onTap: () {
+                                                  if (s.hasData &&
+                                                      s.data != null) {
+                                                    s.data!.cancel();
+                                                  }
+                                                  _messageRepo
+                                                      .deletePendingMessage(
+                                                          widget.message
+                                                              .packetId);
+                                                },
+                                              );
+                                            },
+                                          ),
+                                          progressColor: highlight,
+                                        ),
+                                      );
+                                    } else {
+                                      return Stack(
+                                        children: [
+                                          const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                          Center(
+                                            child: GestureDetector(
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 35,
+                                              ),
+                                              onTap: () {
+                                                _messageRepo
+                                                    .deletePendingMessage(widget
+                                                        .message.packetId);
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  }),
+                            ),
+                          if (widget.image.caption.isEmpty)
+                            TimeAndSeenStatus(
+                                widget.message, widget.isSender, widget.isSeen)
+                        ],
+                      ),
+                    );
+                  } else {
+                    return AspectRatio(
+                      aspectRatio: widget.image.width / widget.image.height,
+                      child: Stack(
+                        children: [
+                          BlurHash(
+                            hash: widget.image.blurHash,
+                            imageFit: BoxFit.cover,
+                          ),
+                          Center(
+                              child: LoadFileStatus(
+                            fileId: widget.image.uuid,
+                            fileName: widget.image.name,
+                            messagePacketId: widget.message.packetId,
+                            onPressed: () async {
+                              await _fileRepo.getFile(
+                                  widget.image.uuid, widget.image.name);
+                              setState(() {});
+                            },
+                            background: lowlight,
+                            foreground: highlight,
+                          )),
+                          if (widget.image.caption.isEmpty)
+                            TimeAndSeenStatus(
+                                widget.message, widget.isSender, widget.isSeen)
+                        ],
+                      ),
+                    );
+                  }
+                }),
+          ),
+        ),
       );
     } catch (e) {
-      return SizedBox(
-        width: width,
-        height: height,
-      );
+      return ClipRRect(
+          borderRadius: secondaryBorder,
+          child: Container(
+            constraints: BoxConstraints(
+                minWidth: widget.minWidth,
+                maxWidth: widget.maxWidth,
+                maxHeight: widget.maxWidth),
+            child: AspectRatio(
+                aspectRatio: widget.image.width / widget.image.height),
+          ));
     }
-  }
-
-  Size getImageDimensions(double width, double height) {
-    double maxWidth = widget.maxWidth;
-    if (width == 0 || height == 0) {
-      width = maxWidth;
-      height = maxWidth;
-    }
-    double aspect = width / height;
-    double w = 0;
-    double h = 0;
-    if (aspect > 1) {
-      w = min(width, maxWidth);
-      h = w / aspect;
-    } else {
-      h = min(height, maxWidth);
-      w = h * aspect;
-    }
-    return Size(w, h);
-  }
-
-  _showImageInDesktop(String file) {
-    return showDialog(
-        context: context,
-        builder: (c) {
-          return AlertDialog(
-            backgroundColor: Colors.white12,
-            content: InteractiveViewer(
-                child: Hero(
-                    tag: widget.message.json!.toFile().uuid,
-                    child:
-                        kIsWeb ? Image.network(file) : Image.file(File(file)))),
-          );
-        });
   }
 }

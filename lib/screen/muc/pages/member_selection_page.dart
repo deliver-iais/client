@@ -3,8 +3,8 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -23,13 +23,14 @@ class MemberSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           leading: _routingService.backButtonLeading(),
           title: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               mucUid != null
                   ? FutureBuilder<String?>(
@@ -43,12 +44,9 @@ class MemberSelectionPage extends StatelessWidget {
                         }
                       },
                     )
-                  : Text(
-                      isChannel
-                          ? _i18n.get("newChannel")
-                          : _i18n.get("newGroup"),
-                      style: TextStyle(color: ExtraTheme.of(context).textField),
-                    ),
+                  : Text(isChannel
+                      ? _i18n.get("newChannel")
+                      : _i18n.get("newGroup")),
               StreamBuilder<int>(
                   stream: _createMucService.selectedLengthStream(),
                   builder: (context, snapshot) {
@@ -60,7 +58,7 @@ class MemberSelectionPage extends StatelessWidget {
                       members >= 1
                           ? '$members ${_i18n.get("of_max_member")}'
                           : _i18n.get("max_member"),
-                      style: Theme.of(context).textTheme.subtitle2,
+                      style:theme.textTheme.subtitle2,
                     );
                   })
             ],
@@ -70,9 +68,10 @@ class MemberSelectionPage extends StatelessWidget {
       body: FluidContainerWidget(
         child: Container(
           margin: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.only(bottom: 16.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).boxOuterBackground,
+            borderRadius: mainBorder,
+            color:theme.colorScheme.surface,
           ),
           child: SelectiveContactsList(
             isChannel: isChannel,

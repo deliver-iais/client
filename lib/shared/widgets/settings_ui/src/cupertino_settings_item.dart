@@ -1,7 +1,7 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
 import 'defines.dart';
 
 enum SettingsItemType {
@@ -10,8 +10,6 @@ enum SettingsItemType {
 }
 
 typedef PressOperationCallback = void Function();
-
-const _spacer = Expanded(child: SizedBox.shrink());
 
 class CupertinoSettingsItem extends StatefulWidget {
   const CupertinoSettingsItem({
@@ -158,7 +156,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             padding: const EdgeInsetsDirectional.only(end: 11.0),
             child: CupertinoSwitch(
               value: widget.switchValue!,
-              activeColor: Theme.of(context).primaryColor,
+              activeColor: theme.primaryColor,
               onChanged: !widget.enabled
                   ? null
                   : (bool value) {
@@ -171,25 +169,23 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
       case SettingsItemType.modal:
         if (widget.value == null) {
-          rowChildren.add(_spacer);
+          // rowChildren.add(const Expanded(child: SizedBox.shrink()));
         } else {
           rowChildren.add(
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  top: 1.5,
-                  end: 2.25,
-                ),
-                child: Text(
-                  widget.value!,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: widget.valueTextStyle ??
-                      const TextStyle(
-                        color: CupertinoColors.inactiveGray,
-                        fontSize: 16,
-                      ),
-                ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(
+                top: 1.5,
+                end: 2.25,
+              ),
+              child: Text(
+                widget.value!,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                style: widget.valueTextStyle ??
+                    const TextStyle(
+                      color: CupertinoColors.inactiveGray,
+                      fontSize: 16,
+                    ),
               ),
             ),
           );
@@ -290,8 +286,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         },
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            color: calculateBackgroundColor(context),
+            borderRadius: mainBorder,
+            color: theme.colorScheme.surface,
           ),
           height: widget.subtitle == null ? 44.0 : 57.0,
           child: Row(
@@ -301,15 +297,6 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       ),
     );
   }
-
-  Color calculateBackgroundColor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.light
-          ? pressed
-              ? iosPressedTileColorLight
-              : Colors.white
-          : pressed
-              ? iosPressedTileColorDark
-              : iosTileDarkColor;
 
   Color? _iconColor(ThemeData theme, ListTileThemeData tileTheme) {
     if (tileTheme.selectedColor != null) {

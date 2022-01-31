@@ -10,6 +10,7 @@ class AudioPlayerAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return StreamBuilder<bool>(
         stream: audioPlayerService.audioCenterIsOn,
         builder: (c, s) {
@@ -17,10 +18,10 @@ class AudioPlayerAppBar extends StatelessWidget {
             return Container(
               height: 45,
               decoration: BoxDecoration(
-                color: Theme.of(context).appBarTheme.backgroundColor,
+                color:theme.appBarTheme.backgroundColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).dividerColor,
+                    color:theme.dividerColor,
                     blurRadius: 2,
                     offset: const Offset(1, 1), // Shadow position
                   ),

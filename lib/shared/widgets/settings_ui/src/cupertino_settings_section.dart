@@ -1,7 +1,7 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/material.dart';
-import '../box_ui.dart';
 
 import 'colors.dart';
 import 'defines.dart';
@@ -23,6 +23,7 @@ class CupertinoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final List<Widget> columnChildren = [];
     if (header != null) {
       columnChildren.add(DefaultTextStyle(
@@ -62,10 +63,8 @@ class CupertinoSection extends StatelessWidget {
 
     columnChildren.add(Container(
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-          color: Theme.of(context).brightness == Brightness.light
-              ? CupertinoColors.white
-              : iosTileDarkColor,
+          borderRadius: mainBorder,
+          color:theme.colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.15),

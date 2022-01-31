@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -30,30 +33,32 @@ class ProfileAvatar extends StatefulWidget {
 }
 
 class _ProfileAvatarState extends State<ProfileAvatar> {
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _i18n = GetIt.I.get<I18N>();
-  String _uploadAvatarPath = "";
-  final BehaviorSubject<bool> _showProgressBar = BehaviorSubject.seeded(false);
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-      child: StreamBuilder<bool>(
-        stream: _showProgressBar.stream,
+      child: StreamBuilder<String>(
+        stream: _newAvatarPath.stream,
         builder: (c, s) {
-          if (s.hasData && s.data!) {
+          if (s.hasData && s.data != null && s.data!.isNotEmpty) {
             return CircleAvatar(
               radius: 40,
-              backgroundImage: Image.file(File(_uploadAvatarPath)).image,
+              backgroundImage: kIsWeb
+                  ? Image.network(s.data!).image
+                  : Image.file(File(s.data!)).image,
               child: const Center(
                 child: SizedBox(
                     height: 20.0,
                     width: 20.0,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation(Colors.blue),
-                      strokeWidth: 6.0,
+                      strokeWidth: 4.0,
                     )),
               ),
             );
@@ -62,23 +67,26 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Center(
-                  child: GestureDetector(
-                    child: CircleAvatarWidget(
-                      widget.roomUid,
-                      40,
-                      showAsStreamOfAvatar: true,
-                      showSavedMessageLogoIfNeeded: true,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      child: CircleAvatarWidget(
+                        widget.roomUid,
+                        40,
+                        showSavedMessageLogoIfNeeded: true,
+                      ),
+                      onTap: () async {
+                        var lastAvatar = await _avatarRepo.getLastAvatar(
+                            widget.roomUid, false);
+                        if (lastAvatar?.createdOn != null &&
+                            lastAvatar!.createdOn > 0) {
+                          _routingService.openShowAllAvatars(
+                              uid: widget.roomUid,
+                              hasPermissionToDeleteAvatar: widget.canSetAvatar,
+                              heroTag: widget.roomUid.asString());
+                        }
+                      },
                     ),
-                    onTap: () async {
-                      var lastAvatar = await _avatarRepo.getLastAvatar(
-                          widget.roomUid, false);
-                      if (lastAvatar?.createdOn != null) {
-                        _routingService.openShowAllAvatars(
-                            uid: widget.roomUid,
-                            hasPermissionToDeleteAvatar: widget.canSetAvatar,
-                            heroTag: "avatar");
-                      }
-                    },
                   ),
                 ),
                 if (widget.canSetAvatar) const SizedBox(width: 8),
@@ -87,7 +95,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
                         onPressed: () => selectAvatar(),
-                        child: const Text("select an image")),
+                        child: Text(_i18n.get("select_an_image"))),
                   )
               ],
             );
@@ -98,11 +106,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   _setAvatar(String avatarPath) async {
-    _showProgressBar.add(true);
-    _uploadAvatarPath = avatarPath;
-
-    await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath));
-    _showProgressBar.add(false);
+    _newAvatarPath.add(avatarPath);
+    await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
+    var statusCode = _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
+    if (statusCode != 200) {
+      ToastDisplay.showToast(
+          toastContext: context, toastText: _i18n.get("error_in_uploading"));
+    }
+    _newAvatarPath.add("");
   }
 
   selectAvatar() async {
@@ -122,7 +133,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(result.files.first.path!);
+          _setAvatar(kIsWeb
+              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
+              : result.files.first.path!);
         }
       }
     } else {
@@ -147,7 +160,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           scrollController: scrollController,
                           pop: () => Navigator.pop(context),
                           setAvatar: (String imagePath) async {
-                            Navigator.pop(context);
                             cropAvatar(imagePath);
                           },
                           selectAvatar: true,

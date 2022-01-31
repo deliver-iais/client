@@ -1,5 +1,5 @@
 name: deliver-co
-version: 1.6.2
+version: 1.6.8
 summary: Messenger
 description: Messenger
 
@@ -16,7 +16,7 @@ slots:
 apps:
   deliver-co:
     command: deliver
-    extensions: [flutter-master]
+    extensions: [flutter-stable]
     plugs:
       - home
       - network

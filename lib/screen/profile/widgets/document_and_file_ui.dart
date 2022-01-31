@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
@@ -8,7 +7,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -19,7 +17,11 @@ class DocumentAndFileUi extends StatefulWidget {
   final int documentCount;
   final MediaType type;
 
-  const DocumentAndFileUi({Key? key,required this.roomUid,required this.documentCount, required this.type})
+  const DocumentAndFileUi(
+      {Key? key,
+      required this.roomUid,
+      required this.documentCount,
+      required this.type})
       : super(key: key);
 
   @override
@@ -38,6 +40,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
             widget.roomUid, widget.type, widget.documentCount),
@@ -71,27 +75,24 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           },
                                           child: Row(children: <Widget>[
                                             Padding(
-                                                padding:
-                                                    const EdgeInsets.only(left: 2),
+                                                padding: const EdgeInsets.only(
+                                                    left: 2),
                                                 child: Container(
                                                   width: 50,
                                                   height: 50,
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color:
-                                                        ExtraTheme.of(context)
-                                                            .circularFileStatus,
+                                                    color: theme
+                                                        .colorScheme.onPrimary,
                                                   ),
                                                   child: IconButton(
-                                                    padding:
-                                                        const EdgeInsets.fromLTRB(
-                                                            1, 0, 0, 0),
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(1, 0, 0, 0),
                                                     alignment: Alignment.center,
                                                     icon: Icon(
                                                       Icons
                                                           .insert_drive_file_sharp,
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
+                                                      color: theme.primaryColor,
                                                       size: 35,
                                                     ),
                                                     onPressed: () {},
@@ -105,13 +106,11 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                         const EdgeInsets.only(
                                                             left: 15.0, top: 3),
                                                     child: Text(fileName,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontSize: 14,
                                                             fontWeight:
-                                                                FontWeight.bold,
-                                                            color: ExtraTheme
-                                                                    .of(context)
-                                                                .textMessage)),
+                                                                FontWeight
+                                                                    .bold)),
                                                   ),
                                                 ],
                                               ),
@@ -133,6 +132,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             fileId: fileId,
                                             fileName: fileName,
                                             onPressed: download,
+                                            background:
+                                                theme.colorScheme.primary,
+                                            foreground:
+                                                theme.colorScheme.onPrimary,
                                           ),
                                           Expanded(
                                             child: Stack(
@@ -142,13 +145,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                       const EdgeInsets.only(
                                                           left: 15.0, top: 3),
                                                   child: Text(fileName,
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
-                                                          FontWeight.bold,
-                                                          color: ExtraTheme.of(
-                                                                  context)
-                                                              .textMessage)),
+                                                              FontWeight.bold)),
                                                 ),
                                               ],
                                             ),

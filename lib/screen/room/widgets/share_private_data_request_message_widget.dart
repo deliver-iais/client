@@ -2,7 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +13,17 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
   SharePrivateDataRequestMessageWidget(
-      {Key? key, required this.message, required this.isSender, required this.isSeen}) : super(key: key);
+      {Key? key,
+      required this.message,
+      required this.isSender,
+      required this.colorScheme,
+      required this.isSeen})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +36,9 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 17),
             child: OutlinedButton(
                 onPressed: () {
+                  FocusScope.of(context).unfocus();
                   _showGetAccessPrivateData(context, sharePrivateDataRequest);
                 },
-                style: OutlinedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    side: BorderSide(color: Theme.of(context).primaryColor)),
                 child: Text(
                     sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
                         ? _i18n.get("get_access_phone_number")
@@ -48,7 +49,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                                 ? _i18n.get("get_access_name")
                                 : _i18n.get("get_access_username"),
                     textAlign: TextAlign.center))),
-        TimeAndSeenStatus(message, isSender, isSeen, needsBackground: false)
+        TimeAndSeenStatus(message, isSender, isSeen)
       ],
     );
   }
@@ -67,13 +68,13 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                       : sharePrivateDataRequest.data == PrivateDataType.NAME
                           ? _i18n.get("access_name")
                           : _i18n.get("access_username"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
             ),
+            actionsPadding: const EdgeInsets.only(right: 8, bottom: 5),
             actions: [
               GestureDetector(
                   child: Text(
                     _i18n.get("cancel"),
-                    style: const TextStyle(fontSize: 15),
+                    style: const TextStyle(fontSize: 16, color: Colors.red),
                   ),
                   onTap: () => Navigator.pop(c)),
               const SizedBox(
@@ -82,7 +83,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               GestureDetector(
                 child: Text(
                   _i18n.get("ok"),
-                  style: const TextStyle(color: Colors.red, fontSize: 15),
+                  style: const TextStyle(color: Colors.blue, fontSize: 16),
                 ),
                 onTap: () {
                   _messageRepo.sendPrivateMessageAccept(

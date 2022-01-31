@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
@@ -20,6 +21,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:dcache/dcache.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'authRepo.dart';
 import 'botRepo.dart';
@@ -32,8 +34,17 @@ class AvatarRepo {
   final _avatarServices = GetIt.I.get<AvatarServiceClient>();
   final _queryServices = GetIt.I.get<query.QueryServiceClient>();
   final _botRepo = GetIt.I.get<BotRepo>();
+
   final Cache<String, Avatar> _avatarCache =
-      LruCache<String, Avatar>(storage: InMemoryStorage(40));
+      LruCache<String, Avatar>(storage: InMemoryStorage(50));
+
+  final Cache<String, String> _avatarFilePathCache =
+      LruCache<String, String>(storage: InMemoryStorage(50));
+
+  final Cache<String, BehaviorSubject<String>> _avatarCacheBehaviorSubjects =
+      LruCache<String, BehaviorSubject<String>>(
+          storage: InMemoryStorage(50),
+          onEvict: (key, subject) => subject?.close());
 
   Future<void> fetchAvatar(Uid userUid, bool forceToUpdate) async {
     if (forceToUpdate || await needsUpdate(userUid)) {
@@ -73,7 +84,7 @@ class AvatarRepo {
     }
     int nowTime = DateTime.now().millisecondsSinceEpoch;
 
-    var key = "${userUid.category}-${userUid.node}";
+    var key = getAvatarCacheKey(userUid);
 
     Avatar? ac = _avatarCache.get(key);
 
@@ -115,7 +126,7 @@ class AvatarRepo {
   // TODO, change function signature
   Future<Avatar?> getLastAvatar(Uid userUid, bool forceToUpdate) async {
     await fetchAvatar(userUid, forceToUpdate);
-    var key = "${userUid.category}-${userUid.node}";
+    var key = getAvatarCacheKey(userUid);
 
     var ac = _avatarCache.get(key);
     if (ac != null) {
@@ -135,40 +146,59 @@ class AvatarRepo {
     return ac;
   }
 
-  Future<Avatar?> setMucAvatar(Uid uid, File file) async {
-    return uploadAvatar(file, uid);
+  Future<void> setMucAvatar(Uid uid, String path) {
+    return uploadAvatar(path, uid);
   }
 
-  Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) async* {
-    await fetchAvatar(userUid, forceToUpdate);
-    var key = "${userUid.category}-${userUid.node}";
+  String? fastForwardAvatarFilePath(Uid userUid) {
+    var key = getAvatarCacheKey(userUid);
+    return _avatarFilePathCache.get(key);
+  }
 
-    var cachedAvatar = _avatarCache.get(key);
+  String getAvatarCacheKey(Uid userUid) => "${userUid.category}-${userUid.node}";
+
+  Stream<String> getLastAvatarFilePathStream(Uid userUid, bool forceToUpdate) async* {
+    await fetchAvatar(userUid, forceToUpdate);
+    var key = getAvatarCacheKey(userUid);
+
+    var cachedAvatar = _avatarCacheBehaviorSubjects.get(key);
 
     if (cachedAvatar != null) {
-      yield cachedAvatar;
+      yield* cachedAvatar.stream;
     }
 
-    yield* _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
-      _avatarCache.set(key, la!);
-      return la;
+    late final BehaviorSubject<String> bs;
+
+    bs = BehaviorSubject();
+
+    _avatarCacheBehaviorSubjects.set(key, bs);
+
+    var subscription =
+        _avatarDao.watchLastAvatar(userUid.asString()).listen((event) async {
+      if (event != null && event.fileId != null && event.fileName != null) {
+        _avatarCache.set(key, event);
+        String? path = await _fileRepo.getFile(event.fileId!, event.fileName!,
+            thumbnailSize: ThumbnailSize.medium);
+        if (path != null) {
+          _avatarFilePathCache.set(key, path);
+          bs.sink.add(path);
+        }
+      }
     });
+
+    bs.onCancel = () {
+      subscription.cancel();
+    };
+
+    yield* bs.stream.asBroadcastStream();
   }
 
-  Future<Avatar?> uploadAvatar(File file, Uid uid) async {
-    await _fileRepo.cloneFileInLocalDirectory(
-        file, uid.node, file.path.split('/').last);
-    file_pb.File? fileInfo =
-        await _fileRepo.uploadClonedFile(uid.node, file.path.split('/').last);
+  Future<void> uploadAvatar(String path, Uid uid) async {
+    await _fileRepo.cloneFileInLocalDirectory(File(path), uid.node, path);
+    file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(uid.node, path);
     if (fileInfo != null) {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
-      _setAvatarAtServer(fileInfo, createdOn, uid);
-      Avatar avatar = Avatar(
-          uid: uid.asString(),
-          createdOn: createdOn,
-          fileId: fileInfo.uuid,
-          fileName: fileInfo.name);
-      return avatar;
+      await _setAvatarAtServer(fileInfo, createdOn, uid);
     }
   }
 

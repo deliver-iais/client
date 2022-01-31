@@ -17,7 +17,9 @@ class RawKeyboardService {
 
   void controlVHandle(TextEditingController controller) async {
     ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
-    controller.text = data!.text!;
+    controller.text = controller.text+ data!.text!;
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
   }
 
   void controlXHandle(TextEditingController controller) {

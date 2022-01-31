@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -32,7 +33,6 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/profile_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -107,25 +107,25 @@ class _ProfilePageState extends State<ProfilePage>
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data!.imagesCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.videosCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.linkCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.filesCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.documentsCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.musicsCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
                 if (snapshot.data!.audiosCount != 0) {
-                  _tabsCount = _tabsCount + 1;
+                  _tabsCount++;
                 }
               }
 
@@ -267,174 +267,172 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildInfo(BuildContext context) {
+    final theme = Theme.of(context);
     return SliverList(
         delegate: SliverChildListDelegate([
-      BoxList(
-          largePageBorderRadius: BorderRadius.zero,
+      BoxList(largePageBorderRadius: BorderRadius.zero, children: [
+        const Divider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ProfileAvatar(
-                  roomUid: widget.roomUid,
-                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-                ),
-                // _buildMenu(context)
-              ],
+            ProfileAvatar(
+              roomUid: widget.roomUid,
+              canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
             ),
-            if (!widget.roomUid.isGroup())
-              FutureBuilder<String?>(
-                future: _roomRepo.getId(widget.roomUid),
-                builder:
-                    (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                  if (snapshot.data != null) {
-                    return Padding(
+            // _buildMenu(context)
+          ],
+        ),
+        if (!widget.roomUid.isGroup())
+          FutureBuilder<String?>(
+            future: _roomRepo.getId(widget.roomUid),
+            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+              if (snapshot.data != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: SettingsTile(
+                    title: _i18n.get("username"),
+                    subtitle: "${snapshot.data}",
+                    leading: const Icon(Icons.alternate_email),
+                    trailing: const Icon(Icons.copy),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                    onPressed: (_) => Clipboard.setData(
+                        ClipboardData(text: "@${snapshot.data}")),
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+        if (widget.roomUid.isUser())
+          FutureBuilder<Contact?>(
+            future: _contactRepo.getContact(widget.roomUid),
+            builder: (BuildContext context, AsyncSnapshot<Contact?> snapshot) {
+              if (snapshot.data != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: SettingsTile(
+                    title: _i18n.get("phone"),
+                    subtitle: buildPhoneNumber(snapshot.data!.countryCode,
+                        snapshot.data!.nationalNumber),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                    leading: const Icon(Icons.phone),
+                    trailing: const Icon(Icons.call),
+                    onPressed: (_) => launch(
+                        "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}"),
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+        if (!widget.roomUid.isChannel() || _isMucAdminOrOwner)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: SettingsTile(
+                title: _i18n.get("send_message"),
+                leading: const Icon(Icons.message),
+                onPressed: (_) => _routingService.openRoom(
+                    widget.roomUid.asString(),
+                    forceToOpenRoom: true)),
+          ),
+        if (isAndroid())
+          FutureBuilder<String?>(
+              future: _roomRepo
+                  .getRoomCustomNotification(widget.roomUid.asString()),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
-                        title: _i18n.get("username"),
-                        titleTextStyle:
-                            TextStyle(color: ExtraTheme.of(context).textField),
-                        subtitle: "${snapshot.data}",
-                        leading: const Icon(Icons.alternate_email),
-                        trailing: const Icon(Icons.copy),
+                        title: _i18n.get("custom_notifications"),
+                        leading: const Icon(Icons.music_note_sharp),
+                        subtitle: snapshot.data!,
                         subtitleTextStyle:
-                            TextStyle(color: ExtraTheme.of(context).username),
-                        onPressed: (_) => Clipboard.setData(
-                            ClipboardData(text: "@${snapshot.data}")),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            if (widget.roomUid.isUser())
-              FutureBuilder<Contact?>(
-                future: _contactRepo.getContact(widget.roomUid),
-                builder:
-                    (BuildContext context, AsyncSnapshot<Contact?> snapshot) {
-                  if (snapshot.data != null) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SettingsTile(
-                        title: _i18n.get("phone"),
-                        titleTextStyle:
-                            TextStyle(color: ExtraTheme.of(context).textField),
-                        subtitle: buildPhoneNumber(snapshot.data!.countryCode,
-                            snapshot.data!.nationalNumber),
-                        subtitleTextStyle:
-                            TextStyle(color: ExtraTheme.of(context).username),
-                        leading: const Icon(Icons.phone),
-                        trailing: const Icon(Icons.call),
-                        onPressed: (_) => launch(
-                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}"),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            if (!widget.roomUid.isChannel() || _isMucAdminOrOwner)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: SettingsTile(
-                    title: _i18n.get("send_message"),
-                    titleTextStyle:
-                        TextStyle(color: ExtraTheme.of(context).textField),
-                    leading: const Icon(Icons.message),
-                    onPressed: (_) =>
-                        _routingService.openRoom(widget.roomUid.asString())),
-              ),
-            if (isAndroid())
-              FutureBuilder<String?>(
-                  future: _roomRepo
-                      .getRoomCustomNotification(widget.roomUid.asString()),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: SettingsTile(
-                            title: _i18n.get("custom_notifications"),
-                            titleTextStyle: TextStyle(
-                                color: ExtraTheme.of(context).textField),
-                            leading: const Icon(Icons.music_note_sharp),
-                            subtitle: snapshot.data!,
-                            subtitleTextStyle: TextStyle(
-                                color: ExtraTheme.of(context).username,
-                                fontSize: 16),
-                            onPressed: (_) async {
-                              _routingService
-                                  .openCustomNotificationSoundSelection(
-                                      widget.roomUid.asString());
-                            },
-                          ));
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-            StreamBuilder<bool>(
-              stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  return SettingsTile.switchTile(
-                      title: _i18n.get("notification"),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
-                      leading: const Icon(Icons.notifications_active),
-                      switchValue: !snapshot.data!,
-                      onToggle: (state) {
-                        if (state) {
-                          _roomRepo.unmute(widget.roomUid.asString());
-                        } else {
-                          _roomRepo.mute(widget.roomUid.asString());
-                        }
-                      });
+                            TextStyle(color: theme.primaryColor, fontSize: 16),
+                        onPressed: (_) async {
+                          _routingService.openCustomNotificationSoundSelection(
+                              widget.roomUid.asString());
+                        },
+                      ));
                 } else {
                   return const SizedBox.shrink();
                 }
-              },
-            ),
-            if (widget.roomUid.isMuc())
-              StreamBuilder<Muc?>(
-                  stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-                  builder: (c, muc) {
-                    if (muc.hasData &&
-                        muc.data != null &&
-                        muc.data!.info!.isNotEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: SettingsTile(
-                            title: _i18n.get("description"),
-                            titleTextStyle: TextStyle(
-                                color: ExtraTheme.of(context).textField),
-                            subtitle: muc.data!.info,
-                            subtitleTextStyle: TextStyle(
-                                color: ExtraTheme.of(context).username,
-                                fontSize: 16),
-                            leading: const Icon(Icons.info),
-                            trailing: const SizedBox.shrink()),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-            if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
-              Padding(
+              }),
+        StreamBuilder<bool>(
+          stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
+          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
-                child: SettingsTile(
-                  title: _i18n.get("add_member"),
-                  titleTextStyle:
-                      TextStyle(color: ExtraTheme.of(context).textField),
-                  leading: const Icon(Icons.person_add),
-                  onPressed: (_) => _routingService.openMemberSelection(
-                      isChannel: true, mucUid: widget.roomUid),
-                ),
-              ),
-            const Divider(height: 4, thickness: 4)
-          ])
+                child: SettingsTile.switchTile(
+                    title: _i18n.get("notification"),
+                    leading: const Icon(Icons.notifications_active),
+                    switchValue: !snapshot.data!,
+                    onToggle: (state) {
+                      if (state) {
+                        _roomRepo.unmute(widget.roomUid.asString());
+                      } else {
+                        _roomRepo.mute(widget.roomUid.asString());
+                      }
+                    }),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
+        if (widget.roomUid.isBot())
+          FutureBuilder<BotInfo?>(
+              future: _botRepo.getBotInfo(widget.roomUid),
+              builder: (c, s) {
+                if (s.hasData &&
+                    s.data != null &&
+                    s.data!.description!.isNotEmpty) {
+                  return description(s.data!.description!, context);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
+        if (widget.roomUid.isMuc())
+          StreamBuilder<Muc?>(
+              stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+              builder: (c, muc) {
+                if (muc.hasData &&
+                    muc.data != null &&
+                    muc.data!.info!.isNotEmpty) {
+                  return description(muc.data!.info!, context);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
+        if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: SettingsTile(
+              title: _i18n.get("add_member"),
+              leading: const Icon(Icons.person_add),
+              onPressed: (_) => _routingService.openMemberSelection(
+                  isChannel: true, mucUid: widget.roomUid),
+            ),
+          ),
+        const Divider(height: 4, thickness: 4)
+      ])
     ]));
+  }
+
+  Padding description(String info, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: SettingsTile(
+          title: _i18n.get("description"),
+          subtitle: info,
+          subtitleTextStyle:
+              TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+          leading: const Icon(Icons.info),
+          trailing: const SizedBox.shrink()),
+    );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -445,13 +443,11 @@ class _ProfilePageState extends State<ProfilePage>
         title: Align(
           alignment: Alignment.centerLeft,
           child: FutureBuilder<String>(
+            initialData: _roomRepo.fastForwardName(widget.roomUid),
             future: _roomRepo.getName(widget.roomUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
-              return RoomName(
-                  uid: widget.roomUid,
-                  name: _roomName,
-                  style: TextStyle(color: ExtraTheme.of(context).textField));
+              return RoomName(uid: widget.roomUid, name: _roomName);
             },
           ),
         ),
@@ -617,7 +613,7 @@ class _ProfilePageState extends State<ProfilePage>
         _showInviteLinkDialog(token);
       } else {
         ToastDisplay.showToast(
-            toastText: _i18n.get("error_occurred"), tostContext: context);
+            toastText: _i18n.get("error_occurred"), toastContext: context);
       }
     }
   }
@@ -656,7 +652,7 @@ class _ProfilePageState extends State<ProfilePage>
                             ClipboardData(text: generateInviteLink(token)));
                         ToastDisplay.showToast(
                             toastText: _i18n.get("copied"),
-                            tostContext: context);
+                            toastContext: context);
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -952,7 +948,7 @@ class _ProfilePageState extends State<ProfilePage>
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
         ToastDisplay.showToast(
-            toastText: _i18n.get("report_result"), tostContext: context);
+            toastText: _i18n.get("report_result"), toastContext: context);
         break;
       case "manage":
         showManageDialog();
@@ -999,8 +995,6 @@ class _ProfilePageState extends State<ProfilePage>
                             child: Column(
                               children: [
                                 TextField(
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
                                   onChanged: (str) {
                                     List<String> searchRes = [];
                                     for (var uid in nameOfGroup.keys) {

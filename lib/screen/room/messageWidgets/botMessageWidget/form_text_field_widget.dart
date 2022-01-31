@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as form_pb;
 import 'package:flutter/material.dart';
@@ -90,16 +91,16 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
     return InputDecoration(
         enabledBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: secondaryBorder,
         ),
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: secondaryBorder,
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         disabledBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.red),
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          borderRadius: secondaryBorder,
         ),
         suffixIcon: widget.formField.isOptional
             ? const SizedBox.shrink()

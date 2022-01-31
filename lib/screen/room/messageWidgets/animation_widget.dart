@@ -5,6 +5,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -96,6 +97,8 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final extraThemeData = ExtraTheme.of(context);
     final isSender =
         AnimatedEmoji._authRepo.isCurrentUserSender(widget.message);
 
@@ -127,16 +130,15 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
             }),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: mainBorder,
             color: isSender
-                ? ExtraTheme.of(context).sentMessageBox
-                : ExtraTheme.of(context).receivedMessageBox,
+                ? extraThemeData.colorScheme.tertiaryContainer
+                :theme.colorScheme.surface,
           ),
           child: TimeAndSeenStatus(
             widget.message,
             isSender,
             widget.isSeen,
-            needsBackground: false,
             needsPositioned: false,
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -10,6 +11,7 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
@@ -19,13 +21,11 @@ import 'package:deliver/screen/settings/pages/log_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -68,8 +68,11 @@ class RoutingService {
       _navigatorObserver.currentRoute.stream;
 
   // Functions
-  void openSettings({bool popAllBeforePush = false}) =>
+  void openSettings({bool popAllBeforePush = false}) {
+    if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
+    }
+  }
 
   void openLanguageSettings() => _push(_languageSettings);
 
@@ -89,8 +92,9 @@ class RoutingService {
       {List<Message> forwardedMessages = const [],
       bool popAllBeforePush = false,
       List<String>? inputFilePaths,
-      pro.ShareUid? shareUid}) {
-    if (!isInRoom(roomId)) {
+      pro.ShareUid? shareUid,
+      bool forceToOpenRoom=false}) {
+    if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
           RoomPage(
             key: ValueKey("/room/$roomId"),
@@ -178,8 +182,6 @@ class RoutingService {
   void openShareFile({required List<String> path}) => _push(ShareInputFile(
       key: const ValueKey("/share_file_page"), inputSharedFilePath: path));
 
-  bool isInRoomPage() => _path().contains("/room/");
-
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
@@ -224,7 +226,8 @@ class RoutingService {
         if (isLarge(context))
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
-        if (isLarge(context)) const VerticalDivider(),
+        if (isLarge(context))
+          const VerticalDivider(),
         Expanded(
             child: ClipRect(
           child: Navigator(
@@ -258,7 +261,7 @@ class RoutingService {
       await authRepo.deleteTokens();
       dbManager.deleteDB();
       mainNavigatorState.currentState?.pushAndRemoveUntil(
-          MaterialPageRoute(builder: (c) => const SplashScreen()),
+          MaterialPageRoute(builder: (c) => const LoginPage()),
           (route) => route.isFirst);
     }
     popAll();
@@ -291,28 +294,30 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
 }
 
 class Empty extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   const Empty({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const Background(),
-        Center(
-          child: BlurContainer(
-              skew: 4,
-              padding:
-                  const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-              // decoration: BoxDecoration(
-              //     borderRadius: const BorderRadius.all(Radius.circular(20)),
-              //     color: Theme.of(context).dividerColor.withOpacity(0.25)),
-              child: Text("Please select a chat to start messaging",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText2!
-                      .copyWith(color: Colors.white))),
-        ),
-      ],
+    final theme = Theme.of(context);
+    return Scaffold(
+      body: Stack(
+        children: [
+          Center(
+            child: BlurContainer(
+                skew: 4,
+                padding:
+                    const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
+                child: Text(
+                    _i18n.get("please_select_a_chat_to_start_messaging"),
+                    style:theme
+                        .textTheme
+                        .bodyText2!
+                        .copyWith(color: Colors.white))),
+          ),
+        ],
+      ),
     );
   }
 }

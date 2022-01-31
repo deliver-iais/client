@@ -286,5 +286,12 @@
   "report_message": "از گزارش  شما متشکریم",
   "bot_not_responding": "جوابی از بات دریافت نشده است.",
   "other": "متفرقه",
-  "choose_other_files": "انتخاب دیگر فایل ها ..."
+  "choose_other_files": "انتخاب دیگر فایل ها ...",
+  "error" : "خطا",
+  "cant_sent": "را نمیتوان ارسال کرد",
+  "error_in_uploading" : "مشکلی در آپلود فایل به وجود آمده",
+  "about_update": "در مورد آپدیت",
+  "got_it": "باشه",
+  "please_select_a_chat_to_start_messaging": "لطفا برای آغاز یک چت، یکی از چت ها را انتخاب کنید",
+  "select_an_image": "یک عکس انتخاب کنید"
 }

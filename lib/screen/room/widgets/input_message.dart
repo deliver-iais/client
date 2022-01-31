@@ -23,7 +23,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -113,6 +112,9 @@ class _InputMessageWidget extends State<InputMessage> {
   final _botRepo = GetIt.I.get<BotRepo>();
   var record = Record();
 
+  final ValueNotifier<TextDirection> _textDir =
+      ValueNotifier(TextDirection.ltr);
+
   var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
   var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
@@ -120,6 +122,7 @@ class _InputMessageWidget extends State<InputMessage> {
     if (kIsWeb || isDesktop()) {
       _attachFileInWindowsMode();
     } else {
+      FocusScope.of(context).unfocus();
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -220,6 +223,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return WillPopScope(
       onWillPop: () async {
@@ -262,7 +266,9 @@ class _InputMessageWidget extends State<InputMessage> {
                 );
               }),
           Container(
-            color: ExtraTheme.of(context).inputBoxBackground,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+            ),
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
@@ -295,8 +301,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                           _backSubject.value
                                               ? Icons.keyboard
                                               : Icons.mood,
-                                          color:
-                                              ExtraTheme.of(context).textField,
                                         ),
                                         onPressed: () {
                                           if (_backSubject.value) {
@@ -316,48 +320,48 @@ class _InputMessageWidget extends State<InputMessage> {
                                 Flexible(
                                   child: RawKeyboardListener(
                                     focusNode: keyboardRawFocusNode,
-                                    child: TextField(
-                                      focusNode: widget.focusNode,
-                                      autofocus: widget.replyMessageId! > 0 ||
-                                          isDesktop(),
-                                      controller: widget.textController,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 4, vertical: 8),
-                                        border: InputBorder.none,
-                                        hintText: i18n.get("message"),
+                                    child:
+                                        ValueListenableBuilder<TextDirection>(
+                                      valueListenable: _textDir,
+                                      builder: (context, value, child) =>
+                                          TextField(
+                                        focusNode: widget.focusNode,
+                                        autofocus: widget.replyMessageId! > 0 ||
+                                            isDesktop(),
+                                        controller: widget.textController,
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 14, vertical: 12),
+                                          border: InputBorder.none,
+                                          hintText: i18n.get("message"),
+                                        ),
+                                        autocorrect: true,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        minLines: 1,
+                                        maxLines: 15,
+                                        textDirection: value,
+                                        style: theme.textTheme.subtitle1,
+                                        onTap: () => _backSubject.add(false),
+                                        onChanged: (str) {
+                                          if (str.trim().length < 2) {
+                                            final dir = getDirection(str);
+                                            if (dir != value) {
+                                              _textDir.value = dir;
+                                            }
+                                          }
+                                          _textSelection =
+                                              widget.textController.selection;
+                                          if (str.isNotEmpty) {
+                                            isTypingActivitySubject
+                                                .add(ActivityType.TYPING);
+                                          } else {
+                                            noActivitySubject
+                                                .add(ActivityType.NO_ACTIVITY);
+                                          }
+                                        },
                                       ),
-                                      autocorrect: true,
-                                      textInputAction: TextInputAction.newline,
-                                      minLines: 1,
-                                      maxLines: 15,
-                                      textAlign: widget.textController.text
-                                                  .isNotEmpty &&
-                                              widget.textController.text
-                                                  .isPersian()
-                                          ? TextAlign.right
-                                          : TextAlign.left,
-                                      textDirection: widget.textController.text
-                                                  .isNotEmpty &&
-                                              widget.textController.text
-                                                  .isPersian()
-                                          ? TextDirection.rtl
-                                          : TextDirection.ltr,
-                                      style:
-                                          Theme.of(context).textTheme.subtitle1,
-                                      onTap: () => _backSubject.add(false),
-                                      onChanged: (str) {
-                                        _textSelection =
-                                            widget.textController.selection;
-                                        if (str.isNotEmpty) {
-                                          isTypingActivitySubject
-                                              .add(ActivityType.TYPING);
-                                        } else {
-                                          noActivitySubject
-                                              .add(ActivityType.NO_ACTIVITY);
-                                        }
-                                      },
                                     ),
                                   ),
                                 ),
@@ -389,10 +393,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           !sh.data! &&
                                           !widget.waitingForForward) {
                                         return IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.attach_file,
-                                              color: ExtraTheme.of(context)
-                                                  .textField,
                                             ),
                                             onPressed: () {
                                               _backSubject.add(false);
@@ -551,8 +553,11 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onMentionSelected(s) {
-    int start = _textSelection.base.offset;
+    int start = _textSelection.baseOffset;
+
     String block_1 = widget.textController.text.substring(0, start);
+    int indexOf = block_1.lastIndexOf("@");
+    block_1 = block_1.substring(0, indexOf + 1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;
@@ -576,7 +581,13 @@ class _InputMessageWidget extends State<InputMessage> {
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         if (event is RawKeyDownEvent) {
-          sendMessage();
+          if (widget.currentRoom.uid.isGroup() &&
+              mentionSelectedIndex >= 0 &&
+              _mentionData != "_") {
+            sendMentionByEnter();
+          } else {
+            sendMessage();
+          }
         }
         return KeyEventResult.handled;
       } else if (_uxService.sendByEnter &&
@@ -584,7 +595,13 @@ class _InputMessageWidget extends State<InputMessage> {
           (event.physicalKey == PhysicalKeyboardKey.enter ||
               event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
         if (event is RawKeyDownEvent) {
-          sendMessage();
+          if (widget.currentRoom.uid.isGroup() &&
+              mentionSelectedIndex >= 0 &&
+              _mentionData != "_") {
+            sendMentionByEnter();
+          } else {
+            sendMessage();
+          }
         }
         return KeyEventResult.handled;
       }
@@ -639,8 +656,8 @@ class _InputMessageWidget extends State<InputMessage> {
         query: _mentionData);
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id!);
-      sendMessage();
     }
+    sendMessage();
   }
 
   scrollDownInBotCommand() {
@@ -796,4 +813,13 @@ class _InputMessageWidget extends State<InputMessage> {
     }
     return text + " ";
   }
+}
+
+TextDirection getDirection(String v) {
+  final string = v.trim();
+  if (string.isEmpty) return TextDirection.ltr;
+  if (string.isPersian()) {
+    return TextDirection.rtl;
+  }
+  return TextDirection.ltr;
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -61,6 +62,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (kIsWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
+    checkIfVersionChange();
     checkAddToHomeInWeb(context);
 
     super.initState();
@@ -97,13 +99,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (!_routingService.canPop()) return true;
         _routingService.maybePop();
         return false;
       },
-      child: _routingService.outlet(context),
+      child: Container(
+          color:theme.colorScheme.background,
+          child: _routingService.outlet(context)),
     );
   }
 
@@ -112,6 +117,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
     } else {
       await _accountRepo.fetchProfile();
+    }
+  }
+
+  void checkIfVersionChange() async {
+    if (await _accountRepo.shouldShowNewFeatureDialog()) {
+      showDialog(builder: (context) => NewFeatureDialog(), context: context);
     }
   }
 }

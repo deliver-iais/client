@@ -298,7 +298,11 @@ class CoreServices {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       var msg = pm.msg.copyWith(id: id, time: time);
-      _messageDao.deletePendingMessage(packetId);
+      try {
+        _messageDao.deletePendingMessage(packetId);
+      } catch (e) {
+        _logger.e(e);
+      }
       _messageDao.saveMessage(msg);
       _roomDao.updateRoom(
           Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id));
@@ -385,7 +389,8 @@ class CoreServices {
                   roomUid,
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
-                      .toInt());
+                      .toInt(),
+                  message.time.toInt());
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
               var mes = await _messageDao.getMessage(
@@ -396,7 +401,7 @@ class CoreServices {
               _messageDao.saveMessage(mes!..json = "{}");
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
-              break;
+              return;
           }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
@@ -423,7 +428,7 @@ class CoreServices {
     }
   }
 
-  messageEdited(Uid roomUid, int id) async {
+  messageEdited(Uid roomUid, int id, int time) async {
     var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -433,11 +438,13 @@ class CoreServices {
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
-      _roomDao.updateRoom(
-          room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
+      _roomDao.updateRoom(room.copyWith(
+          lastUpdateTime: time,
+          lastUpdatedMessageId: res.messages.first.id.toInt()));
     } else {
       _roomDao.updateRoom(room.copyWith(
         lastMessage: msg,
+        lastUpdateTime: time,
         lastUpdatedMessageId: res.messages.first.id.toInt(),
       ));
     }

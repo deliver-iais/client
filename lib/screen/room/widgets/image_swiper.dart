@@ -15,7 +15,6 @@ import 'package:deliver/repository/messageRepo.dart';
 
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 class ImageSwiper extends StatefulWidget {
   final Message message;
@@ -27,9 +26,10 @@ class ImageSwiper extends StatefulWidget {
 }
 
 class _ImageSwiperState extends State<ImageSwiper> {
-  final _mediaRepo = GetIt.I.get<MediaQueryRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _mediaRepo = GetIt.I.get<MediaQueryRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+
   final BehaviorSubject<int> _imageIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> imageCount = BehaviorSubject.seeded(1);
 
@@ -47,10 +47,8 @@ class _ImageSwiperState extends State<ImageSwiper> {
 
   @override
   Widget build(BuildContext context) {
-    //todo show others image
     return Scaffold(
         appBar: AppBar(
-          // leading: _routingServices.backButtonLeading(),
           title: title(),
         ),
         body: GestureDetector(
@@ -58,99 +56,29 @@ class _ImageSwiperState extends State<ImageSwiper> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: InteractiveViewer(child: defaultWidget()
-              //     FutureBuilder(
-              //   future: _mediaRepo.getImageMediaCount(widget.message.roomUid.asUid()),
-              //   builder: (c, imageCountData) {
-              //     if (imageCountData.hasData &&
-              //         imageCountData.data != null &&
-              //         imageCountData.data > 0) {
-              //       imageCount.add(imageCountData.data);
-              //       return FutureBuilder<List<Media>>(
-              //           future: _mediaRepo.getMedia(widget.message.roomUid.asUid(),
-              //               MediaType.IMAGE, imageCountData.data,
-              //               messageId: widget.message.id),
-              //           builder: (c, medias) {
-              //             if (medias.hasData &&
-              //                 medias.data != null &&
-              //                 medias.data.length > 0) {
-              //               var initIndex = medias.data.indexWhere(
-              //                   (element) => element.messageId == widget.message.id);
-              //               if (initIndex != -1) _imageIndex.add(initIndex);
-              //               return Swiper(
-              //                 itemCount: imageCountData.data,
-              //                 onIndexChanged: (index) {
-              //                   _imageIndex.add(index);
-              //                 },
-              //                 index: initIndex,
-              //                 itemBuilder: (c, i) {
-              //                   if (medias.data.length >= i &&
-              //                       medias.data[i] != null) {
-              //                     double width = double.parse(
-              //                             jsonDecode(medias.data[i].json)["width"]
-              //                                 .toString()) ??
-              //                         defWidth;
-              //                     double height = double.parse(
-              //                             jsonDecode(medias.data[i].json)["height"]
-              //                                 .toString()) ??
-              //                         defHeight;
-              //
-              //                     return FutureBuilder<File>(
-              //                       future: _fileRepo.getFile(
-              //                           jsonDecode(medias.data[i].json)["uuid"],
-              //                           jsonDecode(medias.data[i].json)["name"]),
-              //                       builder: (c, fileSnapshot) {
-              //                         if (fileSnapshot.hasData &&
-              //                             fileSnapshot.data != null) {
-              //                           return buildImageUi(
-              //                               context,
-              //                               fileSnapshot.data,
-              //                               medias.data[i].messageId,
-              //                               min(width, defWidth),
-              //                               min(height, defHeight));
-              //                         } else
-              //                           return Center(
-              //                             child: CircularProgressIndicator(
-              //                               color: Colors.blue,
-              //                             ),
-              //                           );
-              //                       },
-              //                     );
-              //                   } else {
-              //                     return Center(
-              //                         child: CircularProgressIndicator(
-              //                       color: Colors.blue,
-              //                     ));
-              //                   }
-              //                 },
-              //               );
-              //             } else
-              //               return defaultWidget();
-              //           });
-              //     } else
-              //       return defaultWidget();
-              //   },
-              // )
-              ),
+          child: InteractiveViewer(child: defaultWidget()),
         ));
   }
 
   Widget defaultWidget() {
-    return FutureBuilder<String?>(
-        future: _fileRepo.getFile(widget.message.json!.toFile().uuid,
-            widget.message.json!.toFile().name),
-        builder: (c, path) {
-          if (path.hasData && path.data != null) {
-            return buildImageUi(
-                context,
-                path.data,
-                widget.message.id,
-                widget.message.json!.toFile().width.toDouble(),
-                widget.message.json!.toFile().height.toDouble());
-          } else {
-            return const SizedBox.shrink();
-          }
-        });
+    return Hero(
+      tag: "${widget.message.id}-${widget.message.json!.toFile().uuid}",
+      child: FutureBuilder<String?>(
+          future: _fileRepo.getFile(widget.message.json!.toFile().uuid,
+              widget.message.json!.toFile().name),
+          builder: (c, path) {
+            if (path.hasData && path.data != null) {
+              return buildImageUi(
+                  context,
+                  path.data,
+                  widget.message.id,
+                  widget.message.json!.toFile().width.toDouble(),
+                  widget.message.json!.toFile().height.toDouble());
+            } else {
+              return const SizedBox.shrink();
+            }
+          }),
+    );
   }
 
   Widget buildImageUi(BuildContext context, String? path, int? messageId,
@@ -162,18 +90,15 @@ class _ImageSwiperState extends State<ImageSwiper> {
             child: SizedBox(
               width: width,
               height: height,
-              child: Hero(
-                tag: widget.message.json!.toFile().uuid,
-                child: kIsWeb
-                    ? Image.network(
-                        path!,
-                        width: width,
-                        height: height,
-                      )
-                    : Image.file(
-                        File(path!),
-                      ),
-              ),
+              child: kIsWeb
+                  ? Image.network(
+                      path!,
+                      width: width,
+                      height: height,
+                    )
+                  : Image.file(
+                      File(path!),
+                    ),
             ),
           ),
           bottom: 50,
@@ -198,8 +123,7 @@ class _ImageSwiperState extends State<ImageSwiper> {
             return Text(
               mes.data!.json!.toFile().caption,
               overflow: TextOverflow.fade,
-              style: TextStyle(
-                  color: ExtraTheme.of(context).textField, fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             );
           } else {
             return const SizedBox.shrink();

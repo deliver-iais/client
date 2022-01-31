@@ -1,46 +1,80 @@
+import 'dart:math';
+
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 
 class ExtraThemeData {
-  Color centerPageDetails;
-  Color boxOuterBackground = const Color(0xfde2f8f0);
-  Color boxBackground = const Color(0xfde2f8f0);
-  Color menuIconButton;
-  Color chatOrContactItemDetails;
-  Color sentMessageBox;
-  Color receivedMessageBox;
-  Color persistentEventMessage;
-  Color seenStatus; //green white
-  Color messageDetails;
-  Color circularFileStatus;
-  Color fileMessageDetails;
-  Color inputBoxBackground;
-  Color fileSharingDetails;
+  final Material3ColorScheme colorScheme;
+  final CustomColorScheme custom1;
+  final CustomColorScheme custom2;
+  final CustomColorScheme custom3;
+  final CustomColorScheme custom4;
+  final CustomColorScheme custom5;
 
-  // TODO refactor all of these
-  Color username; // primary
-  Color textMessage; // -> normal
-  Color textField; //green white -> normal
-  Color textDetails; //light green - blue -> accent
+  // TODO: Remove later on
+  Color onDetailsBox;
 
-  ExtraThemeData(
-      {required this.centerPageDetails,
-      required this.boxOuterBackground,
-      required this.boxBackground,
-      required this.textDetails,
-      required this.menuIconButton,
-      required this.username,
-      required this.chatOrContactItemDetails,
-      required this.sentMessageBox,
-      required this.receivedMessageBox,
-      required this.textMessage,
-      required this.seenStatus,
-      required this.messageDetails,
-      required this.persistentEventMessage,
-      required this.circularFileStatus,
-      required this.fileMessageDetails,
-      required this.textField,
-      required this.inputBoxBackground,
-      required this.fileSharingDetails});
+  Color lowlight() => colorScheme.onPrimary;
+
+  Color highlight() => colorScheme.primary;
+
+  Color surfaceElevation(int number, {isSender = false}) => elevation(
+      colorScheme.surface,
+      isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer,
+      number);
+
+  Color avatarBackground(String uid) {
+    var hash = 0;
+    for (var i = 0; i < uid.length; i++) {
+      hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    final finalHash = hash.abs() % (100);
+    var r = Random(finalHash);
+    switch (r.nextInt(5)) {
+      case 1:
+        return custom2.primary;
+      case 2:
+        return custom3.primary;
+      case 3:
+        return custom4.primary;
+      case 4:
+        return custom5.primary;
+      default:
+        return custom1.primary;
+    }
+  }
+
+  // TODO refactor this
+  CustomColorScheme messageColorScheme(String uid) {
+    var hash = 0;
+    for (var i = 0; i < uid.length; i++) {
+      hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    final finalHash = hash.abs() % (100);
+    var r = Random(finalHash);
+    switch (r.nextInt(5)) {
+      case 1:
+        return custom2;
+      case 2:
+        return custom3;
+      case 3:
+        return custom4;
+      case 4:
+        return custom5;
+      default:
+        return custom1;
+    }
+  }
+
+  ExtraThemeData({
+    required this.colorScheme,
+    required this.custom1,
+    required this.custom2,
+    required this.custom3,
+    required this.custom4,
+    required this.custom5,
+    required this.onDetailsBox,
+  });
 }
 
 class ExtraTheme extends InheritedWidget {
@@ -50,7 +84,7 @@ class ExtraTheme extends InheritedWidget {
     Key? key,
     required Widget child,
     required this.extraThemeData,
-  })  : super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
     return context
@@ -59,8 +93,5 @@ class ExtraTheme extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(ExtraTheme oldWidget) {
-    // TODO ???
-    return true;
-  }
+  bool updateShouldNotify(ExtraTheme oldWidget) => false;
 }

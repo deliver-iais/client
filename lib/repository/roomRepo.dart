@@ -55,7 +55,7 @@ class RoomRepo {
 
   updateRoom(Room room) => _roomDao.updateRoom(room);
 
-  Future<String?> getSlangName(Uid uid) async {
+  Future<String> getSlangName(Uid uid) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       return _i18n.get("you");
@@ -67,6 +67,13 @@ class RoomRepo {
   Future<bool> isVerified(Uid uid) async {
     // TODO, add dynamic verification later on
     return uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
+  }
+
+  String? fastForwardName(Uid uid) {
+    String? name = roomNameCache.get(uid.asString());
+    if (name != null && name.isNotEmpty && !name.contains("null")) {
+      return name;
+    }
   }
 
   Future<String> getName(Uid uid) async {
@@ -265,7 +272,7 @@ class RoomRepo {
   Future<void> createRoomIfNotExist(String roomUid) =>
       _roomDao.updateRoom(Room(uid: roomUid));
 
-  Stream<Seen?> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
+  Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
   Future<Seen?> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
 
