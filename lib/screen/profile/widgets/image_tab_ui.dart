@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dcache/dcache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:deliver/box/media.dart';
@@ -56,56 +57,41 @@ class _ImageTabUiState extends State<ImageTabUi> {
                         width: 2,
                       ),
                     ),
-                    child: FutureBuilder(
-                        future: _fileRepo.isExist(fileId, fileName),
-                        builder: (BuildContext c, AsyncSnapshot isExist) {
-                          if (isExist.hasData &&
-                              isExist.data != null &&
-                              isExist.connectionState == ConnectionState.done &&
-                              isExist.data == true) {
-                            return FutureBuilder<String?>(
-                                future: _fileRepo.getFile(fileId, fileName),
-                                builder: (BuildContext c, snaps) {
-                                  if (snaps.hasData &&
-                                      snaps.data != null &&
-                                      snaps.connectionState ==
-                                          ConnectionState.done) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        _routingService.openShowAllMedia(
-                                          uid: widget.userUid,
-                                          hasPermissionToDeletePic: true,
-                                          mediaPosition: position,
-                                          heroTag: "btn$position",
-                                          mediasLength: widget.imagesCount,
-                                        );
-                                      },
-                                      child: Hero(
-                                        tag: "btn$position",
-                                        child: Container(
-                                            decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: kIsWeb
-                                                ? Image.network(snaps.data!)
-                                                    .image
-                                                : Image.file(
-                                                    File(snaps.data!),
-                                                  ).image,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )),
-                                        transitionOnUserGestures: true,
-                                      ),
-                                    );
-                                  } else {
-                                    return const SizedBox(
-                                        width: 0.0, height: 0.0);
-                                  }
-                                });
+                    child: FutureBuilder<String?>(
+                        future: _fileRepo.getFileIfExist(fileId, fileName),
+                        builder:
+                            (BuildContext c, AsyncSnapshot<String?> filePath) {
+                          if (filePath.hasData && filePath.data != null) {
+                            return GestureDetector(
+                              onTap: () {
+                                _routingService.openShowAllImage(
+                                  uid: widget.userUid,
+                                  hasPermissionToDeletePic: true,
+                                  mediaPosition: position,
+                                  heroTag: "btn$position",
+                                  mediasLength: widget.imagesCount,
+                                );
+                              },
+                              child: Hero(
+                                tag: "btn$position",
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: kIsWeb
+                                        ? Image.network(filePath.data!).image
+                                        : Image.file(
+                                            File(filePath.data!),
+                                          ).image,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )),
+                                transitionOnUserGestures: true,
+                              ),
+                            );
                           } else {
                             return GestureDetector(
                               onTap: () {
-                                _routingService.openShowAllMedia(
+                                _routingService.openShowAllImage(
                                   uid: widget.userUid,
                                   hasPermissionToDeletePic: true,
                                   mediaPosition: position,

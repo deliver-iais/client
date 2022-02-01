@@ -11,6 +11,7 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
+import 'package:deliver/screen/profile/pages/show_all_image_or_avatar.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
@@ -93,7 +94,7 @@ class RoutingService {
       bool popAllBeforePush = false,
       List<String>? inputFilePaths,
       pro.ShareUid? shareUid,
-      bool forceToOpenRoom=false}) {
+      bool forceToOpenRoom = false}) {
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
           RoomPage(
@@ -131,20 +132,14 @@ class RoutingService {
         mediasLength: mediasLength,
       ));
 
-  void openShowAllMedia(
+  void openShowAllImage(
           {required Uid uid,
           required bool hasPermissionToDeletePic,
           required int mediaPosition,
           required int mediasLength,
           required String heroTag}) =>
-      _push(MediaDetailsPage.showMedia(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        hasPermissionToDeletePic: hasPermissionToDeletePic,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
-        heroTag: heroTag,
-      ));
+      _push(ShowAllImageOrAvatar(
+          const ValueKey("/media-details"), 100, uid.asString()));
 
   void openCustomNotificationSoundSelection(String roomId) =>
       _push(CustomNotificationSoundSelection(
@@ -226,8 +221,7 @@ class RoutingService {
         if (isLarge(context))
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
-        if (isLarge(context))
-          const VerticalDivider(),
+        if (isLarge(context)) const VerticalDivider(),
         Expanded(
             child: ClipRect(
           child: Navigator(
@@ -311,9 +305,7 @@ class Empty extends StatelessWidget {
                     const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
                 child: Text(
                     _i18n.get("please_select_a_chat_to_start_messaging"),
-                    style:theme
-                        .textTheme
-                        .bodyText2!
+                    style: theme.textTheme.bodyText2!
                         .copyWith(color: Colors.white))),
           ),
         ],
