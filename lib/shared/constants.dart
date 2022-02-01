@@ -105,6 +105,8 @@ const secondaryBorder = BorderRadius.all(Radius.circular(12));
 
 const messageBorder = BorderRadius.all(Radius.circular(12));
 
+const chipBorder = BorderRadius.all(Radius.circular(8));
+
 const backgroundBorder = BorderRadius.only(
     topLeft: Radius.circular(12), topRight: Radius.circular(12));
 

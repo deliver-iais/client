@@ -74,7 +74,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.6,
-                      color: widget.colorScheme.onPrimaryContainerVariant(),
+                      color: widget.colorScheme.onPrimaryContainerLowlight(),
                     )),
                 TimeAndSeenStatus(
                   widget.message,

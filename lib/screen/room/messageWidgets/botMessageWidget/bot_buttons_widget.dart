@@ -52,7 +52,7 @@ class BotButtonsWidget extends StatelessWidget {
                   needsPadding: false,
                   needsPositioned: false,
                   backgroundColor: colorScheme.primaryContainer,
-                  foregroundColor: colorScheme.onPrimaryContainerVariant()),
+                  foregroundColor: colorScheme.onPrimaryContainerLowlight()),
             ),
           ],
         ));

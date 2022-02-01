@@ -60,7 +60,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
         TimeAndSeenStatus(message, isSender, isSeen,
             needsPositioned: false,
             backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerVariant()),
+            foregroundColor: colorScheme.onPrimaryContainerLowlight()),
       ],
     );
   }

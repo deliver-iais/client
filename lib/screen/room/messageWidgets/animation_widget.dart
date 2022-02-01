@@ -138,7 +138,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
           ),
           child: TimeAndSeenStatus(widget.message, isSender, widget.isSeen,
               needsPositioned: false,
-              foregroundColor: widget.colorScheme.onPrimaryContainerVariant()),
+              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
         ),
       ],
     );

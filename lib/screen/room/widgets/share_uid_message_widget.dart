@@ -167,7 +167,7 @@ class ShareUidMessageWidget extends StatelessWidget {
               needsPositioned: false,
               needsPadding: false,
               backgroundColor: colorScheme.primaryContainer,
-              foregroundColor: colorScheme.onPrimaryContainerVariant()),
+              foregroundColor: colorScheme.onPrimaryContainerLowlight()),
         ],
       ),
     );

@@ -13,7 +13,7 @@ class CustomColorScheme {
   const CustomColorScheme(this.primary, this.onPrimary, this.primaryContainer,
       this.onPrimaryContainer);
 
-  Color onPrimaryContainerVariant() => onPrimaryContainer.withAlpha(150);
+  Color onPrimaryContainerLowlight() => onPrimaryContainer.withAlpha(150);
 
   CustomColorScheme.light(TonalPalette tones, Color primary)
       : primary = _harmonizeColor(Color(tones.get(40)), primary),
@@ -203,69 +203,75 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       displayColor: colorScheme.onBackground,
       bodyColor: colorScheme.onBackground);
 
-  return ThemeData(
-          brightness: colorScheme.brightness,
-          fontFamily: "Vazir",
-          primaryColor: colorScheme.primary,
-          colorScheme: getColorScheme(colorScheme),
-          scaffoldBackgroundColor:
-              elevation(colorScheme.surface, colorScheme.secondary, 1),
-          primaryTextTheme: primaryTextTheme,
-          textTheme: textTheme,
-          cardColor: colorScheme.surface,
-          backgroundColor: colorScheme.background,
-          highlightColor: colorScheme.primary,
-          focusColor: colorScheme.primary.withAlpha(50))
-      .copyWith(
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          snackBarTheme: SnackBarThemeData(
-              backgroundColor: colorScheme.inverseSurface,
-              actionTextColor: colorScheme.primaryInverse,
-              shape:
-                  const RoundedRectangleBorder(borderRadius: secondaryBorder)),
-          popupMenuTheme: PopupMenuThemeData(
-              textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: secondaryBorder),
-              color: colorScheme.surface),
-          dividerTheme: const DividerThemeData(space: 1.0, thickness: 1.0),
-          inputDecorationTheme: const InputDecorationTheme(
-            border: OutlineInputBorder(borderRadius: secondaryBorder),
-          ),
-          appBarTheme: AppBarTheme(
-              color: colorScheme.surface,
-              elevation: 0,
-              titleTextStyle: textTheme.headline5,
-              toolbarTextStyle: textTheme.headline6,
-              iconTheme: IconThemeData(color: colorScheme.primary)),
-          sliderTheme: SliderThemeData(
-            thumbColor: colorScheme.primary,
-            trackHeight: 2.25,
-            activeTrackColor: colorScheme.primary,
-            inactiveTrackColor: colorScheme.surface,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.5),
-          ),
-          outlinedButtonTheme: OutlinedButtonThemeData(
-              style: OutlinedButton.styleFrom(
-            shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-            side: BorderSide(width: 1.0, color: colorScheme.outline),
-          )),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-            shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-          )),
-          textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-            shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-          )),
-          dialogTheme: const DialogTheme(
-              shape: RoundedRectangleBorder(borderRadius: mainBorder)),
-          tabBarTheme: TabBarTheme(
-            indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
-                insets: EdgeInsets.zero),
-            labelColor: colorScheme.primary,
-          ));
+  final theme = ThemeData(
+      brightness: colorScheme.brightness,
+      fontFamily: "Vazir",
+      primaryColor: colorScheme.primary,
+      colorScheme: getColorScheme(colorScheme),
+      scaffoldBackgroundColor:
+          elevation(colorScheme.surface, colorScheme.primary, 2),
+      primaryTextTheme: primaryTextTheme,
+      textTheme: textTheme,
+      cardColor: colorScheme.surface,
+      backgroundColor: colorScheme.background,
+      highlightColor: colorScheme.primary,
+      focusColor: colorScheme.primary.withAlpha(50));
+
+  return theme.copyWith(
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      snackBarTheme: SnackBarThemeData(
+          backgroundColor: colorScheme.inverseSurface,
+          actionTextColor: colorScheme.primaryInverse,
+          shape: const RoundedRectangleBorder(borderRadius: secondaryBorder)),
+      popupMenuTheme: PopupMenuThemeData(
+          textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
+          shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
+          color: colorScheme.surface),
+      dividerTheme: const DividerThemeData(space: 1.0, thickness: 1.0),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(borderRadius: secondaryBorder),
+      ),
+      appBarTheme: AppBarTheme(
+          color: colorScheme.surface,
+          elevation: 0,
+          titleTextStyle: textTheme.headline5,
+          toolbarTextStyle: textTheme.headline6,
+          iconTheme: IconThemeData(color: colorScheme.primary)),
+      sliderTheme: SliderThemeData(
+        thumbColor: colorScheme.primary,
+        trackHeight: 2.25,
+        activeTrackColor: colorScheme.primary,
+        inactiveTrackColor: colorScheme.surface,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.5),
+      ),
+      chipTheme: theme.chipTheme.copyWith(
+        backgroundColor: colorScheme.surface,
+        labelStyle:
+            theme.chipTheme.labelStyle.copyWith(color: colorScheme.onSurface),
+        shape: const RoundedRectangleBorder(borderRadius: chipBorder),
+        side: BorderSide(width: 1.0, color: colorScheme.outline),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+        side: BorderSide(width: 1.0, color: colorScheme.outline),
+      )),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+      )),
+      textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
+      )),
+      dialogTheme: const DialogTheme(
+          shape: RoundedRectangleBorder(borderRadius: mainBorder)),
+      tabBarTheme: TabBarTheme(
+        indicator: UnderlineTabIndicator(
+            borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
+            insets: EdgeInsets.zero),
+        labelColor: colorScheme.primary,
+      ));
 }
 
 ExtraThemeData getExtraThemeData(

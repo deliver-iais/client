@@ -55,7 +55,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                     textAlign: TextAlign.center))),
         TimeAndSeenStatus(message, isSender, isSeen,
             backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerVariant())
+            foregroundColor: colorScheme.onPrimaryContainerLowlight())
       ],
     );
   }

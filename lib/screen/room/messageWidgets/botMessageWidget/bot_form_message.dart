@@ -158,7 +158,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         ),
         TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
             backgroundColor: widget.colorScheme.primaryContainer,
-            foregroundColor: widget.colorScheme.onPrimaryContainerVariant()),
+            foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
       ],
     );
   }
