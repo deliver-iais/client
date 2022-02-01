@@ -76,7 +76,7 @@ class PersistentEventMessage extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                           color: theme.chipTheme.backgroundColor,
-                          borderRadius: chipBorder,
+                          borderRadius: tertiaryBorder,
                           border: Border.fromBorderSide(theme.chipTheme.side!)),
                       padding: const EdgeInsets.only(
                           top: 5, left: 8.0, right: 8.0, bottom: 4.0),

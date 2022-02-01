@@ -51,7 +51,7 @@ class TimeAndSeenStatus extends StatelessWidget {
             ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
             : null,
         decoration:
-            BoxDecoration(color: backgroundColor, borderRadius: chipBorder),
+            BoxDecoration(color: backgroundColor, borderRadius: tertiaryBorder),
         child: DefaultTextStyle(
           style: TextStyle(
             color: foregroundColor,

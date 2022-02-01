@@ -248,7 +248,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
         backgroundColor: colorScheme.surface,
         labelStyle:
             theme.chipTheme.labelStyle.copyWith(color: colorScheme.onSurface),
-        shape: const RoundedRectangleBorder(borderRadius: chipBorder),
+        shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
         side: BorderSide(width: 1.0, color: colorScheme.outline),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(

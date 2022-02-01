@@ -191,7 +191,7 @@ class _BoxContentState extends State<BoxContent> {
       padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
-        borderRadius: mainBorder,
+        borderRadius: tertiaryBorder,
         color: widget.colorScheme.primary,
       ),
       child: FutureBuilder<String>(
