@@ -16,6 +16,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/groupCall.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
@@ -713,20 +714,29 @@ class _RoomPageState extends State<RoomPage> {
           },
         ),
         actions: [
-          if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
+          if (!isLinux())
             IconButton(
                 onPressed: () {
-                  _routingService.openCallScreen(
-                      _currentRoom.value!.uid.asUid(),isVideoCall: true,
-                      context: context);
-                  },
+                  if (_currentRoom.value!.uid.asUid().isUser()) {
+                    _routingService.openCallScreen(
+                        _currentRoom.value!.uid.asUid(),
+                        isVideoCall: true,
+                        context: context);
+                  } else if (_currentRoom.value!.uid.asUid().isGroup()) {
+                    GroupCall().createGroupCallBottomSheet(context);
+                  }
+                },
                 icon: const Icon(Icons.videocam)),
-          if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
+          if (!isLinux())
             IconButton(
                 onPressed: () {
-                  _routingService.openCallScreen(
-                      _currentRoom.value!.uid.asUid(),
-                      context: context);
+                  if (_currentRoom.value!.uid.asUid().isUser()) {
+                    _routingService.openCallScreen(
+                        _currentRoom.value!.uid.asUid(),
+                        context: context);
+                  } else if (_currentRoom.value!.uid.asUid().isGroup()) {
+                    GroupCall().createGroupCallBottomSheet(context);
+                  }
                 },
                 icon: const Icon(Icons.call)),
           if (_currentRoom.value!.uid.asUid().isUser())
