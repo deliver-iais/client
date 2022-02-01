@@ -9,7 +9,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -103,7 +102,6 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isSender =
         AnimatedEmoji._authRepo.isCurrentUserSender(widget.message);
 
