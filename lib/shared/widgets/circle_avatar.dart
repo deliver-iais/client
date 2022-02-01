@@ -69,7 +69,7 @@ class CircleAvatarWidget extends StatelessWidget {
           height: radius * 2,
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radius / 1.25),
+              shape: BoxShape.circle,
               gradient: !isSystem()
                   ? LinearGradient(colors: [
                       changeColor(color, saturation: 0.8, lightness: 0.4),
