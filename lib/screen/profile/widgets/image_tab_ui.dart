@@ -13,6 +13,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class ImageTabUi extends StatefulWidget {
   final int imagesCount;
@@ -65,15 +66,15 @@ class _ImageTabUiState extends State<ImageTabUi> {
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllImage(
-                                  uid: widget.userUid,
+                                  uid: widget.userUid.asString(),
                                   hasPermissionToDeletePic: true,
-                                  mediaPosition: position,
-                                  heroTag: "btn$position",
-                                  mediasLength: widget.imagesCount,
+                                  initIndex: position,
+                                  medias: snaps.data!,
                                 );
                               },
                               child: Hero(
-                                tag: "btn$position",
+                                tag: jsonDecode(
+                                    snaps.data![position].json)["uuid"],
                                 child: Container(
                                     decoration: BoxDecoration(
                                   image: DecorationImage(
@@ -92,11 +93,10 @@ class _ImageTabUiState extends State<ImageTabUi> {
                             return GestureDetector(
                               onTap: () {
                                 _routingService.openShowAllImage(
-                                  uid: widget.userUid,
+                                  uid: widget.userUid.asString(),
                                   hasPermissionToDeletePic: true,
-                                  mediaPosition: position,
-                                  heroTag: "btn$position",
-                                  mediasLength: widget.imagesCount,
+                                  initIndex: position,
+                                  medias: snaps.data!,
                                 );
                               },
                               child: SizedBox(
@@ -112,5 +112,16 @@ class _ImageTabUiState extends State<ImageTabUi> {
                 });
           }
         });
+  }
+
+  Widget buildWidget(){
+    return GridView.builder( itemCount: widget.imagesCount,gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3),itemBuilder: (c,index){
+      return FutureBuilder(future: _mediaQueryRepo.getMediaAtIndex(index),builder: (c,mediaSnapShot){
+        return Text("$index");
+
+      },);
+
+    });
   }
 }

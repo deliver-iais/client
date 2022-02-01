@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
@@ -17,6 +18,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
+import 'package:universal_html/html.dart';
 
 class MediaQueryRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -30,14 +32,18 @@ class MediaQueryRepo {
     try {
       var mediaResponse = await _queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
-      insertMediaMetaData(uid, mediaResponse);
+      updateMediaMetaData(uid, mediaResponse);
     } catch (e) {
       _logger.e(e);
     }
   }
 
-  Future insertMediaMetaData(
+  Future updateMediaMetaData(
       Uid uid, query_pb.GetMediaMetadataRes mediaResponse) async {
+    var oldMetaMediaData = await _mediaMetaDataDao.getAsFuture(uid.asString());
+    if (oldMetaMediaData != null) {
+      checkNeedFetchMedia(oldMetaMediaData, mediaResponse);
+    }
     _mediaMetaDataDao.save(MediaMetaData(
       roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
@@ -48,6 +54,39 @@ class MediaQueryRepo {
       musicsCount: mediaResponse.allMusicsCount.toInt(),
       linkCount: mediaResponse.allLinksCount.toInt(),
     ));
+  }
+
+  Future checkNeedFetchMedia(
+      MediaMetaData oldMediaMetaData, GetMediaMetadataRes newMetaData) async {
+    if (oldMediaMetaData.imagesCount != newMetaData.allImagesCount.toInt()) {
+      fetchNewMedia(
+          oldMediaMetaData.roomId,
+          oldMediaMetaData.imagesCount,
+          query_pb.FetchMediasReq_MediaType.IMAGES,
+          newMetaData.allImagesCount.toInt());
+    }
+    if (oldMediaMetaData.audiosCount != newMetaData.allAudiosCount.toInt()) {}
+    if (oldMediaMetaData.filesCount != newMetaData.allFilesCount.toInt()) {}
+    if (oldMediaMetaData.videosCount != newMetaData.allVideosCount.toInt()) {}
+  }
+
+  void fetchNewMedia(
+    String roomUid,
+    int imagesCount,
+    FetchMediasReq_MediaType mediaType,
+    int allImageCount,
+  )async  {
+    try {
+      int time = DateTime.now().millisecondsSinceEpoch;
+      while (imagesCount < allImageCount) {
+        var res = await  getMediaAtMonth(roomUid.asUid(), mediaType, time);
+        if(res!= null && res.isNotEmpty){
+          time = res.last.createdOn;
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<int?> getImageMediaCount(Uid uid) async {
@@ -95,6 +134,21 @@ class MediaQueryRepo {
       return combinedList.reversed.toList();
     } else {
       return mediasList.reversed.toList();
+    }
+  }
+
+  Future<List<Media>?> getMediaAtMonth(
+      Uid roomUid, FetchMediasReq_MediaType mediaType, int time) async {
+    try {
+      var getMediasReq = await _queryServiceClient.fetchMedias(FetchMediasReq()
+        ..roomUid = roomUid
+        ..pointer = Int64(time)
+        ..mediaType = mediaType
+        ..fetchingDirectionType =
+            FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
+      return _saveFetchedMedias(getMediasReq.medias, roomUid, mediaType);
+    } catch (e) {
+      _logger.e(e);
     }
   }
 

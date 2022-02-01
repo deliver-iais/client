@@ -1,4 +1,5 @@
 import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -133,13 +134,13 @@ class RoutingService {
       ));
 
   void openShowAllImage(
-          {required Uid uid,
+          {required String  uid,
           required bool hasPermissionToDeletePic,
-          required int mediaPosition,
-          required int mediasLength,
-          required String heroTag}) =>
+          required int initIndex,
+          required List<Media> medias,
+          }) =>
       _push(ShowAllImageOrAvatar(
-          const ValueKey("/media-details"), 100, uid.asString()));
+          const ValueKey("/media-details"), initIndex: initIndex, medias: medias,roomUid: uid,));
 
   void openCustomNotificationSoundSelection(String roomId) =>
       _push(CustomNotificationSoundSelection(

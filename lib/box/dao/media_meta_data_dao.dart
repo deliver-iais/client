@@ -6,6 +6,8 @@ abstract class MediaMetaDataDao {
   Future save(MediaMetaData mediaMetaData);
 
   Stream<MediaMetaData> get(String roomUid);
+
+  Future<MediaMetaData> getAsFuture(String roomUid);
 }
 
 class MediaMetaDataDaoImpl implements MediaMetaDataDao {
@@ -26,5 +28,11 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   static Future<Box<MediaMetaData>> _open() {
     BoxInfo.addBox(_key());
     return Hive.openBox<MediaMetaData>(_key());
+  }
+
+  @override
+  Future<MediaMetaData> getAsFuture(String roomUid) async {
+    var box = await _open();
+    return box.values.firstWhere((element) => element.roomId == roomUid);
   }
 }
