@@ -58,7 +58,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       child: FloatingActionButton(
                         backgroundColor: Colors.red,
                         child: const Icon(
-                          Icons.call_end,
+                          Icons.call_end_rounded,
                           size: 40,
                         ),
                         onPressed: () => _declineCall(),
