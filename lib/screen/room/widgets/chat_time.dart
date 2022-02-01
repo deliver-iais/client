@@ -9,29 +9,21 @@ class ChatTime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ValueNotifier<int> day = ValueNotifier<int>(DateTime.now().day);
+    String outT = '';
+    int currentDay = DateTime.now().day;
+    int currentMonth = DateTime.now().month;
+    if (currentDay == currentMessageTime.day &&
+        currentMonth == currentMessageTime.month) {
+      outT = 'Today';
+    } else if (currentDay - currentMessageTime.day < 2 &&
+        currentMonth == currentMessageTime.month) {
+      outT = 'Yesterday';
+    } else {
+      outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
+    }
     return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Chip(
-        side: BorderSide.none,
-        label: ValueListenableBuilder<int>(
-            valueListenable: day,
-            builder: (context, value, _) {
-              String outT = '';
-              int currentDay = DateTime.now().day;
-              int currentMonth = DateTime.now().month;
-              if (currentDay == currentMessageTime.day &&
-                  currentMonth == currentMessageTime.month) {
-                outT = 'Today';
-              } else if (currentDay - currentMessageTime.day < 2 &&
-                  currentMonth == currentMessageTime.month) {
-                outT = 'Yesterday';
-              } else {
-                outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
-              }
-              return Text(outT);
-            }),
-      ),
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Chip(side: BorderSide.none, label: Text(outT)),
     );
   }
 }
