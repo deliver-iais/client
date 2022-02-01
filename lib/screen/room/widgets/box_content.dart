@@ -89,22 +89,19 @@ class _BoxContentState extends State<BoxContent> {
           alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
           children: [
             RepaintBoundary(
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isDebugEnabled())
-                      DebugC(label: "message details", children: [
-                        Debug(widget.message.id, label: "id"),
-                        Debug(widget.message.packetId, label: "packetId"),
-                      ]),
-                    if (showSenderNameBox()) senderNameBox(),
-                    if (hasReply()) replyToIdBox(),
-                    if (isForwarded()) forwardedFromBox(),
-                    messageBox()
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isDebugEnabled())
+                    DebugC(label: "message details", children: [
+                      Debug(widget.message.id, label: "id"),
+                      Debug(widget.message.packetId, label: "packetId"),
+                    ]),
+                  if (showSenderNameBox()) senderNameBox(),
+                  if (hasReply()) replyToIdBox(),
+                  if (isForwarded()) forwardedFromBox(),
+                  messageBox()
+                ],
               ),
             ),
             isDesktop() | kIsWeb

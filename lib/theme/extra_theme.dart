@@ -11,9 +11,6 @@ class ExtraThemeData {
   final CustomColorScheme custom4;
   final CustomColorScheme custom5;
 
-  // TODO: Remove later on
-  Color onDetailsBox;
-
   Color lowlight() => colorScheme.onPrimary;
 
   Color highlight() => colorScheme.primary;
@@ -73,7 +70,6 @@ class ExtraThemeData {
     required this.custom3,
     required this.custom4,
     required this.custom5,
-    required this.onDetailsBox,
   });
 }
 

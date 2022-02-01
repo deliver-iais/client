@@ -178,7 +178,15 @@ class _ImageUiState extends State<ImageUi> {
                             ),
                           if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
-                                widget.message, widget.isSender, widget.isSeen)
+                              widget.message,
+                              widget.isSender,
+                              widget.isSeen,
+                              backgroundColor: widget.colorScheme
+                                  .onPrimaryContainerLowlight(),
+                              foregroundColor:
+                                  widget.colorScheme.primaryContainer,
+                              margin: const EdgeInsets.all(8),
+                            )
                         ],
                       ),
                     );
@@ -206,7 +214,16 @@ class _ImageUiState extends State<ImageUi> {
                           )),
                           if (widget.image.caption.isEmpty)
                             TimeAndSeenStatus(
-                                widget.message, widget.isSender, widget.isSeen)
+                              widget.message,
+                              widget.isSender,
+                              widget.isSeen,
+                              needsPadding: true,
+                              backgroundColor: widget.colorScheme
+                                  .onPrimaryContainerLowlight(),
+                              foregroundColor:
+                                  widget.colorScheme.primaryContainer,
+                              margin: const EdgeInsets.all(8),
+                            )
                         ],
                       ),
                     );

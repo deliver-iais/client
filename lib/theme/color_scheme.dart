@@ -282,7 +282,6 @@ ExtraThemeData getExtraThemeData(
     CustomColorScheme custom4,
     CustomColorScheme custom5) {
   return ExtraThemeData(
-    onDetailsBox: colorScheme.onPrimaryContainer,
     colorScheme: colorScheme,
     custom1: custom1,
     custom2: custom2,
