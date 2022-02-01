@@ -36,7 +36,7 @@ class ReplyBrief extends StatelessWidget {
               margin: const EdgeInsets.all(4.0),
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius: tertiaryBorder,
+                borderRadius: secondaryBorder,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

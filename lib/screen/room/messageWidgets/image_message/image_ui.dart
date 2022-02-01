@@ -181,7 +181,6 @@ class _ImageUiState extends State<ImageUi> {
                                 widget.colorScheme.onPrimaryContainerLowlight(),
                             foregroundColor:
                                 widget.colorScheme.primaryContainer,
-                            margin: const EdgeInsets.all(4),
                           )
                       ],
                     ),
@@ -218,7 +217,6 @@ class _ImageUiState extends State<ImageUi> {
                                 widget.colorScheme.onPrimaryContainerLowlight(),
                             foregroundColor:
                                 widget.colorScheme.primaryContainer,
-                            margin: const EdgeInsets.all(4),
                           )
                       ],
                     ),
