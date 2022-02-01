@@ -139,7 +139,7 @@ class CallRepo {
               receivedDeclinedCall();
               break;
             case CallEvent_CallStatus.ENDED:
-              receivedEndCall(callEvent.callDuration.toInt());
+              receivedEndCall(callEvent.callDuration.toInt(), false);
               break;
           }
           break;
@@ -210,18 +210,20 @@ class CallRepo {
     pc.onIceConnectionState = (e) {
       _logger.i(e);
       // we can do special work on every change in candidate Connection State
-      // switch(e){
-      //   case RTCIceConnectionState.RTCIceConnectionStateFailed:
-      //     break;
+      switch(e){
+      case RTCIceConnectionState.RTCIceConnectionStateFailed:
+        endCall(true);
+        break;
       //   case RTCIceConnectionState.RTCIceConnectionStateCompleted:
       //     //The ICE agent has finished gathering candidates, has checked all pairs against one another, and has found a connection for all components.
       //     break;
       //   case RTCIceConnectionState.RTCIceConnectionStateConnected:
       //     //A usable pairing of local and remote candidates has been found for all components of the connection, and the connection has been established. It is possible that gathering is still underway, and it is also possible that the ICE agent is still checking candidates against one another looking for a better connection to use.
       //     break;
-      //   case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-      //     break;
-      // }
+      case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+        callingStatus.add(CallStatus.DISCONNECTED);
+        break;
+      }
     };
 
     //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
@@ -254,7 +256,7 @@ class CallRepo {
             if (callingStatus.value == CallStatus.DISCONNECTED) {
               callingStatus.add(CallStatus.ENDED);
               _logger.i("Disconnected and Call End!");
-              endCall();
+              endCall(true);
             }
           });
           callingStatus.add(CallStatus.FAILED);
@@ -361,7 +363,7 @@ class CallRepo {
           case STATUS_CONNECTION_ENDED:
             //received end from Calle
             //receivedEndCall(0);
-            endCall();
+            endCall(false);
             break;
         }
       };
@@ -384,6 +386,9 @@ class CallRepo {
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
+    if(timerConnectionFailed != null) {
+      timerConnectionFailed!.cancel();
+    }
     _isConnected = true;
   }
 
@@ -431,8 +436,12 @@ class CallRepo {
           // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
-          callingStatus.add(CallStatus.CONNECTED);
-          if (!isVideo) startCallTimer();
+          if(!_isConnected) {
+            _startCallTimerAndChangeStatus();
+          }
+          if(timerConnectionFailed != null) {
+            timerConnectionFailed!.cancel();
+          }
           break;
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);
@@ -537,6 +546,7 @@ class CallRepo {
             'This notification appears when the foreground service is running.',
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
+        isSticky: false,
         iconData: const NotificationIconData(
           resType: ResourceType.mipmap,
           resPrefix: ResourcePrefix.ic,
@@ -578,7 +588,7 @@ class CallRepo {
       _receivePort = receivePort;
       _receivePort?.listen((message) {
         if (message == "endCall") {
-          endCall();
+          endCall(false);
         } else {
           _logger.i('receive callStatus: $message');
         }
@@ -674,7 +684,7 @@ class CallRepo {
             callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.ENDED);
           _logger.i("User Can't Answer!");
-          endCall();
+          endCall(false);
         }
       });
       _sendStartCallEvent();
@@ -762,12 +772,12 @@ class CallRepo {
     });
   }
 
-  Future<void> receivedEndCall(int callDuration) async {
+  Future<void> receivedEndCall(int callDuration, bool isForce) async {
     _logger.i("Call Duration Received: " + callDuration.toString());
     String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
-    if (_isCaller) {
+    if (isForce || (_isCaller && callDuration == 0)) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       messageRepo.sendCallMessage(
@@ -782,9 +792,11 @@ class CallRepo {
     await _dispose();
   }
 
-  endCall() async {
-    if (_isCaller) {
-      receivedEndCall(0);
+  endCall(bool isForce) async {
+    if(isForce){
+      receivedEndCall(0, isForce);
+    }else if (_isCaller) {
+      receivedEndCall(0, isForce);
     } else {
       _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
     }
@@ -877,7 +889,7 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTED) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.ENDED);
-        endCall();
+        endCall(false);
       }
     });
   }
@@ -909,8 +921,10 @@ class CallRepo {
     _logger.i("end call in service");
     await _cleanLocalStream();
     //await _cleanRtpSender();
-    await _peerConnection?.close();
-    await _peerConnection?.dispose();
+    if(_peerConnection != null) {
+      await _peerConnection?.close();
+      await _peerConnection?.dispose();
+    }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
     Timer(const Duration(seconds: 2), () {
@@ -931,6 +945,11 @@ class CallRepo {
     _callDuration = 0;
     _sdpConstraints = {};
     callTimer.add(CallTimer(0, 0, 0));
+    Timer(const Duration(seconds: 4), () async {
+      if(_isInitRenderer){
+        await disposeRenderer();
+      }
+    });
   }
 
   initRenderer() async {

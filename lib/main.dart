@@ -72,6 +72,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -311,7 +312,8 @@ class MyApp extends StatelessWidget {
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
               },
-              child: MaterialApp(
+              child: WithForegroundTask(
+                child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'Deliver',
                 locale: _i18n.locale,
@@ -341,7 +343,7 @@ class MyApp extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   child: c!,
                 ),
-              )),
+              ))),
         );
       },
     );

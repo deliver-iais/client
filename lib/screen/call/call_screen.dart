@@ -260,6 +260,6 @@ class _CallScreenState extends State<CallScreen> {
     // } else {
     //   Navigator.of(context).pop();
     // }
-    callRepo.endCall();
+    callRepo.endCall(false);
   }
 }
