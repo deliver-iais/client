@@ -35,17 +35,14 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     var _shareUid = message.json!.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-                primary: colorScheme.primary,
-                backgroundColor: colorScheme.onPrimary),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(primary: colorScheme.primary),
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(_shareUid.uid, 14,
@@ -99,7 +96,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                               forceText: _shareUid.name),
                           Text(
                             _shareUid.name,
-                            style: theme.textTheme.headline6,
+                            style: Theme.of(context).textTheme.headline6,
                           ),
                           const SizedBox(height: 10),
                           Row(
@@ -166,13 +163,11 @@ class ShareUidMessageWidget extends StatelessWidget {
               }
             },
           ),
-          TimeAndSeenStatus(
-            message,
-            isSender,
-            isSeen,
-            needsPositioned: false,
-            needsPadding: false,
-          ),
+          TimeAndSeenStatus(message, isSender, isSeen,
+              needsPositioned: false,
+              needsPadding: false,
+              backgroundColor: colorScheme.primaryContainer,
+              foregroundColor: colorScheme.onPrimaryContainerLowlight()),
         ],
       ),
     );

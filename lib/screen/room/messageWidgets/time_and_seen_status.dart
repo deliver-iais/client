@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   final bool isSeen;
   final bool needsPositioned;
   final bool needsPadding;
+  final EdgeInsets? margin;
   final Color? backgroundColor;
   final Color? foregroundColor;
 
@@ -22,6 +24,7 @@ class TimeAndSeenStatus extends StatelessWidget {
       this.needsPositioned = true,
       this.needsPadding = true,
       this.backgroundColor,
+      this.margin,
       this.foregroundColor})
       : super(key: key);
 
@@ -43,15 +46,16 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     return RepaintBoundary(
       child: Container(
+        margin: margin,
         padding: needsPadding
             ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
             : null,
-        color: backgroundColor,
+        decoration:
+            BoxDecoration(color: backgroundColor, borderRadius: chipBorder),
         child: DefaultTextStyle(
           style: TextStyle(
             color: foregroundColor,
             fontSize: 13,
-            // height: 1,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,

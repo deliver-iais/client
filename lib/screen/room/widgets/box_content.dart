@@ -9,7 +9,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_mes
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.dart';
 import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 
-import 'package:deliver/screen/room/messageWidgets/locatioin_message.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
@@ -89,26 +89,19 @@ class _BoxContentState extends State<BoxContent> {
           alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
           children: [
             RepaintBoundary(
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isDebugEnabled())
-                      DebugC(label: "message details", children: [
-                        Debug(widget.message.id, label: "id"),
-                        Debug(widget.message.packetId, label: "packetId"),
-                      ]),
-                    if (widget.isFirstMessageInGroupedMessages &&
-                        widget.message.roomUid.asUid().category ==
-                            Categories.GROUP &&
-                        !widget.isSender)
-                      senderNameBox(),
-                    if (hasReply()) replyToIdBox(),
-                    if (isForwarded()) forwardedFromBox(),
-                    messageBox()
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isDebugEnabled())
+                    DebugC(label: "message details", children: [
+                      Debug(widget.message.id, label: "id"),
+                      Debug(widget.message.packetId, label: "packetId"),
+                    ]),
+                  if (showSenderNameBox()) senderNameBox(),
+                  if (hasReply()) replyToIdBox(),
+                  if (isForwarded()) forwardedFromBox(),
+                  messageBox()
+                ],
               ),
             ),
             isDesktop() | kIsWeb
@@ -238,6 +231,7 @@ class _BoxContentState extends State<BoxContent> {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     }
 
@@ -246,7 +240,9 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: widget.minWidth,
+          minWidth: isForwarded() || hasReply() || showSenderNameBox()
+              ? widget.minWidth
+              : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
@@ -302,6 +298,7 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.FORM:
         return BotFormMessage(
           message: widget.message,
+          maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,
@@ -328,6 +325,7 @@ class _BoxContentState extends State<BoxContent> {
         return SharePrivateDataRequestMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
+          maxWidth: widget.maxWidth * 0.75,
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
@@ -356,5 +354,11 @@ class _BoxContentState extends State<BoxContent> {
 
   bool isForwarded() {
     return (widget.message.forwardedFrom?.length ?? 0) > 3;
+  }
+
+  bool showSenderNameBox() {
+    return widget.isFirstMessageInGroupedMessages &&
+        widget.message.roomUid.asUid().category == Categories.GROUP &&
+        !widget.isSender;
   }
 }

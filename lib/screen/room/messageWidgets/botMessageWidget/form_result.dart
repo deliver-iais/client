@@ -30,14 +30,12 @@ class _FormResultWidgetState extends State<FormResultWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     var formResult = widget.message.json!.toFormResult();
 
     return PageStorage(
       bucket: PageStorage.of(context)!,
-      child: Container(
+      child: SizedBox(
         width: 250,
-        color: Colors.black.withAlpha(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -49,7 +47,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   for (final key in formResult.values.keys)
                     if (key.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        padding: const EdgeInsets.only(top: 4, bottom: 2),
                         child: TextField(
                           enabled: false,
                           readOnly: true,
@@ -57,15 +55,12 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           controller: TextEditingController(
                               text: formResult.values[key]),
                           decoration: InputDecoration(
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                                borderRadius: secondaryBorder,
-                              ),
                               border: const OutlineInputBorder(
                                   borderRadius: secondaryBorder),
                               labelText: key,
-                              labelStyle: const TextStyle(
-                                  color: Colors.blue, fontSize: 16)),
+                              labelStyle: TextStyle(
+                                  color: widget.colorScheme.onPrimaryContainer,
+                                  fontSize: 16)),
                         ),
                       )
                 ],
@@ -79,13 +74,14 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.6,
-                      color: theme.colorScheme.onSurface.withAlpha(120),
+                      color: widget.colorScheme.onPrimaryContainerLowlight(),
                     )),
                 TimeAndSeenStatus(
                   widget.message,
                   widget.isSender,
                   widget.isSeen,
                   needsPositioned: false,
+                  foregroundColor: widget.colorScheme.onPrimaryContainer,
                 ),
               ],
             )

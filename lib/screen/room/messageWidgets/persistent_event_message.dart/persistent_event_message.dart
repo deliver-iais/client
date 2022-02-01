@@ -11,7 +11,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
@@ -53,10 +52,7 @@ class PersistentEventMessage extends StatelessWidget {
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
                   ),
-                  decoration: BoxDecoration(
-                    color:theme.dividerColor.withOpacity(0.25),
-                    borderRadius: mainBorder,
-                  ),
+                  decoration: const BoxDecoration(borderRadius: mainBorder),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -67,7 +63,7 @@ class PersistentEventMessage extends StatelessWidget {
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style:theme.textTheme.headline5),
+                            style: theme.textTheme.headline5),
                     ],
                   ),
                 ),
@@ -77,7 +73,11 @@ class PersistentEventMessage extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: BlurContainer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: theme.chipTheme.backgroundColor,
+                          borderRadius: chipBorder,
+                          border: Border.fromBorderSide(theme.chipTheme.side!)),
                       padding: const EdgeInsets.only(
                           top: 5, left: 8.0, right: 8.0, bottom: 4.0),
                       child: FutureBuilder<List<Widget>?>(
@@ -144,10 +144,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    height: 1,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    fontSize: 14, height: 1, fontWeight: FontWeight.bold),
               ),
               onTap: () => _routingServices.openRoom(persistentEventMessage
                   .mucSpecificPersistentEvent.issuer
@@ -169,10 +166,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    height: 1,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                    fontSize: 14, height: 1, fontWeight: FontWeight.bold),
               ),
               onTap: () => _routingServices.openRoom(persistentEventMessage
                   .mucSpecificPersistentEvent.assignee
@@ -192,10 +186,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    height: 1,
-                    color: Colors.white),
+                    fontSize: 14, fontWeight: FontWeight.bold, height: 1),
               ),
               onTap: () => onPinMessageClick!(persistentEventMessage
                   .mucSpecificPersistentEvent.messageId
@@ -208,7 +199,7 @@ class PersistentEventMessage extends StatelessWidget {
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
-          style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+          style: const TextStyle(fontSize: 14, height: 1),
         );
         return [
           issuerWidget,

@@ -24,13 +24,9 @@ class MessageWrapper extends StatelessWidget {
 
     if (isFirstMessageInGroupedMessages) {
       if (isSender) {
-        border = border.copyWith(
-            topRight: const Radius.circular(4),
-            topLeft: const Radius.circular(16));
+        border = border.copyWith(topRight: const Radius.circular(2));
       } else {
-        border = border.copyWith(
-            topRight: const Radius.circular(16),
-            topLeft: const Radius.circular(4));
+        border = border.copyWith(topLeft: const Radius.circular(2));
       }
     }
 

@@ -66,6 +66,7 @@ class CircleAvatarWidget extends StatelessWidget {
           key: _globalKey,
           width: radius * 2,
           height: radius * 2,
+          clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: !isSystem()
@@ -101,12 +102,12 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<String?> snapshot, Color textColor) {
     if (snapshot.hasData) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: kIsWeb
-            ? Image.network(snapshot.data!).image
-            : Image.file(File(snapshot.data!)).image,
-      );
+      return kIsWeb
+          ? Image.network(snapshot.data!, fit: BoxFit.fill)
+          : Image.file(
+              File(snapshot.data!),
+              fit: BoxFit.cover,
+            );
     } else {
       return showDisplayName(textColor);
     }

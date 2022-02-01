@@ -5,7 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
@@ -14,7 +13,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
-import '../size_formater.dart';
 import '../time_and_seen_status.dart';
 import 'download_video_widget.dart';
 
@@ -58,7 +56,7 @@ class _VideoMessageState extends State<VideoMessage> {
     Color foreground = widget.colorScheme.primary;
     File video = widget.message.json!.toFile();
     Duration duration = Duration(seconds: video.duration.round());
-    String videoLength = calculateVideoLength(duration);
+    String videoLength = formatDuration(duration);
     return Container(
       constraints: BoxConstraints(
           minWidth: widget.minWidth,
@@ -233,45 +231,57 @@ class _VideoMessageState extends State<VideoMessage> {
             ? (!isDesktop()) | (isDesktop() & false)
                 ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
-                    widget.message, widget.isSender, widget.isSeen)
+                    widget.message,
+                    widget.isSender,
+                    widget.isSeen,
+                    foregroundColor: widget.colorScheme.onPrimaryContainer,
+                  )
             : Container(),
         if (video.caption.isEmpty)
-          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen)
+          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+              backgroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+              foregroundColor: widget.colorScheme.primaryContainer)
       ],
     );
   }
 
   Widget videoDetails(String len, int size) {
-    return BlurContainer(
-      padding:
-          const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            len,
-            style: const TextStyle(color: Colors.white, fontSize: 10),
-          ),
-          Text(
-            sizeFormatter(size),
-            style: const TextStyle(color: Colors.white, fontSize: 10),
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: chipBorder,
+          color: widget.colorScheme.onPrimaryContainerLowlight()),
+      padding: const EdgeInsets.only(top: 3, bottom: 2, right: 3, left: 3),
+      child: Text(
+        len,
+        style: TextStyle(
+            color: widget.colorScheme.primaryContainer,
+            fontSize: 13,
+            fontStyle: FontStyle.italic),
       ),
     );
   }
 
-  String calculateVideoLength(Duration duration) {
-    String videoLength;
-    if (duration.inHours == 0) {
-      videoLength = duration.inMinutes > 9
-          ? duration.toString().substring(2, 7)
-          : duration.toString().substring(3, 7);
-    } else {
-      videoLength = duration.toString().split('.').first.padLeft(8, "0");
+  String formatDuration(Duration d) {
+    var seconds = d.inSeconds;
+    final days = seconds ~/ Duration.secondsPerDay;
+    seconds -= days * Duration.secondsPerDay;
+    final hours = seconds ~/ Duration.secondsPerHour;
+    seconds -= hours * Duration.secondsPerHour;
+    final minutes = seconds ~/ Duration.secondsPerMinute;
+    seconds -= minutes * Duration.secondsPerMinute;
+
+    final List<String> tokens = [];
+    if (days != 0) {
+      tokens.add('${days}d');
     }
-    return videoLength;
+    if (tokens.isNotEmpty || hours != 0) {
+      tokens.add('$hours'.padLeft(2, '0'));
+    }
+    if (tokens.isNotEmpty || minutes != 0) {
+      tokens.add('$minutes'.padLeft(2, '0'));
+    }
+    tokens.add('$seconds'.padLeft(2, '0'));
+
+    return tokens.join(':');
   }
 }
