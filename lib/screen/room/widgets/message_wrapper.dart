@@ -31,7 +31,7 @@ class MessageWrapper extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(2.0),
+      clipBehavior: Clip.hardEdge,
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2)
           .copyWith(top: isFirstMessageInGroupedMessages ? 16 : 4),
       decoration: BoxDecoration(

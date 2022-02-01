@@ -46,7 +46,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     return RepaintBoundary(
       child: Container(
-        margin: margin,
+        margin: margin ?? const EdgeInsets.symmetric(vertical: 4),
         padding: needsPadding
             ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
             : null,

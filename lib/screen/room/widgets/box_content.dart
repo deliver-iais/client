@@ -187,7 +187,7 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget forwardedFromBox() {
     return Container(
-      margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
+      margin: const EdgeInsets.only(left: 4, top: 4, bottom: 4, right: 4),
       padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
