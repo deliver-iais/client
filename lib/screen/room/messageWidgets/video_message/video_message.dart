@@ -56,7 +56,7 @@ class _VideoMessageState extends State<VideoMessage> {
     Color foreground = widget.colorScheme.primary;
     File video = widget.message.json!.toFile();
     Duration duration = Duration(seconds: video.duration.round());
-    String videoLength = calculateVideoLength(duration);
+    String videoLength = formatDuration(duration);
     return Container(
       constraints: BoxConstraints(
           minWidth: widget.minWidth,
@@ -261,15 +261,27 @@ class _VideoMessageState extends State<VideoMessage> {
     );
   }
 
-  String calculateVideoLength(Duration duration) {
-    String videoLength;
-    if (duration.inHours == 0) {
-      videoLength = duration.inMinutes > 9
-          ? duration.toString().substring(2, 7)
-          : duration.toString().substring(3, 7);
-    } else {
-      videoLength = duration.toString().split('.').first.padLeft(8, "0");
+  String formatDuration(Duration d) {
+    var seconds = d.inSeconds;
+    final days = seconds ~/ Duration.secondsPerDay;
+    seconds -= days * Duration.secondsPerDay;
+    final hours = seconds ~/ Duration.secondsPerHour;
+    seconds -= hours * Duration.secondsPerHour;
+    final minutes = seconds ~/ Duration.secondsPerMinute;
+    seconds -= minutes * Duration.secondsPerMinute;
+
+    final List<String> tokens = [];
+    if (days != 0) {
+      tokens.add('${days}d');
     }
-    return videoLength;
+    if (tokens.isNotEmpty || hours != 0) {
+      tokens.add('$hours'.padLeft(2, '0'));
+    }
+    if (tokens.isNotEmpty || minutes != 0) {
+      tokens.add('$minutes'.padLeft(2, '0'));
+    }
+    tokens.add('$seconds'.padLeft(2, '0'));
+
+    return tokens.join(':');
   }
 }
