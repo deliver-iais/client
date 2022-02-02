@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dcache/dcache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
-
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -33,9 +31,9 @@ class _ImageTabUiState extends State<ImageTabUi> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Media>>(
-        future: _mediaQueryRepo.getMedia(
-            widget.userUid, MediaType.IMAGE, widget.imagesCount),
+    return StreamBuilder<List<Media>>(
+        stream: _mediaQueryRepo.getMediaAsStream(
+            widget.userUid.asString(), MediaType.IMAGE),
         builder: (BuildContext c, AsyncSnapshot<List<Media>> snaps) {
           if (!snaps.hasData &&
               snaps.data == null &&
@@ -114,14 +112,14 @@ class _ImageTabUiState extends State<ImageTabUi> {
         });
   }
 
-  Widget buildWidget(){
-    return GridView.builder( itemCount: widget.imagesCount,gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3),itemBuilder: (c,index){
-      return FutureBuilder(future: _mediaQueryRepo.getMediaAtIndex(index),builder: (c,mediaSnapShot){
-        return Text("$index");
-
-      },);
-
-    });
-  }
+// Widget buildWidget(){
+//   return GridView.builder( itemCount: widget.imagesCount,gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//       crossAxisCount: 3),itemBuilder: (c,index){
+//     return FutureBuilder(future: _mediaQueryRepo.getMediaAtIndex(index),builder: (c,mediaSnapShot){
+//       return Text("$index");
+//
+//     },);
+//
+//   });
+// }
 }

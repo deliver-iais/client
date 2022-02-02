@@ -12,6 +12,8 @@ abstract class MediaDao {
   Future save(Media media);
 
   Future<List<Media>> getMediaAround(String roomId, int offset, MediaType type);
+
+  Stream<List<Media>>? getMediaAsStream(String roomUid, MediaType mediaType);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -53,6 +55,27 @@ class MediaDaoImpl implements MediaDao {
     res.addAll(medias);
     res.sort((a, b) => a.createdOn - b.createdOn);
     return res;
+  }
+
+  @override
+  Stream<List<Media>>? getMediaAsStream(
+      String roomUid, MediaType mediaType) async* {
+    var box = await _open(roomUid);
+
+    yield sorted(box.values
+        .where((element) =>
+            element.roomId.contains(roomUid) && element.type == mediaType)
+        .toList());
+
+    yield* box.watch().map((event) => sorted(box.values
+        .where((element) =>
+            element.roomId.contains(roomUid) && element.type == mediaType)
+        .toList()));
+  }
+
+  List<Media> sorted(List<Media> list) {
+    list.sort((a, b) => (b.messageId) - (a.messageId));
+    return list;
   }
 
   @override
