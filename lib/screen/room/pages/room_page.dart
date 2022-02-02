@@ -23,6 +23,7 @@ import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
+import 'package:deliver/screen/room/pages/message_list_view.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
@@ -48,7 +49,9 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get_it/get_it.dart';
+import 'package:great_list_view/great_list_view.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -120,8 +123,90 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = TextEditingController();
   final _inputMessageFocusNode = FocusNode();
 
+  void init2() {
+    // Listen on Pending Messages
+    // Listen on Room changes
+  }
+
+  final listController = AnimatedListController();
+  final scrollController = ScrollController();
+  final rnd = Random(42);
+
+  Widget build2(BuildContext context) {
+    return AnimatedListView(
+      initialItemCount: 1000,
+      itemBuilder: (context, index, data) {
+        return data.measuring
+            ? const SizedBox(height: 64)
+            : Container(
+                color: Colors.red,
+                child: Text(index.toString(),
+                    style: const TextStyle(fontSize: 20, color: Colors.white)),
+                margin: const EdgeInsets.all(8),
+                width: 100,
+                height: 50.0);
+      },
+      listController: listController,
+      scrollController: scrollController,
+      cacheExtent: 0,
+      initialScrollOffsetCallback: (c) {
+        const i = 820;
+        final box = listController.computeItemBox(i, true)!;
+        return max(0.0, box.top + (c.viewportMainAxisExtent));
+      },
+    );
+  }
+
+  Widget build3(BuildContext context) {
+    return FlutterListView(
+        delegate: FlutterListViewDelegate(
+      (BuildContext context, int index) {
+        print(index);
+        // return Container(
+        //     color: Colors.red,
+        //     child: Text(index.toString(),
+        //         style:
+        //         const TextStyle(fontSize: 20, color: Colors.white)),
+        //     margin: const EdgeInsets.all(8),
+        //     width: 100,
+        //     height: rnd.nextInt(50) + 40.0);
+        return FutureBuilder(
+            future: Future.delayed(const Duration(milliseconds: 10), () => ""),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || index < 820) {
+                Container(
+                    color: Colors.red,
+                    child: Text(index.toString(),
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.white)),
+                    margin: const EdgeInsets.all(8),
+                    width: 100,
+                    height: 100);
+              }
+              return Container(
+                  color: Colors.red,
+                  child: Text(index.toString(),
+                      style:
+                          const TextStyle(fontSize: 20, color: Colors.white)),
+                  margin: const EdgeInsets.all(8),
+                  width: 100,
+                  height: rnd.nextInt(50) + 40.0);
+            });
+      },
+      initIndex: 820,
+      childCount: 1000,
+    ));
+  }
+
+  Widget build4() {
+    return MessageListView();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // return build2(context);
+    // return build3(context);
+    return build4();
     return WillPopScope(
       onWillPop: () async {
         if ((_repliedMessage.value?.id ?? 0) > 0 ||
