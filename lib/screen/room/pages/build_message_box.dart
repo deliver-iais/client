@@ -288,7 +288,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                padding: const EdgeInsets.only(top: 2.0, left: 8.0),
                 child: CircleAvatarWidget(message.from.asUid(), 18,
                     isHeroEnabled: false),
               ),

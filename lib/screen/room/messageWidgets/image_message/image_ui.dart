@@ -66,6 +66,8 @@ class _ImageUiState extends State<ImageUi> {
       return Hero(
         tag: "${widget.message.id}-${widget.image.uuid}",
         child: Container(
+          clipBehavior: Clip.hardEdge,
+          decoration: const BoxDecoration(borderRadius: messageBorder),
           constraints: BoxConstraints(
               minWidth: widget.minWidth,
               maxWidth: widget.maxWidth,
