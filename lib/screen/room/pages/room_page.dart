@@ -16,7 +16,6 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/groupCall.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
@@ -714,54 +713,46 @@ class _RoomPageState extends State<RoomPage> {
           },
         ),
         actions: [
-          if (!isLinux())
+          if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
             IconButton(
                 onPressed: () {
-                  if (_currentRoom.value!.uid.asUid().isUser()) {
-                    _routingService.openCallScreen(
-                        _currentRoom.value!.uid.asUid(),
-                        isVideoCall: true,
-                        context: context);
-                  } else if (_currentRoom.value!.uid.asUid().isGroup()) {
-                    GroupCall().createGroupCallBottomSheet(context);
-                  }
+                  _routingService.openCallScreen(
+                      _currentRoom.value!.uid.asUid(),
+                      isVideoCall: true,
+                      context: context);
                 },
                 icon: const Icon(Icons.videocam)),
-          if (!isLinux())
+          if (_currentRoom.value!.uid.asUid().isUser() && !isLinux())
             IconButton(
                 onPressed: () {
-                  if (_currentRoom.value!.uid.asUid().isUser()) {
-                    _routingService.openCallScreen(
-                        _currentRoom.value!.uid.asUid(),
-                        context: context);
-                  } else if (_currentRoom.value!.uid.asUid().isGroup()) {
-                    GroupCall().createGroupCallBottomSheet(context);
-                  }
+                  _routingService.openCallScreen(
+                      _currentRoom.value!.uid.asUid(),
+                      context: context);
                 },
                 icon: const Icon(Icons.call)),
           if (_currentRoom.value!.uid.asUid().isUser())
-          StreamBuilder<bool>(
-              stream: _searchMode.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data!) {
-                  return IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        _searchMode.add(false);
-                      });
-                } else {
-                  return PopupMenuButton(
-                    icon: const Icon(Icons.more_vert),
-                    itemBuilder: (_) => <PopupMenuItem<String>>[
-                      PopupMenuItem<String>(
-                          child: Text(_i18n.get("search")), value: "search"),
-                    ],
-                    onSelected: (search) {
-                      _searchMode.add(true);
-                    },
-                  );
-                }
-              }),
+            StreamBuilder<bool>(
+                stream: _searchMode.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    return IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _searchMode.add(false);
+                        });
+                  } else {
+                    return PopupMenuButton(
+                      icon: const Icon(Icons.more_vert),
+                      itemBuilder: (_) => <PopupMenuItem<String>>[
+                        PopupMenuItem<String>(
+                            child: Text(_i18n.get("search")), value: "search"),
+                      ],
+                      onSelected: (search) {
+                        _searchMode.add(true);
+                      },
+                    );
+                  }
+                }),
         ],
         bottom: const PreferredSize(
           child: Divider(),
