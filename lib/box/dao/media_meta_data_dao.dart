@@ -7,7 +7,7 @@ abstract class MediaMetaDataDao {
 
   Stream<MediaMetaData> get(String roomUid);
 
-  Future<MediaMetaData> getAsFuture(String roomUid);
+  Future<MediaMetaData?> getAsFuture(String roomUid);
 }
 
 class MediaMetaDataDaoImpl implements MediaMetaDataDao {
@@ -31,8 +31,12 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   }
 
   @override
-  Future<MediaMetaData> getAsFuture(String roomUid) async {
+  Future<MediaMetaData?> getAsFuture(String roomUid) async {
     var box = await _open();
-    return box.values.firstWhere((element) => element.roomId == roomUid);
+    try {
+      return box.values.firstWhere((element) => element.roomId == roomUid);
+    } catch (e) {
+      return null;
+    }
   }
 }

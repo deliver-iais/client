@@ -39,6 +39,7 @@ class _ShowAllImageOrAvatarState extends State<ShowAllImageOrAvatar> {
     _fileCache =
         LruCache<int, String>(storage: InMemoryStorage(widget.medias.length));
     _currentIndex.add(widget.initIndex);
+    super.initState();
   }
 
   late ThemeData theme;
@@ -72,45 +73,47 @@ class _ShowAllImageOrAvatarState extends State<ShowAllImageOrAvatar> {
                       }
                     }),
               Expanded(
-                child: Swiper(
-                  itemCount: widget.medias.length,
-                  controller: _swiperController,
-                  index: widget.initIndex,
-                  viewportFraction: 1.0,
-                  scale: 0.9,
-                  loop: false,
-                  onIndexChanged: (index) => _currentIndex.add(index),
-                  itemBuilder: (c, index) {
-                    return Hero(
-                      tag: jsonDecode(widget.medias[index].json)["uuid"],
-                      child: FutureBuilder<String?>(
-                          initialData: _fileCache.get(index),
-                          future: _fileRepo.getFile(
-                              jsonDecode(widget.medias[index].json)["uuid"],
-                              jsonDecode(widget.medias[index].json)["name"]),
-                          builder: (c, filePath) {
-                            if (filePath.hasData && filePath.data != null) {
-                              _fileCache.set(index, filePath.data!);
-                              return InteractiveViewer(
-                                  child: AspectRatio(
-                                aspectRatio: jsonDecode(
-                                        widget.medias[index].json)["width"] /
-                                    jsonDecode(
-                                        widget.medias[index].json)["height"],
-                                child: kIsWeb
-                                    ? Image.network(filePath.data!)
-                                    : Image.file(File(filePath.data!)),
-                              ));
-                            } else {
-                              return BlurHash(
-                                hash: jsonDecode(
-                                    widget.medias[index].json)["blurHash"],
-                                imageFit: BoxFit.cover,
-                              );
-                            }
-                          }),
-                    );
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10, top: 10),
+                  child: Swiper(
+                    itemCount: widget.medias.length,
+                    controller: _swiperController,
+                    index: widget.initIndex,
+                    viewportFraction: 1.0,
+                    scale: 0.9,
+                    loop: false,
+                    onIndexChanged: (index) => _currentIndex.add(index),
+                    itemBuilder: (c, index) {
+                      return Hero(
+                        tag: jsonDecode(widget.medias[index].json)["uuid"],
+                        child: FutureBuilder<String?>(
+                            initialData: _fileCache.get(index),
+                            future: _fileRepo.getFile(
+                                jsonDecode(widget.medias[index].json)["uuid"],
+                                jsonDecode(widget.medias[index].json)["name"]),
+                            builder: (c, filePath) {
+                              if (filePath.hasData && filePath.data != null) {
+                                _fileCache.set(index, filePath.data!);
+                                return InteractiveViewer(
+                                    child: AspectRatio(
+                                  aspectRatio: jsonDecode(
+                                          widget.medias[index].json)["width"] /
+                                      jsonDecode(
+                                          widget.medias[index].json)["height"],
+                                  child: kIsWeb
+                                      ? Image.network(filePath.data!)
+                                      : Image.file(File(filePath.data!)),
+                                ));
+                              } else {
+                                return const Center(
+                                    child: CircularProgressIndicator(
+                                  color: Colors.blue,
+                                ));
+                              }
+                            }),
+                      );
+                    },
+                  ),
                 ),
               ),
               if (isDesktop())
@@ -135,27 +138,30 @@ class _ShowAllImageOrAvatarState extends State<ShowAllImageOrAvatar> {
           StreamBuilder<int>(
               stream: _currentIndex.stream,
               builder: (context, index) {
-                if ((jsonDecode(widget.medias[index.data!].json)["caption"])
-                        .toString()
-                        .isNotEmpty ||
-                    true) {
-                  return Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(left: 5, bottom: 5, right: 5),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: theme.hoverColor.withAlpha(100),
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Text(
-                            jsonDecode(
-                                widget.medias[index.data!].json)["caption"],
-                            style: theme.textTheme.bodyText2!
-                                .copyWith(height: 1, color: Colors.white),
+                if (index.hasData && index.data != null) {
+                  if ((jsonDecode(widget.medias[index.data!].json)["caption"])
+                      .toString()
+                      .isNotEmpty) {
+                    return Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 5, bottom: 5, right: 5),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: theme.hoverColor.withAlpha(100),
+                                borderRadius: BorderRadius.circular(5)),
+                            child: Text(
+                              jsonDecode(
+                                  widget.medias[index.data!].json)["caption"],
+                              style: theme.textTheme.bodyText2!
+                                  .copyWith(height: 1, color: Colors.white),
+                            ),
                           ),
-                        ),
-                      ));
+                        ));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
                 } else {
                   return const SizedBox.shrink();
                 }

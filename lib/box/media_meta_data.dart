@@ -1,4 +1,3 @@
-
 import 'package:deliver/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -6,25 +5,24 @@ part 'media_meta_data.g.dart';
 
 @HiveType(typeId: MEDIA_META_DATA_TRACK_ID)
 class MediaMetaData {
-
   // DbId
   @HiveField(0)
   String roomId;
 
   @HiveField(1)
-  int  imagesCount ;
+  int imagesCount;
 
   @HiveField(2)
-  int  videosCount;
+  int videosCount;
 
   @HiveField(3)
-  int  filesCount;
+  int filesCount;
 
   @HiveField(4)
-  int  documentsCount;
+  int documentsCount;
 
   @HiveField(5)
-  int  audiosCount;
+  int audiosCount;
 
   @HiveField(6)
   int musicsCount;

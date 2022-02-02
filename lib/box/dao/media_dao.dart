@@ -1,6 +1,7 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:hive/hive.dart';
 
@@ -14,6 +15,8 @@ abstract class MediaDao {
   Future<List<Media>> getMediaAround(String roomId, int offset, MediaType type);
 
   Stream<List<Media>>? getMediaAsStream(String roomUid, MediaType mediaType);
+
+  Stream<List<Media>>? getMediaAsStreamByIndex(String roomUid, MediaType mediaType);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -103,5 +106,20 @@ class MediaDaoImpl implements MediaDao {
       res.sort((a, b) => a.createdOn - b.createdOn);
       return res;
     }
+  }
+
+  @override
+  Stream<List<Media>>? getMediaAsStreamByIndex(String roomUid, MediaType mediaType)async* {
+    var box = await _open(roomUid);
+
+    yield sorted(box.values
+        .where((element) =>
+    element.roomId.contains(roomUid) && element.type == mediaType)
+        .toList());
+
+    yield* box.watch().map((event) => sorted(box.values
+        .where((element) =>
+    element.roomId.contains(roomUid) && element.type == mediaType)
+        .toList()));
   }
 }

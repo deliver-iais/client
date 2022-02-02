@@ -589,7 +589,7 @@ class _ProfilePageState extends State<ProfilePage>
       }
     }
     try {
-      _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+     await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
     } catch (e) {
       _logger.e(e);
     }

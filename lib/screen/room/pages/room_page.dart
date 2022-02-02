@@ -48,6 +48,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -103,6 +104,7 @@ class _RoomPageState extends State<RoomPage> {
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _scrollPhysics = const ClampingScrollPhysics();
+  final controller = FlutterListViewController();
 
   final BehaviorSubject<Message?> _repliedMessage =
       BehaviorSubject.seeded(null);
