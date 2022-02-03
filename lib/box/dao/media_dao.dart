@@ -1,7 +1,6 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:hive/hive.dart';
 
@@ -16,7 +15,8 @@ abstract class MediaDao {
 
   Stream<List<Media>>? getMediaAsStream(String roomUid, MediaType mediaType);
 
-  Stream<List<Media>>? getMediaAsStreamByIndex(String roomUid, MediaType mediaType);
+  Stream<List<Media>>? getMediaAsStreamByIndex(
+      String roomUid, MediaType mediaType);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -50,14 +50,11 @@ class MediaDaoImpl implements MediaDao {
   @override
   Future<List<Media>> getByRoomIdAndType(String roomUid, MediaType type) async {
     var box = await _open(roomUid);
-    List<Media> res = [];
-    var medias = box.values
+
+    return sorted(box.values
         .where((element) =>
             element.roomId.contains(roomUid) && element.type == type)
-        .toList();
-    res.addAll(medias);
-    res.sort((a, b) => a.createdOn - b.createdOn);
-    return res;
+        .toList());
   }
 
   @override
@@ -109,17 +106,18 @@ class MediaDaoImpl implements MediaDao {
   }
 
   @override
-  Stream<List<Media>>? getMediaAsStreamByIndex(String roomUid, MediaType mediaType)async* {
+  Stream<List<Media>>? getMediaAsStreamByIndex(
+      String roomUid, MediaType mediaType) async* {
     var box = await _open(roomUid);
 
     yield sorted(box.values
         .where((element) =>
-    element.roomId.contains(roomUid) && element.type == mediaType)
+            element.roomId.contains(roomUid) && element.type == mediaType)
         .toList());
 
     yield* box.watch().map((event) => sorted(box.values
         .where((element) =>
-    element.roomId.contains(roomUid) && element.type == mediaType)
+            element.roomId.contains(roomUid) && element.type == mediaType)
         .toList()));
   }
 }

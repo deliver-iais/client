@@ -100,10 +100,10 @@ class _ProfilePageState extends State<ProfilePage>
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
-        child: StreamBuilder<MediaMetaData>(
+        child: StreamBuilder<MediaMetaData?>(
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-            builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
+            builder: (context, AsyncSnapshot<MediaMetaData?> snapshot) {
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data!.imagesCount != 0) {

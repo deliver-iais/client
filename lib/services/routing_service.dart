@@ -12,7 +12,7 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
-import 'package:deliver/screen/profile/pages/show_all_image_or_avatar.dart';
+import 'package:deliver/screen/profile/pages/show_all_image.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
@@ -137,10 +137,10 @@ class RoutingService {
           {required String  uid,
           required bool hasPermissionToDeletePic,
           required int initIndex,
-          required List<Media> medias,
+          required int imageCount,
           }) =>
-      _push(ShowAllImageOrAvatar(
-          const ValueKey("/media-details"), initIndex: initIndex, medias: medias,roomUid: uid,));
+      _push(ShowAllImage(
+          const ValueKey("/media-details"), initIndex: initIndex,roomUid: uid,imageCount: imageCount,));
 
   void openCustomNotificationSoundSelection(String roomId) =>
       _push(CustomNotificationSoundSelection(
