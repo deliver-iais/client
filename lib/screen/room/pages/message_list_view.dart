@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_improved_scrolling/flutter_improved_scrolling.dart';
 
 class MessageListView extends StatefulWidget {
   const MessageListView({Key? key}) : super(key: key);
@@ -11,18 +12,16 @@ class MessageListView extends StatefulWidget {
 }
 
 class _MessageListViewState extends State<MessageListView> {
+  final controller = ScrollController();
+  final k = const ValueKey(1);
+
   @override
   Widget build(BuildContext context) {
     Key forwardListKey = UniqueKey();
     Widget forwardList = SliverAnimatedList(
       itemBuilder: _itemBuilder,
-      initialItemCount: 1,
+      initialItemCount: 0,
       key: forwardListKey,
-    );
-
-    Widget forwardList2 = SliverAnimatedList(
-      itemBuilder: _itemBuilder,
-      initialItemCount: 1,
     );
 
     Widget reverseList = SliverAnimatedList(
@@ -36,16 +35,18 @@ class _MessageListViewState extends State<MessageListView> {
           title: const Text('Endless List'),
         ),
         body: Scrollable(
+          controller: controller,
+          key: k,
           viewportBuilder: (BuildContext context, ViewportOffset offset) {
             print(offset);
             return Viewport(
                 offset: offset,
+                anchor: 1,
                 axisDirection: AxisDirection.down,
                 center: forwardListKey,
                 slivers: [
                   reverseList,
                   forwardList,
-                  forwardList2,
                 ]);
           },
         ),
@@ -57,6 +58,7 @@ class _MessageListViewState extends State<MessageListView> {
 
   Widget _itemBuilder2(
       BuildContext context, int index, Animation<double> animation) {
+    print("2 $index");
     return FutureBuilder(
         future: Future.delayed(const Duration(milliseconds: 1000), () => ""),
         builder: (context, snapshot) {
@@ -81,6 +83,7 @@ class _MessageListViewState extends State<MessageListView> {
 
   Widget _itemBuilder(
       BuildContext context, int index, Animation<double> animation) {
+    print("1 $index");
     return FutureBuilder(
         future: Future.delayed(const Duration(milliseconds: 1000), () => ""),
         builder: (context, snapshot) {
