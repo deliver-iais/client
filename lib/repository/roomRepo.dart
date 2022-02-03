@@ -274,7 +274,7 @@ class RoomRepo {
 
   Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
-  Future<Seen?> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+  Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
 
   Future<Seen?> getOthersSeen(String roomUid) =>
       _seenDao.getOthersSeen(roomUid);

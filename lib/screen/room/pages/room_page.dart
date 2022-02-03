@@ -48,9 +48,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get_it/get_it.dart';
-import 'package:great_list_view/great_list_view.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -226,7 +224,7 @@ class _RoomPageState extends State<RoomPage> {
               }
               return Positioned(
                 right: 20,
-                bottom: 80,
+                bottom: 70,
                 child: AnimatedScale(
                     child: scrollDownButtonWidget(),
                     scale: scale,
@@ -421,8 +419,8 @@ class _RoomPageState extends State<RoomPage> {
 
   _getLastSeen() async {
     Seen? seen = await _roomRepo.getOthersSeen(widget.roomId);
-    if (seen != null && seen.messageId != null) {
-      _lastSeenMessageId = seen.messageId!;
+    if (seen != null) {
+      _lastSeenMessageId = seen.messageId;
     }
   }
 
@@ -431,14 +429,12 @@ class _RoomPageState extends State<RoomPage> {
 
     var room = await _roomRepo.getRoom(widget.roomId);
 
-    if (seen != null && seen.messageId != null) {
-      _lastShowedMessageId = seen.messageId!;
-      if (room!.firstMessageId != null) {
-        _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId!;
-      }
-      if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
-        _lastShowedMessageId = -1;
-      }
+    _lastShowedMessageId = seen.messageId;
+    if (room!.firstMessageId != null) {
+      _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId!;
+    }
+    if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
+      _lastShowedMessageId = -1;
     }
   }
 

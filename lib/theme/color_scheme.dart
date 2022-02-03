@@ -260,6 +260,8 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
       )),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          shape: RoundedRectangleBorder(borderRadius: buttonBorder)),
       textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),

@@ -213,7 +213,7 @@ class MessageRepo {
         fetchCurrentUserLastSeen(rm.roomMeta);
       }
       var othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
-      if (othersSeen == null || othersSeen.messageId! < r.lastMessage!.id!) {
+      if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
         fetchOtherSeen(r.uid.asUid());
       }
     }
@@ -226,10 +226,8 @@ class MessageRepo {
             ..roomUid = roomUid
             ..messageId = Int64(id + 1));
       var s = await _seenDao.getMySeen(roomUid.asString());
-      if (s != null) {
-        _seenDao.saveMySeen(s.copy(
-            Seen(uid: roomUid.asString(), hiddenMessageCount: res.count)));
-      }
+      _seenDao.saveMySeen(
+          s.copy(newUid: roomUid.asString(), newHiddenMessageCount: res.count));
     } catch (e) {
       _logger.e(e);
     }
@@ -365,16 +363,13 @@ class MessageRepo {
               FetchCurrentUserSeenDataReq()..roomUid = room.roomUid);
 
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
-      if (lastSeen != null &&
-          lastSeen.messageId != null &&
-          lastSeen.messageId != -1 &&
-          lastSeen.messageId! >
+      if (lastSeen.messageId != -1 &&
+          lastSeen.messageId >
               max(fetchCurrentUserSeenData.seen.id.toInt(),
                   room.lastCurrentUserSentMessageId.toInt())) return;
       _seenDao.saveMySeen(Seen(
           uid: room.roomUid.asString(),
-          hiddenMessageCount:
-              lastSeen != null ? lastSeen.hiddenMessageCount ?? 0 : 0,
+          hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } on GrpcError catch (e) {
@@ -675,7 +670,7 @@ class MessageRepo {
 
   sendSeen(int messageId, Uid to) async {
     var seen = await _seenDao.getMySeen(to.asString());
-    if (seen != null && seen.messageId! >= messageId) return;
+    if (seen.messageId >= messageId) return;
     _coreServices.sendSeen(seen_pb.SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
@@ -1011,8 +1006,8 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            Room? room = await  _roomRepo.getRoom(msg.roomUid);
-            if(room!= null){
+            Room? room = await _roomRepo.getRoom(msg.roomUid);
+            if (room != null) {
               if (msg.id == room.lastMessageId) {
                 _roomDao.updateRoom(Room(
                     uid: msg.roomUid,
@@ -1020,7 +1015,6 @@ class MessageRepo {
                     lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
               }
             }
-
 
             msg.json = "{}";
             _messageDao.saveMessage(msg);
