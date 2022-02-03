@@ -76,18 +76,18 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> {
-  final _logger = GetIt.I.get<Logger>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _botRepo = GetIt.I.get<BotRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  int _lastSeenMessageId = -1;
+  static final _logger = GetIt.I.get<Logger>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _notificationServices = GetIt.I.get<NotificationServices>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _botRepo = GetIt.I.get<BotRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
 
+  int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   int _replyMessageId = -1;
@@ -510,12 +510,11 @@ class _RoomPageState extends State<RoomPage> {
                       : _itemCount);
               _lastShowedMessageId = -1;
             }),
-        if (_currentRoom.value!.lastMessage != null &&
+        if (_currentRoom.value?.lastMessage != null &&
             !_authRepo.isCurrentUser(_currentRoom.value!.lastMessage!.from))
           Positioned(
               top: 0,
               left: 0,
-              // alignment: Alignment.topLeft,
               child: UnreadMessageCounterWidget(
                   widget.roomId, _currentRoom.value!.lastMessageId!)),
       ],
@@ -528,44 +527,33 @@ class _RoomPageState extends State<RoomPage> {
           stream: _currentRoom.stream,
           builder: (c, s) {
             if (s.hasData &&
-                s.data != null &&
                 s.data!.uid.asUid().category == Categories.BOT &&
                 s.data!.lastMessageId == null) {
               return BotStartWidget(botUid: widget.roomId.asUid());
             } else {
-              return NewMessageInput(
-                currentRoomId: widget.roomId,
-                replyMessageId: _repliedMessage.value?.id ?? 0,
-                resetRoomPageDetails: _resetRoomPageDetails,
-                waitingForForward: _waitingForForwardedMessage.value,
-                sendForwardMessage: _sendForwardMessage,
-                scrollToLastSentMessage: scrollToLast,
-                focusNode: _inputMessageFocusNode,
-                textController: _inputMessageTextController,
-              );
+              return messageInput();
             }
           });
     } else {
-      return StreamBuilder(
-          stream:
-              MergeStream([_repliedMessage.stream, _editableMessage.stream]),
-          builder: (c, data) {
-            return NewMessageInput(
-              currentRoomId: widget.roomId,
-              replyMessageId: _repliedMessage.value != null
-                  ? _repliedMessage.value!.id!
-                  : 0,
-              editableMessage: _editableMessage.value,
-              resetRoomPageDetails: _resetRoomPageDetails,
-              waitingForForward: _waitingForForwardedMessage.value,
-              sendForwardMessage: _sendForwardMessage,
-              scrollToLastSentMessage: scrollToLast,
-              focusNode: _inputMessageFocusNode,
-              textController: _inputMessageTextController,
-            );
-          });
+      return messageInput();
     }
   }
+
+  Widget messageInput() => StreamBuilder(
+      stream: MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+      builder: (c, data) {
+        return NewMessageInput(
+          currentRoomId: widget.roomId,
+          replyMessageId: _repliedMessage.value?.id ?? 0,
+          editableMessage: _editableMessage.value,
+          resetRoomPageDetails: _resetRoomPageDetails,
+          waitingForForward: _waitingForForwardedMessage.value,
+          sendForwardMessage: _sendForwardMessage,
+          scrollToLastSentMessage: scrollToLast,
+          focusNode: _inputMessageFocusNode,
+          textController: _inputMessageTextController,
+        );
+      });
 
   PreferredSizeWidget buildAppbar() {
     final theme = Theme.of(context);
