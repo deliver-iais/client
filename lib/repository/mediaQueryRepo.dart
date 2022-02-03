@@ -324,14 +324,14 @@ class MediaQueryRepo {
     if (mediaList.length > index) {
       completer.complete(mediaList);
     } else {
-      completer.complete(await fetchMoreMedia(roomUid, type,
+      completer.complete(await fetchMoreMedia(roomUid, convertType(type),
           mediaList.isNotEmpty ? mediaList.last.createdOn : null));
     }
     return completer.future;
   }
 
-  Future<List<Media>?> fetchMoreMedia(
-      String roomUid, MediaType mediaType, int? pointer) async {
+  Future<List<Media>?> fetchMoreMedia(String roomUid,
+      FetchMediasReq_MediaType req_mediaType, int? pointer) async {
     try {
       if (pointer == null) {
         Room? room = await _roomRepo.getRoom(roomUid);
@@ -343,7 +343,7 @@ class MediaQueryRepo {
       }
       var result = await _queryServiceClient.fetchMedias(FetchMediasReq()
         ..pointer = Int64(pointer)
-        ..mediaType = FetchMediasReq_MediaType.IMAGES
+        ..mediaType = req_mediaType
         ..roomUid = roomUid.asUid()
         ..limit = 40
         ..year = DateTime.fromMillisecondsSinceEpoch(pointer).year
@@ -351,11 +351,11 @@ class MediaQueryRepo {
             FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
       if (result.medias.isNotEmpty) {
         return _saveFetchedMedias(
-            result.medias, roomUid.asUid(), FetchMediasReq_MediaType.IMAGES);
+            result.medias, roomUid.asUid(), req_mediaType);
       } else {
         return fetchMoreMedia(
             roomUid,
-            mediaType,
+            req_mediaType,
             DateTime(DateTime.fromMillisecondsSinceEpoch(pointer).year - 1, 12,
                     30)
                 .millisecondsSinceEpoch);

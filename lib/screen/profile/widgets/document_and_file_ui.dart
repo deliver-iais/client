@@ -7,7 +7,12 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
@@ -31,20 +36,45 @@ class DocumentAndFileUi extends StatefulWidget {
 class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var messageRepo = GetIt.I.get<MessageRepo>();
-  var fileRepo = GetIt.I.get<FileRepo>();
+
+  final _fileServices = GetIt.I.get<FileService>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _mediaCache = <int, Media>{};
 
   download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
     setState(() {});
   }
+  Future<Media?> _getMedia(int index) async {
+    if (_mediaCache.values.toList().isNotEmpty &&
+        _mediaCache.values.toList().length >= index) {
+      return _mediaCache.values.toList().elementAt(index);
+    } else {
+      int page = (index / MEDIA_PAGE_SIZE).floor();
+      var res = await _mediaQueryRepo.getMediaPage(
+          widget.roomUid.asString(), MediaType.FILE, page, index);
+      if (res != null) {
+        for (Media media in res) {
+          _mediaCache[media.messageId] = media;
+        }
+      }
+      return _mediaCache.values.toList()[index];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    return ListView.builder(itemBuilder: (c,index){
+      return FutureBuilder(future: _getMedia(index),builder: (c,snapShot){
+        
+      });
+    });
 
     return FutureBuilder<List<Media>>(
-        future: mediaQueryRepo.getMedia(
-            widget.roomUid, widget.type, widget.documentCount),
+        future: _getMedia(),
         builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
           if (!media.hasData ||
               media.data == null ||

@@ -133,6 +133,7 @@ class _ShowAllVideoState extends State<ShowAllVideo> {
                                     } else {
                                       return VideoPlayerWidget(
                                         videoFilePath: filePath.data!,
+                                        showAppBar: false,
                                       );
                                     }
                                   } else {
