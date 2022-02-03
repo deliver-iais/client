@@ -225,7 +225,7 @@ class _ProfilePageState extends State<ProfilePage>
                             if (snapshot.hasData &&
                                 snapshot.data!.videosCount != 0)
                               VideoTabUi(
-                                  userUid: widget.roomUid,
+                                  roomUid: widget.roomUid,
                                   videoCount: snapshot.data!.videosCount),
                             if (snapshot.hasData &&
                                 snapshot.data!.filesCount != 0)

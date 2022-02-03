@@ -13,6 +13,7 @@ import 'package:deliver/screen/profile/pages/custom_notification_sound_selection
 import 'package:deliver/screen/profile/pages/media_details_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/profile/pages/show_all_image.dart';
+import 'package:deliver/screen/profile/pages/show_all_video.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
@@ -124,23 +125,27 @@ class RoutingService {
 
   void openShowAllVideos(
           {required Uid uid,
-          required int mediaPosition,
-          required int mediasLength}) =>
-      _push(MediaDetailsPage.showVideo(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
+          required int initIndex,
+          required int videosLength}) =>
+      _push(ShowAllVideo(
+        const ValueKey("/media-details"),
+        roomUid: uid.asString(),
+        initIndex: initIndex,
+        videoCount: videosLength,
       ));
 
-  void openShowAllImage(
-          {required String  uid,
-          required bool hasPermissionToDeletePic,
-          required int initIndex,
-          required int imageCount,
-          }) =>
+  void openShowAllImage({
+    required String uid,
+    required bool hasPermissionToDeletePic,
+    required int initIndex,
+    required int imageCount,
+  }) =>
       _push(ShowAllImage(
-          const ValueKey("/media-details"), initIndex: initIndex,roomUid: uid,imageCount: imageCount,));
+        const ValueKey("/media-details"),
+        initIndex: initIndex,
+        roomUid: uid,
+        imageCount: imageCount,
+      ));
 
   void openCustomNotificationSoundSelection(String roomId) =>
       _push(CustomNotificationSoundSelection(
