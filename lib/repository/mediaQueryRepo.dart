@@ -149,15 +149,7 @@ class MediaQueryRepo {
     }
   }
 
-  Future<int?> getImageMediaCount(Uid uid) async {
-    try {
-      var mediaRes = await _queryServiceClient
-          .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
-      return mediaRes.allImagesCount.toInt();
-    } catch (e) {
-      return null;
-    }
-  }
+
 
   Stream<MediaMetaData?> getMediasMetaDataCountFromDB(Uid roomId) {
     return _mediaMetaDataDao.get(roomId.asString());
