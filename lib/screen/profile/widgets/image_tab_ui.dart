@@ -66,11 +66,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                     if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
                       return buildMediaWidget(mediaSnapShot.data!, index);
                     } else {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blue,
-                        ),
-                      );
+                      return const SizedBox.shrink();
                     }
                   },
                 );

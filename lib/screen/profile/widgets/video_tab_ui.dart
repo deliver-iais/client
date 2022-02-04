@@ -9,9 +9,11 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:open_file/open_file.dart';
 
 class VideoTabUi extends StatefulWidget {
   final Uid roomUid;
@@ -50,6 +52,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return StreamBuilder<MediaMetaData?>(
         stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
         builder: (context, snapshot) {
@@ -64,7 +67,8 @@ class _VideoTabUiState extends State<VideoTabUi> {
                   future: _getMedia(index),
                   builder: (c, mediaSnapShot) {
                     if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-                      return buildMediaWidget(mediaSnapShot.data!, index);
+                      return buildMediaWidget(
+                          mediaSnapShot.data!, index, theme);
                     } else {
                       return const SizedBox.shrink();
                     }
@@ -74,15 +78,13 @@ class _VideoTabUiState extends State<VideoTabUi> {
         });
   }
 
-  Container buildMediaWidget(Media media, int index) {
+  Container buildMediaWidget(Media media, int index, ThemeData theme) {
     double duration =
         double.parse(jsonDecode(media.json)["duration"].toString());
     var dur = Duration(seconds: duration.ceil());
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 2,
-        ),
+        border: Border.all(width: 3, color: theme.colorScheme.onPrimary),
       ),
       child: FutureBuilder<String?>(
           future: _fileRepo.getFileIfExist(
@@ -91,17 +93,21 @@ class _VideoTabUiState extends State<VideoTabUi> {
             if (snapshot.hasData && snapshot.data != null) {
               return GestureDetector(
                 onTap: () {
-                  _routingService.openShowAllVideos(
-                      uid: widget.roomUid,
-                      initIndex: index,
-                      videosLength: widget.videoCount);
+                  if (isDesktop()) {
+                    OpenFile.open(snapshot.data!);
+                  } else {
+                    _routingService.openShowAllVideos(
+                        uid: widget.roomUid,
+                        initIndex: index,
+                        videosLength: widget.videoCount);
+                  }
                 },
                 child: Stack(
                   children: [
-                    const Center(
+                    Center(
                       child: Icon(
                         Icons.play_circle_fill,
-                        color: Colors.blue,
+                        color: theme.colorScheme.primary,
                         size: 55,
                       ),
                     ),
@@ -113,13 +119,13 @@ class _VideoTabUiState extends State<VideoTabUi> {
               );
             } else {
               _fileServices.initProgressBar(jsonDecode(media.json)["uuid"]);
-              return downloadVideo(media);
+              return downloadVideo(media, theme);
             }
           }),
     );
   }
 
-  Widget downloadVideo(Media media) {
+  Widget downloadVideo(Media media, ThemeData theme) {
     return DownloadVideoWidget(
       name: jsonDecode(media.json)["name"],
       uuid: jsonDecode(media.json)["uuid"],
@@ -128,8 +134,8 @@ class _VideoTabUiState extends State<VideoTabUi> {
             jsonDecode(media.json)["uuid"], jsonDecode(media.json)["name"]);
         setState(() {});
       },
-      background: Colors.blue,
-      foreground: Colors.amber,
+      background: theme.colorScheme.onPrimary,
+      foreground: theme.colorScheme.primary,
     );
   }
 }

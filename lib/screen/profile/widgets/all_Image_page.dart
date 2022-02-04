@@ -16,22 +16,22 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ShowAllImage extends StatefulWidget {
+class AllImagePage extends StatefulWidget {
   final String roomUid;
   final int initIndex;
   final int imageCount;
 
-  const ShowAllImage(Key? key,
+  const AllImagePage(Key? key,
       {required this.roomUid,
       required this.initIndex,
       required this.imageCount})
       : super(key: key);
 
   @override
-  State<ShowAllImage> createState() => _ShowAllImageState();
+  State<AllImagePage> createState() => _AllImagePageState();
 }
 
-class _ShowAllImageState extends State<ShowAllImage> {
+class _AllImagePageState extends State<AllImagePage> {
   final SwiperController _swiperController = SwiperController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();

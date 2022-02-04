@@ -18,22 +18,22 @@ import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ShowAllVideo extends StatefulWidget {
+class AllVideoPage extends StatefulWidget {
   final String roomUid;
   final int initIndex;
   final int videoCount;
 
-  const ShowAllVideo(Key? key,
+  const AllVideoPage(Key? key,
       {required this.roomUid,
       required this.initIndex,
       required this.videoCount})
       : super(key: key);
 
   @override
-  State<ShowAllVideo> createState() => _ShowAllVideoState();
+  State<AllVideoPage> createState() => _AllVideoPageState();
 }
 
-class _ShowAllVideoState extends State<ShowAllVideo> {
+class _AllVideoPageState extends State<AllVideoPage> {
   final SwiperController _swiperController = SwiperController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();

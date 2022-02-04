@@ -91,7 +91,6 @@ class MediaQueryRepo {
           oldMediaMetaData.imagesCount,
           query_pb.FetchMediasReq_MediaType.IMAGES,
           getMediaMetadataRes.allImagesCount.toInt());
-      _updateMetaMediaData(roomUid, getMediaMetadataRes);
     }
     if (oldMediaMetaData.audiosCount !=
         getMediaMetadataRes.allAudiosCount.toInt()) {
@@ -125,6 +124,7 @@ class MediaQueryRepo {
           query_pb.FetchMediasReq_MediaType.LINKS,
           getMediaMetadataRes.allLinksCount.toInt());
     }
+    _updateMetaMediaData(roomUid, getMediaMetadataRes);
   }
 
   Future fetchLastMedia(
@@ -163,39 +163,7 @@ class MediaQueryRepo {
     return _mediaMetaDataDao.get(roomId.asString());
   }
 
-//TODO correction of performance
-  Future<List<Media>> getMedia(Uid uid, MediaType mediaType, int mediaCount,
-      {int messageId = 0}) async {
-    List<Media> mediasList = [];
-    mediasList = await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType);
-    if (mediasList.isEmpty) {
-      mediasList = await getLastMediasList(
-          uid,
-          convertType(mediaType),
-          DateTime.now().millisecondsSinceEpoch,
-          FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
 
-      return mediasList;
-    } else if (mediasList.length < mediaCount) {
-      int lastId = mediasList.last.messageId;
-      int pointer = messageId != 0 && lastId < messageId
-          ? mediasList.last.createdOn
-          : mediasList.first.createdOn;
-      var newMediasServerList = await getLastMediasList(
-          uid,
-          convertType(mediaType),
-          pointer,
-          messageId != 0 && lastId < messageId
-              ? FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
-              : FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
-      mediasList.removeAt(
-          messageId != 0 && lastId < messageId ? mediasList.length : 0);
-      var combinedList = [...newMediasServerList.reversed, ...mediasList];
-      return combinedList.reversed.toList();
-    } else {
-      return mediasList.reversed.toList();
-    }
-  }
 
   Future<void> _fetchLastMedia(Uid roomUid, FetchMediasReq_MediaType mediaType,
       int time, int year, int limit) async {
@@ -302,12 +270,6 @@ class MediaQueryRepo {
     }
   }
 
-  Future<List<Media>> getMediaAround(
-      String roomId, int offset, MediaType type) async {
-    var mediaList = await _mediaDao.getMediaAround(roomId, offset, type);
-    return mediaList;
-  }
-
   final _completerMap = <String, Completer<List<Media>?>>{};
 
   Future<List<Media>?> getMediaPage(
@@ -331,7 +293,7 @@ class MediaQueryRepo {
   }
 
   Future<List<Media>?> fetchMoreMedia(String roomUid,
-      FetchMediasReq_MediaType req_mediaType, int? pointer) async {
+      FetchMediasReq_MediaType mediaType, int? pointer) async {
     try {
       if (pointer == null) {
         Room? room = await _roomRepo.getRoom(roomUid);
@@ -343,7 +305,7 @@ class MediaQueryRepo {
       }
       var result = await _queryServiceClient.fetchMedias(FetchMediasReq()
         ..pointer = Int64(pointer)
-        ..mediaType = req_mediaType
+        ..mediaType = mediaType
         ..roomUid = roomUid.asUid()
         ..limit = 40
         ..year = DateTime.fromMillisecondsSinceEpoch(pointer).year
@@ -351,11 +313,11 @@ class MediaQueryRepo {
             FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
       if (result.medias.isNotEmpty) {
         return _saveFetchedMedias(
-            result.medias, roomUid.asUid(), req_mediaType);
+            result.medias, roomUid.asUid(), mediaType);
       } else {
         return fetchMoreMedia(
             roomUid,
-            req_mediaType,
+            mediaType,
             DateTime(DateTime.fromMillisecondsSinceEpoch(pointer).year - 1, 12,
                     30)
                 .millisecondsSinceEpoch);
@@ -383,14 +345,5 @@ class MediaQueryRepo {
       };
     }
     return jsonEncode(json);
-  }
-
-  Stream<List<Media>>? getMediaAsStream(String roomUid, MediaType mediaType) {
-    return _mediaDao.getMediaAsStream(roomUid, mediaType);
-  }
-
-  Stream<List<Media>>? getMediaAtIndex(
-      String roomUid, int index, MediaType mediaType) {
-    return _mediaDao.getMediaAsStream(roomUid, mediaType);
   }
 }

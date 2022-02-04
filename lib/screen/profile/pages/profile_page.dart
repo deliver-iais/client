@@ -16,6 +16,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/image_tab_ui.dart';
+import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
@@ -236,8 +237,8 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             if (snapshot.hasData &&
                                 snapshot.data!.linkCount != 0)
-                              linkWidget(widget.roomUid, _mediaQueryRepo,
-                                  snapshot.data!.linkCount),
+                              LinkTabUi(
+                                  snapshot.data!.linkCount, widget.roomUid),
                             if (snapshot.hasData &&
                                 snapshot.data!.documentsCount != 0)
                               DocumentAndFileUi(
@@ -248,14 +249,14 @@ class _ProfilePageState extends State<ProfilePage>
                             if (snapshot.hasData &&
                                 snapshot.data!.musicsCount != 0)
                               MusicAndAudioUi(
-                                  userUid: widget.roomUid,
-                                  type: FetchMediasReq_MediaType.MUSICS,
+                                  roomUid: widget.roomUid,
+                                  type: MediaType.MUSIC,
                                   mediaCount: snapshot.data!.musicsCount),
                             if (snapshot.hasData &&
                                 snapshot.data!.audiosCount != 0)
                               MusicAndAudioUi(
-                                  userUid: widget.roomUid,
-                                  type: FetchMediasReq_MediaType.AUDIOS,
+                                  roomUid: widget.roomUid,
+                                  type: MediaType.AUDIO,
                                   mediaCount: snapshot.data!.audiosCount),
                           ],
                           controller: _tabController,
@@ -589,7 +590,7 @@ class _ProfilePageState extends State<ProfilePage>
       }
     }
     try {
-     await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+      await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
     } catch (e) {
       _logger.e(e);
     }
@@ -1140,34 +1141,6 @@ class _ProfilePageState extends State<ProfilePage>
           );
         });
   }
-}
-
-Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
-  //TODO i just implemented and not tested because server problem
-  return FutureBuilder<List<Media>>(
-      future: mediaQueryRepo.getMedia(userUid, MediaType.LINK, linksCount),
-      builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
-        if (!snapshot.hasData ||
-            snapshot.data == null ||
-            snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(width: 0.0, height: 0.0);
-        } else {
-          return ListView.separated(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (BuildContext ctx, int index) {
-              return SizedBox(
-                child: LinkPreview(
-                  link: jsonDecode(snapshot.data![index].json)["url"],
-                  maxWidth: 100,
-                  isProfile: true,
-                ),
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider(),
-          );
-        }
-      });
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {

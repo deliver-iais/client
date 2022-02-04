@@ -10,10 +10,10 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
-import 'package:deliver/screen/profile/pages/media_details_page.dart';
+import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
-import 'package:deliver/screen/profile/pages/show_all_image.dart';
-import 'package:deliver/screen/profile/pages/show_all_video.dart';
+import 'package:deliver/screen/profile/widgets/all_Image_page.dart';
+import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
@@ -117,7 +117,7 @@ class RoutingService {
           {required Uid uid,
           required bool hasPermissionToDeleteAvatar,
           required String heroTag}) =>
-      _push(MediaDetailsPage.showAvatar(
+      _push(AllAvatarPage(
           key: const ValueKey("/media-details"),
           userUid: uid,
           hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
@@ -127,7 +127,7 @@ class RoutingService {
           {required Uid uid,
           required int initIndex,
           required int videosLength}) =>
-      _push(ShowAllVideo(
+      _push(AllVideoPage(
         const ValueKey("/media-details"),
         roomUid: uid.asString(),
         initIndex: initIndex,
@@ -140,7 +140,7 @@ class RoutingService {
     required int initIndex,
     required int imageCount,
   }) =>
-      _push(ShowAllImage(
+      _push(AllImagePage(
         const ValueKey("/media-details"),
         initIndex: initIndex,
         roomUid: uid,
