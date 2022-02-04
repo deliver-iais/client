@@ -115,7 +115,7 @@ class PinMessageAppBar extends StatelessWidget {
                                         ?.copyWith(
                                       color: ExtraTheme.of(context)
                                           .colorScheme
-                                          .primaryInverse,
+                                          .inversePrimary,
                                     ),
                                   ),
                                 if (mes != null)
@@ -126,10 +126,10 @@ class PinMessageAppBar extends StatelessWidget {
                                       showSeenStatus: false,
                                       primaryColor: ExtraTheme.of(context)
                                           .colorScheme
-                                          .primaryInverse,
+                                          .inversePrimary,
                                       naturalColor: ExtraTheme.of(context)
                                           .colorScheme
-                                          .onInverseSurface,
+                                          .inverseOnSurface,
                                       showSender: false),
                               ],
                             ),
@@ -143,7 +143,7 @@ class PinMessageAppBar extends StatelessWidget {
                                 CupertinoIcons.xmark,
                                 color: ExtraTheme.of(context)
                                     .colorScheme
-                                    .primaryInverse,
+                                    .inversePrimary,
                               ))
                         ],
                       ),
@@ -161,8 +161,8 @@ class PinMessageAppBar extends StatelessWidget {
   Color color(BuildContext context, int index) {
     final extraThemeData = ExtraTheme.of(context);
     return shouldHighlight(index, lastPinedMessage.value)
-        ? extraThemeData.colorScheme.primaryInverse
-        : Color.lerp(extraThemeData.colorScheme.primaryInverse,
+        ? extraThemeData.colorScheme.inversePrimary
+        : Color.lerp(extraThemeData.colorScheme.inversePrimary,
             extraThemeData.colorScheme.inverseSurface, 0.8)!;
   }
 

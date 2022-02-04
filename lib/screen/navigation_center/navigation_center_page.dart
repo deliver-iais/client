@@ -20,7 +20,6 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:cupertino_icons/cupertino_icons.dart';
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -130,20 +129,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   description: _featureDiscoveryDescriptionWidget(
                       description:
                           'for desktop app you can scan QR Code and login to your account'),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.colorScheme.primary,
-                    ),
-                    child: IconButton(
-                        onPressed: () {
-                          _routingService.openScanQrCode();
-                        },
-                        icon: Icon(
-                          CupertinoIcons.qrcode_viewfinder,
-                          color: theme.colorScheme.onPrimary,
-                        )),
-                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        _routingService.openScanQrCode();
+                      },
+                      icon: const Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                      )),
                 ),
               const SizedBox(
                 width: 8,
@@ -192,49 +184,43 @@ class _NavigationCenterState extends State<NavigationCenter> {
       description: _featureDiscoveryDescriptionWidget(
           description:
               'If you touch this icon you can create new channel or new group with the your contact'),
-      child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: theme.colorScheme.primary,
-          ),
-          child: IconTheme(
-            data: IconThemeData(
-              size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
-              color: PopupMenuTheme.of(context).textStyle?.color,
+      child: IconTheme(
+        data: IconThemeData(
+          size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
+          color: PopupMenuTheme.of(context).textStyle?.color,
+        ),
+        child: PopupMenuButton(
+            icon: const Icon(
+              CupertinoIcons.plus_app,
             ),
-            child: PopupMenuButton(
-                icon: Icon(
-                  CupertinoIcons.plus,
-                  color: theme.colorScheme.onPrimary,
-                ),
-                onSelected: selectChatMenu,
-                itemBuilder: (context) => [
-                      PopupMenuItem<String>(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(CupertinoIcons.group),
-                            const SizedBox(width: 8),
-                            Text(_i18n.get("newGroup")),
-                          ],
-                        ),
-                        value: "newGroup",
-                      ),
-                      PopupMenuItem<String>(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(CupertinoIcons.news),
-                            const SizedBox(width: 8),
-                            Text(
-                              _i18n.get("newChannel"),
-                            )
-                          ],
-                        ),
-                        value: "newChannel",
-                      )
-                    ]),
-          )),
+            onSelected: selectChatMenu,
+            itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(CupertinoIcons.group),
+                        const SizedBox(width: 8),
+                        Text(_i18n.get("newGroup")),
+                      ],
+                    ),
+                    value: "newGroup",
+                  ),
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(CupertinoIcons.news),
+                        const SizedBox(width: 8),
+                        Text(
+                          _i18n.get("newChannel"),
+                        )
+                      ],
+                    ),
+                    value: "newChannel",
+                  )
+                ]),
+      ),
     );
   }
 

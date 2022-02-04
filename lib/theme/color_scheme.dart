@@ -2,6 +2,8 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/blend/blend.dart';
+import 'package:material_color_utilities/hct/hct.dart';
+import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/palettes/tonal_palette.dart';
 
 class CustomColorScheme {
@@ -63,8 +65,8 @@ class Material3ColorScheme {
   final Color outline;
 
   final Color inverseSurface;
-  final Color onInverseSurface;
-  final Color primaryInverse;
+  final Color inverseOnSurface;
+  final Color inversePrimary;
 
   const Material3ColorScheme({
     required this.brightness,
@@ -92,17 +94,25 @@ class Material3ColorScheme {
     required this.onErrorContainer,
     required this.outline,
     required this.inverseSurface,
-    required this.onInverseSurface,
-    required this.primaryInverse,
+    required this.inverseOnSurface,
+    required this.inversePrimary,
   });
+
+  Material3ColorScheme.lightOfCorePalette(CorePalette palette)
+      : this.light(palette.primary, palette.secondary, palette.tertiary,
+            palette.error, palette.neutral, palette.neutralVariant);
+
+  Material3ColorScheme.darkOfCorePalette(CorePalette palette)
+      : this.dark(palette.primary, palette.secondary, palette.tertiary,
+            palette.error, palette.neutral, palette.neutralVariant);
 
   Material3ColorScheme.light(
       TonalPalette primaryTones,
       TonalPalette secondaryTones,
       TonalPalette tertiaryTones,
       TonalPalette errorTones,
-      TonalPalette naturalTones,
-      TonalPalette naturalVariantTones)
+      TonalPalette neutralTones,
+      TonalPalette neutralVariantTones)
       : brightness = Brightness.light,
         primary = Color(primaryTones.get(40)),
         onPrimary = Color(primaryTones.get(100)),
@@ -116,20 +126,20 @@ class Material3ColorScheme {
         onTertiary = Color(tertiaryTones.get(100)),
         tertiaryContainer = Color(tertiaryTones.get(90)),
         onTertiaryContainer = Color(tertiaryTones.get(10)),
-        surface = Color(naturalTones.get(99)),
-        onSurface = Color(naturalTones.get(10)),
-        surfaceVariant = Color(naturalVariantTones.get(90)),
-        onSurfaceVariant = Color(naturalVariantTones.get(30)),
+        surface = Color(neutralTones.get(99)),
+        onSurface = Color(neutralTones.get(10)),
+        surfaceVariant = Color(neutralVariantTones.get(90)),
+        onSurfaceVariant = Color(neutralVariantTones.get(30)),
         error = Color(errorTones.get(40)),
         onError = Color(errorTones.get(100)),
         errorContainer = Color(errorTones.get(90)),
         onErrorContainer = Color(errorTones.get(10)),
-        outline = Color(naturalVariantTones.get(50)),
-        inverseSurface = Color(naturalTones.get(20)),
-        onInverseSurface = Color(naturalTones.get(95)),
-        primaryInverse = Color(primaryTones.get(80)),
-        background = Color(naturalTones.get(99)),
-        onBackground = Color(naturalTones.get(10));
+        outline = Color(neutralVariantTones.get(50)),
+        inverseSurface = Color(neutralTones.get(20)),
+        inverseOnSurface = Color(neutralTones.get(95)),
+        inversePrimary = Color(primaryTones.get(80)),
+        background = Color(neutralTones.get(99)),
+        onBackground = Color(neutralTones.get(10));
 
   Material3ColorScheme.dark(
       TonalPalette primaryTones,
@@ -161,8 +171,8 @@ class Material3ColorScheme {
         onErrorContainer = Color(errorTones.get(90)),
         outline = Color(naturalVariantTones.get(60)),
         inverseSurface = Color(naturalTones.get(90)),
-        onInverseSurface = Color(naturalTones.get(20)),
-        primaryInverse = Color(primaryTones.get(40)),
+        inverseOnSurface = Color(naturalTones.get(20)),
+        inversePrimary = Color(primaryTones.get(40)),
         background = Color(naturalTones.get(10)),
         onBackground = Color(naturalTones.get(90));
 }
@@ -221,7 +231,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       visualDensity: VisualDensity.adaptivePlatformDensity,
       snackBarTheme: SnackBarThemeData(
           backgroundColor: colorScheme.inverseSurface,
-          actionTextColor: colorScheme.primaryInverse,
+          actionTextColor: colorScheme.inversePrimary,
           shape: const RoundedRectangleBorder(borderRadius: secondaryBorder)),
       popupMenuTheme: PopupMenuThemeData(
           textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
@@ -277,18 +287,21 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
 }
 
 ExtraThemeData getExtraThemeData(
-    Material3ColorScheme colorScheme,
-    CustomColorScheme custom1,
-    CustomColorScheme custom2,
-    CustomColorScheme custom3,
-    CustomColorScheme custom4,
-    CustomColorScheme custom5) {
+    Material3ColorScheme colorScheme, List<HctColor> customHctList) {
+  late final List<CustomColorScheme> _customColorSchemeList;
+
+  if (colorScheme.brightness == Brightness.light) {
+    _customColorSchemeList = customHctList
+        .map((e) => CustomColorScheme.light(
+            TonalPalette.of(e.hue, e.chroma), colorScheme.primary))
+        .toList();
+  } else {
+    _customColorSchemeList = customHctList
+        .map((e) => CustomColorScheme.dark(
+            TonalPalette.of(e.hue, e.chroma), colorScheme.primary))
+        .toList();
+  }
+
   return ExtraThemeData(
-    colorScheme: colorScheme,
-    custom1: custom1,
-    custom2: custom2,
-    custom3: custom3,
-    custom4: custom4,
-    custom5: custom5,
-  );
+      colorScheme: colorScheme, customColorsSchemeList: _customColorSchemeList);
 }

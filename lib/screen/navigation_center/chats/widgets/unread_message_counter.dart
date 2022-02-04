@@ -24,6 +24,10 @@ class UnreadMessageCounterWidget extends StatelessWidget {
           unreadCount = unreadCount - snapshot.data!.hiddenMessageCount!;
         }
 
+        if (!snapshot.hasData) {
+          unreadCount = 0;
+        }
+
         return AnimatedScale(
             scale: unreadCount > 0 ? 1 : 0,
             child: Container(
@@ -32,8 +36,10 @@ class UnreadMessageCounterWidget extends StatelessWidget {
               padding: const EdgeInsets.all(2.0),
               child: Text(
                 "${unreadCount >= 100 ? "+99" : unreadCount}",
-                style:
-                    TextStyle(fontSize: 12, color: theme.colorScheme.onPrimary, height: 1.2),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onPrimary,
+                    height: 1.2),
               ),
               alignment: Alignment.center,
               decoration: BoxDecoration(
