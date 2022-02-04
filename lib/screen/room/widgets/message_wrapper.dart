@@ -41,7 +41,7 @@ class MessageWrapper extends StatelessWidget {
         Container(
           clipBehavior: Clip.hardEdge,
           margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2)
-              .copyWith(top: isFirstMessageInGroupedMessages ? 16 : 2),
+              .copyWith(top: isFirstMessageInGroupedMessages ? (isSender ? 16 : 0) : 2),
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
@@ -52,7 +52,7 @@ class MessageWrapper extends StatelessWidget {
           Positioned(
             left: isSender ? null : 10 - width,
             right: !isSender ? null : 10 - width,
-            top: 16,
+            top: isSender ? 16 : 0,
             child: !isSender
                 ? CustomPaint(
                     size: const Size(width, height),

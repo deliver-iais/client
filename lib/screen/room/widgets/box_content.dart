@@ -97,7 +97,6 @@ class _BoxContentState extends State<BoxContent> {
                       Debug(widget.message.id, label: "id"),
                       Debug(widget.message.packetId, label: "packetId"),
                     ]),
-                  if (showSenderNameBox()) senderNameBox(),
                   if (hasReply()) replyToIdBox(),
                   if (isForwarded()) forwardedFromBox(),
                   messageBox()
@@ -146,45 +145,6 @@ class _BoxContentState extends State<BoxContent> {
           backgroundColor: widget.colorScheme.onPrimary,
           foregroundColor: widget.colorScheme.primary,
         ),
-      ),
-    );
-  }
-
-  Widget senderNameBox() {
-    return Container(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
-      child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.from.asUid()),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return showName(snapshot.data!);
-          } else {
-            return const Text("");
-          }
-        },
-      ),
-    );
-  }
-
-  Widget showName(String name) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        child: Container(
-          constraints:
-              BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
-          child: Text(
-            name.trim(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: TextStyle(
-                inherit: true, color: widget.colorScheme.onPrimaryContainer),
-          ),
-        ),
-        onTap: () {
-          _routingServices.openProfile(widget.message.from);
-        },
       ),
     );
   }
@@ -244,7 +204,7 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: isForwarded() || hasReply() || showSenderNameBox()
+          minWidth: isForwarded() || hasReply()
               ? widget.minWidth
               : 0,
           isSender: widget.isSender,
@@ -358,11 +318,5 @@ class _BoxContentState extends State<BoxContent> {
 
   bool isForwarded() {
     return (widget.message.forwardedFrom?.length ?? 0) > 3;
-  }
-
-  bool showSenderNameBox() {
-    return widget.isFirstMessageInGroupedMessages &&
-        widget.message.roomUid.asUid().category == Categories.GROUP &&
-        !widget.isSender;
   }
 }
