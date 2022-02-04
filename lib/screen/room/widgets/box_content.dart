@@ -24,6 +24,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -118,7 +119,11 @@ class _BoxContentState extends State<BoxContent> {
                         child: Container(
                           margin: const EdgeInsets.all(2),
                           child: const BlurContainer(
-                              child: Icon(Icons.arrow_drop_down_sharp)),
+                              padding: EdgeInsets.all(3),
+                              child: Icon(
+                                CupertinoIcons.chevron_down,
+                                size: 16,
+                              )),
                         ),
                       ),
                     ),
@@ -202,9 +207,9 @@ class _BoxContentState extends State<BoxContent> {
             child: GestureDetector(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.keyboard_arrow_right_rounded,
+                  Icon(CupertinoIcons.arrowshape_turn_up_right,
                       size: 15, color: widget.colorScheme.onPrimary),
                   Flexible(
                     child: Text(snapshot.data ?? "",

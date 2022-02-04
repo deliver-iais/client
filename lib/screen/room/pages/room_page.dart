@@ -45,6 +45,7 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -501,7 +502,7 @@ class _RoomPageState extends State<RoomPage> {
         FloatingActionButton(
             mini: true,
             child: const Icon(
-              Icons.arrow_downward_rounded,
+              CupertinoIcons.down_arrow,
             ),
             onPressed: () {
               _scrollToMessage(
@@ -566,7 +567,7 @@ class _RoomPageState extends State<RoomPage> {
             builder: (c, s) {
               if (s.hasData && s.data!) {
                 return IconButton(
-                    icon: const Icon(Icons.search),
+                    icon: const Icon(CupertinoIcons.search),
                     onPressed: () {
                       //   searchMessage(controller.text, checkSearchResult);
                     });
@@ -583,7 +584,7 @@ class _RoomPageState extends State<RoomPage> {
                               child: IconButton(
                                   color: theme.primaryColor,
                                   icon: const Icon(
-                                    Icons.clear,
+                                    CupertinoIcons.xmark,
                                     size: 25,
                                   ),
                                   onPressed: () {
@@ -746,7 +747,7 @@ class _RoomPageState extends State<RoomPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.keyboard_arrow_down,
+                          Icon(CupertinoIcons.chevron_down,
                               color: theme.primaryColor),
                           Text(
                             _i18n.get("unread_messages"),
@@ -972,10 +973,7 @@ class _RoomPageState extends State<RoomPage> {
               message: _i18n.get("forward"),
               child: IconButton(
                   color: theme.primaryColor,
-                  icon: const Icon(
-                    Icons.forward,
-                    size: 25,
-                  ),
+                  icon: const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   onPressed: () {
                     _routingService.openSelectForwardMessage(
                         forwardedMessages: _selectedMessages.values.toList());
@@ -986,10 +984,7 @@ class _RoomPageState extends State<RoomPage> {
               message: _i18n.get("delete"),
               child: IconButton(
                   color: theme.primaryColor,
-                  icon: const Icon(
-                    Icons.delete,
-                    size: 25,
-                  ),
+                  icon: const Icon(CupertinoIcons.delete),
                   onPressed: () {
                     showDeleteMsgDialog(
                       _selectedMessages.values.toList(),
@@ -1005,10 +1000,7 @@ class _RoomPageState extends State<RoomPage> {
             message: _i18n.get("copy"),
             child: IconButton(
                 color: Theme.of(context).primaryColor,
-                icon: const Icon(
-                  Icons.copy,
-                  size: 25,
-                ),
+                icon: const Icon(CupertinoIcons.doc_on_clipboard),
                 onPressed: () async {
                   String copyText = "";
                   List<Message> messages = _selectedMessages.values.toList();

@@ -14,11 +14,13 @@ import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:feature_discovery/feature_discovery.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -63,7 +65,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor:theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: GestureDetector(
@@ -98,8 +100,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Center(
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
-                        child:
-                            CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                        child: CircleAvatarWidget(_authRepo.currentUserUid, 20),
                       ),
                     ),
                     onTap: () {
@@ -111,9 +112,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
             ),
             titleSpacing: 8.0,
             title: TitleStatus(
-              style:theme.textTheme.headline6!,
+              style: theme.textTheme.headline6!,
               normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                  style:theme.textTheme.headline6,
+                  style: theme.textTheme.headline6,
                   key: ValueKey(randomString(10))),
             ),
             actions: [
@@ -121,7 +122,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 DescribedFeatureOverlay(
                   featureId: feature2,
                   tapTarget: const Icon(
-                    Icons.qr_code,
+                    CupertinoIcons.qrcode_viewfinder,
                   ),
                   backgroundColor: Colors.deepPurple,
                   targetColor: Colors.deepPurpleAccent,
@@ -132,15 +133,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color:theme.colorScheme.primary,
+                      color: theme.colorScheme.primary,
                     ),
                     child: IconButton(
                         onPressed: () {
                           _routingService.openScanQrCode();
                         },
                         icon: Icon(
-                          Icons.qr_code,
-                          color:theme.colorScheme.onPrimary,
+                          CupertinoIcons.qrcode_viewfinder,
+                          color: theme.colorScheme.onPrimary,
                         )),
                   ),
                 ),
@@ -184,8 +185,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     final theme = Theme.of(context);
     return DescribedFeatureOverlay(
       featureId: feature1,
-      tapTarget:
-          Icon(Icons.create, color:theme.colorScheme.onSurface),
+      tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,
       title: const Text('You can create new group and new channel'),
@@ -195,7 +195,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
       child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color:theme.colorScheme.primary,
+            color: theme.colorScheme.primary,
           ),
           child: IconTheme(
             data: IconThemeData(
@@ -204,8 +204,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
             ),
             child: PopupMenuButton(
                 icon: Icon(
-                  Icons.create,
-                  color:theme.colorScheme.onPrimary,
+                  CupertinoIcons.plus,
+                  color: theme.colorScheme.onPrimary,
                 ),
                 onSelected: selectChatMenu,
                 itemBuilder: (context) => [
@@ -213,7 +213,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const Icon(Icons.group),
+                            const Icon(CupertinoIcons.group),
                             const SizedBox(width: 8),
                             Text(_i18n.get("newGroup")),
                           ],
@@ -224,7 +224,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const Icon(Icons.rss_feed_rounded),
+                            const Icon(CupertinoIcons.news),
                             const SizedBox(width: 8),
                             Text(
                               _i18n.get("newChannel"),
@@ -276,7 +276,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     Text(_i18n.get("not_found"),
                         textAlign: TextAlign.center,
-                        style:theme.textTheme.headline6),
+                        style: theme.textTheme.headline6),
                   ],
                 );
               }
@@ -300,10 +300,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 4),
         width: double.infinity,
-        color:theme.dividerColor.withAlpha(10),
+        color: theme.dividerColor.withAlpha(10),
         child: Text(title,
             textAlign: TextAlign.center,
-            style:theme.primaryTextTheme.caption));
+            style: theme.primaryTextTheme.caption));
   }
 
   Future<List<List<Uid>>> searchUidList(String query) async {
@@ -354,7 +354,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                   return Text(
                     snaps.data ?? "",
-                    style:theme.textTheme.subtitle1,
+                    style: theme.textTheme.subtitle1,
                   );
                 }),
           ],
@@ -381,20 +381,16 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
                     'Understood',
-                    style:theme
-                        .textTheme
-                        .button!
-                        .copyWith(color: Colors.white),
+                    style:
+                        theme.textTheme.button!.copyWith(color: Colors.white),
                   ),
                 ),
                 TextButton(
                     onPressed: () => FeatureDiscovery.dismissAll(context),
                     child: Text(
                       'Dismiss',
-                      style:theme
-                          .textTheme
-                          .button!
-                          .copyWith(color: Colors.white),
+                      style:
+                          theme.textTheme.button!.copyWith(color: Colors.white),
                     )),
               ],
             ),
@@ -412,9 +408,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                           'sync contacts',
-                          style:theme
-                              .textTheme
-                              .button!
+                          style: theme.textTheme.button!
                               .copyWith(color: Colors.lightGreenAccent),
                         ),
                         const Icon(
