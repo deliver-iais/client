@@ -15,6 +15,7 @@ import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -126,7 +127,7 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            Icons.group_outlined,
+                                            CupertinoIcons.group,
                                             size: 16,
                                           ),
                                         ),
@@ -135,7 +136,7 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            Icons.rss_feed_outlined,
+                                            CupertinoIcons.news,
                                             size: 16,
                                           ),
                                         ),
@@ -144,7 +145,7 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            Icons.smart_toy_outlined,
+                                            CupertinoIcons.bolt_horizontal_circle,
                                             size: 16,
                                           ),
                                         ),
