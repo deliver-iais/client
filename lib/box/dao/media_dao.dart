@@ -11,7 +11,7 @@ abstract class MediaDao {
 
   Future save(Media media);
 
-  Future<List<Media>> getMediaAround(String roomId, int offset, MediaType type);
+  Future<int?> getIndexOfMedia(String roomUid, int messageId);
 
   Stream<List<Media>>? getMediaAsStream(String roomUid, MediaType mediaType);
 
@@ -38,6 +38,15 @@ class MediaDaoImpl implements MediaDao {
   Future<void> save(Media media) async {
     var box = await _open(media.roomId);
     box.put(media.messageId, media);
+  }
+
+  @override
+  Future<int?> getIndexOfMedia(
+      String roomUid, int messageId) async {
+    var box = await _open(roomUid);
+    return box.values
+        .toList().reversed.toList()
+        .indexWhere((element) => element.messageId == messageId);
   }
 
   static String _key(String roomUid) => "media-$roomUid";

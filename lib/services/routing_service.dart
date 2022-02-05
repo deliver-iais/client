@@ -93,10 +93,12 @@ class RoutingService {
 
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
+      List<Media> forwardedMedia = const [],
       bool popAllBeforePush = false,
       List<String>? inputFilePaths,
       pro.ShareUid? shareUid,
       bool forceToOpenRoom = false}) {
+    //todo forwardMedia
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
           RoomPage(
@@ -136,15 +138,12 @@ class RoutingService {
 
   void openShowAllImage({
     required String uid,
-    required bool hasPermissionToDeletePic,
-    required int initIndex,
-    required int imageCount,
+    required int messageId,
   }) =>
       _push(AllImagePage(
         const ValueKey("/media-details"),
-        initIndex: initIndex,
+        messageId: messageId,
         roomUid: uid,
-        imageCount: imageCount,
       ));
 
   void openCustomNotificationSoundSelection(String roomId) =>
@@ -167,10 +166,13 @@ class RoutingService {
       ));
 
   void openSelectForwardMessage(
-          {List<Message>? forwardedMessages, pro.ShareUid? sharedUid}) =>
+          {List<Message>? forwardedMessages,
+          List<Media>? medias,
+          pro.ShareUid? sharedUid}) =>
       _push(SelectionToForwardPage(
         key: const ValueKey("/selection-to-forward-page"),
         forwardedMessages: forwardedMessages,
+        medias: medias,
         shareUid: sharedUid,
       ));
 

@@ -1,17 +1,18 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -31,7 +32,7 @@ class MediaQueryRepo {
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
 
-  getMediaMetaDataReq(Uid uid) async {
+  fetchMediaMetaData(Uid uid, {bool updateAllMedia = true}) async {
     try {
       var mediaResponse = await _queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
@@ -41,12 +42,22 @@ class MediaQueryRepo {
     }
   }
 
+  saveMediaMetaData(MediaMetaData metaData) {
+    _mediaMetaDataDao.save(metaData);
+  }
+
+  Future<MediaMetaData?> getMediaMetaData(String roomUid) async {
+    return _mediaMetaDataDao.getAsFuture(roomUid);
+  }
+
   Future updateMediaMetaData(
-      Uid roomUid, query_pb.GetMediaMetadataRes mediaResponse) async {
+      Uid roomUid, query_pb.GetMediaMetadataRes mediaResponse,
+      {bool updateAllMedia = true}) async {
     MediaMetaData? oldMetaMediaData =
         await _mediaMetaDataDao.getAsFuture(roomUid.asString());
     if (oldMetaMediaData != null) {
-      checkNeedFetchMedia(roomUid.asString(), oldMetaMediaData, mediaResponse);
+      checkNeedFetchMedia(
+          roomUid.asString(), oldMetaMediaData, mediaResponse, updateAllMedia);
     } else {
       //get all image  for build  first tab
       fetchLastMedia(
@@ -83,7 +94,7 @@ class MediaQueryRepo {
   }
 
   Future checkNeedFetchMedia(String roomUid, MediaMetaData oldMediaMetaData,
-      GetMediaMetadataRes getMediaMetadataRes) async {
+      GetMediaMetadataRes getMediaMetadataRes, bool updateOtherMedia) async {
     if (oldMediaMetaData.imagesCount !=
         getMediaMetadataRes.allImagesCount.toInt()) {
       await fetchLastMedia(
@@ -92,38 +103,49 @@ class MediaQueryRepo {
           query_pb.FetchMediasReq_MediaType.IMAGES,
           getMediaMetadataRes.allImagesCount.toInt());
     }
-    if (oldMediaMetaData.audiosCount !=
-        getMediaMetadataRes.allAudiosCount.toInt()) {
-      fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.audiosCount,
-          query_pb.FetchMediasReq_MediaType.AUDIOS,
-          getMediaMetadataRes.allAudiosCount.toInt());
+    if (updateOtherMedia) {
+      if (oldMediaMetaData.audiosCount !=
+          getMediaMetadataRes.allAudiosCount.toInt()) {
+        fetchLastMedia(
+            oldMediaMetaData.roomId,
+            oldMediaMetaData.audiosCount,
+            query_pb.FetchMediasReq_MediaType.AUDIOS,
+            getMediaMetadataRes.allAudiosCount.toInt());
+      }
+      if (oldMediaMetaData.musicsCount !=
+          getMediaMetadataRes.allMusicsCount.toInt()) {
+        fetchLastMedia(
+            oldMediaMetaData.roomId,
+            oldMediaMetaData.audiosCount,
+            query_pb.FetchMediasReq_MediaType.MUSICS,
+            getMediaMetadataRes.allMusicsCount.toInt());
+      }
+      if (oldMediaMetaData.filesCount !=
+          getMediaMetadataRes.allFilesCount.toInt()) {
+        fetchLastMedia(
+            oldMediaMetaData.roomId,
+            oldMediaMetaData.filesCount,
+            query_pb.FetchMediasReq_MediaType.FILES,
+            getMediaMetadataRes.allFilesCount.toInt());
+      }
+      if (oldMediaMetaData.videosCount !=
+          getMediaMetadataRes.allVideosCount.toInt()) {
+        fetchLastMedia(
+            oldMediaMetaData.roomId,
+            oldMediaMetaData.videosCount,
+            query_pb.FetchMediasReq_MediaType.VIDEOS,
+            getMediaMetadataRes.allVideosCount.toInt());
+      }
+      if (oldMediaMetaData.linkCount !=
+          getMediaMetadataRes.allLinksCount.toInt()) {
+        fetchLastMedia(
+            oldMediaMetaData.roomId,
+            oldMediaMetaData.linkCount,
+            query_pb.FetchMediasReq_MediaType.LINKS,
+            getMediaMetadataRes.allLinksCount.toInt());
+      }
     }
-    if (oldMediaMetaData.filesCount !=
-        getMediaMetadataRes.allFilesCount.toInt()) {
-      fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.filesCount,
-          query_pb.FetchMediasReq_MediaType.FILES,
-          getMediaMetadataRes.allFilesCount.toInt());
-    }
-    if (oldMediaMetaData.videosCount !=
-        getMediaMetadataRes.allVideosCount.toInt()) {
-      fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.videosCount,
-          query_pb.FetchMediasReq_MediaType.VIDEOS,
-          getMediaMetadataRes.allVideosCount.toInt());
-    }
-    if (oldMediaMetaData.linkCount !=
-        getMediaMetadataRes.allLinksCount.toInt()) {
-      fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.linkCount,
-          query_pb.FetchMediasReq_MediaType.LINKS,
-          getMediaMetadataRes.allLinksCount.toInt());
-    }
+
     _updateMetaMediaData(roomUid, getMediaMetadataRes);
   }
 
@@ -142,20 +164,16 @@ class MediaQueryRepo {
             mediaType,
             room.lastMessage!.time,
             DateTime.fromMillisecondsSinceEpoch(room.lastMessage!.time).year,
-            allImageCount - imagesCount);
+            imagesCount != 0 ? allImageCount - imagesCount : 20);
       }
     } catch (e) {
       _logger.e(e);
     }
   }
 
-
-
   Stream<MediaMetaData?> getMediasMetaDataCountFromDB(Uid roomId) {
     return _mediaMetaDataDao.get(roomId.asString());
   }
-
-
 
   Future<void> _fetchLastMedia(Uid roomUid, FetchMediasReq_MediaType mediaType,
       int time, int year, int limit) async {
@@ -284,8 +302,18 @@ class MediaQueryRepo {
     return completer.future;
   }
 
-  Future<List<Media>?> fetchMoreMedia(String roomUid,
-      FetchMediasReq_MediaType mediaType, int? pointer) async {
+  saveMediaFromMessage(Message message) {
+    _mediaDao.save(Media(
+        createdOn: message.time,
+        json: buildJsonFromFile(message.json!.toFile()),
+        roomId: message.roomUid,
+        messageId: message.id!,
+        type: MediaType.IMAGE,
+        createdBy: message.from));
+  }
+
+  Future<List<Media>?> fetchMoreMedia(
+      String roomUid, FetchMediasReq_MediaType mediaType, int? pointer) async {
     try {
       if (pointer == null) {
         Room? room = await _roomRepo.getRoom(roomUid);
@@ -304,8 +332,7 @@ class MediaQueryRepo {
         ..fetchingDirectionType =
             FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
       if (result.medias.isNotEmpty) {
-        return _saveFetchedMedias(
-            result.medias, roomUid.asUid(), mediaType);
+        return _saveFetchedMedias(result.medias, roomUid.asUid(), mediaType);
       } else {
         return fetchMoreMedia(
             roomUid,
@@ -337,5 +364,19 @@ class MediaQueryRepo {
       };
     }
     return jsonEncode(json);
+  }
+
+  String buildJsonFromFile(File file) {
+    return jsonEncode({
+      "uuid": file.uuid,
+      "size": file.size.toInt(),
+      "type": file.type,
+      "name": file.name,
+      "caption": file.caption,
+      "width": file.width,
+      "height": file.height,
+      "blurHash": file.blurHash,
+      "duration": file.duration
+    });
   }
 }

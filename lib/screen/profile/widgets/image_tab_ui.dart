@@ -18,8 +18,9 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class ImageTabUi extends StatefulWidget {
   final int imagesCount;
   final Uid roomUid;
+  final List<Media> selected;
 
-  const ImageTabUi(this.imagesCount, this.roomUid, {Key? key})
+  const ImageTabUi(this.imagesCount, this.roomUid, {Key? key,required this.selected})
       : super(key: key);
 
   @override
@@ -78,54 +79,60 @@ class _ImageTabUiState extends State<ImageTabUi> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          width: 2,
+          width:widget.selected.isEmpty? 2:5,
         ),
       ),
-      child: FutureBuilder<String?>(
-          future: _fileRepo.getFileIfExist(
-              jsonDecode(media.json)["uuid"], jsonDecode(media.json)["name"]),
-          builder: (BuildContext c, AsyncSnapshot<String?> filePath) {
-            if (filePath.hasData && filePath.data != null) {
-              return GestureDetector(
-                onTap: () {
-                  _routingService.openShowAllImage(
-                      uid: widget.roomUid.asString(),
-                      hasPermissionToDeletePic: true,
-                      initIndex: index,
-                      imageCount: widget.imagesCount);
-                },
-                child: Hero(
-                  tag: jsonDecode(media.json)["uuid"],
-                  child: Container(
-                      decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: kIsWeb
-                          ? Image.network(filePath.data!).image
-                          : Image.file(
-                              File(filePath.data!),
-                            ).image,
-                      fit: BoxFit.cover,
+      child: Stack(
+        children: [
+          FutureBuilder<String?>(
+              future: _fileRepo.getFileIfExist(
+                  jsonDecode(media.json)["uuid"], jsonDecode(media.json)["name"]),
+              builder: (BuildContext c, AsyncSnapshot<String?> filePath) {
+                if (filePath.hasData && filePath.data != null) {
+                  return GestureDetector(
+                    onTap: () {
+                      _routingService.openShowAllImage(
+                          uid: widget.roomUid.asString(),
+                          messageId: media.messageId);
+                    },
+                    child: Hero(
+                      tag: jsonDecode(media.json)["uuid"],
+                      child: Container(
+                          decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: kIsWeb
+                              ? Image.network(filePath.data!).image
+                              : Image.file(
+                                  File(filePath.data!),
+                                ).image,
+                          fit: BoxFit.cover,
+                        ),
+                      )),
+                      transitionOnUserGestures: true,
                     ),
-                  )),
-                  transitionOnUserGestures: true,
-                ),
-              );
-            } else {
-              return GestureDetector(
-                onTap: () {
-                  _routingService.openShowAllImage(
-                      uid: widget.roomUid.asString(),
-                      hasPermissionToDeletePic: true,
-                      initIndex: index,
-                      imageCount: widget.imagesCount);
-                },
-                child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: BlurHash(hash: jsonDecode(media.json)["blurHash"])),
-              );
-            }
-          }),
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      _routingService.openShowAllImage(
+                          uid: widget.roomUid.asString(),
+                          messageId: media.messageId,);
+                    },
+                    child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: BlurHash(hash: jsonDecode(media.json)["blurHash"])),
+                  );
+                }
+              }),
+          Positioned(child: IconButton(onPressed: (){
+            widget.selected.add(media);
+            setState(() {
+
+            });
+          }, icon: Icon(Icons.assistant_direction_rounded)))
+        ],
+      ),
     );
   }
 }

@@ -2,8 +2,11 @@
 
 import 'dart:async';
 
+import 'package:deliver/box/dao/media_meta_data_dao.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -22,6 +25,7 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -62,6 +66,7 @@ class CoreServices {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
 
   Timer? _connectionTimer;
   var _lastPongTime = 0;
@@ -310,6 +315,9 @@ class CoreServices {
       if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
         _notificationServices.playSoundOut();
       }
+      if (msg.type == MessageType.FILE) {
+        _updateRoomMetaData(msg.roomUid, msg);
+      }
     }
   }
 
@@ -486,8 +494,31 @@ class CoreServices {
           deleted: false,
           lastUpdateTime: msg.time),
     );
+    if (message.whichType() == Message_Type.file) {
+      _updateRoomMetaData(roomUid.asString(), msg);
+    }
 
     return roomUid;
+  }
+
+  Future<void> _updateRoomMetaData(
+      String roomUid, message_pb.Message message) async {
+    try {
+      var file = message.json!.toFile();
+      if (file.type.contains("image") ||
+          file.type.contains("jpg") ||
+          file.type.contains("png")) {
+        var mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
+        if (mediaMetaData != null) {
+          _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
+              lastUpdateTime: message.time.toInt(),
+              imagesCount: mediaMetaData.imagesCount + 1));
+        }
+        _mediaQueryRepo.saveMediaFromMessage(message);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   void _saveRoomPresenceTypeChange(

@@ -38,7 +38,6 @@ class Room {
   @HiveField(9)
   int? lastUpdatedMessageId;
 
-
   Room(
       {required this.uid,
       this.lastMessage,

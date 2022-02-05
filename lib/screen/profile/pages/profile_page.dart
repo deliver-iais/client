@@ -78,6 +78,10 @@ class _ProfilePageState extends State<ProfilePage>
   String _roomName = "";
   bool _roomIsBlocked = false;
 
+  final BehaviorSubject<bool> _selectMediasForForward =
+      BehaviorSubject.seeded(false);
+  final List<Media> _selectedMedia = [];
+
   @override
   void initState() {
     _setupRoomSettings();
@@ -153,57 +157,89 @@ class _ProfilePageState extends State<ProfilePage>
                           (BuildContext context, bool innerBoxIsScrolled) {
                         return <Widget>[
                           _buildInfo(context),
-                          SliverPersistentHeader(
-                            pinned: true,
-                            delegate: _SliverAppBarDelegate(
-                                maxHeight: 45,
-                                minHeight: 45,
-                                child: Box(
-                                  borderRadius: BorderRadius.zero,
-                                  child: TabBar(
-                                    onTap: (index) {
-                                      _uxService.setTabIndex(
-                                          widget.roomUid.asString(), index);
-                                    },
-                                    tabs: [
-                                      if (widget.roomUid.isGroup() ||
-                                          (widget.roomUid.isChannel() &&
-                                              _isMucAdminOrOwner))
-                                        Tab(
-                                          text: _i18n.get("members"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.imagesCount != 0)
-                                        Tab(
-                                          text: _i18n.get("images"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.videosCount != 0)
-                                        Tab(
-                                          text: _i18n.get("videos"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.filesCount != 0)
-                                        Tab(
-                                          text: _i18n.get("file"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.linkCount != 0)
-                                        Tab(text: _i18n.get("links")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.documentsCount != 0)
-                                        Tab(text: _i18n.get("documents")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.musicsCount != 0)
-                                        Tab(text: _i18n.get("musics")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.audiosCount != 0)
-                                        Tab(text: _i18n.get("audios")),
+                          StreamBuilder<bool>(
+                              stream: _selectMediasForForward.stream,
+                              builder: (context, selectMediaSnapShot) {
+                                if (selectMediaSnapShot.hasData &&
+                                    selectMediaSnapShot.data != null &&
+                                    selectMediaSnapShot.data!) {
+                                  return Row(
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {
+                                            _selectMediasForForward.add(false);
+                                            _selectedMedia.clear();
+                                          },
+                                          icon: const Icon(Icons.close)),
+                                      IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(Icons.forward))
                                     ],
-                                    controller: _tabController,
-                                  ),
-                                )),
-                          ),
+                                  );
+                                } else {
+                                  return SliverPersistentHeader(
+                                    pinned: true,
+                                    delegate: _SliverAppBarDelegate(
+                                        maxHeight: 45,
+                                        minHeight: 45,
+                                        child: Box(
+                                          borderRadius: BorderRadius.zero,
+                                          child: TabBar(
+                                            onTap: (index) {
+                                              _uxService.setTabIndex(
+                                                  widget.roomUid.asString(),
+                                                  index);
+                                            },
+                                            tabs: [
+                                              if (widget.roomUid.isGroup() ||
+                                                  (widget.roomUid.isChannel() &&
+                                                      _isMucAdminOrOwner))
+                                                Tab(
+                                                  text: _i18n.get("members"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.imagesCount !=
+                                                      0)
+                                                Tab(
+                                                  text: _i18n.get("images"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.videosCount !=
+                                                      0)
+                                                Tab(
+                                                  text: _i18n.get("videos"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.filesCount !=
+                                                      0)
+                                                Tab(
+                                                  text: _i18n.get("file"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.linkCount != 0)
+                                                Tab(text: _i18n.get("links")),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!
+                                                          .documentsCount !=
+                                                      0)
+                                                Tab(
+                                                    text:
+                                                        _i18n.get("documents")),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.musicsCount !=
+                                                      0)
+                                                Tab(text: _i18n.get("musics")),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.audiosCount !=
+                                                      0)
+                                                Tab(text: _i18n.get("audios")),
+                                            ],
+                                            controller: _tabController,
+                                          ),
+                                        )),
+                                  );
+                                }
+                              }),
                         ];
                       },
                       body: Box(
@@ -222,7 +258,7 @@ class _ProfilePageState extends State<ProfilePage>
                             if (snapshot.hasData &&
                                 snapshot.data!.imagesCount != 0)
                               ImageTabUi(
-                                  snapshot.data!.imagesCount, widget.roomUid),
+                                  snapshot.data!.imagesCount, widget.roomUid,selected: _selectedMedia,),
                             if (snapshot.hasData &&
                                 snapshot.data!.videosCount != 0)
                               VideoTabUi(
@@ -266,6 +302,7 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
+
 
   Widget _buildInfo(BuildContext context) {
     final theme = Theme.of(context);
@@ -590,7 +627,7 @@ class _ProfilePageState extends State<ProfilePage>
       }
     }
     try {
-      await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+      await _mediaQueryRepo.fetchMediaMetaData(widget.roomUid);
     } catch (e) {
       _logger.e(e);
     }

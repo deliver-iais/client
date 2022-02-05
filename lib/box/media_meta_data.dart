@@ -43,4 +43,25 @@ class MediaMetaData {
       required this.musicsCount,
       required this.linkCount,
       required this.lastUpdateTime});
+
+  MediaMetaData copyWith(
+          {String? roomUid,
+          int? imagesCount,
+          int? videosCount,
+          int? filesCount,
+          int? documentsCount,
+          int? audiosCount,
+          int? musicsCount,
+          int? linkCount,
+          required int lastUpdateTime}) =>
+      MediaMetaData(
+          roomId: roomId,
+          imagesCount: imagesCount ?? this.imagesCount,
+          videosCount: videosCount ?? this.videosCount,
+          filesCount: filesCount ?? this.filesCount,
+          documentsCount: documentsCount ?? this.documentsCount,
+          audiosCount: audiosCount ?? this.audiosCount,
+          musicsCount: musicsCount ?? this.musicsCount,
+          linkCount: linkCount ?? this.linkCount,
+          lastUpdateTime: lastUpdateTime);
 }

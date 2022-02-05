@@ -65,12 +65,11 @@ class RoomPage extends StatefulWidget {
   final List<String>? inputFilePaths;
   final proto.ShareUid? shareUid;
 
-  const RoomPage(
-      {Key? key,
-      required this.roomId,
-      this.forwardedMessages,
-      this.inputFilePaths,
-      this.shareUid})
+  const RoomPage({Key? key,
+    required this.roomId,
+    this.forwardedMessages,
+    this.inputFilePaths,
+    this.shareUid})
       : super(key: key);
 
   @override
@@ -108,9 +107,9 @@ class _RoomPageState extends State<RoomPage> {
   final controller = FlutterListViewController();
 
   final BehaviorSubject<Message?> _repliedMessage =
-      BehaviorSubject.seeded(null);
+  BehaviorSubject.seeded(null);
   final BehaviorSubject<Message?> _editableMessage =
-      BehaviorSubject.seeded(null);
+  BehaviorSubject.seeded(null);
   final BehaviorSubject<Room?> _currentRoom = BehaviorSubject.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
@@ -139,7 +138,10 @@ class _RoomPageState extends State<RoomPage> {
       },
       child: DragDropWidget(
         roomUid: widget.roomId,
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
         child: Scaffold(
           appBar: buildAppbar(),
           body: Stack(
@@ -149,7 +151,7 @@ class _RoomPageState extends State<RoomPage> {
                   Expanded(
                     child: StreamBuilder<List<PendingMessage>>(
                         stream:
-                            _messageRepo.watchPendingMessages(widget.roomId),
+                        _messageRepo.watchPendingMessages(widget.roomId),
                         builder: (context, pendingMessagesStream) {
                           List<PendingMessage> pendingMessages =
                               pendingMessagesStream.data ?? [];
@@ -237,14 +239,13 @@ class _RoomPageState extends State<RoomPage> {
 
   _getScrollPosition() async {
     String? scrollPosition =
-        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
+    await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
     _lastSeenScrollPotion = int.parse(scrollPosition ?? "-1");
   }
 
   @override
   void initState() {
     // Log page data
-    _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomId.asUid());
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
     _getScrollPosition();
@@ -257,7 +258,7 @@ class _RoomPageState extends State<RoomPage> {
     _notificationServices.cancelRoomNotifications(widget.roomId);
     sendInputSharedFile();
     _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
-            widget.forwardedMessages!.isNotEmpty) ||
+        widget.forwardedMessages!.isNotEmpty) ||
         widget.shareUid != null);
     subscribeOnPositionToSendSeen();
 
@@ -268,9 +269,9 @@ class _RoomPageState extends State<RoomPage> {
         int firstItem = position
             .where((ItemPosition position) => position.itemTrailingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
-                position.itemTrailingEdge < first.itemTrailingEdge
-                    ? position
-                    : first)
+        position.itemTrailingEdge < first.itemTrailingEdge
+            ? position
+            : first)
             .index;
         _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
             firstItem.toString());
@@ -289,8 +290,12 @@ class _RoomPageState extends State<RoomPage> {
       }
     });
 
-    if (widget.roomId.asUid().category == Categories.CHANNEL ||
-        widget.roomId.asUid().category == Categories.GROUP) {
+    if (widget.roomId
+        .asUid()
+        .category == Categories.CHANNEL ||
+        widget.roomId
+            .asUid()
+            .category == Categories.GROUP) {
       fetchMucInfo(widget.roomId.asUid());
     } else if (widget.roomId.asUid().isBot()) {
       _botRepo.fetchBotInfo(widget.roomId.asUid());
@@ -304,6 +309,9 @@ class _RoomPageState extends State<RoomPage> {
       checkChannelRole();
     }
 
+    _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid(),
+        updateAllMedia: false);
+
     super.initState();
   }
 
@@ -311,7 +319,9 @@ class _RoomPageState extends State<RoomPage> {
     // TODO Channel is different from groups and private chats !!!
     _positionSubject
         .where((event) =>
-            ModalRoute.of(context)?.isCurrent ?? false) // is in current page
+    ModalRoute
+        .of(context)
+        ?.isCurrent ?? false) // is in current page
         .map((event) => event + 1 + (_currentRoom.value?.firstMessageId ?? 0))
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
@@ -453,9 +463,9 @@ class _RoomPageState extends State<RoomPage> {
               var m = await _getMessage(
                   element, widget.roomId, muc.lastMessageId!,
                   lastUpdatedMessageId:
-                      _currentRoom.value!.lastUpdatedMessageId != null
-                          ? _currentRoom.value!.lastUpdatedMessageId!
-                          : 0);
+                  _currentRoom.value!.lastUpdatedMessageId != null
+                      ? _currentRoom.value!.lastUpdatedMessageId!
+                      : 0);
               _pinMessages.add(m!);
               _pinMessages.sort((a, b) => a.time - b.time);
               _lastPinedMessage.add(_pinMessages.last.id!);
@@ -489,12 +499,14 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget keyboardWidget() {
-    return widget.roomId.asUid().category != Categories.CHANNEL
+    return widget.roomId
+        .asUid()
+        .category != Categories.CHANNEL
         ? buildNewMessageInput()
         : MuteAndUnMuteRoomWidget(
-            roomId: widget.roomId,
-            inputMessage: buildNewMessageInput(),
-          );
+      roomId: widget.roomId,
+      inputMessage: buildNewMessageInput(),
+    );
   }
 
   Widget scrollDownButtonWidget() {
@@ -530,13 +542,18 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomId.asUid().category == Categories.BOT) {
+    if (widget.roomId
+        .asUid()
+        .category == Categories.BOT) {
       return StreamBuilder<Room?>(
           stream: _currentRoom.stream,
           builder: (c, s) {
             if (s.hasData &&
                 s.data != null &&
-                s.data!.uid.asUid().category == Categories.BOT &&
+                s.data!
+                    .uid
+                    .asUid()
+                    .category == Categories.BOT &&
                 s.data!.lastMessageId == null) {
               return BotStartWidget(botUid: widget.roomId.asUid());
             } else {
@@ -555,7 +572,7 @@ class _RoomPageState extends State<RoomPage> {
     } else {
       return StreamBuilder(
           stream:
-              MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+          MergeStream([_repliedMessage.stream, _editableMessage.stream]),
           builder: (c, data) {
             return NewMessageInput(
               currentRoomId: widget.roomId,
@@ -677,7 +694,9 @@ class _RoomPageState extends State<RoomPage> {
                 } else {
                   if (widget.roomId.isMuc()) {
                     return MucAppbarTitle(mucUid: widget.roomId);
-                  } else if (widget.roomId.asUid().category == Categories.BOT) {
+                  } else if (widget.roomId
+                      .asUid()
+                      .category == Categories.BOT) {
                     return BotAppbarTitle(botUid: widget.roomId.asUid());
                   } else {
                     return UserAppbarTitle(
@@ -701,8 +720,8 @@ class _RoomPageState extends State<RoomPage> {
     final theme = Theme.of(context);
     int scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
-            ? _lastShowedMessageId
-            : _itemCount
+        ? _lastShowedMessageId
+        : _itemCount
         : 0);
     int initialScrollIndex = min(
         _lastSeenScrollPotion != -1 ? _lastSeenScrollPotion : scrollIndex,
@@ -724,11 +743,11 @@ class _RoomPageState extends State<RoomPage> {
           index = index + _currentRoom.value!.firstMessageId!;
         }
         bool isPendingMessage = (_currentRoom.value == null ||
-                (_currentRoom.value != null &&
-                    _currentRoom.value!.lastMessageId == null))
+            (_currentRoom.value != null &&
+                _currentRoom.value!.lastMessageId == null))
             ? true
             : _itemCount > _currentRoom.value!.lastMessageId! &&
-                _itemCount - index <= pendingMessages.length;
+            _itemCount - index <= pendingMessages.length;
 
         return _buildMessage(isPendingMessage, pendingMessages, index,
             _currentRoom.value!, initialScrollIndex);
@@ -778,9 +797,9 @@ class _RoomPageState extends State<RoomPage> {
             FutureBuilder<int?>(
               future: _timeAt(pendingMessages, index)!,
               builder: (context, snapshot) =>
-                  snapshot.hasData && snapshot.data != null
-                      ? ChatTime(currentMessageTime: date(snapshot.data!))
-                      : const SizedBox.shrink(),
+              snapshot.hasData && snapshot.data != null
+                  ? ChatTime(currentMessageTime: date(snapshot.data!))
+                  : const SizedBox.shrink(),
             ),
           ],
         );
@@ -796,14 +815,14 @@ class _RoomPageState extends State<RoomPage> {
 
   Future<Message?> _messageAt(List<PendingMessage> pendingMessages, int index) {
     bool isPendingMessage = (_currentRoom.value != null &&
-            _currentRoom.value!.lastMessageId == null) ||
+        _currentRoom.value!.lastMessageId == null) ||
         _itemCount > _currentRoom.value!.lastMessageId! &&
             _itemCount - index <= pendingMessages.length;
     return isPendingMessage
         ? Future.value(pendingMessages[_itemCount - index - 1].msg)
         : _getMessage(
-            index + 1, widget.roomId, _currentRoom.value!.lastMessageId!,
-            lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
+        index + 1, widget.roomId, _currentRoom.value!.lastMessageId!,
+        lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
   }
 
   Future<int?>? _timeAt(List<PendingMessage> pendingMessages, int index) async {
@@ -845,7 +864,7 @@ class _RoomPageState extends State<RoomPage> {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
-                (_replyMessageId == index + 1)
+            (_replyMessageId == index + 1)
             ? theme.focusColor.withAlpha(100)
             : Colors.transparent,
         child: _widgetCache.get(index),
@@ -887,8 +906,8 @@ class _RoomPageState extends State<RoomPage> {
                 height: _itemCount <= 50
                     ? 4
                     : (initScrollIndex - index).abs() <= 50
-                        ? 600
-                        : 4,
+                    ? 600
+                    : 4,
                 child: const Text(""));
           }
         },
@@ -944,7 +963,9 @@ class _RoomPageState extends State<RoomPage> {
     if (widget.inputFilePaths != null) {
       for (String path in widget.inputFilePaths!) {
         _messageRepo.sendFileMessage(
-            widget.roomId.asUid(), File(path, path.split(".").last));
+            widget.roomId.asUid(), File(path, path
+            .split(".")
+            .last));
       }
     }
   }
@@ -976,8 +997,8 @@ class _RoomPageState extends State<RoomPage> {
     bool _hasPermissionToDeleteMsg = true;
     for (Message message in _selectedMessages.values.toList()) {
       if ((_authRepo.isCurrentUserSender(message) ||
-              (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
-              (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
+          (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
+          (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
           false) {
         _hasPermissionToDeleteMsg = false;
       }
@@ -1013,7 +1034,7 @@ class _RoomPageState extends State<RoomPage> {
                     showDeleteMsgDialog(
                       _selectedMessages.values.toList(),
                       context,
-                      () {
+                          () {
                         onDelete();
                       },
                     );
@@ -1023,7 +1044,9 @@ class _RoomPageState extends State<RoomPage> {
           Tooltip(
             message: _i18n.get("copy"),
             child: IconButton(
-                color: Theme.of(context).primaryColor,
+                color: Theme
+                    .of(context)
+                    .primaryColor,
                 icon: const Icon(
                   Icons.copy,
                   size: 25,
@@ -1031,11 +1054,12 @@ class _RoomPageState extends State<RoomPage> {
                 onPressed: () async {
                   String copyText = "";
                   List<Message> messages = _selectedMessages.values.toList();
-                  messages.sort((a, b) => a.id == null
+                  messages.sort((a, b) =>
+                  a.id == null
                       ? 1
                       : b.id == null
-                          ? -1
-                          : a.id!.compareTo(b.id!));
+                      ? -1
+                      : a.id!.compareTo(b.id!));
                   for (Message message in messages) {
                     if (message.type == MessageType.TEXT) {
                       copyText = copyText +
@@ -1094,10 +1118,10 @@ class _RoomPageState extends State<RoomPage> {
               duration: const Duration(microseconds: 1));
           if (_pinMessages.length > 1) {
             _lastPinedMessage.add(_pinMessages[max(
-                    _pinMessages.indexWhere(
-                            (e) => e.id == _lastPinedMessage.value) -
-                        1,
-                    0)]
+                _pinMessages.indexWhere(
+                        (e) => e.id == _lastPinedMessage.value) -
+                    1,
+                0)]
                 .id!);
           }
         },
