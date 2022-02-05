@@ -27,7 +27,7 @@ class LinkPreview extends StatelessWidget {
       required this.maxWidth,
       this.backgroundColor,
       this.foregroundColor,
-      this.maxHeight = 100,
+      this.maxHeight = 120,
       this.isProfile = false})
       : super(key: key);
 
@@ -91,8 +91,8 @@ class LinkPreview extends StatelessWidget {
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+        margin: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
         constraints: BoxConstraints(
             minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
         decoration: BoxDecoration(

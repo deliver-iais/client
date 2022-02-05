@@ -262,7 +262,7 @@ class RoomRepo {
 
   Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
-  Stream<Room?> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
+  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 

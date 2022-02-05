@@ -41,7 +41,7 @@ import 'package:process_run/shell.dart';
 class BuildMessageBox extends StatefulWidget {
   final Message message;
   final Message? messageBefore;
-  final Room currentRoom;
+  final String roomId;
   final ItemScrollController itemScrollController;
   final Function addReplyMessage;
   final Function onReply;
@@ -62,7 +62,7 @@ class BuildMessageBox extends StatefulWidget {
       {Key? key,
       required this.message,
       this.messageBefore,
-      required this.currentRoom,
+      required this.roomId,
       required this.replyMessageId,
       required this.itemScrollController,
       required this.lastSeenMessageId,
@@ -96,12 +96,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(
-        context, widget.message, widget.messageBefore, widget.currentRoom);
+    return _buildMessageBox(context, widget.message, widget.messageBefore);
   }
 
-  Widget _buildMessageBox(BuildContext context, Message msg, Message? msgBefore,
-      Room? currentRoom) {
+  Widget _buildMessageBox(
+      BuildContext context, Message msg, Message? msgBefore) {
     var isFirstMessageInGroupedMessages = true;
 
     if (msgBefore?.from == msg.from &&
@@ -117,8 +116,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     return msg.type != MessageType.PERSISTENT_EVENT
-        ? _createWidget(
-            context, msg, isFirstMessageInGroupedMessages, currentRoom)
+        ? _createWidget(context, msg, isFirstMessageInGroupedMessages)
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -175,7 +173,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createWidget(BuildContext context, Message message,
-      bool isFirstMessageInGroupedMessages, Room? currentRoom) {
+      bool isFirstMessageInGroupedMessages) {
     if (message.json == "{}") {
       return const SizedBox(
         height: 1,
@@ -265,7 +263,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   onBotCommandClick(String command) {
-    _messageRepo.sendTextMessage(widget.currentRoom.uid.asUid(), command);
+    _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
   }
 
   Widget senderNameBox(CustomColorScheme colorScheme) {
