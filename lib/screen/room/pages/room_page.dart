@@ -103,8 +103,7 @@ class _RoomPageState extends State<RoomPage> {
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
 
-  final _scrollStarted = BehaviorSubject.seeded(false);
-  final _scrollEnded = BehaviorSubject.seeded(false);
+  final _scrollEvent = BehaviorSubject.seeded(false);
   final _isScrolling = BehaviorSubject.seeded(false);
 
   List<PendingMessage> get pendingMessages =>
@@ -258,8 +257,7 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      _scrollStarted.add(true);
-      _scrollEnded.add(true);
+      _scrollEvent.add(true);
 
       var position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
@@ -279,8 +277,8 @@ class _RoomPageState extends State<RoomPage> {
     });
 
     MergeStream([
-      _scrollStarted.map((event) => true),
-      _scrollEnded
+      _scrollEvent.map((event) => true),
+      _scrollEvent
           .debounceTime(const Duration(milliseconds: 1000))
           .map((event) => false)
     ]).listen((event) => _isScrolling.add(event));
