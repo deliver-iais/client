@@ -280,7 +280,7 @@ class MediaQueryRepo {
     }
   }
 
-  Future<List<Media>> getFutureMedia
+  Future<List<Media>> getFutureMedia;;
 
   Future<List<Media>> getMediaAround(
       String roomId, int offset, MediaType type) async {
