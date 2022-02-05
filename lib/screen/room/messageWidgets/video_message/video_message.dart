@@ -248,7 +248,7 @@ class _VideoMessageState extends State<VideoMessage> {
   Widget videoDetails(String len, int size) {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: chipBorder,
+          borderRadius: tertiaryBorder,
           color: widget.colorScheme.onPrimaryContainerLowlight()),
       padding: const EdgeInsets.only(top: 3, bottom: 2, right: 3, left: 3),
       child: Text(

@@ -56,7 +56,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
           SizedBox(
             width: width,
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                padding: const EdgeInsets.only(top: 4),
                 child: TextUI(
                   message: widget.message,
                   maxWidth: widget.maxWidth,

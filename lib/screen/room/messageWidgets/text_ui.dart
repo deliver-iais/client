@@ -79,8 +79,7 @@ class TextUI extends StatelessWidget {
           RichText(
             text: TextSpan(
                 children: spans,
-                style: theme.textTheme.bodyText2
-                    ?.copyWith(color: colorScheme.onPrimaryContainer)),
+                style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
