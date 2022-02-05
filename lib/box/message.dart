@@ -25,7 +25,7 @@ class Message {
   String to;
 
   @HiveField(6)
-  int? replyToId;
+  int replyToId;
 
   @HiveField(7)
   String? forwardedFrom;
@@ -50,11 +50,11 @@ class Message {
       required this.from,
       required this.to,
       required this.json,
-      this.replyToId,
-      this.forwardedFrom,
+      this.type = MessageType.NOT_SET,
+      this.replyToId = 0,
       this.edited = false,
       this.encrypted = false,
-      this.type = MessageType.NOT_SET});
+      this.forwardedFrom});
 
   Message copy(Message pm) => Message(
         roomUid: pm.roomUid,
@@ -63,7 +63,7 @@ class Message {
         time: pm.time,
         from: pm.from,
         to: pm.to,
-        replyToId: pm.replyToId ?? replyToId,
+        replyToId: pm.replyToId,
         forwardedFrom: pm.forwardedFrom ?? forwardedFrom,
         edited: pm.edited,
         encrypted: pm.encrypted,

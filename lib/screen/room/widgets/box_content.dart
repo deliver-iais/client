@@ -140,7 +140,7 @@ class _BoxContentState extends State<BoxContent> {
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId!,
+          replyToId: widget.message.replyToId,
           maxWidth: widget.minWidth,
           backgroundColor: widget.colorScheme.onPrimary,
           foregroundColor: widget.colorScheme.primary,
@@ -204,9 +204,7 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: isForwarded() || hasReply()
-              ? widget.minWidth
-              : 0,
+          minWidth: isForwarded() || hasReply() ? widget.minWidth : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
@@ -312,8 +310,7 @@ class _BoxContentState extends State<BoxContent> {
 
   bool hasReply() {
     return widget.message.to.asUid().category != Categories.BOT &&
-        widget.message.replyToId != null &&
-        widget.message.replyToId! > 0;
+        widget.message.replyToId > 0;
   }
 
   bool isForwarded() {

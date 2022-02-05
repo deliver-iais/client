@@ -160,7 +160,7 @@ class MessageRepo {
               } // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted != null && room.deleted!) {
+            if (room != null && room.deleted) {
               _roomDao.updateRoom(Room(
                   uid: room.uid,
                   deleted: false,
@@ -399,7 +399,7 @@ class MessageRepo {
   }
 
   Future<void> sendTextMessage(Uid room, String text,
-      {int? replyId, String? forwardedFrom}) async {
+      {int replyId = 0, String? forwardedFrom}) async {
     final List<String> textsBlocks = text.split("\n").toList();
     final List<String> result = [];
     for (text in textsBlocks) {
@@ -430,7 +430,7 @@ class MessageRepo {
   }
 
   void _sendTextMessage(
-      String text, Uid room, int? replyId, String? forwardedFrom) {
+      String text, Uid room, int replyId, String? forwardedFrom) {
     String json = (message_pb.Text()..text = text).writeToJson();
     Message msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
@@ -447,7 +447,7 @@ class MessageRepo {
   }
 
   sendLocationMessage(Position locationData, Uid room,
-      {String? forwardedFrom, int? replyId}) async {
+      {String? forwardedFrom, int replyId = 0}) async {
     String json = (location_pb.Location()
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
@@ -462,7 +462,7 @@ class MessageRepo {
   }
 
   sendMultipleFilesMessages(Uid room, List<model.File> files,
-      {String? caption, int? replyToId}) async {
+      {String? caption, int replyToId = 0}) async {
     for (var file in files) {
       if (files.last.path == file.path) {
         await sendFileMessage(room, file,
@@ -474,7 +474,7 @@ class MessageRepo {
   }
 
   sendFileMessage(Uid room, model.File file,
-      {String? caption = "", int? replyToId = 0}) async {
+      {String? caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
     var tempDimension = Size.zero;
     int? tempFileSize;
@@ -594,11 +594,7 @@ class MessageRepo {
       ..packetId = message.packetId
       ..to = message.to.asUid();
 
-    if (message.replyToId != null) {
-      byClient.replyToId = Int64(message.replyToId!);
-    } else {
-      byClient.replyToId = Int64(0);
-    }
+    byClient.replyToId = Int64(message.replyToId);
 
     if (message.forwardedFrom != null) {
       byClient.forwardFrom = message.forwardedFrom!.asUid();
@@ -698,7 +694,7 @@ class MessageRepo {
     }
   }
 
-  Message _createMessage(Uid room, {int? replyId, String? forwardedFrom}) {
+  Message _createMessage(Uid room, {int replyId = 0, String? forwardedFrom}) {
     return Message(
         roomUid: room.asString(),
         packetId: _getPacketId(),
@@ -969,7 +965,7 @@ class MessageRepo {
   }
 
   void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
-      {int? replyId, String? forwardedFrom}) async {
+      {int replyId = 0, String? forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     location_pb.Location location = location_pb.Location(
         longitude: position.longitude, latitude: position.latitude);
@@ -1035,7 +1031,7 @@ class MessageRepo {
     try {
       var updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
-        ..replyToId = Int64(editableMessage.replyToId ?? 0)
+        ..replyToId = Int64(editableMessage.replyToId)
         ..text = message_pb.Text(text: text);
       await _queryServiceClient.updateMessage(UpdateMessageReq()
         ..message = updatedMessage

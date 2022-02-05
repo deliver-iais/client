@@ -41,7 +41,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
-  final int? replyMessageId;
+  final int replyMessageId;
   final Function? resetRoomPageDetails;
   final bool waitingForForward;
   final Function? sendForwardMessage;
@@ -60,7 +60,7 @@ class InputMessage extends StatefulWidget {
     required this.scrollToLastSentMessage,
     required this.focusNode,
     required this.textController,
-    this.replyMessageId,
+    this.replyMessageId = 0,
     this.resetRoomPageDetails,
     this.waitingForForward = false,
     this.sendForwardMessage,
@@ -132,7 +132,7 @@ class _InputMessageWidget extends State<InputMessage> {
           builder: (context) {
             return ShareBox(
                 currentRoomId: currentRoom.uid.asUid(),
-                replyMessageId: widget.replyMessageId!,
+                replyMessageId: widget.replyMessageId,
                 resetRoomPageDetails: widget.resetRoomPageDetails!,
                 scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
@@ -298,8 +298,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     stream: _backSubject.stream,
                                     builder: (context, snapshot) {
                                       return IconButton(
-                                        iconSize:
-                                            _backSubject.value ? 24 : 28,
+                                        iconSize: _backSubject.value ? 24 : 28,
                                         icon: Icon(
                                           _backSubject.value
                                               ? CupertinoIcons
@@ -330,7 +329,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       builder: (context, value, child) =>
                                           TextField(
                                         focusNode: widget.focusNode,
-                                        autofocus: widget.replyMessageId! > 0 ||
+                                        autofocus: widget.replyMessageId > 0 ||
                                             isDesktop(),
                                         controller: widget.textController,
                                         decoration: InputDecoration(
@@ -707,7 +706,7 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
-      if (widget.replyMessageId! > 0) {
+      if (widget.replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
