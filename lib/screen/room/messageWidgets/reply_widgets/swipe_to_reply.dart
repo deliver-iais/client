@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 
 class Swipe extends StatefulWidget {
   final Widget child;
@@ -72,11 +74,19 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
       newPos = adjustedPixelPos / context.size!.width;
     }
     if (_dragExtent < -50) {
-      showRightIcon = true;
-      setState(() {});
+      if (showRightIcon == false) {
+        Vibration.vibrate(duration: 50);
+        setState(() {
+          showRightIcon = true;
+        });
+      }
     } else {
-      showRightIcon = false;
-      setState(() {});
+      if (showRightIcon == true) {
+        Vibration.vibrate(duration: 50);
+        setState(() {
+          showRightIcon = false;
+        });
+      }
     }
     if (_dragExtent < 0) _moveController.value = newPos;
   }
@@ -104,18 +114,19 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     var children = <Widget>[
-      showRightIcon
-          ? Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Icon(
-                  Icons.reply,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+      AnimatedOpacity(
+          opacity: showRightIcon ? 1 : 0,
+          duration: ANIMATION_DURATION,
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Icon(
+                Icons.reply,
+                color: Theme.of(context).iconTheme.color,
               ),
-            )
-          : const SizedBox.shrink(),
+            ),
+          )),
       SlideTransition(
         position: _moveAnimation,
         child: widget.child,

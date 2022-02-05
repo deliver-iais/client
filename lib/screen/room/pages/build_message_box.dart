@@ -188,11 +188,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
     var dismissibleWidget = Swipe(
-        onSwipeLeft: () async {
-          widget.addReplyMessage();
-          Vibration.vibrate(duration: 50);
-          //return false;
-        },
+        onSwipeLeft: () => widget.addReplyMessage(),
         child: Container(
             width: double.infinity,
             color: Colors.transparent,
@@ -224,7 +220,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         },
         onTapDown: storePosition,
         onSecondaryTapDown: storePosition,
-        child: isDesktop()
+        child: !isDesktop()
             ? messageWidget
             : !widget.message.roomUid.asUid().isChannel()
                 ? dismissibleWidget
