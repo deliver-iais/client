@@ -89,7 +89,6 @@ dependencies:
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.4.0
   image_size_getter: 1.0.0
-  swipe_to: 0.1.0-nullsafety.1
   audioplayers: 0.20.1
   open_file: 3.2.1 # Open file in OS
   contacts_service: 0.6.3

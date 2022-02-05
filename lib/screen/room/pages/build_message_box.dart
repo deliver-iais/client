@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -11,6 +10,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
+import 'package:deliver/screen/room/messageWidgets/reply_widgets/swipe_to_reply.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
@@ -34,8 +34,6 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share/share.dart';
-import 'package:swipe_to/swipe_to.dart';
-import 'package:vibration/vibration.dart';
 import 'package:process_run/shell.dart';
 
 class BuildMessageBox extends StatefulWidget {
@@ -43,8 +41,7 @@ class BuildMessageBox extends StatefulWidget {
   final Message? messageBefore;
   final String roomId;
   final ItemScrollController itemScrollController;
-  final Function addReplyMessage;
-  final Function onReply;
+  final void Function() onReply;
   final Function onEdit;
   final Function addForwardMessage;
   final Function onDelete;
@@ -66,7 +63,6 @@ class BuildMessageBox extends StatefulWidget {
       required this.replyMessageId,
       required this.itemScrollController,
       required this.lastSeenMessageId,
-      required this.addReplyMessage,
       required this.onEdit,
       required this.onPin,
       required this.onUnPin,
@@ -138,7 +134,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                           _showCustomMenu(context, msg);
                         }
                       },
-                onDoubleTap: !isDesktop() ? null : () => widget.onReply,
+                onDoubleTap: !isDesktop() ? null : widget.onReply,
                 onLongPress: () {
                   if (!widget.selectMultiMessageSubject.stream.value) {
                     widget.selectMultiMessageSubject.add(true);
@@ -175,10 +171,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget _createWidget(BuildContext context, Message message,
       bool isFirstMessageInGroupedMessages) {
     if (message.json == "{}") {
-      return const SizedBox(
-        height: 1,
-        child: Text(""),
-      );
+      return const SizedBox.shrink();
     }
     Widget messageWidget;
     if (_authRepo.isCurrentUser(message.from)) {
@@ -187,12 +180,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       messageWidget =
           showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
-    var dismissibleWidget = SwipeTo(
-        onLeftSwipe: () async {
-          widget.addReplyMessage();
-          Vibration.vibrate(duration: 150);
-          //return false;
-        },
+    var dismissibleWidget = Swipe(
+        onSwipeLeft: widget.onReply,
         child: Container(
             width: double.infinity,
             color: Colors.transparent,
@@ -215,7 +204,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                   _showCustomMenu(context, message);
                 }
               },
-        onDoubleTap: !isDesktop() ? null : () => widget.onReply,
+        onDoubleTap: !isDesktop() ? null : widget.onReply,
         onLongPress: () {
           if (!widget.selectMultiMessageSubject.stream.value) {
             widget.selectMultiMessageSubject.add(true);
@@ -224,20 +213,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         },
         onTapDown: storePosition,
         onSecondaryTapDown: storePosition,
-        child: isDesktop()
+        child: widget.message.roomUid.asUid().isChannel()
             ? messageWidget
-            : !widget.message.roomUid.asUid().isChannel()
-                ? dismissibleWidget
-                : StreamBuilder<bool>(
-                    stream: widget.hasPermissionInChannel.stream,
-                    builder: (c, hp) {
-                      if (hp.hasData && hp.data!) {
-                        return dismissibleWidget;
-                      } else {
-                        return messageWidget;
-                      }
-                    },
-                  ));
+            : dismissibleWidget);
   }
 
   Widget showSentMessage(
@@ -377,7 +355,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
     switch (selectedValue) {
       case OperationOnMessage.REPLY:
-        widget.addReplyMessage();
+        widget.onReply();
         break;
       case OperationOnMessage.COPY:
         onCopy();

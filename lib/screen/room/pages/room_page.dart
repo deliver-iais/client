@@ -874,7 +874,6 @@ class _RoomPageState extends State<RoomPage> {
       roomId: widget.roomId,
       itemScrollController: _itemScrollController,
       lastSeenMessageId: _lastSeenMessageId,
-      addReplyMessage: () => onReply(message),
       onEdit: () => onEdit(message),
       onPin: () => onPin(message),
       onUnPin: () => onUnPin(message),
