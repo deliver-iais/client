@@ -11,6 +11,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
+import 'package:deliver/screen/room/messageWidgets/reply_widgets/swipe_to_reply.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
@@ -32,7 +33,6 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share/share.dart';
-import 'package:swipe_to/swipe_to.dart';
 import 'package:vibration/vibration.dart';
 import 'package:process_run/shell.dart';
 
@@ -187,10 +187,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       messageWidget =
           showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
-    var dismissibleWidget = SwipeTo(
-        onLeftSwipe: () async {
+    var dismissibleWidget = Swipe(
+        onSwipeLeft: () async {
           widget.addReplyMessage();
-          Vibration.vibrate(duration: 150);
+          Vibration.vibrate(duration: 50);
           //return false;
         },
         child: Container(
@@ -477,7 +477,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   onDeleteMessage() {
-    showDeleteMsgDialog([widget.message], context, widget.onDelete,);
+    showDeleteMsgDialog(
+      [widget.message],
+      context,
+      widget.onDelete,
+    );
   }
 
   onDeletePendingMessage() {
