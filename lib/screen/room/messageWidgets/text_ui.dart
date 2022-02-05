@@ -105,9 +105,9 @@ class TextUI extends StatelessWidget {
 
   String extractText(Message msg) {
     if (msg.type == MessageType.TEXT) {
-      return msg.json!.toText().text.trim();
+      return msg.json.toText().text.trim();
     } else if (msg.type == MessageType.FILE) {
-      return msg.json!.toFile().caption.trim();
+      return msg.json.toFile().caption.trim();
     } else {
       return "";
     }

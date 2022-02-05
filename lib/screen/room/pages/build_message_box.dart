@@ -42,18 +42,18 @@ class BuildMessageBox extends StatefulWidget {
   final String roomId;
   final ItemScrollController itemScrollController;
   final void Function() onReply;
-  final Function onEdit;
-  final Function addForwardMessage;
-  final Function onDelete;
-  final Function onPin;
-  final Function onUnPin;
+  final void Function() onEdit;
+  final void Function() addForwardMessage;
+  final void Function() onDelete;
+  final void Function() onPin;
+  final void Function() onUnPin;
   final int lastSeenMessageId;
   final List<Message> pinMessages;
   final int replyMessageId;
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
-  final Function changeReplyMessageId;
+  final void Function(int) changeReplyMessageId;
 
   const BuildMessageBox(
       {Key? key,
@@ -105,7 +105,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       final d2 = date(msg.time);
 
       if (d1.day == d2.day && d1.month == d2.month && d1.year == d2.year) {
-        if (!msgBefore!.json!.isDeletedMessage()) {
+        if (!msgBefore!.json.isEmptyMessage()) {
           isFirstMessageInGroupedMessages = false;
         }
       }
@@ -145,7 +145,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 onSecondaryTapDown: storePosition,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                      vertical: msg.json == "{}" ? 0.0 : 4.0),
+                      vertical: msg.json == EMPTY_MESSAGE ? 0.0 : 4.0),
                   child: PersistentEventMessage(
                     message: msg,
                     maxWidth: maxWidthOfMessage(context),
@@ -170,7 +170,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget _createWidget(BuildContext context, Message message,
       bool isFirstMessageInGroupedMessages) {
-    if (message.json == "{}") {
+    if (message.json.isEmptyMessage()) {
       return const SizedBox.shrink();
     }
     Widget messageWidget;
@@ -395,8 +395,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         break;
       case OperationOnMessage.SHOW_IN_FOLDER:
         var path = await _fileRepo.getFileIfExist(
-            widget.message.json!.toFile().uuid,
-            widget.message.json!.toFile().name);
+            widget.message.json.toFile().uuid,
+            widget.message.json.toFile().name);
         if (path != null) onShowInFolder(path);
         break;
       case OperationOnMessage.REPORT:
@@ -408,10 +408,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   onCopy() {
     if (widget.message.type == MessageType.TEXT) {
       Clipboard.setData(
-          ClipboardData(text: widget.message.json!.toText().text));
+          ClipboardData(text: widget.message.json.toText().text));
     } else {
       Clipboard.setData(
-          ClipboardData(text: widget.message.json!.toFile().caption));
+          ClipboardData(text: widget.message.json.toFile().caption));
     }
     ToastDisplay.showToast(
         toastText: _i18n.get("copied"), toastContext: context);
@@ -482,11 +482,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   onShare() async {
     try {
       String? result = await _fileRepo.getFileIfExist(
-          widget.message.json!.toFile().uuid,
-          widget.message.json!.toFile().name);
+          widget.message.json.toFile().uuid,
+          widget.message.json.toFile().name);
       if (result!.isNotEmpty) {
         Share.shareFiles([(result)],
-            text: widget.message.json!.toFile().caption);
+            text: widget.message.json.toFile().caption);
       }
     } catch (e) {
       _logger.e(e);
@@ -494,17 +494,17 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   onSaveTOGallery() {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
   }
 
   onSaveTODownloads() {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
   }
 
   onSaveToMusic() {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
   }
 

@@ -29,6 +29,10 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
   @override
   Future<void> update(String uid, {String? id, String? name}) async {
+    if (name != null) {
+      name = name.trim();
+    }
+
     var box = await _open();
     var box2 = await _open2();
 

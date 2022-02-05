@@ -59,11 +59,8 @@ class TimeAndSeenStatus extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.edited != null && message.edited!)
-                Text(_i18n.get("edited")),
-              MsgTime(
-                time: date(message.time),
-              ),
+              if (message.edited) Text(_i18n.get("edited")),
+              MsgTime(time: date(message.time)),
               if (isSender)
                 Padding(
                   padding: const EdgeInsets.only(left: 2.0),

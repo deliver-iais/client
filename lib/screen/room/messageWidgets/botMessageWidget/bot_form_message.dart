@@ -44,7 +44,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   @override
   void initState() {
-    form = widget.message.json!.toForm();
+    form = widget.message.json.toForm();
     for (var field in form.fields) {
       int index = form.fields.indexOf(field);
       switch (field.whichType()) {

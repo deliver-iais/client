@@ -35,7 +35,7 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _shareUid = message.json!.toShareUid();
+    var _shareUid = message.json.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
       child: Column(

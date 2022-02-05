@@ -62,18 +62,18 @@ class _ImageSwiperState extends State<ImageSwiper> {
 
   Widget defaultWidget() {
     return Hero(
-      tag: "${widget.message.id}-${widget.message.json!.toFile().uuid}",
+      tag: "${widget.message.id}-${widget.message.json.toFile().uuid}",
       child: FutureBuilder<String?>(
-          future: _fileRepo.getFile(widget.message.json!.toFile().uuid,
-              widget.message.json!.toFile().name),
+          future: _fileRepo.getFile(widget.message.json.toFile().uuid,
+              widget.message.json.toFile().name),
           builder: (c, path) {
             if (path.hasData && path.data != null) {
               return buildImageUi(
                   context,
                   path.data,
                   widget.message.id,
-                  widget.message.json!.toFile().width.toDouble(),
-                  widget.message.json!.toFile().height.toDouble());
+                  widget.message.json.toFile().width.toDouble(),
+                  widget.message.json.toFile().height.toDouble());
             } else {
               return const SizedBox.shrink();
             }
@@ -119,9 +119,9 @@ class _ImageSwiperState extends State<ImageSwiper> {
         builder: (c, mes) {
           if (mes.hasData &&
               mes.data != null &&
-              mes.data!.json!.toFile().caption.isNotEmpty) {
+              mes.data!.json.toFile().caption.isNotEmpty) {
             return Text(
-              mes.data!.json!.toFile().caption,
+              mes.data!.json.toFile().caption,
               overflow: TextOverflow.fade,
               style: const TextStyle(fontSize: 20),
             );

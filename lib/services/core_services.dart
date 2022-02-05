@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -398,7 +399,7 @@ class CoreServices {
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
-              _messageDao.saveMessage(mes!..json = "{}");
+              _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
               return;

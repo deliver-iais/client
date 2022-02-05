@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 //TODO empty text click on arrow
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
-  final int? replyMessageId;
+  final int replyMessageId;
   final Function? resetRoomPageDetails;
   final bool? waitingForForward;
   final Message? editableMessage;
@@ -24,7 +24,7 @@ class NewMessageInput extends StatelessWidget {
     required this.currentRoomId,
     required this.focusNode,
     required this.textController,
-    this.replyMessageId,
+    this.replyMessageId = 0,
     this.resetRoomPageDetails,
     this.waitingForForward,
     this.editableMessage,
