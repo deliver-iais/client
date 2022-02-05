@@ -736,7 +736,7 @@ class _RoomPageState extends State<RoomPage> {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) =>
-          _cachedBuildMessage(index + room.firstMessageId),
+          _buildMessage(index + room.firstMessageId),
       separatorBuilder: (context, index) {
         int firstIndex = index;
 
@@ -820,9 +820,24 @@ class _RoomPageState extends State<RoomPage> {
     return null;
   }
 
-  Widget _cachedBuildMessage(int index) {
+  Widget _buildMessage(int index) {
     if (index < room.firstMessageId) {
       return const SizedBox.shrink();
+    }
+
+    late final Widget widget;
+
+    final tuple = _fastForwardFetchMessageAndMessageBefore(index);
+    if (tuple != null) {
+      widget = _cachedBuildMessage(index, tuple);
+    } else {
+      widget = FutureBuilder<Tuple2<Message?, Message?>>(
+        initialData: _fastForwardFetchMessageAndMessageBefore(index),
+        future: _fetchMessageAndMessageBefore(index),
+        builder: (context, ms) {
+          return _cachedBuildMessage(index, ms.data);
+        },
+      );
     }
 
     return AnimatedContainer(
@@ -832,26 +847,11 @@ class _RoomPageState extends State<RoomPage> {
               (_replyMessageId == index + 1)
           ? Theme.of(context).focusColor.withAlpha(100)
           : Colors.transparent,
-      child: _buildMessage(index),
+      child: widget,
     );
   }
 
-  Widget _buildMessage(int index) {
-    final tuple = _fastForwardFetchMessageAndMessageBefore(index);
-    if (tuple != null) {
-      return cachedBuildMessage(index, tuple);
-    }
-
-    return FutureBuilder<Tuple2<Message?, Message?>>(
-      initialData: _fastForwardFetchMessageAndMessageBefore(index),
-      future: _fetchMessageAndMessageBefore(index),
-      builder: (context, ms) {
-        return cachedBuildMessage(index, ms.data);
-      },
-    );
-  }
-
-  Widget cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
+  Widget _cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
     if (tuple == null || tuple.item2 == null) {
       return const SizedBox.shrink();
     }
