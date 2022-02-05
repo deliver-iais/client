@@ -41,7 +41,7 @@ class BuildMessageBox extends StatefulWidget {
   final Message? messageBefore;
   final String roomId;
   final ItemScrollController itemScrollController;
-  final Function onReply;
+  final void Function() onReply;
   final Function onEdit;
   final Function addForwardMessage;
   final Function onDelete;
@@ -134,7 +134,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                           _showCustomMenu(context, msg);
                         }
                       },
-                onDoubleTap: !isDesktop() ? null : () => widget.onReply,
+                onDoubleTap: !isDesktop() ? null : widget.onReply,
                 onLongPress: () {
                   if (!widget.selectMultiMessageSubject.stream.value) {
                     widget.selectMultiMessageSubject.add(true);
@@ -171,10 +171,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget _createWidget(BuildContext context, Message message,
       bool isFirstMessageInGroupedMessages) {
     if (message.json == "{}") {
-      return const SizedBox(
-        height: 1,
-        child: Text(""),
-      );
+      return const SizedBox.shrink();
     }
     Widget messageWidget;
     if (_authRepo.isCurrentUser(message.from)) {
@@ -184,7 +181,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
     var dismissibleWidget = Swipe(
-        onSwipeLeft: () => widget.onReply(),
+        onSwipeLeft: widget.onReply,
         child: Container(
             width: double.infinity,
             color: Colors.transparent,
@@ -207,7 +204,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                   _showCustomMenu(context, message);
                 }
               },
-        onDoubleTap: !isDesktop() ? null : () => widget.onReply,
+        onDoubleTap: !isDesktop() ? null : widget.onReply,
         onLongPress: () {
           if (!widget.selectMultiMessageSubject.stream.value) {
             widget.selectMultiMessageSubject.add(true);
