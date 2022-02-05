@@ -26,7 +26,7 @@ class ReceivedMessageBox extends StatelessWidget {
       required this.scrollToMessage,
       required this.onUsernameClick,
       required this.onArrowIconClick,
-        required this.colorScheme,
+      required this.colorScheme,
       required this.storePosition,
       required this.isFirstMessageInGroupedMessages,
       this.pattern})

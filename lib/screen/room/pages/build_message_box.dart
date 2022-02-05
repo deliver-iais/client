@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -35,7 +34,6 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share/share.dart';
-import 'package:vibration/vibration.dart';
 import 'package:process_run/shell.dart';
 
 class BuildMessageBox extends StatefulWidget {
@@ -43,7 +41,6 @@ class BuildMessageBox extends StatefulWidget {
   final Message? messageBefore;
   final String roomId;
   final ItemScrollController itemScrollController;
-  final Function addReplyMessage;
   final Function onReply;
   final Function onEdit;
   final Function addForwardMessage;
@@ -66,7 +63,6 @@ class BuildMessageBox extends StatefulWidget {
       required this.replyMessageId,
       required this.itemScrollController,
       required this.lastSeenMessageId,
-      required this.addReplyMessage,
       required this.onEdit,
       required this.onPin,
       required this.onUnPin,
@@ -188,7 +184,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
     var dismissibleWidget = Swipe(
-        onSwipeLeft: () => widget.addReplyMessage(),
+        onSwipeLeft: () => widget.onReply(),
         child: Container(
             width: double.infinity,
             color: Colors.transparent,
@@ -220,20 +216,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         },
         onTapDown: storePosition,
         onSecondaryTapDown: storePosition,
-        child: !isDesktop()
+        child: widget.message.roomUid.asUid().isChannel()
             ? messageWidget
-            : !widget.message.roomUid.asUid().isChannel()
-                ? dismissibleWidget
-                : StreamBuilder<bool>(
-                    stream: widget.hasPermissionInChannel.stream,
-                    builder: (c, hp) {
-                      if (hp.hasData && hp.data!) {
-                        return dismissibleWidget;
-                      } else {
-                        return messageWidget;
-                      }
-                    },
-                  ));
+            : dismissibleWidget);
   }
 
   Widget showSentMessage(
@@ -373,7 +358,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
     switch (selectedValue) {
       case OperationOnMessage.REPLY:
-        widget.addReplyMessage();
+        widget.onReply();
         break;
       case OperationOnMessage.COPY:
         onCopy();

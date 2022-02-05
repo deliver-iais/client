@@ -121,9 +121,13 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(15.0),
             child: Align(
               alignment: Alignment.centerRight,
-              child: Icon(
-                Icons.reply,
-                color: Theme.of(context).iconTheme.color,
+              child: AnimatedScale(
+                scale: showRightIcon ? 1 : 0,
+                duration: ANIMATION_DURATION,
+                child: Icon(
+                  Icons.reply,
+                  color: Theme.of(context).iconTheme.color,
+                ),
               ),
             ),
           )),
