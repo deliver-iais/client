@@ -31,6 +31,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
@@ -342,7 +343,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                         minLines: 1,
                                         maxLines: 15,
                                         textDirection: value,
-                                        style: theme.textTheme.subtitle1,
+                                        style: GoogleFonts.notoColorEmojiCompat(
+                                            textStyle:
+                                                theme.textTheme.subtitle1),
                                         onTap: () => _backSubject.add(false),
                                         onChanged: (str) {
                                           if (str.trim().length < 2) {
