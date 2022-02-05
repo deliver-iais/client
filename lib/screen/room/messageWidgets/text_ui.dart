@@ -70,7 +70,7 @@ class TextUI extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
-      padding: const EdgeInsets.only(top: 4, right: 8, left: 8),
+      padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
       child: Column(
         crossAxisAlignment:
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,

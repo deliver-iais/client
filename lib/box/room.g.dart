@@ -24,8 +24,8 @@ class RoomAdapter extends TypeAdapter<Room> {
       draft: fields[5] as String?,
       lastUpdateTime: fields[6] as int?,
       lastMessageId: fields[4] as int?,
-      firstMessageId: fields[7] as int?,
-      pinned: fields[8] as bool?,
+      firstMessageId: fields[7] as int,
+      pinned: fields[8] as bool,
       lastUpdatedMessageId: fields[9] as int?,
     );
   }

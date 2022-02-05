@@ -128,8 +128,8 @@ double animationSquareSize(BuildContext context) => isLarge(context)
 double maxWidthOfMessage(BuildContext context) => min(
     (MediaQuery.of(context).size.width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-        0.7,
-    400);
+        0.8,
+    450);
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

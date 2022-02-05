@@ -145,7 +145,8 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            CupertinoIcons.bolt_horizontal_circle,
+                                            CupertinoIcons
+                                                .bolt_horizontal_circle,
                                             size: 16,
                                           ),
                                         ),
@@ -268,7 +269,7 @@ class _ChatItemState extends State<ChatItem> {
       hasMentioned: widget.room.mentioned == true,
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
-      pinned: widget.room.pinned ?? false,
+      pinned: widget.room.pinned,
     );
   }
 
