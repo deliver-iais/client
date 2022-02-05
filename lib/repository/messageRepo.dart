@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, constant_identifier_names
 
 import 'dart:async';
 
@@ -60,8 +60,10 @@ import 'package:flutter/foundation.dart';
 
 import '../shared/constants.dart';
 
-// ignore: constant_identifier_names
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
+
+const EMPTY_MESSAGE = "{}";
+const DELETED_ROOM_MESSAGE = "{DELETED}";
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -249,14 +251,14 @@ class MessageRepo {
           if (msg != null) {
             if (firstMessageId != null && msg.id! <= firstMessageId) {
               lastMessageIsSet = true;
-              lastMessage = msg.copyWith(json: "{DELETED}");
+              lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
               break;
-            } else if (!msg.json!.isDeletedMessage()) {
+            } else if (!msg.json.isEmptyMessage()) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
             } else if (msg.id == 1) {
-              lastMessage = msg.copyWith(json: "{DELETED}");
+              lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
               lastMessageIsSet = true;
               break;
             } else {
@@ -317,13 +319,13 @@ class MessageRepo {
         await _saveFetchMessages(fetchMessagesRes.messages);
     for (var element in messages) {
       if (firstMessageId != null && element.id! <= firstMessageId) {
-        lastMessage = element.copyWith(json: "{DELETED}");
+        lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
         break;
-      } else if (!element.json!.isDeletedMessage()) {
+      } else if (!element.json.isEmptyMessage()) {
         lastMessage = element;
         break;
       } else if (element.id == 1) {
-        lastMessage = element.copyWith(json: "{DELETED}");
+        lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
       }
     }
     if (lastMessage != null) {
@@ -555,7 +557,7 @@ class MessageRepo {
       }
     });
 
-    var fakeFileInfo = file_pb.File.fromJson(pm.msg.json!);
+    var fakeFileInfo = file_pb.File.fromJson(pm.msg.json);
 
     var packetId = pm.msg.packetId;
 
@@ -604,29 +606,29 @@ class MessageRepo {
 
     switch (message.type) {
       case MessageType.TEXT:
-        byClient.text = message_pb.Text.fromJson(message.json!);
+        byClient.text = message_pb.Text.fromJson(message.json);
         break;
       case MessageType.FILE:
-        byClient.file = file_pb.File.fromJson(message.json!);
+        byClient.file = file_pb.File.fromJson(message.json);
         break;
       case MessageType.LOCATION:
-        byClient.location = location_pb.Location.fromJson(message.json!);
+        byClient.location = location_pb.Location.fromJson(message.json);
         break;
       case MessageType.STICKER:
-        byClient.sticker = file_pb.File.fromJson(message.json!);
+        byClient.sticker = file_pb.File.fromJson(message.json);
         break;
       case MessageType.FORM_RESULT:
-        byClient.formResult = FormResult.fromJson(message.json!);
+        byClient.formResult = FormResult.fromJson(message.json);
         break;
       case MessageType.SHARE_UID:
-        byClient.shareUid = message_pb.ShareUid.fromJson(message.json!);
+        byClient.shareUid = message_pb.ShareUid.fromJson(message.json);
         break;
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         byClient.sharePrivateDataAcceptance =
-            SharePrivateDataAcceptance.fromJson(message.json!);
+            SharePrivateDataAcceptance.fromJson(message.json);
         break;
       case MessageType.FORM:
-        byClient.form = message.json!.toForm();
+        byClient.form = message.json.toForm();
         break;
       default:
         break;
@@ -698,14 +700,14 @@ class MessageRepo {
 
   Message _createMessage(Uid room, {int? replyId, String? forwardedFrom}) {
     return Message(
-      roomUid: room.asString(),
-      packetId: _getPacketId(),
-      time: DateTime.now().millisecondsSinceEpoch,
-      from: _authRepo.currentUserUid.asString(),
-      to: room.asString(),
-      replyToId: replyId,
-      forwardedFrom: forwardedFrom,
-    );
+        roomUid: room.asString(),
+        packetId: _getPacketId(),
+        time: DateTime.now().millisecondsSinceEpoch,
+        from: _authRepo.currentUserUid.asString(),
+        to: room.asString(),
+        replyToId: replyId,
+        forwardedFrom: forwardedFrom,
+        json: EMPTY_MESSAGE);
   }
 
   String _getPacketId() {
@@ -825,7 +827,7 @@ class MessageRepo {
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
                           .toInt());
-                  _messageDao.saveMessage(mes!..json = "{}");
+                  _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
                   _roomDao.updateRoom(Room(
                       uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
                   break;
@@ -1011,12 +1013,12 @@ class MessageRepo {
               if (msg.id == room.lastMessageId) {
                 _roomDao.updateRoom(Room(
                     uid: msg.roomUid,
-                    lastMessage: msg.copyWith(json: "{}"),
+                    lastMessage: msg.copyWith(json: EMPTY_MESSAGE),
                     lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
               }
             }
 
-            msg.json = "{}";
+            msg.json = EMPTY_MESSAGE;
             _messageDao.saveMessage(msg);
             _roomDao.updateRoom(
                 Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id));
@@ -1064,7 +1066,7 @@ class MessageRepo {
         updatedFile.caption = caption!;
       }
     } else {
-      var preFile = editableMessage.json!.toFile();
+      var preFile = editableMessage.json.toFile();
       updatedFile = file_pb.File.create()
         ..caption = caption!
         ..name = preFile.name

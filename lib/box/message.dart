@@ -40,7 +40,7 @@ class Message {
   MessageType? type;
 
   @HiveField(11)
-  String? json;
+  String json;
 
   Message(
       {required this.roomUid,
@@ -49,12 +49,12 @@ class Message {
       required this.time,
       required this.from,
       required this.to,
+      required this.json,
       this.replyToId,
       this.forwardedFrom,
       this.edited,
       this.encrypted,
-      this.type,
-      this.json});
+      this.type});
 
   Message copy(Message pm) => Message(
         roomUid: pm.roomUid,

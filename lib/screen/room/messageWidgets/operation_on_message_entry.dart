@@ -100,7 +100,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ])),
           if (widget.message.type == MessageType.TEXT ||
               (widget.message.type == MessageType.FILE &&
-                  widget.message.json!.toFile().caption.isNotEmpty))
+                  widget.message.json.toFile().caption.isNotEmpty))
             PopupMenuItem(
                 value: OperationOnMessage.COPY,
                 child: Row(children: [
@@ -114,12 +114,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (widget.message.type == MessageType.FILE)
             FutureBuilder(
                 future: _fileRepo.getFileIfExist(
-                    widget.message.json!.toFile().uuid,
-                    widget.message.json!.toFile().name),
+                    widget.message.json.toFile().uuid,
+                    widget.message.json.toFile().name),
                 builder: (c, fe) {
                   if (fe.hasData && fe.data != null) {
                     _fileIsExist.add(true);
-                    model.File f = widget.message.json!.toFile();
+                    model.File f = widget.message.json.toFile();
                     return PopupMenuItem(
                         value: f.type.contains("image")
                             ? OperationOnMessage.SAVE_TO_GALLERY
@@ -225,8 +225,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (isDesktop() && widget.message.type == MessageType.FILE)
             FutureBuilder<String?>(
                 future: _fileRepo.getFileIfExist(
-                    widget.message.json!.toFile().uuid,
-                    widget.message.json!.toFile().name),
+                    widget.message.json.toFile().uuid,
+                    widget.message.json.toFile().name),
                 builder: (c, snapshot) {
                   if (snapshot.hasData) {
                     return PopupMenuItem(

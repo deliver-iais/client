@@ -69,6 +69,7 @@ class LinkPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     if (link.isEmpty) return const SizedBox.shrink();
     return FutureBuilder<Metadata?>(
+        initialData: cache.get(link),
         future: _fetchMetadata(link),
         builder: (context, snapshot) {
           if ((!snapshot.hasData || snapshot.data == null) ||

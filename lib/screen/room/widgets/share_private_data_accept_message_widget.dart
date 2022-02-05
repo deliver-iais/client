@@ -26,7 +26,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     var sharePrivateDataAcceptance =
-        message.json!.toSharePrivateDataAcceptance();
+        message.json.toSharePrivateDataAcceptance();
 
     return Row(
       children: [

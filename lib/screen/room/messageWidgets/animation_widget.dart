@@ -30,7 +30,7 @@ class AnimatedEmoji extends StatefulWidget {
 
   static isAnimatedEmoji(Message message) {
     if (message.type != MessageType.TEXT) return false;
-    final content = message.json!.toText().text;
+    final content = message.json.toText().text;
 
     switch (content) {
       case "👍":
@@ -145,7 +145,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   String getPath() {
-    final content = widget.message.json!.toText().text;
+    final content = widget.message.json.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 
@@ -153,7 +153,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   String getAlt() {
-    final content = widget.message.json!.toText().text;
+    final content = widget.message.json.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 

@@ -38,7 +38,7 @@ class FileMessageUi extends StatefulWidget {
 class _FileMessageUiState extends State<FileMessageUi> {
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     var type = file.type;
     var caption = file.caption;
     var dimensions =

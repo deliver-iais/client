@@ -27,7 +27,7 @@ class ImageUi extends StatefulWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  late final file_pb.File image = message.json!.toFile();
+  late final file_pb.File image = message.json.toFile();
 
   ImageUi(
       {Key? key,
@@ -53,7 +53,7 @@ class _ImageUiState extends State<ImageUi> {
   @override
   void initState() {
     if (widget.message.id == null) {
-      _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
+      _fileServices.initProgressBar(widget.message.json.toFile().uuid);
     }
     super.initState();
   }

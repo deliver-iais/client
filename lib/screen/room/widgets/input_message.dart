@@ -811,10 +811,10 @@ class _InputMessageWidget extends State<InputMessage> {
     // ignore: missing_enum_constant_in_switch
     switch (widget.editableMessage!.type) {
       case MessageType.TEXT:
-        text = widget.editableMessage!.json!.toText().text;
+        text = widget.editableMessage!.json.toText().text;
         break;
       case MessageType.FILE:
-        text = widget.editableMessage!.json!.toFile().caption;
+        text = widget.editableMessage!.json.toFile().caption;
     }
     return text + " ";
   }

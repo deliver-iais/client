@@ -26,7 +26,7 @@ class BotButtonsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var buttons = message.json!.toButtons();
+    var buttons = message.json.toButtons();
     return Container(
         padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
         width: maxWidth,

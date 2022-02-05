@@ -53,10 +53,10 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
     return widget.room.lastMessage != null &&
-            widget.room.lastMessage!.json!.chatIsDeleted()
+            widget.room.lastMessage!.json.chatIsDeleted()
         ? const SizedBox.shrink()
         : widget.room.lastMessage == null ||
-                widget.room.lastMessage!.json!.isDeletedMessage()
+                widget.room.lastMessage!.json.isEmptyMessage()
             ? FutureBuilder<Message?>(
                 future: _messageRepo.fetchLastMessages(
                     widget.room.uid.asUid(),
@@ -68,7 +68,7 @@ class _ChatItemState extends State<ChatItem> {
                 builder: (c, s) {
                   if (s.hasData &&
                       s.data != null &&
-                      !s.data!.json!.chatIsDeleted()) {
+                      !s.data!.json.chatIsDeleted()) {
                     return buildLastMessageWidget(s.data!);
                   }
                   return const SizedBox.shrink();

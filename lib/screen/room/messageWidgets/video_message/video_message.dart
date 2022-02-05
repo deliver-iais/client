@@ -46,7 +46,7 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   void initState() {
-    _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
+    _fileServices.initProgressBar(widget.message.json.toFile().uuid);
     super.initState();
   }
 
@@ -54,7 +54,7 @@ class _VideoMessageState extends State<VideoMessage> {
   Widget build(BuildContext context) {
     Color background = widget.colorScheme.onPrimary;
     Color foreground = widget.colorScheme.primary;
-    File video = widget.message.json!.toFile();
+    File video = widget.message.json.toFile();
     Duration duration = Duration(seconds: video.duration.round());
     String videoLength = formatDuration(duration);
     return Container(
@@ -88,7 +88,7 @@ class _VideoMessageState extends State<VideoMessage> {
                                 percent: snapshot.data!,
                                 center: StreamBuilder<CancelToken?>(
                                   stream: _fileServices.cancelTokens[
-                                      widget.message.json!.toFile().uuid],
+                                      widget.message.json.toFile().uuid],
                                   builder: (c, s) {
                                     if (s.hasData && s.data != null) {
                                       return GestureDetector(
@@ -146,7 +146,7 @@ class _VideoMessageState extends State<VideoMessage> {
                       return videoWidget(
                         child: VideoUi(
                           videoFilePath: s.data!,
-                          videoMessage: widget.message.json!.toFile(),
+                          videoMessage: widget.message.json.toFile(),
                           duration: video.duration,
                           background: background,
                           foreground: foreground,
@@ -171,7 +171,7 @@ class _VideoMessageState extends State<VideoMessage> {
                                           child: VideoUi(
                                             videoFilePath: s.data!,
                                             videoMessage:
-                                                widget.message.json!.toFile(),
+                                                widget.message.json.toFile(),
                                             duration: video.duration,
                                             background: background,
                                             foreground: foreground,

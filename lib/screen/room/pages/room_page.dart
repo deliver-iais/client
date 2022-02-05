@@ -88,6 +88,7 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  final _key = GlobalKey();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -429,7 +430,7 @@ class _RoomPageState extends State<RoomPage> {
   void onEdit(Message message) {
     _editableMessage.add(message);
     if (message.type == MessageType.TEXT) {
-      _inputMessageTextController.text = message.json!.toText().text;
+      _inputMessageTextController.text = message.json.toText().text;
     }
   }
 
@@ -712,14 +713,17 @@ class _RoomPageState extends State<RoomPage> {
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
       initialScrollIndex: initialScrollIndex,
+      key: _key,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
       addSemanticIndexes: false,
+      shrinkWrap: true,
       minCacheExtent: 300,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
+        print(index);
         return _buildMessage(
             index + room.firstMessageId, room, initialScrollIndex);
       },
@@ -783,7 +787,7 @@ class _RoomPageState extends State<RoomPage> {
 
     if (index > 0) {
       final prevMsg = await _messageAtIndex(index);
-      if (prevMsg!.json!.isDeletedMessage() || msg!.json!.isDeletedMessage()) {
+      if (prevMsg!.json.isEmptyMessage() || msg!.json.isEmptyMessage()) {
         return null;
       }
 
@@ -800,7 +804,7 @@ class _RoomPageState extends State<RoomPage> {
   _buildMessage(int index, Room currentRoom, int initScrollIndex) {
     final theme = Theme.of(context);
     if (index < currentRoom.firstMessageId) {
-      return const SizedBox(height: 20);
+      return const SizedBox(height: 100);
     }
 
     if (_widgetCache.get(index) != null &&
@@ -808,6 +812,7 @@ class _RoomPageState extends State<RoomPage> {
             (currentRoom.lastUpdatedMessageId != null &&
                 index + 1 != room.lastUpdatedMessageId!))) {
       return AnimatedContainer(
+        key: ValueKey(index),
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
                 (_replyMessageId == index + 1)
@@ -823,6 +828,7 @@ class _RoomPageState extends State<RoomPage> {
           : null;
 
       return FutureBuilder<Tuple2<Message?, Message?>>(
+        key: ValueKey(index),
         initialData: initialData,
         future: _fetchMessageAndMessageBefore(index),
         builder: (context, ms) {
@@ -850,13 +856,7 @@ class _RoomPageState extends State<RoomPage> {
               return widget;
             }
           } else {
-            return SizedBox(
-                height: _itemCount <= 50
-                    ? 4
-                    : (initScrollIndex - index).abs() <= 50
-                        ? 600
-                        : 4,
-                child: const Text(""));
+            return const SizedBox(height: 100);
           }
         },
       );
@@ -997,14 +997,14 @@ class _RoomPageState extends State<RoomPage> {
                       copyText = copyText +
                           await _roomRepo.getName(message.from.asUid()) +
                           ":\n" +
-                          message.json!.toText().text +
+                          message.json.toText().text +
                           "\n";
                     } else if (message.type == MessageType.FILE &&
-                        message.json!.toFile().caption.isNotEmpty) {
+                        message.json.toFile().caption.isNotEmpty) {
                       copyText = copyText +
                           await _roomRepo.getName(message.from.asUid()) +
                           ":\n" +
-                          message.json!.toFile().caption +
+                          message.json.toFile().caption +
                           "\n";
                     }
                   }
