@@ -30,13 +30,17 @@ class MediaMetaData {
   @HiveField(7)
   int linkCount;
 
-  MediaMetaData({
-      required this.roomId,
+  @HiveField(8)
+  int lastUpdateTime;
+
+  MediaMetaData(
+      {required this.roomId,
       required this.imagesCount,
       required this.videosCount,
       required this.filesCount,
       required this.documentsCount,
       required this.audiosCount,
       required this.musicsCount,
-      required this.linkCount});
+      required this.linkCount,
+      required this.lastUpdateTime});
 }

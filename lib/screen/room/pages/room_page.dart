@@ -14,6 +14,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -121,6 +122,7 @@ class _RoomPageState extends State<RoomPage> {
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
   final _inputMessageTextController = TextEditingController();
   final _inputMessageFocusNode = FocusNode();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -242,6 +244,7 @@ class _RoomPageState extends State<RoomPage> {
   @override
   void initState() {
     // Log page data
+    _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomId.asUid());
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
     _getScrollPosition();

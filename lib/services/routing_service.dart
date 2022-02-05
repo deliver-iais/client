@@ -10,9 +10,10 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
-import 'package:deliver/screen/profile/pages/media_details_page.dart';
+import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
-import 'package:deliver/screen/profile/pages/show_all_image_or_avatar.dart';
+import 'package:deliver/screen/profile/widgets/all_Image_page.dart';
+import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
@@ -116,7 +117,7 @@ class RoutingService {
           {required Uid uid,
           required bool hasPermissionToDeleteAvatar,
           required String heroTag}) =>
-      _push(MediaDetailsPage.showAvatar(
+      _push(AllAvatarPage(
           key: const ValueKey("/media-details"),
           userUid: uid,
           hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
@@ -124,23 +125,27 @@ class RoutingService {
 
   void openShowAllVideos(
           {required Uid uid,
-          required int mediaPosition,
-          required int mediasLength}) =>
-      _push(MediaDetailsPage.showVideo(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
+          required int initIndex,
+          required int videosLength}) =>
+      _push(AllVideoPage(
+        const ValueKey("/media-details"),
+        roomUid: uid.asString(),
+        initIndex: initIndex,
+        videoCount: videosLength,
       ));
 
-  void openShowAllImage(
-          {required String  uid,
-          required bool hasPermissionToDeletePic,
-          required int initIndex,
-          required List<Media> medias,
-          }) =>
-      _push(ShowAllImageOrAvatar(
-          const ValueKey("/media-details"), initIndex: initIndex, medias: medias,roomUid: uid,));
+  void openShowAllImage({
+    required String uid,
+    required bool hasPermissionToDeletePic,
+    required int initIndex,
+    required int imageCount,
+  }) =>
+      _push(AllImagePage(
+        const ValueKey("/media-details"),
+        initIndex: initIndex,
+        roomUid: uid,
+        imageCount: imageCount,
+      ));
 
   void openCustomNotificationSoundSelection(String roomId) =>
       _push(CustomNotificationSoundSelection(

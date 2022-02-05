@@ -15,6 +15,7 @@ const LOGIN = "login";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
 const VERSION = "1.6.8";
 const LOG_OUT = "log_out";
+const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
 const int TEXT_MESSAGE_MAX_LENGTH = 50;
 const int TEXT_MESSAGE_MAX_LINE = 20;
