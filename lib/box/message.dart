@@ -31,13 +31,13 @@ class Message {
   String? forwardedFrom;
 
   @HiveField(8)
-  bool? edited;
+  bool edited;
 
   @HiveField(9)
-  bool? encrypted;
+  bool encrypted;
 
   @HiveField(10)
-  MessageType? type;
+  MessageType type;
 
   @HiveField(11)
   String json;
@@ -52,9 +52,9 @@ class Message {
       required this.json,
       this.replyToId,
       this.forwardedFrom,
-      this.edited,
-      this.encrypted,
-      this.type});
+      this.edited = false,
+      this.encrypted = false,
+      this.type = MessageType.NOT_SET});
 
   Message copy(Message pm) => Message(
         roomUid: pm.roomUid,
@@ -65,8 +65,8 @@ class Message {
         to: pm.to,
         replyToId: pm.replyToId ?? replyToId,
         forwardedFrom: pm.forwardedFrom ?? forwardedFrom,
-        edited: pm.edited ?? edited,
-        encrypted: pm.encrypted ?? encrypted,
+        edited: pm.edited,
+        encrypted: pm.encrypted,
         type: pm.type,
         json: pm.json,
       );

@@ -26,9 +26,9 @@ class MessageAdapter extends TypeAdapter<Message> {
       json: fields[11] as String,
       replyToId: fields[6] as int?,
       forwardedFrom: fields[7] as String?,
-      edited: fields[8] as bool?,
-      encrypted: fields[9] as bool?,
-      type: fields[10] as MessageType?,
+      edited: fields[8] as bool,
+      encrypted: fields[9] as bool,
+      type: fields[10] as MessageType,
     );
   }
 

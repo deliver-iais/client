@@ -267,8 +267,8 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
     ..to = message.to.asUid()
     ..time = Int64(message.time)
     ..replyToId = Int64(message.replyToId ?? 0)
-    ..edited = message.edited ?? false
-    ..encrypted = message.encrypted ?? false;
+    ..edited = message.edited
+    ..encrypted = message.encrypted;
 
   if (message.forwardedFrom != null) {
     msg.forwardFrom = message.forwardedFrom!.asUid();
