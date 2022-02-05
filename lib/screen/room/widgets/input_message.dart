@@ -27,6 +27,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -297,10 +298,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                     stream: _backSubject.stream,
                                     builder: (context, snapshot) {
                                       return IconButton(
+                                        iconSize:
+                                            _backSubject.value ? 24 : 28,
                                         icon: Icon(
                                           _backSubject.value
-                                              ? Icons.keyboard
-                                              : Icons.mood,
+                                              ? CupertinoIcons
+                                                  .keyboard_chevron_compact_down
+                                              : CupertinoIcons.smiley,
                                         ),
                                         onPressed: () {
                                           if (_backSubject.value) {
@@ -373,8 +377,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                         if (snapshot.hasData &&
                                             !snapshot.data!) {
                                           return IconButton(
+                                            iconSize: 28,
                                             icon: const Icon(
-                                              Icons.workspaces_outline,
+                                              CupertinoIcons.slash_circle,
                                             ),
                                             onPressed: () => _botCommandQuery
                                                 .add(_botCommandQuery.value ==
@@ -394,7 +399,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           !widget.waitingForForward) {
                                         return IconButton(
                                             icon: const Icon(
-                                              Icons.attach_file,
+                                              CupertinoIcons.paperclip,
                                             ),
                                             onPressed: () {
                                               _backSubject.add(false);
@@ -411,7 +416,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           widget.waitingForForward) {
                                         return IconButton(
                                           icon: const Icon(
-                                            Icons.send,
+                                            CupertinoIcons.paperplane_fill,
                                             color: Colors.blue,
                                           ),
                                           onPressed: widget.textController.text
@@ -760,7 +765,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
       }
 
-      showCaptionDialog(files: res, icons: Icons.file_upload);
+      showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);
     } catch (e) {
       _logger.d(e.toString());
     }

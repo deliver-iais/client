@@ -1,6 +1,6 @@
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class SelectiveContact extends StatefulWidget {
   final Contact contact;
@@ -21,15 +21,11 @@ class SelectiveContact extends StatefulWidget {
 class _SelectiveContactState extends State<SelectiveContact> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ContactWidget(
-          contact: widget.contact,
-          circleIcon: widget.isSelected ? Icons.check : null,
-          isSelected: widget.isSelected,
-          currentMember: widget.currentMember,
-        ),
-      ],
+    return ContactWidget(
+      contact: widget.contact,
+      circleIcon: widget.isSelected ? CupertinoIcons.checkmark_circle : null,
+      isSelected: widget.isSelected,
+      currentMember: widget.currentMember,
     );
   }
 }

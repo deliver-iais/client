@@ -25,6 +25,8 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,7 +41,7 @@ import 'package:process_run/shell.dart';
 class BuildMessageBox extends StatefulWidget {
   final Message message;
   final Message? messageBefore;
-  final Room currentRoom;
+  final String roomId;
   final ItemScrollController itemScrollController;
   final Function addReplyMessage;
   final Function onReply;
@@ -60,7 +62,7 @@ class BuildMessageBox extends StatefulWidget {
       {Key? key,
       required this.message,
       this.messageBefore,
-      required this.currentRoom,
+      required this.roomId,
       required this.replyMessageId,
       required this.itemScrollController,
       required this.lastSeenMessageId,
@@ -94,12 +96,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(
-        context, widget.message, widget.messageBefore, widget.currentRoom);
+    return _buildMessageBox(context, widget.message, widget.messageBefore);
   }
 
-  Widget _buildMessageBox(BuildContext context, Message msg, Message? msgBefore,
-      Room? currentRoom) {
+  Widget _buildMessageBox(
+      BuildContext context, Message msg, Message? msgBefore) {
     var isFirstMessageInGroupedMessages = true;
 
     if (msgBefore?.from == msg.from &&
@@ -115,8 +116,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     return msg.type != MessageType.PERSISTENT_EVENT
-        ? _createWidget(
-            context, msg, isFirstMessageInGroupedMessages, currentRoom)
+        ? _createWidget(context, msg, isFirstMessageInGroupedMessages)
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -173,7 +173,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createWidget(BuildContext context, Message message,
-      bool isFirstMessageInGroupedMessages, Room? currentRoom) {
+      bool isFirstMessageInGroupedMessages) {
     if (message.json == "{}") {
       return const SizedBox(
         height: 1,
@@ -263,14 +263,56 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   onBotCommandClick(String command) {
-    _messageRepo.sendTextMessage(widget.currentRoom.uid.asUid(), command);
+    _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
+  }
+
+  Widget senderNameBox(CustomColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
+      child: FutureBuilder<String>(
+        future: _roomRepo.getName(widget.message.from.asUid()),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return showName(colorScheme, snapshot.data!);
+          } else {
+            return const Text("");
+          }
+        },
+      ),
+    );
+  }
+
+  Widget showName(CustomColorScheme colorScheme, String name) {
+    final minWidth = minWidthOfMessage(context);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        child: Container(
+          constraints: BoxConstraints.loose(Size.fromWidth(minWidth - 16)),
+          child: Text(
+            name.trim(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: TextStyle(
+                inherit: true, fontSize: 13, color: colorScheme.primary),
+          ),
+        ),
+        onTap: () {
+          _routingServices.openProfile(widget.message.from);
+        },
+      ),
+    );
   }
 
   Widget showReceivedMessage(
       Message message, bool isFirstMessageInGroupedMessages) {
-    var messageWidget = ReceivedMessageBox(
+    final colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
+
+    Widget messageWidget = ReceivedMessageBox(
       message: message,
       pattern: "",
+      colorScheme: colorScheme,
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: (int id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
@@ -278,30 +320,42 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
     );
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        if (isFirstMessageInGroupedMessages &&
-            widget.message.roomUid.asUid().category == Categories.GROUP)
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                child: CircleAvatarWidget(message.from.asUid(), 18,
-                    isHeroEnabled: false),
+
+    if (isFirstMessageInGroupedMessages &&
+        widget.message.roomUid.asUid().category == Categories.GROUP) {
+      messageWidget = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [senderNameBox(colorScheme), messageWidget]);
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(top: isFirstMessageInGroupedMessages ? 12.0 : 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          if (isFirstMessageInGroupedMessages &&
+              widget.message.roomUid.asUid().category == Categories.GROUP)
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2.0, left: 8.0),
+                  child: CircleAvatarWidget(message.from.asUid(), 18,
+                      isHeroEnabled: false),
+                ),
+                onTap: () {
+                  _routingServices.openProfile(message.from);
+                },
               ),
-              onTap: () {
-                _routingServices.openProfile(message.from);
-              },
             ),
-          ),
-        if (!isFirstMessageInGroupedMessages &&
-            widget.message.roomUid.asUid().category == Categories.GROUP)
-          const SizedBox(width: 44),
-        messageWidget
-      ],
+          if (!isFirstMessageInGroupedMessages &&
+              widget.message.roomUid.asUid().category == Categories.GROUP)
+            const SizedBox(width: 44),
+          messageWidget
+        ],
+      ),
     );
   }
 

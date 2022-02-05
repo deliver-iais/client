@@ -70,7 +70,7 @@ class TextUI extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
-      padding: const EdgeInsets.only(top: 4, right: 8, left: 8),
+      padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
       child: Column(
         crossAxisAlignment:
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -79,8 +79,7 @@ class TextUI extends StatelessWidget {
           RichText(
             text: TextSpan(
                 children: spans,
-                style: theme.textTheme.bodyText2
-                    ?.copyWith(color: colorScheme.onPrimaryContainer)),
+                style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),

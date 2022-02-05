@@ -28,6 +28,7 @@ import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
+import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -45,6 +46,7 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -76,18 +78,18 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> {
-  final _logger = GetIt.I.get<Logger>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _botRepo = GetIt.I.get<BotRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  int _lastSeenMessageId = -1;
+  static final _logger = GetIt.I.get<Logger>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _notificationServices = GetIt.I.get<NotificationServices>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _botRepo = GetIt.I.get<BotRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
 
+  int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   int _replyMessageId = -1;
@@ -97,18 +99,24 @@ class _RoomPageState extends State<RoomPage> {
 
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
-  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(80));
-  final _widgetCache = LruCache<int, Widget>(storage: InMemoryStorage(4000));
+
+  final _room = BehaviorSubject<Room>();
+  final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
+
+  List<PendingMessage> get pendingMessages =>
+      _pendingMessages.valueOrNull ?? [];
+
+  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
+
+  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(100));
+  final _widgetCache = LruCache<int, Widget>(storage: InMemoryStorage(100));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _scrollPhysics = const ClampingScrollPhysics();
 
-  final BehaviorSubject<Message?> _repliedMessage =
-      BehaviorSubject.seeded(null);
-  final BehaviorSubject<Message?> _editableMessage =
-      BehaviorSubject.seeded(null);
-  final BehaviorSubject<Room?> _currentRoom = BehaviorSubject.seeded(null);
+  final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
+  final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
@@ -138,96 +146,81 @@ class _RoomPageState extends State<RoomPage> {
         height: MediaQuery.of(context).size.height,
         child: Scaffold(
           appBar: buildAppbar(),
-          body: Stack(
-            children: [
-              Column(
-                children: <Widget>[
-                  Expanded(
-                    child: StreamBuilder<List<PendingMessage>>(
-                        stream:
-                            _messageRepo.watchPendingMessages(widget.roomId),
-                        builder: (context, pendingMessagesStream) {
-                          List<PendingMessage> pendingMessages =
-                              pendingMessagesStream.data ?? [];
-                          return StreamBuilder<Room?>(
-                              stream: _roomRepo.watchRoom(widget.roomId),
-                              builder: (context, currentRoomStream) {
-                                if (currentRoomStream.hasData) {
-                                  _currentRoom.add(currentRoomStream.data);
-                                  int i =
-                                      (_currentRoom.value!.lastMessageId ?? 0) +
-                                          pendingMessages.length;
-                                  _itemCountSubject.add(i);
-                                  _itemCount = i;
-                                  if (currentRoomStream.data!.firstMessageId !=
-                                      null) {
-                                    _itemCount = _itemCount -
-                                        currentRoomStream.data!.firstMessageId!;
-                                  }
-                                  return buildMessagesListView(pendingMessages);
-                                } else {
-                                  return const SizedBox(
-                                    height: 50,
-                                  );
-                                }
-                              });
-                        }),
-                  ),
-                  StreamBuilder(
-                      stream: _repliedMessage.stream,
-                      builder: (c, rm) {
-                        if (rm.hasData && rm.data != null) {
-                          return ReplyPreview(
-                              message: _repliedMessage.value!,
-                              resetRoomPageDetails: _resetRoomPageDetails);
-                        }
-                        return Container();
-                      }),
-                  StreamBuilder(
-                      stream: _editableMessage.stream,
-                      builder: (c, em) {
-                        if (em.hasData && em.data != null) {
-                          return OnEditMessageWidget(
-                              message: _editableMessage.value!,
-                              resetRoomPageDetails: _resetRoomPageDetails);
-                        }
-                        return Container();
-                      }),
-                  StreamBuilder<bool>(
-                      stream: _waitingForForwardedMessage.stream,
-                      builder: (c, wm) {
-                        if (wm.hasData && wm.data!) {
-                          return ForwardPreview(
-                            forwardedMessages: widget.forwardedMessages,
-                            shareUid: widget.shareUid,
-                            onClick: () {
-                              _waitingForForwardedMessage.add(false);
-                            },
-                          );
-                        } else {
-                          return Container();
-                        }
-                      }),
-                  keyboardWidget(),
-                ],
-              ),
-              pinMessageWidget(),
-              StreamBuilder<int>(
-                  stream: _positionSubject.stream,
-                  builder: (c, position) {
-                    if (position.hasData &&
-                        position.data != null &&
-                        _itemCount - (position.data!) > 4) {
-                      return scrollDownButtonWidget();
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-              AudioPlayerAppBar(),
-            ],
-          ),
+          body: buildBody(),
         ),
       ),
+    );
+  }
+
+  Stack buildBody() {
+    return Stack(
+      children: [
+        Column(
+          children: <Widget>[
+            Expanded(
+              child: StreamBuilder(
+                  stream: MergeStream([_pendingMessages.stream, _room.stream]),
+                  builder: (context, event) {
+                    return buildMessagesListView();
+                  }),
+            ),
+            StreamBuilder(
+                stream: _repliedMessage.stream,
+                builder: (c, rm) {
+                  if (rm.hasData && rm.data != null) {
+                    return ReplyPreview(
+                        message: _repliedMessage.value!,
+                        resetRoomPageDetails: _resetRoomPageDetails);
+                  }
+                  return Container();
+                }),
+            StreamBuilder(
+                stream: _editableMessage.stream,
+                builder: (c, em) {
+                  if (em.hasData && em.data != null) {
+                    return OnEditMessageWidget(
+                        message: _editableMessage.value!,
+                        resetRoomPageDetails: _resetRoomPageDetails);
+                  }
+                  return Container();
+                }),
+            StreamBuilder<bool>(
+                stream: _waitingForForwardedMessage.stream,
+                builder: (c, wm) {
+                  if (wm.hasData && wm.data!) {
+                    return ForwardPreview(
+                      forwardedMessages: widget.forwardedMessages,
+                      shareUid: widget.shareUid,
+                      onClick: () {
+                        _waitingForForwardedMessage.add(false);
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
+                }),
+            keyboardWidget(),
+          ],
+        ),
+        pinMessageWidget(),
+        StreamBuilder<int>(
+            stream: _positionSubject.stream,
+            builder: (c, position) {
+              double scale = 1;
+              if (!position.hasData || _itemCount - (position.data!) < 4) {
+                scale = 0;
+              }
+              return Positioned(
+                right: 20,
+                bottom: 70,
+                child: AnimatedScale(
+                    child: scrollDownButtonWidget(),
+                    scale: scale,
+                    duration: const Duration(milliseconds: 100)),
+              );
+            }),
+        AudioPlayerAppBar(),
+      ],
     );
   }
 
@@ -239,6 +232,9 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    initRoomStream();
+    initPendingMessages();
+
     // Log page data
     _logger.wtf(_authRepo.currentUserUid);
     _logger.wtf(widget.roomId);
@@ -302,23 +298,54 @@ class _RoomPageState extends State<RoomPage> {
     super.initState();
   }
 
+  void initRoomStream() {
+    final subscription =
+        _roomRepo.watchRoom(widget.roomId).listen((event) async {
+      // Set Item Count
+      _itemCount = (event.lastMessageId ?? 0) +
+          pendingMessages.length -
+          event.firstMessageId;
+
+      // Remove changed messages from cache
+      if (room.lastUpdatedMessageId != null &&
+          room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
+        final id = room.lastUpdatedMessageId!;
+
+        final msg = await _getMessage(id, useCache: false);
+
+        if (msg != null) {
+          _messageCache.set(id, msg); // Refresh cache
+        }
+      }
+
+      // Notify All Piece of Widget
+      _room.add(event);
+      _itemCountSubject.add(_itemCount);
+    });
+    _room.onCancel = () => subscription.cancel();
+  }
+
+  void initPendingMessages() {
+    final subscription = _messageRepo
+        .watchPendingMessages(widget.roomId)
+        .listen((event) => _pendingMessages.add(event));
+    _pendingMessages.onCancel = () => subscription.cancel();
+  }
+
   void subscribeOnPositionToSendSeen() {
     // TODO Channel is different from groups and private chats !!!
     _positionSubject
         .where((event) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
-        .map((event) => event + 1 + (_currentRoom.value?.firstMessageId ?? 0))
+        .map((event) => event + room.firstMessageId + 1)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
         .distinct()
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
-      if (_currentRoom.value != null &&
-          _currentRoom.value!.lastMessageId != null) {
-        var msg = await _getMessage(
-            event, widget.roomId, _currentRoom.value!.lastMessageId,
-            lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
+      if (room.lastMessageId != null) {
+        var msg = await _getMessage(event);
 
         if (msg == null) return;
 
@@ -331,17 +358,17 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-  Future<Message?> _getMessage(int id, String roomId, int? lastMessageId,
-      {int? lastUpdatedMessageId}) async {
+  Future<Message?> _getMessage(int id, {useCache = true}) async {
     if (id <= 0) return null;
-    if (lastMessageId != null) {
+    if (room.lastMessageId != null) {
       var msg = _messageCache.get(id);
-      if (msg != null && id != lastUpdatedMessageId) {
+      if (msg != null && useCache) {
         return msg;
       }
       int page = (id / PAGE_SIZE).floor();
-      List<Message?> messages = await _messageRepo
-          .getPage(page, roomId, id, lastMessageId, pageSize: PAGE_SIZE);
+      List<Message?> messages = await _messageRepo.getPage(
+          page, widget.roomId, id, room.lastMessageId!,
+          pageSize: PAGE_SIZE);
       for (int i = 0; i < messages.length; i = i + 1) {
         _messageCache.set(messages[i]!.id!, messages[i]!);
       }
@@ -414,8 +441,8 @@ class _RoomPageState extends State<RoomPage> {
 
   _getLastSeen() async {
     Seen? seen = await _roomRepo.getOthersSeen(widget.roomId);
-    if (seen != null && seen.messageId != null) {
-      _lastSeenMessageId = seen.messageId!;
+    if (seen != null) {
+      _lastSeenMessageId = seen.messageId;
     }
   }
 
@@ -424,11 +451,9 @@ class _RoomPageState extends State<RoomPage> {
 
     var room = await _roomRepo.getRoom(widget.roomId);
 
-    if (seen != null && seen.messageId != null) {
-      _lastShowedMessageId = seen.messageId!;
-      if (room!.firstMessageId != null) {
-        _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId!;
-      }
+    _lastShowedMessageId = seen.messageId;
+    if (room != null) {
+      _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId;
       if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
         _lastShowedMessageId = -1;
       }
@@ -445,12 +470,7 @@ class _RoomPageState extends State<RoomPage> {
         if (pm != null && pm.isNotEmpty) {
           pm.reversed.toList().forEach((element) async {
             try {
-              var m = await _getMessage(
-                  element, widget.roomId, muc.lastMessageId!,
-                  lastUpdatedMessageId:
-                      _currentRoom.value!.lastUpdatedMessageId != null
-                          ? _currentRoom.value!.lastUpdatedMessageId!
-                          : 0);
+              var m = await _getMessage(element);
               _pinMessages.add(m!);
               _pinMessages.sort((a, b) => a.time - b.time);
               _lastPinedMessage.add(_pinMessages.last.id!);
@@ -493,81 +513,64 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget scrollDownButtonWidget() {
-    return Positioned(
-        right: 20,
-        bottom: 100,
-        child: Stack(
-          children: [
-            FloatingActionButton(
-                backgroundColor: Colors.white,
-                // mini: true,
-                child: const Icon(
-                  Icons.arrow_downward_rounded,
-                  color: Colors.black,
-                ),
-                onPressed: () {
-                  _scrollToMessage(
-                      id: _lastShowedMessageId > 0
-                          ? _lastShowedMessageId
-                          : _itemCount);
-                  _lastShowedMessageId = -1;
-                }),
-            if (_currentRoom.value!.lastMessage != null &&
-                !_authRepo.isCurrentUser(_currentRoom.value!.lastMessage!.from))
-              Positioned(
-                  top: 0,
-                  left: 0,
-                  // alignment: Alignment.topLeft,
-                  child: UnreadMessageCounterWidget(
-                      widget.roomId, _currentRoom.value!.lastMessageId!)),
-          ],
-        ));
+    return Stack(
+      children: [
+        FloatingActionButton(
+            mini: true,
+            child: const Icon(
+              CupertinoIcons.down_arrow,
+            ),
+            onPressed: () {
+              _scrollToMessage(
+                  id: _lastShowedMessageId > 0
+                      ? _lastShowedMessageId
+                      : _itemCount);
+              _lastShowedMessageId = -1;
+            }),
+        if (room.lastMessage != null &&
+            !_authRepo.isCurrentUser(room.lastMessage!.from))
+          Positioned(
+              top: 0,
+              left: 0,
+              child: UnreadMessageCounterWidget(
+                  widget.roomId, room.lastMessageId!)),
+      ],
+    );
   }
 
   Widget buildNewMessageInput() {
     if (widget.roomId.asUid().category == Categories.BOT) {
       return StreamBuilder<Room?>(
-          stream: _currentRoom.stream,
+          stream: _room.stream,
           builder: (c, s) {
             if (s.hasData &&
-                s.data != null &&
                 s.data!.uid.asUid().category == Categories.BOT &&
                 s.data!.lastMessageId == null) {
               return BotStartWidget(botUid: widget.roomId.asUid());
             } else {
-              return NewMessageInput(
-                currentRoomId: widget.roomId,
-                replyMessageId: _repliedMessage.value?.id ?? 0,
-                resetRoomPageDetails: _resetRoomPageDetails,
-                waitingForForward: _waitingForForwardedMessage.value,
-                sendForwardMessage: _sendForwardMessage,
-                scrollToLastSentMessage: scrollToLast,
-                focusNode: _inputMessageFocusNode,
-                textController: _inputMessageTextController,
-              );
+              return messageInput();
             }
           });
     } else {
-      return StreamBuilder(
-          stream:
-              MergeStream([_repliedMessage.stream, _editableMessage.stream]),
-          builder: (c, data) {
-            return NewMessageInput(
-              currentRoomId: widget.roomId,
-              replyMessageId: _repliedMessage.value != null
-                  ? _repliedMessage.value!.id!
-                  : 0,
-              editableMessage: _editableMessage.value,
-              resetRoomPageDetails: _resetRoomPageDetails,
-              waitingForForward: _waitingForForwardedMessage.value,
-              sendForwardMessage: _sendForwardMessage,
-              scrollToLastSentMessage: scrollToLast,
-              focusNode: _inputMessageFocusNode,
-              textController: _inputMessageTextController,
-            );
-          });
+      return messageInput();
     }
   }
+
+  Widget messageInput() => StreamBuilder(
+      stream: MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+      builder: (c, data) {
+        return NewMessageInput(
+          currentRoomId: widget.roomId,
+          replyMessageId: _repliedMessage.value?.id ?? 0,
+          editableMessage: _editableMessage.value,
+          resetRoomPageDetails: _resetRoomPageDetails,
+          waitingForForward: _waitingForForwardedMessage.value,
+          sendForwardMessage: _sendForwardMessage,
+          scrollToLastSentMessage: scrollToLast,
+          focusNode: _inputMessageFocusNode,
+          textController: _inputMessageTextController,
+        );
+      });
 
   PreferredSizeWidget buildAppbar() {
     final theme = Theme.of(context);
@@ -580,7 +583,7 @@ class _RoomPageState extends State<RoomPage> {
             builder: (c, s) {
               if (s.hasData && s.data!) {
                 return IconButton(
-                    icon: const Icon(Icons.search),
+                    icon: const Icon(CupertinoIcons.search),
                     onPressed: () {
                       //   searchMessage(controller.text, checkSearchResult);
                     });
@@ -597,7 +600,7 @@ class _RoomPageState extends State<RoomPage> {
                               child: IconButton(
                                   color: theme.primaryColor,
                                   icon: const Icon(
-                                    Icons.clear,
+                                    CupertinoIcons.xmark,
                                     size: 25,
                                   ),
                                   onPressed: () {
@@ -685,15 +688,18 @@ class _RoomPageState extends State<RoomPage> {
           }
         },
       ),
-      // bottom: const PreferredSize(
-      //   child: Divider(),
-      //   preferredSize: Size.fromHeight(1),
-      // ),
+      bottom: const PreferredSize(
+        child: Divider(),
+        preferredSize: Size.fromHeight(1),
+      ),
     );
   }
 
-  Widget buildMessagesListView(List<PendingMessage> pendingMessages) {
-    final theme = Theme.of(context);
+  Widget buildMessagesListView() {
+    if (room.lastMessage == null) {
+      return const SizedBox.shrink();
+    }
+
     int scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
             ? _lastShowedMessageId
@@ -714,64 +720,36 @@ class _RoomPageState extends State<RoomPage> {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
-        if (index == -1) index = 0;
-        if (_currentRoom.value!.firstMessageId != null) {
-          index = index + _currentRoom.value!.firstMessageId!;
-        }
-        bool isPendingMessage = (_currentRoom.value == null ||
-                (_currentRoom.value != null &&
-                    _currentRoom.value!.lastMessageId == null))
-            ? true
-            : _itemCount > _currentRoom.value!.lastMessageId! &&
-                _itemCount - index <= pendingMessages.length;
-
-        return _buildMessage(isPendingMessage, pendingMessages, index,
-            _currentRoom.value!, initialScrollIndex);
+        return _buildMessage(
+            index + room.firstMessageId, room, initialScrollIndex);
       },
       separatorBuilder: (context, index) {
         int firstIndex = index;
 
-        if (_currentRoom.value!.firstMessageId != null) {
-          index = index + _currentRoom.value!.firstMessageId!;
+        index = index + (room.firstMessageId);
+
+        if (index < room.firstMessageId) {
+          return const SizedBox.shrink();
         }
-        if (_currentRoom.value!.firstMessageId != null &&
-            index < _currentRoom.value!.firstMessageId!) return Container();
         return Column(
           children: [
-            if (_currentRoom.value!.lastMessageId != null &&
-                _lastShowedMessageId != -1 &&
+            if (room.lastMessageId != null &&
                 _lastShowedMessageId == firstIndex + 1 &&
-                (_currentRoom.value!.lastUpdatedMessageId == null ||
-                    (_currentRoom.value!.lastUpdatedMessageId != null &&
-                        _currentRoom.value!.lastUpdatedMessageId! <
-                            _currentRoom.value!.lastMessageId!)))
+                (room.lastUpdatedMessageId == null ||
+                    (room.lastUpdatedMessageId != null &&
+                        room.lastUpdatedMessageId! < room.lastMessageId!)))
               FutureBuilder<Message?>(
-                  future: _messageAt(pendingMessages, index + 1),
+                  future: _messageAtIndex(index + 1),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
                         _authRepo.isCurrentUser(snapshot.data!.from)) {
                       return const SizedBox.shrink();
                     }
-                    return Container(
-                      color: theme.backgroundColor,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.keyboard_arrow_down,
-                              color: theme.primaryColor),
-                          Text(
-                            _i18n.get("unread_messages"),
-                            style: TextStyle(color: theme.primaryColor),
-                          ),
-                        ],
-                      ),
-                    );
+                    return const UnreadMessageBar();
                   }),
             FutureBuilder<int?>(
-              future: _timeAt(pendingMessages, index)!,
+              future: _timeAt(index)!,
               builder: (context, snapshot) =>
                   snapshot.hasData && snapshot.data != null
                       ? ChatTime(currentMessageTime: date(snapshot.data!))
@@ -784,30 +762,27 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<Tuple2<Message?, Message?>> _fetchMessageAndMessageBefore(
-      List<PendingMessage> pendingMessages, int index) async {
-    return Tuple2(await _messageAt(pendingMessages, index - 1),
-        await _messageAt(pendingMessages, index));
+      int index) async {
+    return Tuple2(
+        await _messageAtIndex(index - 1), await _messageAtIndex(index));
   }
 
-  Future<Message?> _messageAt(List<PendingMessage> pendingMessages, int index) {
-    bool isPendingMessage = (_currentRoom.value != null &&
-            _currentRoom.value!.lastMessageId == null) ||
-        _itemCount > _currentRoom.value!.lastMessageId! &&
+  Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
+    bool isPendingMessage = (room.lastMessageId == null) ||
+        _itemCount > room.lastMessageId! &&
             _itemCount - index <= pendingMessages.length;
     return isPendingMessage
-        ? Future.value(pendingMessages[_itemCount - index - 1].msg)
-        : _getMessage(
-            index + 1, widget.roomId, _currentRoom.value!.lastMessageId!,
-            lastUpdatedMessageId: _currentRoom.value!.lastUpdatedMessageId);
+        ? pendingMessages[_itemCount - index - 1].msg
+        : await _getMessage(index + 1, useCache: useCache);
   }
 
-  Future<int?>? _timeAt(List<PendingMessage> pendingMessages, int index) async {
+  Future<int?>? _timeAt(int index) async {
     if (index < 0) return null;
 
-    final msg = await _messageAt(pendingMessages, index + 1);
+    final msg = await _messageAtIndex(index + 1);
 
     if (index > 0) {
-      final prevMsg = await _messageAt(pendingMessages, index);
+      final prevMsg = await _messageAtIndex(index);
       if (prevMsg!.json!.isDeletedMessage() || msg!.json!.isDeletedMessage()) {
         return null;
       }
@@ -822,21 +797,16 @@ class _RoomPageState extends State<RoomPage> {
     return null;
   }
 
-  _buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
-      int index, Room currentRoom, int initScrollIndex) {
+  _buildMessage(int index, Room currentRoom, int initScrollIndex) {
     final theme = Theme.of(context);
-    if (currentRoom.firstMessageId != null &&
-        index < currentRoom.firstMessageId!) {
-      return Container(
-        height: 20,
-      );
+    if (index < currentRoom.firstMessageId) {
+      return const SizedBox(height: 20);
     }
 
     if (_widgetCache.get(index) != null &&
         (currentRoom.lastUpdatedMessageId == null ||
             (currentRoom.lastUpdatedMessageId != null &&
-                index + 1 !=
-                    _currentRoom.stream.value!.lastUpdatedMessageId!))) {
+                index + 1 != room.lastUpdatedMessageId!))) {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         color: _selectedMessages.containsKey(index + 1) ||
@@ -846,12 +816,15 @@ class _RoomPageState extends State<RoomPage> {
         child: _widgetCache.get(index),
       );
     } else {
+      final cachedMsg = _messageCache.get(index + 1);
+      final cachedPrevMsg = _messageCache.get(index);
+      final initialData = cachedMsg != null && cachedPrevMsg != null
+          ? Tuple2(cachedMsg, cachedPrevMsg)
+          : null;
+
       return FutureBuilder<Tuple2<Message?, Message?>>(
-        // TODO change condition later by unset cache on changes
-        initialData: index + 1 != _currentRoom.value!.lastUpdatedMessageId
-            ? Tuple2(_messageCache.get(index + 1), _messageCache.get(index))
-            : null,
-        future: _fetchMessageAndMessageBefore(pendingMessages, index),
+        initialData: initialData,
+        future: _fetchMessageAndMessageBefore(index),
         builder: (context, ms) {
           if (ms.hasData && ms.data != null && ms.data!.item2 != null) {
             final tuple = ms.data!;
@@ -862,7 +835,7 @@ class _RoomPageState extends State<RoomPage> {
               final widget = Column(
                 children: [
                   ChatTime(currentMessageTime: date(message.time)),
-                  buildBox(message, messageBefore, currentRoom, pendingMessages)
+                  buildBox(message, messageBefore)
                 ],
               );
               if (message.id != null) {
@@ -870,8 +843,7 @@ class _RoomPageState extends State<RoomPage> {
               }
               return widget;
             } else {
-              final widget = buildBox(
-                  message, messageBefore, currentRoom, pendingMessages);
+              final widget = buildBox(message, messageBefore);
               if (message.id != null) {
                 _widgetCache.set(index, widget);
               }
@@ -891,8 +863,7 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  Widget buildBox(Message message, Message? messageBefore, Room currentRoom,
-      List<PendingMessage> pendingMessages) {
+  Widget buildBox(Message message, Message? messageBefore) {
     final keyId = message.id;
     final key = keyId != null ? ValueKey(keyId) : null;
 
@@ -900,7 +871,7 @@ class _RoomPageState extends State<RoomPage> {
       key: key,
       message: message,
       messageBefore: messageBefore,
-      currentRoom: currentRoom,
+      roomId: widget.roomId,
       itemScrollController: _itemScrollController,
       lastSeenMessageId: _lastSeenMessageId,
       addReplyMessage: () => onReply(message),
@@ -986,10 +957,7 @@ class _RoomPageState extends State<RoomPage> {
               message: _i18n.get("forward"),
               child: IconButton(
                   color: theme.primaryColor,
-                  icon: const Icon(
-                    Icons.forward,
-                    size: 25,
-                  ),
+                  icon: const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   onPressed: () {
                     _routingService.openSelectForwardMessage(
                         forwardedMessages: _selectedMessages.values.toList());
@@ -1000,10 +968,7 @@ class _RoomPageState extends State<RoomPage> {
               message: _i18n.get("delete"),
               child: IconButton(
                   color: theme.primaryColor,
-                  icon: const Icon(
-                    Icons.delete,
-                    size: 25,
-                  ),
+                  icon: const Icon(CupertinoIcons.delete),
                   onPressed: () {
                     showDeleteMsgDialog(
                       _selectedMessages.values.toList(),
@@ -1019,10 +984,7 @@ class _RoomPageState extends State<RoomPage> {
             message: _i18n.get("copy"),
             child: IconButton(
                 color: Theme.of(context).primaryColor,
-                icon: const Icon(
-                  Icons.copy,
-                  size: 25,
-                ),
+                icon: const Icon(CupertinoIcons.doc_on_clipboard),
                 onPressed: () async {
                   String copyText = "";
                   List<Message> messages = _selectedMessages.values.toList();

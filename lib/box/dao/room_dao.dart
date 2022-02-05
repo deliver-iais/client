@@ -15,7 +15,7 @@ abstract class RoomDao {
 
   Future<Room?> getRoom(String roomUid);
 
-  Stream<Room?> watchRoom(String roomUid);
+  Stream<Room> watchRoom(String roomUid);
 
   Future<List<Room>> getAllGroups();
 }
@@ -86,12 +86,14 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<Room?> watchRoom(String roomUid) async* {
+  Stream<Room> watchRoom(String roomUid) async* {
     var box = await _openRoom();
 
-    yield box.get(roomUid);
+    yield box.get(roomUid) ?? Room(uid: roomUid);
 
-    yield* box.watch(key: roomUid).map((event) => box.get(roomUid));
+    yield* box
+        .watch(key: roomUid)
+        .map((event) => box.get(roomUid) ?? Room(uid: roomUid));
   }
 
   static String _keyRoom() => "room";

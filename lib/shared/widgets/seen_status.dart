@@ -63,7 +63,7 @@ class SeenStatus extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Icon(
-              snapshot.data!.messageId! >= message.id!
+              snapshot.data!.messageId >= message.id!
                   ? Icons.done_all
                   : Icons.done,
               color: color,
