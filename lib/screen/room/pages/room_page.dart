@@ -88,7 +88,6 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
-  final _key = GlobalKey();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -104,18 +103,25 @@ class _RoomPageState extends State<RoomPage> {
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
 
+  final _scrollStarted = BehaviorSubject.seeded(false);
+  final _scrollEnded = BehaviorSubject.seeded(false);
+  final _isScrolling = BehaviorSubject.seeded(false);
+
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
 
   Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
 
-  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(100));
-  final _widgetCache = LruCache<int, Widget>(storage: InMemoryStorage(100));
+  final _messageWidgetCache =
+      LruCache<int, Widget?>(storage: InMemoryStorage(200));
+
+  late final _messageCache = LruCache<int, Message>(
+      storage: InMemoryStorage(200),
+      onEvict: (k, v) => _messageWidgetCache.set(k, null));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _scrollPhysics = const ClampingScrollPhysics();
-
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
@@ -128,6 +134,7 @@ class _RoomPageState extends State<RoomPage> {
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
   final _inputMessageTextController = TextEditingController();
   final _inputMessageFocusNode = FocusNode();
+  final _scrollablePositionedListKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -204,20 +211,16 @@ class _RoomPageState extends State<RoomPage> {
           ],
         ),
         pinMessageWidget(),
-        StreamBuilder<int>(
-            stream: _positionSubject.stream,
-            builder: (c, position) {
-              double scale = 1;
-              if (!position.hasData || _itemCount - (position.data!) < 4) {
-                scale = 0;
-              }
+        StreamBuilder<bool>(
+            stream: _isScrolling.stream,
+            builder: (context, snapshot) {
               return Positioned(
                 right: 20,
                 bottom: 70,
                 child: AnimatedScale(
                     child: scrollDownButtonWidget(),
-                    scale: scale,
-                    duration: const Duration(milliseconds: 100)),
+                    scale: snapshot.data == true ? 1 : 0,
+                    duration: ANIMATION_DURATION * 1.3),
               );
             }),
         AudioPlayerAppBar(),
@@ -255,6 +258,9 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
+      _scrollStarted.add(true);
+      _scrollEnded.add(true);
+
       var position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
         int firstItem = position
@@ -271,6 +277,13 @@ class _RoomPageState extends State<RoomPage> {
             .reduce(max));
       }
     });
+
+    MergeStream([
+      _scrollStarted.map((event) => true),
+      _scrollEnded
+          .debounceTime(const Duration(milliseconds: 1000))
+          .map((event) => false)
+    ]).listen((event) => _isScrolling.add(event));
 
     // If new message arrived, scroll to the end of page if we are close to end of the page
     _itemCountSubject.distinct().listen((event) {
@@ -713,20 +726,17 @@ class _RoomPageState extends State<RoomPage> {
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
       initialScrollIndex: initialScrollIndex,
-      key: _key,
+      key: _scrollablePositionedListKey,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
       addSemanticIndexes: false,
       shrinkWrap: true,
-      minCacheExtent: 300,
+      minCacheExtent: 0,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
-      itemBuilder: (context, index) {
-        print(index);
-        return _buildMessage(
-            index + room.firstMessageId, room, initialScrollIndex);
-      },
+      itemBuilder: (context, index) =>
+          _cachedBuildMessage(index + room.firstMessageId),
       separatorBuilder: (context, index) {
         int firstIndex = index;
 
@@ -765,6 +775,15 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
+  Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
+      int index) {
+    final cachedPrevMsg = _messageCache.get(index - 1);
+    final cachedMsg = _messageCache.get(index);
+    return cachedMsg != null && cachedPrevMsg != null
+        ? Tuple2(cachedMsg, cachedPrevMsg)
+        : null;
+  }
+
   Future<Tuple2<Message?, Message?>> _fetchMessageAndMessageBefore(
       int index) async {
     return Tuple2(
@@ -801,92 +820,87 @@ class _RoomPageState extends State<RoomPage> {
     return null;
   }
 
-  _buildMessage(int index, Room currentRoom, int initScrollIndex) {
-    final theme = Theme.of(context);
-    if (index < currentRoom.firstMessageId) {
-      return const SizedBox(height: 100);
+  Widget _cachedBuildMessage(int index) {
+    if (index < room.firstMessageId) {
+      return const SizedBox.shrink();
     }
 
-    if (_widgetCache.get(index) != null &&
-        (currentRoom.lastUpdatedMessageId == null ||
-            (currentRoom.lastUpdatedMessageId != null &&
-                index + 1 != room.lastUpdatedMessageId!))) {
-      return AnimatedContainer(
-        key: ValueKey(index),
-        duration: const Duration(milliseconds: 200),
-        color: _selectedMessages.containsKey(index + 1) ||
-                (_replyMessageId == index + 1)
-            ? theme.focusColor.withAlpha(100)
-            : Colors.transparent,
-        child: _widgetCache.get(index),
-      );
-    } else {
-      final cachedMsg = _messageCache.get(index + 1);
-      final cachedPrevMsg = _messageCache.get(index);
-      final initialData = cachedMsg != null && cachedPrevMsg != null
-          ? Tuple2(cachedMsg, cachedPrevMsg)
-          : null;
-
-      return FutureBuilder<Tuple2<Message?, Message?>>(
-        key: ValueKey(index),
-        initialData: initialData,
-        future: _fetchMessageAndMessageBefore(index),
-        builder: (context, ms) {
-          if (ms.hasData && ms.data != null && ms.data!.item2 != null) {
-            final tuple = ms.data!;
-            final messageBefore = tuple.item1;
-            final message = tuple.item2!;
-
-            if (index == 0) {
-              final widget = Column(
-                children: [
-                  ChatTime(currentMessageTime: date(message.time)),
-                  buildBox(message, messageBefore)
-                ],
-              );
-              if (message.id != null) {
-                _widgetCache.set(index, widget);
-              }
-              return widget;
-            } else {
-              final widget = buildBox(message, messageBefore);
-              if (message.id != null) {
-                _widgetCache.set(index, widget);
-              }
-              return widget;
-            }
-          } else {
-            return const SizedBox(height: 100);
-          }
-        },
-      );
-    }
+    return AnimatedContainer(
+      key: ValueKey(index),
+      duration: ANIMATION_DURATION * 2,
+      color: _selectedMessages.containsKey(index + 1) ||
+              (_replyMessageId == index + 1)
+          ? Theme.of(context).focusColor.withAlpha(100)
+          : Colors.transparent,
+      child: _buildMessage(index),
+    );
   }
 
-  Widget buildBox(Message message, Message? messageBefore) {
-    final keyId = message.id;
-    final key = keyId != null ? ValueKey(keyId) : null;
+  Widget _buildMessage(int index) {
+    final tuple = _fastForwardFetchMessageAndMessageBefore(index);
+    if (tuple != null) {
+      return cachedBuildMessage(index, tuple);
+    }
 
-    return BuildMessageBox(
-      key: key,
+    return FutureBuilder<Tuple2<Message?, Message?>>(
+      initialData: _fastForwardFetchMessageAndMessageBefore(index),
+      future: _fetchMessageAndMessageBefore(index),
+      builder: (context, ms) {
+        return cachedBuildMessage(index, ms.data);
+      },
+    );
+  }
+
+  Widget cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
+    if (tuple == null || tuple.item2 == null) {
+      return const SizedBox.shrink();
+    }
+
+    Widget? widget = _messageWidgetCache.get(index);
+
+    if (widget == null) {
+      widget = _buildMessageBox(index, tuple);
+      _messageWidgetCache.set(index, widget);
+    }
+
+    return widget;
+  }
+
+  Widget _buildMessageBox(int index, Tuple2<Message?, Message?> tuple) {
+    final messageBefore = tuple.item1;
+    final message = tuple.item2!;
+
+    final msgBox = BuildMessageBox(
       message: message,
       messageBefore: messageBefore,
       roomId: widget.roomId,
       itemScrollController: _itemScrollController,
       lastSeenMessageId: _lastSeenMessageId,
-      onEdit: () => onEdit(message),
-      onPin: () => onPin(message),
-      onUnPin: () => onUnPin(message),
-      onDelete: () => onDelete,
       pinMessages: _pinMessages,
-      changeReplyMessageId: (int id) => _changeReplyMessageId(id),
       replyMessageId: _replyMessageId,
-      onReply: () => onReply(message),
       selectMultiMessageSubject: _selectMultiMessageSubject,
       hasPermissionInGroup: _hasPermissionInGroup.value,
       hasPermissionInChannel: _hasPermissionInChannel,
+      onEdit: () => onEdit(message),
+      onPin: () => onPin(message),
+      onUnPin: () => onUnPin(message),
+      onReply: () => onReply(message),
       addForwardMessage: () => _addForwardMessage(message),
+      onDelete: onDelete,
+      changeReplyMessageId: _changeReplyMessageId,
     );
+
+    if (index == 0) {
+      return Column(
+        children: [
+          const SizedBox(height: 50),
+          ChatTime(currentMessageTime: date(message.time)),
+          msgBox
+        ],
+      );
+    } else {
+      return msgBox;
+    }
   }
 
   _addForwardMessage(Message message) {

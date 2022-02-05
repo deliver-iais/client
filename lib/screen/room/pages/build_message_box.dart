@@ -42,18 +42,18 @@ class BuildMessageBox extends StatefulWidget {
   final String roomId;
   final ItemScrollController itemScrollController;
   final void Function() onReply;
-  final Function onEdit;
-  final Function addForwardMessage;
-  final Function onDelete;
-  final Function onPin;
-  final Function onUnPin;
+  final void Function() onEdit;
+  final void Function() addForwardMessage;
+  final void Function() onDelete;
+  final void Function() onPin;
+  final void Function() onUnPin;
   final int lastSeenMessageId;
   final List<Message> pinMessages;
   final int replyMessageId;
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
-  final Function changeReplyMessageId;
+  final void Function(int) changeReplyMessageId;
 
   const BuildMessageBox(
       {Key? key,
