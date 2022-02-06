@@ -120,25 +120,24 @@ class _ImageTabUiState extends State<ImageTabUi> {
           if (widget.selectedMedia.isNotEmpty)
             Align(
                 alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: IconButton(
-                      onPressed: () => widget.addSelectedMedia(media),
-                      icon: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          color: Colors.greenAccent.withOpacity(0.9),
+                child: IconButton(
+                    onPressed: () => widget.addSelectedMedia(media),
+                    icon: Container(
+                      width: 25,
+                      height: 25,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: Theme.of(context).hoverColor.withOpacity(0.5)),
+                      child: Center(
+                        child: Icon(
+                          widget.selectedMedia.contains(media)
+                              ? Icons.check_circle_outline
+                              : Icons.panorama_fish_eye,
+                          color: Colors.white,
+                          size: 25,
                         ),
-                        child: Center(
-                          child: Icon(
-                            widget.selectedMedia.contains(media)
-                                ? Icons.check_circle_outline
-                                : Icons.panorama_fish_eye,
-                            color: Colors.white,
-                            size: 25,
-                          ),
-                        ),
-                      )),
+                      ),
+                    )
                 ))
         ],
       ),

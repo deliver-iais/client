@@ -201,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                       _selectedMedia.length
                                                           .toString(),
                                                       style: TextStyle(
-                                                          fontSize: 16,
+                                                          fontSize: 14,
                                                           color: theme
                                                               .colorScheme
                                                               .onPrimary),

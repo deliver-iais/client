@@ -408,6 +408,7 @@ class MessageRepo {
     final List<String> textsBlocks = text.split("\n").toList();
     final List<String> result = [];
     for (text in textsBlocks) {
+      if (textsBlocks.last != text) text = text + "\n";
       if (text.length > TEXT_MESSAGE_MAX_LENGTH) {
         int i = 0;
         while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
