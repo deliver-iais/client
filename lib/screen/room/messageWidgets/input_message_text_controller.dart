@@ -10,8 +10,8 @@ class InputMessageTextController extends TextEditingController {
     List<Block> blocks = [Block(text: text)];
     List<Parser> parsers = [
       EmojiParser(fontSize: 16),
-      BoldTextParser(),
-      ItalicTextParser()
+      // BoldTextParser(),
+      // ItalicTextParser()
     ];
     for (final p in parsers) {
       blocks = p.parse(blocks, context);
