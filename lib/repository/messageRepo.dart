@@ -10,6 +10,7 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
@@ -94,6 +95,7 @@ class MessageRepo {
           await updatingMessages();
           updatingLastSeen();
           fetchBlockedRoom();
+
           updatingStatus.add(TitleStatusConditions.Normal);
 
           sendPendingMessages();
@@ -701,6 +703,17 @@ class MessageRepo {
     }
   }
 
+  sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
+    for (Media media in forwardedMedias) {
+      Message msg =
+          _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
+              .copyWith(type: MessageType.FILE, json: media.json);
+
+      var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+      _saveAndSend(pm);
+    }
+  }
+
   Message _createMessage(Uid room, {int? replyId, String? forwardedFrom}) {
     return Message(
       roomUid: room.asString(),
@@ -1011,8 +1024,8 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            Room? room = await  _roomRepo.getRoom(msg.roomUid);
-            if(room!= null){
+            Room? room = await _roomRepo.getRoom(msg.roomUid);
+            if (room != null) {
               if (msg.id == room.lastMessageId) {
                 _roomDao.updateRoom(Room(
                     uid: msg.roomUid,
@@ -1020,7 +1033,6 @@ class MessageRepo {
                     lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
               }
             }
-
 
             msg.json = "{}";
             _messageDao.saveMessage(msg);

@@ -18,8 +18,15 @@ import 'package:open_file/open_file.dart';
 class VideoTabUi extends StatefulWidget {
   final Uid roomUid;
   final int videoCount;
+  final Function addSelectedMedia;
+  final List<Media> selectedMedia;
 
-  const VideoTabUi({Key? key, required this.roomUid, required this.videoCount})
+  const VideoTabUi(
+      {Key? key,
+      required this.roomUid,
+      required this.videoCount,
+      required this.addSelectedMedia,
+      required this.selectedMedia})
       : super(key: key);
 
   @override
@@ -67,8 +74,11 @@ class _VideoTabUiState extends State<VideoTabUi> {
                   future: _getMedia(index),
                   builder: (c, mediaSnapShot) {
                     if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-                      return buildMediaWidget(
-                          mediaSnapShot.data!, index, theme);
+                      return GestureDetector(
+                          child: buildMediaWidget(
+                              mediaSnapShot.data!, index, theme),
+                          onLongPress: () =>
+                              widget.addSelectedMedia(mediaSnapShot.data!));
                     } else {
                       return const SizedBox.shrink();
                     }
@@ -84,44 +94,68 @@ class _VideoTabUiState extends State<VideoTabUi> {
     var dur = Duration(seconds: duration.ceil());
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(width: 3, color: theme.colorScheme.onPrimary),
+        border: Border.all(
+            width: widget.selectedMedia.isNotEmpty ? 3 : 6,
+            color: theme.colorScheme.onPrimary),
       ),
-      child: FutureBuilder<String?>(
-          future: _fileRepo.getFileIfExist(
-              jsonDecode(media.json)["uuid"], jsonDecode(media.json)["name"]),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return GestureDetector(
-                onTap: () {
-                  if (isDesktop()) {
-                    OpenFile.open(snapshot.data!);
-                  } else {
-                    _routingService.openShowAllVideos(
-                        uid: widget.roomUid,
-                        initIndex: index,
-                        videosLength: widget.videoCount);
-                  }
-                },
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Icon(
-                        Icons.play_circle_fill,
-                        color: theme.colorScheme.primary,
-                        size: 55,
-                      ),
+      child: Stack(
+        children: [
+          FutureBuilder<String?>(
+              future: _fileRepo.getFileIfExist(jsonDecode(media.json)["uuid"],
+                  jsonDecode(media.json)["name"]),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return GestureDetector(
+                    onTap: () {
+                      if (isDesktop()) {
+                        OpenFile.open(snapshot.data!);
+                      } else {
+                        _routingService.openShowAllVideos(
+                            uid: widget.roomUid,
+                            initIndex: index,
+                            videosLength: widget.videoCount);
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Icon(
+                            Icons.play_circle_fill,
+                            color: theme.colorScheme.primary,
+                            size: 55,
+                          ),
+                        ),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Text(dur.toString().substring(0, 7)))
+                      ],
                     ),
-                    Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(dur.toString().substring(0, 7)))
-                  ],
-                ),
-              );
-            } else {
-              _fileServices.initProgressBar(jsonDecode(media.json)["uuid"]);
-              return downloadVideo(media, theme);
-            }
-          }),
+                  );
+                } else {
+                  _fileServices.initProgressBar(jsonDecode(media.json)["uuid"]);
+                  return downloadVideo(media, theme);
+                }
+              }),
+          if (widget.selectedMedia.isNotEmpty)
+            Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IconButton(
+                      onPressed: () => widget.addSelectedMedia(media),
+                      icon: Container(
+                        color: Theme.of(context).hoverColor,
+                        child: Icon(
+                          widget.selectedMedia.contains(media)
+                              ? Icons.check_circle_outline
+                              : Icons.panorama_fish_eye,
+                          color: Theme.of(context).primaryColor,
+                          size: 34,
+                        ),
+                      )),
+                )),
+        ],
+      ),
     );
   }
 

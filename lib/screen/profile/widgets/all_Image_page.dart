@@ -6,7 +6,6 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
@@ -342,7 +341,7 @@ class _AllImagePageState extends State<AllImagePage> {
                   Text(
                     DateTime.fromMillisecondsSinceEpoch(
                             mediaSnapShot.data!.createdOn)
-                        .toString(),
+                        .toString().substring(0,19),
                     style: theme.textTheme.bodyText2!
                         .copyWith(height: 1, color: Colors.white),
                   )

@@ -349,11 +349,11 @@ class AndroidNotifier implements Notifier {
           notificationDetails: platformChannelSpecifics,
           payload: message.roomUid!.asString());
     } catch (e) {
-      showDefault();
+      showDefault(e.toString());
     }
   }
 
-  showDefault() {
+  showDefault(String e) {
     AwesomeNotifications().initialize(
         // set the icon to null if you want to use the default app icon
         null,
@@ -372,7 +372,7 @@ class AndroidNotifier implements Notifier {
             id: 10,
             channelKey: 'basic_channel',
             title: 'deliver',
-            body: 'new message'));
+            body: e.toString()));
   }
 
   @override

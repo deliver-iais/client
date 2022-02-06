@@ -18,9 +18,11 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 class ImageTabUi extends StatefulWidget {
   final int imagesCount;
   final Uid roomUid;
-  final List<Media> selected;
+  final Function addSelectedMedia;
+  final List<Media> selectedMedia;
 
-  const ImageTabUi(this.imagesCount, this.roomUid, {Key? key,required this.selected})
+  const ImageTabUi(this.imagesCount, this.roomUid,
+      {Key? key, required this.addSelectedMedia, required this.selectedMedia})
       : super(key: key);
 
   @override
@@ -79,60 +81,71 @@ class _ImageTabUiState extends State<ImageTabUi> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          width:widget.selected.isEmpty? 2:5,
+          width: widget.selectedMedia.isEmpty ? 2 : 6,
         ),
       ),
       child: Stack(
         children: [
-          FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(
-                  jsonDecode(media.json)["uuid"], jsonDecode(media.json)["name"]),
-              builder: (BuildContext c, AsyncSnapshot<String?> filePath) {
-                if (filePath.hasData && filePath.data != null) {
-                  return GestureDetector(
-                    onTap: () {
-                      _routingService.openShowAllImage(
-                          uid: widget.roomUid.asString(),
-                          messageId: media.messageId);
-                    },
-                    child: Hero(
-                      tag: jsonDecode(media.json)["uuid"],
-                      child: Container(
-                          decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: kIsWeb
-                              ? Image.network(filePath.data!).image
-                              : Image.file(
-                                  File(filePath.data!),
-                                ).image,
-                          fit: BoxFit.cover,
+          GestureDetector(
+              onTap: () => _routingService.openShowAllImage(
+                  uid: widget.roomUid.asString(), messageId: media.messageId),
+              onLongPress: () => _addSelectedMedia(media),
+              child: FutureBuilder<String?>(
+                  future: _fileRepo.getFileIfExist(
+                      jsonDecode(media.json)["uuid"],
+                      jsonDecode(media.json)["name"]),
+                  builder: (BuildContext c, AsyncSnapshot<String?> filePath) {
+                    if (filePath.hasData && filePath.data != null) {
+                      return Hero(
+                        tag: jsonDecode(media.json)["uuid"],
+                        child: Container(
+                            decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: kIsWeb
+                                ? Image.network(filePath.data!).image
+                                : Image.file(
+                                    File(filePath.data!),
+                                  ).image,
+                            fit: BoxFit.cover,
+                          ),
+                        )),
+                        transitionOnUserGestures: true,
+                      );
+                    } else {
+                      return SizedBox(
+                          child: BlurHash(
+                              hash: jsonDecode(media.json)["blurHash"]));
+                    }
+                  })),
+          if (widget.selectedMedia.isNotEmpty)
+            Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: IconButton(
+                      onPressed: () => widget.addSelectedMedia(media),
+                      icon: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32),
+                          color: Colors.greenAccent.withOpacity(0.9),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            widget.selectedMedia.contains(media)
+                                ? Icons.check_circle_outline
+                                : Icons.panorama_fish_eye,
+                            color: Colors.white,
+                            size: 25,
+                          ),
                         ),
                       )),
-                      transitionOnUserGestures: true,
-                    ),
-                  );
-                } else {
-                  return GestureDetector(
-                    onTap: () {
-                      _routingService.openShowAllImage(
-                          uid: widget.roomUid.asString(),
-                          messageId: media.messageId,);
-                    },
-                    child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: BlurHash(hash: jsonDecode(media.json)["blurHash"])),
-                  );
-                }
-              }),
-          Positioned(child: IconButton(onPressed: (){
-            widget.selected.add(media);
-            setState(() {
-
-            });
-          }, icon: Icon(Icons.assistant_direction_rounded)))
+                ))
         ],
       ),
     );
+  }
+
+  void _addSelectedMedia(Media media) {
+    widget.addSelectedMedia(media);
   }
 }

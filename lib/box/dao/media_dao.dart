@@ -12,11 +12,6 @@ abstract class MediaDao {
   Future save(Media media);
 
   Future<int?> getIndexOfMedia(String roomUid, int messageId);
-
-  Stream<List<Media>>? getMediaAsStream(String roomUid, MediaType mediaType);
-
-  Stream<List<Media>>? getMediaAsStreamByIndex(
-      String roomUid, MediaType mediaType);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -41,11 +36,12 @@ class MediaDaoImpl implements MediaDao {
   }
 
   @override
-  Future<int?> getIndexOfMedia(
-      String roomUid, int messageId) async {
+  Future<int?> getIndexOfMedia(String roomUid, int messageId) async {
     var box = await _open(roomUid);
     return box.values
-        .toList().reversed.toList()
+        .toList()
+        .reversed
+        .toList()
         .indexWhere((element) => element.messageId == messageId);
   }
 
@@ -66,67 +62,8 @@ class MediaDaoImpl implements MediaDao {
         .toList());
   }
 
-  @override
-  Stream<List<Media>>? getMediaAsStream(
-      String roomUid, MediaType mediaType) async* {
-    var box = await _open(roomUid);
-
-    yield sorted(box.values
-        .where((element) =>
-            element.roomId.contains(roomUid) && element.type == mediaType)
-        .toList());
-
-    yield* box.watch().map((event) => sorted(box.values
-        .where((element) =>
-            element.roomId.contains(roomUid) && element.type == mediaType)
-        .toList()));
-  }
-
   List<Media> sorted(List<Media> list) {
     list.sort((a, b) => (b.messageId) - (a.messageId));
     return list;
-  }
-
-  @override
-  Future<List<Media>> getMediaAround(
-      String roomId, int offset, MediaType type) async {
-    var box = await _open(roomId);
-    List<Media> res = [];
-    if (offset - 1 < 0) {
-      var medias = box.values
-          .where((element) =>
-              element.roomId.contains(roomId) && element.type == type)
-          .toList()
-          .sublist(offset, offset + 1);
-
-      res.addAll(medias);
-      res.sort((a, b) => a.createdOn - b.createdOn);
-      return res;
-    } else {
-      var medias = box.values
-          .where((element) =>
-              element.roomId.contains(roomId) && element.type == type)
-          .toList()
-          .sublist(offset - 1, offset + 2);
-      res.addAll(medias);
-      res.sort((a, b) => a.createdOn - b.createdOn);
-      return res;
-    }
-  }
-
-  @override
-  Stream<List<Media>>? getMediaAsStreamByIndex(
-      String roomUid, MediaType mediaType) async* {
-    var box = await _open(roomUid);
-
-    yield sorted(box.values
-        .where((element) =>
-            element.roomId.contains(roomUid) && element.type == mediaType)
-        .toList());
-
-    yield* box.watch().map((event) => sorted(box.values
-        .where((element) =>
-            element.roomId.contains(roomUid) && element.type == mediaType)
-        .toList()));
   }
 }

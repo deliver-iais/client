@@ -91,10 +91,12 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                                 builder: (c, filePath) {
                                   if (filePath.hasData &&
                                       filePath.data != null) {
-                                    return Center(
-                                      child: kIsWeb
-                                          ? Image.network(filePath.data!)
-                                          : Image.file(File(filePath.data!)),
+                                    return InteractiveViewer(
+                                      child: Center(
+                                        child: kIsWeb
+                                            ? Image.network(filePath.data!)
+                                            : Image.file(File(filePath.data!)),
+                                      ),
                                     );
                                   } else {
                                     return const Center(

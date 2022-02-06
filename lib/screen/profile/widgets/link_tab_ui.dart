@@ -45,6 +45,7 @@ class _LinkTabUiState extends State<LinkTabUi> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return StreamBuilder<MediaMetaData?>(
         stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
         builder: (context, snapshot) {

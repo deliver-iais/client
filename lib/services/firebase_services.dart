@@ -103,8 +103,6 @@ class FireBaseServices {
     if (!isDesktop() || kIsWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
-      await _firebaseMessaging.setForegroundNotificationPresentationOptions(
-          alert: true);
       await _setFirebaseSetting();
       _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
@@ -223,6 +221,6 @@ Future<void> backgroundMessageHandler(dynamic message) async {
             id: 10,
             channelKey: 'basic_channel',
             title: 'deliver',
-            body: 'new message'));
+            body: e.toString()));
   }
 }

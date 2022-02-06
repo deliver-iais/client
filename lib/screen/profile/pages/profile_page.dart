@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
@@ -102,6 +103,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
@@ -157,34 +159,74 @@ class _ProfilePageState extends State<ProfilePage>
                           (BuildContext context, bool innerBoxIsScrolled) {
                         return <Widget>[
                           _buildInfo(context),
-                          StreamBuilder<bool>(
-                              stream: _selectMediasForForward.stream,
-                              builder: (context, selectMediaSnapShot) {
-                                if (selectMediaSnapShot.hasData &&
-                                    selectMediaSnapShot.data != null &&
-                                    selectMediaSnapShot.data!) {
-                                  return Row(
-                                    children: [
-                                      IconButton(
-                                          onPressed: () {
-                                            _selectMediasForForward.add(false);
-                                            _selectedMedia.clear();
-                                          },
-                                          icon: const Icon(Icons.close)),
-                                      IconButton(
-                                          onPressed: () {},
-                                          icon: const Icon(Icons.forward))
-                                    ],
-                                  );
-                                } else {
-                                  return SliverPersistentHeader(
-                                    pinned: true,
-                                    delegate: _SliverAppBarDelegate(
-                                        maxHeight: 45,
-                                        minHeight: 45,
-                                        child: Box(
-                                          borderRadius: BorderRadius.zero,
-                                          child: TabBar(
+                          SliverPersistentHeader(
+                            pinned: true,
+                            delegate: _SliverAppBarDelegate(
+                                maxHeight: 45,
+                                minHeight: 45,
+                                child: Box(
+                                  borderRadius: BorderRadius.zero,
+                                  child: StreamBuilder<bool>(
+                                      stream: _selectMediasForForward.stream,
+                                      builder: (context, selectMediaToForward) {
+                                        if (selectMediaToForward.hasData &&
+                                            selectMediaToForward.data != null &&
+                                            selectMediaToForward.data!) {
+                                          return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20, right: 20),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Badge(
+                                                    child: IconButton(
+                                                        color:
+                                                            theme.primaryColor,
+                                                        icon: const Icon(
+                                                          Icons.clear,
+                                                          size: 25,
+                                                        ),
+                                                        onPressed: () {
+                                                          _selectMediasForForward
+                                                              .add(false);
+                                                          _selectedMedia
+                                                              .clear();
+                                                          setState(() {});
+                                                        }),
+                                                    badgeColor:
+                                                        theme.primaryColor,
+                                                    badgeContent: Text(
+                                                      _selectedMedia.length
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: theme
+                                                              .colorScheme
+                                                              .onPrimary),
+                                                    ),
+                                                  ),
+                                                  Tooltip(
+                                                      message:
+                                                          _i18n.get("forward"),
+                                                      child: IconButton(
+                                                          color: theme
+                                                              .primaryColor,
+                                                          icon: const Icon(
+                                                            Icons.forward,
+                                                            size: 25,
+                                                          ),
+                                                          onPressed: () {
+                                                            _routingService
+                                                                .openSelectForwardMessage(
+                                                                    medias:
+                                                                        _selectedMedia);
+                                                          })),
+                                                ],
+                                              ));
+                                        } else {
+                                          return TabBar(
                                             onTap: (index) {
                                               _uxService.setTabIndex(
                                                   widget.roomUid.asString(),
@@ -235,11 +277,11 @@ class _ProfilePageState extends State<ProfilePage>
                                                 Tab(text: _i18n.get("audios")),
                                             ],
                                             controller: _tabController,
-                                          ),
-                                        )),
-                                  );
-                                }
-                              }),
+                                          );
+                                        }
+                                      }),
+                                )),
+                          ),
                         ];
                       },
                       body: Box(
@@ -258,16 +300,25 @@ class _ProfilePageState extends State<ProfilePage>
                             if (snapshot.hasData &&
                                 snapshot.data!.imagesCount != 0)
                               ImageTabUi(
-                                  snapshot.data!.imagesCount, widget.roomUid,selected: _selectedMedia,),
+                                  snapshot.data!.imagesCount, widget.roomUid,
+                                  selectedMedia: _selectedMedia,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media)),
                             if (snapshot.hasData &&
                                 snapshot.data!.videosCount != 0)
                               VideoTabUi(
                                   roomUid: widget.roomUid,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media),
+                                  selectedMedia: _selectedMedia,
                                   videoCount: snapshot.data!.videosCount),
                             if (snapshot.hasData &&
                                 snapshot.data!.filesCount != 0)
                               DocumentAndFileUi(
                                 roomUid: widget.roomUid,
+                                selectedMedia: _selectedMedia,
+                                addSelectedMedia: (media) =>
+                                    _addSelectedMedia(media),
                                 documentCount: snapshot.data!.filesCount,
                                 type: MediaType.FILE,
                               ),
@@ -278,6 +329,9 @@ class _ProfilePageState extends State<ProfilePage>
                             if (snapshot.hasData &&
                                 snapshot.data!.documentsCount != 0)
                               DocumentAndFileUi(
+                                selectedMedia: _selectedMedia,
+                                addSelectedMedia: (media) =>
+                                    _addSelectedMedia(media),
                                 roomUid: widget.roomUid,
                                 documentCount: snapshot.data!.documentsCount,
                                 type: MediaType.DOCUMENT,
@@ -287,11 +341,17 @@ class _ProfilePageState extends State<ProfilePage>
                               MusicAndAudioUi(
                                   roomUid: widget.roomUid,
                                   type: MediaType.MUSIC,
+                                  selectedMedia: _selectedMedia,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media),
                                   mediaCount: snapshot.data!.musicsCount),
                             if (snapshot.hasData &&
                                 snapshot.data!.audiosCount != 0)
                               MusicAndAudioUi(
                                   roomUid: widget.roomUid,
+                                  selectedMedia: _selectedMedia,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media),
                                   type: MediaType.AUDIO,
                                   mediaCount: snapshot.data!.audiosCount),
                           ],
@@ -303,6 +363,13 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  void _addSelectedMedia(media) {
+    _selectedMedia.contains(media)
+        ? _selectedMedia.remove(media)
+        : _selectedMedia.add(media);
+    _selectMediasForForward.add(_selectedMedia.isNotEmpty);
+    setState(() {});
+  }
 
   Widget _buildInfo(BuildContext context) {
     final theme = Theme.of(context);
