@@ -262,7 +262,7 @@ class RoomRepo {
 
   Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
-  Stream<Room?> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
+  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 
@@ -274,7 +274,7 @@ class RoomRepo {
 
   Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
-  Future<Seen?> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+  Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
 
   Future<Seen?> getOthersSeen(String roomUid) =>
       _seenDao.getOthersSeen(roomUid);

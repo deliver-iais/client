@@ -25,22 +25,22 @@ class Message {
   String to;
 
   @HiveField(6)
-  int? replyToId;
+  int replyToId;
 
   @HiveField(7)
   String? forwardedFrom;
 
   @HiveField(8)
-  bool? edited;
+  bool edited;
 
   @HiveField(9)
-  bool? encrypted;
+  bool encrypted;
 
   @HiveField(10)
-  MessageType? type;
+  MessageType type;
 
   @HiveField(11)
-  String? json;
+  String json;
 
   Message(
       {required this.roomUid,
@@ -49,12 +49,12 @@ class Message {
       required this.time,
       required this.from,
       required this.to,
-      this.replyToId,
-      this.forwardedFrom,
-      this.edited,
-      this.encrypted,
-      this.type,
-      this.json});
+      required this.json,
+      this.type = MessageType.NOT_SET,
+      this.replyToId = 0,
+      this.edited = false,
+      this.encrypted = false,
+      this.forwardedFrom});
 
   Message copy(Message pm) => Message(
         roomUid: pm.roomUid,
@@ -63,10 +63,10 @@ class Message {
         time: pm.time,
         from: pm.from,
         to: pm.to,
-        replyToId: pm.replyToId ?? replyToId,
+        replyToId: pm.replyToId,
         forwardedFrom: pm.forwardedFrom ?? forwardedFrom,
-        edited: pm.edited ?? edited,
-        encrypted: pm.encrypted ?? encrypted,
+        edited: pm.edited,
+        encrypted: pm.encrypted,
         type: pm.type,
         json: pm.json,
       );

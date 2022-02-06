@@ -19,13 +19,13 @@ class RoomAdapter extends TypeAdapter<Room> {
     return Room(
       uid: fields[0] as String,
       lastMessage: fields[1] as Message?,
-      deleted: fields[2] as bool?,
-      mentioned: fields[3] as bool?,
       draft: fields[5] as String?,
       lastUpdateTime: fields[6] as int?,
       lastMessageId: fields[4] as int?,
-      firstMessageId: fields[7] as int?,
-      pinned: fields[8] as bool?,
+      firstMessageId: fields[7] as int,
+      mentioned: fields[3] as bool,
+      deleted: fields[2] as bool,
+      pinned: fields[8] as bool,
       lastUpdatedMessageId: fields[9] as int?,
     );
   }

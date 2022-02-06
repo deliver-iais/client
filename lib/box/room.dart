@@ -15,10 +15,10 @@ class Room {
   Message? lastMessage;
 
   @HiveField(2)
-  bool? deleted;
+  bool deleted;
 
   @HiveField(3)
-  bool? mentioned;
+  bool mentioned;
 
   @HiveField(4)
   int? lastMessageId;
@@ -30,37 +30,36 @@ class Room {
   int? lastUpdateTime;
 
   @HiveField(7)
-  int? firstMessageId;
+  int firstMessageId;
 
   @HiveField(8)
-  bool? pinned;
+  bool pinned;
 
   @HiveField(9)
   int? lastUpdatedMessageId;
 
-
   Room(
       {required this.uid,
       this.lastMessage,
-      this.deleted,
-      this.mentioned,
       this.draft,
       this.lastUpdateTime,
       this.lastMessageId,
-      this.firstMessageId,
-      this.pinned,
+      this.firstMessageId = 0,
+      this.mentioned = false,
+      this.deleted = false,
+      this.pinned = false,
       this.lastUpdatedMessageId});
 
   Room copy(Room r) => Room(
       uid: r.uid,
       lastMessage: r.lastMessage ?? lastMessage,
-      deleted: r.deleted ?? deleted,
+      deleted: r.deleted,
       draft: r.draft ?? draft,
       lastUpdateTime: r.lastUpdateTime ?? lastUpdateTime,
-      mentioned: r.mentioned ?? mentioned,
+      mentioned: r.mentioned,
       lastMessageId: r.lastMessageId ?? lastMessageId,
-      firstMessageId: r.firstMessageId ?? firstMessageId,
-      pinned: r.pinned ?? pinned,
+      firstMessageId: r.firstMessageId,
+      pinned: r.pinned,
       lastUpdatedMessageId: r.lastUpdatedMessageId ?? lastUpdatedMessageId);
 
   Room copyWith(

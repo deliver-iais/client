@@ -27,7 +27,7 @@ class LocationMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Location location = message.json!.toLocation();
+    Location location = message.json.toLocation();
     return Stack(
       children: [
         SizedBox(

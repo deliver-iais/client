@@ -5,6 +5,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -56,8 +57,7 @@ class PinMessageAppBar extends StatelessWidget {
                     borderRadius: secondaryBorder,
                     child: Container(
                       decoration: BoxDecoration(
-                        color:
-                            extraThemeData.colorScheme.inverseSurface,
+                        color: extraThemeData.colorScheme.inverseSurface,
                         borderRadius: secondaryBorder,
                       ),
                       height: 60,
@@ -111,14 +111,12 @@ class PinMessageAppBar extends StatelessWidget {
                                 if (mes != null)
                                   Text(
                                     i18n.get("pinned_message"),
-                                    style:theme
-                                        .primaryTextTheme
-                                        .subtitle2
+                                    style: theme.primaryTextTheme.subtitle2
                                         ?.copyWith(
-                                          color: ExtraTheme.of(context)
-                                              .colorScheme
-                                              .primaryInverse,
-                                        ),
+                                      color: ExtraTheme.of(context)
+                                          .colorScheme
+                                          .inversePrimary,
+                                    ),
                                   ),
                                 if (mes != null)
                                   LastMessage(
@@ -128,10 +126,10 @@ class PinMessageAppBar extends StatelessWidget {
                                       showSeenStatus: false,
                                       primaryColor: ExtraTheme.of(context)
                                           .colorScheme
-                                          .primaryInverse,
+                                          .inversePrimary,
                                       naturalColor: ExtraTheme.of(context)
                                           .colorScheme
-                                          .onInverseSurface,
+                                          .inverseOnSurface,
                                       showSender: false),
                               ],
                             ),
@@ -142,10 +140,10 @@ class PinMessageAppBar extends StatelessWidget {
                                 onCancel();
                               },
                               icon: Icon(
-                                Icons.close,
+                                CupertinoIcons.xmark,
                                 color: ExtraTheme.of(context)
                                     .colorScheme
-                                    .primaryInverse,
+                                    .inversePrimary,
                               ))
                         ],
                       ),
@@ -163,8 +161,8 @@ class PinMessageAppBar extends StatelessWidget {
   Color color(BuildContext context, int index) {
     final extraThemeData = ExtraTheme.of(context);
     return shouldHighlight(index, lastPinedMessage.value)
-        ? extraThemeData.colorScheme.primaryInverse
-        : Color.lerp(extraThemeData.colorScheme.primaryInverse,
+        ? extraThemeData.colorScheme.inversePrimary
+        : Color.lerp(extraThemeData.colorScheme.inversePrimary,
             extraThemeData.colorScheme.inverseSurface, 0.8)!;
   }
 

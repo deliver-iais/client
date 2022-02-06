@@ -1,3 +1,4 @@
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
@@ -64,12 +65,11 @@ extension JsonMapper on String {
     return SharePrivateDataRequest.fromJson(this);
   }
 
-  bool isDeletedMessage() {
-    return this == "{}";
+  bool isEmptyMessage() {
+    return this == EMPTY_MESSAGE;
   }
 
   bool chatIsDeleted() {
-    return this == "{DELETED}";
+    return this == DELETED_ROOM_MESSAGE;
   }
-
 }

@@ -24,8 +24,8 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
@@ -97,7 +97,6 @@ class _BoxContentState extends State<BoxContent> {
                       Debug(widget.message.id, label: "id"),
                       Debug(widget.message.packetId, label: "packetId"),
                     ]),
-                  if (showSenderNameBox()) senderNameBox(),
                   if (hasReply()) replyToIdBox(),
                   if (isForwarded()) forwardedFromBox(),
                   messageBox()
@@ -118,7 +117,11 @@ class _BoxContentState extends State<BoxContent> {
                         child: Container(
                           margin: const EdgeInsets.all(2),
                           child: const BlurContainer(
-                              child: Icon(Icons.arrow_drop_down_sharp)),
+                              padding: EdgeInsets.all(3),
+                              child: Icon(
+                                CupertinoIcons.chevron_down,
+                                size: 16,
+                              )),
                         ),
                       ),
                     ),
@@ -137,7 +140,7 @@ class _BoxContentState extends State<BoxContent> {
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId!,
+          replyToId: widget.message.replyToId,
           maxWidth: widget.minWidth,
           backgroundColor: widget.colorScheme.onPrimary,
           foregroundColor: widget.colorScheme.primary,
@@ -146,52 +149,13 @@ class _BoxContentState extends State<BoxContent> {
     );
   }
 
-  Widget senderNameBox() {
-    return Container(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
-      child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.from.asUid()),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return showName(snapshot.data!);
-          } else {
-            return const Text("");
-          }
-        },
-      ),
-    );
-  }
-
-  Widget showName(String name) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        child: Container(
-          constraints:
-              BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
-          child: Text(
-            name.trim(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: TextStyle(
-                inherit: true, color: widget.colorScheme.onPrimaryContainer),
-          ),
-        ),
-        onTap: () {
-          _routingServices.openProfile(widget.message.from);
-        },
-      ),
-    );
-  }
-
   Widget forwardedFromBox() {
     return Container(
-      margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
-      padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 2),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
-        borderRadius: mainBorder,
+        borderRadius: secondaryBorder,
         color: widget.colorScheme.primary,
       ),
       child: FutureBuilder<String>(
@@ -202,9 +166,9 @@ class _BoxContentState extends State<BoxContent> {
             child: GestureDetector(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.keyboard_arrow_right_rounded,
+                  Icon(CupertinoIcons.arrowshape_turn_up_right,
                       size: 15, color: widget.colorScheme.onPrimary),
                   Flexible(
                     child: Text(snapshot.data ?? "",
@@ -240,9 +204,7 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: isForwarded() || hasReply() || showSenderNameBox()
-              ? widget.minWidth
-              : 0,
+          minWidth: isForwarded() || hasReply() ? widget.minWidth : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
@@ -348,17 +310,10 @@ class _BoxContentState extends State<BoxContent> {
 
   bool hasReply() {
     return widget.message.to.asUid().category != Categories.BOT &&
-        widget.message.replyToId != null &&
-        widget.message.replyToId! > 0;
+        widget.message.replyToId > 0;
   }
 
   bool isForwarded() {
     return (widget.message.forwardedFrom?.length ?? 0) > 3;
-  }
-
-  bool showSenderNameBox() {
-    return widget.isFirstMessageInGroupedMessages &&
-        widget.message.roomUid.asUid().category == Categories.GROUP &&
-        !widget.isSender;
   }
 }

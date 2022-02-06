@@ -7,6 +7,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -34,16 +35,14 @@ class PersistentEventMessage extends StatelessWidget {
       required this.message,
       this.onPinMessageClick,
       required this.maxWidth})
-      : persistentEventMessage = message.json!.toPersistentEvent(),
+      : persistentEventMessage = message.json.toPersistentEvent(),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return message.json == "{}"
-        ? Container(
-            height: 0.0,
-          )
+    return message.json == EMPTY_MESSAGE
+        ? const SizedBox.shrink()
         : persistentEventMessage.whichType() ==
                 PersistentEvent_Type.botSpecificPersistentEvent
             ? Padding(
@@ -76,7 +75,7 @@ class PersistentEventMessage extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                           color: theme.chipTheme.backgroundColor,
-                          borderRadius: chipBorder,
+                          borderRadius: tertiaryBorder,
                           border: Border.fromBorderSide(theme.chipTheme.side!)),
                       padding: const EdgeInsets.only(
                           top: 5, left: 8.0, right: 8.0, bottom: 4.0),
@@ -99,10 +98,9 @@ class PersistentEventMessage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (message.json!.toPersistentEvent().whichType() ==
+                  if (message.json.toPersistentEvent().whichType() ==
                           PersistentEvent_Type.mucSpecificPersistentEvent &&
-                      message.json!
-                              .toPersistentEvent()
+                      message.json.toPersistentEvent()
                               .mucSpecificPersistentEvent
                               .issue ==
                           MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
@@ -288,10 +286,10 @@ class PersistentEventMessage extends StatelessWidget {
     if (m != null) {
       switch (m.type) {
         case MessageType.TEXT:
-          return m.json!.toText().text;
+          return m.json.toText().text;
 
         case MessageType.FILE:
-          return m.json!.toFile().caption;
+          return m.json.toFile().caption;
 
         case MessageType.STICKER:
           // TODO: Handle this case.

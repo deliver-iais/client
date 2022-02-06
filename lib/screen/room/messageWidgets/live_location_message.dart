@@ -41,7 +41,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
 
   @override
   void initState() {
-    liveLocation = widget.message.json!.toLiveLocation();
+    liveLocation = widget.message.json.toLiveLocation();
     _liveLocationRepo.updateLiveLocation(liveLocation);
     super.initState();
   }

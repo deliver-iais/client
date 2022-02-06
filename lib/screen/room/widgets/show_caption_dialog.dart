@@ -67,7 +67,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         }
       }
     } else {
-      _editableFile = widget.editableMessage!.json!.toFile();
+      _editableFile = widget.editableMessage!.json.toFile();
       _editingController.text = _editableFile.caption;
       _type = _editableFile.type;
     }
@@ -194,8 +194,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                               ? _editedFile != null
                                                   ? _editedFile!.name
                                                   : widget
-                                                      .editableMessage!.json!
-                                                      .toFile()
+                                                      .editableMessage!.json.toFile()
                                                       .name
                                               : widget.files![index].name,
                                           overflow: TextOverflow.ellipsis,
