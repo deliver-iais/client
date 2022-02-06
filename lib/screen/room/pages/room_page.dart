@@ -114,9 +114,7 @@ class _RoomPageState extends State<RoomPage> {
   final _messageWidgetCache =
       LruCache<int, Widget?>(storage: InMemoryStorage(200));
 
-  late final _messageCache = LruCache<int, Message>(
-      storage: InMemoryStorage(200),
-      onEvict: (k, v) => _messageWidgetCache.set(k, null));
+  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(200));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -322,6 +320,9 @@ class _RoomPageState extends State<RoomPage> {
       if (room.lastUpdatedMessageId != null &&
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
         final id = room.lastUpdatedMessageId!;
+
+        // Invalid Message Widget Cache
+        _messageWidgetCache.set(id, null);
 
         final msg = await _getMessage(id, useCache: false);
 
