@@ -94,7 +94,8 @@ class _RoomPageState extends State<RoomPage> {
   int _itemCount = 0;
   int _replyMessageId = -1;
   int _lastReceivedMessageId = 0;
-  int _lastSeenScrollPotion = -1;
+  int _lastScrollPositionIndex = -1;
+  double _lastScrollPositionAlignment = 0;
   List<Message> searchResult = [];
 
   final List<Message> _pinMessages = [];
@@ -103,8 +104,7 @@ class _RoomPageState extends State<RoomPage> {
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
 
-  final _scrollStarted = BehaviorSubject.seeded(false);
-  final _scrollEnded = BehaviorSubject.seeded(false);
+  final _scrollEvent = BehaviorSubject.seeded(false);
   final _isScrolling = BehaviorSubject.seeded(false);
 
   List<PendingMessage> get pendingMessages =>
@@ -115,9 +115,7 @@ class _RoomPageState extends State<RoomPage> {
   final _messageWidgetCache =
       LruCache<int, Widget?>(storage: InMemoryStorage(200));
 
-  late final _messageCache = LruCache<int, Message>(
-      storage: InMemoryStorage(200),
-      onEvict: (k, v) => _messageWidgetCache.set(k, null));
+  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(200));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -230,8 +228,13 @@ class _RoomPageState extends State<RoomPage> {
 
   _getScrollPosition() async {
     String? scrollPosition =
-        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}');
-    _lastSeenScrollPotion = int.parse(scrollPosition ?? "-1");
+        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
+
+    if (scrollPosition != null) {
+      final arr = scrollPosition.split("-");
+      _lastScrollPositionIndex = int.parse(arr[0]);
+      _lastScrollPositionAlignment = double.parse(arr[1]);
+    }
   }
 
   @override
@@ -258,20 +261,21 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      _scrollStarted.add(true);
-      _scrollEnded.add(true);
+      _scrollEvent.add(true);
 
       var position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
-        int firstItem = position
-            .where((ItemPosition position) => position.itemTrailingEdge > 0)
+        ItemPosition firstItem = position
+            .where((ItemPosition position) => position.itemLeadingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
-                position.itemTrailingEdge < first.itemTrailingEdge
+                position.itemLeadingEdge < first.itemLeadingEdge
                     ? position
-                    : first)
-            .index;
-        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION +${widget.roomId}',
-            firstItem.toString());
+                    : first);
+
+        // Save scroll position of first complete visible item
+        _sharedDao.put('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
+            "${firstItem.index}-${firstItem.itemLeadingEdge}");
+
         _positionSubject.add(_itemPositionsListener.itemPositions.value
             .map((e) => e.index)
             .reduce(max));
@@ -279,8 +283,8 @@ class _RoomPageState extends State<RoomPage> {
     });
 
     MergeStream([
-      _scrollStarted.map((event) => true),
-      _scrollEnded
+      _scrollEvent.map((event) => true),
+      _scrollEvent
           .debounceTime(const Duration(milliseconds: 1000))
           .map((event) => false)
     ]).listen((event) => _isScrolling.add(event));
@@ -325,6 +329,9 @@ class _RoomPageState extends State<RoomPage> {
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
         final id = room.lastUpdatedMessageId!;
 
+        // Invalid Message Widget Cache
+        _messageWidgetCache.set(id, null);
+
         final msg = await _getMessage(id, useCache: false);
 
         if (msg != null) {
@@ -349,7 +356,7 @@ class _RoomPageState extends State<RoomPage> {
   void subscribeOnPositionToSendSeen() {
     // TODO Channel is different from groups and private chats !!!
     _positionSubject
-        .where((event) =>
+        .where((_) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
         .map((event) => event + room.firstMessageId + 1)
         .where(
@@ -719,15 +726,21 @@ class _RoomPageState extends State<RoomPage> {
             ? _lastShowedMessageId
             : _itemCount
         : 0);
-    int initialScrollIndex = min(
-        _lastSeenScrollPotion != -1 ? _lastSeenScrollPotion : scrollIndex,
-        scrollIndex);
+
+    int initialScrollIndex = scrollIndex;
+    double initialAlignment = 0;
+
+    if (_lastScrollPositionIndex < scrollIndex &&
+        _lastScrollPositionIndex != -1) {
+      initialScrollIndex = _lastScrollPositionIndex;
+      initialAlignment = _lastScrollPositionAlignment;
+    }
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount,
       initialScrollIndex: initialScrollIndex,
       key: _scrollablePositionedListKey,
-      initialAlignment: 0,
+      initialAlignment: initialAlignment,
       physics: _scrollPhysics,
       reverse: false,
       addSemanticIndexes: false,
