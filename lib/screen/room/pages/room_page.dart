@@ -163,13 +163,7 @@ class _RoomPageState extends State<RoomPage> {
       children: [
         Column(
           children: <Widget>[
-            Expanded(
-              child: StreamBuilder(
-                  stream: MergeStream([_pendingMessages.stream, _room.stream]),
-                  builder: (context, event) {
-                    return buildMessagesListView();
-                  }),
-            ),
+            buildAllMessagesBox(),
             StreamBuilder(
                 stream: _repliedMessage.stream,
                 builder: (c, rm) {
@@ -209,20 +203,34 @@ class _RoomPageState extends State<RoomPage> {
           ],
         ),
         pinMessageWidget(),
-        StreamBuilder<bool>(
-            stream: _isScrolling.stream,
-            builder: (context, snapshot) {
-              return Positioned(
-                right: 20,
-                bottom: 70,
-                child: AnimatedScale(
-                    child: scrollDownButtonWidget(),
-                    scale: snapshot.data == true ? 1 : 0,
-                    duration: ANIMATION_DURATION * 1.3),
-              );
-            }),
         AudioPlayerAppBar(),
       ],
+    );
+  }
+
+  Expanded buildAllMessagesBox() {
+    return Expanded(
+      child: Stack(
+        children: [
+          StreamBuilder(
+              stream: MergeStream([_pendingMessages.stream, _room.stream]),
+              builder: (context, event) {
+                return buildMessagesListView();
+              }),
+          StreamBuilder<bool>(
+              stream: _isScrolling.stream,
+              builder: (context, snapshot) {
+                return Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: AnimatedScale(
+                      child: scrollDownButtonWidget(),
+                      scale: snapshot.data == true ? 1 : 0,
+                      duration: ANIMATION_DURATION * 1.3),
+                );
+              }),
+        ],
+      ),
     );
   }
 
@@ -268,7 +276,7 @@ class _RoomPageState extends State<RoomPage> {
         ItemPosition firstItem = position
             .where((ItemPosition position) => position.itemLeadingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
-                position.itemLeadingEdge < first.itemLeadingEdge
+                position.itemLeadingEdge > first.itemLeadingEdge
                     ? position
                     : first);
 
@@ -834,8 +842,9 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
+    print(index);
     if (index < room.firstMessageId) {
-      return const SizedBox.shrink();
+      return const SizedBox(height: 10);
     }
 
     late final Widget widget;
@@ -866,7 +875,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Widget _cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
     if (tuple == null || tuple.item2 == null) {
-      return const SizedBox.shrink();
+      return const SizedBox(height: 1000);
     }
 
     Widget? widget = _messageWidgetCache.get(index);
