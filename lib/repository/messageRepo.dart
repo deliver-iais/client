@@ -937,6 +937,9 @@ class MessageRepo {
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
       _messageDao.watchPendingMessages(roomUid);
 
+  Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
+      _messageDao.getPendingMessages(roomUid);
+
   void resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);
     _saveAndSend(pm!);
