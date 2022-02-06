@@ -54,6 +54,8 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
+import '../messageWidgets/input_message_text_controller.dart';
+
 // ignore: constant_identifier_names
 const int PAGE_SIZE = 16;
 
@@ -117,7 +119,7 @@ class _RoomPageState extends State<RoomPage> {
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
-  final _inputMessageTextController = TextEditingController();
+  final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
 
   @override
