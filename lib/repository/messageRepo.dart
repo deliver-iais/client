@@ -255,7 +255,7 @@ class MessageRepo {
               lastMessageIsSet = true;
               lastMessage = msg.copyWith(json: "{DELETED}");
               break;
-            } else if (!msg.json!.isDeletedMessage()) {
+            } else if (msg.json != null && !msg.json!.isDeletedMessage()) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
@@ -1013,8 +1013,8 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            Room? room = await  _roomRepo.getRoom(msg.roomUid);
-            if(room!= null){
+            Room? room = await _roomRepo.getRoom(msg.roomUid);
+            if (room != null) {
               if (msg.id == room.lastMessageId) {
                 _roomDao.updateRoom(Room(
                     uid: msg.roomUid,
@@ -1022,7 +1022,6 @@ class MessageRepo {
                     lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
               }
             }
-
 
             msg.json = "{}";
             _messageDao.saveMessage(msg);

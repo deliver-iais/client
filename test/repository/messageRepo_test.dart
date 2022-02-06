@@ -389,15 +389,107 @@ void main() {
         verify(logger.wtf(Room(uid: testUid.asString())));
       });
 
-      //todo add for test for null when write getLastMessageFromServer
+      //Todo add for test for null when write getLastMessageFromServer
 
       test(
-          'When called should getMessage from messageDao if msg not be null should updateRoom',
+          'When called should getMessage from messageDao if msg not be null and firstMessageId be greater then  message id  should updateRoom with json "{DELETED}" and return it',
           () async {
+        Message message = Message(
+            id: 0,
+            from: testUid.asString(),
+            to: testUid.asString(),
+            packetId: testUid.asString(),
+            time: 0,
+            json: "{DELETED}",
+            roomUid: testUid.asString());
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterMessageDao(message: message);
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          lastUpdateTime: 0,
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 2,
+        );
+        verify(roomDao.updateRoom(
+          Room(
+              uid: testUid.asString(),
+              firstMessageId: 0,
+              lastUpdateTime: 0,
+              lastMessageId: 0,
+              lastMessage: message),
+        ));
+        expect(
+            await MessageRepo().fetchLastMessages(
+              testUid,
+              0,
+              0,
+              Room(uid: testUid.asString()),
+              lastUpdateTime: 0,
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
+              limit: 2,
+            ),
+            message);
+      });
+      test(
+          'When called should getMessage from messageDao if msg not be null and message json not be {}  should updateRoom without no chang in lastMessage and return it',
+          () async {
+        Message message = Message(
+            id: 3,
+            from: testUid.asString(),
+            to: testUid.asString(),
+            packetId: testUid.asString(),
+            time: 0,
+            json: "{test}",
+            roomUid: testUid.asString());
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterMessageDao(message: message);
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          lastUpdateTime: 0,
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 2,
+        );
+        verify(roomDao.updateRoom(
+          Room(
+              uid: testUid.asString(),
+              firstMessageId: 0,
+              lastUpdateTime: 0,
+              lastMessageId: 0,
+              lastMessage: message),
+        ));
+        expect(
+            await MessageRepo().fetchLastMessages(
+              testUid,
+              0,
+              0,
+              Room(uid: testUid.asString()),
+              lastUpdateTime: 0,
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
+              limit: 2,
+            ),
+            message);
+      });
+      test(
+          'When called should getMessage from messageDao if msg not be null and  message id be 1 should updateRoom with json "{DELETED}" and return it',
+          () async {
+        Message message = Message(
+            id: 1,
+            from: testUid.asString(),
+            to: testUid.asString(),
+            packetId: testUid.asString(),
+            time: 0,
+            json: "{DELETED}",
+            roomUid: testUid.asString());
         final roomDao = getAndRegisterRoomDao();
         getAndRegisterMessageDao(
             message: Message(
-                id: 0,
+                id: 1,
                 from: testUid.asString(),
                 to: testUid.asString(),
                 packetId: testUid.asString(),
@@ -418,18 +510,21 @@ void main() {
               firstMessageId: 0,
               lastUpdateTime: 0,
               lastMessageId: 0,
-              lastMessage: Message(
-                  id: 0,
-                  from: testUid.asString(),
-                  to: testUid.asString(),
-                  packetId: testUid.asString(),
-                  time: 0,
-                  json: "{DELETED}",
-                  roomUid: testUid.asString())),
+              lastMessage: message),
         ));
+        expect(
+            await MessageRepo().fetchLastMessages(
+              testUid,
+              0,
+              0,
+              Room(uid: testUid.asString()),
+              lastUpdateTime: 0,
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
+              limit: 2,
+            ),
+            message);
       });
     });
-
     group('fetchOtherSeen -', () {
       test(
           'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
