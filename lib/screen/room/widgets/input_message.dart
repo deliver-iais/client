@@ -82,6 +82,7 @@ class _InputMessageWidget extends State<InputMessage> {
   double size = 1;
   bool started = false;
   DateTime time = DateTime.now();
+  late TextSelection _textSelection;
   BehaviorSubject<DateTime> recordSubject =
       BehaviorSubject.seeded(DateTime.now());
 
@@ -160,13 +161,7 @@ class _InputMessageWidget extends State<InputMessage> {
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
-      if (widget.textController.text.isNotEmpty &&
-          widget.textController.text.isNotEmpty) {
-        _showSendIcon.add(true);
-      } else {
-        _showSendIcon.add(false);
-      }
-
+      _showSendIcon.add(widget.textController.text.isNotEmpty);
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -304,7 +299,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         onPressed: () {
                                           if (_backSubject.value) {
                                             _backSubject.add(false);
-                                            FocusScope.of(context).unfocus();
+                                            widget.focusNode.requestFocus();
                                           } else if (!_backSubject.value) {
                                             FocusScope.of(context).unfocus();
                                             Timer(
@@ -552,7 +547,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                     offset: widget.textController.text.length -
                                         block_2.length));
                           } else {
-                            widget.textController.text = emoji;
+                            widget.textController.text =
+                                widget.textController.text + emoji;
                           }
 
                           if (isDesktop()) {
