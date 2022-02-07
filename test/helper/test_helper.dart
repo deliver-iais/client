@@ -30,6 +30,8 @@ import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
 import '../repository/messageRepo_test.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -209,6 +211,25 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
           MockResponseFuture<CountIsHiddenMessagesRes>(
               CountIsHiddenMessagesRes(count: 0)));
 
+  when(service.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = testUid
+            ..pointer = Int64(0)
+            ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+            ..limit = 0,
+          options: CallOptions(timeout: const Duration(seconds: 3))))
+      .thenAnswer((realInvocation) =>
+          MockResponseFuture<FetchMessagesRes>(FetchMessagesRes(messages: {
+            message_pb.Message(
+                packetId: "",
+                time: Int64(0),
+                to: testUid,
+                from: testUid,
+                edited: false,
+                replyToId: Int64(0),
+                forwardFrom: testUid,
+                encrypted: false)
+          })));
   return service;
 }
 

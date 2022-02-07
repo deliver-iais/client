@@ -9,6 +9,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:fixnum/fixnum.dart';
@@ -524,6 +525,23 @@ void main() {
             ),
             message);
       });
+    });
+
+    group('getLastMessageFromServer -', () {
+      test('When called should fetchMessages from queryServiceClient',
+          () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().getLastMessageFromServer(
+            testUid, 0, 0, FetchMessagesReq_Type.BACKWARD_FETCH, 0, 0, 0);
+        verify(queryServiceClient.fetchMessages(
+            FetchMessagesReq()
+              ..roomUid = testUid
+              ..pointer = Int64(0)
+              ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+              ..limit = 0,
+            options: CallOptions(timeout: const Duration(seconds: 3))));
+      });
+
     });
     group('fetchOtherSeen -', () {
       test(
