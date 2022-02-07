@@ -168,15 +168,14 @@ class MessageRepo {
                   firstMessageId: roomMetadata.firstMessageId.toInt(),
                   lastUpdateTime: roomMetadata.lastUpdate.toInt()));
             }
-            await fetchLastMessages(
-              roomMetadata.roomUid,
-              roomMetadata.lastMessageId.toInt(),
-              roomMetadata.firstMessageId.toInt(),
-              room,
-              type: FetchMessagesReq_Type.BACKWARD_FETCH,
-              limit: 2,
-              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-            );
+            if(room ==null) {
+              _roomDao.updateRoom(Room(
+              uid: roomMetadata.roomUid.asString(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+            ));
+            }
+
             if (room != null &&
                 room.lastMessageId != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
@@ -278,14 +277,18 @@ class MessageRepo {
           break;
         }
       }
-      await _roomDao.updateRoom(Room(
-        uid: roomUid.asString(),
-        firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
-        lastUpdateTime: lastMessage!.time,
-        lastMessageId: lastMessageId,
-        lastMessage: lastMessage,
-      ));
-      return lastMessage;
+      if(lastMessage!= null){
+        _roomDao.updateRoom(Room(
+          uid: roomUid.asString(),
+          firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
+          lastUpdateTime: lastMessage.time,
+          lastMessageId: lastMessageId,
+          lastMessage: lastMessage,
+        ));
+        return lastMessage;
+      }
+      return null;
+
     } catch (e) {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
@@ -844,9 +847,12 @@ class MessageRepo {
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
                           .toInt());
-                  _messageDao.saveMessage(mes!..json = "{}");
-                  _roomDao.updateRoom(Room(
-                      uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
+                  if (mes != null) {
+                    _messageDao.saveMessage(mes.copyWith(json: "{}"));
+                    _roomDao.updateRoom(Room(
+                        uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
+                  }
+
                   break;
               }
               break;

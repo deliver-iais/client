@@ -170,15 +170,16 @@ class _ChatItemState extends State<ChatItem> {
                                                       ? _i18n
                                                           .get("saved_message")
                                                       : name.data!))),
-                                      Text(
-                                        dateTimeFormat(
-                                            date(widget.room.lastUpdateTime!)),
-                                        maxLines: 1,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w100,
-                                          fontSize: 11,
+                                      if (widget.room.lastUpdateTime != null)
+                                        Text(
+                                          dateTimeFormat(date(
+                                              widget.room.lastUpdateTime!)),
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w100,
+                                            fontSize: 11,
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                   StreamBuilder<Activity>(

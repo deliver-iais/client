@@ -156,6 +156,27 @@ message_pb.Message _decodeMessage(String notificationBody) {
 }
 
 Future<void> backgroundMessageHandler(dynamic message) async {
+  message_pb.Message msg = _decodeMessage(message.data["body"]);
+  AwesomeNotifications().initialize(
+      null,
+      [
+        NotificationChannel(
+            channelKey: 'basic_channel',
+            channelName: 'Basic notifications',
+            channelDescription: 'Notification channel for basic tests',
+            defaultColor: Colors.green,
+            ledColor: Colors.white)
+      ],
+      // Channel groups are only visual and are not required
+      debug: true);
+  AwesomeNotifications().createNotification(
+      content: NotificationContent(
+          id: 10,
+          channelKey: 'basic_channel',
+          title: "deliver",
+          body: msg.text.text));
+  return;
+
   try {
     try {
       await setupDI();
@@ -204,6 +225,7 @@ Future<void> backgroundMessageHandler(dynamic message) async {
       _notificationServices.showNotification(msg, roomName: roomName!);
     }
   } catch (e) {
+    message_pb.Message msg = _decodeMessage(message.data["body"]);
     AwesomeNotifications().initialize(
         null,
         [
@@ -220,7 +242,7 @@ Future<void> backgroundMessageHandler(dynamic message) async {
         content: NotificationContent(
             id: 10,
             channelKey: 'basic_channel',
-            title: 'deliver'+'firebaseservicdes',
-            body: e.toString()));
+            title: "deliver",
+            body: msg.text.text));
   }
 }

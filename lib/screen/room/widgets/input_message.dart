@@ -304,7 +304,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             FocusScope.of(context).unfocus();
                                             Timer(
                                                 const Duration(
-                                                    milliseconds: 50), () {
+                                                    milliseconds: 200), () {
                                               _backSubject.add(true);
                                             });
                                           }
@@ -549,8 +549,10 @@ class _InputMessageWidget extends State<InputMessage> {
                           } else {
                             widget.textController.text =
                                 widget.textController.text + emoji;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: widget.textController.text.length));
                           }
-
                           if (isDesktop()) {
                             widget.focusNode.requestFocus();
                           }
