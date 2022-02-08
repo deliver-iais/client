@@ -391,7 +391,41 @@ void main() {
         verify(logger.wtf(Room(uid: testUid.asString())));
       });
 
-      //Todo add for test for null when write getLastMessageFromServer
+      test('When called should getMessage from messageDao if msg be null ',
+          () async {
+        getAndRegisterMessageDao(getError: false);
+        await MessageRepo().fetchLastMessages(
+          testUid,
+          0,
+          0,
+          Room(uid: testUid.asString()),
+          lastUpdateTime: 0,
+          type: FetchMessagesReq_Type.BACKWARD_FETCH,
+          limit: 0,
+        );
+        expect(
+            await MessageRepo().fetchLastMessages(
+              testUid,
+              0,
+              0,
+              Room(uid: testUid.asString()),
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
+              limit: 0,
+            ),
+            Message(
+                roomUid: testUid.asString(),
+                packetId: "",
+                time: 0,
+                id: 0,
+                json: "{DELETED}",
+                forwardedFrom: testUid.asString(),
+                type: MessageType.NOT_SET,
+                to: testUid.asString(),
+                from: testUid.asString(),
+                edited: false,
+                replyToId: 0,
+                encrypted: false));
+      });
 
       test(
           'When called should getMessage from messageDao if msg not be null and firstMessageId be greater then  message id  should updateRoom with json "{DELETED}" and return it',
