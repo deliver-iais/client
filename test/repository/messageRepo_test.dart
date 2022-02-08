@@ -17,6 +17,12 @@ import 'package:fixnum/fixnum.dart';
 import '../helper/test_helper.dart';
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
+Message testMessage = Message(
+    to: testUid.asString(),
+    from: testUid.asString(),
+    packetId: testUid.asString(),
+    roomUid: testUid.asString(),
+    time: 0);
 
 void main() {
   group('MessageRepoTest -', () {
@@ -140,13 +146,7 @@ void main() {
               uid: testUid.asString(),
               lastMessageId: 0,
               lastUpdateTime: 0,
-              lastMessage: Message(
-                  id: 1,
-                  from: testUid.asString(),
-                  to: testUid.asString(),
-                  packetId: testUid.asString(),
-                  time: 0,
-                  roomUid: testUid.asString()))
+              lastMessage: testMessage.copyWith(id: 1))
         ]);
         await MessageRepo().updatingMessages();
         verify(roomDao.getRoom(testUid.asString())).called(1);
@@ -196,16 +196,8 @@ void main() {
       test(
           'When called should fetch all room from roomDao and if any room exist should get category',
           () async {
-        final roomDao = getAndRegisterRoomDao(rooms: [
-          Room(
-              uid: testUid.asString(),
-              lastMessage: Message(
-                  to: testUid.asString(),
-                  from: testUid.asString(),
-                  packetId: testUid.asString(),
-                  roomUid: testUid.asString(),
-                  time: 0))
-        ]);
+        final roomDao = getAndRegisterRoomDao(
+            rooms: [Room(uid: testUid.asString(), lastMessage: testMessage)]);
         var rooms = await roomDao.getAllRooms();
         MessageRepo().updatingLastSeen();
         expect(rooms.first.lastMessage!.to.asUid().category, Categories.USER);
@@ -215,16 +207,8 @@ void main() {
           () async {
         final seenDo = getAndRegisterSeenDao();
         final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
-        getAndRegisterRoomDao(rooms: [
-          Room(
-              uid: testUid.asString(),
-              lastMessage: Message(
-                  to: testUid.asString(),
-                  from: testUid.asString(),
-                  packetId: testUid.asString(),
-                  roomUid: testUid.asString(),
-                  time: 0))
-        ]);
+        getAndRegisterRoomDao(
+            rooms: [Room(uid: testUid.asString(), lastMessage: testMessage)]);
         await MessageRepo().updatingLastSeen();
         verifyNever(authRepo.isCurrentUser(testUid.asString()));
         verifyNever(seenDo.getOthersSeen(testUid.asString()));
@@ -236,14 +220,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         getAndRegisterRoomDao(rooms: [
           Room(
-              uid: testUid.asString(),
-              lastMessage: Message(
-                  to: testUid.asString(),
-                  from: testUid.asString(),
-                  packetId: testUid.asString(),
-                  roomUid: testUid.asString(),
-                  id: 0,
-                  time: 0))
+              uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0))
         ]);
         await MessageRepo().updatingLastSeen();
         verify(authRepo.isCurrentUser(testUid.asString()));
@@ -257,14 +234,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         getAndRegisterRoomDao(rooms: [
           Room(
-              uid: testUid.asString(),
-              lastMessage: Message(
-                  to: testUid.asString(),
-                  from: testUid.asString(),
-                  packetId: testUid.asString(),
-                  roomUid: testUid.asString(),
-                  id: 0,
-                  time: 0))
+              uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0))
         ]);
 
         await MessageRepo().updatingLastSeen();
@@ -277,14 +247,7 @@ void main() {
         final seenDo = getAndRegisterSeenDao();
         getAndRegisterRoomDao(rooms: [
           Room(
-              uid: testUid.asString(),
-              lastMessage: Message(
-                  to: testUid.asString(),
-                  from: testUid.asString(),
-                  packetId: testUid.asString(),
-                  roomUid: testUid.asString(),
-                  id: 0,
-                  time: 0))
+              uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0))
         ]);
         await MessageRepo().updatingLastSeen();
         verify(seenDo.getOthersSeen(testUid.asString()));
@@ -523,14 +486,7 @@ void main() {
             json: "{DELETED}",
             roomUid: testUid.asString());
         final roomDao = getAndRegisterRoomDao();
-        getAndRegisterMessageDao(
-            message: Message(
-                id: 1,
-                from: testUid.asString(),
-                to: testUid.asString(),
-                packetId: testUid.asString(),
-                time: 0,
-                roomUid: testUid.asString()));
+        getAndRegisterMessageDao(message: testMessage.copyWith(id: 1));
         await MessageRepo().fetchLastMessages(
           testUid,
           0,
