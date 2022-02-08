@@ -165,7 +165,9 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     {bool finished = true,
     PresenceType presenceType = PresenceType.ACTIVE,
     int? lastMessageId,
-    int? lastUpdate}) {
+    int? lastUpdate,
+    int fetchMessagesId = 0,
+    String? fetchMessagesText}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
@@ -223,8 +225,12 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
             message_pb.Message(
                 packetId: "",
                 time: Int64(0),
+                id: Int64(fetchMessagesId),
                 to: testUid,
                 from: testUid,
+                text: fetchMessagesText != null
+                    ? message_pb.Text(text: fetchMessagesText)
+                    : null,
                 edited: false,
                 replyToId: Int64(0),
                 forwardFrom: testUid,

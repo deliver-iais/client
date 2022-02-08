@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -528,6 +529,19 @@ void main() {
     });
 
     group('getLastMessageFromServer -', () {
+      Message message = Message(
+          roomUid: testUid.asString(),
+          packetId: "",
+          time: 0,
+          id: 0,
+          json: "{DELETED}",
+          forwardedFrom: testUid.asString(),
+          type: MessageType.NOT_SET,
+          to: testUid.asString(),
+          from: testUid.asString(),
+          edited: false,
+          replyToId: 0,
+          encrypted: false);
       test('When called should fetchMessages from queryServiceClient',
           () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
@@ -541,7 +555,34 @@ void main() {
               ..limit = 0,
             options: CallOptions(timeout: const Duration(seconds: 3))));
       });
-
+      test(
+          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and json not be {} should return lastMessage without any copy',
+          () async {
+        getAndRegisterQueryServiceClient(
+            fetchMessagesId: 2, fetchMessagesText: "test");
+        expect(
+            await MessageRepo().getLastMessageFromServer(
+                testUid, 0, 0, FetchMessagesReq_Type.BACKWARD_FETCH, 0, 0, 0),
+            message.copyWith(
+                id: 2, json: "{\"1\":\"test\"}", type: MessageType.TEXT));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and id==1 should copy "{DELETED}" to lastMessage',
+          () async {
+        getAndRegisterQueryServiceClient(fetchMessagesId: 1);
+        expect(
+            await MessageRepo().getLastMessageFromServer(
+                testUid, 0, 0, FetchMessagesReq_Type.BACKWARD_FETCH, 0, 0, 0),
+            message.copyWith(id: 1));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId should copy "{DELETED}" to lastMessage',
+          () async {
+        expect(
+            await MessageRepo().getLastMessageFromServer(
+                testUid, 0, 0, FetchMessagesReq_Type.BACKWARD_FETCH, 0, 0, 0),
+            message);
+      });
     });
     group('fetchOtherSeen -', () {
       test(
