@@ -167,7 +167,8 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     int? lastMessageId,
     int? lastUpdate,
     int fetchMessagesId = 0,
-    String? fetchMessagesText}) {
+    String? fetchMessagesText,
+    int? mentionIdList}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
@@ -236,6 +237,12 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
                 forwardFrom: testUid,
                 encrypted: false)
           })));
+  when(service.fetchMentionList(FetchMentionListReq()
+        ..group = testUid
+        ..afterId = Int64.parseInt("0")))
+      .thenAnswer((realInvocation) => MockResponseFuture<FetchMentionListRes>(
+          FetchMentionListRes(
+              idList: mentionIdList != null ? [Int64(mentionIdList)] : [])));
   return service;
 }
 

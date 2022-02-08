@@ -624,5 +624,26 @@ void main() {
             uid: testUid.asString(), hiddenMessageCount: 0, messageId: 0)));
       });
     });
+    group('getMentions -', () {
+      test('When called should fetchMentionList from  queryServiceClient',
+          () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().getMentions(Room(
+            uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0)));
+        verify(queryServiceClient.fetchMentionList(FetchMentionListReq()
+          ..group = testUid
+          ..afterId = Int64.parseInt("0")));
+      });
+      test(
+          'When called should fetchMentionList from  queryServiceClient and  if idList not be empty should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(mentionIdList: 0);
+        await MessageRepo().getMentions(Room(
+            uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0)));
+        verify(
+            roomDao.updateRoom(Room(uid: testUid.asString(), mentioned: true)));
+      });
+    });
   });
 }
