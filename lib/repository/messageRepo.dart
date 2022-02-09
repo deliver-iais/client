@@ -160,20 +160,22 @@ class MessageRepo {
               } // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted != null && room.deleted!) {
-              _roomDao.updateRoom(Room(
-                  uid: room.uid,
-                  deleted: false,
-                  lastMessageId: roomMetadata.lastMessageId.toInt(),
-                  firstMessageId: roomMetadata.firstMessageId.toInt(),
-                  lastUpdateTime: roomMetadata.lastUpdate.toInt()));
-            }
-            if(room ==null) {
-              _roomDao.updateRoom(Room(
-              uid: roomMetadata.roomUid.asString(),
-              firstMessageId: roomMetadata.firstMessageId.toInt(),
-              lastMessageId: roomMetadata.lastMessageId.toInt(),
-            ));
+
+            _roomDao.updateRoom(Room(
+                uid: roomMetadata.roomUid.asString(),
+                lastMessageId: roomMetadata.lastMessageId.toInt(),
+                firstMessageId: roomMetadata.firstMessageId.toInt(),
+                lastUpdateTime: roomMetadata.lastUpdate.toInt()));
+            if (room != null) {
+              fetchLastMessages(
+                roomMetadata.roomUid,
+                roomMetadata.lastMessageId.toInt(),
+                roomMetadata.firstMessageId.toInt(),
+                room,
+                type: FetchMessagesReq_Type.BACKWARD_FETCH,
+                limit: 2,
+                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+              );
             }
 
             if (room != null &&
@@ -277,7 +279,7 @@ class MessageRepo {
           break;
         }
       }
-      if(lastMessage!= null){
+      if (lastMessage != null) {
         _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
           firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
@@ -288,7 +290,6 @@ class MessageRepo {
         return lastMessage;
       }
       return null;
-
     } catch (e) {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),

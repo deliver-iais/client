@@ -349,20 +349,19 @@ class AndroidNotifier implements Notifier {
           notificationDetails: platformChannelSpecifics,
           payload: message.roomUid!.asString());
     } catch (e) {
-      showDefault(e.toString());
+      showDefaultNotification(message.text!);
     }
   }
 
-  showDefault(String e) {
+  showDefaultNotification(String e) {
     AwesomeNotifications().initialize(
-        // set the icon to null if you want to use the default app icon
-        null,
+        '@mipmap/ic_launcher',
         [
           NotificationChannel(
               channelKey: 'basic_channel',
               channelName: 'Basic notifications',
               channelDescription: 'Notification channel for basic tests',
-              defaultColor: Color(0xFF9D50DD),
+              defaultColor: Colors.lightBlue,
               ledColor: Colors.white)
         ],
         // Channel groups are only visual and are not required
@@ -371,7 +370,7 @@ class AndroidNotifier implements Notifier {
         content: NotificationContent(
             id: 10,
             channelKey: 'basic_channel',
-            title: 'deliver+"notificatioservices ',
+            title: "Deliver",
             body: e.toString()));
   }
 
