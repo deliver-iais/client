@@ -671,6 +671,39 @@ void main() {
           },
         );
       });
+      test('When called should updateRoom', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final roomDao = getAndRegisterRoomDao();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendTextMessage(testUid, "test");
+            verify(roomDao.updateRoom(Room(
+                uid: pm.roomUid,
+                lastMessage: pm.msg,
+                lastMessageId: pm.msg.id,
+                deleted: false,
+                lastUpdateTime: pm.msg.time)));
+          },
+        );
+      });
+      test('When called should updateRoom', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final roomDao = getAndRegisterRoomDao();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendTextMessage(testUid, "test");
+            verify(roomDao.updateRoom(Room(
+                uid: pm.roomUid,
+                lastMessage: pm.msg,
+                lastMessageId: pm.msg.id,
+                deleted: false,
+                lastUpdateTime: pm.msg.time)));
+          },
+        );
+      });
+      //Todo add test for _sendMessageToServer
     });
   });
 }
