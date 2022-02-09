@@ -942,7 +942,7 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
-    if(!_reconnectTry) {
+    if(_reconnectTry) {
       callingStatus.add(CallStatus.IN_CALL);
     }
     //Set Timer 30 sec for end call if Call doesn't Connected

@@ -90,6 +90,12 @@ class CoreServices {
   final BehaviorSubject<CallEvents> _callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
+  final BehaviorSubject<CallEvents> groupCallEvents =
+      BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> _groupCallEvents =
+      BehaviorSubject.seeded(CallEvents.none);
+
   //TODO test
   initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
@@ -102,6 +108,9 @@ class CoreServices {
     });
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
+    });
+    _groupCallEvents.distinct().listen((event) {
+      groupCallEvents.add(event);
     });
   }
 
@@ -181,12 +190,26 @@ class CoreServices {
           case ServerPacket_Type.callOffer:
             var callEvents = CallEvents.callOffer(serverPacket.callOffer,
                 roomUid: getRoomUid(_authRepo, serverPacket.message));
-            _callEvents.add(callEvents);
+            if (serverPacket.callOffer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_AUDIO ||
+                serverPacket.callOffer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_VIDEO) {
+              _groupCallEvents.add(callEvents);
+            } else {
+              _callEvents.add(callEvents);
+            }
             break;
           case ServerPacket_Type.callAnswer:
             var callEvents = CallEvents.callAnswer(serverPacket.callAnswer,
                 roomUid: getRoomUid(_authRepo, serverPacket.message));
-            _callEvents.add(callEvents);
+            if (serverPacket.callAnswer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_AUDIO ||
+                serverPacket.callAnswer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_VIDEO) {
+              _groupCallEvents.add(callEvents);
+            } else {
+              _callEvents.add(callEvents);
+            }
             break;
           case ServerPacket_Type.expletivePacket:
             // TODO: Handle this case.
@@ -240,16 +263,16 @@ class CoreServices {
   }
 
   sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
-      ClientPacket clientPacket = ClientPacket()
-        ..callAnswer = callAnswerByClient
-        ..id = callAnswerByClient.id.toString();
-      _sendPacket(clientPacket);
+    ClientPacket clientPacket = ClientPacket()
+      ..callAnswer = callAnswerByClient
+      ..id = callAnswerByClient.id.toString();
+    _sendPacket(clientPacket);
   }
 
   sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     ClientPacket clientPacket = ClientPacket()
-        ..callOffer = callOfferByClient
-        ..id = callOfferByClient.id.toString();
+      ..callOffer = callOfferByClient
+      ..id = callOfferByClient.id.toString();
     _sendPacket(clientPacket);
   }
 
@@ -445,7 +468,13 @@ class CoreServices {
     } else if (message.whichType() == Message_Type.callEvent) {
       var callEvents =
           CallEvents.callEvent(message.callEvent, roomUid: message.from);
-      _callEvents.add(callEvents);
+      if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
+          message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
+        _groupCallEvents.add(callEvents);
+      } else {
+        // its group Call
+        _callEvents.add(callEvents);
+      }
     }
     saveMessage(message, roomUid);
 
