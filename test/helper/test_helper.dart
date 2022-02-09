@@ -124,6 +124,7 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   final service = MockAuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(service);
   when(service.isCurrentUser(testUid.asString())).thenReturn(isCurrentUser);
+  when(service.currentUserUid).thenReturn(testUid);
   return service;
 }
 

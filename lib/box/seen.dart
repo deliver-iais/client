@@ -1,5 +1,5 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive/hive.dart';
 
 part 'seen.g.dart';

@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io' as dart_file;
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -54,7 +55,6 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
-import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
@@ -707,7 +707,7 @@ class MessageRepo {
     return Message(
       roomUid: room.asString(),
       packetId: _getPacketId(),
-      time: DateTime.now().millisecondsSinceEpoch,
+      time: clock.now().millisecondsSinceEpoch,
       from: _authRepo.currentUserUid.asString(),
       to: room.asString(),
       replyToId: replyId,
@@ -716,7 +716,7 @@ class MessageRepo {
   }
 
   String _getPacketId() {
-    return "${DateTime.now().microsecondsSinceEpoch.toString()}-${randomString(5)}";
+    return "${clock.now().microsecondsSinceEpoch.toString()}}";
   }
 
   Future<List<Message?>> getPage(
