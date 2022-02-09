@@ -45,6 +45,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
@@ -234,6 +235,8 @@ Future<void> setupDI() async {
   }
 
   GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+
+  GetIt.I.registerSingleton<CallService>(CallService());
 
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
