@@ -1,7 +1,10 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -643,6 +646,30 @@ void main() {
             uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0)));
         verify(
             roomDao.updateRoom(Room(uid: testUid.asString(), mentioned: true)));
+      });
+    });
+    group('sendTextMessage -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              type: MessageType.TEXT,
+              time: 946672200000,
+              packetId: "946672200000000",
+              json: "{\"1\":\"test\"}"),
+          status: SendingStatus.PENDING,
+          failed: false);
+
+      test('When called should savePendingMessage', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final messageDao = getAndRegisterMessageDao();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendTextMessage(testUid, "test");
+            verify(messageDao.savePendingMessage(pm));
+          },
+        );
       });
     });
   });

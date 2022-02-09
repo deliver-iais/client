@@ -716,7 +716,7 @@ class MessageRepo {
   }
 
   String _getPacketId() {
-    return "${clock.now().microsecondsSinceEpoch.toString()}}";
+    return clock.now().microsecondsSinceEpoch.toString();
   }
 
   Future<List<Message?>> getPage(
