@@ -8,7 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -17,15 +17,20 @@ import 'package:lottie/lottie.dart';
 class AnimatedEmoji extends StatefulWidget {
   final Message message;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  const AnimatedEmoji({Key? key, required this.message, required this.isSeen})
+  const AnimatedEmoji(
+      {Key? key,
+      required this.message,
+      required this.isSeen,
+      required this.colorScheme})
       : super(key: key);
 
   static isAnimatedEmoji(Message message) {
     if (message.type != MessageType.TEXT) return false;
-    final content = message.json!.toText().text;
+    final content = message.json.toText().text;
 
     switch (content) {
       case "👍":
@@ -97,8 +102,6 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final extraThemeData = ExtraTheme.of(context);
     final isSender =
         AnimatedEmoji._authRepo.isCurrentUserSender(widget.message);
 
@@ -131,23 +134,18 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
         Container(
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color: isSender
-                ? extraThemeData.colorScheme.tertiaryContainer
-                :theme.colorScheme.surface,
+            color: widget.colorScheme.primaryContainer,
           ),
-          child: TimeAndSeenStatus(
-            widget.message,
-            isSender,
-            widget.isSeen,
-            needsPositioned: false,
-          ),
+          child: TimeAndSeenStatus(widget.message, isSender, widget.isSeen,
+              needsPositioned: false,
+              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
         ),
       ],
     );
   }
 
   String getPath() {
-    final content = widget.message.json!.toText().text;
+    final content = widget.message.json.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 
@@ -155,7 +153,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   String getAlt() {
-    final content = widget.message.json!.toText().text;
+    final content = widget.message.json.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 

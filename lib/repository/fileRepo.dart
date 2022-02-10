@@ -38,7 +38,7 @@ class FileRepo {
     }
     Response? value;
     try {
-      value = await _fileService.uploadFile(clonedFilePath!.path!, name,
+      value = await _fileService.uploadFile(clonedFilePath!.path, name,
           uploadKey: uploadKey, sendActivity: sendActivity);
     } on DioError catch (e) {
       if (e.response != null) {
@@ -77,8 +77,8 @@ class FileRepo {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      if (kIsWeb) return fileInfo.path != null;
-      io.File file = io.File(fileInfo.path!);
+      if (kIsWeb) return fileInfo.path.isNotEmpty;
+      io.File file = io.File(fileInfo.path);
       return await file.exists();
     }
     return false;
@@ -93,9 +93,9 @@ class FileRepo {
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       if (kIsWeb) {
-        return Uri.parse(fileInfo.path!).toString();
+        return Uri.parse(fileInfo.path).toString();
       } else {
-        io.File file = io.File(fileInfo.path!);
+        io.File file = io.File(fileInfo.path);
         if (await file.exists()) {
           return file.path;
         }

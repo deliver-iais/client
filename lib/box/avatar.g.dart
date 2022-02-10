@@ -21,7 +21,7 @@ class AvatarAdapter extends TypeAdapter<Avatar> {
       createdOn: fields[1] as int,
       fileId: fields[2] as String?,
       fileName: fields[3] as String?,
-      lastUpdate: fields[4] as int?,
+      lastUpdate: fields[4] as int,
     );
   }
 

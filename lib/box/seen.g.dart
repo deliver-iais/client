@@ -18,7 +18,7 @@ class SeenAdapter extends TypeAdapter<Seen> {
     };
     return Seen(
       uid: fields[0] as String,
-      messageId: fields[1] as int?,
+      messageId: fields[1] as int,
       hiddenMessageCount: fields[2] as int?,
     );
   }

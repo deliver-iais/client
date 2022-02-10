@@ -27,7 +27,7 @@ class LinkPreview extends StatelessWidget {
       required this.maxWidth,
       this.backgroundColor,
       this.foregroundColor,
-      this.maxHeight = double.infinity,
+      this.maxHeight = 120,
       this.isProfile = false})
       : super(key: key);
 
@@ -69,6 +69,7 @@ class LinkPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     if (link.isEmpty) return const SizedBox.shrink();
     return FutureBuilder<Metadata?>(
+        initialData: cache.get(link),
         future: _fetchMetadata(link),
         builder: (context, snapshot) {
           if ((!snapshot.hasData || snapshot.data == null) ||
@@ -91,9 +92,8 @@ class LinkPreview extends StatelessWidget {
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding:
-        const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+        margin: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
         constraints: BoxConstraints(
             minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
         decoration: BoxDecoration(
@@ -113,22 +113,23 @@ class LinkPreview extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style:theme
-                    .primaryTextTheme
-                    .bodyText2
+                style: theme.primaryTextTheme.bodyText2
                     ?.copyWith(color: foregroundColor),
               ),
             ),
             if (data.description != null)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                child: Text(
-                  data.description!,
-                  textDirection: data.description!.isPersian()
-                      ? TextDirection.rtl
-                      : TextDirection.ltr,
-                  style:theme.textTheme.bodyText2,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 2.0),
+                  child: Text(
+                    data.description!,
+                    textDirection: data.description!.isPersian()
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
+                    style: theme.textTheme.bodyText2,
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
           ],

@@ -11,6 +11,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -66,7 +67,7 @@ class _ContactsPageState extends State<ContactsPage> {
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color:theme.colorScheme.surface,
+            color: theme.colorScheme.surface,
           ),
           child: StreamBuilder<List<Contact>>(
               stream: _contactRepo.watchAll(),
@@ -114,11 +115,11 @@ class _ContactsPageState extends State<ContactsPage> {
                                   } else {
                                     return GestureDetector(
                                       onTap: () {
-                                          _rootingServices.openRoom(c.uid);
+                                        _rootingServices.openRoom(c.uid);
                                       },
                                       child: ContactWidget(
                                           contact: c,
-                                          circleIcon: Icons.qr_code_rounded,
+                                          circleIcon: CupertinoIcons.qrcode,
                                           onCircleIcon: () => showQrCode(
                                               context,
                                               buildShareUserUrl(
@@ -171,7 +172,7 @@ class _ContactsPageState extends State<ContactsPage> {
                 height: 80,
                 color: Colors.blue,
                 child: const Icon(
-                  Icons.contacts,
+                  CupertinoIcons.profile_circled,
                   color: Colors.white,
                   size: 40,
                 ),
@@ -179,7 +180,7 @@ class _ContactsPageState extends State<ContactsPage> {
               content: SizedBox(
                 width: 200,
                 child: Text(_i18n.get("send_contacts_message"),
-                    style:theme.textTheme.subtitle1),
+                    style: theme.textTheme.subtitle1),
               ),
               actions: <Widget>[
                 TextButton(

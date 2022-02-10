@@ -67,9 +67,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
-        title: Text(widget.isChannel
-            ? _i18n.get("newChannel")
-            : _i18n.get("newGroup")),
+        title: Text(
+            widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup")),
       ),
       body: FluidContainerWidget(
         child: Container(
@@ -77,7 +76,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             borderRadius: mainBorder,
-            color:theme.colorScheme.surface,
+            color: theme.colorScheme.surface,
           ),
           child: Stack(
             children: [
@@ -148,9 +147,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         if (e.hasData && e.data!) {
                           return Text(
                             _i18n.get("channel_id_is_exist"),
-                            style:theme
-                                .textTheme
-                                .overline!
+                            style: theme.textTheme.overline!
                                 .copyWith(color: Colors.red),
                           );
                         } else {
@@ -195,10 +192,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         if (!snapshot.hasData) {
                           return const SizedBox.shrink();
                         }
-                        return Text(
-                            '${snapshot.data} ${_i18n.get("members")}',
-                            style:
-                               theme.primaryTextTheme.subtitle2);
+                        return Text('${snapshot.data} ${_i18n.get("members")}',
+                            style: theme.primaryTextTheme.subtitle2);
                       }),
                   const SizedBox(
                     height: 8,
@@ -212,12 +207,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           }
                           return ListView.builder(
                               itemCount: snapshot.data,
-                              itemBuilder:
-                                  (BuildContext context, int index) =>
-                                      ContactWidget(
-                                        contact:
-                                            _createMucService.contacts[index],
-                                      ));
+                              itemBuilder: (BuildContext context, int index) =>
+                                  ContactWidget(
+                                    contact: _createMucService.contacts[index],
+                                  ));
                         }),
                   )
                 ],
@@ -231,17 +224,16 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           height: 40,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color:theme.primaryColor,
+                            color: theme.colorScheme.primary,
                           ),
                           child: IconButton(
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(0),
-                            icon:
-                                const Icon(Icons.check, color: Colors.white),
+                            icon: Icon(Icons.check,
+                                color: theme.colorScheme.onPrimary),
                             onPressed: () async {
                               bool res =
-                                  mucNameKey.currentState?.validate() ??
-                                      false;
+                                  mucNameKey.currentState?.validate() ?? false;
                               if (res) {
                                 setState(() {
                                   _showIcon = false;
@@ -256,18 +248,17 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                       .asUid());
                                 }
                                 if (widget.isChannel) {
-                                  bool result = _channelIdKey.currentState
-                                          ?.validate() ??
-                                      false;
+                                  bool result =
+                                      _channelIdKey.currentState?.validate() ??
+                                          false;
                                   if (result) {
                                     if (await checkChannelD(channelId)) {
-                                      mucUid =
-                                          await _mucRepo.createNewChannel(
-                                              idController.text,
-                                              memberUidList,
-                                              controller.text,
-                                              ChannelType.PUBLIC,
-                                              infoController.text);
+                                      mucUid = await _mucRepo.createNewChannel(
+                                          idController.text,
+                                          memberUidList,
+                                          controller.text,
+                                          ChannelType.PUBLIC,
+                                          infoController.text);
                                     }
                                   }
                                 } else {
@@ -303,7 +294,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color:theme.primaryColor,
+                    color: theme.primaryColor,
                   ),
                   child: IconButton(
                     alignment: Alignment.center,

@@ -27,7 +27,7 @@ class LocationMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Location location = message.json!.toLocation();
+    Location location = message.json.toLocation();
     return Stack(
       children: [
         SizedBox(
@@ -58,7 +58,9 @@ class LocationMessageWidget extends StatelessWidget {
             ],
           ),
         ),
-        TimeAndSeenStatus(message, isSender, isSeen),
+        TimeAndSeenStatus(message, isSender, isSeen,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerLowlight()),
       ],
     );
   }

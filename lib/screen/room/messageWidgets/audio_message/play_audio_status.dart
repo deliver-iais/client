@@ -57,7 +57,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                                 alignment: Alignment.center,
                                 icon: Icon(
                                   Icons.pause,
-                                  color: widget.backgroundColor,
+                                  color: widget.foregroundColor,
                                   size: 40,
                                 ),
                                 onPressed: () {
@@ -83,7 +83,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
         alignment: Alignment.center,
         icon: Icon(
           Icons.play_arrow,
-          color: widget.backgroundColor,
+          color: widget.foregroundColor,
           size: 42,
         ),
         onPressed: () {

@@ -46,7 +46,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
       OperationOnRoomEntry(
         room: room,
-        isPinned: room.pinned ?? false,
+        isPinned: room.pinned,
       )
     ]).then<void>((OperationOnRoom? opr) async {
       if (opr == null) return;
@@ -159,7 +159,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   bool canPin(List<Room> rooms) {
-    return rooms.where((element) => element.pinned ?? false).toList().length < 5
+    return rooms.where((element) => element.pinned).toList().length < 5
         ? true
         : false;
   }

@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -68,18 +69,16 @@ class _SearchBoxState extends State<SearchBox> {
           filled: true,
           isDense: true,
           prefixIcon: const Icon(
-            Icons.search,
-            size: 20,
+            CupertinoIcons.search,
+            // size: 20,
           ),
           suffixIcon: StreamBuilder<bool?>(
             stream: _hasText.stream,
             builder: (c, ht) {
               if (ht.hasData && ht.data!) {
                 return IconButton(
-                  icon: const Icon(
-                    Icons.close,
-                    size: 20,
-                  ),
+                  iconSize: 20,
+                  icon: const Icon(CupertinoIcons.xmark),
                   onPressed: () {
                     _hasText.add(false);
                     widget.controller.clear();

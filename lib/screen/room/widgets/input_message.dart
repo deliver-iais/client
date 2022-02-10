@@ -27,6 +27,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +41,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
-  final int? replyMessageId;
+  final int replyMessageId;
   final Function? resetRoomPageDetails;
   final bool waitingForForward;
   final Function? sendForwardMessage;
@@ -59,7 +60,7 @@ class InputMessage extends StatefulWidget {
     required this.scrollToLastSentMessage,
     required this.focusNode,
     required this.textController,
-    this.replyMessageId,
+    this.replyMessageId = 0,
     this.resetRoomPageDetails,
     this.waitingForForward = false,
     this.sendForwardMessage,
@@ -131,7 +132,7 @@ class _InputMessageWidget extends State<InputMessage> {
           builder: (context) {
             return ShareBox(
                 currentRoomId: currentRoom.uid.asUid(),
-                replyMessageId: widget.replyMessageId!,
+                replyMessageId: widget.replyMessageId,
                 resetRoomPageDetails: widget.resetRoomPageDetails!,
                 scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
@@ -297,10 +298,12 @@ class _InputMessageWidget extends State<InputMessage> {
                                     stream: _backSubject.stream,
                                     builder: (context, snapshot) {
                                       return IconButton(
+                                        iconSize: _backSubject.value ? 24 : 28,
                                         icon: Icon(
                                           _backSubject.value
-                                              ? Icons.keyboard
-                                              : Icons.mood,
+                                              ? CupertinoIcons
+                                                  .keyboard_chevron_compact_down
+                                              : CupertinoIcons.smiley,
                                         ),
                                         onPressed: () {
                                           if (_backSubject.value) {
@@ -326,7 +329,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       builder: (context, value, child) =>
                                           TextField(
                                         focusNode: widget.focusNode,
-                                        autofocus: widget.replyMessageId! > 0 ||
+                                        autofocus: widget.replyMessageId > 0 ||
                                             isDesktop(),
                                         controller: widget.textController,
                                         decoration: InputDecoration(
@@ -373,8 +376,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                         if (snapshot.hasData &&
                                             !snapshot.data!) {
                                           return IconButton(
+                                            iconSize: 28,
                                             icon: const Icon(
-                                              Icons.workspaces_outline,
+                                              CupertinoIcons.slash_circle,
                                             ),
                                             onPressed: () => _botCommandQuery
                                                 .add(_botCommandQuery.value ==
@@ -394,7 +398,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           !widget.waitingForForward) {
                                         return IconButton(
                                             icon: const Icon(
-                                              Icons.attach_file,
+                                              CupertinoIcons.paperclip,
                                             ),
                                             onPressed: () {
                                               _backSubject.add(false);
@@ -411,7 +415,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           widget.waitingForForward) {
                                         return IconButton(
                                           icon: const Icon(
-                                            Icons.send,
+                                            CupertinoIcons.paperplane_fill,
                                             color: Colors.blue,
                                           ),
                                           onPressed: widget.textController.text
@@ -702,7 +706,7 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
-      if (widget.replyMessageId! > 0) {
+      if (widget.replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
@@ -760,7 +764,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
       }
 
-      showCaptionDialog(files: res, icons: Icons.file_upload);
+      showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);
     } catch (e) {
       _logger.d(e.toString());
     }
@@ -806,10 +810,10 @@ class _InputMessageWidget extends State<InputMessage> {
     // ignore: missing_enum_constant_in_switch
     switch (widget.editableMessage!.type) {
       case MessageType.TEXT:
-        text = widget.editableMessage!.json!.toText().text;
+        text = widget.editableMessage!.json.toText().text;
         break;
       case MessageType.FILE:
-        text = widget.editableMessage!.json!.toFile().caption;
+        text = widget.editableMessage!.json.toFile().caption;
     }
     return text + " ";
   }

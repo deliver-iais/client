@@ -24,14 +24,14 @@ import 'package:rxdart/rxdart.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
-  final int? replyMessageId;
+  final int replyMessageId;
   final Function resetRoomPageDetails;
   final Function scrollToLastSentMessage;
 
   const ShareBox(
       {Key? key,
       required this.currentRoomId,
-      this.replyMessageId,
+      this.replyMessageId = 0,
       required this.resetRoomPageDetails,
       required this.scrollToLastSentMessage})
       : super(key: key);
@@ -525,7 +525,7 @@ Widget circleButton(Function() onTap, IconData icon, String text, double size,
     children: <Widget>[
       ClipOval(
         child: Material(
-          color:theme.primaryColor, // button color
+          color: theme.primaryColor, // button color
           child: InkWell(
               splashColor: Colors.red, // inkwell color
               child: SizedBox(
@@ -540,8 +540,7 @@ Widget circleButton(Function() onTap, IconData icon, String text, double size,
       ),
       Text(
         text,
-        style:
-            TextStyle(fontSize: 10, color:theme.backgroundColor),
+        style: TextStyle(fontSize: 10, color: theme.backgroundColor),
       ),
     ],
   );
