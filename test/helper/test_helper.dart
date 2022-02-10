@@ -142,7 +142,7 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   return service;
 }
 
-MockSeenDao getAndRegisterSeenDao({int? messageId}) {
+MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
   GetIt.I.registerSingleton<SeenDao>(service);
@@ -167,6 +167,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     PresenceType presenceType = PresenceType.ACTIVE,
     int? lastMessageId,
     int? lastUpdate,
+    bool countIsHiddenMessagesGetError = false,
     int fetchMessagesId = 0,
     String? fetchMessagesText,
     int? mentionIdList}) {
@@ -208,12 +209,17 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
         FetchLastOtherUserSeenDataRes(
             seen: seen_pb.Seen(from: testUid, to: testUid)));
   });
-  when(service.countIsHiddenMessages(CountIsHiddenMessagesReq()
-        ..roomUid = testUid
-        ..messageId = Int64(0 + 1)))
-      .thenAnswer((realInvocation) =>
-          MockResponseFuture<CountIsHiddenMessagesRes>(
-              CountIsHiddenMessagesRes(count: 0)));
+  countIsHiddenMessagesGetError
+      ? when(service.countIsHiddenMessages(CountIsHiddenMessagesReq()
+            ..roomUid = testUid
+            ..messageId = Int64(0 + 1)))
+          .thenThrow((realInvocation) => Future.value())
+      : when(service.countIsHiddenMessages(CountIsHiddenMessagesReq()
+            ..roomUid = testUid
+            ..messageId = Int64(0 + 1)))
+          .thenAnswer((realInvocation) =>
+              MockResponseFuture<CountIsHiddenMessagesRes>(
+                  CountIsHiddenMessagesRes(count: 0)));
 
   when(service.fetchMessages(
           FetchMessagesReq()

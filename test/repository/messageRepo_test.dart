@@ -25,7 +25,8 @@ Message testMessage = Message(
     from: testUid.asString(),
     packetId: testUid.asString(),
     roomUid: testUid.asString(),
-    time: 0);
+    time: 0,
+    json: '');
 
 void main() {
   group('MessageRepoTest -', () {
@@ -82,12 +83,18 @@ void main() {
       //todo need better test for time
       test('When called should update roomDao', () async {
         final roomDao = getAndRegisterRoomDao();
-        MessageRepo().updateNewMuc(testUid, 0);
-        verifyNever(roomDao.updateRoom(Room(
-          uid: testUid.asString(),
-          lastMessageId: 0,
-          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
-        )));
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            MessageRepo().updateNewMuc(testUid, 0);
+            verify(roomDao.updateRoom(Room(
+              uid: testUid.asString(),
+              lastMessageId: 0,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
+            )));
+          },
+        );
       });
     });
 
@@ -272,21 +279,25 @@ void main() {
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verify(seenDo.getMySeen(testUid.asString()));
       });
-      test('When called should getMySeen anf if is not null should save it',
-          () async {
+      test('When called should getMySeen and should save it', () async {
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         var s = await seenDo.getMySeen(testUid.asString());
-        verify(seenDo.saveMySeen(
-            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
+        verify(seenDo.saveMySeen(s.copy(
+            newUid: testUid.asString(),
+            newMessageId: 0,
+            newHiddenMessageCount: 0)));
       });
-      test('When called should getMySeen and if is null should never save it',
-          () async {
+      test('When called should countIsHiddenMessages', () async {
         final seenDo = getAndRegisterSeenDao();
+        getAndRegisterQueryServiceClient(countIsHiddenMessagesGetError: true);
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
+        verifyNever(seenDo.getMySeen(testUid.asString()));
         var s = await seenDo.getMySeen(testUid.asString());
-        verifyNever(seenDo.saveMySeen(
-            s?.copy(Seen(uid: testUid.asString(), hiddenMessageCount: 0))));
+        verifyNever(seenDo.saveMySeen(s.copy(
+            newUid: testUid.asString(),
+            newMessageId: 0,
+            newHiddenMessageCount: 0)));
       });
     });
 
