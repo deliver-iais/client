@@ -32,6 +32,7 @@ import '../repository/messageRepo_test.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -128,10 +129,14 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   return service;
 }
 
-MockFileRepo getAndRegisterFileRepo() {
+MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
   _removeRegistrationIfExists<FileRepo>();
   final service = MockFileRepo();
   GetIt.I.registerSingleton<FileRepo>(service);
+  when(service.uploadClonedFile("946672200000000", "test",
+          sendActivity: sendActivityFunction))
+      .thenAnswer((realInvocation) => Future.value(fileInfo));
+
   return service;
 }
 

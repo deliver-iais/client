@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -23,6 +25,8 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
+import 'package:deliver/models/file.dart' as model;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
@@ -768,7 +772,7 @@ void main() {
           },
         );
       });
-      test('When called should sendMessageToServer', () async {
+      test('When called should send LocationMessage to server', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
           () async {
@@ -780,6 +784,85 @@ void main() {
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
               ..location = location_pb.Location.fromJson(pm.msg.json);
+            verify(coreServices.sendMessage(byClient));
+          },
+        );
+      });
+    });
+    group('sendMultipleFilesMessages -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              type: MessageType.FILE,
+              time: 946672200000,
+              replyToId: 0,
+              packetId: "946672200000000",
+              json:
+                  "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}"),
+          status: SendingStatus.SENDING_FILE,
+          failed: false);
+
+      test('When called should initUploadProgress', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final fileRepo = getAndRegisterFileRepo();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendMultipleFilesMessages(
+                testUid, [model.File("test", "test")],
+                caption: "test");
+            verify(fileRepo.initUploadProgress("946672200000000"));
+          },
+        );
+      });
+      test('When called should cloneFileInLocalDirectory', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final fileRepo = getAndRegisterFileRepo();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendMultipleFilesMessages(
+                testUid, [model.File("test", "test")],
+                caption: "test");
+            verify(fileRepo.cloneFileInLocalDirectory(
+                await File("test").copy("test"), "946672200000000", "test"));
+          },
+        );
+      });
+
+      test('When called should savePending Multiple Message', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final messageDao = getAndRegisterMessageDao();
+            await MessageRepo().sendMultipleFilesMessages(
+                testUid, [model.File("test", "test")],
+                caption: "test");
+            verify(messageDao.savePendingMessage(pm));
+          },
+        );
+      });
+      test(
+          'When called if sendFileToServerOfPendingMessage did not return null should sendMessageToServer',
+          () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final coreServices = getAndRegisterCoreServices();
+            getAndRegisterFileRepo(
+                fileInfo: file_pb.File(
+                    uuid: testUid.asString(), caption: "test", name: "test"));
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendMultipleFilesMessages(
+                testUid, [model.File("test", "test")],
+                caption: "test");
+            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+              ..packetId = pm.msg.packetId
+              ..to = pm.msg.to.asUid()
+              ..replyToId = Int64(pm.msg.replyToId)
+              ..file = file_pb.File(
+                  name: "test", caption: "test", uuid: testUid.asString());
             verify(coreServices.sendMessage(byClient));
           },
         );

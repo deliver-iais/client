@@ -64,6 +64,9 @@ enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
 const DELETED_ROOM_MESSAGE = "{DELETED}";
+BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
+// ignore: prefer_function_declarations_over_variables
+late var sendActivityFunction = (int i) => sendActivitySubject.add(i);
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -467,7 +470,7 @@ class MessageRepo {
     for (var file in files) {
       if (files.last.path == file.path) {
         await sendFileMessage(room, file,
-            caption: caption!, replyToId: replyToId);
+            caption: caption, replyToId: replyToId);
       } else {
         await sendFileMessage(room, file, caption: "", replyToId: replyToId);
       }
@@ -549,7 +552,6 @@ class MessageRepo {
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
-    BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
     sendActivitySubject
         .throttleTime(const Duration(seconds: 10))
         .listen((value) {
@@ -565,7 +567,7 @@ class MessageRepo {
     // Upload to file server
     file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(
         packetId, fakeFileInfo.name,
-        sendActivity: (int i) => sendActivitySubject.add(i));
+        sendActivity: sendActivityFunction);
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 
