@@ -18,6 +18,8 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:fixnum/fixnum.dart';
 import '../helper/test_helper.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
@@ -714,7 +716,22 @@ void main() {
           },
         );
       });
-      //Todo add test for _sendMessageToServer
+      test('When called should sendMessageToServer', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final coreServices = getAndRegisterCoreServices();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendTextMessage(testUid, "test");
+            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+              ..packetId = pm.msg.packetId
+              ..to = pm.msg.to.asUid()
+              ..replyToId = Int64(pm.msg.replyToId)
+              ..text = message_pb.Text.fromJson(pm.msg.json);
+            verify(coreServices.sendMessage(byClient));
+          },
+        );
+      });
     });
   });
 }
