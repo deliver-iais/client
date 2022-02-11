@@ -13,6 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -20,6 +21,8 @@ import 'package:fixnum/fixnum.dart';
 import '../helper/test_helper.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
+    as location_pb;
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
@@ -700,13 +703,62 @@ void main() {
           },
         );
       });
-      test('When called should updateRoom', () async {
+      test('When called should sendMessageToServer', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final coreServices = getAndRegisterCoreServices();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendTextMessage(testUid, "test");
+            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+              ..packetId = pm.msg.packetId
+              ..to = pm.msg.to.asUid()
+              ..replyToId = Int64(pm.msg.replyToId)
+              ..text = message_pb.Text.fromJson(pm.msg.json);
+            verify(coreServices.sendMessage(byClient));
+          },
+        );
+      });
+    });
+    group('sendLocationMessage -', () {
+      Position testPosition = Position(
+          altitude: 0,
+          accuracy: 0,
+          heading: 0,
+          latitude: 0,
+          longitude: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          timestamp: DateTime(2000));
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              type: MessageType.LOCATION,
+              time: 946672200000,
+              packetId: "946672200000000",
+              json: "{\"1\":0.0,\"2\":0.0}"),
+          status: SendingStatus.PENDING,
+          failed: false);
+
+      test('When called should savePendingMessage', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final messageDao = getAndRegisterMessageDao();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            verify(messageDao.savePendingMessage(pm));
+          },
+        );
+      });
+      test('When called should updateRoomLastMessage', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
           () async {
             final roomDao = getAndRegisterRoomDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendTextMessage(testUid, "test");
+            await MessageRepo().sendLocationMessage(testPosition, testUid);
             verify(roomDao.updateRoom(Room(
                 uid: pm.roomUid,
                 lastMessage: pm.msg,
@@ -722,12 +774,12 @@ void main() {
           () async {
             final coreServices = getAndRegisterCoreServices();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendTextMessage(testUid, "test");
+            await MessageRepo().sendLocationMessage(testPosition, testUid);
             message_pb.MessageByClient byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
-              ..text = message_pb.Text.fromJson(pm.msg.json);
+              ..location = location_pb.Location.fromJson(pm.msg.json);
             verify(coreServices.sendMessage(byClient));
           },
         );
