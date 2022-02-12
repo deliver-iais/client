@@ -139,7 +139,7 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
   final service = MockFileRepo();
   GetIt.I.registerSingleton<FileRepo>(service);
   when(service.uploadClonedFile("946672200000000", "test",
-          sendActivity: sendActivityFunction))
+          sendActivity: anyNamed("sendActivity")))
       .thenAnswer((realInvocation) => Future.value(fileInfo));
 
   return service;

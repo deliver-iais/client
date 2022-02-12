@@ -64,9 +64,6 @@ enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
 const DELETED_ROOM_MESSAGE = "{DELETED}";
-BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
-// ignore: prefer_function_declarations_over_variables
-late var sendActivityFunction = (int i) => sendActivitySubject.add(i);
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -85,6 +82,7 @@ class MessageRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
+  final sendActivitySubject = BehaviorSubject.seeded(0);
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -567,7 +565,7 @@ class MessageRepo {
     // Upload to file server
     file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(
         packetId, fakeFileInfo.name,
-        sendActivity: sendActivityFunction);
+        sendActivity: (int i) => sendActivitySubject.add(i));
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 

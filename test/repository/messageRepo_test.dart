@@ -840,7 +840,7 @@ void main() {
                 testUid, [model.File("test", "test")],
                 caption: "test");
             verify(fileRepo.uploadClonedFile("946672200000000", "test",
-                sendActivity: sendActivityFunction));
+                sendActivity: anyNamed("sendActivity")));
           },
         );
       });
@@ -903,7 +903,7 @@ void main() {
         getAndRegisterMessageDao(pendingMessage: pm);
         await MessageRepo().sendPendingMessages();
         verify(fileRepo.uploadClonedFile("946672200000000", "test",
-            sendActivity: sendActivityFunction));
+            sendActivity: anyNamed("sendActivity")));
       });
       test(
           'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE and cloned file are not null should savePendingMessage',
@@ -983,7 +983,7 @@ void main() {
                     "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
             status: SendingStatus.PENDING)));
         verifyNever(fileRepo.uploadClonedFile("946672200000000", "test",
-            sendActivity: sendActivityFunction));
+            sendActivity: anyNamed("sendActivity")));
       });
       test(
           'When called should getAllPendingMessages and if there is no pending message should break',
@@ -1014,7 +1014,7 @@ void main() {
                     "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
             status: SendingStatus.PENDING)));
         verify(fileRepo.uploadClonedFile("946672200000000", "test",
-            sendActivity: sendActivityFunction));
+            sendActivity: anyNamed("sendActivity")));
       });
       test(
           'When called should getAllPendingMessages and if there is pending message and SendingStatus is PENDING should sendMessage pm To Server',
