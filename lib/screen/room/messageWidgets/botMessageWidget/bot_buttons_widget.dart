@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class BotButtonsWidget extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 6),
                 child: ElevatedButton(
                     style:
-                        ElevatedButton.styleFrom(primary: colorScheme.primary),
+                        ElevatedButton.styleFrom(primary: colorScheme.primary, shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder)),
                     onPressed: () {
                       _messageRepo.sendTextMessage(message.from.asUid(), btn);
                     },
