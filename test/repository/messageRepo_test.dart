@@ -1,4 +1,3 @@
-
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -402,7 +401,7 @@ void main() {
                 packetId: "",
                 time: 0,
                 id: 0,
-                json: "{DELETED}",
+                json: DELETED_ROOM_MESSAGE,
                 forwardedFrom: testUid.asString(),
                 type: MessageType.NOT_SET,
                 to: testUid.asString(),
@@ -421,7 +420,7 @@ void main() {
             to: testUid.asString(),
             packetId: testUid.asString(),
             time: 0,
-            json: "{DELETED}",
+            json: DELETED_ROOM_MESSAGE,
             roomUid: testUid.asString());
         final roomDao = getAndRegisterRoomDao();
         getAndRegisterMessageDao(message: message);
