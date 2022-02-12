@@ -81,7 +81,7 @@ dependencies:
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/grpc-dart
-      ref: 42d8ba98d34c06377ced074562d0eaa278501b89
+      ref: 29af7df647c0999a41c6b4186de8709574d81de5
 
   firebase_messaging:
     git:
@@ -107,7 +107,6 @@ dependencies:
   scrollable_positioned_list: 0.2.3
   share: 2.0.4
   fluttertoast: 8.0.8
-#  firebase_messaging: 11.2.6
   firebase_core: 1.12.0
   card_swiper: 2.0.1
   desktop_drop: 0.3.0
@@ -139,6 +138,7 @@ dependencies:
   universal_html: 2.0.8
   js: 0.6.3
   platform_detect: 2.0.0
+
   flutter_keyboard_visibility: 5.1.1
 
   automatic_animated_list: 1.0.0
@@ -148,10 +148,12 @@ dependencies:
   great_list_view: 0.1.4
   material_color_utilities: 0.1.4
   awesome_notifications: 0.6.16
+  clock: 1.1.0
 
 dev_dependencies:
   build_runner: ^2.1.5
-  #  test: ^1.19.3
+  test:
+  mockito:
   hive_generator: ^1.1.1
   flutter_lints: ^1.0.0
   dependency_validator: ^3.1.2  # flutter pub run dependency_validator

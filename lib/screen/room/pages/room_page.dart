@@ -169,13 +169,7 @@ class _RoomPageState extends State<RoomPage> {
       children: [
         Column(
           children: <Widget>[
-            Expanded(
-              child: StreamBuilder(
-                  stream: MergeStream([_pendingMessages.stream, _room.stream]),
-                  builder: (context, event) {
-                    return buildMessagesListView();
-                  }),
-            ),
+            buildAllMessagesBox(),
             StreamBuilder(
                 stream: _repliedMessage.stream,
                 builder: (c, rm) {
@@ -216,20 +210,41 @@ class _RoomPageState extends State<RoomPage> {
           ],
         ),
         pinMessageWidget(),
-        StreamBuilder<bool>(
-            stream: _isScrolling.stream,
-            builder: (context, snapshot) {
-              return Positioned(
-                right: 20,
-                bottom: 70,
-                child: AnimatedScale(
-                    child: scrollDownButtonWidget(),
-                    scale: snapshot.data == true ? 1 : 0,
-                    duration: ANIMATION_DURATION * 1.3),
-              );
-            }),
         AudioPlayerAppBar(),
       ],
+    );
+  }
+
+  Expanded buildAllMessagesBox() {
+    return Expanded(
+      child: Stack(
+        children: [
+          StreamBuilder(
+              stream: MergeStream([_pendingMessages.stream, _room.stream])
+                  .debounceTime(const Duration(milliseconds: 50)),
+              builder: (context, event) {
+                // Set Item Count
+                _itemCount = (room.lastMessageId ?? 0) +
+                    pendingMessages.length -
+                    room.firstMessageId;
+                _itemCountSubject.add(_itemCount);
+
+                return buildMessagesListView();
+              }),
+          StreamBuilder<bool>(
+              stream: _isScrolling.stream,
+              builder: (context, snapshot) {
+                return Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: AnimatedScale(
+                      child: scrollDownButtonWidget(),
+                      scale: snapshot.data == true ? 1 : 0,
+                      duration: ANIMATION_DURATION * 1.3),
+                );
+              }),
+        ],
+      ),
     );
   }
 
@@ -276,7 +291,7 @@ class _RoomPageState extends State<RoomPage> {
         ItemPosition firstItem = position
             .where((ItemPosition position) => position.itemLeadingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
-                position.itemLeadingEdge < first.itemLeadingEdge
+                position.itemLeadingEdge > first.itemLeadingEdge
                     ? position
                     : first);
 
@@ -327,14 +342,9 @@ class _RoomPageState extends State<RoomPage> {
     super.initState();
   }
 
-  void initRoomStream() {
+  void initRoomStream() async {
     final subscription =
         _roomRepo.watchRoom(widget.roomId).listen((event) async {
-      // Set Item Count
-      _itemCount = (event.lastMessageId ?? 0) +
-          pendingMessages.length -
-          event.firstMessageId;
-
       // Remove changed messages from cache
       if (room.lastUpdatedMessageId != null &&
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
@@ -352,7 +362,6 @@ class _RoomPageState extends State<RoomPage> {
 
       // Notify All Piece of Widget
       _room.add(event);
-      _itemCountSubject.add(_itemCount);
     });
     _room.onCancel = () => subscription.cancel();
   }
@@ -360,7 +369,7 @@ class _RoomPageState extends State<RoomPage> {
   void initPendingMessages() {
     final subscription = _messageRepo
         .watchPendingMessages(widget.roomId)
-        .listen((event) => _pendingMessages.add(event));
+        .listen(_pendingMessages.add);
     _pendingMessages.onCancel = () => subscription.cancel();
   }
 
@@ -554,9 +563,7 @@ class _RoomPageState extends State<RoomPage> {
       children: [
         FloatingActionButton(
             mini: true,
-            child: const Icon(
-              CupertinoIcons.down_arrow,
-            ),
+            child: const Icon(CupertinoIcons.down_arrow),
             onPressed: () {
               _scrollToMessage(
                   id: _lastShowedMessageId > 0
@@ -733,9 +740,11 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget buildMessagesListView() {
-    if (room.lastMessage == null) {
+    if (room.lastMessage == null || _itemCount <= 0) {
       return const SizedBox.shrink();
     }
+
+    print("here");
 
     int scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
@@ -806,9 +815,11 @@ class _RoomPageState extends State<RoomPage> {
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
       int index) {
-    final cachedPrevMsg = _messageCache.get(index - 1);
-    final cachedMsg = _messageCache.get(index);
-    return cachedMsg != null && cachedPrevMsg != null
+    final id = index + 1;
+    final cachedPrevMsg = _messageCache.get(id - 1);
+    final cachedMsg = _messageCache.get(id);
+
+    return cachedMsg?.id != null && cachedPrevMsg?.id != null
         ? Tuple2(cachedMsg, cachedPrevMsg)
         : null;
   }
@@ -820,12 +831,14 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
-    bool isPendingMessage = (room.lastMessageId == null) ||
-        _itemCount > room.lastMessageId! &&
-            _itemCount - index <= pendingMessages.length;
-    return isPendingMessage
+    return _isPendingMessage(index)
         ? pendingMessages[_itemCount - index - 1].msg
         : await _getMessage(index + 1, useCache: useCache);
+  }
+
+  bool _isPendingMessage(int index) {
+    return _itemCount > room.lastMessageId! &&
+        _itemCount - index <= pendingMessages.length;
   }
 
   Future<int?>? _timeAt(int index) async {
@@ -851,7 +864,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Widget _buildMessage(int index) {
     if (index < room.firstMessageId) {
-      return const SizedBox.shrink();
+      return const SizedBox(height: 10);
     }
 
     late final Widget widget;
@@ -882,7 +895,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Widget _cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
     if (tuple == null || tuple.item2 == null) {
-      return const SizedBox.shrink();
+      return const SizedBox(height: 1000);
     }
 
     Widget? widget = _messageWidgetCache.get(index);

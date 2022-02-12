@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
@@ -97,5 +98,42 @@ class Message {
         encrypted: encrypted ?? this.encrypted,
         type: type ?? this.type,
         json: json ?? this.json,
+      );
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is Message &&
+            const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
+            const DeepCollectionEquality().equals(other.id, id) &&
+            const DeepCollectionEquality().equals(other.packetId, packetId) &&
+            const DeepCollectionEquality().equals(other.time, time) &&
+            const DeepCollectionEquality().equals(other.from, from) &&
+            const DeepCollectionEquality().equals(other.to, to) &&
+            const DeepCollectionEquality().equals(other.replyToId, replyToId) &&
+            const DeepCollectionEquality()
+                .equals(other.forwardedFrom, forwardedFrom) &&
+            const DeepCollectionEquality().equals(other.edited, edited) &&
+            const DeepCollectionEquality().equals(other.encrypted, encrypted) &&
+            const DeepCollectionEquality().equals(other.type, type) &&
+            const DeepCollectionEquality().equals(other.json, json));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(roomUid),
+        const DeepCollectionEquality().hash(id),
+        const DeepCollectionEquality().hash(packetId),
+        const DeepCollectionEquality().hash(time),
+        const DeepCollectionEquality().hash(from),
+        const DeepCollectionEquality().hash(to),
+        const DeepCollectionEquality().hash(replyToId),
+        const DeepCollectionEquality().hash(forwardedFrom),
+        const DeepCollectionEquality().hash(edited),
+        const DeepCollectionEquality().hash(encrypted),
+        const DeepCollectionEquality().hash(type),
+        const DeepCollectionEquality().hash(json),
       );
 }

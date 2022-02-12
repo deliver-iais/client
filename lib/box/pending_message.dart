@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/shared/constants.dart';
@@ -50,5 +51,26 @@ class PendingMessage {
         msg: msg ?? this.msg,
         failed: failed ?? this.failed,
         status: status ?? this.status,
+      );
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is PendingMessage &&
+            const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
+            const DeepCollectionEquality().equals(other.packetId, packetId) &&
+            const DeepCollectionEquality().equals(other.msg, msg) &&
+            const DeepCollectionEquality().equals(other.failed, failed) &&
+            const DeepCollectionEquality().equals(other.status, status));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(roomUid),
+        const DeepCollectionEquality().hash(packetId),
+        const DeepCollectionEquality().hash(msg),
+        const DeepCollectionEquality().hash(failed),
       );
 }
