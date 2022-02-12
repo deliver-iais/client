@@ -81,7 +81,7 @@ dependencies:
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/grpc-dart
-      ref: 42d8ba98d34c06377ced074562d0eaa278501b89
+      ref: 29af7df647c0999a41c6b4186de8709574d81de5
 
   ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
@@ -142,7 +142,7 @@ dependencies:
   collection: 1.15.0
   tuple: 2.0.0
   great_list_view: 0.1.4
-  material_color_utilities:
+  material_color_utilities: 0.1.4
   clock: 1.1.0
 
 dev_dependencies:

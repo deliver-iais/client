@@ -274,7 +274,7 @@ MockSharedDao getAndRegisterSharedDao() {
 
 Future<MessageRepo> getAndRegisterMessageRepo() async {
   _removeRegistrationIfExists<MessageRepo>();
-  GetIt.I.registerSingleton<MessageRepo>(await MessageRepo());
+  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   MessageRepo service = GetIt.I.get<MessageRepo>();
   return service;
 }
