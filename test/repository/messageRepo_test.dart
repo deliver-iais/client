@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -403,7 +401,7 @@ void main() {
                 packetId: "",
                 time: 0,
                 id: 0,
-                json: "{DELETED}",
+                json: DELETED_ROOM_MESSAGE,
                 forwardedFrom: testUid.asString(),
                 type: MessageType.NOT_SET,
                 to: testUid.asString(),
@@ -422,7 +420,7 @@ void main() {
             to: testUid.asString(),
             packetId: testUid.asString(),
             time: 0,
-            json: "{DELETED}",
+            json: DELETED_ROOM_MESSAGE,
             roomUid: testUid.asString());
         final roomDao = getAndRegisterRoomDao();
         getAndRegisterMessageDao(message: message);
@@ -500,16 +498,9 @@ void main() {
       test(
           'When called should getMessage from messageDao if msg not be null and  message id be 1 should updateRoom with json "{DELETED}" and return it',
           () async {
-        Message message = Message(
-            id: 1,
-            from: testUid.asString(),
-            to: testUid.asString(),
-            packetId: testUid.asString(),
-            time: 0,
-            json: "{DELETED}",
-            roomUid: testUid.asString());
         final roomDao = getAndRegisterRoomDao();
-        getAndRegisterMessageDao(message: testMessage.copyWith(id: 1));
+        getAndRegisterMessageDao(
+            message: testMessage.copyWith(id: 1, json: EMPTY_MESSAGE));
         await MessageRepo().fetchLastMessages(
           testUid,
           0,
@@ -525,7 +516,8 @@ void main() {
               firstMessageId: 0,
               lastUpdateTime: 0,
               lastMessageId: 0,
-              lastMessage: message),
+              lastMessage:
+                  testMessage.copyWith(id: 1, json: DELETED_ROOM_MESSAGE)),
         ));
         expect(
             await MessageRepo().fetchLastMessages(
@@ -537,7 +529,7 @@ void main() {
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
             ),
-            message);
+            testMessage.copyWith(id: 1, json: DELETED_ROOM_MESSAGE));
       });
     });
 
@@ -547,7 +539,7 @@ void main() {
           packetId: "",
           time: 0,
           id: 0,
-          json: "{DELETED}",
+          json: DELETED_ROOM_MESSAGE,
           forwardedFrom: testUid.asString(),
           type: MessageType.NOT_SET,
           to: testUid.asString(),
@@ -813,20 +805,6 @@ void main() {
                 testUid, [model.File("test", "test")],
                 caption: "test");
             verify(fileRepo.initUploadProgress("946672200000000"));
-          },
-        );
-      });
-      test('When called should cloneFileInLocalDirectory', () async {
-        withClock(
-          Clock.fixed(DateTime(2000)),
-          () async {
-            final fileRepo = getAndRegisterFileRepo();
-            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendMultipleFilesMessages(
-                testUid, [model.File("test", "test")],
-                caption: "test");
-            verify(fileRepo.cloneFileInLocalDirectory(
-                await File("test").copy("test"), "946672200000000", "test"));
           },
         );
       });
