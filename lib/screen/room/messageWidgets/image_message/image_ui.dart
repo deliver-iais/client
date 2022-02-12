@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/profile/widgets/all_Image_page.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/screen/room/widgets/image_swiper.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -90,7 +90,12 @@ class _ImageUiState extends State<ImageUi> {
                               context,
                               CupertinoPageRoute(
                                 builder: (context) {
-                                  return ImageSwiper(message: widget.message);
+                                  return AllImagePage(
+                                    const Key("/all_image_page"),
+                                    roomUid: widget.message.roomUid,
+                                    filePath: s.data!,
+                                    messageId: widget.message.id!,
+                                  );
                                 },
                               ),
                             );

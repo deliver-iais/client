@@ -11,7 +11,7 @@ abstract class MediaDao {
 
   Future save(Media media);
 
-  Future<List<Media>> getMediaAround(String roomId, int offset, MediaType type);
+  Future<int?> getIndexOfMedia(String roomUid, int messageId);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -35,6 +35,16 @@ class MediaDaoImpl implements MediaDao {
     box.put(media.messageId, media);
   }
 
+  @override
+  Future<int?> getIndexOfMedia(String roomUid, int messageId) async {
+    var box = await _open(roomUid);
+    return box.values
+        .toList()
+        .reversed
+        .toList()
+        .indexWhere((element) => element.messageId == messageId);
+  }
+
   static String _key(String roomUid) => "media-$roomUid";
 
   static Future<Box<Media>> _open(String uid) {
@@ -45,40 +55,15 @@ class MediaDaoImpl implements MediaDao {
   @override
   Future<List<Media>> getByRoomIdAndType(String roomUid, MediaType type) async {
     var box = await _open(roomUid);
-    List<Media> res = [];
-    var medias = box.values
+
+    return sorted(box.values
         .where((element) =>
             element.roomId.contains(roomUid) && element.type == type)
-        .toList();
-    res.addAll(medias);
-    res.sort((a, b) => a.createdOn - b.createdOn);
-    return res;
+        .toList());
   }
 
-  @override
-  Future<List<Media>> getMediaAround(
-      String roomId, int offset, MediaType type) async {
-    var box = await _open(roomId);
-    List<Media> res = [];
-    if (offset - 1 < 0) {
-      var medias = box.values
-          .where((element) =>
-              element.roomId.contains(roomId) && element.type == type)
-          .toList()
-          .sublist(offset, offset + 1);
-
-      res.addAll(medias);
-      res.sort((a, b) => a.createdOn - b.createdOn);
-      return res;
-    } else {
-      var medias = box.values
-          .where((element) =>
-              element.roomId.contains(roomId) && element.type == type)
-          .toList()
-          .sublist(offset - 1, offset + 2);
-      res.addAll(medias);
-      res.sort((a, b) => a.createdOn - b.createdOn);
-      return res;
-    }
+  List<Media> sorted(List<Media> list) {
+    list.sort((a, b) => (b.messageId) - (a.messageId));
+    return list;
   }
 }

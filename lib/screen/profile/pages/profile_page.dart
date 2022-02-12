@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
@@ -16,6 +17,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/image_tab_ui.dart';
+import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
@@ -77,6 +79,10 @@ class _ProfilePageState extends State<ProfilePage>
   String _roomName = "";
   bool _roomIsBlocked = false;
 
+  final BehaviorSubject<bool> _selectMediasForForward =
+      BehaviorSubject.seeded(false);
+  final List<Media> _selectedMedia = [];
+
   @override
   void initState() {
     _setupRoomSettings();
@@ -97,34 +103,42 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
-        child: StreamBuilder<MediaMetaData>(
+        child: StreamBuilder<MediaMetaData?>(
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-            builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
+            builder: (context, AsyncSnapshot<MediaMetaData?> snapshot) {
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
-                if (snapshot.data!.imagesCount != 0) {
+                if (snapshot.data!.imagesCount != null &&
+                    snapshot.data!.imagesCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.videosCount != 0) {
+                if (snapshot.data!.videosCount != null &&
+                    snapshot.data!.videosCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.linkCount != 0) {
+                if (snapshot.data!.linkCount != null &&
+                    snapshot.data!.linkCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.filesCount != 0) {
+                if (snapshot.data!.filesCount != null &&
+                    snapshot.data!.filesCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.documentsCount != 0) {
+                if (snapshot.data!.documentsCount != null &&
+                    snapshot.data!.documentsCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.musicsCount != 0) {
+                if (snapshot.data!.musicsCount != null &&
+                    snapshot.data!.musicsCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.audiosCount != 0) {
+                if (snapshot.data!.audiosCount != null &&
+                    snapshot.data!.audiosCount != 0) {
                   _tabsCount++;
                 }
               }
@@ -159,48 +173,130 @@ class _ProfilePageState extends State<ProfilePage>
                                 minHeight: 45,
                                 child: Box(
                                   borderRadius: BorderRadius.zero,
-                                  child: TabBar(
-                                    onTap: (index) {
-                                      _uxService.setTabIndex(
-                                          widget.roomUid.asString(), index);
-                                    },
-                                    tabs: [
-                                      if (widget.roomUid.isGroup() ||
-                                          (widget.roomUid.isChannel() &&
-                                              _isMucAdminOrOwner))
-                                        Tab(
-                                          text: _i18n.get("members"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.imagesCount != 0)
-                                        Tab(
-                                          text: _i18n.get("images"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.videosCount != 0)
-                                        Tab(
-                                          text: _i18n.get("videos"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.filesCount != 0)
-                                        Tab(
-                                          text: _i18n.get("file"),
-                                        ),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.linkCount != 0)
-                                        Tab(text: _i18n.get("links")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.documentsCount != 0)
-                                        Tab(text: _i18n.get("documents")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.musicsCount != 0)
-                                        Tab(text: _i18n.get("musics")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.audiosCount != 0)
-                                        Tab(text: _i18n.get("audios")),
-                                    ],
-                                    controller: _tabController,
-                                  ),
+                                  child: StreamBuilder<bool>(
+                                      stream: _selectMediasForForward.stream,
+                                      builder: (context, selectMediaToForward) {
+                                        if (selectMediaToForward.hasData &&
+                                            selectMediaToForward.data != null &&
+                                            selectMediaToForward.data!) {
+                                          return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20, right: 20),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Badge(
+                                                    child: IconButton(
+                                                        color:
+                                                            theme.primaryColor,
+                                                        icon: const Icon(
+                                                          Icons.clear,
+                                                          size: 25,
+                                                        ),
+                                                        onPressed: () {
+                                                          _selectMediasForForward
+                                                              .add(false);
+                                                          _selectedMedia
+                                                              .clear();
+                                                          setState(() {});
+                                                        }),
+                                                    badgeColor:
+                                                        theme.primaryColor,
+                                                    badgeContent: Text(
+                                                      _selectedMedia.length
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: theme
+                                                              .colorScheme
+                                                              .onPrimary),
+                                                    ),
+                                                  ),
+                                                  Tooltip(
+                                                      message:
+                                                          _i18n.get("forward"),
+                                                      child: IconButton(
+                                                          color: theme
+                                                              .primaryColor,
+                                                          icon: const Icon(
+                                                            Icons.forward,
+                                                            size: 25,
+                                                          ),
+                                                          onPressed: () {
+                                                            _routingService
+                                                                .openSelectForwardMessage(
+                                                                    medias:
+                                                                        _selectedMedia);
+                                                          })),
+                                                ],
+                                              ));
+                                        } else {
+                                          return TabBar(
+                                            onTap: (index) {
+                                              _uxService.setTabIndex(
+                                                  widget.roomUid.asString(),
+                                                  index);
+                                            },
+                                            tabs: [
+                                              if (widget.roomUid.isGroup() ||
+                                                  (widget.roomUid.isChannel() &&
+                                                      _isMucAdminOrOwner))
+                                                Tab(
+                                                  text: _i18n.get("members"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.imagesCount !=
+                                                      null &&
+                                                  snapshot.data!.imagesCount !=
+                                                      0)
+                                                Tab(
+                                                  text: _i18n.get("images"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.videosCount !=
+                                                      null &&
+                                                  snapshot.data!.videosCount !=
+                                                      0)
+                                                Tab(
+                                                  text: _i18n.get("videos"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.filesCount !=
+                                                      null &&
+                                                  snapshot.data!.filesCount !=
+                                                      0)
+                                                Tab(
+                                                  text: _i18n.get("file"),
+                                                ),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.linkCount !=
+                                                      null &&
+                                                  snapshot.data!.linkCount != 0)
+                                                Tab(text: _i18n.get("links")),
+                                              if (snapshot.hasData &&snapshot.data!.documentsCount != null &&
+                                                  snapshot.data!
+                                                          .documentsCount !=
+                                                      0)
+                                                Tab(
+                                                    text:
+                                                        _i18n.get("documents")),
+                                              if (snapshot.hasData && snapshot.data!.musicsCount != null &&
+                                                  snapshot.data!.musicsCount !=
+                                                      0)
+                                                Tab(text: _i18n.get("musics")),
+                                              if (snapshot.hasData &&
+                                                  snapshot.data!.audiosCount !=
+                                                      null &&
+                                                  snapshot.data!.audiosCount !=
+                                                      0)
+                                                Tab(text: _i18n.get("audios")),
+                                            ],
+                                            controller: _tabController,
+                                          );
+                                        }
+                                      }),
                                 )),
                           ),
                         ];
@@ -219,44 +315,69 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                               ),
                             if (snapshot.hasData &&
+                                snapshot.data!.imagesCount != null &&
                                 snapshot.data!.imagesCount != 0)
                               ImageTabUi(
-                                  snapshot.data!.imagesCount, widget.roomUid),
+                                  snapshot.data!.imagesCount!, widget.roomUid,
+                                  selectedMedia: _selectedMedia,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media)),
                             if (snapshot.hasData &&
+                                snapshot.data!.videosCount != null &&
                                 snapshot.data!.videosCount != 0)
                               VideoTabUi(
-                                  userUid: widget.roomUid,
-                                  videoCount: snapshot.data!.videosCount),
+                                  roomUid: widget.roomUid,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media),
+                                  selectedMedia: _selectedMedia,
+                                  videoCount: snapshot.data!.videosCount!),
                             if (snapshot.hasData &&
+                                snapshot.data!.filesCount != null &&
                                 snapshot.data!.filesCount != 0)
                               DocumentAndFileUi(
                                 roomUid: widget.roomUid,
-                                documentCount: snapshot.data!.filesCount,
+                                selectedMedia: _selectedMedia,
+                                addSelectedMedia: (media) =>
+                                    _addSelectedMedia(media),
+                                documentCount: snapshot.data!.filesCount!,
                                 type: MediaType.FILE,
                               ),
                             if (snapshot.hasData &&
+                                snapshot.data!.linkCount != null &&
                                 snapshot.data!.linkCount != 0)
-                              linkWidget(widget.roomUid, _mediaQueryRepo,
-                                  snapshot.data!.linkCount),
+                              LinkTabUi(
+                                  snapshot.data!.linkCount!, widget.roomUid),
                             if (snapshot.hasData &&
+                                snapshot.data!.documentsCount != null &&
                                 snapshot.data!.documentsCount != 0)
                               DocumentAndFileUi(
+                                selectedMedia: _selectedMedia,
+                                addSelectedMedia: (media) =>
+                                    _addSelectedMedia(media),
                                 roomUid: widget.roomUid,
-                                documentCount: snapshot.data!.documentsCount,
+                                documentCount: snapshot.data!.documentsCount!,
                                 type: MediaType.DOCUMENT,
                               ),
                             if (snapshot.hasData &&
+                                snapshot.data!.musicsCount != null &&
                                 snapshot.data!.musicsCount != 0)
                               MusicAndAudioUi(
-                                  userUid: widget.roomUid,
-                                  type: FetchMediasReq_MediaType.MUSICS,
-                                  mediaCount: snapshot.data!.musicsCount),
+                                  roomUid: widget.roomUid,
+                                  type: MediaType.MUSIC,
+                                  selectedMedia: _selectedMedia,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media),
+                                  mediaCount: snapshot.data!.musicsCount!),
                             if (snapshot.hasData &&
+                                snapshot.data!.audiosCount != null &&
                                 snapshot.data!.audiosCount != 0)
                               MusicAndAudioUi(
-                                  userUid: widget.roomUid,
-                                  type: FetchMediasReq_MediaType.AUDIOS,
-                                  mediaCount: snapshot.data!.audiosCount),
+                                  roomUid: widget.roomUid,
+                                  selectedMedia: _selectedMedia,
+                                  addSelectedMedia: (media) =>
+                                      _addSelectedMedia(media),
+                                  type: MediaType.AUDIO,
+                                  mediaCount: snapshot.data!.audiosCount!),
                           ],
                           controller: _tabController,
                         ),
@@ -264,6 +385,14 @@ class _ProfilePageState extends State<ProfilePage>
             }),
       ),
     );
+  }
+
+  void _addSelectedMedia(media) {
+    _selectedMedia.contains(media)
+        ? _selectedMedia.remove(media)
+        : _selectedMedia.add(media);
+    _selectMediasForForward.add(_selectedMedia.isNotEmpty);
+    setState(() {});
   }
 
   Widget _buildInfo(BuildContext context) {
@@ -589,7 +718,7 @@ class _ProfilePageState extends State<ProfilePage>
       }
     }
     try {
-      await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+      await _mediaQueryRepo.fetchMediaMetaData(widget.roomUid);
     } catch (e) {
       _logger.e(e);
     }
@@ -1140,34 +1269,6 @@ class _ProfilePageState extends State<ProfilePage>
           );
         });
   }
-}
-
-Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
-  //TODO i just implemented and not tested because server problem
-  return FutureBuilder<List<Media>>(
-      future: mediaQueryRepo.getMedia(userUid, MediaType.LINK, linksCount),
-      builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
-        if (!snapshot.hasData ||
-            snapshot.data == null ||
-            snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(width: 0.0, height: 0.0);
-        } else {
-          return ListView.separated(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (BuildContext ctx, int index) {
-              return SizedBox(
-                child: LinkPreview(
-                  link: jsonDecode(snapshot.data![index].json)["url"],
-                  maxWidth: 100,
-                  isProfile: true,
-                ),
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider(),
-          );
-        }
-      });
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {

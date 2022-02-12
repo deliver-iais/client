@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -25,6 +26,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver/web_classes/js.dart'
@@ -155,49 +157,71 @@ message_pb.Message _decodeMessage(String notificationBody) {
 
 Future<void> backgroundMessageHandler(dynamic message) async {
   try {
-    await setupDI();
-  } catch (e) {
-    Logger().e(e);
-  }
-
-  var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _authRepo = GetIt.I.get<AuthRepo>();
-  var _uxService = GetIt.I.get<UxService>();
-  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  var _muteDao = GetIt.I.get<MuteDao>();
-
-  if (message.data.containsKey('body')) {
-    message_pb.Message msg = _decodeMessage(message.data["body"]);
-    String? roomName = message.data['title'];
-    Uid roomUid = getRoomUid(_authRepo, msg);
-
     try {
-      if (_uxService.isAllNotificationDisabled ||
-          await _muteDao.isMuted(roomUid.asString()) ||
-          !showNotifyForThisMessage(msg, _authRepo)) {
-        return;
-      }
-    } catch (_) {}
-
-    if (msg.from.category == Categories.SYSTEM) {
-      roomName = APPLICATION_NAME;
-    } else if (msg.from.category == Categories.BOT) {
-      roomName = msg.from.node;
-    } else if (msg.to.category == Categories.USER) {
-      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-      if (uidName != null) {
-        roomName = uidName.name != null && uidName.name!.isNotEmpty
-            ? uidName.name
-            : uidName.id != null && uidName.id!.isNotEmpty
-                ? uidName.id
-                : msg.from.isGroup()
-                    ? "Group"
-                    : msg.from.isChannel()
-                        ? "Channel"
-                        : "UnKnown";
-      }
+      await setupDI();
+    } catch (e) {
+      Logger().e(e);
     }
 
-    _notificationServices.showNotification(msg, roomName: roomName!);
+    var _notificationServices = GetIt.I.get<NotificationServices>();
+    var _authRepo = GetIt.I.get<AuthRepo>();
+    var _uxService = GetIt.I.get<UxService>();
+    var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+    var _muteDao = GetIt.I.get<MuteDao>();
+
+    if (message.data.containsKey('body')) {
+      message_pb.Message msg = _decodeMessage(message.data["body"]);
+      String? roomName = message.data['title'];
+      Uid roomUid = getRoomUid(_authRepo, msg);
+
+      try {
+        if (_uxService.isAllNotificationDisabled ||
+            await _muteDao.isMuted(roomUid.asString()) ||
+            !showNotifyForThisMessage(msg, _authRepo)) {
+          return;
+        }
+      } catch (_) {}
+
+      if (msg.from.category == Categories.SYSTEM) {
+        roomName = APPLICATION_NAME;
+      } else if (msg.from.category == Categories.BOT) {
+        roomName = msg.from.node;
+      } else if (msg.to.category == Categories.USER) {
+        var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+        if (uidName != null) {
+          roomName = uidName.name != null && uidName.name!.isNotEmpty
+              ? uidName.name
+              : uidName.id != null && uidName.id!.isNotEmpty
+                  ? uidName.id
+                  : msg.from.isGroup()
+                      ? "Group"
+                      : msg.from.isChannel()
+                          ? "Channel"
+                          : "UnKnown";
+        }
+      }
+
+      _notificationServices.showNotification(msg, roomName: roomName!);
+    }
+  } catch (e) {
+    message_pb.Message msg = _decodeMessage(message.data["body"]);
+    AwesomeNotifications().initialize(
+        null,
+        [
+          NotificationChannel(
+              channelKey: 'basic_channel',
+              channelName: 'Basic notifications',
+              channelDescription: 'Notification channel for basic tests',
+              defaultColor: Colors.lightBlueAccent,
+              ledColor: Colors.white)
+        ],
+        // Channel groups are only visual and are not required
+        debug: true);
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+            id: 10,
+            channelKey: 'basic_channel',
+            title: "Deliver",
+            body: msg.text.text));
   }
 }

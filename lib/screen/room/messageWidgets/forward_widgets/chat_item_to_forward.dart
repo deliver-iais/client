@@ -10,14 +10,11 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
-  final List<Message>? forwardedMessages;
-  final proto.ShareUid? shareUid;
+  final Function send;
 
-  ChatItemToForward(
-      {Key? key, required this.uid, this.forwardedMessages, this.shareUid})
+  ChatItemToForward({Key? key, required this.uid, required this.send})
       : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,28 +33,22 @@ class ChatItemToForward extends StatelessWidget {
               width: 12,
             ),
             GestureDetector(
-              child: FutureBuilder(
-                  future: _roomRepo.getName(uid),
-                  builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                    if (snaps.hasData && snaps.data != null) {
-                      return Text(
-                        snaps.data!,
-                        style: const TextStyle(fontSize: 18),
-                      );
-                    } else {
-                      return const Text(
-                        "Unknown",
-                        style: TextStyle(fontSize: 18),
-                      );
-                    }
-                  }),
-              onTap: () {
-                _routingService.openRoom(uid.asString(),
-                    forwardedMessages: forwardedMessages ?? [],
-                    popAllBeforePush: true,
-                    shareUid: shareUid);
-              },
-            ),
+                child: FutureBuilder(
+                    future: _roomRepo.getName(uid),
+                    builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                      if (snaps.hasData && snaps.data != null) {
+                        return Text(
+                          snaps.data!,
+                          style: const TextStyle(fontSize: 18),
+                        );
+                      } else {
+                        return const Text(
+                          "Unknown",
+                          style: TextStyle(fontSize: 18),
+                        );
+                      }
+                    }),
+                onTap: () => send(uid)),
 
             const Spacer(),
           ],

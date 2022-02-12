@@ -71,10 +71,8 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
             snapshot.data! > 0 &&
             snapshot.data! <= 1) {
           return Container(
-            decoration: BoxDecoration(
-                color: widget.background,
-                shape: BoxShape.circle
-            ),
+            decoration:
+                BoxDecoration(color: widget.background, shape: BoxShape.circle),
             child: CircularPercentIndicator(
               radius: 50.0,
               lineWidth: 4.0,
