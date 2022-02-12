@@ -341,7 +341,8 @@ class _AllImagePageState extends State<AllImagePage> {
                   Text(
                     DateTime.fromMillisecondsSinceEpoch(
                             mediaSnapShot.data!.createdOn)
-                        .toString().substring(0,19),
+                        .toString()
+                        .substring(0, 19),
                     style: theme.textTheme.bodyText2!
                         .copyWith(height: 1, color: Colors.white),
                   )
