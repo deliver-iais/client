@@ -25,6 +25,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
@@ -1015,6 +1016,33 @@ void main() {
               height: 0,
               duration: 0.0);
         verify(coreServices.sendMessage(byClient));
+      });
+    });
+    group('sendSeen -', () {
+      test('When called should getMySeen', () async {
+        final seenDo = getAndRegisterSeenDao();
+        await MessageRepo().sendSeen(0, testUid);
+        verify(seenDo.getMySeen(testUid.asString()));
+      });
+      test(
+          'When called should getMySeen and if seen.messageId < messageId should sendSeen coreServices',
+          () async {
+        getAndRegisterSeenDao();
+        final coreServices = getAndRegisterCoreServices();
+        await MessageRepo().sendSeen(2, testUid);
+        verify(coreServices.sendSeen(seen_pb.SeenByClient()
+          ..to = testUid
+          ..id = Int64.parseInt(2.toString())));
+      });
+      test(
+          'When called should getMySeen and if seen.messageId >= messageId should return',
+          () async {
+        getAndRegisterSeenDao(messageId: 2);
+        final coreServices = getAndRegisterCoreServices();
+        await MessageRepo().sendSeen(0, testUid);
+        verifyNever(coreServices.sendSeen(seen_pb.SeenByClient()
+          ..to = testUid
+          ..id = Int64.parseInt(2.toString())));
       });
     });
   });
