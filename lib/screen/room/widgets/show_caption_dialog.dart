@@ -171,7 +171,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     children: [
                                       ClipOval(
                                         child: Material(
-                                            color:theme
+                                            color: theme
                                                 .primaryColor, // button color
                                             child: const InkWell(
                                                 splashColor: Colors
@@ -193,8 +193,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                           widget.editableMessage != null
                                               ? _editedFile != null
                                                   ? _editedFile!.name
-                                                  : widget
-                                                      .editableMessage!.json.toFile()
+                                                  : widget.editableMessage!.json
+                                                      .toFile()
                                                       .name
                                               : widget.files![index].name,
                                           overflow: TextOverflow.ellipsis,
@@ -328,7 +328,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         ClipOval(
           child: Material(
-              color:theme.primaryColor, // button color
+              color: theme.primaryColor, // button color
               child: const InkWell(
                   splashColor: Colors.blue, // inkwell color
                   child: SizedBox(

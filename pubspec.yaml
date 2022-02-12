@@ -85,7 +85,7 @@ dependencies:
 
   firebase_messaging:
     git:
-      url: https://github.com/EsmaeilDansi/firebae-message.git
+      url: https://github.com/deliver-iais/firebase-messaging.git
       ref: master
 
  ## (WEB NOT SUPPORTED BI-Directional Streaming)
@@ -147,7 +147,6 @@ dependencies:
   tuple: 2.0.0
   great_list_view: 0.1.4
   material_color_utilities: 0.1.4
-  flutter_list_view: 1.1.1
   awesome_notifications: 0.6.16
 
 dev_dependencies:

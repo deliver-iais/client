@@ -157,7 +157,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   _showSyncContactDialog(BuildContext context) async {
-    final theme = Theme.of(context);
+   
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
@@ -180,7 +180,7 @@ class _ContactsPageState extends State<ContactsPage> {
               content: SizedBox(
                 width: 200,
                 child: Text(_i18n.get("send_contacts_message"),
-                    style: theme.textTheme.subtitle1),
+                    style: Theme.of(context).textTheme.subtitle1),
               ),
               actions: <Widget>[
                 TextButton(

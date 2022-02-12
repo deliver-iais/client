@@ -305,7 +305,7 @@ class MediaQueryRepo {
   saveMediaFromMessage(Message message) {
     _mediaDao.save(Media(
         createdOn: message.time,
-        json: buildJsonFromFile(message.json!.toFile()),
+        json: buildJsonFromFile(message.json.toFile()),
         roomId: message.roomUid,
         messageId: message.id!,
         type: MediaType.IMAGE,

@@ -505,7 +505,7 @@ class CoreServices {
   Future<void> _updateRoomMetaData(
       String roomUid, message_pb.Message message) async {
     try {
-      var file = message.json!.toFile();
+      var file = message.json.toFile();
       if (file.type.contains("image") ||
           file.type.contains("jpg") ||
           file.type.contains("png")) {

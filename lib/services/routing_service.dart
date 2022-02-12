@@ -106,6 +106,7 @@ class RoutingService {
             roomId: roomId,
             inputFilePaths: inputFilePaths,
             forwardedMessages: forwardedMessages,
+            forwardedMedia: forwardedMedia,
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);

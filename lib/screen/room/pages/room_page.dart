@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
@@ -52,7 +53,6 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -67,12 +67,15 @@ class RoomPage extends StatefulWidget {
   final List<Message>? forwardedMessages;
   final List<String>? inputFilePaths;
   final proto.ShareUid? shareUid;
+  final List<Media>? forwardedMedia;
 
-  const RoomPage({Key? key,
-    required this.roomId,
-    this.forwardedMessages,
-    this.inputFilePaths,
-    this.shareUid})
+  const RoomPage(
+      {Key? key,
+      required this.roomId,
+      this.forwardedMessages,
+      this.inputFilePaths,
+      this.forwardedMedia,
+      this.shareUid})
       : super(key: key);
 
   @override
@@ -152,10 +155,7 @@ class _RoomPageState extends State<RoomPage> {
       },
       child: DragDropWidget(
         roomUid: widget.roomId,
-        height: MediaQuery
-            .of(context)
-            .size
-            .height,
+        height: MediaQuery.of(context).size.height,
         child: Scaffold(
           appBar: buildAppbar(),
           body: buildBody(),
@@ -203,6 +203,7 @@ class _RoomPageState extends State<RoomPage> {
                     return ForwardPreview(
                       forwardedMessages: widget.forwardedMessages,
                       shareUid: widget.shareUid,
+                      forwardedMedia: widget.forwardedMedia,
                       onClick: () {
                         _waitingForForwardedMessage.add(false);
                       },
@@ -262,7 +263,8 @@ class _RoomPageState extends State<RoomPage> {
     sendInputSharedFile();
     _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
             widget.forwardedMessages!.isNotEmpty) ||
-        widget.shareUid != null);
+        widget.shareUid != null ||
+        (widget.forwardedMedia != null && widget.forwardedMedia!.isNotEmpty));
     subscribeOnPositionToSendSeen();
 
     // Listen on scroll
@@ -421,9 +423,14 @@ class _RoomPageState extends State<RoomPage> {
   void _sendForwardMessage() async {
     if (widget.shareUid != null) {
       _messageRepo.sendShareUidMessage(widget.roomId.asUid(), widget.shareUid!);
-    } else {
-      await _messageRepo.sendForwardedMessage(
+    } else if (widget.forwardedMessages != null &&
+        widget.forwardedMessages!.isNotEmpty) {
+      _messageRepo.sendForwardedMessage(
           widget.roomId.asUid(), widget.forwardedMessages!);
+    } else if (widget.forwardedMedia != null &&
+        widget.forwardedMedia!.isNotEmpty) {
+      _messageRepo.sendForwardedMediaMessage(
+          widget.roomId.asUid(), widget.forwardedMedia!);
     }
 
     _waitingForForwardedMessage.add(false);

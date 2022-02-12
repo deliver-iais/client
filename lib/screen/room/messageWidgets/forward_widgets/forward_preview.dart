@@ -1,3 +1,4 @@
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -9,9 +10,10 @@ class ForwardPreview extends StatelessWidget {
   final List<Message>? forwardedMessages;
   final Function() onClick;
   final proto.ShareUid? shareUid;
+  final List<Media> ? forwardedMedia;
 
   ForwardPreview(
-      {Key? key, this.forwardedMessages, this.shareUid, required this.onClick})
+      {Key? key, this.forwardedMessages, this.shareUid, required this.onClick,this.forwardedMedia})
       : super(key: key);
 
   @override
@@ -36,7 +38,8 @@ class ForwardPreview extends StatelessWidget {
             const SizedBox(width: 10),
             shareUid != null
                 ? Text(shareUid!.name)
-                : Text(
+                : forwardedMedia!= null && forwardedMedia!.isNotEmpty?Text(
+                '${forwardedMedia!.length} ${_i18n.get("forwarded_medias")}'): Text(
                     '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
             const Spacer(),
             IconButton(

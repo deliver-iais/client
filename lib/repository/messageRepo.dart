@@ -1,6 +1,7 @@
 // ignore_for_file: file_names, constant_identifier_names
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'dart:io' as dart_file;
 import 'dart:math';
@@ -162,15 +163,15 @@ class MessageRepo {
               } // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted) {
-              _roomDao.updateRoom(Room(
-                  uid: room.uid,
-                  deleted: false,
-                  lastMessageId: roomMetadata.lastMessageId.toInt(),
-                  firstMessageId: roomMetadata.firstMessageId.toInt(),
-                  lastUpdateTime: roomMetadata.lastUpdate.toInt()));
-            }
-             fetchLastMessages(
+
+            _roomDao.updateRoom(Room(
+                uid: roomMetadata.roomUid.asString(),
+                deleted: false,
+                lastMessageId: roomMetadata.lastMessageId.toInt(),
+                firstMessageId: roomMetadata.firstMessageId.toInt(),
+                lastUpdateTime: roomMetadata.lastUpdate.toInt()));
+
+            fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
@@ -702,9 +703,24 @@ class MessageRepo {
 
   sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
     for (Media media in forwardedMedias) {
+      var json = jsonDecode(media.json);
+      file_pb.File file = file_pb.File()
+        ..type = json["type"]
+        ..name = json["name"]
+        ..width = json["width"]??0
+        ..size = Int64(json["size"])
+        ..height = json["height"]??0
+        ..uuid = json["uuid"]
+        ..duration = json["duration"]??0.0
+        ..caption = json["caption"]??""
+        ..tempLink = json["tempLink"]??""
+        ..hash = json["hash"]??""
+        ..sign = json["sign"]??""
+        ..blurHash = json["blurHash"]??"";
+
       Message msg =
           _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
-              .copyWith(type: MessageType.FILE, json: media.json);
+              .copyWith(type: MessageType.FILE, json: file.writeToJson());
 
       var pm = _createPendingMessage(msg, SendingStatus.PENDING);
       _saveAndSend(pm);
