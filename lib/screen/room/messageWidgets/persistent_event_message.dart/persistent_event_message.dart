@@ -14,6 +14,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -51,18 +52,33 @@ class PersistentEventMessage extends StatelessWidget {
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
                   ),
-                  decoration: const BoxDecoration(borderRadius: mainBorder),
+                  padding: const EdgeInsets.only(
+                      top: 5, left: 8.0, right: 8.0, bottom: 4.0),
+                  decoration: BoxDecoration(
+                    color: theme.chipTheme.backgroundColor,
+                    borderRadius: secondaryBorder,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_i18n.get("bot_not_responding"),
-                          style: const TextStyle(fontSize: 16)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.exclamationmark_bubble,
+                            color: theme.colorScheme.error,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("bot_not_responding"),
+                              style: const TextStyle(fontSize: 16)),
+                        ],
+                      ),
                       if (persistentEventMessage
                           .botSpecificPersistentEvent.errorMessage.isNotEmpty)
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style: theme.textTheme.headline5),
+                            style: theme.textTheme.caption)
                     ],
                   ),
                 ),
@@ -100,16 +116,24 @@ class PersistentEventMessage extends StatelessWidget {
                   ),
                   if (message.json.toPersistentEvent().whichType() ==
                           PersistentEvent_Type.mucSpecificPersistentEvent &&
-                      message.json.toPersistentEvent()
+                      message
+                              .json
+                              .toPersistentEvent()
                               .mucSpecificPersistentEvent
                               .issue ==
                           MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
                     FutureBuilder<String?>(
-                        future: _fileRepo.getFile(
-                            persistentEventMessage
-                                .mucSpecificPersistentEvent.avatar.fileUuid,
-                            persistentEventMessage
-                                .mucSpecificPersistentEvent.avatar.fileName),
+                        future:
+                            _fileRepo
+                                .getFile(
+                                    persistentEventMessage
+                                        .mucSpecificPersistentEvent
+                                        .avatar
+                                        .fileUuid,
+                                    persistentEventMessage
+                                        .mucSpecificPersistentEvent
+                                        .avatar
+                                        .fileName),
                         builder: (context, fileSnapshot) {
                           if (fileSnapshot.hasData &&
                               fileSnapshot.data != null) {
