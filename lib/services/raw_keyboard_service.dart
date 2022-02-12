@@ -74,8 +74,7 @@ class RawKeyboardService {
       Function scrollDownInMention,
       event,
       int mentionSelectedIndex,
-      Function scrollUpInMention,
-      Function sendMentionByEnter) {
+      Function scrollUpInMention) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -86,11 +85,7 @@ class RawKeyboardService {
         mentionData != "-") {
       scrollDownInMentions(scrollDownInMention);
     }
-    if (isKeyPressed(event, PhysicalKeyboardKey.enter) &&
-        mentionData != "-" &&
-        mentionSelectedIndex >= 0) {
-      sendMention(sendMentionByEnter);
-    }
+
   }
 
   navigateInBotCommand(

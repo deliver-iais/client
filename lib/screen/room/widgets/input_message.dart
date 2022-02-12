@@ -632,12 +632,12 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
-            _mentionData,
-            scrollDownInMentions,
-            event,
-            mentionSelectedIndex,
-            scrollUpInMentions,
-            sendMentionByEnter);
+          _mentionData,
+          scrollDownInMentions,
+          event,
+          mentionSelectedIndex,
+          scrollUpInMentions,
+        );
       });
     }
     if (widget.currentRoom.uid.asUid().isBot()) {
@@ -678,8 +678,9 @@ class _InputMessageWidget extends State<InputMessage> {
         query: _mentionData);
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id!);
+    } else {
+      sendMessage();
     }
-    sendMessage();
   }
 
   scrollDownInBotCommand() {
@@ -712,7 +713,6 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.textController.text.contains("\n") &&
         widget.textController.text.contains("@") &&
         isMentionSelected) {
-      widget.textController.clear();
       isMentionSelected = false;
     } else {
       noActivitySubject.add(ActivityType.NO_ACTIVITY);
