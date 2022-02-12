@@ -104,7 +104,9 @@ const mainBorder = BorderRadius.all(Radius.circular(28));
 
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 
-const messageBorder = BorderRadius.all(Radius.circular(12));
+const tertiaryBorder = BorderRadius.all(Radius.circular(8));
+
+const messageBorder = BorderRadius.all(Radius.circular(14));
 
 const backgroundBorder = BorderRadius.only(
     topLeft: Radius.circular(12), topRight: Radius.circular(12));
@@ -127,8 +129,8 @@ double animationSquareSize(BuildContext context) => isLarge(context)
 double maxWidthOfMessage(BuildContext context) => min(
     (MediaQuery.of(context).size.width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-        0.7,
-    400);
+        0.8,
+    450);
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

@@ -11,6 +11,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -71,7 +72,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             PopupMenuItem(
               value: OperationOnMessage.REPLY,
               child: Row(children: [
-                const Icon(Icons.reply),
+                const Icon(CupertinoIcons.reply),
                 const SizedBox(width: 8),
                 Text(_i18n.get("Reply")),
               ]),
@@ -85,7 +86,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 PopupMenuItem(
                     value: OperationOnMessage.PIN_MESSAGE,
                     child: Row(children: [
-                      const Icon(Icons.push_pin_outlined),
+                      const Icon(CupertinoIcons.pin),
                       const SizedBox(width: 8),
                       Text(_i18n.get("pin")),
                     ]))
@@ -93,18 +94,18 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 PopupMenuItem(
                     value: OperationOnMessage.UN_PIN_MESSAGE,
                     child: Row(children: [
-                      const Icon(Icons.remove),
+                      const Icon(CupertinoIcons.delete),
                       const SizedBox(width: 8),
                       Text(_i18n.get("unpin")),
                     ])),
           if (widget.message.type == MessageType.TEXT ||
               (widget.message.type == MessageType.FILE &&
-                  widget.message.json!.toFile().caption.isNotEmpty))
+                  widget.message.json.toFile().caption.isNotEmpty))
             PopupMenuItem(
                 value: OperationOnMessage.COPY,
                 child: Row(children: [
                   const Icon(
-                    Icons.content_copy,
+                    CupertinoIcons.doc_on_clipboard,
                     size: 18,
                   ),
                   const SizedBox(width: 10),
@@ -113,12 +114,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (widget.message.type == MessageType.FILE)
             FutureBuilder(
                 future: _fileRepo.getFileIfExist(
-                    widget.message.json!.toFile().uuid,
-                    widget.message.json!.toFile().name),
+                    widget.message.json.toFile().uuid,
+                    widget.message.json.toFile().name),
                 builder: (c, fe) {
                   if (fe.hasData && fe.data != null) {
                     _fileIsExist.add(true);
-                    model.File f = widget.message.json!.toFile();
+                    model.File f = widget.message.json.toFile();
                     return PopupMenuItem(
                         value: f.type.contains("image")
                             ? OperationOnMessage.SAVE_TO_GALLERY
@@ -126,12 +127,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                                 ? OperationOnMessage.SAVE_TO_MUSIC
                                 : OperationOnMessage.SAVE_TO_DOWNLOADS,
                         child: Row(children: [
-                          Icon(f.type.contains("image")
-                              ? Icons.image_outlined
-                              : f.type.contains("audio") ||
-                                      f.type.contains("mp3")
-                                  ? Icons.queue_music_outlined
-                                  : Icons.download_outlined),
+                          const Icon(CupertinoIcons.down_arrow),
                           const SizedBox(width: 8),
                           f.type.contains("image")
                               ? Text(_i18n.get("save_to_gallery"))
@@ -165,7 +161,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             PopupMenuItem(
                 value: OperationOnMessage.REPORT,
                 child: Row(children: [
-                  const Icon(Icons.report_outlined),
+                  const Icon(CupertinoIcons.burst),
                   const SizedBox(width: 8),
                   Text(_i18n.get("report")),
                 ])),
@@ -174,7 +170,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             PopupMenuItem(
                 value: OperationOnMessage.FORWARD,
                 child: Row(children: [
-                  const Icon(Icons.forward_outlined),
+                  const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   const SizedBox(width: 8),
                   Text(_i18n.get("forward")),
                 ])),
@@ -188,7 +184,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     return PopupMenuItem(
                         value: OperationOnMessage.RESEND,
                         child: Row(children: [
-                          const Icon(Icons.refresh),
+                          const Icon(CupertinoIcons.refresh),
                           const SizedBox(width: 8),
                           Text(_i18n.get("resend")),
                         ]));
@@ -220,7 +216,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 value: OperationOnMessage.EDIT,
                 child: Row(children: [
                   const Icon(
-                    Icons.edit_outlined,
+                    CupertinoIcons.bandage,
                     size: 18,
                   ),
                   const SizedBox(width: 10),
@@ -229,14 +225,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (isDesktop() && widget.message.type == MessageType.FILE)
             FutureBuilder<String?>(
                 future: _fileRepo.getFileIfExist(
-                    widget.message.json!.toFile().uuid,
-                    widget.message.json!.toFile().name),
+                    widget.message.json.toFile().uuid,
+                    widget.message.json.toFile().name),
                 builder: (c, snapshot) {
                   if (snapshot.hasData) {
                     return PopupMenuItem(
                         value: OperationOnMessage.SHOW_IN_FOLDER,
                         child: Row(children: [
-                          const Icon(Icons.folder_open_rounded),
+                          const Icon(CupertinoIcons.folder_open),
                           const SizedBox(width: 8),
                           Text(_i18n.get("show_in_folder")),
                         ]));
@@ -256,10 +252,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             : OperationOnMessage.DELETE_PENDING_MESSAGE,
         child: Row(children: [
           const Icon(
-            Icons.delete_outline_rounded,
-            size: 21,
+            CupertinoIcons.delete,
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           Text(_i18n.get("delete")),
         ]));
   }
@@ -270,8 +265,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 }
 
-void showDeleteMsgDialog(List<Message> messages, BuildContext context,
-    Function? onDelete) {
+void showDeleteMsgDialog(
+    List<Message> messages, BuildContext context, Function? onDelete) {
   var _i18n = GetIt.I.get<I18N>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(

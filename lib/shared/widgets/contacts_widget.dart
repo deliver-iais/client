@@ -25,11 +25,7 @@ class ContactWidget extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: currentMember
-            ? theme.colorScheme.secondary
-            : isSelected
-                ? theme.focusColor
-                : null,
+        color: isSelected ? theme.focusColor : null,
       ),
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -51,10 +47,12 @@ class ContactWidget extends StatelessWidget {
           ),
           if (circleIcon != null)
             IconButton(
+              splashRadius: 40,
+              iconSize: 24,
               onPressed: () => onCircleIcon?.call(),
               icon: Icon(
                 circleIcon,
-                size: 21,
+                color: theme.colorScheme.primary,
               ),
             ),
         ],

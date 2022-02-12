@@ -15,6 +15,7 @@ import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -52,10 +53,10 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
     return widget.room.lastMessage != null &&
-            widget.room.lastMessage!.json!.chatIsDeleted()
+            widget.room.lastMessage!.json.chatIsDeleted()
         ? const SizedBox.shrink()
         : widget.room.lastMessage == null ||
-                widget.room.lastMessage!.json!.isDeletedMessage()
+                widget.room.lastMessage!.json.isEmptyMessage()
             ? FutureBuilder<Message?>(
                 future: _messageRepo.fetchLastMessages(
                     widget.room.uid.asUid(),
@@ -67,7 +68,7 @@ class _ChatItemState extends State<ChatItem> {
                 builder: (c, s) {
                   if (s.hasData &&
                       s.data != null &&
-                      !s.data!.json!.chatIsDeleted()) {
+                      !s.data!.json.chatIsDeleted()) {
                     return buildLastMessageWidget(s.data!);
                   }
                   return const SizedBox.shrink();
@@ -126,7 +127,7 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            Icons.group_outlined,
+                                            CupertinoIcons.group,
                                             size: 16,
                                           ),
                                         ),
@@ -135,7 +136,7 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            Icons.rss_feed_outlined,
+                                            CupertinoIcons.news,
                                             size: 16,
                                           ),
                                         ),
@@ -144,7 +145,8 @@ class _ChatItemState extends State<ChatItem> {
                                         const SizedBox(
                                           width: 16,
                                           child: Icon(
-                                            Icons.smart_toy_outlined,
+                                            CupertinoIcons
+                                                .bolt_horizontal_circle,
                                             size: 16,
                                           ),
                                         ),
@@ -268,7 +270,7 @@ class _ChatItemState extends State<ChatItem> {
       hasMentioned: widget.room.mentioned == true,
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
-      pinned: widget.room.pinned ?? false,
+      pinned: widget.room.pinned,
     );
   }
 

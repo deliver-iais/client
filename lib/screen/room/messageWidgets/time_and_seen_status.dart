@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
@@ -43,25 +44,23 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     return RepaintBoundary(
       child: Container(
+        margin: const EdgeInsets.all(4),
         padding: needsPadding
             ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
             : null,
-        color: backgroundColor,
+        decoration:
+            BoxDecoration(color: backgroundColor, borderRadius: tertiaryBorder),
         child: DefaultTextStyle(
           style: TextStyle(
             color: foregroundColor,
             fontSize: 13,
-            // height: 1,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.edited != null && message.edited!)
-                Text(_i18n.get("edited")),
-              MsgTime(
-                time: date(message.time),
-              ),
+              if (message.edited) Text(_i18n.get("edited")),
+              MsgTime(time: date(message.time)),
               if (isSender)
                 Padding(
                   padding: const EdgeInsets.only(left: 2.0),

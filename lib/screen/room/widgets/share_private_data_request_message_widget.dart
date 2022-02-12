@@ -13,28 +13,32 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final double maxWidth;
   final CustomColorScheme colorScheme;
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _i18n = GetIt.I.get<I18N>();
 
-  SharePrivateDataRequestMessageWidget(
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+
+  const SharePrivateDataRequestMessageWidget(
       {Key? key,
       required this.message,
       required this.isSender,
+      required this.maxWidth,
       required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var sharePrivateDataRequest = message.json!.toSharePrivateDataRequest();
+    var sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
     return Stack(
       children: [
         Container(
             constraints: const BoxConstraints(minHeight: 35),
-            width: 240,
+            width: maxWidth,
             margin: const EdgeInsets.only(bottom: 17),
-            child: OutlinedButton(
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: colorScheme.primary),
                 onPressed: () {
                   FocusScope.of(context).unfocus();
                   _showGetAccessPrivateData(context, sharePrivateDataRequest);
@@ -49,7 +53,9 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                                 ? _i18n.get("get_access_name")
                                 : _i18n.get("get_access_username"),
                     textAlign: TextAlign.center))),
-        TimeAndSeenStatus(message, isSender, isSeen)
+        TimeAndSeenStatus(message, isSender, isSeen,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerLowlight())
       ],
     );
   }

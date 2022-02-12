@@ -15,7 +15,7 @@ abstract class RoomDao {
 
   Future<Room?> getRoom(String roomUid);
 
-  Stream<Room?> watchRoom(String roomUid);
+  Stream<Room> watchRoom(String roomUid);
 
   Future<List<Room>> getAllGroups();
 }
@@ -34,9 +34,7 @@ class RoomDaoImpl implements RoomDao {
       var box = await _openRoom();
 
       return sorted(box.values
-          .where((element) =>
-              element.lastMessage != null &&
-              (element.deleted == null || !element.deleted!))
+          .where((element) => element.lastMessage != null && !element.deleted)
           .toList());
     } catch (e) {
       return [];
@@ -50,14 +48,12 @@ class RoomDaoImpl implements RoomDao {
       box = await _openRoom();
     }
     yield sorted(box.values
-        .where((element) =>
-            (element.deleted == null || !element.deleted!) &&
-            element.lastMessageId != null)
+        .where((element) => !element.deleted && element.lastMessageId != null)
         .toList());
 
     yield* box.watch().map((event) => sorted(box.values
-        .where((element) => (element.lastMessageId != null &&
-            (element.deleted == null || element.deleted == false)))
+        .where((element) =>
+            (element.lastMessageId != null && (element.deleted == false)))
         .toList()));
   }
 
@@ -86,12 +82,14 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<Room?> watchRoom(String roomUid) async* {
+  Stream<Room> watchRoom(String roomUid) async* {
     var box = await _openRoom();
 
-    yield box.get(roomUid);
+    yield box.get(roomUid) ?? Room(uid: roomUid);
 
-    yield* box.watch(key: roomUid).map((event) => box.get(roomUid));
+    yield* box
+        .watch(key: roomUid)
+        .map((event) => box.get(roomUid) ?? Room(uid: roomUid));
   }
 
   static String _keyRoom() => "room";
@@ -112,7 +110,7 @@ class RoomDaoImpl implements RoomDao {
     return box.values
         .where((element) =>
             element.uid.asUid().category == Categories.GROUP &&
-            (element.deleted == null || element.deleted != true))
+            (element.deleted != true))
         .toList();
   }
 }

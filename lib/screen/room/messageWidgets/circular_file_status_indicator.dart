@@ -34,13 +34,13 @@ class _CircularFileStatusIndicatorState
 
   @override
   void initState() {
-    _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
+    _fileServices.initProgressBar(widget.message.json.toFile().uuid);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
         builder: (c, fileSnapShot) {

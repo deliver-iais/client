@@ -31,7 +31,7 @@ class AudioAndDocumentFileUI extends StatefulWidget {
 class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, top: 6),
       child: Row(
@@ -73,7 +73,7 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                 if (file.caption.isEmpty)
                   TimeAndSeenStatus(
                       widget.message, widget.isSender, widget.isSeen,
-                      foregroundColor: widget.colorScheme.onPrimaryContainerVariant(),
+                      foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
                       backgroundColor: widget.colorScheme.primaryContainer,
                       needsPositioned: false)
               ],

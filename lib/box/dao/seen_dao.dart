@@ -7,7 +7,7 @@ abstract class SeenDao {
 
   Stream<Seen?> watchOthersSeen(String uid);
 
-  Future<Seen?> getMySeen(String uid);
+  Future<Seen> getMySeen(String uid);
 
   Stream<Seen> watchMySeen(String uid);
 
@@ -34,10 +34,10 @@ class SeenDaoImpl implements SeenDao {
   }
 
   @override
-  Future<Seen?> getMySeen(String uid) async {
+  Future<Seen> getMySeen(String uid) async {
     var box = await _openMySeen();
 
-    return box.get(uid);
+    return box.get(uid) ?? Seen(uid: uid, messageId: 0);
   }
 
   @override
@@ -57,7 +57,7 @@ class SeenDaoImpl implements SeenDao {
 
     var othersSeen = box.get(seen.uid);
 
-    if (othersSeen == null || othersSeen.messageId! < seen.messageId!) {
+    if (othersSeen == null || othersSeen.messageId < seen.messageId) {
       box.put(seen.uid, seen);
     }
   }
@@ -69,7 +69,7 @@ class SeenDaoImpl implements SeenDao {
     var mySeen = box.get(seen.uid);
 
     if (mySeen == null ||
-        mySeen.messageId! < seen.messageId! ||
+        mySeen.messageId < seen.messageId ||
         seen.hiddenMessageCount != null) {
       box.put(seen.uid, seen);
     }

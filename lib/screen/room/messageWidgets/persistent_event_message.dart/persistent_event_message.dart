@@ -7,11 +7,11 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/material.dart';
@@ -35,16 +35,14 @@ class PersistentEventMessage extends StatelessWidget {
       required this.message,
       this.onPinMessageClick,
       required this.maxWidth})
-      : persistentEventMessage = message.json!.toPersistentEvent(),
+      : persistentEventMessage = message.json.toPersistentEvent(),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return message.json == "{}"
-        ? Container(
-            height: 0.0,
-          )
+    return message.json == EMPTY_MESSAGE
+        ? const SizedBox.shrink()
         : persistentEventMessage.whichType() ==
                 PersistentEvent_Type.botSpecificPersistentEvent
             ? Padding(
@@ -53,10 +51,7 @@ class PersistentEventMessage extends StatelessWidget {
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
                   ),
-                  decoration: BoxDecoration(
-                    color:theme.dividerColor.withOpacity(0.25),
-                    borderRadius: mainBorder,
-                  ),
+                  decoration: const BoxDecoration(borderRadius: mainBorder),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -67,7 +62,7 @@ class PersistentEventMessage extends StatelessWidget {
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style:theme.textTheme.headline5),
+                            style: theme.textTheme.headline5),
                     ],
                   ),
                 ),
@@ -77,7 +72,11 @@ class PersistentEventMessage extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: BlurContainer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: theme.chipTheme.backgroundColor,
+                          borderRadius: tertiaryBorder,
+                          border: Border.fromBorderSide(theme.chipTheme.side!)),
                       padding: const EdgeInsets.only(
                           top: 5, left: 8.0, right: 8.0, bottom: 4.0),
                       child: FutureBuilder<List<Widget>?>(
@@ -99,10 +98,9 @@ class PersistentEventMessage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (message.json!.toPersistentEvent().whichType() ==
+                  if (message.json.toPersistentEvent().whichType() ==
                           PersistentEvent_Type.mucSpecificPersistentEvent &&
-                      message.json!
-                              .toPersistentEvent()
+                      message.json.toPersistentEvent()
                               .mucSpecificPersistentEvent
                               .issue ==
                           MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
@@ -144,10 +142,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    height: 1,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    fontSize: 14, height: 1, fontWeight: FontWeight.bold),
               ),
               onTap: () => _routingServices.openRoom(persistentEventMessage
                   .mucSpecificPersistentEvent.issuer
@@ -169,10 +164,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    height: 1,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                    fontSize: 14, height: 1, fontWeight: FontWeight.bold),
               ),
               onTap: () => _routingServices.openRoom(persistentEventMessage
                   .mucSpecificPersistentEvent.assignee
@@ -192,10 +184,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    height: 1,
-                    color: Colors.white),
+                    fontSize: 14, fontWeight: FontWeight.bold, height: 1),
               ),
               onTap: () => onPinMessageClick!(persistentEventMessage
                   .mucSpecificPersistentEvent.messageId
@@ -208,7 +197,7 @@ class PersistentEventMessage extends StatelessWidget {
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
-          style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+          style: const TextStyle(fontSize: 14, height: 1),
         );
         return [
           issuerWidget,
@@ -297,10 +286,10 @@ class PersistentEventMessage extends StatelessWidget {
     if (m != null) {
       switch (m.type) {
         case MessageType.TEXT:
-          return m.json!.toText().text;
+          return m.json.toText().text;
 
         case MessageType.FILE:
-          return m.json!.toFile().caption;
+          return m.json.toFile().caption;
 
         case MessageType.STICKER:
           // TODO: Handle this case.

@@ -14,6 +14,7 @@ import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:feature_discovery/feature_discovery.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -63,7 +64,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor:theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: GestureDetector(
@@ -98,8 +99,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Center(
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
-                        child:
-                            CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                        child: CircleAvatarWidget(_authRepo.currentUserUid, 20),
                       ),
                     ),
                     onTap: () {
@@ -111,9 +111,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
             ),
             titleSpacing: 8.0,
             title: TitleStatus(
-              style:theme.textTheme.headline6!,
+              style: theme.textTheme.headline6!,
               normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                  style:theme.textTheme.headline6,
+                  style: theme.textTheme.headline6,
                   key: ValueKey(randomString(10))),
             ),
             actions: [
@@ -121,7 +121,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 DescribedFeatureOverlay(
                   featureId: feature2,
                   tapTarget: const Icon(
-                    Icons.qr_code,
+                    CupertinoIcons.qrcode_viewfinder,
                   ),
                   backgroundColor: Colors.deepPurple,
                   targetColor: Colors.deepPurpleAccent,
@@ -129,20 +129,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   description: _featureDiscoveryDescriptionWidget(
                       description:
                           'for desktop app you can scan QR Code and login to your account'),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color:theme.colorScheme.primary,
-                    ),
-                    child: IconButton(
-                        onPressed: () {
-                          _routingService.openScanQrCode();
-                        },
-                        icon: Icon(
-                          Icons.qr_code,
-                          color:theme.colorScheme.onPrimary,
-                        )),
-                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        _routingService.openScanQrCode();
+                      },
+                      icon: const Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                      )),
                 ),
               const SizedBox(
                 width: 8,
@@ -184,57 +177,50 @@ class _NavigationCenterState extends State<NavigationCenter> {
     final theme = Theme.of(context);
     return DescribedFeatureOverlay(
       featureId: feature1,
-      tapTarget:
-          Icon(Icons.create, color:theme.colorScheme.onSurface),
+      tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,
       title: const Text('You can create new group and new channel'),
       description: _featureDiscoveryDescriptionWidget(
           description:
               'If you touch this icon you can create new channel or new group with the your contact'),
-      child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color:theme.colorScheme.primary,
-          ),
-          child: IconTheme(
-            data: IconThemeData(
-              size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
-              color: PopupMenuTheme.of(context).textStyle?.color,
+      child: IconTheme(
+        data: IconThemeData(
+          size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
+          color: PopupMenuTheme.of(context).textStyle?.color,
+        ),
+        child: PopupMenuButton(
+            icon: const Icon(
+              CupertinoIcons.plus_app,
             ),
-            child: PopupMenuButton(
-                icon: Icon(
-                  Icons.create,
-                  color:theme.colorScheme.onPrimary,
-                ),
-                onSelected: selectChatMenu,
-                itemBuilder: (context) => [
-                      PopupMenuItem<String>(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.group),
-                            const SizedBox(width: 8),
-                            Text(_i18n.get("newGroup")),
-                          ],
-                        ),
-                        value: "newGroup",
-                      ),
-                      PopupMenuItem<String>(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.rss_feed_rounded),
-                            const SizedBox(width: 8),
-                            Text(
-                              _i18n.get("newChannel"),
-                            )
-                          ],
-                        ),
-                        value: "newChannel",
-                      )
-                    ]),
-          )),
+            onSelected: selectChatMenu,
+            itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(CupertinoIcons.group),
+                        const SizedBox(width: 8),
+                        Text(_i18n.get("newGroup")),
+                      ],
+                    ),
+                    value: "newGroup",
+                  ),
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(CupertinoIcons.news),
+                        const SizedBox(width: 8),
+                        Text(
+                          _i18n.get("newChannel"),
+                        )
+                      ],
+                    ),
+                    value: "newChannel",
+                  )
+                ]),
+      ),
     );
   }
 
@@ -276,7 +262,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     Text(_i18n.get("not_found"),
                         textAlign: TextAlign.center,
-                        style:theme.textTheme.headline6),
+                        style: theme.textTheme.headline6),
                   ],
                 );
               }
@@ -300,10 +286,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 4),
         width: double.infinity,
-        color:theme.dividerColor.withAlpha(10),
+        color: theme.dividerColor.withAlpha(10),
         child: Text(title,
             textAlign: TextAlign.center,
-            style:theme.primaryTextTheme.caption));
+            style: theme.primaryTextTheme.caption));
   }
 
   Future<List<List<Uid>>> searchUidList(String query) async {
@@ -354,7 +340,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                   return Text(
                     snaps.data ?? "",
-                    style:theme.textTheme.subtitle1,
+                    style: theme.textTheme.subtitle1,
                   );
                 }),
           ],
@@ -381,20 +367,16 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
                     'Understood',
-                    style:theme
-                        .textTheme
-                        .button!
-                        .copyWith(color: Colors.white),
+                    style:
+                        theme.textTheme.button!.copyWith(color: Colors.white),
                   ),
                 ),
                 TextButton(
                     onPressed: () => FeatureDiscovery.dismissAll(context),
                     child: Text(
                       'Dismiss',
-                      style:theme
-                          .textTheme
-                          .button!
-                          .copyWith(color: Colors.white),
+                      style:
+                          theme.textTheme.button!.copyWith(color: Colors.white),
                     )),
               ],
             ),
@@ -412,9 +394,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                           'sync contacts',
-                          style:theme
-                              .textTheme
-                              .button!
+                          style: theme.textTheme.button!
                               .copyWith(color: Colors.lightGreenAccent),
                         ),
                         const Icon(

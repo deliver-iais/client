@@ -41,7 +41,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
 
   @override
   void initState() {
-    liveLocation = widget.message.json!.toLiveLocation();
+    liveLocation = widget.message.json.toLiveLocation();
     _liveLocationRepo.updateLiveLocation(liveLocation);
     super.initState();
   }
@@ -112,7 +112,13 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             )
           ],
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen),
+        TimeAndSeenStatus(
+          widget.message,
+          widget.isSender,
+          widget.isSeen,
+          backgroundColor: widget.colorScheme.primaryContainer,
+          foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+        ),
       ],
     );
   }
