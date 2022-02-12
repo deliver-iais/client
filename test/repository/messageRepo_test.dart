@@ -1045,5 +1045,54 @@ void main() {
           ..id = Int64.parseInt(2.toString())));
       });
     });
+    group('sendForwardedMessage -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+            time: 946672200000,
+            packetId: "946672200000000",
+            forwardedFrom: testUid.asString(),
+          ),
+          failed: false,
+          status: SendingStatus.PENDING);
+
+      test('When called should savePendingMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+          final messageDao = getAndRegisterMessageDao();
+          MessageRepo().sendForwardedMessage(testUid, [testMessage]);
+          verify(messageDao.savePendingMessage(pm));
+        });
+      });
+      test('When called should updateRoomLastMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao();
+          // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+          MessageRepo().sendForwardedMessage(testUid, [testMessage]);
+          verify(roomDao.updateRoom(Room(
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time)));
+        });
+      });
+      test('When called should sendMessageToServer', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final coreServices = getAndRegisterCoreServices();
+            MessageRepo().sendForwardedMessage(testUid, [testMessage]);
+            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+              ..packetId = pm.msg.packetId
+              ..to = pm.msg.to.asUid()
+              ..replyToId = Int64(pm.msg.replyToId)
+              ..forwardFrom = testUid;
+            verify(coreServices.sendMessage(byClient));
+          },
+        );
+      });
+    });
   });
 }
