@@ -830,7 +830,20 @@ void main() {
           },
         );
       });
-
+      test('When called should uploadClonedFile', () async {
+        withClock(
+          Clock.fixed(DateTime(2000)),
+          () async {
+            final fileRepo = getAndRegisterFileRepo();
+            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
+            await MessageRepo().sendMultipleFilesMessages(
+                testUid, [model.File("test", "test")],
+                caption: "test");
+            verify(fileRepo.uploadClonedFile("946672200000000", "test",
+                sendActivity: sendActivityFunction));
+          },
+        );
+      });
       test('When called should savePending Multiple Message', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -866,6 +879,164 @@ void main() {
             verify(coreServices.sendMessage(byClient));
           },
         );
+      });
+    });
+    group('sendPendingMessages -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              type: MessageType.FILE,
+              json:
+                  "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
+              packetId: "946672200000000"),
+          status: SendingStatus.SENDING_FILE);
+      test('When called should getAllPendingMessages', () async {
+        final messageDao = getAndRegisterMessageDao();
+        await MessageRepo().sendPendingMessages();
+        verify(messageDao.getAllPendingMessages());
+      });
+      test(
+          'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE should uploadClonedFile',
+          () async {
+        final fileRepo = getAndRegisterFileRepo();
+        getAndRegisterMessageDao(pendingMessage: pm);
+        await MessageRepo().sendPendingMessages();
+        verify(fileRepo.uploadClonedFile("946672200000000", "test",
+            sendActivity: sendActivityFunction));
+      });
+      test(
+          'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE and cloned file are not null should savePendingMessage',
+          () async {
+        getAndRegisterFileRepo(
+            fileInfo: file_pb.File(
+                uuid: testUid.asString(), caption: "test", name: "test"));
+        final messageDao = getAndRegisterMessageDao(pendingMessage: pm);
+        await MessageRepo().sendPendingMessages();
+        verify(messageDao.savePendingMessage(pm.copyWith(
+            msg: pm.msg.copyWith(
+                json:
+                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
+            status: SendingStatus.PENDING)));
+      });
+      test(
+          'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE and cloned file are not null should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterFileRepo(
+            fileInfo: file_pb.File(
+                uuid: testUid.asString(), caption: "test", name: "test"));
+        getAndRegisterMessageDao(pendingMessage: pm);
+        await MessageRepo().sendPendingMessages();
+        verify(roomDao.updateRoom(Room(
+            uid: pm.roomUid,
+            lastMessage: pm.msg.copyWith(
+                json:
+                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
+            lastMessageId: pm.msg.id,
+            deleted: false,
+            lastUpdateTime: pm.msg.time)));
+      });
+      test(
+          'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE and cloned file are not null should sendMessageToServer',
+          () async {
+        final coreServices = getAndRegisterCoreServices();
+        getAndRegisterFileRepo(
+            fileInfo: file_pb.File(
+                uuid: testUid.asString(), caption: "test", name: "test"));
+        getAndRegisterMessageDao(pendingMessage: pm);
+        await MessageRepo().sendPendingMessages();
+        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          ..packetId = pm.msg.packetId
+          ..to = pm.msg.to.asUid()
+          ..replyToId = Int64(pm.msg.replyToId)
+          ..file = file_pb.File(
+              name: "test", caption: "test", uuid: testUid.asString());
+        verify(coreServices.sendMessage(byClient));
+      });
+      test(
+          'When called should getAllPendingMessages and if there is pending message and cloned file are not null should never save anything',
+          () async {
+        final fileRepo = getAndRegisterFileRepo();
+        final coreServices = getAndRegisterCoreServices();
+        final roomDao = getAndRegisterRoomDao();
+        final messageDao = getAndRegisterMessageDao();
+        await MessageRepo().sendPendingMessages();
+        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          ..packetId = pm.msg.packetId
+          ..to = pm.msg.to.asUid()
+          ..replyToId = Int64(pm.msg.replyToId)
+          ..file = file_pb.File(
+              name: "test", caption: "test", uuid: testUid.asString());
+        verifyNever(coreServices.sendMessage(byClient));
+        verifyNever(roomDao.updateRoom(Room(
+            uid: pm.roomUid,
+            lastMessage: pm.msg.copyWith(
+                json:
+                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
+            lastMessageId: pm.msg.id,
+            deleted: false,
+            lastUpdateTime: pm.msg.time)));
+        verifyNever(messageDao.savePendingMessage(pm.copyWith(
+            msg: pm.msg.copyWith(
+                json:
+                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
+            status: SendingStatus.PENDING)));
+        verifyNever(fileRepo.uploadClonedFile("946672200000000", "test",
+            sendActivity: sendActivityFunction));
+      });
+      test(
+          'When called should getAllPendingMessages and if there is no pending message should break',
+          () async {
+        final fileRepo = getAndRegisterFileRepo();
+        final coreServices = getAndRegisterCoreServices();
+        final roomDao = getAndRegisterRoomDao();
+        final messageDao = getAndRegisterMessageDao(pendingMessage: pm);
+        await MessageRepo().sendPendingMessages();
+        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          ..packetId = pm.msg.packetId
+          ..to = pm.msg.to.asUid()
+          ..replyToId = Int64(pm.msg.replyToId)
+          ..file = file_pb.File(
+              name: "test", caption: "test", uuid: testUid.asString());
+        verifyNever(coreServices.sendMessage(byClient));
+        verifyNever(roomDao.updateRoom(Room(
+            uid: pm.roomUid,
+            lastMessage: pm.msg.copyWith(
+                json:
+                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
+            lastMessageId: pm.msg.id,
+            deleted: false,
+            lastUpdateTime: pm.msg.time)));
+        verifyNever(messageDao.savePendingMessage(pm.copyWith(
+            msg: pm.msg.copyWith(
+                json:
+                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
+            status: SendingStatus.PENDING)));
+        verify(fileRepo.uploadClonedFile("946672200000000", "test",
+            sendActivity: sendActivityFunction));
+      });
+      test(
+          'When called should getAllPendingMessages and if there is pending message and SendingStatus is PENDING should sendMessage pm To Server',
+          () async {
+        final coreServices = getAndRegisterCoreServices();
+        getAndRegisterMessageDao(
+            pendingMessage: pm.copyWith(status: SendingStatus.PENDING));
+        await MessageRepo().sendPendingMessages();
+        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          ..packetId = pm.msg.packetId
+          ..to = pm.msg.to.asUid()
+          ..replyToId = Int64(pm.msg.replyToId)
+          ..file = file_pb.File(
+              name: "test",
+              caption: "test",
+              uuid: pm.msg.packetId,
+              size: Int64(4096),
+              type: "application/octet-stream",
+              width: 0,
+              height: 0,
+              duration: 0.0);
+        verify(coreServices.sendMessage(byClient));
       });
     });
   });

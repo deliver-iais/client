@@ -6,6 +6,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as seen_box;
 import 'package:deliver/repository/authRepo.dart';
@@ -82,7 +83,7 @@ MockLogger getAndRegisterLogger() {
 }
 
 MockMessageDao getAndRegisterMessageDao(
-    {Message? message, bool getError = false}) {
+    {Message? message, bool getError = false, PendingMessage? pendingMessage}) {
   _removeRegistrationIfExists<MessageDao>();
   final service = MockMessageDao();
   GetIt.I.registerSingleton<MessageDao>(service);
@@ -94,6 +95,10 @@ MockMessageDao getAndRegisterMessageDao(
               .thenAnswer((realInvocation) => Future.value(null))
       : when(service.getMessage(testUid.asString(), 0))
           .thenAnswer((realInvocation) => Future.value(message));
+  when(service.getAllPendingMessages()).thenAnswer((realInvocation) =>
+      pendingMessage != null
+          ? Future.value([pendingMessage])
+          : Future.value([]));
   return service;
 }
 
