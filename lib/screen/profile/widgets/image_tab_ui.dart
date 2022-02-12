@@ -88,7 +88,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
         children: [
           GestureDetector(
               onTap: () => _routingService.openShowAllImage(
-                  uid: widget.roomUid.asString(), messageId: media.messageId),
+                  uid: widget.roomUid.asString(), messageId: media.messageId,initIndex:index),
               onLongPress: () => _addSelectedMedia(media),
               child: FutureBuilder<String?>(
                   future: _fileRepo.getFileIfExist(

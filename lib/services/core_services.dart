@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
+import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -513,7 +514,10 @@ class CoreServices {
         if (mediaMetaData != null) {
           _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
               lastUpdateTime: message.time.toInt(),
-              imagesCount: mediaMetaData.imagesCount + 1));
+              imagesCount: mediaMetaData.imagesCount! + 1));
+        } else {
+          _mediaQueryRepo.saveMediaMetaData(
+              MediaMetaData(roomId: roomUid, imagesCount: 1));
         }
         _mediaQueryRepo.saveMediaFromMessage(message);
       }

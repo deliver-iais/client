@@ -113,25 +113,32 @@ class _ProfilePageState extends State<ProfilePage>
             builder: (context, AsyncSnapshot<MediaMetaData?> snapshot) {
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
-                if (snapshot.data!.imagesCount != 0) {
+                if (snapshot.data!.imagesCount != null &&
+                    snapshot.data!.imagesCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.videosCount != 0) {
+                if (snapshot.data!.videosCount != null &&
+                    snapshot.data!.videosCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.linkCount != 0) {
+                if (snapshot.data!.linkCount != null &&
+                    snapshot.data!.linkCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.filesCount != 0) {
+                if (snapshot.data!.filesCount != null &&
+                    snapshot.data!.filesCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.documentsCount != 0) {
+                if (snapshot.data!.documentsCount != null &&
+                    snapshot.data!.documentsCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.musicsCount != 0) {
+                if (snapshot.data!.musicsCount != null &&
+                    snapshot.data!.musicsCount != 0) {
                   _tabsCount++;
                 }
-                if (snapshot.data!.audiosCount != 0) {
+                if (snapshot.data!.audiosCount != null &&
+                    snapshot.data!.audiosCount != 0) {
                   _tabsCount++;
                 }
               }
@@ -241,11 +248,15 @@ class _ProfilePageState extends State<ProfilePage>
                                                 ),
                                               if (snapshot.hasData &&
                                                   snapshot.data!.imagesCount !=
+                                                      null &&
+                                                  snapshot.data!.imagesCount !=
                                                       0)
                                                 Tab(
                                                   text: _i18n.get("images"),
                                                 ),
                                               if (snapshot.hasData &&
+                                                  snapshot.data!.videosCount !=
+                                                      null &&
                                                   snapshot.data!.videosCount !=
                                                       0)
                                                 Tab(
@@ -253,25 +264,31 @@ class _ProfilePageState extends State<ProfilePage>
                                                 ),
                                               if (snapshot.hasData &&
                                                   snapshot.data!.filesCount !=
+                                                      null &&
+                                                  snapshot.data!.filesCount !=
                                                       0)
                                                 Tab(
                                                   text: _i18n.get("file"),
                                                 ),
                                               if (snapshot.hasData &&
+                                                  snapshot.data!.linkCount !=
+                                                      null &&
                                                   snapshot.data!.linkCount != 0)
                                                 Tab(text: _i18n.get("links")),
-                                              if (snapshot.hasData &&
+                                              if (snapshot.hasData &&snapshot.data!.documentsCount != null &&
                                                   snapshot.data!
                                                           .documentsCount !=
                                                       0)
                                                 Tab(
                                                     text:
                                                         _i18n.get("documents")),
-                                              if (snapshot.hasData &&
+                                              if (snapshot.hasData && snapshot.data!.musicsCount != null &&
                                                   snapshot.data!.musicsCount !=
                                                       0)
                                                 Tab(text: _i18n.get("musics")),
                                               if (snapshot.hasData &&
+                                                  snapshot.data!.audiosCount !=
+                                                      null &&
                                                   snapshot.data!.audiosCount !=
                                                       0)
                                                 Tab(text: _i18n.get("audios")),
@@ -298,45 +315,51 @@ class _ProfilePageState extends State<ProfilePage>
                                 ),
                               ),
                             if (snapshot.hasData &&
+                                snapshot.data!.imagesCount != null &&
                                 snapshot.data!.imagesCount != 0)
                               ImageTabUi(
-                                  snapshot.data!.imagesCount, widget.roomUid,
+                                  snapshot.data!.imagesCount!, widget.roomUid,
                                   selectedMedia: _selectedMedia,
                                   addSelectedMedia: (media) =>
                                       _addSelectedMedia(media)),
                             if (snapshot.hasData &&
+                                snapshot.data!.videosCount != null &&
                                 snapshot.data!.videosCount != 0)
                               VideoTabUi(
                                   roomUid: widget.roomUid,
                                   addSelectedMedia: (media) =>
                                       _addSelectedMedia(media),
                                   selectedMedia: _selectedMedia,
-                                  videoCount: snapshot.data!.videosCount),
+                                  videoCount: snapshot.data!.videosCount!),
                             if (snapshot.hasData &&
+                                snapshot.data!.filesCount != null &&
                                 snapshot.data!.filesCount != 0)
                               DocumentAndFileUi(
                                 roomUid: widget.roomUid,
                                 selectedMedia: _selectedMedia,
                                 addSelectedMedia: (media) =>
                                     _addSelectedMedia(media),
-                                documentCount: snapshot.data!.filesCount,
+                                documentCount: snapshot.data!.filesCount!,
                                 type: MediaType.FILE,
                               ),
                             if (snapshot.hasData &&
+                                snapshot.data!.linkCount != null &&
                                 snapshot.data!.linkCount != 0)
                               LinkTabUi(
-                                  snapshot.data!.linkCount, widget.roomUid),
+                                  snapshot.data!.linkCount!, widget.roomUid),
                             if (snapshot.hasData &&
+                                snapshot.data!.documentsCount != null &&
                                 snapshot.data!.documentsCount != 0)
                               DocumentAndFileUi(
                                 selectedMedia: _selectedMedia,
                                 addSelectedMedia: (media) =>
                                     _addSelectedMedia(media),
                                 roomUid: widget.roomUid,
-                                documentCount: snapshot.data!.documentsCount,
+                                documentCount: snapshot.data!.documentsCount!,
                                 type: MediaType.DOCUMENT,
                               ),
                             if (snapshot.hasData &&
+                                snapshot.data!.musicsCount != null &&
                                 snapshot.data!.musicsCount != 0)
                               MusicAndAudioUi(
                                   roomUid: widget.roomUid,
@@ -344,8 +367,9 @@ class _ProfilePageState extends State<ProfilePage>
                                   selectedMedia: _selectedMedia,
                                   addSelectedMedia: (media) =>
                                       _addSelectedMedia(media),
-                                  mediaCount: snapshot.data!.musicsCount),
+                                  mediaCount: snapshot.data!.musicsCount!),
                             if (snapshot.hasData &&
+                                snapshot.data!.audiosCount != null &&
                                 snapshot.data!.audiosCount != 0)
                               MusicAndAudioUi(
                                   roomUid: widget.roomUid,
@@ -353,7 +377,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   addSelectedMedia: (media) =>
                                       _addSelectedMedia(media),
                                   type: MediaType.AUDIO,
-                                  mediaCount: snapshot.data!.audiosCount),
+                                  mediaCount: snapshot.data!.audiosCount!),
                           ],
                           controller: _tabController,
                         ),

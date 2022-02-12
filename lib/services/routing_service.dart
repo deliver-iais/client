@@ -139,11 +139,13 @@ class RoutingService {
 
   void openShowAllImage({
     required String uid,
+    required int initIndex,
     required int messageId,
   }) =>
       _push(AllImagePage(
         const ValueKey("/media-details"),
         messageId: messageId,
+        initIndex: initIndex,
         roomUid: uid,
       ));
 
