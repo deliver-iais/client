@@ -82,7 +82,7 @@ class MessageRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
-  final sendActivitySubject = BehaviorSubject.seeded(0);
+  final _sendActivitySubject = BehaviorSubject.seeded(0);
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -550,7 +550,7 @@ class MessageRepo {
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
-    sendActivitySubject
+    _sendActivitySubject
         .throttleTime(const Duration(seconds: 10))
         .listen((value) {
       if (value != 0) {
@@ -565,7 +565,7 @@ class MessageRepo {
     // Upload to file server
     file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(
         packetId, fakeFileInfo.name,
-        sendActivity: (int i) => sendActivitySubject.add(i));
+        sendActivity: (int i) => _sendActivitySubject.add(i));
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 
