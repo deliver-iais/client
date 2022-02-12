@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:io' as dart_file;
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -54,7 +55,6 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
-import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
@@ -64,6 +64,9 @@ enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
 const DELETED_ROOM_MESSAGE = "{DELETED}";
+BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
+// ignore: prefer_function_declarations_over_variables
+late var sendActivityFunction = (int i) => sendActivitySubject.add(i);
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -119,7 +122,7 @@ class MessageRepo {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
         lastMessageId: lastMessageId,
-        lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       ));
     } catch (e) {
       _logger.e(e);
@@ -206,6 +209,7 @@ class MessageRepo {
     var rooms = await _roomDao.getAllRooms();
 
     for (var r in rooms) {
+      if (r.lastMessage == null) return;
       var category = r.lastMessage!.to.asUid().category;
       if (r.lastMessage!.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
@@ -466,7 +470,7 @@ class MessageRepo {
     for (var file in files) {
       if (files.last.path == file.path) {
         await sendFileMessage(room, file,
-            caption: caption!, replyToId: replyToId);
+            caption: caption, replyToId: replyToId);
       } else {
         await sendFileMessage(room, file, caption: "", replyToId: replyToId);
       }
@@ -548,7 +552,6 @@ class MessageRepo {
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
       PendingMessage pm) async {
-    BehaviorSubject<int> sendActivitySubject = BehaviorSubject.seeded(0);
     sendActivitySubject
         .throttleTime(const Duration(seconds: 10))
         .listen((value) {
@@ -564,7 +567,7 @@ class MessageRepo {
     // Upload to file server
     file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(
         packetId, fakeFileInfo.name,
-        sendActivity: (int i) => sendActivitySubject.add(i));
+        sendActivity: sendActivityFunction);
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 
@@ -698,7 +701,7 @@ class MessageRepo {
     return Message(
         roomUid: room.asString(),
         packetId: _getPacketId(),
-        time: DateTime.now().millisecondsSinceEpoch,
+        time: clock.now().millisecondsSinceEpoch,
         from: _authRepo.currentUserUid.asString(),
         to: room.asString(),
         replyToId: replyId,
@@ -707,7 +710,7 @@ class MessageRepo {
   }
 
   String _getPacketId() {
-    return "${DateTime.now().microsecondsSinceEpoch.toString()}-${randomString(5)}";
+    return clock.now().microsecondsSinceEpoch.toString();
   }
 
   Future<List<Message?>> getPage(
