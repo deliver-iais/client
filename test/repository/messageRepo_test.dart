@@ -12,6 +12,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -1124,9 +1125,78 @@ void main() {
             .getMessages(testUid.asString(), 0, 16, Completer(), 0);
         verify(queryServiceClient.fetchMessages(FetchMessagesReq()
           ..roomUid = testUid
-          ..pointer = Int64(0 * 16)
+          ..pointer = Int64(0)
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = 16));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type is MucSpecificPersistentEvent_Issue.DELETED should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesId: 0,
+            fetchMessagesPersistEvent: PersistentEvent(
+                mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+                    issue: MucSpecificPersistentEvent_Issue.DELETED)),
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: true)));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
+          'fetched message type is MucSpecificPersistentEvent_Issue.ADD_USER should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesId: 0,
+            fetchMessagesPersistEvent: PersistentEvent(
+                mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+                    issue: MucSpecificPersistentEvent_Issue.ADD_USER)),
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: false)));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
+          'fetched message type is MucSpecificPersistentEvent_Issue.KICK_USER and assignee isSame Entity with currentUserUid should updateRoom ',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesId: 0,
+            fetchMessagesPersistEvent: PersistentEvent(
+                mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+                    issue: MucSpecificPersistentEvent_Issue.KICK_USER,
+                    assignee: testUid)),
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: true)));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
+          'is MucSpecificPersistentEvent_Issue.AVATAR_CHANGED should fetchAvatar',
+          () async {
+        final avatarRepo = getAndRegisterAvatarRepo();
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesId: 0,
+            fetchMessagesPersistEvent: PersistentEvent(
+                mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+                    issue: MucSpecificPersistentEvent_Issue.AVATAR_CHANGED,
+                    assignee: testUid)),
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+        verify(avatarRepo.fetchAvatar(testMessage.from.asUid(), true));
       });
     });
   });

@@ -19,6 +19,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -186,6 +187,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     bool fetchMessagesHasOptions = true,
     FetchMessagesReq_Type fetchMessagesType =
         FetchMessagesReq_Type.BACKWARD_FETCH,
+    PersistentEvent? fetchMessagesPersistEvent,
     int? mentionIdList}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
@@ -257,6 +259,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
                 text: fetchMessagesText != null
                     ? message_pb.Text(text: fetchMessagesText)
                     : null,
+                persistEvent: fetchMessagesPersistEvent,
                 edited: false,
                 replyToId: Int64(0),
                 forwardFrom: testUid,
