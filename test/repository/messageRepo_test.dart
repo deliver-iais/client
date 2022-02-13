@@ -1198,6 +1198,48 @@ void main() {
             .getMessages(testUid.asString(), 0, 16, Completer(), 10);
         verify(avatarRepo.fetchAvatar(testMessage.from.asUid(), true));
       });
+      test(
+          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
+          'is MessageManipulationPersistentEvent_Action.DELETED should getMessage and saveMessage',
+          () async {
+        final messageDao = getAndRegisterMessageDao(message: testMessage);
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesId: 0,
+            fetchMessagesPersistEvent: PersistentEvent(
+                messageManipulationPersistentEvent:
+                    MessageManipulationPersistentEvent(
+                        messageId: Int64(0),
+                        action:
+                            MessageManipulationPersistentEvent_Action.DELETED)),
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+        var mes = await messageDao.getMessage(testUid.asString(), 0);
+        verify(messageDao.getMessage(testUid.asString(), 0));
+        verify(messageDao.saveMessage(mes!..json = EMPTY_MESSAGE));
+      });
+      test(
+          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message id  equal to lastMessageId should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesId: 0,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+        verify(roomDao.updateRoom(Room(
+            lastMessage: testMessage.copyWith(
+                id: 0,
+                forwardedFrom: testUid.asString(),
+                json: EMPTY_MESSAGE,
+                packetId: ""),
+            uid: testUid.asString(),
+            lastMessageId: 0)));
+      });
     });
   });
 }
