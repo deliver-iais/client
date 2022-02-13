@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -1092,6 +1094,39 @@ void main() {
             verify(coreServices.sendMessage(byClient));
           },
         );
+      });
+    });
+    group('getPage -', () {
+      test('When called if element!.id == containsId should return message',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        var messages = await MessageRepo().getPage(0, testUid.asString(), 0, 0);
+        expect(messages.first, testMessage.copyWith(id: 0));
+        verify(messageDao.getMessagePage(testUid.asString(), 0));
+      });
+      //todo add test after adding test for getMessages
+      // test('When called if element!.id == containsId should return message',
+      //     () async {
+      //   final messageDao = getAndRegisterMessageDao();
+      //   var messages = await MessageRepo().getPage(0, testUid.asString(), 0, 0);
+      //   expect(messages.first, testMessage.copyWith(id: 0));
+      //   verify(messageDao.getMessagePage(testUid.asString(), 0));
+      // });
+    });
+    group('getMessages -', () {
+      test('When called should fetchMessages from queryServiceClient',
+          () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 16,
+            fetchMessagesHasOptions: false,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo()
+            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+        verify(queryServiceClient.fetchMessages(FetchMessagesReq()
+          ..roomUid = testUid
+          ..pointer = Int64(0 * 16)
+          ..type = FetchMessagesReq_Type.FORWARD_FETCH
+          ..limit = 16));
       });
     });
   });

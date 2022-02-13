@@ -95,6 +95,8 @@ MockMessageDao getAndRegisterMessageDao(
               .thenAnswer((realInvocation) => Future.value(null))
       : when(service.getMessage(testUid.asString(), 0))
           .thenAnswer((realInvocation) => Future.value(message));
+  when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(
+      (realInvocation) => Future.value([testMessage.copyWith(id: 0)]));
   when(service.getAllPendingMessages()).thenAnswer((realInvocation) =>
       pendingMessage != null
           ? Future.value([pendingMessage])
@@ -180,6 +182,10 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     bool countIsHiddenMessagesGetError = false,
     int fetchMessagesId = 0,
     String? fetchMessagesText,
+    int fetchMessagesLimit = 0,
+    bool fetchMessagesHasOptions = true,
+    FetchMessagesReq_Type fetchMessagesType =
+        FetchMessagesReq_Type.BACKWARD_FETCH,
     int? mentionIdList}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
@@ -235,9 +241,11 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
           FetchMessagesReq()
             ..roomUid = testUid
             ..pointer = Int64(0)
-            ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-            ..limit = 0,
-          options: CallOptions(timeout: const Duration(seconds: 3))))
+            ..type = fetchMessagesType
+            ..limit = fetchMessagesLimit,
+          options: fetchMessagesHasOptions
+              ? CallOptions(timeout: const Duration(seconds: 3))
+              : null))
       .thenAnswer((realInvocation) =>
           MockResponseFuture<FetchMessagesRes>(FetchMessagesRes(messages: {
             message_pb.Message(
