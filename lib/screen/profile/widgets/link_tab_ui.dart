@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
@@ -45,7 +44,6 @@ class _LinkTabUiState extends State<LinkTabUi> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return StreamBuilder<MediaMetaData?>(
         stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
         builder: (context, snapshot) {

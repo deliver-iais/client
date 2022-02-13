@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/profile/widgets/all_Image_page.dart';
+import 'package:deliver/screen/profile/widgets/all_image_page.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/file_service.dart';

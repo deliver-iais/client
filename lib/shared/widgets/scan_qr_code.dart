@@ -218,7 +218,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var res = await _contactRepo.sendNewContact(
+                      var newContactAdded = await _contactRepo.sendNewContact(
                           contact_pb.Contact()
                             ..firstName = firstName!
                             ..lastName = lastName!
@@ -226,7 +226,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                                 countryCode: int.parse(countryCode),
                                 nationalNumber:
                                     Int64(int.parse(nationalNumber))));
-                      if (res != null) {
+                      if (newContactAdded) {
                         ToastDisplay.showToast(
                             toastText:
                                 "$firstName$lastName ${_i18n.get("contact_add")}",

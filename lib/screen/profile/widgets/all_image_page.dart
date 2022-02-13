@@ -9,7 +9,6 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -76,7 +75,7 @@ class _AllImagePageState extends State<AllImagePage> {
   _getMediaMetaDataCount() async {
     var res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
     if (res != null) {
-      _allImageCount.add(res.imagesCount!);
+      _allImageCount.add(res.imagesCount);
     }
   }
 
