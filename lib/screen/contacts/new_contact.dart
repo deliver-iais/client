@@ -48,7 +48,7 @@ class _NewContactState extends State<NewContact> {
                     onChanged: (firstName) {
                       _firstName = firstName;
                     },
-                    style:theme.textTheme.bodyText1,
+                    style: theme.textTheme.bodyText1,
                     decoration:
                         InputDecoration(labelText: _i18n.get("firstName")),
                   ),
@@ -57,7 +57,7 @@ class _NewContactState extends State<NewContact> {
                     onChanged: (lastName) {
                       _lastName = lastName;
                     },
-                    style:theme.textTheme.bodyText1,
+                    style: theme.textTheme.bodyText1,
                     decoration:
                         InputDecoration(labelText: _i18n.get("lastName")),
                   ),
@@ -68,7 +68,7 @@ class _NewContactState extends State<NewContact> {
                             (value.isNotEmpty && value[0] == '0')
                         ? _i18n.get("invalid_mobile_number")
                         : null,
-                    style:theme.textTheme.bodyText1!,
+                    style: theme.textTheme.bodyText1!,
                     onChanged: (ph) {
                       _phoneNumber = ph;
                     },
@@ -84,15 +84,12 @@ class _NewContactState extends State<NewContact> {
                       child: Text(_i18n.get("save")),
                       onPressed: () async {
                         if (_phoneNumber != null) {
-                          bool addContact =
-                              await _contactRepo.addContact(Contact()
-                                ..phoneNumber = _phoneNumber!
-                                ..firstName = _firstName
-                                ..lastName = _lastName);
-                          if (addContact) {
-                            await showResult(_phoneNumber!);
-                            _routingServices.pop();
-                          }
+                          var res = await _contactRepo.sendNewContact(Contact()
+                            ..phoneNumber = _phoneNumber!
+                            ..firstName = _firstName
+                            ..lastName = _lastName);
+                          showResult(res);
+                          if (res) _routingServices.pop();
                         }
                       },
                     ),
@@ -106,10 +103,8 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  Future<void> showResult(PhoneNumber pn) async {
-    var result = await _contactRepo.contactIsExist(
-        pn.countryCode.toString(), pn.nationalNumber.toString());
-    if (result) {
+  Future<void> showResult(bool added) async {
+    if (added) {
       ToastDisplay.showToast(
           toastText: _i18n.get("contactAdd"), toastContext: context);
     } else {
