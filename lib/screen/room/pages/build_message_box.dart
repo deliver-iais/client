@@ -155,9 +155,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (message.json == "{}") return const SizedBox.shrink();
     Widget messageWidget;
     if (message.type == MessageType.CALL &&
-        message.json!.toCallEvent().newStatus == CallEvent_CallStatus.BUSY &&
-        message.json!.toCallEvent().newStatus ==
-            CallEvent_CallStatus.DECLINED) {
+        (message.json!.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
+            message.json!.toCallEvent().newStatus ==
+                CallEvent_CallStatus.DECLINED)) {
       if (_authRepo.isCurrentUser(message.to)) {
         messageWidget = showSentMessage(message);
       } else {
