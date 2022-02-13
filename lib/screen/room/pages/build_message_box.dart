@@ -93,7 +93,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _logger = GetIt.I.get<Logger>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _autRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   CallEvent_CallStatus? _callEvent;
 
@@ -155,7 +154,16 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       List pendingMessages) {
     if (message.json == "{}") return const SizedBox.shrink();
     Widget messageWidget;
-    if (_authRepo.isCurrentUser(message.from)) {
+    if (message.type == MessageType.CALL &&
+        message.json!.toCallEvent().newStatus == CallEvent_CallStatus.BUSY &&
+        message.json!.toCallEvent().newStatus ==
+            CallEvent_CallStatus.DECLINED) {
+      if (_authRepo.isCurrentUser(message.to)) {
+        messageWidget = showSentMessage(message);
+      } else {
+        messageWidget = showReceivedMessage(message);
+      }
+    } else if (_authRepo.isCurrentUser(message.from)) {
       messageWidget = showSentMessage(message);
     } else {
       messageWidget = showReceivedMessage(message);
