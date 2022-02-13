@@ -514,10 +514,18 @@ class CoreServices {
         if (mediaMetaData != null) {
           _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
               lastUpdateTime: message.time.toInt(),
-              imagesCount: mediaMetaData.imagesCount! + 1));
+              imagesCount: mediaMetaData.imagesCount + 1));
         } else {
-          _mediaQueryRepo.saveMediaMetaData(
-              MediaMetaData(roomId: roomUid, imagesCount: 1));
+          _mediaQueryRepo.saveMediaMetaData(MediaMetaData(
+              roomId: roomUid,
+              imagesCount: 1,
+              musicsCount: 0,
+              videosCount: 0,
+              audiosCount: 0,
+              documentsCount: 0,
+              filesCount: 0,
+              linkCount: 0,
+              lastUpdateTime: message.time.toInt()));
         }
         _mediaQueryRepo.saveMediaFromMessage(message);
       }
