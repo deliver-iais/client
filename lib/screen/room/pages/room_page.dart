@@ -744,8 +744,6 @@ class _RoomPageState extends State<RoomPage> {
       return const SizedBox.shrink();
     }
 
-    print("here");
-
     int scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
             ? _lastShowedMessageId

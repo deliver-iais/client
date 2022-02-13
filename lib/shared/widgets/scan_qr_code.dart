@@ -83,7 +83,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       onQRViewCreated: (QRViewController controller) =>
           _onQRViewCreated(controller, context),
       overlay: QrScannerOverlayShape(
-          borderColor:theme.primaryColor,
+          borderColor: theme.primaryColor,
           borderRadius: 10,
           borderLength: 30,
           borderWidth: 10,
@@ -218,7 +218,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var res = await _contactRepo.addContact(
+                      var newContactAdded = await _contactRepo.sendNewContact(
                           contact_pb.Contact()
                             ..firstName = firstName!
                             ..lastName = lastName!
@@ -226,8 +226,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                                 countryCode: int.parse(countryCode),
                                 nationalNumber:
                                     Int64(int.parse(nationalNumber))));
-                      _contactRepo.getContacts();
-                      if (res) {
+                      if (newContactAdded) {
                         ToastDisplay.showToast(
                             toastText:
                                 "$firstName$lastName ${_i18n.get("contact_add")}",
@@ -270,8 +269,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             ),
             Text(
               text,
-              style: TextStyle(
-                  color:theme.primaryColor, fontSize: 25),
+              style: TextStyle(color: theme.primaryColor, fontSize: 25),
             ),
             const SizedBox(
               height: 40,

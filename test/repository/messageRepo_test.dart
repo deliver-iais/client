@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, constant_identifier_names
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';

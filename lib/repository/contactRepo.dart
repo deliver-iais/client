@@ -18,6 +18,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -103,8 +104,17 @@ class ContactRepo {
     }
   }
 
-  Future<bool> addContact(Contact contact) async {
-    return _sendContacts([contact]);
+  Future<bool> sendNewContact(Contact contact) async {
+    try {
+      var res = await _contactServices.saveContacts(SaveContactsReq()
+        ..contactList.add(contact)
+        ..returnUserContactByPhoneNumberList.add(contact.phoneNumber));
+      _saveContact(res.userList);
+      return res.userList.isNotEmpty;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
   }
 
   Future<bool> _sendContacts(List<Contact> contacts) async {
@@ -129,22 +139,25 @@ class ContactRepo {
     try {
       var result =
           await _contactServices.getContactListUsers(GetContactListUsersReq());
-
-      for (var contact in result.userList) {
-        _contactDao.save(contact_pb.Contact(
-            uid: contact.uid.asString(),
-            countryCode: contact.phoneNumber.countryCode.toString(),
-            nationalNumber: contact.phoneNumber.nationalNumber.toString(),
-            firstName: contact.firstName,
-            lastName: contact.lastName));
-
-        roomNameCache.set(contact.uid.asString(), contact.firstName);
-        _uidIdNameDao.update(contact.uid.asString(),
-            name: "${contact.firstName} ${contact.lastName}");
-        _roomDao.updateRoom(Room(uid: contact.uid.asString()));
-      }
+      _saveContact(result.userList);
     } catch (e) {
       _logger.e(e);
+    }
+  }
+
+  void _saveContact(List<UserAsContact> users) {
+    for (var contact in users) {
+      _contactDao.save(contact_pb.Contact(
+          uid: contact.uid.asString(),
+          countryCode: contact.phoneNumber.countryCode.toString(),
+          nationalNumber: contact.phoneNumber.nationalNumber.toString(),
+          firstName: contact.firstName,
+          lastName: contact.lastName));
+
+      roomNameCache.set(contact.uid.asString(), contact.firstName);
+      _uidIdNameDao.update(contact.uid.asString(),
+          name: "${contact.firstName} ${contact.lastName}");
+      _roomDao.updateRoom(Room(uid: contact.uid.asString()));
     }
   }
 
