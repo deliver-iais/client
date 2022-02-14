@@ -681,9 +681,7 @@ void main() {
           msg: testPendingMessage.msg.copyWith(
               type: MessageType.TEXT,
               time: 946672200000,
-              json: "{\"1\":\"test\"}"),
-          status: SendingStatus.PENDING,
-          failed: false);
+              json: "{\"1\":\"test\"}"));
 
       test('When called should savePendingMessage', () async {
         withClock(
@@ -739,16 +737,10 @@ void main() {
           speed: 0,
           speedAccuracy: 0,
           timestamp: DateTime(2000));
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
-              type: MessageType.LOCATION,
-              time: 946672200000,
-              packetId: "946672200000000",
-              json: "{\"1\":0.0,\"2\":0.0}"),
-          status: SendingStatus.PENDING,
-          failed: false);
+      PendingMessage pm = testPendingMessage.copyWith(
+        msg: testPendingMessage.msg.copyWith(
+            type: MessageType.LOCATION, json: "{\"1\":0.0,\"2\":0.0}"),
+      );
 
       test('When called should savePendingMessage', () async {
         withClock(
@@ -795,16 +787,8 @@ void main() {
       });
     });
     group('sendMultipleFilesMessages -', () {
-      Message message = testMessage.copyWith(
-          type: MessageType.FILE,
-          time: 946672200000,
-          replyToId: 0,
-          packetId: "946672200000000",
-          json: "");
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: message,
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(type: MessageType.FILE),
           status: SendingStatus.SENDING_FILE,
           failed: false);
 
@@ -854,7 +838,9 @@ void main() {
                 testUid, [model.File("test", "test")],
                 caption: "test");
             verify(messageDao.savePendingMessage(pm.copyWith(
-                msg: message.copyWith(json: sendingFakeFile.writeToJson()))));
+                msg: testPendingMessage.msg.copyWith(
+                    type: MessageType.FILE,
+                    json: sendingFakeFile.writeToJson()))));
           },
         );
       });
@@ -884,14 +870,12 @@ void main() {
       });
     });
     group('sendPendingMessages -', () {
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
-              type: MessageType.FILE,
-              json:
-                  "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
-              packetId: "946672200000000"),
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(
+            type: MessageType.FILE,
+            json:
+                "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
+          ),
           status: SendingStatus.SENDING_FILE);
       test('When called should getAllPendingMessages', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -1069,16 +1053,10 @@ void main() {
       });
     });
     group('sendForwardedMessage -', () {
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
-            time: 946672200000,
-            packetId: "946672200000000",
-            forwardedFrom: testUid.asString(),
-          ),
-          failed: false,
-          status: SendingStatus.PENDING);
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(
+        forwardedFrom: testUid.asString(),
+      ));
 
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
@@ -1349,16 +1327,10 @@ void main() {
       });
     });
     group('sendFormResultMessage -', () {
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
-              time: 946672200000,
-              packetId: "946672200000000",
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(
               type: MessageType.FORM_RESULT,
-              json: "{\"2\":[{\"1\":\"test\",\"2\":\"test\"}]}"),
-          failed: false,
-          status: SendingStatus.PENDING);
+              json: "{\"2\":[{\"1\":\"test\",\"2\":\"test\"}]}"));
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
@@ -1395,17 +1367,11 @@ void main() {
       });
     });
     group('sendShareUidMessage -', () {
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
-              time: 946672200000,
-              packetId: "946672200000000",
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(
               type: MessageType.SHARE_UID,
               json:
-                  "{\"1\":{\"1\":0,\"2\":\"3049987b-e15d-4288-97cd-42dbc6d73abd\",\"3\":\"*\"}}"),
-          failed: false,
-          status: SendingStatus.PENDING);
+                  "{\"1\":{\"1\":0,\"2\":\"3049987b-e15d-4288-97cd-42dbc6d73abd\",\"3\":\"*\"}}"));
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
@@ -1442,16 +1408,11 @@ void main() {
       });
     });
     group('sendPrivateMessageAccept -', () {
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
-              time: 946672200000,
-              packetId: "946672200000000",
-              type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE,
-              json: "{\"1\":2,\"2\":\"test\"}"),
-          failed: false,
-          status: SendingStatus.PENDING);
+      PendingMessage pm = testPendingMessage.copyWith(
+        msg: testPendingMessage.msg.copyWith(
+            type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE,
+            json: "{\"1\":2,\"2\":\"test\"}"),
+      );
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
