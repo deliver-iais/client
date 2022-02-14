@@ -181,10 +181,15 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   return service;
 }
 
-MockMucServices getAndRegisterMucServices() {
+MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
   _removeRegistrationIfExists<MucServices>();
   final service = MockMucServices();
   GetIt.I.registerSingleton<MucServices>(service);
+  pinMessageGetError
+      ? when(service.pinMessage(testMessage))
+          .thenThrow((realInvocation) => Future.value())
+      : when(service.pinMessage(testMessage))
+          .thenAnswer((realInvocation) => Future.value(true));
   return service;
 }
 

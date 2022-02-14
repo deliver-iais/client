@@ -1521,5 +1521,28 @@ void main() {
         verify(coreServices.sendMessage(byClient));
       });
     });
+    group('deletePendingMessage -', () {
+      test('When called should deletePendingMessage', () async {
+        final messageDao = getAndRegisterMessageDao();
+        MessageRepo().deletePendingMessage("");
+        verify(messageDao.deletePendingMessage(""));
+      });
+    });
+    group('pinMessage -', () {
+      test('When called should pinMessage', () async {
+        final mucServices =
+            getAndRegisterMucServices(pinMessageGetError: false);
+        await MessageRepo().pinMessage(testMessage);
+        verify(mucServices.pinMessage(testMessage));
+        expect(await MessageRepo().pinMessage(testMessage), true);
+      });
+      test('When called should pinMessage and if get error should return false',
+          () async {
+        final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
+        await MessageRepo().pinMessage(testMessage);
+        verify(mucServices.pinMessage(testMessage));
+        expect(await MessageRepo().pinMessage(testMessage), false);
+      });
+    });
   });
 }
