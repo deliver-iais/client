@@ -1607,5 +1607,67 @@ void main() {
             testUid.asString(), 0, location));
       });
     });
+    group('deleteMessage -', () {
+      test('When called if msg.id == null should deletePendingMessage',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        await MessageRepo().deleteMessage([testMessage.copyWith(packetId: "")]);
+        verify(messageDao.deletePendingMessage(""));
+      });
+      test('When called if msg.id not be null should deleteMessage', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo()
+            .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
+        verify(queryServiceClient.deleteMessage(DeleteMessageReq()
+          ..messageId = Int64(0)
+          ..roomUid = testUid));
+      });
+      test(
+          'When called if msg.id not be null and deleteMessage==true should getRoom',
+          () async {
+        final roomRepo = getAndRegisterRoomRepo();
+        await MessageRepo()
+            .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
+        verify(roomRepo.getRoom(testUid.asString()));
+      });
+      test(
+          'When called if msg.id not be null and deleteMessage==true and msg.id == room.lastMessageId should updateRoom',
+          () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao();
+          getAndRegisterRoomRepo(
+              room: Room(uid: testUid.asString(), lastMessageId: 0));
+          await MessageRepo()
+              .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
+          verify(roomDao.updateRoom(Room(
+              uid: testUid.asString(),
+              lastMessage: testMessage.copyWith(
+                  json: EMPTY_MESSAGE, id: 0, packetId: ""),
+              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+        });
+      });
+      test(
+          'When called if msg.id not be null and deleteMessage==true should saveMessage',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        getAndRegisterRoomRepo(
+            room: Room(uid: testUid.asString(), lastMessageId: 0));
+        await MessageRepo()
+            .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
+        verify(messageDao.saveMessage(
+            testMessage.copyWith(packetId: "", id: 0, json: EMPTY_MESSAGE)));
+      });
+      test(
+          'When called if msg.id not be null and deleteMessage==true should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterRoomRepo(
+            room: Room(uid: testUid.asString(), lastMessageId: 0));
+        await MessageRepo()
+            .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
+        verify(roomDao.updateRoom(
+            Room(uid: testUid.asString(), lastUpdatedMessageId: 0)));
+      });
+    });
   });
 }

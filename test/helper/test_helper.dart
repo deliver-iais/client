@@ -135,10 +135,12 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   return service;
 }
 
-MockRoomRepo getAndRegisterRoomRepo() {
+MockRoomRepo getAndRegisterRoomRepo({Room? room}) {
   _removeRegistrationIfExists<RoomRepo>();
   final service = MockRoomRepo();
   GetIt.I.registerSingleton<RoomRepo>(service);
+  when(service.getRoom(testUid.asString())).thenAnswer(
+      (realInvocation) => Future.value(room ?? Room(uid: testUid.asString())));
   return service;
 }
 
@@ -298,6 +300,11 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
       .thenAnswer((realInvocation) => MockResponseFuture<FetchMentionListRes>(
           FetchMentionListRes(
               idList: mentionIdList != null ? [Int64(mentionIdList)] : [])));
+  when(service.deleteMessage(DeleteMessageReq()
+        ..messageId = Int64(0)
+        ..roomUid = testUid))
+      .thenAnswer((realInvocation) =>
+          MockResponseFuture<DeleteMessageRes>(DeleteMessageRes()));
   return service;
 }
 

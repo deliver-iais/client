@@ -1014,7 +1014,7 @@ class MessageRepo {
                 _roomDao.updateRoom(Room(
                     uid: msg.roomUid,
                     lastMessage: msg.copyWith(json: EMPTY_MESSAGE),
-                    lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+                    lastUpdateTime: clock.now().millisecondsSinceEpoch));
               }
             }
 
