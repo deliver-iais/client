@@ -190,6 +190,11 @@ MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
           .thenThrow((realInvocation) => Future.value())
       : when(service.pinMessage(testMessage))
           .thenAnswer((realInvocation) => Future.value(true));
+  pinMessageGetError
+      ? when(service.unpinMessage(testMessage))
+      .thenThrow((realInvocation) => Future.value())
+      : when(service.unpinMessage(testMessage))
+      .thenAnswer((realInvocation) => Future.value(true));
   return service;
 }
 

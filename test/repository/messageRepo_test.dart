@@ -1544,5 +1544,21 @@ void main() {
         expect(await MessageRepo().pinMessage(testMessage), false);
       });
     });
+    group('unpinMessage -', () {
+      test('When called should unpinMessage', () async {
+        final mucServices =
+        getAndRegisterMucServices(pinMessageGetError: false);
+        await MessageRepo().unpinMessage(testMessage);
+        verify(mucServices.unpinMessage(testMessage));
+        expect(await MessageRepo().unpinMessage(testMessage), true);
+      });
+      test('When called should unpinMessage and if get error should return false',
+              () async {
+            final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
+            await MessageRepo().unpinMessage(testMessage);
+            verify(mucServices.unpinMessage(testMessage));
+            expect(await MessageRepo().unpinMessage(testMessage), false);
+          });
+    });
   });
 }
