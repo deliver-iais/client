@@ -13,6 +13,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -1337,6 +1338,52 @@ void main() {
             ..to = testUid;
           verify(
               coreServices.sendActivity(activityByClient, "946672200000000"));
+        });
+      });
+    });
+    group('sendFormResultMessage -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              time: 946672200000,
+              packetId: "946672200000000",
+              type: MessageType.FORM_RESULT,
+              json: "{\"2\":[{\"1\":\"test\",\"2\":\"test\"}]}"),
+          failed: false,
+          status: SendingStatus.PENDING);
+      test('When called should savePendingMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final messageDao = getAndRegisterMessageDao();
+          MessageRepo()
+              .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
+          verify(messageDao.savePendingMessage(pm));
+        });
+      });
+      test('When called should updateRoomLastMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao();
+          MessageRepo()
+              .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
+          verify(roomDao.updateRoom(Room(
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time)));
+        });
+      });
+      test('When called should sendMessageToServer', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final coreServices = getAndRegisterCoreServices();
+          MessageRepo()
+              .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
+          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            ..packetId = pm.msg.packetId
+            ..to = pm.msg.to.asUid()
+            ..replyToId = Int64(pm.msg.replyToId)
+            ..formResult = FormResult.fromJson(pm.msg.json);
+          verify(coreServices.sendMessage(byClient));
         });
       });
     });
