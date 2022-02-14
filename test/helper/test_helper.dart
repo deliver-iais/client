@@ -84,7 +84,10 @@ MockLogger getAndRegisterLogger() {
 }
 
 MockMessageDao getAndRegisterMessageDao(
-    {Message? message, bool getError = false, PendingMessage? pendingMessage}) {
+    {Message? message,
+    bool getError = false,
+    PendingMessage? allPendingMessage,
+    PendingMessage? pendingMessage}) {
   _removeRegistrationIfExists<MessageDao>();
   final service = MockMessageDao();
   GetIt.I.registerSingleton<MessageDao>(service);
@@ -99,9 +102,11 @@ MockMessageDao getAndRegisterMessageDao(
   when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(
       (realInvocation) => Future.value([testMessage.copyWith(id: 0)]));
   when(service.getAllPendingMessages()).thenAnswer((realInvocation) =>
-      pendingMessage != null
-          ? Future.value([pendingMessage])
+      allPendingMessage != null
+          ? Future.value([allPendingMessage])
           : Future.value([]));
+  when(service.getPendingMessage("")).thenAnswer((realInvocation) =>
+      pendingMessage != null ? Future.value(pendingMessage) : Future.value());
   return service;
 }
 

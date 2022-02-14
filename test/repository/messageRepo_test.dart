@@ -41,6 +41,15 @@ Message testMessage = Message(
     roomUid: testUid.asString(),
     time: 0,
     json: '');
+PendingMessage testPendingMessage = PendingMessage(
+    roomUid: testUid.asString(),
+    packetId: "946672200000000",
+    msg: testMessage.copyWith(
+      time: 946672200000,
+      packetId: "946672200000000",
+    ),
+    failed: false,
+    status: SendingStatus.PENDING);
 
 void main() {
   group('MessageRepoTest -', () {
@@ -668,13 +677,10 @@ void main() {
       });
     });
     group('sendTextMessage -', () {
-      PendingMessage pm = PendingMessage(
-          roomUid: testUid.asString(),
-          packetId: "946672200000000",
-          msg: testMessage.copyWith(
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(
               type: MessageType.TEXT,
               time: 946672200000,
-              packetId: "946672200000000",
               json: "{\"1\":\"test\"}"),
           status: SendingStatus.PENDING,
           failed: false);
@@ -896,7 +902,7 @@ void main() {
           'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE should uploadClonedFile',
           () async {
         final fileRepo = getAndRegisterFileRepo();
-        getAndRegisterMessageDao(pendingMessage: pm);
+        getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
         verify(fileRepo.uploadClonedFile("946672200000000", "test",
             sendActivity: anyNamed("sendActivity")));
@@ -907,7 +913,7 @@ void main() {
         getAndRegisterFileRepo(
             fileInfo: file_pb.File(
                 uuid: testUid.asString(), caption: "test", name: "test"));
-        final messageDao = getAndRegisterMessageDao(pendingMessage: pm);
+        final messageDao = getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
         verify(messageDao.savePendingMessage(pm.copyWith(
             msg: pm.msg.copyWith(
@@ -922,7 +928,7 @@ void main() {
         getAndRegisterFileRepo(
             fileInfo: file_pb.File(
                 uuid: testUid.asString(), caption: "test", name: "test"));
-        getAndRegisterMessageDao(pendingMessage: pm);
+        getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
         verify(roomDao.updateRoom(Room(
             uid: pm.roomUid,
@@ -940,7 +946,7 @@ void main() {
         getAndRegisterFileRepo(
             fileInfo: file_pb.File(
                 uuid: testUid.asString(), caption: "test", name: "test"));
-        getAndRegisterMessageDao(pendingMessage: pm);
+        getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
         message_pb.MessageByClient byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
@@ -987,7 +993,7 @@ void main() {
         final fileRepo = getAndRegisterFileRepo();
         final coreServices = getAndRegisterCoreServices();
         final roomDao = getAndRegisterRoomDao();
-        final messageDao = getAndRegisterMessageDao(pendingMessage: pm);
+        final messageDao = getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
         message_pb.MessageByClient byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
@@ -1017,7 +1023,7 @@ void main() {
           () async {
         final coreServices = getAndRegisterCoreServices();
         getAndRegisterMessageDao(
-            pendingMessage: pm.copyWith(status: SendingStatus.PENDING));
+            allPendingMessage: pm.copyWith(status: SendingStatus.PENDING));
         await MessageRepo().sendPendingMessages();
         message_pb.MessageByClient byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
@@ -1480,6 +1486,23 @@ void main() {
                 SharePrivateDataAcceptance.fromJson(pm.msg.json);
           verify(coreServices.sendMessage(byClient));
         });
+      });
+    });
+    group('getMessage -', () {
+      test('When called should getMessage', () async {
+        final messageDao = getAndRegisterMessageDao(message: testMessage);
+        MessageRepo().getMessage(testUid.asString(), 0);
+        verify(messageDao.getMessage(testUid.asString(), 0));
+        expect(await messageDao.getMessage(testUid.asString(), 0), testMessage);
+      });
+    });
+    group('getPendingMessage -', () {
+      test('When called should getPendingMessage', () async {
+        final messageDao =
+            getAndRegisterMessageDao(pendingMessage: testPendingMessage);
+        MessageRepo().getPendingMessage("");
+        verify(messageDao.getPendingMessage(""));
+        expect(await messageDao.getPendingMessage(""), testPendingMessage);
       });
     });
   });
