@@ -1387,5 +1387,52 @@ void main() {
         });
       });
     });
+    group('sendShareUidMessage -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              time: 946672200000,
+              packetId: "946672200000000",
+              type: MessageType.SHARE_UID,
+              json:
+                  "{\"1\":{\"1\":0,\"2\":\"3049987b-e15d-4288-97cd-42dbc6d73abd\",\"3\":\"*\"}}"),
+          failed: false,
+          status: SendingStatus.PENDING);
+      test('When called should savePendingMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final messageDao = getAndRegisterMessageDao();
+          MessageRepo()
+              .sendShareUidMessage(testUid, message_pb.ShareUid(uid: testUid));
+          verify(messageDao.savePendingMessage(pm));
+        });
+      });
+      test('When called should updateRoomLastMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao();
+          MessageRepo()
+              .sendShareUidMessage(testUid, message_pb.ShareUid(uid: testUid));
+          verify(roomDao.updateRoom(Room(
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time)));
+        });
+      });
+      test('When called should sendMessageToServer', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final coreServices = getAndRegisterCoreServices();
+          MessageRepo()
+              .sendShareUidMessage(testUid, message_pb.ShareUid(uid: testUid));
+          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            ..packetId = pm.msg.packetId
+            ..to = pm.msg.to.asUid()
+            ..replyToId = Int64(pm.msg.replyToId)
+            ..shareUid = message_pb.ShareUid.fromJson(pm.msg.json);
+          verify(coreServices.sendMessage(byClient));
+        });
+      });
+    });
   });
 }
