@@ -11,6 +11,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
@@ -1323,6 +1324,20 @@ void main() {
               json: EMPTY_MESSAGE,
               packetId: ""),
         )));
+      });
+    });
+    group('sendActivity -', () {
+      test('When called if category is group or user should sendActivity',
+          () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final coreServices = getAndRegisterCoreServices();
+          MessageRepo().sendActivity(testUid, ActivityType.TYPING);
+          ActivityByClient activityByClient = ActivityByClient()
+            ..typeOfActivity = ActivityType.TYPING
+            ..to = testUid;
+          verify(
+              coreServices.sendActivity(activityByClient, "946672200000000"));
+        });
       });
     });
   });
