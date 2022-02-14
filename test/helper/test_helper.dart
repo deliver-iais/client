@@ -19,6 +19,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
@@ -165,6 +166,9 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   _removeRegistrationIfExists<LiveLocationRepo>();
   final service = MockLiveLocationRepo();
   GetIt.I.registerSingleton<LiveLocationRepo>(service);
+  when(service.createLiveLocation(testUid, 0)).thenAnswer((realInvocation) =>
+      MockResponseFuture<CreateLiveLocationRes>(
+          CreateLiveLocationRes(uuid: testUid.asString())));
   return service;
 }
 
@@ -192,9 +196,9 @@ MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
           .thenAnswer((realInvocation) => Future.value(true));
   pinMessageGetError
       ? when(service.unpinMessage(testMessage))
-      .thenThrow((realInvocation) => Future.value())
+          .thenThrow((realInvocation) => Future.value())
       : when(service.unpinMessage(testMessage))
-      .thenAnswer((realInvocation) => Future.value(true));
+          .thenAnswer((realInvocation) => Future.value(true));
   return service;
 }
 

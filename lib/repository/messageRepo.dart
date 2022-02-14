@@ -968,7 +968,7 @@ class MessageRepo {
     }
   }
 
-  void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
+  sendLiveLocationMessage(Uid roomUid, int duration, Position position,
       {int replyId = 0, String? forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     location_pb.Location location = location_pb.Location(

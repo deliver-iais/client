@@ -33,6 +33,15 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 
+Position testPosition = Position(
+    altitude: 0,
+    accuracy: 0,
+    heading: 0,
+    latitude: 0,
+    longitude: 0,
+    speed: 0,
+    speedAccuracy: 0,
+    timestamp: DateTime(2000));
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
     to: testUid.asString(),
@@ -728,15 +737,6 @@ void main() {
       });
     });
     group('sendLocationMessage -', () {
-      Position testPosition = Position(
-          altitude: 0,
-          accuracy: 0,
-          heading: 0,
-          latitude: 0,
-          longitude: 0,
-          speed: 0,
-          speedAccuracy: 0,
-          timestamp: DateTime(2000));
       PendingMessage pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
             type: MessageType.LOCATION, json: "{\"1\":0.0,\"2\":0.0}"),
@@ -1547,18 +1547,65 @@ void main() {
     group('unpinMessage -', () {
       test('When called should unpinMessage', () async {
         final mucServices =
-        getAndRegisterMucServices(pinMessageGetError: false);
+            getAndRegisterMucServices(pinMessageGetError: false);
         await MessageRepo().unpinMessage(testMessage);
         verify(mucServices.unpinMessage(testMessage));
         expect(await MessageRepo().unpinMessage(testMessage), true);
       });
-      test('When called should unpinMessage and if get error should return false',
-              () async {
-            final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
-            await MessageRepo().unpinMessage(testMessage);
-            verify(mucServices.unpinMessage(testMessage));
-            expect(await MessageRepo().unpinMessage(testMessage), false);
-          });
+      test(
+          'When called should unpinMessage and if get error should return false',
+          () async {
+        final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
+        await MessageRepo().unpinMessage(testMessage);
+        verify(mucServices.unpinMessage(testMessage));
+        expect(await MessageRepo().unpinMessage(testMessage), false);
+      });
+    });
+    group('sendLiveLocationMessage -', () {
+      location_pb.Location location = location_pb.Location(
+          longitude: testPosition.longitude, latitude: testPosition.latitude);
+      String json = (location_pb.LiveLocation()
+            ..location = location
+            ..from = testUid
+            ..uuid = testUid.asString()
+            ..to = testUid
+            ..time = Int64(0))
+          .writeToJson();
+      PendingMessage pm = testPendingMessage.copyWith(
+          msg: testPendingMessage.msg.copyWith(
+              replyToId: 0, type: MessageType.LIVE_LOCATION, json: json));
+      test('When called should createLiveLocation', () async {
+        final liveLocationRepo = getAndRegisterLiveLocationRepo();
+        await MessageRepo().sendLiveLocationMessage(testUid, 0, testPosition);
+        verify(liveLocationRepo.createLiveLocation(testUid, 0));
+      });
+      test('When called should createLiveLocation and save and send it',
+          () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao();
+          final coreServices = getAndRegisterCoreServices();
+          final messageDao = getAndRegisterMessageDao();
+          await MessageRepo().sendLiveLocationMessage(testUid, 0, testPosition);
+          verify(messageDao.savePendingMessage(pm));
+          verify(roomDao.updateRoom(Room(
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time)));
+          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            ..packetId = pm.msg.packetId
+            ..to = pm.msg.to.asUid()
+            ..replyToId = Int64(pm.msg.replyToId);
+          verify(coreServices.sendMessage(byClient));
+        });
+      });
+      test('When called should sendLiveLocationAsStream', () async {
+        final liveLocationRepo = getAndRegisterLiveLocationRepo();
+        await MessageRepo().sendLiveLocationMessage(testUid, 0, testPosition);
+        verify(liveLocationRepo.sendLiveLocationAsStream(
+            testUid.asString(), 0, location));
+      });
     });
   });
 }
