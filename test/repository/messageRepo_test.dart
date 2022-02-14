@@ -1493,5 +1493,33 @@ void main() {
             [testPendingMessage]);
       });
     });
+    group('resendMessage -', () {
+      test('When called should getPendingMessage', () async {
+        final messageDao =
+            getAndRegisterMessageDao(pendingMessage: testPendingMessage);
+        MessageRepo().resendMessage(testMessage.copyWith(packetId: ""));
+        verify(messageDao.getPendingMessage(""));
+      });
+      test('When called should getPendingMessage and save and send it',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        final coreServices = getAndRegisterCoreServices();
+        final messageDao =
+            getAndRegisterMessageDao(pendingMessage: testPendingMessage);
+        await MessageRepo().resendMessage(testMessage.copyWith(packetId: ""));
+        verify(messageDao.savePendingMessage(testPendingMessage));
+        verify(roomDao.updateRoom(Room(
+            uid: testPendingMessage.roomUid,
+            lastMessage: testPendingMessage.msg,
+            lastMessageId: testPendingMessage.msg.id,
+            deleted: false,
+            lastUpdateTime: testPendingMessage.msg.time)));
+        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          ..packetId = testPendingMessage.msg.packetId
+          ..to = testPendingMessage.msg.to.asUid()
+          ..replyToId = Int64(testPendingMessage.msg.replyToId);
+        verify(coreServices.sendMessage(byClient));
+      });
+    });
   });
 }

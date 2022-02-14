@@ -744,7 +744,7 @@ class MessageRepo {
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = pageSize);
       var res = await _saveFetchMessages(fetchMessagesRes.messages);
-      if (res.isNotEmpty  && res.last.id == lastMessageId) {
+      if (res.isNotEmpty && res.last.id == lastMessageId) {
         _roomDao.updateRoom(Room(
             lastMessage: res.last, uid: roomId, lastMessageId: lastMessageId));
       }
@@ -941,7 +941,7 @@ class MessageRepo {
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
       _messageDao.getPendingMessages(roomUid);
 
-  void resendMessage(Message msg) async {
+  resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);
     _saveAndSend(pm!);
   }
