@@ -1668,6 +1668,17 @@ void main() {
         verify(roomDao.updateRoom(
             Room(uid: testUid.asString(), lastUpdatedMessageId: 0)));
       });
+      test('When called if get error should never verify', () async {
+        final messageDao = getAndRegisterMessageDao();
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterRoomRepo(getRoomGetError: true);
+        await MessageRepo()
+            .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
+        verifyNever(messageDao.saveMessage(
+            testMessage.copyWith(packetId: "", id: 0, json: EMPTY_MESSAGE)));
+        verifyNever(roomDao.updateRoom(
+            Room(uid: testUid.asString(), lastUpdatedMessageId: 0)));
+      });
     });
   });
 }

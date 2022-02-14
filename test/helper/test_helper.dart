@@ -135,12 +135,16 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   return service;
 }
 
-MockRoomRepo getAndRegisterRoomRepo({Room? room}) {
+MockRoomRepo getAndRegisterRoomRepo(
+    {Room? room, bool getRoomGetError = false}) {
   _removeRegistrationIfExists<RoomRepo>();
   final service = MockRoomRepo();
   GetIt.I.registerSingleton<RoomRepo>(service);
-  when(service.getRoom(testUid.asString())).thenAnswer(
-      (realInvocation) => Future.value(room ?? Room(uid: testUid.asString())));
+  getRoomGetError
+      ? when(service.getRoom(testUid.asString()))
+          .thenThrow((realInvocation) => Future.value())
+      : when(service.getRoom(testUid.asString())).thenAnswer((realInvocation) =>
+          Future.value(room ?? Room(uid: testUid.asString())));
   return service;
 }
 
