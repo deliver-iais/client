@@ -31,6 +31,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
@@ -1430,6 +1431,53 @@ void main() {
             ..to = pm.msg.to.asUid()
             ..replyToId = Int64(pm.msg.replyToId)
             ..shareUid = message_pb.ShareUid.fromJson(pm.msg.json);
+          verify(coreServices.sendMessage(byClient));
+        });
+      });
+    });
+    group('sendPrivateMessageAccept -', () {
+      PendingMessage pm = PendingMessage(
+          roomUid: testUid.asString(),
+          packetId: "946672200000000",
+          msg: testMessage.copyWith(
+              time: 946672200000,
+              packetId: "946672200000000",
+              type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE,
+              json: "{\"1\":2,\"2\":\"test\"}"),
+          failed: false,
+          status: SendingStatus.PENDING);
+      test('When called should savePendingMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final messageDao = getAndRegisterMessageDao();
+          MessageRepo()
+              .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
+          verify(messageDao.savePendingMessage(pm));
+        });
+      });
+      test('When called should updateRoomLastMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao();
+          MessageRepo()
+              .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
+          verify(roomDao.updateRoom(Room(
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time)));
+        });
+      });
+      test('When called should sendMessageToServer', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final coreServices = getAndRegisterCoreServices();
+          MessageRepo()
+              .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
+          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            ..packetId = pm.msg.packetId
+            ..to = pm.msg.to.asUid()
+            ..replyToId = Int64(pm.msg.replyToId)
+            ..sharePrivateDataAcceptance =
+                SharePrivateDataAcceptance.fromJson(pm.msg.json);
           verify(coreServices.sendMessage(byClient));
         });
       });
