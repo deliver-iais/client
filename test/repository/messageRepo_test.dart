@@ -1466,5 +1466,32 @@ void main() {
         expect(await messageDao.getPendingMessage(""), testPendingMessage);
       });
     });
+    group('watchPendingMessage -', () {
+      test('When called should watchPendingMessage', () async {
+        final messageDao = getAndRegisterMessageDao();
+        MessageRepo().watchPendingMessage("");
+        verify(messageDao.watchPendingMessage(""));
+        expect(
+            await messageDao.watchPendingMessage("").first, testPendingMessage);
+      });
+    });
+    group('watchPendingMessages -', () {
+      test('When called should watchPendingMessages', () async {
+        final messageDao = getAndRegisterMessageDao();
+        MessageRepo().watchPendingMessages(testUid.asString());
+        verify(messageDao.watchPendingMessages(testUid.asString()));
+        expect(await messageDao.watchPendingMessages(testUid.asString()).first,
+            [testPendingMessage]);
+      });
+    });
+    group('watchPendingMessages -', () {
+      test('When called should getPendingMessages', () async {
+        final messageDao = getAndRegisterMessageDao();
+        MessageRepo().getPendingMessages(testUid.asString());
+        verify(messageDao.getPendingMessages(testUid.asString()));
+        expect(await messageDao.getPendingMessages(testUid.asString()),
+            [testPendingMessage]);
+      });
+    });
   });
 }

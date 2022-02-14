@@ -107,6 +107,12 @@ MockMessageDao getAndRegisterMessageDao(
           : Future.value([]));
   when(service.getPendingMessage("")).thenAnswer((realInvocation) =>
       pendingMessage != null ? Future.value(pendingMessage) : Future.value());
+  when(service.watchPendingMessage(""))
+      .thenAnswer((realInvocation) => Stream.value(testPendingMessage));
+  when(service.watchPendingMessages(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value([testPendingMessage]));
+  when(service.getPendingMessages(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value([testPendingMessage]));
   return service;
 }
 
