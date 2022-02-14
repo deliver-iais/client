@@ -1252,5 +1252,78 @@ void main() {
             lastMessageId: 0)));
       });
     });
+    group('getEditedMsg -', () {
+      test('When called should fetchMessages from queryServiceClient',
+          () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesHasOptions: false,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        await MessageRepo().getEditedMsg(testUid, 0);
+        verify(queryServiceClient.fetchMessages(FetchMessagesReq()
+          ..roomUid = testUid
+          ..pointer = Int64(0)
+          ..type = FetchMessagesReq_Type.FORWARD_FETCH
+          ..limit = 1));
+      });
+      test('When called should getRoom', () async {
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesHasOptions: false,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        final roomDao =
+            getAndRegisterRoomDao(rooms: [Room(uid: testUid.asString())]);
+        await MessageRepo().getEditedMsg(testUid, 0);
+        verify(roomDao.getRoom(testUid.asString()));
+      });
+      test('When called should updateRoom', () async {
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesHasOptions: false,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        final roomDao =
+            getAndRegisterRoomDao(rooms: [Room(uid: testUid.asString())]);
+        await MessageRepo().getEditedMsg(testUid, 0);
+        verify(roomDao.updateRoom(
+            Room(uid: testUid.asString()).copyWith(lastUpdatedMessageId: 0)));
+      });
+      test('When called if lastMessageId==id should updateRoom', () async {
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesHasOptions: false,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        final roomDao = getAndRegisterRoomDao(
+            rooms: [Room(uid: testUid.asString(), lastMessageId: 0)]);
+        await MessageRepo().getEditedMsg(testUid, 0);
+        verify(roomDao.updateRoom(
+            Room(uid: testUid.asString(), lastMessageId: 0).copyWith(
+          lastMessage: testMessage.copyWith(
+              id: 0,
+              replyToId: 0,
+              forwardedFrom: testUid.asString(),
+              json: EMPTY_MESSAGE,
+              packetId: ""),
+        )));
+      });
+      test('When called if lastMessageId==id should never updateRoom with msg',
+          () async {
+        getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesHasOptions: false,
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
+        final roomDao = getAndRegisterRoomDao(
+            rooms: [Room(uid: testUid.asString(), lastMessageId: 5)]);
+        await MessageRepo().getEditedMsg(testUid, 0);
+        verifyNever(roomDao.updateRoom(
+            Room(uid: testUid.asString(), lastMessageId: 5).copyWith(
+          lastMessage: testMessage.copyWith(
+              id: 0,
+              replyToId: 0,
+              forwardedFrom: testUid.asString(),
+              json: EMPTY_MESSAGE,
+              packetId: ""),
+        )));
+      });
+    });
   });
 }

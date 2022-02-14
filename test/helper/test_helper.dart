@@ -118,6 +118,8 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   ];
   when(service.getAllRooms())
       .thenAnswer((realInvocation) => Future.value(rooms));
+  when(service.getRoom(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value(rooms?.first));
   return service;
 }
 
