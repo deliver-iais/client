@@ -786,16 +786,16 @@ void main() {
       });
     });
     group('sendMultipleFilesMessages -', () {
+      Message message = testMessage.copyWith(
+          type: MessageType.FILE,
+          time: 946672200000,
+          replyToId: 0,
+          packetId: "946672200000000",
+          json: "");
       PendingMessage pm = PendingMessage(
           roomUid: testUid.asString(),
           packetId: "946672200000000",
-          msg: testMessage.copyWith(
-              type: MessageType.FILE,
-              time: 946672200000,
-              replyToId: 0,
-              packetId: "946672200000000",
-              json:
-                  "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}"),
+          msg: message,
           status: SendingStatus.SENDING_FILE,
           failed: false);
 
@@ -826,15 +826,26 @@ void main() {
           },
         );
       });
-      test('When called should savePending Multiple Message', () async {
+      test('When called should savePending Multiple Message ghfg hfgh',
+          () async {
         withClock(
           Clock.fixed(DateTime(2000)),
           () async {
+            file_pb.File sendingFakeFile = file_pb.File()
+              ..uuid = pm.packetId
+              ..caption = "test"
+              ..width = 0
+              ..height = 0
+              ..type = "application/octet-stream"
+              ..size = Int64(0)
+              ..name = "test"
+              ..duration = 0;
             final messageDao = getAndRegisterMessageDao();
             await MessageRepo().sendMultipleFilesMessages(
                 testUid, [model.File("test", "test")],
                 caption: "test");
-            verify(messageDao.savePendingMessage(pm));
+            verify(messageDao.savePendingMessage(pm.copyWith(
+                msg: message.copyWith(json: sendingFakeFile.writeToJson()))));
           },
         );
       });
