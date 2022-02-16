@@ -331,7 +331,9 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
             ..messageId = Int64(updateMessageId)))
           .thenAnswer((realInvocation) =>
               MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()));
-
+  when(service.getBlockedList(GetBlockedListReq())).thenAnswer(
+      (realInvocation) => MockResponseFuture<GetBlockedListRes>(
+          GetBlockedListRes(uidList: [testUid])));
   return service;
 }
 

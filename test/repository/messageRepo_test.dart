@@ -1786,5 +1786,17 @@ void main() {
         });
       });
     });
+    group('fetchBlockedRoom -', () {
+      test('When called should getBlockedList', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().fetchBlockedRoom();
+        verify(queryServiceClient.getBlockedList(GetBlockedListReq()));
+      });
+      test('When called should getBlockedList and block theme', () async {
+        final blockDao = getAndRegisterBlockDao();
+        await MessageRepo().fetchBlockedRoom();
+        verify(blockDao.block(testUid.asString()));
+      });
+    });
   });
 }
