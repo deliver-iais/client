@@ -1,6 +1,7 @@
 // ignore_for_file: file_names, constant_identifier_names
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'dart:io' as dart_file;
 import 'dart:math';
@@ -11,6 +12,7 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
@@ -97,6 +99,7 @@ class MessageRepo {
           await updatingMessages();
           updatingLastSeen();
           fetchBlockedRoom();
+
           updatingStatus.add(TitleStatusConditions.Normal);
 
           sendPendingMessages();
@@ -161,15 +164,15 @@ class MessageRepo {
               } // no more updating needed after this room
               break;
             }
-            if (room != null && room.deleted) {
-              _roomDao.updateRoom(Room(
-                  uid: room.uid,
-                  deleted: false,
-                  lastMessageId: roomMetadata.lastMessageId.toInt(),
-                  firstMessageId: roomMetadata.firstMessageId.toInt(),
-                  lastUpdateTime: roomMetadata.lastUpdate.toInt()));
-            }
-            await fetchLastMessages(
+
+            _roomDao.updateRoom(Room(
+                uid: roomMetadata.roomUid.asString(),
+                deleted: false,
+                lastMessageId: roomMetadata.lastMessageId.toInt(),
+                firstMessageId: roomMetadata.firstMessageId.toInt(),
+                lastUpdateTime: roomMetadata.lastUpdate.toInt()));
+
+            fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
@@ -278,14 +281,17 @@ class MessageRepo {
           break;
         }
       }
-      await _roomDao.updateRoom(Room(
-        uid: roomUid.asString(),
-        firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
-        lastUpdateTime: lastMessage!.time,
-        lastMessageId: lastMessageId,
-        lastMessage: lastMessage,
-      ));
-      return lastMessage;
+      if (lastMessage != null) {
+        _roomDao.updateRoom(Room(
+          uid: roomUid.asString(),
+          firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
+          lastUpdateTime: lastMessage.time,
+          lastMessageId: lastMessageId,
+          lastMessage: lastMessage,
+        ));
+        return lastMessage;
+      }
+      return null;
     } catch (e) {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
@@ -405,6 +411,7 @@ class MessageRepo {
     final List<String> textsBlocks = text.split("\n").toList();
     final List<String> result = [];
     for (text in textsBlocks) {
+      if (textsBlocks.last != text) text = text + "\n";
       if (text.length > TEXT_MESSAGE_MAX_LENGTH) {
         int i = 0;
         while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
@@ -695,6 +702,32 @@ class MessageRepo {
     }
   }
 
+  sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
+    for (Media media in forwardedMedias) {
+      var json = jsonDecode(media.json);
+      file_pb.File file = file_pb.File()
+        ..type = json["type"]
+        ..name = json["name"]
+        ..width = json["width"]??0
+        ..size = Int64(json["size"])
+        ..height = json["height"]??0
+        ..uuid = json["uuid"]
+        ..duration = json["duration"]??0.0
+        ..caption = json["caption"]??""
+        ..tempLink = json["tempLink"]??""
+        ..hash = json["hash"]??""
+        ..sign = json["sign"]??""
+        ..blurHash = json["blurHash"]??"";
+
+      Message msg =
+          _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
+              .copyWith(type: MessageType.FILE, json: file.writeToJson());
+
+      var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+      _saveAndSend(pm);
+    }
+  }
+
   Message _createMessage(Uid room, {int replyId = 0, String? forwardedFrom}) {
     return Message(
         roomUid: room.asString(),
@@ -824,9 +857,12 @@ class MessageRepo {
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
                           .toInt());
-                  _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
-                  _roomDao.updateRoom(Room(
-                      uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
+                  if (mes != null) {
+                    _messageDao.saveMessage(mes.copyWith(json: EMPTY_MESSAGE));
+                    _roomDao.updateRoom(Room(
+                        uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
+                  }
+
                   break;
               }
               break;

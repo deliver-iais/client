@@ -64,7 +64,7 @@ class _VideoUiState extends State<VideoUi> {
                 return Hero(
                   tag: widget.videoMessage.uuid,
                   child: VideoPlayerWidget(
-                    videoFilePath: widget.videoFilePath,
+                    videoFilePath: widget.videoFilePath,showAppBar: true,
                   ),
                 );
               }));
@@ -107,7 +107,7 @@ class _VideoUiState extends State<VideoUi> {
                     return Hero(
                       tag: widget.videoMessage.uuid,
                       child: VideoPlayerWidget(
-                        videoFilePath: widget.videoFilePath,
+                        videoFilePath: widget.videoFilePath,showAppBar: true,
                       ),
                     );
                   }));

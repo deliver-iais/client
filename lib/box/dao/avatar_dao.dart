@@ -23,9 +23,14 @@ class AvatarDaoImpl implements AvatarDao {
   Stream<List<Avatar>> watchAvatars(String uid) async* {
     var box = await _open(uid);
 
-    yield box.values.toList();
+    yield sorted(box.values.toList());
 
-    yield* box.watch().map((event) => box.values.toList());
+    yield* box.watch().map((event) => sorted(box.values.toList()));
+  }
+
+  List<Avatar> sorted(List<Avatar> list) {
+    list.sort((a, b) => (b.createdOn) - (a.createdOn));
+    return list;
   }
 
   @override

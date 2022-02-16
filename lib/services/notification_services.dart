@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -7,6 +8,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktoasts/desktoasts.dart'
     if (dart.library.html) 'package:deliver/web_classes/web_desktoasts.dart'
     as windows_notify;
+import 'package:flutter/material.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -289,59 +291,86 @@ class AndroidNotifier implements Notifier {
 
   @override
   notify(MessageBrief message) async {
-    if (message.ignoreNotification!) return;
+    try {
+      if (message.ignoreNotification!) return;
 
-    AndroidBitmap<Object>? largeIcon;
-    String selectedNotificationSound = "that_was_quick";
-    var selectedSound =
-        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
-    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
-    if (la != null && la.fileId != null && la.fileName != null) {
-      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
-          thumbnailSize: ThumbnailSize.medium);
+      AndroidBitmap<Object>? largeIcon;
+      String selectedNotificationSound = "that_was_quick";
+      var selectedSound = await _roomRepo
+          .getRoomCustomNotification(message.roomUid!.asString());
+      var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
+      if (la != null && la.fileId != null && la.fileName != null) {
+        var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+            thumbnailSize: ThumbnailSize.medium);
 
-      if (path != null && path.isNotEmpty) {
-        largeIcon = FilePathAndroidBitmap(path);
+        if (path != null && path.isNotEmpty) {
+          largeIcon = FilePathAndroidBitmap(path);
+        }
       }
-    }
-    if (selectedSound != null) {
-      if (selectedSound != "-") {
-        selectedNotificationSound = selectedSound;
+      if (selectedSound != null) {
+        if (selectedSound != "-") {
+          selectedNotificationSound = selectedSound;
+        }
       }
+
+      InboxStyleInformation inboxStyleInformation =
+          const InboxStyleInformation([], contentTitle: 'new messages');
+
+      AndroidNotificationDetails androidNotificationDetails =
+          AndroidNotificationDetails(
+              selectedNotificationSound + message.roomUid!.asString(),
+              channel.name,
+              channelDescription: channel.description,
+              styleInformation: inboxStyleInformation,
+              groupKey: channel.groupId,
+              playSound: true,
+              sound: RawResourceAndroidNotificationSound(
+                  selectedNotificationSound),
+              setAsGroupSummary: true);
+      await _flutterLocalNotificationsPlugin.show(
+          0, 'Attention', 'new messages',
+          notificationDetails: androidNotificationDetails);
+      var platformChannelSpecifics = AndroidNotificationDetails(
+        selectedNotificationSound + message.roomUid!.asString(),
+        channel.name,
+        channelDescription: channel.description,
+        groupKey: channel.groupId,
+        largeIcon: largeIcon,
+        styleInformation: const BigTextStyleInformation(''),
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+      );
+      _flutterLocalNotificationsPlugin.show(
+          message.roomUid!.asString().hashCode +
+              message.text.toString().hashCode,
+          message.roomName,
+          createNotificationTextFromMessageBrief(message),
+          notificationDetails: platformChannelSpecifics,
+          payload: message.roomUid!.asString());
+    } catch (e) {
+      showDefaultNotification(message.text!);
     }
+  }
 
-    InboxStyleInformation inboxStyleInformation =
-        const InboxStyleInformation([], contentTitle: 'new messages');
-
-    AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
-            selectedNotificationSound + message.roomUid!.asString(),
-            channel.name,
-            channelDescription: channel.description,
-            styleInformation: inboxStyleInformation,
-            groupKey: channel.groupId,
-            playSound: true,
-            sound:
-                RawResourceAndroidNotificationSound(selectedNotificationSound),
-            setAsGroupSummary: true);
-    await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
-        notificationDetails: androidNotificationDetails);
-    var platformChannelSpecifics = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid!.asString(),
-      channel.name,
-      channelDescription: channel.description,
-      groupKey: channel.groupId,
-      largeIcon: largeIcon,
-      styleInformation: const BigTextStyleInformation(''),
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-    );
-    _flutterLocalNotificationsPlugin.show(
-        message.roomUid!.asString().hashCode + message.text.toString().hashCode,
-        message.roomName,
-        createNotificationTextFromMessageBrief(message),
-        notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid!.asString());
+  showDefaultNotification(String e) {
+    AwesomeNotifications().initialize(
+        '@mipmap/ic_launcher',
+        [
+          NotificationChannel(
+              channelKey: 'basic_channel',
+              channelName: 'Basic notifications',
+              channelDescription: 'Notification channel for basic tests',
+              defaultColor: Colors.lightBlue,
+              ledColor: Colors.white)
+        ],
+        // Channel groups are only visual and are not required
+        debug: true);
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+            id: 10,
+            channelKey: 'basic_channel',
+            title: "Deliver",
+            body: e.toString()));
   }
 
   @override

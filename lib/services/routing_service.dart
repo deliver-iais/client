@@ -1,4 +1,5 @@
 import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -9,8 +10,10 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
-import 'package:deliver/screen/profile/pages/media_details_page.dart';
+import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
+import 'package:deliver/screen/profile/widgets/all_image_page.dart';
+import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
@@ -90,10 +93,12 @@ class RoutingService {
 
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
+      List<Media> forwardedMedia = const [],
       bool popAllBeforePush = false,
       List<String>? inputFilePaths,
       pro.ShareUid? shareUid,
-      bool forceToOpenRoom=false}) {
+      bool forceToOpenRoom = false}) {
+    //todo forwardMedia
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
           RoomPage(
@@ -101,6 +106,7 @@ class RoutingService {
             roomId: roomId,
             inputFilePaths: inputFilePaths,
             forwardedMessages: forwardedMessages,
+            forwardedMedia: forwardedMedia,
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);
@@ -114,7 +120,7 @@ class RoutingService {
           {required Uid uid,
           required bool hasPermissionToDeleteAvatar,
           required String heroTag}) =>
-      _push(MediaDetailsPage.showAvatar(
+      _push(AllAvatarPage(
           key: const ValueKey("/media-details"),
           userUid: uid,
           hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
@@ -122,28 +128,25 @@ class RoutingService {
 
   void openShowAllVideos(
           {required Uid uid,
-          required int mediaPosition,
-          required int mediasLength}) =>
-      _push(MediaDetailsPage.showVideo(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
+          required int initIndex,
+          required int videosLength}) =>
+      _push(AllVideoPage(
+        const ValueKey("/media-details"),
+        roomUid: uid.asString(),
+        initIndex: initIndex,
+        videoCount: videosLength,
       ));
 
-  void openShowAllMedia(
-          {required Uid uid,
-          required bool hasPermissionToDeletePic,
-          required int mediaPosition,
-          required int mediasLength,
-          required String heroTag}) =>
-      _push(MediaDetailsPage.showMedia(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        hasPermissionToDeletePic: hasPermissionToDeletePic,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
-        heroTag: heroTag,
+  void openShowAllImage({
+    required String uid,
+    required int initIndex,
+    required int messageId,
+  }) =>
+      _push(AllImagePage(
+        const ValueKey("/media-details"),
+        messageId: messageId,
+        initIndex: initIndex,
+        roomUid: uid,
       ));
 
   void openCustomNotificationSoundSelection(String roomId) =>
@@ -166,10 +169,13 @@ class RoutingService {
       ));
 
   void openSelectForwardMessage(
-          {List<Message>? forwardedMessages, pro.ShareUid? sharedUid}) =>
+          {List<Message>? forwardedMessages,
+          List<Media>? medias,
+          pro.ShareUid? sharedUid}) =>
       _push(SelectionToForwardPage(
         key: const ValueKey("/selection-to-forward-page"),
         forwardedMessages: forwardedMessages,
+        medias: medias,
         shareUid: sharedUid,
       ));
 
@@ -226,8 +232,7 @@ class RoutingService {
         if (isLarge(context))
           const SizedBox(
               width: NAVIGATION_PANEL_SIZE, child: _navigationCenter),
-        if (isLarge(context))
-          const VerticalDivider(),
+        if (isLarge(context)) const VerticalDivider(),
         Expanded(
             child: ClipRect(
           child: Navigator(
@@ -311,9 +316,7 @@ class Empty extends StatelessWidget {
                     const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
                 child: Text(
                     _i18n.get("please_select_a_chat_to_start_messaging"),
-                    style:theme
-                        .textTheme
-                        .bodyText2!
+                    style: theme.textTheme.bodyText2!
                         .copyWith(color: Colors.white))),
           ),
         ],

@@ -5,8 +5,9 @@ import 'package:deliver/box/media_type.dart';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -16,12 +17,16 @@ class DocumentAndFileUi extends StatefulWidget {
   final Uid roomUid;
   final int documentCount;
   final MediaType type;
+  final Function addSelectedMedia;
+  final List<Media> selectedMedia;
 
   const DocumentAndFileUi(
       {Key? key,
       required this.roomUid,
       required this.documentCount,
-      required this.type})
+      required this.type,
+      required this.addSelectedMedia,
+      required this.selectedMedia})
       : super(key: key);
 
   @override
@@ -29,114 +34,88 @@ class DocumentAndFileUi extends StatefulWidget {
 }
 
 class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
-  var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var messageRepo = GetIt.I.get<MessageRepo>();
-  var fileRepo = GetIt.I.get<FileRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _mediaCache = <int, Media>{};
 
-  download(String uuid, String name) async {
-    await GetIt.I.get<FileRepo>().getFile(uuid, name);
-    setState(() {});
+  Future<Media?> _getMedia(int index) async {
+    if (_mediaCache.values.toList().isNotEmpty &&
+        _mediaCache.values.toList().length >= index) {
+      return _mediaCache.values.toList().elementAt(index);
+    } else {
+      int page = (index / MEDIA_PAGE_SIZE).floor();
+      var res = await _mediaQueryRepo.getMediaPage(
+          widget.roomUid.asString(), widget.type, page, index);
+      if (res != null) {
+        for (Media media in res) {
+          _mediaCache[media.messageId] = media;
+        }
+      }
+      return _mediaCache.values.toList()[index];
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return FutureBuilder<List<Media>>(
-        future: mediaQueryRepo.getMedia(
-            widget.roomUid, widget.type, widget.documentCount),
-        builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
-          if (!media.hasData ||
-              media.data == null ||
-              media.connectionState == ConnectionState.waiting) {
-            return const SizedBox.shrink();
-          } else {
-            return SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-                    child: ListView.builder(
-                        itemCount: widget.documentCount,
-                        itemBuilder: (BuildContext ctx, int index) {
-                          var fileId =
-                              jsonDecode(media.data![index].json)["uuid"];
-                          var fileName =
-                              jsonDecode(media.data![index].json)["name"];
-                          return FutureBuilder<String?>(
-                              future: fileRepo.getFileIfExist(fileId, fileName),
-                              builder: (context, file) {
-                                if (file.hasData && file.data != null) {
-                                  return Column(
-                                    children: [
-                                      ListTile(
-                                        title: GestureDetector(
-                                          onTap: () {
-                                            OpenFile.open(file.data!);
-                                          },
-                                          child: Row(children: <Widget>[
-                                            Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 2),
-                                                child: Container(
-                                                  width: 50,
-                                                  height: 50,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: theme
-                                                        .colorScheme.onPrimary,
+    return ListView.builder(
+        itemCount: widget.documentCount,
+        itemBuilder: (c, index) {
+          return FutureBuilder<Media?>(
+              future: _getMedia(index),
+              builder: (c, mediaSnapshot) {
+                if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
+                  return GestureDetector(
+                      onLongPress: () =>
+                          widget.addSelectedMedia(mediaSnapshot.data!),
+                      onTap: () => widget.addSelectedMedia(mediaSnapshot.data),
+                      child: Container(
+                        color:
+                            widget.selectedMedia.contains(mediaSnapshot.data!)
+                                ? theme.hoverColor.withOpacity(0.4)
+                                : theme.backgroundColor,
+                        child: FutureBuilder<String?>(
+                            future: _fileRepo.getFileIfExist(
+                                jsonDecode(mediaSnapshot.data!.json)["uuid"],
+                                jsonDecode(mediaSnapshot.data!.json)["name"]),
+                            builder: (context, filePath) {
+                              if (filePath.hasData && filePath.data != null) {
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      title: GestureDetector(
+                                        onTap: () {
+                                          OpenFile.open(filePath.data!);
+                                        },
+                                        child: Row(children: <Widget>[
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 2),
+                                              child: Container(
+                                                width: 50,
+                                                height: 50,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: theme
+                                                      .colorScheme.onPrimary,
+                                                ),
+                                                child: IconButton(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          1, 0, 0, 0),
+                                                  alignment: Alignment.center,
+                                                  icon: Icon(
+                                                    Icons
+                                                        .insert_drive_file_sharp,
+                                                    color: theme.primaryColor,
+                                                    size: 35,
                                                   ),
-                                                  child: IconButton(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(1, 0, 0, 0),
-                                                    alignment: Alignment.center,
-                                                    icon: Icon(
-                                                      Icons
-                                                          .insert_drive_file_sharp,
-                                                      color: theme.primaryColor,
-                                                      size: 35,
-                                                    ),
-                                                    onPressed: () {},
-                                                  ),
-                                                )),
-                                            Expanded(
-                                              child: Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 15.0, top: 3),
-                                                    child: Text(fileName,
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ]),
-                                        ),
-                                      ),
-                                      const Divider(
-                                        color: Colors.grey,
-                                      ),
-                                    ],
-                                  );
-                                } else if (file.data == null) {
-                                  return Column(
-                                    children: [
-                                      ListTile(
-                                        title: Row(children: <Widget>[
-                                          LoadFileStatus(
-                                            fileId: fileId,
-                                            fileName: fileName,
-                                            onPressed: download,
-                                            background:
-                                                theme.colorScheme.primary,
-                                            foreground:
-                                                theme.colorScheme.onPrimary,
-                                          ),
+                                                  onPressed: () {
+                                                    OpenFile.open(
+                                                        filePath.data!);
+                                                  },
+                                                ),
+                                              )),
                                           Expanded(
                                             child: Stack(
                                               children: [
@@ -144,7 +123,9 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   padding:
                                                       const EdgeInsets.only(
                                                           left: 15.0, top: 3),
-                                                  child: Text(fileName,
+                                                  child: Text(
+                                                      jsonDecode(mediaSnapshot
+                                                          .data!.json)["name"],
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
@@ -155,17 +136,65 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           ),
                                         ]),
                                       ),
-                                      const Divider(
-                                        color: Colors.grey,
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              });
-                        })));
-          }
+                                    ),
+                                    const Divider(
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      title: Row(children: <Widget>[
+                                        LoadFileStatus(
+                                          fileId: jsonDecode(
+                                              mediaSnapshot.data!.json)["uuid"],
+                                          fileName: jsonDecode(
+                                              mediaSnapshot.data!.json)["name"],
+                                          onPressed: () async {
+                                            await _fileRepo.getFile(
+                                                jsonDecode(mediaSnapshot
+                                                    .data!.json)["uuid"],
+                                                jsonDecode(mediaSnapshot
+                                                    .data!.json)["name"]);
+                                            setState(() {});
+                                          },
+                                          background: theme.colorScheme.primary,
+                                          foreground:
+                                              theme.colorScheme.onPrimary,
+                                        ),
+                                        Expanded(
+                                          child: Stack(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15.0, top: 3),
+                                                child: Text(
+                                                    jsonDecode(mediaSnapshot
+                                                        .data!.json)["name"],
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ]),
+                                    ),
+                                    const Divider(
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                );
+                              }
+                            }),
+                      ));
+                } else {
+                  return const SizedBox.shrink();
+                }
+              });
         });
   }
 }

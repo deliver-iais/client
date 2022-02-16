@@ -173,15 +173,15 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       alignment: Alignment.bottomLeft,
                                       widthFactor: 200,
                                       child: Container(
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).hoverColor.withOpacity(0.5),
                                           borderRadius: mainBorder,
                                         ),
                                         child: Text(
                                           folder.folderName,
                                           style: const TextStyle(
                                               fontSize: 15,
-                                              color: Colors.black),
+                                              color: Colors.white),
                                         ),
                                       ))),
                             ),

@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;

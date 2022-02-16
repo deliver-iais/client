@@ -117,7 +117,7 @@
   "updating": "updating...",
   "disconnected": "Disconnected",
   "connected": "Connected",
-  "contact_not_exist": "Contact not Exist",
+  "contact_not_exist": "Contact not have Deliver account",
   "contact_information": "Contact Information",
   "contactAdd": "Contact Add in Contacts",
   "new_contact_add": "joined to we",
@@ -285,5 +285,6 @@
   "about_update": "ABOUT UPDATE",
   "got_it": "Got it",
   "please_select_a_chat_to_start_messaging": "Please select a chat to start messaging",
-  "select_an_image": "Select an image"
+  "select_an_image": "Select an image",
+  "forwarded_medias": "Forwarded medias"
 }

@@ -38,6 +38,12 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
   @override
+  void initState() {
+    _fileService.initProgressBar(widget.fileId);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
         width: 50,

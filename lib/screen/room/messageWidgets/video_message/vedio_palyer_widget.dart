@@ -7,8 +7,10 @@ import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoFilePath;
+  final bool showAppBar;
 
-  const VideoPlayerWidget({Key? key, required this.videoFilePath})
+  const VideoPlayerWidget(
+      {Key? key, required this.videoFilePath, required this.showAppBar})
       : super(key: key);
 
   @override
@@ -48,7 +50,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: widget.showAppBar ? AppBar() : null,
       body: Container(
           decoration: const BoxDecoration(
             color: Colors.black,

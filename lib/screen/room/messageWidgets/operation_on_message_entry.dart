@@ -9,6 +9,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/cupertino.dart';
@@ -274,27 +275,23 @@ void showDeleteMsgDialog(
       builder: (c) => AlertDialog(
             title: Text(
               "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-              style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
             content: Text(messages.length > 1
                 ? _i18n.get("sure_delete_messages")
                 : _i18n.get("sure_delete_message")),
             actions: [
-              GestureDetector(
-                  child: Text(
-                    _i18n.get("cancel"),
-                    style: const TextStyle(color: Colors.blue),
-                  ),
-                  onTap: () {
+              TextButton(
+                  child: Text(_i18n.get("cancel")),
+                  onPressed: () {
                     onDelete!();
                     Navigator.pop(c);
                   }),
-              GestureDetector(
-                child: Text(
-                  _i18n.get("delete"),
-                  style: const TextStyle(color: Colors.red),
-                ),
-                onTap: () {
+              TextButton(
+                style: TextButton.styleFrom(
+                    primary: ExtraTheme.of(context).colorScheme.error),
+                child: Text(_i18n.get("delete")),
+                onPressed: () {
                   _messageRepo.deleteMessage(messages);
 
                   onDelete!();

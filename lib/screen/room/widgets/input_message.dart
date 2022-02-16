@@ -95,7 +95,6 @@ class _InputMessageWidget extends State<InputMessage> {
   final BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
-  late TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
   bool isMentionSelected = false;
 
@@ -162,13 +161,7 @@ class _InputMessageWidget extends State<InputMessage> {
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
-      if (widget.textController.text.isNotEmpty &&
-          widget.textController.text.isNotEmpty) {
-        _showSendIcon.add(true);
-      } else {
-        _showSendIcon.add(false);
-      }
-
+      _showSendIcon.add(widget.textController.text.isNotEmpty);
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -308,12 +301,12 @@ class _InputMessageWidget extends State<InputMessage> {
                                         onPressed: () {
                                           if (_backSubject.value) {
                                             _backSubject.add(false);
-                                            FocusScope.of(context).unfocus();
+                                            widget.focusNode.requestFocus();
                                           } else if (!_backSubject.value) {
                                             FocusScope.of(context).unfocus();
                                             Timer(
                                                 const Duration(
-                                                    milliseconds: 50), () {
+                                                    milliseconds: 200), () {
                                               _backSubject.add(true);
                                             });
                                           }
@@ -354,8 +347,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                               _textDir.value = dir;
                                             }
                                           }
-                                          _textSelection =
-                                              widget.textController.selection;
                                           if (str.isNotEmpty) {
                                             isTypingActivitySubject
                                                 .add(ActivityType.TYPING);
@@ -543,8 +534,31 @@ class _InputMessageWidget extends State<InputMessage> {
                       height: 270.0,
                       child: EmojiKeyboard(
                         onTap: (emoji) {
-                          widget.textController.text =
-                              widget.textController.text + emoji.toString();
+                          if (widget.textController.text.isNotEmpty) {
+                            int start =
+                                widget.textController.selection.baseOffset;
+                            String block_1 =
+                                widget.textController.text.substring(0, start);
+                            block_1 = block_1.substring(0, start);
+                            String block_2 = widget.textController.text
+                                .substring(
+                                    start, widget.textController.text.length);
+                            widget.textController.text =
+                                block_1 + emoji + block_2;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: widget.textController.text.length -
+                                        block_2.length));
+                          } else {
+                            widget.textController.text =
+                                widget.textController.text + emoji;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: widget.textController.text.length));
+                          }
+                          if (isDesktop()) {
+                            widget.focusNode.requestFocus();
+                          }
                         },
                       ));
                 } else {
@@ -557,7 +571,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onMentionSelected(s) {
-    int start = _textSelection.baseOffset;
+    int start = widget.textController.selection.baseOffset;
 
     String block_1 = widget.textController.text.substring(0, start);
     int indexOf = block_1.lastIndexOf("@");
@@ -565,10 +579,13 @@ class _InputMessageWidget extends State<InputMessage> {
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;
-    widget.textController.selection = TextSelection.fromPosition(
-        TextPosition(offset: widget.textController.text.length));
+    widget.textController.selection = TextSelection.fromPosition(TextPosition(
+        offset: widget.textController.text.length - block_2.length));
     _mentionQuery.add("-");
     isMentionSelected = true;
+    if (isDesktop()) {
+      widget.focusNode.requestFocus();
+    }
   }
 
   onCommandClick(String command) {
@@ -614,12 +631,12 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
-            _mentionData,
-            scrollDownInMentions,
-            event,
-            mentionSelectedIndex,
-            scrollUpInMentions,
-            sendMentionByEnter);
+          _mentionData,
+          scrollDownInMentions,
+          event,
+          mentionSelectedIndex,
+          scrollUpInMentions,
+        );
       });
     }
     if (widget.currentRoom.uid.asUid().isBot()) {
@@ -660,8 +677,9 @@ class _InputMessageWidget extends State<InputMessage> {
         query: _mentionData);
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id!);
+    } else {
+      sendMessage();
     }
-    sendMessage();
   }
 
   scrollDownInBotCommand() {
@@ -694,7 +712,6 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.textController.text.contains("\n") &&
         widget.textController.text.contains("@") &&
         isMentionSelected) {
-      widget.textController.clear();
       isMentionSelected = false;
     } else {
       noActivitySubject.add(ActivityType.NO_ACTIVITY);

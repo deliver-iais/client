@@ -95,6 +95,7 @@ class _CircularFileStatusIndicatorState
     return file.type.contains("audio")
         ? PlayAudioStatus(
             fileId: file.uuid,
+            filePath: filePath,
             fileName: file.name,
             backgroundColor: widget.backgroundColor,
             foregroundColor: widget.foregroundColor,

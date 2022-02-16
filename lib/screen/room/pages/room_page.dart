@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
@@ -14,6 +15,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -65,12 +67,14 @@ class RoomPage extends StatefulWidget {
   final List<Message>? forwardedMessages;
   final List<String>? inputFilePaths;
   final proto.ShareUid? shareUid;
+  final List<Media>? forwardedMedia;
 
   const RoomPage(
       {Key? key,
       required this.roomId,
       this.forwardedMessages,
       this.inputFilePaths,
+      this.forwardedMedia,
       this.shareUid})
       : super(key: key);
 
@@ -134,6 +138,7 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +197,7 @@ class _RoomPageState extends State<RoomPage> {
                     return ForwardPreview(
                       forwardedMessages: widget.forwardedMessages,
                       shareUid: widget.shareUid,
+                      forwardedMedia: widget.forwardedMedia,
                       onClick: () {
                         _waitingForForwardedMessage.add(false);
                       },
@@ -272,7 +278,8 @@ class _RoomPageState extends State<RoomPage> {
     sendInputSharedFile();
     _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
             widget.forwardedMessages!.isNotEmpty) ||
-        widget.shareUid != null);
+        widget.shareUid != null ||
+        (widget.forwardedMedia != null && widget.forwardedMedia!.isNotEmpty));
     subscribeOnPositionToSendSeen();
 
     // Listen on scroll
@@ -328,6 +335,9 @@ class _RoomPageState extends State<RoomPage> {
     } else if (widget.roomId.asUid().isChannel()) {
       checkChannelRole();
     }
+
+    _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid(),
+        updateAllMedia: false);
 
     super.initState();
   }
@@ -422,9 +432,14 @@ class _RoomPageState extends State<RoomPage> {
   void _sendForwardMessage() async {
     if (widget.shareUid != null) {
       _messageRepo.sendShareUidMessage(widget.roomId.asUid(), widget.shareUid!);
-    } else {
-      await _messageRepo.sendForwardedMessage(
+    } else if (widget.forwardedMessages != null &&
+        widget.forwardedMessages!.isNotEmpty) {
+      _messageRepo.sendForwardedMessage(
           widget.roomId.asUid(), widget.forwardedMessages!);
+    } else if (widget.forwardedMedia != null &&
+        widget.forwardedMedia!.isNotEmpty) {
+      _messageRepo.sendForwardedMediaMessage(
+          widget.roomId.asUid(), widget.forwardedMedia!);
     }
 
     _waitingForForwardedMessage.add(false);
@@ -728,8 +743,6 @@ class _RoomPageState extends State<RoomPage> {
     if (room.lastMessage == null || _itemCount <= 0) {
       return const SizedBox.shrink();
     }
-
-    print("here");
 
     int scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
