@@ -141,7 +141,10 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  final ValueListenable<bool> event = DesktopLifecycle.instance.isActive;
+  final ValueListenable<bool> _lifecycleDesktop =
+      DesktopLifecycle.instance.isActive;
+  bool _appIsActive = true;
+  final List<Message> _backroundMessages = [];
 
   @override
   Widget build(BuildContext context) {
@@ -264,9 +267,14 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    event.addListener(() {
-      debugPrint("window activate: ${event.value}");
+    _lifecycleDesktop.addListener(() {
+      _appIsActive = _lifecycleDesktop.value;
+      if (_appIsActive) {
+        _sendSeenMessage(_backroundMessages);
+        _backroundMessages.clear();
+      }
     });
+
     initRoomStream();
     initPendingMessages();
 
@@ -395,14 +403,22 @@ class _RoomPageState extends State<RoomPage> {
         var msg = await _getMessage(event);
 
         if (msg == null) return;
-
-        if (!_authRepo.isCurrentUser(msg.from)) {
-          _messageRepo.sendSeen(event, widget.roomId.asUid());
+        if (_appIsActive) {
+          _sendSeenMessage([msg]);
+        } else {
+          _backroundMessages.add(msg);
         }
-
-        _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
       }
     });
+  }
+
+  _sendSeenMessage(List<Message> messages) {
+    for (var msg in messages) {
+      if (!_authRepo.isCurrentUser(msg.from)) {
+        _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
+      }
+      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
+    }
   }
 
   Future<Message?> _getMessage(int id, {useCache = true}) async {

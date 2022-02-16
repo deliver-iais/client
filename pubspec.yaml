@@ -29,13 +29,22 @@ environment:
 #  publisher_display_name: Deliver
 #  identity_name: Deiver
 #  msix_version: 1.0.0.0
-#  certificate_path: C:\Deliver\CERTIFICATE.pfx
-#  certificate_password: 96112049
+#
 #  publisher: CN=Deliver, O=IAIS, C=IR
 #  logo_path: C:\Deliver\deliver.png
 #  start_menu_icon_path: C:\Deliver\deliver.png
 #  tile_icon_path: C:\Deliver\deliver.png
 #  architecture: x64
+
+#  msix_config:
+#  display_name: Deliver
+#  publisher_display_name: Deliver
+#  identity_name: Deliver
+#    certificate_path: C:\Deliver\CERTIFICATE.pfx
+#    certificate_password: 96112049
+#    msix_version: 1.0.0.0
+#    logo_path: \Deliver\deliver.png
+#    capabilities: "internetClient,location,microphone,webcam"
 
 dependencies:
   flutter:
@@ -43,6 +52,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   desktoasts: 0.0.2
+  msix: 3.1.0
   flare_flutter: 3.0.2 # Animation Viewer Library
   lottie: 1.2.1
   date_time_format: 2.0.1
