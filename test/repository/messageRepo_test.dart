@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:io' as dart_file;
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -819,8 +819,7 @@ void main() {
           },
         );
       });
-      test('When called should savePending Multiple Message ghfg hfgh',
-          () async {
+      test('When called should savePending Multiple Message', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
           () async {
@@ -830,7 +829,7 @@ void main() {
               ..width = 0
               ..height = 0
               ..type = "application/octet-stream"
-              ..size = Int64(0)
+              ..size = Int64(dart_file.File("test").statSync().size)
               ..name = "test"
               ..duration = 0;
             final messageDao = getAndRegisterMessageDao();
