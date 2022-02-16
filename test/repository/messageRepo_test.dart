@@ -1679,5 +1679,52 @@ void main() {
             Room(uid: testUid.asString(), lastUpdatedMessageId: 0)));
       });
     });
+    group('editTextMessage -', () {
+      test('When called should updateMessage in queryServiceClient', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
+        var updatedMessage = message_pb.MessageByClient()
+          ..to = testMessage.to.asUid()
+          ..replyToId = Int64(testMessage.replyToId)
+          ..text = message_pb.Text(text: "test");
+        verify(queryServiceClient.updateMessage(UpdateMessageReq()
+          ..message = updatedMessage
+          ..messageId = Int64(0)));
+      });
+      test('When called should saveMessage', () async {
+        final messageDao = getAndRegisterMessageDao();
+        await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
+        verify(messageDao.saveMessage(
+            testMessage.copyWith(edited: true, json: "{\"1\":\"test\"}")));
+      });
+      test('When called should updateRoom', () async {
+        final roomDao = getAndRegisterRoomDao();
+        await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
+        verify(roomDao.updateRoom(Room(
+            uid: testUid.asString(), lastUpdatedMessageId: testMessage.id)));
+      });
+      test(
+          'When called if editableMessage.id equal to roomLastMessageId should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(updateMessageId: 2);
+        await MessageRepo()
+            .editTextMessage(testUid, testMessage.copyWith(id: 2), "test", 2);
+        verify(roomDao.updateRoom(Room(
+            uid: testUid.asString(),
+            lastMessage: testMessage.copyWith(
+                id: 2, edited: true, json: "{\"1\":\"test\"}"))));
+      });
+      test('When called if get error should go to catch', () async {
+        final messageDao = getAndRegisterMessageDao();
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterQueryServiceClient(updateMessageGetError: true);
+        await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
+        verifyNever(roomDao.updateRoom(Room(
+            uid: testUid.asString(), lastUpdatedMessageId: testMessage.id)));
+        verifyNever(messageDao.saveMessage(
+            testMessage.copyWith(edited: true, json: "{\"1\":\"test\"}")));
+      });
+    });
   });
 }

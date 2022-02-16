@@ -221,7 +221,9 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     FetchMessagesReq_Type fetchMessagesType =
         FetchMessagesReq_Type.BACKWARD_FETCH,
     PersistentEvent? fetchMessagesPersistEvent,
-    int? mentionIdList}) {
+    int? mentionIdList,
+    int updateMessageId = 0,
+    bool updateMessageGetError = false}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
@@ -309,6 +311,22 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
         ..roomUid = testUid))
       .thenAnswer((realInvocation) =>
           MockResponseFuture<DeleteMessageRes>(DeleteMessageRes()));
+  var updatedMessage = message_pb.MessageByClient()
+    ..to = testMessage.to.asUid()
+    ..replyToId = Int64(testMessage.replyToId)
+    ..text = message_pb.Text(text: "test");
+  updateMessageGetError
+      ? when(service.updateMessage(UpdateMessageReq()
+            ..message = updatedMessage
+            ..messageId = Int64(updateMessageId)))
+          .thenThrow((realInvocation) =>
+              MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()))
+      : when(service.updateMessage(UpdateMessageReq()
+            ..message = updatedMessage
+            ..messageId = Int64(updateMessageId)))
+          .thenAnswer((realInvocation) =>
+              MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()));
+
   return service;
 }
 

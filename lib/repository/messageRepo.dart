@@ -1030,7 +1030,7 @@ class MessageRepo {
     }
   }
 
-  void editTextMessage(Uid roomUid, Message editableMessage, String text,
+  editTextMessage(Uid roomUid, Message editableMessage, String text,
       roomLastMessageId) async {
     try {
       var updatedMessage = message_pb.MessageByClient()
@@ -1039,7 +1039,7 @@ class MessageRepo {
         ..text = message_pb.Text(text: text);
       await _queryServiceClient.updateMessage(UpdateMessageReq()
         ..message = updatedMessage
-        ..messageId = Int64(editableMessage.id!));
+        ..messageId = Int64(editableMessage.id ?? 0));
       editableMessage.json = (message_pb.Text()..text = text).writeToJson();
       editableMessage.edited = true;
       _messageDao.saveMessage(editableMessage);
