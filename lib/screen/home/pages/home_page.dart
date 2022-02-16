@@ -15,6 +15,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:universal_html/html.dart' as html;
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:win_toast/win_toast.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -43,6 +44,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    if(isWindows()){
+      scheduleMicrotask(() async {
+        final ret = await WinToast.instance().initialize(
+            appName: 'win_toast_example',
+            productName: 'win_toast_example',
+            companyName: 'mixin');
+        assert(ret);
+        setState(() {
+        });
+      });
+    }
+
     if (kIsWeb) {
       html.document.onContextMenu.listen((event) => event.preventDefault());
     }
