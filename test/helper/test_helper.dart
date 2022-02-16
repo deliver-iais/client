@@ -20,6 +20,8 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
@@ -33,8 +35,6 @@ import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
 import '../repository/messageRepo_test.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
@@ -164,6 +164,10 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
   when(service.uploadClonedFile("946672200000000", "test",
           sendActivity: anyNamed("sendActivity")))
       .thenAnswer((realInvocation) => Future.value(fileInfo));
+  when(service.uploadClonedFile(
+    "946672200000",
+    "test",
+  )).thenAnswer((realInvocation) => Future.value(fileInfo));
 
   return service;
 }
@@ -223,7 +227,8 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     PersistentEvent? fetchMessagesPersistEvent,
     int? mentionIdList,
     int updateMessageId = 0,
-    bool updateMessageGetError = false}) {
+    bool updateMessageGetError = false,
+    message_pb.MessageByClient? updatedMessageFile}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
@@ -317,12 +322,12 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     ..text = message_pb.Text(text: "test");
   updateMessageGetError
       ? when(service.updateMessage(UpdateMessageReq()
-            ..message = updatedMessage
+            ..message = updatedMessageFile ?? updatedMessage
             ..messageId = Int64(updateMessageId)))
           .thenThrow((realInvocation) =>
               MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()))
       : when(service.updateMessage(UpdateMessageReq()
-            ..message = updatedMessage
+            ..message = updatedMessageFile ?? updatedMessage
             ..messageId = Int64(updateMessageId)))
           .thenAnswer((realInvocation) =>
               MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()));

@@ -112,7 +112,6 @@ void main() {
     });
 
     group('updateNewMuc -', () {
-      //todo need better test for time
       test('When called should update roomDao', () async {
         final roomDao = getAndRegisterRoomDao();
         withClock(
@@ -1724,6 +1723,67 @@ void main() {
             uid: testUid.asString(), lastUpdatedMessageId: testMessage.id)));
         verifyNever(messageDao.saveMessage(
             testMessage.copyWith(edited: true, json: "{\"1\":\"test\"}")));
+      });
+    });
+    group('editFileMessage -', () {
+      var updatedMessage = message_pb.MessageByClient()
+        ..to = testMessage.to.asUid()
+        ..file = file_pb.File(
+            uuid: testUid.asString(), caption: "test", name: "test");
+
+      // test('When called if file not be null should cloneFileInLocalDirectory',
+      //     () async {
+      //       No matching calls. All calls: MockFileRepo.cloneFileInLocalDirectory(File: 'test', '946672200000', 'test'), MockFileRepo.uploadClonedFile('946672200000', 'test', {sendActivity: null})
+      //       (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+      //       withClock(Clock.fixed(DateTime(2000)), () async {
+      //     getAndRegisterQueryServiceClient(updatedMessageFile: updatedMessage);
+      //     final fileRepo = getAndRegisterFileRepo(
+      //         fileInfo: file_pb.File(
+      //             uuid: testUid.asString(), caption: "test", name: "test"));
+      //     await MessageRepo().editFileMessage(testUid, testMessage,
+      //         file: model.File("test", "test"));
+      //     verify(fileRepo.cloneFileInLocalDirectory(
+      //       File("test"), "946672200000", "test"));
+      //   });
+      // });
+
+      test('When called if file not be null should uploadClonedFile', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          getAndRegisterQueryServiceClient(updatedMessageFile: updatedMessage);
+          final fileRepo = getAndRegisterFileRepo(
+              fileInfo: file_pb.File(
+                  uuid: testUid.asString(), caption: "test", name: "test"));
+          await MessageRepo().editFileMessage(testUid, testMessage,
+              file: model.File("test", "test"));
+          verify(fileRepo.uploadClonedFile("946672200000", "test"));
+        });
+      });
+      test('When called should updateMessage', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final queryServiceClient = getAndRegisterQueryServiceClient(
+              updatedMessageFile: updatedMessage);
+          getAndRegisterFileRepo(
+              fileInfo: file_pb.File(
+                  uuid: testUid.asString(), caption: "test", name: "test"));
+          await MessageRepo().editFileMessage(testUid, testMessage,
+              file: model.File("test", "test"));
+          verify(queryServiceClient.updateMessage(UpdateMessageReq()
+            ..message = updatedMessage
+            ..messageId = Int64(0)));
+        });
+      });
+      test('When called should update room', () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          getAndRegisterQueryServiceClient(updatedMessageFile: updatedMessage);
+          getAndRegisterFileRepo(
+              fileInfo: file_pb.File(
+                  uuid: testUid.asString(), caption: "test", name: "test"));
+          final roomDao = getAndRegisterRoomDao();
+          await MessageRepo().editFileMessage(testUid, testMessage,
+              file: model.File("test", "test"));
+          verify(roomDao.updateRoom(Room(
+              uid: testUid.asString(), lastUpdatedMessageId: testMessage.id)));
+        });
       });
     });
   });

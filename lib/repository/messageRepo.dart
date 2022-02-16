@@ -1058,12 +1058,13 @@ class MessageRepo {
       {String? caption, model.File? file}) async {
     file_pb.File? updatedFile;
     if (file != null) {
-      String uploadKey = DateTime.now().millisecondsSinceEpoch.toString();
+      String uploadKey = clock.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
           dart_file.File(file.path), uploadKey, file.name);
+
       updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
-      if (updatedFile != null) {
-        updatedFile.caption = caption!;
+      if (updatedFile != null && caption != null) {
+        updatedFile.caption = caption;
       }
     } else {
       var preFile = editableMessage.json.toFile();
@@ -1086,7 +1087,7 @@ class MessageRepo {
       ..file = updatedFile!;
     await _queryServiceClient.updateMessage(UpdateMessageReq()
       ..message = updatedMessage
-      ..messageId = Int64(editableMessage.id!));
+      ..messageId = Int64(editableMessage.id ?? 0));
     editableMessage.json = updatedFile.writeToJson();
     editableMessage.edited = true;
     _messageDao.saveMessage(editableMessage);
