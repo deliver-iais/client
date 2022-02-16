@@ -149,6 +149,7 @@ dependencies:
   material_color_utilities: 0.1.4
   awesome_notifications: 0.6.16
   clock: 1.1.0
+  desktop_lifecycle: 0.1.0
 
 dev_dependencies:
   build_runner: ^2.1.5

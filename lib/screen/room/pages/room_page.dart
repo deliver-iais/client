@@ -49,7 +49,9 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -139,6 +141,7 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final ValueListenable<bool> event = DesktopLifecycle.instance.isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +264,9 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    event.addListener(() {
+      debugPrint("window activate: ${event.value}");
+    });
     initRoomStream();
     initPendingMessages();
 
