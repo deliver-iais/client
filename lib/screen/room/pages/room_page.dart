@@ -343,8 +343,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void initRoomStream() async {
-    final subscription =
-        _roomRepo.watchRoom(widget.roomId).listen((event) async {
+    // final subscription =
+    _roomRepo.watchRoom(widget.roomId).listen((event) async {
       // Remove changed messages from cache
       if (room.lastUpdatedMessageId != null &&
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
@@ -363,14 +363,15 @@ class _RoomPageState extends State<RoomPage> {
       // Notify All Piece of Widget
       _room.add(event);
     });
-    _room.onCancel = () => subscription.cancel();
+    // _room.onCancel = () => subscription.cancel();
   }
 
   void initPendingMessages() {
-    final subscription = _messageRepo
+    //final subscription =
+    _messageRepo
         .watchPendingMessages(widget.roomId)
         .listen(_pendingMessages.add);
-    _pendingMessages.onCancel = () => subscription.cancel();
+    // _pendingMessages.onCancel = () => subscription.cancel();
   }
 
   void subscribeOnPositionToSendSeen() {
@@ -813,7 +814,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
       int index) {
-    final id = index + 1;
+    final id = index + 2;
     final cachedPrevMsg = _messageCache.get(id - 1);
     final cachedMsg = _messageCache.get(id);
 
@@ -900,7 +901,7 @@ class _RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      _messageWidgetCache.set(index, widget);
+      if (tuple.item2?.id != null) _messageWidgetCache.set(index, widget);
     }
 
     return widget;
