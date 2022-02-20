@@ -369,7 +369,7 @@ class AndroidNotifier implements Notifier {
         content: NotificationContent(
             id: 10,
             channelKey: 'basic_channel',
-            title: "Deliver",
+            title: "We",
             body: e.toString()));
   }
 
