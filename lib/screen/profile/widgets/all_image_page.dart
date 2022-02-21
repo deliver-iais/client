@@ -98,6 +98,7 @@ class _AllImagePageState extends State<AllImagePage> {
                   return buildImageByIndex(snapshot.data!);
                 } else if (snapshot.connectionState == ConnectionState.done &&
                     snapshot.data == -1) {
+                  _currentIndex.add(-1);
                   return Center(
                     child: Padding(
                         padding: const EdgeInsets.all(10),
@@ -358,13 +359,17 @@ class _AllImagePageState extends State<AllImagePage> {
       title: StreamBuilder<int?>(
           stream: _allImageCount.stream,
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data! != 0) {
               return Align(
                   alignment: Alignment.topLeft,
                   child: StreamBuilder<int>(
                     stream: _currentIndex.stream,
                     builder: (c, position) {
-                      if (position.hasData && position.data != null) {
+                      if (position.hasData &&
+                          position.data != null &&
+                          position.data! != -1) {
                         return Text(
                             "${position.data! + 1} of ${snapshot.data}");
                       } else {
