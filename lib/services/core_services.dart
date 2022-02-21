@@ -317,7 +317,7 @@ class CoreServices {
         _notificationServices.playSoundOut();
       }
       if (msg.type == MessageType.FILE) {
-        _updateRoomMetaData(msg.roomUid, msg);
+        _updateRoomMetaData(msg.roomUid, msg, _mediaQueryRepo);
       }
     }
   }
@@ -424,7 +424,8 @@ class CoreServices {
           break;
       }
     }
-    saveMessage(message, roomUid);
+    saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
+        _roomDao, _mediaQueryRepo);
 
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
@@ -475,64 +476,6 @@ class CoreServices {
         lastUpdate: DateTime.now().millisecondsSinceEpoch));
   }
 
-  Future<Uid> saveMessage(Message message, Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
-
-    bool isMention = false;
-    if (roomUid.category == Categories.GROUP) {
-      // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
-      if (message.text.text
-          .contains("@${(await _accountRepo.getAccount()).userName}")) {
-        isMention = true;
-      }
-    }
-    _roomDao.updateRoom(
-      Room(
-          uid: roomUid.asString(),
-          lastMessage: msg,
-          lastMessageId: msg!.id,
-          mentioned: isMention,
-          deleted: false,
-          lastUpdateTime: msg.time),
-    );
-    if (message.whichType() == Message_Type.file) {
-      _updateRoomMetaData(roomUid.asString(), msg);
-    }
-
-    return roomUid;
-  }
-
-  Future<void> _updateRoomMetaData(
-      String roomUid, message_pb.Message message) async {
-    try {
-      var file = message.json.toFile();
-      if (file.type.contains("image") ||
-          file.type.contains("jpg") ||
-          file.type.contains("png")) {
-        var mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
-        if (mediaMetaData != null) {
-          _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
-              lastUpdateTime: message.time.toInt(),
-              imagesCount: mediaMetaData.imagesCount + 1));
-        } else {
-          _mediaQueryRepo.saveMediaMetaData(MediaMetaData(
-              roomId: roomUid,
-              imagesCount: 1,
-              musicsCount: 0,
-              videosCount: 0,
-              audiosCount: 0,
-              documentsCount: 0,
-              filesCount: 0,
-              linkCount: 0,
-              lastUpdateTime: message.time.toInt()));
-        }
-        _mediaQueryRepo.saveMediaFromMessage(message);
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
   void _saveRoomPresenceTypeChange(
       RoomPresenceTypeChanged roomPresenceTypeChanged) {
     PresenceType type = roomPresenceTypeChanged.presenceType;
@@ -564,7 +507,71 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
   return showNotify;
 }
 
-// TODO, refactor this!!!, we don't need this be functional
+Future<Uid> saveMessage(
+    Message message,
+    Uid roomUid,
+    MessageDao messageDao,
+    AuthRepo authRepo,
+    AccountRepo accountRepo,
+    RoomDao roomDao,
+    MediaQueryRepo mediaQueryRepo) async {
+  var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
+
+  bool isMention = false;
+  if (roomUid.category == Categories.GROUP) {
+    // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
+    if (message.text.text
+        .contains("@${(await accountRepo.getAccount()).userName}")) {
+      isMention = true;
+    }
+  }
+  roomDao.updateRoom(
+    Room(
+        uid: roomUid.asString(),
+        lastMessage: msg,
+        lastMessageId: msg!.id,
+        mentioned: isMention,
+        deleted: false,
+        lastUpdateTime: msg.time),
+  );
+  if (message.whichType() == Message_Type.file) {
+    _updateRoomMetaData(roomUid.asString(), msg, mediaQueryRepo);
+  }
+
+  return roomUid;
+}
+
+Future<void> _updateRoomMetaData(String roomUid, message_pb.Message message,
+    MediaQueryRepo mediaQueryRepo) async {
+  try {
+    var file = message.json.toFile();
+    if (file.type.contains("image") ||
+        file.type.contains("jpg") ||
+        file.type.contains("png")) {
+      var mediaMetaData = await mediaQueryRepo.getMediaMetaData(roomUid);
+      if (mediaMetaData != null) {
+        mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
+            lastUpdateTime: message.time.toInt(),
+            imagesCount: mediaMetaData.imagesCount + 1));
+      } else {
+        mediaQueryRepo.saveMediaMetaData(MediaMetaData(
+            roomId: roomUid,
+            imagesCount: 1,
+            musicsCount: 0,
+            videosCount: 0,
+            audiosCount: 0,
+            documentsCount: 0,
+            filesCount: 0,
+            linkCount: 0,
+            lastUpdateTime: message.time.toInt()));
+      }
+      mediaQueryRepo.saveMediaFromMessage(message);
+    }
+  } catch (e) {
+    // _logger.e(e);
+  }
+}
+
 Future<message_pb.Message?> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
   try {

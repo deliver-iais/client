@@ -341,8 +341,7 @@ class AndroidNotifier implements Notifier {
         sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
       );
       _flutterLocalNotificationsPlugin.show(
-          message.roomUid!.asString().hashCode +
-              message.text.toString().hashCode,
+          message.roomUid!.asString().hashCode + message.id!,
           message.roomName,
           createNotificationTextFromMessageBrief(message),
           notificationDetails: platformChannelSpecifics,

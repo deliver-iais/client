@@ -96,9 +96,9 @@ dependencies:
   firebase_messaging:
     git:
       url: https://github.com/deliver-iais/firebase-messaging.git
-      ref: master
+      ref: 875230afa2c81ad7f5458cc207b99bffe3a307cb
 
- ## (WEB NOT SUPPORTED BI-Directional Streaming)
+  ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)

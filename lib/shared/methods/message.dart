@@ -23,6 +23,7 @@ class MessageBrief {
   final String? typeDetails;
   final String? text;
   final bool? senderIsAUserOrBot;
+  final int? id;
 
   // Should not notify user
   final bool? ignoreNotification;
@@ -35,6 +36,7 @@ class MessageBrief {
       this.type,
       this.typeDetails,
       this.text,
+      this.id,
       this.ignoreNotification});
 
   MessageBrief copyWith(
@@ -45,7 +47,8 @@ class MessageBrief {
       MessageType? type,
       String? typeDetails,
       String? text,
-      bool? ignoreNotification}) {
+      bool? ignoreNotification,
+      int? id}) {
     return MessageBrief(
         roomUid: roomUid ?? this.roomUid,
         sender: sender ?? this.sender,
@@ -54,6 +57,7 @@ class MessageBrief {
         type: type ?? this.type,
         typeDetails: typeDetails ?? this.typeDetails,
         text: text ?? this.text,
+        id: id ?? this.id,
         ignoreNotification: ignoreNotification ?? this.ignoreNotification);
   }
 }
@@ -145,6 +149,7 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
     sender: sender,
     senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
     type: type,
+    id: msg.id.toInt(),
     typeDetails: typeDetails,
     text: text,
     ignoreNotification: ignoreNotification,
