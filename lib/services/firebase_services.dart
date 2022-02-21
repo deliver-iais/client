@@ -49,6 +49,7 @@ class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
+  List<String> _requestedRoom = [];
 
   Future<Map<String, String>?> _decodeMessageForWebNotification(
       dynamic notification) async {
@@ -149,6 +150,17 @@ class FireBaseServices {
           badge: true,
           sound: true,
         );
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+  }
+
+  void subscribeRoom(String roomUid) async {
+    if (!_requestedRoom.contains(roomUid)) {
+      try {
+        // var req = _firebaseServices.registration(null); //todo
+        _requestedRoom.add(roomUid);
       } catch (e) {
         _logger.e(e);
       }
