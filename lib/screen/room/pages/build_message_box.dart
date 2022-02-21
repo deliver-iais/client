@@ -407,8 +407,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   onCopy() {
     if (widget.message.type == MessageType.TEXT) {
-      Clipboard.setData(
-          ClipboardData(text: widget.message.json.toText().text));
+      Clipboard.setData(ClipboardData(text: widget.message.json.toText().text));
     } else {
       Clipboard.setData(
           ClipboardData(text: widget.message.json.toFile().caption));
@@ -482,8 +481,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   onShare() async {
     try {
       String? result = await _fileRepo.getFileIfExist(
-          widget.message.json.toFile().uuid,
-          widget.message.json.toFile().name);
+          widget.message.json.toFile().uuid, widget.message.json.toFile().name);
       if (result!.isNotEmpty) {
         Share.shareFiles([(result)],
             text: widget.message.json.toFile().caption);
