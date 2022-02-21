@@ -814,7 +814,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
       int index) {
-    final id = index + 2;
+    final id = index + 1;
     final cachedPrevMsg = _messageCache.get(id - 1);
     final cachedMsg = _messageCache.get(id);
 
