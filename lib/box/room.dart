@@ -59,7 +59,7 @@ class Room {
       lastUpdateTime: r.lastUpdateTime ?? lastUpdateTime,
       mentioned: r.mentioned,
       lastMessageId: r.lastMessageId ?? lastMessageId,
-      firstMessageId: r.firstMessageId,
+      firstMessageId: r.firstMessageId<firstMessageId ? firstMessageId : r.firstMessageId,
       pinned: r.pinned,
       lastUpdatedMessageId: r.lastUpdatedMessageId ?? lastUpdatedMessageId);
 
