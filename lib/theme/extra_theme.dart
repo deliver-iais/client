@@ -21,7 +21,7 @@ class ExtraThemeData {
       number);
 
   Color avatarBackground(String uid) {
-    return messageColorScheme(uid).primary;
+    return messageColorScheme(uid).primaryContainer;
   }
 
   CustomColorScheme messageColorScheme(String uid) {
