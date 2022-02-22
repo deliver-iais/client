@@ -321,6 +321,8 @@ class AndroidNotifier implements Notifier {
 
     AndroidBitmap<Object>? largeIcon;
     String selectedNotificationSound = "that_was_quick";
+    String avatarPath ="";
+
     var selectedSound =
     await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
@@ -330,6 +332,7 @@ class AndroidNotifier implements Notifier {
 
       if (path != null && path.isNotEmpty) {
         largeIcon = FilePathAndroidBitmap(path);
+        avatarPath = 'file://' + (path);
       }
     }
     if (selectedSound != null) {
@@ -351,33 +354,31 @@ class AndroidNotifier implements Notifier {
 
     AwesomeNotifications().createNotification(
         content: NotificationContent(
-          id: message.roomUid!.asString().hashCode +
-              message.text.toString().hashCode +
-              Random().nextInt(10000),
+          id: message.roomUid.hashCode+message.id!,
           channelKey: message.roomUid.toString() + selectedNotificationSound,
           title: message.roomName,
           summary: message.roomName,
           groupKey: message.roomUid!.node.toString(),
           body: createNotificationTextFromMessageBrief(message),
-          largeIcon: finalFilePath,
+          largeIcon: avatarPath,
           notificationLayout: NotificationLayout.Messaging,
           customSound: 'resource://raw/$selectedNotificationSound',
-          payload: {'uid': room!.uid, 'id': room.lastMessage!.id.toString()},
-        ),
-        actionButtons: [
-          NotificationActionButton(
-            key: 'REPLY',
-            label: 'Reply',
-            autoDismissable: false,
-            showInCompactView: true,
-            buttonType: ActionButtonType.InputField,
-          ),
-          NotificationActionButton(
-            key: 'READ',
-            label: 'Mark as read',
-            autoDismissable: true,
-          ),
-        ]);
+         //payload: {'uid': room!.uid, 'id': room.lastMessage!.id.toString()},
+        ));
+        // actionButtons: [
+        //   NotificationActionButton(
+        //     key: 'REPLY',
+        //     label: 'Reply',
+        //     autoDismissable: false,
+        //     showInCompactView: true,
+        //     buttonType: ActionButtonType.InputField,
+        //   ),
+        //   NotificationActionButton(
+        //     key: 'READ',
+        //     label: 'Mark as read',
+        //     autoDismissable: true,
+        //   ),
+        // ]);
   }
 
   @override
@@ -385,6 +386,7 @@ class AndroidNotifier implements Notifier {
     try {
       List<ActiveNotification>? activeNotification =
       await _flutterLocalNotificationsPlugin.getActiveNotifications();
+      var res =
       for (var element in activeNotification!) {
         if (element.channelId!.contains(roomId) && element.id != 0) {
           await _flutterLocalNotificationsPlugin.cancel(element.id);
