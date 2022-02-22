@@ -72,39 +72,37 @@ class FireBaseServices {
     var messageBrief =
         await extractMessageBrief(_i18n, _roomRepo, _authRepo, message);
     message_pb.Message? msg = _decodeMessage(notification.data["body"]);
-    if (msg != null) {
-      String? roomName = notification.data['title'];
-      Uid roomUid = getRoomUid(_authRepo, msg);
+    String? roomName = notification.data['title'];
+    Uid roomUid = getRoomUid(_authRepo, msg);
 
-      try {
-        if (_uxService.isAllNotificationDisabled ||
-            await _muteDao.isMuted(roomUid.asString()) ||
-            !showNotifyForThisMessage(msg, _authRepo)) {
-          return null;
-        }
-      } catch (_) {}
-
-      if (msg.from.category == Categories.SYSTEM) {
-        roomName = APPLICATION_NAME;
-      } else if (msg.from.category == Categories.BOT) {
-        roomName = msg.from.node;
-      } else if (msg.to.category == Categories.USER) {
-        var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-        if (uidName != null) {
-          roomName = uidName.name != null && uidName.name!.isNotEmpty
-              ? uidName.name
-              : uidName.id != null && uidName.id!.isNotEmpty
-                  ? uidName.id
-                  : msg.from.isGroup()
-                      ? "Group"
-                      : msg.from.isChannel()
-                          ? "Channel"
-                          : "We";
-        }
+    try {
+      if (_uxService.isAllNotificationDisabled ||
+          await _muteDao.isMuted(roomUid.asString()) ||
+          !showNotifyForThisMessage(msg, _authRepo)) {
+        return null;
       }
-      res[roomName!] = messageBrief.text!;
-      return res;
+    } catch (_) {}
+
+    if (msg.from.category == Categories.SYSTEM) {
+      roomName = APPLICATION_NAME;
+    } else if (msg.from.category == Categories.BOT) {
+      roomName = msg.from.node;
+    } else if (msg.to.category == Categories.USER) {
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+      if (uidName != null) {
+        roomName = uidName.name != null && uidName.name!.isNotEmpty
+            ? uidName.name
+            : uidName.id != null && uidName.id!.isNotEmpty
+                ? uidName.id
+                : msg.from.isGroup()
+                    ? "Group"
+                    : msg.from.isChannel()
+                        ? "Channel"
+                        : "We";
+      }
     }
+    res[roomName!] = messageBrief.text!;
+    return res;
   }
 
   late FirebaseMessaging _firebaseMessaging;

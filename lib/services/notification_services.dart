@@ -352,8 +352,9 @@ class AndroidNotifier implements Notifier {
             sound:
                 RawResourceAndroidNotificationSound(selectedNotificationSound),
             setAsGroupSummary: true);
-    await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
+    _flutterLocalNotificationsPlugin.show(message.roomUid.hashCode, 'Attention', 'new messages',
         notificationDetails: androidNotificationDetails);
+
     var platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid!.asString(),
       channel.name,
