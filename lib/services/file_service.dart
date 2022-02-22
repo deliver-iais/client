@@ -295,6 +295,7 @@ class FileService {
         format == "jpg" ||
         format == "jpeg" ||
         format == "png" ||
+        format == "gif" ||
         format == "txt" ||
         format == "rar" ||
         format == "zip" ||
