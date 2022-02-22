@@ -20,10 +20,6 @@ class ExtraThemeData {
       isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer,
       number);
 
-  Color avatarBackground(String uid) {
-    return messageColorScheme(uid).primaryContainer;
-  }
-
   CustomColorScheme messageColorScheme(String uid) {
     if (_authRepo.isCurrentUser(uid)) {
       return primaryColorsScheme;
