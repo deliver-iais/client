@@ -157,7 +157,10 @@ dependencies:
   tuple: 2.0.0
   great_list_view: 0.1.4
   material_color_utilities: 0.1.4
-  awesome_notifications: 0.6.16
+  awesome_notifications: # NOTIFICATION LIB FOR ANDROID
+    git:
+      url: https://github.com/androidwoman/awesome_notifications-0.6.16.git
+      ref: master
   clock: 1.1.0
   desktop_lifecycle: 0.1.0
 
