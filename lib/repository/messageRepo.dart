@@ -786,7 +786,7 @@ class MessageRepo {
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = pageSize);
       var res = await _saveFetchMessages(fetchMessagesRes.messages);
-      if (res.last.id == lastMessageId) {
+      if (res.isNotEmpty && res.last.id == lastMessageId) {
         _roomDao.updateRoom(Room(
             lastMessage: res.last, uid: roomId, lastMessageId: lastMessageId));
       }
@@ -986,7 +986,7 @@ class MessageRepo {
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
       _messageDao.getPendingMessages(roomUid);
 
-  void resendMessage(Message msg) async {
+  resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);
     _saveAndSend(pm!);
   }
@@ -1013,7 +1013,7 @@ class MessageRepo {
     }
   }
 
-  void sendLiveLocationMessage(Uid roomUid, int duration, Position position,
+  sendLiveLocationMessage(Uid roomUid, int duration, Position position,
       {int replyId = 0, String? forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     location_pb.Location location = location_pb.Location(
@@ -1059,7 +1059,7 @@ class MessageRepo {
                 _roomDao.updateRoom(Room(
                     uid: msg.roomUid,
                     lastMessage: msg.copyWith(json: EMPTY_MESSAGE),
-                    lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+                    lastUpdateTime: clock.now().millisecondsSinceEpoch));
               }
             }
 
@@ -1075,7 +1075,7 @@ class MessageRepo {
     }
   }
 
-  void editTextMessage(Uid roomUid, Message editableMessage, String text,
+  editTextMessage(Uid roomUid, Message editableMessage, String text,
       roomLastMessageId) async {
     try {
       var updatedMessage = message_pb.MessageByClient()
@@ -1084,7 +1084,7 @@ class MessageRepo {
         ..text = message_pb.Text(text: text);
       await _queryServiceClient.updateMessage(UpdateMessageReq()
         ..message = updatedMessage
-        ..messageId = Int64(editableMessage.id!));
+        ..messageId = Int64(editableMessage.id ?? 0));
       editableMessage.json = (message_pb.Text()..text = text).writeToJson();
       editableMessage.edited = true;
       _messageDao.saveMessage(editableMessage);
@@ -1103,12 +1103,13 @@ class MessageRepo {
       {String? caption, model.File? file}) async {
     file_pb.File? updatedFile;
     if (file != null) {
-      String uploadKey = DateTime.now().millisecondsSinceEpoch.toString();
+      String uploadKey = clock.now().millisecondsSinceEpoch.toString();
       await _fileRepo.cloneFileInLocalDirectory(
           dart_file.File(file.path), uploadKey, file.name);
+
       updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
-      if (updatedFile != null) {
-        updatedFile.caption = caption!;
+      if (updatedFile != null && caption != null) {
+        updatedFile.caption = caption;
       }
     } else {
       var preFile = editableMessage.json.toFile();
@@ -1131,7 +1132,7 @@ class MessageRepo {
       ..file = updatedFile!;
     await _queryServiceClient.updateMessage(UpdateMessageReq()
       ..message = updatedMessage
-      ..messageId = Int64(editableMessage.id!));
+      ..messageId = Int64(editableMessage.id ?? 0));
     editableMessage.json = updatedFile.writeToJson();
     editableMessage.edited = true;
     _messageDao.saveMessage(editableMessage);
@@ -1139,7 +1140,7 @@ class MessageRepo {
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }
 
-  void fetchBlockedRoom() async {
+   fetchBlockedRoom() async {
     try {
       GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());

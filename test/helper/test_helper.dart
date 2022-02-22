@@ -19,6 +19,10 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -31,8 +35,6 @@ import 'package:rxdart/rxdart.dart';
 import '../helper/test_helper.mocks.dart';
 import '../repository/messageRepo_test.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
@@ -83,7 +85,10 @@ MockLogger getAndRegisterLogger() {
 }
 
 MockMessageDao getAndRegisterMessageDao(
-    {Message? message, bool getError = false, PendingMessage? pendingMessage}) {
+    {Message? message,
+    bool getError = false,
+    PendingMessage? allPendingMessage,
+    PendingMessage? pendingMessage}) {
   _removeRegistrationIfExists<MessageDao>();
   final service = MockMessageDao();
   GetIt.I.registerSingleton<MessageDao>(service);
@@ -95,10 +100,20 @@ MockMessageDao getAndRegisterMessageDao(
               .thenAnswer((realInvocation) => Future.value(null))
       : when(service.getMessage(testUid.asString(), 0))
           .thenAnswer((realInvocation) => Future.value(message));
+  when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(
+      (realInvocation) => Future.value([testMessage.copyWith(id: 0)]));
   when(service.getAllPendingMessages()).thenAnswer((realInvocation) =>
-      pendingMessage != null
-          ? Future.value([pendingMessage])
+      allPendingMessage != null
+          ? Future.value([allPendingMessage])
           : Future.value([]));
+  when(service.getPendingMessage("")).thenAnswer((realInvocation) =>
+      pendingMessage != null ? Future.value(pendingMessage) : Future.value());
+  when(service.watchPendingMessage(""))
+      .thenAnswer((realInvocation) => Stream.value(testPendingMessage));
+  when(service.watchPendingMessages(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value([testPendingMessage]));
+  when(service.getPendingMessages(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value([testPendingMessage]));
   return service;
 }
 
@@ -115,13 +130,21 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   ];
   when(service.getAllRooms())
       .thenAnswer((realInvocation) => Future.value(rooms));
+  when(service.getRoom(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value(rooms?.first));
   return service;
 }
 
-MockRoomRepo getAndRegisterRoomRepo() {
+MockRoomRepo getAndRegisterRoomRepo(
+    {Room? room, bool getRoomGetError = false}) {
   _removeRegistrationIfExists<RoomRepo>();
   final service = MockRoomRepo();
   GetIt.I.registerSingleton<RoomRepo>(service);
+  getRoomGetError
+      ? when(service.getRoom(testUid.asString()))
+          .thenThrow((realInvocation) => Future.value())
+      : when(service.getRoom(testUid.asString())).thenAnswer((realInvocation) =>
+          Future.value(room ?? Room(uid: testUid.asString())));
   return service;
 }
 
@@ -141,6 +164,10 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
   when(service.uploadClonedFile("946672200000000", "test",
           sendActivity: anyNamed("sendActivity")))
       .thenAnswer((realInvocation) => Future.value(fileInfo));
+  when(service.uploadClonedFile(
+    "946672200000",
+    "test",
+  )).thenAnswer((realInvocation) => Future.value(fileInfo));
 
   return service;
 }
@@ -149,6 +176,9 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   _removeRegistrationIfExists<LiveLocationRepo>();
   final service = MockLiveLocationRepo();
   GetIt.I.registerSingleton<LiveLocationRepo>(service);
+  when(service.createLiveLocation(testUid, 0)).thenAnswer((realInvocation) =>
+      MockResponseFuture<CreateLiveLocationRes>(
+          CreateLiveLocationRes(uuid: testUid.asString())));
   return service;
 }
 
@@ -165,10 +195,20 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   return service;
 }
 
-MockMucServices getAndRegisterMucServices() {
+MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
   _removeRegistrationIfExists<MucServices>();
   final service = MockMucServices();
   GetIt.I.registerSingleton<MucServices>(service);
+  pinMessageGetError
+      ? when(service.pinMessage(testMessage))
+          .thenThrow((realInvocation) => Future.value())
+      : when(service.pinMessage(testMessage))
+          .thenAnswer((realInvocation) => Future.value(true));
+  pinMessageGetError
+      ? when(service.unpinMessage(testMessage))
+          .thenThrow((realInvocation) => Future.value())
+      : when(service.unpinMessage(testMessage))
+          .thenAnswer((realInvocation) => Future.value(true));
   return service;
 }
 
@@ -180,7 +220,15 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     bool countIsHiddenMessagesGetError = false,
     int fetchMessagesId = 0,
     String? fetchMessagesText,
-    int? mentionIdList}) {
+    int fetchMessagesLimit = 0,
+    bool fetchMessagesHasOptions = true,
+    FetchMessagesReq_Type fetchMessagesType =
+        FetchMessagesReq_Type.BACKWARD_FETCH,
+    PersistentEvent? fetchMessagesPersistEvent,
+    int? mentionIdList,
+    int updateMessageId = 0,
+    bool updateMessageGetError = false,
+    message_pb.MessageByClient? updatedMessageFile}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
@@ -235,9 +283,11 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
           FetchMessagesReq()
             ..roomUid = testUid
             ..pointer = Int64(0)
-            ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-            ..limit = 0,
-          options: CallOptions(timeout: const Duration(seconds: 3))))
+            ..type = fetchMessagesType
+            ..limit = fetchMessagesLimit,
+          options: fetchMessagesHasOptions
+              ? CallOptions(timeout: const Duration(seconds: 3))
+              : null))
       .thenAnswer((realInvocation) =>
           MockResponseFuture<FetchMessagesRes>(FetchMessagesRes(messages: {
             message_pb.Message(
@@ -249,6 +299,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
                 text: fetchMessagesText != null
                     ? message_pb.Text(text: fetchMessagesText)
                     : null,
+                persistEvent: fetchMessagesPersistEvent,
                 edited: false,
                 replyToId: Int64(0),
                 forwardFrom: testUid,
@@ -260,6 +311,29 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
       .thenAnswer((realInvocation) => MockResponseFuture<FetchMentionListRes>(
           FetchMentionListRes(
               idList: mentionIdList != null ? [Int64(mentionIdList)] : [])));
+  when(service.deleteMessage(DeleteMessageReq()
+        ..messageId = Int64(0)
+        ..roomUid = testUid))
+      .thenAnswer((realInvocation) =>
+          MockResponseFuture<DeleteMessageRes>(DeleteMessageRes()));
+  var updatedMessage = message_pb.MessageByClient()
+    ..to = testMessage.to.asUid()
+    ..replyToId = Int64(testMessage.replyToId)
+    ..text = message_pb.Text(text: "test");
+  updateMessageGetError
+      ? when(service.updateMessage(UpdateMessageReq()
+            ..message = updatedMessageFile ?? updatedMessage
+            ..messageId = Int64(updateMessageId)))
+          .thenThrow((realInvocation) =>
+              MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()))
+      : when(service.updateMessage(UpdateMessageReq()
+            ..message = updatedMessageFile ?? updatedMessage
+            ..messageId = Int64(updateMessageId)))
+          .thenAnswer((realInvocation) =>
+              MockResponseFuture<UpdateMessageRes>(UpdateMessageRes()));
+  when(service.getBlockedList(GetBlockedListReq())).thenAnswer(
+      (realInvocation) => MockResponseFuture<GetBlockedListRes>(
+          GetBlockedListRes(uidList: [testUid])));
   return service;
 }
 
