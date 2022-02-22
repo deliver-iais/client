@@ -337,40 +337,47 @@ class AndroidNotifier implements Notifier {
         selectedNotificationSound = selectedSound;
       }
     }
+    AwesomeNotifications().setChannel(
+      // set the icon to null if you want to use the default app icon
+        NotificationChannel(
+            channelKey: message.roomUid.toString() + selectedNotificationSound,
+            channelName: channel.name,
+            channelDescription: channel.description!,
+            ledColor: Colors.white,
+            playSound: true,
+            defaultColor: Colors.blueAccent,
+            soundSource: 'resource://raw/$selectedNotificationSound',
+            groupKey: message.roomUid!.node.toString()));
 
-    InboxStyleInformation inboxStyleInformation =
-    const InboxStyleInformation([], contentTitle: 'new messages');
-
-    // AndroidNotificationDetails androidNotificationDetails =
-    //     AndroidNotificationDetails(
-    //         selectedNotificationSound + message.roomUid!.asString(),
-    //         channel.name,
-    //         channelDescription: channel.description,
-    //         styleInformation: inboxStyleInformation,
-    //         groupKey: channel.groupId,
-    //         playSound: true,
-    //         sound:
-    //             RawResourceAndroidNotificationSound(selectedNotificationSound),
-    //         setAsGroupSummary: true);
-    // _flutterLocalNotificationsPlugin.show(message.roomUid.hashCode, 'Attention', 'new messages',
-    //     notificationDetails: androidNotificationDetails);
-
-    var platformChannelSpecifics = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid!.asString(),
-      channel.name,
-      channelDescription: channel.description,
-      groupKey: channel.groupId,
-      largeIcon: largeIcon,
-      styleInformation: const BigTextStyleInformation(''),
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-    );
-    _flutterLocalNotificationsPlugin.show(
-        message.roomUid!.asString().hashCode + message.id!,
-        message.roomName,
-        createNotificationTextFromMessageBrief(message),
-        notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid!.asString());
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: message.roomUid!.asString().hashCode +
+              message.text.toString().hashCode +
+              Random().nextInt(10000),
+          channelKey: message.roomUid.toString() + selectedNotificationSound,
+          title: message.roomName,
+          summary: message.roomName,
+          groupKey: message.roomUid!.node.toString(),
+          body: createNotificationTextFromMessageBrief(message),
+          largeIcon: finalFilePath,
+          notificationLayout: NotificationLayout.Messaging,
+          customSound: 'resource://raw/$selectedNotificationSound',
+          payload: {'uid': room!.uid, 'id': room.lastMessage!.id.toString()},
+        ),
+        actionButtons: [
+          NotificationActionButton(
+            key: 'REPLY',
+            label: 'Reply',
+            autoDismissable: false,
+            showInCompactView: true,
+            buttonType: ActionButtonType.InputField,
+          ),
+          NotificationActionButton(
+            key: 'READ',
+            label: 'Mark as read',
+            autoDismissable: true,
+          ),
+        ]);
   }
 
   @override
