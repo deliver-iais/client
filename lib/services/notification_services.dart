@@ -341,19 +341,19 @@ class AndroidNotifier implements Notifier {
     InboxStyleInformation inboxStyleInformation =
         const InboxStyleInformation([], contentTitle: 'new messages');
 
-    AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
-            selectedNotificationSound + message.roomUid!.asString(),
-            channel.name,
-            channelDescription: channel.description,
-            styleInformation: inboxStyleInformation,
-            groupKey: channel.groupId,
-            playSound: true,
-            sound:
-                RawResourceAndroidNotificationSound(selectedNotificationSound),
-            setAsGroupSummary: true);
-    _flutterLocalNotificationsPlugin.show(message.roomUid.hashCode, 'Attention', 'new messages',
-        notificationDetails: androidNotificationDetails);
+    // AndroidNotificationDetails androidNotificationDetails =
+    //     AndroidNotificationDetails(
+    //         selectedNotificationSound + message.roomUid!.asString(),
+    //         channel.name,
+    //         channelDescription: channel.description,
+    //         styleInformation: inboxStyleInformation,
+    //         groupKey: channel.groupId,
+    //         playSound: true,
+    //         sound:
+    //             RawResourceAndroidNotificationSound(selectedNotificationSound),
+    //         setAsGroupSummary: true);
+    // _flutterLocalNotificationsPlugin.show(message.roomUid.hashCode, 'Attention', 'new messages',
+    //     notificationDetails: androidNotificationDetails);
 
     var platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid!.asString(),
