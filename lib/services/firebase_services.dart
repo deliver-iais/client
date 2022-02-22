@@ -253,7 +253,6 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     pb_seen.Seen seen =
         pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
     _notificationServices.cancelRoomNotifications(seen.to.asString());
-    _notificationServices.cancelNotificationById(0);
     _seenDao.saveMySeen(
       Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
     );
