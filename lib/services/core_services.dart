@@ -278,6 +278,7 @@ class CoreServices {
       _seenDao.saveMySeen(
         Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
       );
+      _notificationServices.cancelRoomNotifications(roomId.asString());
     } else {
       _seenDao.saveOthersSeen(
         Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),

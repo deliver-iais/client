@@ -34,6 +34,8 @@ abstract class Notifier {
   cancel(int id, String roomId);
 
   cancelAll();
+
+  cancelById(int id);
 }
 
 MessageBrief synthesize(MessageBrief mb) {
@@ -66,6 +68,10 @@ class NotificationServices {
     _notifier.cancel(roomUid.hashCode, roomUid);
   }
 
+  void cancelNotificationById(int id) {
+    _notifier.cancelById(id);
+  }
+
   void cancelAllNotifications() {
     _notifier.cancelAll();
   }
@@ -88,6 +94,9 @@ class FakeNotifier implements Notifier {
 
   @override
   cancelAll() {}
+
+  @override
+  cancelById(int id) {}
 }
 
 class IOSNotifier implements Notifier {
@@ -99,6 +108,9 @@ class IOSNotifier implements Notifier {
 
   @override
   cancelAll() {}
+
+  @override
+  cancelById(int id) {}
 }
 
 class WindowsNotifier implements Notifier {
@@ -165,11 +177,17 @@ class WindowsNotifier implements Notifier {
 
   @override
   cancelAll() {}
+
+  @override
+  cancelById(int id) {}
 }
 
 class WebNotifier implements Notifier {
   @override
   cancel(int id, String roomId) {}
+
+  @override
+  cancelById(int id) {}
 
   @override
   cancelAll() {}
@@ -188,6 +206,9 @@ class LinuxNotifier implements Notifier {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+
+  @override
+  cancelById(int id) {}
 
   LinuxNotifier() {
     var notificationSetting =
@@ -290,86 +311,65 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  notify(MessageBrief message) async {
-    try {
-      if (message.ignoreNotification!) return;
-
-      AndroidBitmap<Object>? largeIcon;
-      String selectedNotificationSound = "that_was_quick";
-      var selectedSound = await _roomRepo
-          .getRoomCustomNotification(message.roomUid!.asString());
-      var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
-      if (la != null && la.fileId != null && la.fileName != null) {
-        var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
-            thumbnailSize: ThumbnailSize.medium);
-
-        if (path != null && path.isNotEmpty) {
-          largeIcon = FilePathAndroidBitmap(path);
-        }
-      }
-      if (selectedSound != null) {
-        if (selectedSound != "-") {
-          selectedNotificationSound = selectedSound;
-        }
-      }
-
-      InboxStyleInformation inboxStyleInformation =
-          const InboxStyleInformation([], contentTitle: 'new messages');
-
-      AndroidNotificationDetails androidNotificationDetails =
-          AndroidNotificationDetails(
-              selectedNotificationSound + message.roomUid!.asString(),
-              channel.name,
-              channelDescription: channel.description,
-              styleInformation: inboxStyleInformation,
-              groupKey: channel.groupId,
-              playSound: true,
-              sound: RawResourceAndroidNotificationSound(
-                  selectedNotificationSound),
-              setAsGroupSummary: true);
-      await _flutterLocalNotificationsPlugin.show(
-          0, 'Attention', 'new messages',
-          notificationDetails: androidNotificationDetails);
-      var platformChannelSpecifics = AndroidNotificationDetails(
-        selectedNotificationSound + message.roomUid!.asString(),
-        channel.name,
-        channelDescription: channel.description,
-        groupKey: channel.groupId,
-        largeIcon: largeIcon,
-        styleInformation: const BigTextStyleInformation(''),
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-      );
-      _flutterLocalNotificationsPlugin.show(
-          message.roomUid!.asString().hashCode + message.id!,
-          message.roomName,
-          createNotificationTextFromMessageBrief(message),
-          notificationDetails: platformChannelSpecifics,
-          payload: message.roomUid!.asString());
-    } catch (e) {
-      showDefaultNotification(message.text!);
-    }
+  cancelById(int id) {
+    _flutterLocalNotificationsPlugin.cancel(id);
   }
 
-  showDefaultNotification(String e) {
-    AwesomeNotifications().initialize(
-        '@mipmap/ic_launcher',
-        [
-          NotificationChannel(
-              channelKey: 'basic_channel',
-              channelName: 'Basic notifications',
-              channelDescription: 'Notification channel for basic tests',
-              defaultColor: Colors.lightBlue,
-              ledColor: Colors.white)
-        ],
-        // Channel groups are only visual and are not required
-        debug: true);
-    AwesomeNotifications().createNotification(
-        content: NotificationContent(
-            id: 10,
-            channelKey: 'basic_channel',
-            title: "We",
-            body: e.toString()));
+  @override
+  notify(MessageBrief message) async {
+    if (message.ignoreNotification!) return;
+
+    AndroidBitmap<Object>? largeIcon;
+    String selectedNotificationSound = "that_was_quick";
+    var selectedSound =
+        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
+    var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
+    if (la != null && la.fileId != null && la.fileName != null) {
+      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+          thumbnailSize: ThumbnailSize.medium);
+
+      if (path != null && path.isNotEmpty) {
+        largeIcon = FilePathAndroidBitmap(path);
+      }
+    }
+    if (selectedSound != null) {
+      if (selectedSound != "-") {
+        selectedNotificationSound = selectedSound;
+      }
+    }
+
+    InboxStyleInformation inboxStyleInformation =
+        const InboxStyleInformation([], contentTitle: 'new messages');
+
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+            selectedNotificationSound + message.roomUid!.asString(),
+            channel.name,
+            channelDescription: channel.description,
+            styleInformation: inboxStyleInformation,
+            groupKey: channel.groupId,
+            playSound: true,
+            sound:
+                RawResourceAndroidNotificationSound(selectedNotificationSound),
+            setAsGroupSummary: true);
+    await _flutterLocalNotificationsPlugin.show(0, 'Attention', 'new messages',
+        notificationDetails: androidNotificationDetails);
+    var platformChannelSpecifics = AndroidNotificationDetails(
+      selectedNotificationSound + message.roomUid!.asString(),
+      channel.name,
+      channelDescription: channel.description,
+      groupKey: channel.groupId,
+      largeIcon: largeIcon,
+      styleInformation: const BigTextStyleInformation(''),
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+    );
+    _flutterLocalNotificationsPlugin.show(
+        message.roomUid!.asString().hashCode + message.id!,
+        message.roomName,
+        createNotificationTextFromMessageBrief(message),
+        notificationDetails: platformChannelSpecifics,
+        payload: message.roomUid!.asString());
   }
 
   @override
@@ -460,6 +460,9 @@ class MacOSNotifier implements Notifier {
       _logger.e(e);
     }
   }
+
+  @override
+  cancelById(int id) {}
 }
 
 String createNotificationTextFromMessageBrief(MessageBrief mb) {
