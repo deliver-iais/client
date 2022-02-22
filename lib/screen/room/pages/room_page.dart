@@ -896,7 +896,11 @@ class _RoomPageState extends State<RoomPage> {
       return const SizedBox(height: 1000);
     }
 
-    Widget? widget = _messageWidgetCache.get(index);
+    Widget? widget;
+
+    if (!tuple.item2!.json.isEmptyMessage() && !tuple.item2!.edited) {
+      widget = _messageWidgetCache.get(index);
+    }
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
