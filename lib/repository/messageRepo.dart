@@ -8,6 +8,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -84,6 +85,7 @@ class MessageRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
 
   final updatingStatus =
@@ -708,16 +710,16 @@ class MessageRepo {
       file_pb.File file = file_pb.File()
         ..type = json["type"]
         ..name = json["name"]
-        ..width = json["width"]??0
+        ..width = json["width"] ?? 0
         ..size = Int64(json["size"])
-        ..height = json["height"]??0
+        ..height = json["height"] ?? 0
         ..uuid = json["uuid"]
-        ..duration = json["duration"]??0.0
-        ..caption = json["caption"]??""
-        ..tempLink = json["tempLink"]??""
-        ..hash = json["hash"]??""
-        ..sign = json["sign"]??""
-        ..blurHash = json["blurHash"]??"";
+        ..duration = json["duration"] ?? 0.0
+        ..caption = json["caption"] ?? ""
+        ..tempLink = json["tempLink"] ?? ""
+        ..hash = json["hash"] ?? ""
+        ..sign = json["sign"] ?? ""
+        ..blurHash = json["blurHash"] ?? "";
 
       Message msg =
           _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
@@ -1040,6 +1042,9 @@ class MessageRepo {
   deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
+        if (msg.type == MessageType.FILE && msg.id != null) {
+          _mediaDao.deleteMedia(msg.roomUid, msg.id!);
+        }
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
@@ -1131,7 +1136,7 @@ class MessageRepo {
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }
 
-   fetchBlockedRoom() async {
+  fetchBlockedRoom() async {
     try {
       GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());
