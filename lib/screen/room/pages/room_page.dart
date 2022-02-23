@@ -767,7 +767,7 @@ class _RoomPageState extends State<RoomPage> {
       physics: _scrollPhysics,
       reverse: false,
       addSemanticIndexes: false,
-      shrinkWrap: true,
+      shrinkWrap: false,
       minCacheExtent: 0,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
@@ -818,7 +818,7 @@ class _RoomPageState extends State<RoomPage> {
     final cachedMsg = _messageCache.get(id);
 
     return cachedMsg?.id != null && cachedPrevMsg?.id != null
-        ? Tuple2(cachedMsg, cachedPrevMsg)
+        ? Tuple2(cachedPrevMsg, cachedMsg)
         : null;
   }
 
@@ -900,7 +900,7 @@ class _RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      _messageWidgetCache.set(index, widget);
+      if (tuple.item2?.id != null) _messageWidgetCache.set(index, widget);
     }
 
     return widget;
