@@ -78,12 +78,14 @@ class LastMessage extends StatelessWidget {
                                 (showSenderInSeparatedLine ? "\n" : ": "),
                             style: theme.primaryTextTheme.caption
                                 ?.copyWith(color: primaryColor)),
-                      if (mb.typeDetails!.isNotEmpty)
+                      if (mb.typeDetails != null && mb.typeDetails!.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
                             style: theme.primaryTextTheme.caption
                                 ?.copyWith(color: primaryColor)),
-                      if (mb.typeDetails!.isNotEmpty && mb.text!.isNotEmpty)
+                      if (mb.typeDetails != null &&
+                          mb.typeDetails!.isNotEmpty &&
+                          mb.text!.isNotEmpty)
                         TextSpan(
                             text: ", ",
                             style: theme.primaryTextTheme.caption

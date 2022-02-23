@@ -119,7 +119,7 @@ class WindowsNotifier implements Notifier {
       windows_notify.ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
-    productName: "deliver",
+    productName: "we",
   );
 
   @override
