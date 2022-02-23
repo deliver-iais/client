@@ -357,8 +357,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void initRoomStream() async {
-    final subscription =
-        _roomRepo.watchRoom(widget.roomId).listen((event) async {
+    _roomRepo.watchRoom(widget.roomId).listen((event) async {
       // Remove changed messages from cache
       if (room.lastUpdatedMessageId != null &&
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
@@ -380,7 +379,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void initPendingMessages() {
-    final subscription = _messageRepo
+    _messageRepo
         .watchPendingMessages(widget.roomId)
         .listen(_pendingMessages.add);
   }

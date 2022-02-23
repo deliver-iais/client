@@ -73,7 +73,7 @@ class _IntroPageState extends State<IntroPage> {
                 widgetTitle: Column(
                   children: <Widget>[
                     Text(
-                      'We',
+                      APPLICATION_NAME,
                       style:theme.primaryTextTheme.headline5,
                     ),
                     Padding(

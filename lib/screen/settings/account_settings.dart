@@ -137,7 +137,6 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   Future<void> setAvatar(String path) async {
-    print(path);
     _newAvatarPath.add(path);
     await _avatarRepo.uploadAvatar(path, _authRepo.currentUserUid);
     _newAvatarPath.add("");
