@@ -377,14 +377,12 @@ class _RoomPageState extends State<RoomPage> {
       // Notify All Piece of Widget
       _room.add(event);
     });
-    _room.onCancel = () => subscription.cancel();
   }
 
   void initPendingMessages() {
     final subscription = _messageRepo
         .watchPendingMessages(widget.roomId)
         .listen(_pendingMessages.add);
-    _pendingMessages.onCancel = () => subscription.cancel();
   }
 
   void subscribeOnPositionToSendSeen() {
