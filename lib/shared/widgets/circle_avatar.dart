@@ -75,9 +75,11 @@ class CircleAvatarWidget extends StatelessWidget {
       );
     } else {
       return StreamBuilder<String?>(
-          key: _streamKey,
+          // key: _streamKey,
           initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid, false),
+          stream: _avatarRepo
+              .getLastAvatarFilePathStream(contactUid, false)
+              .asBroadcastStream(),
           builder: (context, snapshot) =>
               builder(context, snapshot, textColor));
     }

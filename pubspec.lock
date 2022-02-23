@@ -57,15 +57,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  awesome_notifications:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: e6f2fad194ffecf67b431fb62dcdec10ef594b62
-      url: "https://github.com/androidwoman/awesome_notifications-0.6.16.git"
-    source: git
-    version: "0.6.15"
   badges:
     dependency: "direct main"
     description:

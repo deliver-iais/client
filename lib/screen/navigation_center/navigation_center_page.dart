@@ -62,115 +62,127 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: GestureDetector(
-          onTap: () {
-            if (_scrollController.hasClients) {
-              _scrollController.animateTo(
-                0.0,
-                curve: Curves.easeOut,
-                duration: ANIMATION_DURATION * 3,
-              );
-            }
-          },
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            leading: Row(
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                DescribedFeatureOverlay(
-                  featureId: feature3,
-                  tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                  backgroundColor: Colors.indigo,
-                  targetColor: Colors.indigoAccent,
-                  title: const Text('You can go to setting'),
-                  overflowMode: OverflowMode.extendBackground,
-                  description: _featureDiscoveryDescriptionWidget(
-                      isCircleAvatarWidget: true,
-                      description:
-                          "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app"),
-                  child: GestureDetector(
-                    child: Center(
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                      ),
-                    ),
-                    onTap: () {
-                      _routingServices.openSettings(popAllBeforePush: true);
-                    },
+    try {
+      final theme = Theme.of(context);
+      return Scaffold(
+        backgroundColor: theme.colorScheme.background,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: GestureDetector(
+            onTap: () {
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  0.0,
+                  curve: Curves.easeOut,
+                  duration: ANIMATION_DURATION * 3,
+                );
+              }
+            },
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              leading: Row(
+                children: [
+                  const SizedBox(
+                    width: 10,
                   ),
+                  DescribedFeatureOverlay(
+                    featureId: feature3,
+                    tapTarget: Text("ter"),
+                    // tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                    backgroundColor: Colors.indigo,
+                    targetColor: Colors.indigoAccent,
+                    title: const Text('You can go to setting'),
+                    overflowMode: OverflowMode.extendBackground,
+                    description: _featureDiscoveryDescriptionWidget(
+                        isCircleAvatarWidget: true,
+                        description:
+                        "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app"),
+                    child: GestureDetector(
+                      child: Center(
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: CircleAvatarWidget(
+                              _authRepo.currentUserUid, 20),
+                        ),
+                      ),
+                      onTap: () {
+                        _routingServices.openSettings(popAllBeforePush: true);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              titleSpacing: 8.0,
+              title: TitleStatus(
+                style: TextStyle(),
+                // style: theme.textTheme.headline6!,
+                normalConditionWidget: Text("chats",
+                    style: TextStyle(),
+                    key: ValueKey(randomString(10))),
+              ),
+              actions: [
+                if (!isDesktop())
+                  DescribedFeatureOverlay(
+                    featureId: feature2,
+                    tapTarget: const Icon(
+                      CupertinoIcons.qrcode_viewfinder,
+                    ),
+                    backgroundColor: Colors.deepPurple,
+                    targetColor: Colors.deepPurpleAccent,
+                    title: const Text('You can scan QR Code'),
+                    description: _featureDiscoveryDescriptionWidget(
+                        description:
+                        'for desktop app you can scan QR Code and login to your account'),
+                    child: IconButton(
+                        onPressed: () {
+                          _routingService.openScanQrCode();
+                        },
+                        icon: const Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                        )),
+                  ),
+                const SizedBox(
+                  width: 8,
                 ),
+                buildMenu(context),
+                const SizedBox(
+                  width: 8,
+                )
               ],
             ),
-            titleSpacing: 8.0,
-            title: TitleStatus(
-              style: theme.textTheme.headline6!,
-              normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                  style: theme.textTheme.headline6,
-                  key: ValueKey(randomString(10))),
-            ),
-            actions: [
-              if (!isDesktop())
-                DescribedFeatureOverlay(
-                  featureId: feature2,
-                  tapTarget: const Icon(
-                    CupertinoIcons.qrcode_viewfinder,
-                  ),
-                  backgroundColor: Colors.deepPurple,
-                  targetColor: Colors.deepPurpleAccent,
-                  title: const Text('You can scan QR Code'),
-                  description: _featureDiscoveryDescriptionWidget(
-                      description:
-                          'for desktop app you can scan QR Code and login to your account'),
-                  child: IconButton(
-                      onPressed: () {
-                        _routingService.openScanQrCode();
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.qrcode_viewfinder,
-                      )),
-                ),
-              const SizedBox(
-                width: 8,
-              ),
-              buildMenu(context),
-              const SizedBox(
-                width: 8,
-              )
-            ],
           ),
         ),
-      ),
-      body: RepaintBoundary(
-        child: Column(
-          children: <Widget>[
-            RepaintBoundary(
-              child: SearchBox(
-                  onChange: _queryTermDebouncedSubject.add,
-                  onCancel: () => _queryTermDebouncedSubject.add("")),
-            ),
-            if (!isLarge(context)) AudioPlayerAppBar(),
-            StreamBuilder<String>(
-                stream: _searchMode.stream,
-                builder: (c, s) {
-                  if (s.hasData && s.data!.isNotEmpty) {
-                    return searchResult(s.data!);
-                  } else {
-                    return Expanded(
-                        child: ChatsPage(scrollController: _scrollController));
-                  }
-                })
-          ],
-        ),
-      ),
-    );
+        body: Text("ddddddddddddddd")
+        // RepaintBoundary(
+        //   child: Column(
+        //     children: <Widget>[
+        //       RepaintBoundary(
+        //         child: SearchBox(
+        //             onChange: _queryTermDebouncedSubject.add,
+        //             onCancel: () => _queryTermDebouncedSubject.add("")),
+        //       ),
+        //       if (!isLarge(context)) AudioPlayerAppBar(),
+        //       StreamBuilder<String>(
+        //           stream: _searchMode.stream,
+        //           builder: (c, s) {
+        //             if (s.hasData && s.data!.isNotEmpty) {
+        //               return searchResult(s.data!);
+        //             } else {
+        //               return Text("fffff");
+        //               // return Expanded(
+        //               //     child: ChatsPage(
+        //               //         scrollController: _scrollController));
+        //             }
+        //           })
+        //     ],
+        //   ),
+        // ),
+      );
+    }catch( e){
+
+
+      return Text(e.toString());
+    }
   }
 
   Widget buildMenu(BuildContext context) {
@@ -186,8 +198,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
               'If you touch this icon you can create new channel or new group with the your contact'),
       child: IconTheme(
         data: IconThemeData(
-          size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
-          color: PopupMenuTheme.of(context).textStyle?.color,
+          // size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
+          // color: PopupMenuTheme.of(context).textStyle?.color,
         ),
         child: PopupMenuButton(
             icon: const Icon(
@@ -201,7 +213,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         const Icon(CupertinoIcons.group),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("newGroup")),
+                        // Text(_i18n.get("newGroup")),
                       ],
                     ),
                     value: "newGroup",
@@ -212,8 +224,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         const Icon(CupertinoIcons.news),
                         const SizedBox(width: 8),
-                        Text(
-                          _i18n.get("newChannel"),
+                        Text("dsds"
+                          // _i18n.get("newChannel"),
                         )
                       ],
                     ),

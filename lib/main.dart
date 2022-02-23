@@ -239,6 +239,7 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
+  print("finish injection");
 }
 
 Future setupFlutterNotification() async {

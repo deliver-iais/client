@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     if (kIsWeb) {
-      html.document.onContextMenu.listen((event) => event.preventDefault());
+    //  html.document.onContextMenu.listen((event) => event.preventDefault());
     }
 
     _coreServices.initStreamConnection();

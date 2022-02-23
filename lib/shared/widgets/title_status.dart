@@ -37,6 +37,7 @@ class _TitleStatusState extends State<TitleStatus> {
 
   I18N i18n = GetIt.I.get<I18N>();
 
+
   @override
   void initState() {
     if (widget.currentRoomUid != null) {
@@ -50,7 +51,10 @@ class _TitleStatusState extends State<TitleStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<TitleStatusConditions>(
+
+
+
+  return  StreamBuilder<TitleStatusConditions>(
         stream: _messageRepo.updatingStatus.stream,
         builder: (context, snapshot) {
           return AnimatedSwitcher(
@@ -105,12 +109,16 @@ class _TitleStatusState extends State<TitleStatus> {
   title(I18N i18n, TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
+        return "dis";
         return i18n.get("disconnected").capitalCase;
       case TitleStatusConditions.Connecting:
+        return "con";
         return i18n.get("connecting").capitalCase;
       case TitleStatusConditions.Updating:
+        return "upd";
         return i18n.get("updating").capitalCase;
       case TitleStatusConditions.Normal:
+        return "connn";
         return i18n.get("connected");
     }
   }
