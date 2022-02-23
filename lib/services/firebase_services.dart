@@ -98,7 +98,7 @@ class FireBaseServices {
                     ? "Group"
                     : msg.from.isChannel()
                         ? "Channel"
-                        : "We";
+                        : APPLICATION_NAME;
       }
     }
     res[roomName!] = messageBrief.text!;
