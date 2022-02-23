@@ -83,7 +83,6 @@ class _InputMessageWidget extends State<InputMessage> {
   double size = 1;
   bool started = false;
   DateTime time = DateTime.now();
-  late TextSelection _textSelection;
   BehaviorSubject<DateTime> recordSubject =
       BehaviorSubject.seeded(DateTime.now());
 

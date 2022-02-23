@@ -99,7 +99,7 @@ class MediaQueryRepo {
         getMediaMetadataRes.allImagesCount.toInt()) {
       await fetchLastMedia(
           oldMediaMetaData.roomId,
-          oldMediaMetaData.imagesCount!,
+          oldMediaMetaData.imagesCount,
           query_pb.FetchMediasReq_MediaType.IMAGES,
           getMediaMetadataRes.allImagesCount.toInt());
     }
@@ -108,7 +108,7 @@ class MediaQueryRepo {
           getMediaMetadataRes.allAudiosCount.toInt()) {
         fetchLastMedia(
             oldMediaMetaData.roomId,
-            oldMediaMetaData.audiosCount!,
+            oldMediaMetaData.audiosCount,
             query_pb.FetchMediasReq_MediaType.AUDIOS,
             getMediaMetadataRes.allAudiosCount.toInt());
       }
@@ -116,7 +116,7 @@ class MediaQueryRepo {
           getMediaMetadataRes.allMusicsCount.toInt()) {
         fetchLastMedia(
             oldMediaMetaData.roomId,
-            oldMediaMetaData.audiosCount!,
+            oldMediaMetaData.audiosCount,
             query_pb.FetchMediasReq_MediaType.MUSICS,
             getMediaMetadataRes.allMusicsCount.toInt());
       }
@@ -124,7 +124,7 @@ class MediaQueryRepo {
           getMediaMetadataRes.allFilesCount.toInt()) {
         fetchLastMedia(
             oldMediaMetaData.roomId,
-            oldMediaMetaData.filesCount!,
+            oldMediaMetaData.filesCount,
             query_pb.FetchMediasReq_MediaType.FILES,
             getMediaMetadataRes.allFilesCount.toInt());
       }
@@ -132,7 +132,7 @@ class MediaQueryRepo {
           getMediaMetadataRes.allVideosCount.toInt()) {
         fetchLastMedia(
             oldMediaMetaData.roomId,
-            oldMediaMetaData.videosCount!,
+            oldMediaMetaData.videosCount,
             query_pb.FetchMediasReq_MediaType.VIDEOS,
             getMediaMetadataRes.allVideosCount.toInt());
       }
@@ -140,7 +140,7 @@ class MediaQueryRepo {
           getMediaMetadataRes.allLinksCount.toInt()) {
         fetchLastMedia(
             oldMediaMetaData.roomId,
-            oldMediaMetaData.linkCount!,
+            oldMediaMetaData.linkCount,
             query_pb.FetchMediasReq_MediaType.LINKS,
             getMediaMetadataRes.allLinksCount.toInt());
       }

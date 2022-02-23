@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -47,9 +48,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if(isWindows()){
       scheduleMicrotask(() async {
         final ret = await WinToast.instance().initialize(
-            appName: 'win_toast_example',
-            productName: 'win_toast_example',
-            companyName: 'mixin');
+            appName: APPLICATION_NAME,
+            companyName: 'deliver.co.ir',
+            productName: 'deliver');
         assert(ret);
         setState(() {
         });

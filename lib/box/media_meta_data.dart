@@ -10,39 +10,39 @@ class MediaMetaData {
   String roomId;
 
   @HiveField(1)
-  int? imagesCount;
+  int imagesCount;
 
   @HiveField(2)
-  int? videosCount;
+  int videosCount;
 
   @HiveField(3)
-  int? filesCount;
+  int filesCount;
 
   @HiveField(4)
-  int? documentsCount;
+  int documentsCount;
 
   @HiveField(5)
-  int? audiosCount;
+  int audiosCount;
 
   @HiveField(6)
-  int? musicsCount;
+  int musicsCount;
 
   @HiveField(7)
-  int? linkCount;
+  int linkCount;
 
   @HiveField(8)
-  int? lastUpdateTime;
+  int lastUpdateTime;
 
   MediaMetaData(
       {required this.roomId,
-      this.imagesCount,
-       this.videosCount,
-       this.filesCount,
-      this.documentsCount,
-       this.audiosCount,
-      this.musicsCount,
-       this.linkCount,
-       this.lastUpdateTime});
+      required this.imagesCount,
+      required this.videosCount,
+      required this.filesCount,
+      required this.documentsCount,
+      required this.audiosCount,
+      required this.musicsCount,
+      required this.linkCount,
+      required this.lastUpdateTime});
 
   MediaMetaData copyWith(
           {String? roomUid,

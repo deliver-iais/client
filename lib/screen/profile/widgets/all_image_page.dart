@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
@@ -9,7 +10,6 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -76,7 +76,7 @@ class _AllImagePageState extends State<AllImagePage> {
   _getMediaMetaDataCount() async {
     var res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
     if (res != null) {
-      _allImageCount.add(res.imagesCount!);
+      _allImageCount.add(res.imagesCount);
     }
   }
 
@@ -99,6 +99,7 @@ class _AllImagePageState extends State<AllImagePage> {
                   return buildImageByIndex(snapshot.data!);
                 } else if (snapshot.connectionState == ConnectionState.done &&
                     snapshot.data == -1) {
+                  _currentIndex.add(-1);
                   return Center(
                     child: Padding(
                         padding: const EdgeInsets.all(10),
@@ -179,11 +180,18 @@ class _AllImagePageState extends State<AllImagePage> {
                                                 index, filePath.data!);
                                             return InteractiveViewer(
                                                 child: AspectRatio(
-                                              aspectRatio: jsonDecode(
-                                                      mediaSnapShot.data!
-                                                          .json)["width"] /
-                                                  jsonDecode(mediaSnapShot
-                                                      .data!.json)["height"],
+                                              aspectRatio: max(
+                                                      jsonDecode(mediaSnapShot
+                                                              .data!
+                                                              .json)["width"]
+                                                          as int,
+                                                      1) /
+                                                  max(
+                                                      jsonDecode(mediaSnapShot
+                                                              .data!
+                                                              .json)["height"]
+                                                          as int,
+                                                      1),
                                               child: kIsWeb
                                                   ? Image.network(
                                                       filePath.data!)
@@ -359,13 +367,17 @@ class _AllImagePageState extends State<AllImagePage> {
       title: StreamBuilder<int?>(
           stream: _allImageCount.stream,
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data! != 0) {
               return Align(
                   alignment: Alignment.topLeft,
                   child: StreamBuilder<int>(
                     stream: _currentIndex.stream,
                     builder: (c, position) {
-                      if (position.hasData && position.data != null) {
+                      if (position.hasData &&
+                          position.data != null &&
+                          position.data! != -1) {
                         return Text(
                             "${position.data! + 1} of ${snapshot.data}");
                       } else {

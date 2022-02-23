@@ -180,7 +180,8 @@ class AvatarRepo {
       if (event != null && event.fileId != null && event.fileName != null) {
         _avatarCache.set(key, event);
         String? path = await _fileRepo.getFile(event.fileId!, event.fileName!,
-            thumbnailSize: ThumbnailSize.medium);
+            thumbnailSize:
+                event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium);
         if (path != null) {
           _avatarFilePathCache.set(key, path);
           bs.sink.add(path);

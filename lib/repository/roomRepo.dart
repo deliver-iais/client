@@ -187,6 +187,7 @@ class RoomRepo {
       var room = await _roomDao.getRoom(roomUid.asString());
       _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
+          deleted: true,
           firstMessageId: room!.lastMessageId ?? 0,
           lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
       return true;

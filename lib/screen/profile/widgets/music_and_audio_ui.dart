@@ -10,10 +10,8 @@ import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
 import 'music_play_progress.dart';
 

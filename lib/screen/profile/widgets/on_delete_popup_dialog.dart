@@ -125,12 +125,14 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                            widget.roomUid.isGroup()
-                                ? "${_i18n.get("sure_delete_group")} ${widget.roomName} ?"
-                                : "${_i18n.get("sure_delete_channel")} ${widget.roomName} ?",
-                            style: const TextStyle(
-                                color: Colors.black, fontSize: 18)),
+                        Expanded(
+                          child: Text(
+                              widget.roomUid.isGroup()
+                                  ? "${_i18n.get("sure_delete_group")} ${widget.roomName} ?"
+                                  : "${_i18n.get("sure_delete_channel")} ${widget.roomName} ?",
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 18)),
+                        ),
                       ],
                     ),
                   ],

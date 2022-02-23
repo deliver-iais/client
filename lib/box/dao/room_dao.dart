@@ -34,7 +34,9 @@ class RoomDaoImpl implements RoomDao {
       var box = await _openRoom();
 
       return sorted(box.values
-          .where((element) => element.lastMessage != null && !element.deleted)
+          .where((element) =>
+              element.lastMessage != null &&
+              (element.deleted == null || !element.deleted!))
           .toList());
     } catch (e) {
       return [];
@@ -48,12 +50,14 @@ class RoomDaoImpl implements RoomDao {
       box = await _openRoom();
     }
     yield sorted(box.values
-        .where((element) => !element.deleted && element.lastMessageId != null)
+        .where((element) =>
+            (element.deleted == null || !element.deleted!) &&
+            element.lastMessageId != null)
         .toList());
 
     yield* box.watch().map((event) => sorted(box.values
-        .where((element) =>
-            (element.lastMessageId != null && (element.deleted == false)))
+        .where((element) => (element.lastMessageId != null &&
+            (element.deleted == null || !element.deleted!)))
         .toList()));
   }
 
@@ -110,7 +114,7 @@ class RoomDaoImpl implements RoomDao {
     return box.values
         .where((element) =>
             element.uid.asUid().category == Categories.GROUP &&
-            (element.deleted != true))
+            (element.deleted == null || !element.deleted!))
         .toList();
   }
 }

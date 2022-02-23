@@ -60,10 +60,12 @@ packages:
   awesome_notifications:
     dependency: "direct main"
     description:
-      name: awesome_notifications
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.16"
+      path: "."
+      ref: master
+      resolved-ref: e6f2fad194ffecf67b431fb62dcdec10ef594b62
+      url: "https://github.com/androidwoman/awesome_notifications-0.6.16.git"
+    source: git
+    version: "0.6.15"
   badges:
     dependency: "direct main"
     description:
@@ -190,6 +192,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.2"
+  cli_dialog:
+    dependency: transitive
+    description:
+      name: cli_dialog
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   cli_util:
     dependency: transitive
     description:
@@ -267,6 +276,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  dart_console:
+    dependency: transitive
+    description:
+      name: dart_console
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -299,11 +315,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.11.5"
-      resolved-ref: cee61f322d9dbec7e8c731e22d50dbaa9449b640
+      ref: "tags/v1.11.12"
+      resolved-ref: f84f2fd52fffe98e968ee858b27fdb5f4d25bd23
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.11.5"
+    version: "1.11.12"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -318,6 +334,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
+  desktop_lifecycle:
+    dependency: "direct main"
+    description:
+      name: desktop_lifecycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   desktop_window:
     dependency: "direct main"
     description:
@@ -450,8 +473,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: e0ee299e22505ad5afd02806928090ef3d882637
+      ref: "875230afa2c81ad7f5458cc207b99bffe3a307cb"
+      resolved-ref: "875230afa2c81ad7f5458cc207b99bffe3a307cb"
       url: "https://github.com/deliver-iais/firebase-messaging.git"
     source: git
     version: "11.2.6"
@@ -981,6 +1004,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  msix:
+    dependency: "direct main"
+    description:
+      name: msix
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
   nested:
     dependency: transitive
     description:

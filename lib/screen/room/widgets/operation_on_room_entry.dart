@@ -35,16 +35,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  onPinRoom() {
-    Navigator.pop<OperationOnRoom>(context, OperationOnRoom.PIN_ROOM);
-  }
-
-  onUnPinRoom() {
-    Navigator.pop<OperationOnRoom>(context, OperationOnRoom.UN_PIN_ROOM);
-  }
-
   onDeleteRoom(String selected) async {
-    Navigator.pop<OperationOnRoom>(context, OperationOnRoom.DELETE_ROOM);
     String? roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
         context: context,
@@ -55,10 +46,6 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             roomName: roomName,
           );
         });
-  }
-
-  onMuteOrUnMuteRoom() {
-    Navigator.pop<OperationOnRoom>(context, OperationOnRoom.Un_MUTE_ROOM);
   }
 
   I18N i18n = GetIt.I.get<I18N>();
@@ -74,7 +61,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         children: [
           if (!widget.isPinned)
             PopupMenuItem(
-                onTap: () => onPinRoom(),
+                value: OperationOnRoom.PIN_ROOM,
                 child: Row(children: [
                   const Icon(
                     CupertinoIcons.pin,
@@ -85,7 +72,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 ]))
           else
             PopupMenuItem(
-                onTap: () => onUnPinRoom(),
+                value: OperationOnRoom.UN_PIN_ROOM,
                 child: Row(children: [
                   const Icon(
                     CupertinoIcons.pin_slash,
@@ -101,7 +88,6 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 if (snapshot.data!) {
                   return PopupMenuItem(
                       onTap: () {
-                        onMuteOrUnMuteRoom();
                         _roomRepo.unmute(widget.room.uid);
                       },
                       child: Row(children: [
@@ -115,7 +101,6 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 } else {
                   return PopupMenuItem(
                       onTap: () {
-                        onMuteOrUnMuteRoom();
                         _roomRepo.mute(widget.room.uid);
                       },
                       child: Row(children: [

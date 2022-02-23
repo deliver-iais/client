@@ -56,7 +56,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (kIsWeb || isDesktop()) {
       if (isLinux()) {
         final typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -185,10 +185,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               if (widget.forceToSetUsernameAndName)
                 Text(
                   _i18n.get("should_set_username_and_name"),
-                  style:theme
-                      .textTheme
-                      .headline6!
-                      .copyWith(fontSize: 10),
+                  style: theme.textTheme.headline6!.copyWith(fontSize: 10),
                 )
             ]),
             leading: !widget.forceToSetUsernameAndName
