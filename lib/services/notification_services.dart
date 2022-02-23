@@ -117,7 +117,7 @@ class WindowsNotifier implements Notifier {
       windows_notify.ToastService(
     appName: APPLICATION_NAME,
     companyName: "deliver.co.ir",
-    productName: "we",
+    productName: APPLICATION_NAME,
   );
 
   @override
@@ -350,7 +350,8 @@ class AndroidNotifier implements Notifier {
             sound:
                 RawResourceAndroidNotificationSound(selectedNotificationSound),
             setAsGroupSummary: true);
-    _flutterLocalNotificationsPlugin.show(message.roomUid.hashCode, 'Attention', 'new messages',
+    _flutterLocalNotificationsPlugin.show(
+        message.roomUid.hashCode, 'Attention', 'new messages',
         notificationDetails: androidNotificationDetails);
 
     var platformChannelSpecifics = AndroidNotificationDetails(
@@ -399,7 +400,7 @@ class AndroidNotifier implements Notifier {
 class MacOSNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
   final _flutterLocalNotificationsPlugin =
-  MacOSFlutterLocalNotificationsPlugin();
+      MacOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -409,11 +410,11 @@ class MacOSNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
         onSelectNotification: (room) {
-          if (room != null && room.isNotEmpty) {
-            _routingService.openRoom(room);
-          }
-          return;
-        });
+      if (room != null && room.isNotEmpty) {
+        _routingService.openRoom(room);
+      }
+      return;
+    });
   }
 
   @override
@@ -434,7 +435,7 @@ class MacOSNotifier implements Notifier {
     }
 
     var macOSPlatformChannelSpecifics =
-    MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
+        MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
