@@ -35,10 +35,6 @@ class CircleAvatarWidget extends StatelessWidget {
       this.showSavedMessageLogoIfNeeded = false})
       : super(key: key);
 
-  Color colorFor(BuildContext context, String text) {
-    return ExtraTheme.of(context).avatarBackground(text);
-  }
-
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
       _authRepo.isCurrentUser(contactUid.asString());
@@ -47,16 +43,8 @@ class CircleAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var color = colorFor(context, contactUid.asString());
-
-    if (isSavedMessage()) color = Colors.blue;
-    if (isSystem()) color = Colors.white;
-
-    var textColor =
-        changeColor(color, saturation: 0.8, lightness: 0.5).computeLuminance() >
-                0.5
-            ? Colors.black
-            : Colors.white;
+    var scheme =
+        ExtraTheme.of(context).messageColorScheme(contactUid.asString());
 
     return HeroMode(
       enabled: isHeroEnabled,
@@ -67,36 +55,33 @@ class CircleAvatarWidget extends StatelessWidget {
           width: radius * 2,
           height: radius * 2,
           clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: !isSystem()
-                  ? LinearGradient(colors: [
-                      changeColor(color, saturation: 0.8, lightness: 0.4),
-                      changeColor(color, saturation: 0.8, lightness: 0.5),
-                      changeColor(color, saturation: 0.8, lightness: 0.7),
-                    ], begin: Alignment.bottomCenter, end: Alignment.topCenter)
-                  : null),
-          child: contactUid.category == Categories.SYSTEM
-              ? const Image(
-                  image: AssetImage('assets/images/logo.png'),
-                )
-              : isSavedMessage()
-                  ? Icon(
-                      Icons.bookmark,
-                      size: radius,
-                      color: Colors.white,
-                    )
-                  : StreamBuilder<String?>(
-                      key: _streamKey,
-                      initialData:
-                          _avatarRepo.fastForwardAvatarFilePath(contactUid),
-                      stream: _avatarRepo.getLastAvatarFilePathStream(
-                          contactUid, false),
-                      builder: (context, snapshot) =>
-                          builder(context, snapshot, textColor)),
+          decoration:
+              BoxDecoration(shape: BoxShape.circle, color: scheme.primary),
+          child: getImageWidget(contactUid, scheme.onPrimary),
         ),
       ),
     );
+  }
+
+  Widget getImageWidget(Uid uid, Color textColor) {
+    if (uid.category == Categories.SYSTEM) {
+      return const Image(
+        image: AssetImage('assets/images/logo.png'),
+      );
+    } else if (isSavedMessage()) {
+      return Icon(
+        Icons.bookmark,
+        size: radius,
+        color: textColor,
+      );
+    } else {
+      return StreamBuilder<String?>(
+          key: _streamKey,
+          initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
+          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid, false),
+          builder: (context, snapshot) =>
+              builder(context, snapshot, textColor));
+    }
   }
 
   Widget builder(

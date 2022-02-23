@@ -114,7 +114,7 @@ class RoomDaoImpl implements RoomDao {
     return box.values
         .where((element) =>
             element.uid.asUid().category == Categories.GROUP &&
-            (element.deleted != true))
+            (element.deleted == null || !element.deleted!))
         .toList();
   }
 }
