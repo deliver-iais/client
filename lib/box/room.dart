@@ -16,7 +16,7 @@ class Room {
   Message? lastMessage;
 
   @HiveField(2)
-  bool deleted;
+  bool? deleted;
 
   @HiveField(3)
   bool mentioned;
@@ -47,14 +47,14 @@ class Room {
       this.lastMessageId,
       this.firstMessageId = 0,
       this.mentioned = false,
-      this.deleted = false,
+      this.deleted,
       this.pinned = false,
       this.lastUpdatedMessageId});
 
   Room copy(Room r) => Room(
       uid: r.uid,
       lastMessage: r.lastMessage ?? lastMessage,
-      deleted: r.deleted,
+      deleted: r.deleted??deleted,
       draft: r.draft ?? draft,
       lastUpdateTime: r.lastUpdateTime ?? lastUpdateTime,
       mentioned: r.mentioned,
