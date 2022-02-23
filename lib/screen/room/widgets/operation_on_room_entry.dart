@@ -35,11 +35,11 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  onPinRoom(BuildContext context) {
+  onPinRoom() {
     Navigator.pop<OperationOnRoom>(context, OperationOnRoom.PIN_ROOM);
   }
 
-  onUnPinRoom(BuildContext context) {
+  onUnPinRoom() {
     Navigator.pop<OperationOnRoom>(context, OperationOnRoom.UN_PIN_ROOM);
   }
 
@@ -73,7 +73,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         children: [
           if (!widget.isPinned)
             PopupMenuItem(
-                onTap: () => onPinRoom(context),
+                onTap: () => onPinRoom(),
                 child: Row(children: [
                   const Icon(
                     CupertinoIcons.pin,
@@ -84,7 +84,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 ]))
           else
             PopupMenuItem(
-                onTap: () => onUnPinRoom(context),
+                onTap: () => onUnPinRoom(),
                 child: Row(children: [
                   const Icon(
                     CupertinoIcons.pin_slash,
