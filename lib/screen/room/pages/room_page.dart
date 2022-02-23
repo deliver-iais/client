@@ -446,7 +446,8 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  onDelete() {
+  onDelete() async {
+    await _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid());
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
