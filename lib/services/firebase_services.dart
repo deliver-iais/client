@@ -1,15 +1,21 @@
 import 'dart:convert';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/seen_dao.dart';
 
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/box/seen.dart';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
+import 'package:deliver/repository/accountRepo.dart';
 
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 
@@ -22,6 +28,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -44,6 +51,7 @@ class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
+  final List<String> _requestedRoom = [];
 
   Future<Map<String, String>?> _decodeMessageForWebNotification(
       dynamic notification) async {
@@ -63,7 +71,7 @@ class FireBaseServices {
     message_pb.Message message = message_pb.Message.fromBuffer(dataTitle64);
     var messageBrief =
         await extractMessageBrief(_i18n, _roomRepo, _authRepo, message);
-    message_pb.Message msg = _decodeMessage(notification.data["body"]);
+    message_pb.Message? msg = _decodeMessage(notification.data["body"]);
     String? roomName = notification.data['title'];
     Uid roomUid = getRoomUid(_authRepo, msg);
 
@@ -90,7 +98,7 @@ class FireBaseServices {
                     ? "Group"
                     : msg.from.isChannel()
                         ? "Channel"
-                        : "UnKnown";
+                        : APPLICATION_NAME;
       }
     }
     res[roomName!] = messageBrief.text!;
@@ -147,6 +155,17 @@ class FireBaseServices {
       }
     }
   }
+
+  void subscribeRoom(String roomUid) async {
+    if (!_requestedRoom.contains(roomUid)) {
+      try {
+        // var req = _firebaseServices.registration(null); //todo
+        _requestedRoom.add(roomUid);
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+  }
 }
 
 message_pb.Message _decodeMessage(String notificationBody) {
@@ -155,73 +174,88 @@ message_pb.Message _decodeMessage(String notificationBody) {
   return m;
 }
 
-Future<void> backgroundMessageHandler(dynamic message) async {
+Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
   try {
-    try {
-      await setupDI();
-    } catch (e) {
-      Logger().e(e);
-    }
-
-    var _notificationServices = GetIt.I.get<NotificationServices>();
-    var _authRepo = GetIt.I.get<AuthRepo>();
-    var _uxService = GetIt.I.get<UxService>();
-    var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-    var _muteDao = GetIt.I.get<MuteDao>();
-
-    if (message.data.containsKey('body')) {
-      message_pb.Message msg = _decodeMessage(message.data["body"]);
-      String? roomName = message.data['title'];
-      Uid roomUid = getRoomUid(_authRepo, msg);
-
-      try {
-        if (_uxService.isAllNotificationDisabled ||
-            await _muteDao.isMuted(roomUid.asString()) ||
-            !showNotifyForThisMessage(msg, _authRepo)) {
-          return;
-        }
-      } catch (_) {}
-
-      if (msg.from.category == Categories.SYSTEM) {
-        roomName = APPLICATION_NAME;
-      } else if (msg.from.category == Categories.BOT) {
-        roomName = msg.from.node;
-      } else if (msg.to.category == Categories.USER) {
-        var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-        if (uidName != null) {
-          roomName = uidName.name != null && uidName.name!.isNotEmpty
-              ? uidName.name
-              : uidName.id != null && uidName.id!.isNotEmpty
-                  ? uidName.id
-                  : msg.from.isGroup()
-                      ? "Group"
-                      : msg.from.isChannel()
-                          ? "Channel"
-                          : "UnKnown";
-        }
-      }
-
-      _notificationServices.showNotification(msg, roomName: roomName!);
-    }
+    await setupDI();
   } catch (e) {
-    message_pb.Message msg = _decodeMessage(message.data["body"]);
-    AwesomeNotifications().initialize(
-        null,
-        [
-          NotificationChannel(
+    Logger().e(e);
+  }
+
+  var _notificationServices = GetIt.I.get<NotificationServices>();
+  var _authRepo = GetIt.I.get<AuthRepo>();
+  var _uxService = GetIt.I.get<UxService>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  var _muteDao = GetIt.I.get<MuteDao>();
+  var _messageDao = GetIt.I.get<MessageDao>();
+  var _roomDao = GetIt.I.get<RoomDao>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var _seenDao = GetIt.I.get<SeenDao>();
+
+  if (remoteMessage.data.containsKey('body')) {
+    message_pb.Message msg = _decodeMessage(remoteMessage.data["body"]);
+    String? roomName = remoteMessage.data['title'];
+    Uid roomUid = getRoomUid(_authRepo, msg);
+    try {
+      saveMessage(msg, roomUid, _messageDao, _authRepo, _accountRepo, _roomDao,
+          _mediaQueryRepo);
+    } catch (_) {}
+
+    try {
+      if (_uxService.isAllNotificationDisabled ||
+          await _muteDao.isMuted(roomUid.asString()) ||
+          !showNotifyForThisMessage(msg, _authRepo)) {
+        return;
+      }
+    } catch (_) {}
+
+    if (msg.from.category == Categories.SYSTEM) {
+      roomName = APPLICATION_NAME;
+    } else if (msg.from.category == Categories.BOT) {
+      roomName = msg.from.node;
+    } else if (msg.to.category == Categories.USER) {
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+      if (uidName != null) {
+        roomName = uidName.name != null && uidName.name!.isNotEmpty
+            ? uidName.name
+            : uidName.id != null && uidName.id!.isNotEmpty
+                ? uidName.id
+                : msg.from.isGroup()
+                    ? "Group"
+                    : msg.from.isChannel()
+                        ? "Channel"
+                        : "We";
+      }
+    }
+    try {
+      _notificationServices.showNotification(msg, roomName: roomName!);
+    } catch (_) {
+      AwesomeNotifications().initialize(
+          null,
+          [
+            NotificationChannel(
+                channelKey: 'basic_channel',
+                channelName: 'Basic notifications',
+                channelDescription: 'Notification channel for basic tests',
+                defaultColor: Colors.lightBlueAccent,
+                ledColor: Colors.white)
+          ],
+          // Channel groups are only visual and are not required
+          debug: false);
+      AwesomeNotifications().createNotification(
+          content: NotificationContent(
+              id: msg.id.toInt() + roomUid.hashCode,
               channelKey: 'basic_channel',
-              channelName: 'Basic notifications',
-              channelDescription: 'Notification channel for basic tests',
-              defaultColor: Colors.lightBlueAccent,
-              ledColor: Colors.white)
-        ],
-        // Channel groups are only visual and are not required
-        debug: true);
-    AwesomeNotifications().createNotification(
-        content: NotificationContent(
-            id: 10,
-            channelKey: 'basic_channel',
-            title: "Deliver",
-            body: msg.text.text));
+              title: roomName,
+              body: msg.text.text));
+    }
+  } else if (remoteMessage.data.containsKey("seen")) {
+    pb_seen.Seen seen =
+        pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
+    _notificationServices.cancelRoomNotifications(seen.to.asString());
+    _seenDao.saveMySeen(
+      Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
+    );
+    AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
   }
 }

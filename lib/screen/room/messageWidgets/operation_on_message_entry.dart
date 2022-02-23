@@ -112,7 +112,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   const SizedBox(width: 10),
                   Text(_i18n.get("copy")),
                 ])),
-          if (widget.message.type == MessageType.FILE)
+          if (widget.message.type == MessageType.FILE && !isDesktop())
             FutureBuilder(
                 future: _fileRepo.getFileIfExist(
                     widget.message.json.toFile().uuid,

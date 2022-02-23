@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 import 'dart:io' as dart_file;
 import 'package:clock/clock.dart';

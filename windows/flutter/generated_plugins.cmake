@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   desktoasts
   desktop_drop
+  desktop_lifecycle
   desktop_window
   image_compression_flutter
   url_launcher_windows

@@ -26,9 +26,11 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
@@ -79,6 +81,7 @@ class MessageRepo {
   final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _mucServices = GetIt.I.get<MucServices>();
+  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
@@ -152,6 +155,12 @@ class MessageRepo {
                 Seen(uid: roomMetadata.roomUid.asString(), messageId: -1));
           }
           if (roomMetadata.presenceType == PresenceType.ACTIVE) {
+            if (room != null &&
+                room.lastMessageId != null &&
+                room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
+                isAndroid()) {
+              _fireBaseServices.subscribeRoom(roomMetadata.roomUid.asString());
+            }
             if (room != null &&
                 room.lastMessage != null &&
                 room.lastMessage!.id != null &&
@@ -708,16 +717,16 @@ class MessageRepo {
       file_pb.File file = file_pb.File()
         ..type = json["type"]
         ..name = json["name"]
-        ..width = json["width"]??0
+        ..width = json["width"] ?? 0
         ..size = Int64(json["size"])
-        ..height = json["height"]??0
+        ..height = json["height"] ?? 0
         ..uuid = json["uuid"]
-        ..duration = json["duration"]??0.0
-        ..caption = json["caption"]??""
-        ..tempLink = json["tempLink"]??""
-        ..hash = json["hash"]??""
-        ..sign = json["sign"]??""
-        ..blurHash = json["blurHash"]??"";
+        ..duration = json["duration"] ?? 0.0
+        ..caption = json["caption"] ?? ""
+        ..tempLink = json["tempLink"] ?? ""
+        ..hash = json["hash"] ?? ""
+        ..sign = json["sign"] ?? ""
+        ..blurHash = json["blurHash"] ?? "";
 
       Message msg =
           _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
