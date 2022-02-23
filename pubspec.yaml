@@ -29,13 +29,22 @@ environment:
 #  publisher_display_name: Deliver
 #  identity_name: Deiver
 #  msix_version: 1.0.0.0
-#  certificate_path: C:\Deliver\CERTIFICATE.pfx
-#  certificate_password: 96112049
+#
 #  publisher: CN=Deliver, O=IAIS, C=IR
 #  logo_path: C:\Deliver\deliver.png
 #  start_menu_icon_path: C:\Deliver\deliver.png
 #  tile_icon_path: C:\Deliver\deliver.png
 #  architecture: x64
+
+#  msix_config:
+#  display_name: Deliver
+#  publisher_display_name: Deliver
+#  identity_name: Deliver
+#    certificate_path: C:\Deliver\CERTIFICATE.pfx
+#    certificate_password: 96112049
+#    msix_version: 1.0.0.0
+#    logo_path: \Deliver\deliver.png
+#    capabilities: "internetClient,location,microphone,webcam"
 
 dependencies:
   flutter:
@@ -43,6 +52,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   desktoasts: 0.0.2
+  msix: 3.1.0
   flare_flutter: 3.0.2 # Animation Viewer Library
   lottie: 1.2.1
   date_time_format: 2.0.1
@@ -86,9 +96,9 @@ dependencies:
   firebase_messaging:
     git:
       url: https://github.com/deliver-iais/firebase-messaging.git
-      ref: master
+      ref: 875230afa2c81ad7f5458cc207b99bffe3a307cb
 
- ## (WEB NOT SUPPORTED BI-Directional Streaming)
+  ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
@@ -147,8 +157,12 @@ dependencies:
   tuple: 2.0.0
   great_list_view: 0.1.4
   material_color_utilities: 0.1.4
-  awesome_notifications: 0.6.16
+  awesome_notifications: # NOTIFICATION LIB FOR ANDROID
+    git:
+      url: https://github.com/androidwoman/awesome_notifications-0.6.16.git
+      ref: master
   clock: 1.1.0
+  desktop_lifecycle: 0.1.0
 
 dev_dependencies:
   build_runner: ^2.1.5

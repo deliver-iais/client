@@ -49,7 +49,9 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -139,6 +141,10 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final ValueListenable<bool> _lifecycleDesktop =
+      DesktopLifecycle.instance.isActive;
+  bool _appIsActive = true;
+  final List<Message> _backroundMessages = [];
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +267,14 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    _lifecycleDesktop.addListener(() {
+      _appIsActive = _lifecycleDesktop.value;
+      if (_appIsActive) {
+        _sendSeenMessage(_backroundMessages);
+        _backroundMessages.clear();
+      }
+    });
+
     initRoomStream();
     initPendingMessages();
 
@@ -343,8 +357,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void initRoomStream() async {
-    final subscription =
-        _roomRepo.watchRoom(widget.roomId).listen((event) async {
+    _roomRepo.watchRoom(widget.roomId).listen((event) async {
       // Remove changed messages from cache
       if (room.lastUpdatedMessageId != null &&
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
@@ -363,14 +376,12 @@ class _RoomPageState extends State<RoomPage> {
       // Notify All Piece of Widget
       _room.add(event);
     });
-    _room.onCancel = () => subscription.cancel();
   }
 
   void initPendingMessages() {
-    final subscription = _messageRepo
+    _messageRepo
         .watchPendingMessages(widget.roomId)
         .listen(_pendingMessages.add);
-    _pendingMessages.onCancel = () => subscription.cancel();
   }
 
   void subscribeOnPositionToSendSeen() {
@@ -389,14 +400,22 @@ class _RoomPageState extends State<RoomPage> {
         var msg = await _getMessage(event);
 
         if (msg == null) return;
-
-        if (!_authRepo.isCurrentUser(msg.from)) {
-          _messageRepo.sendSeen(event, widget.roomId.asUid());
+        if (_appIsActive) {
+          _sendSeenMessage([msg]);
+        } else {
+          _backroundMessages.add(msg);
         }
-
-        _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: event));
       }
     });
+  }
+
+  _sendSeenMessage(List<Message> messages) {
+    for (var msg in messages) {
+      if (!_authRepo.isCurrentUser(msg.from)) {
+        _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
+      }
+      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
+    }
   }
 
   Future<Message?> _getMessage(int id, {useCache = true}) async {
