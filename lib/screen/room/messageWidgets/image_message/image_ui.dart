@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -79,7 +80,8 @@ class _ImageUiState extends State<ImageUi> {
               builder: (c, s) {
                 if (s.hasData && s.data != null) {
                   return AspectRatio(
-                    aspectRatio: widget.image.width / widget.image.height,
+                    aspectRatio: max(widget.image.width, 1) /
+                        max(widget.image.height, 1),
                     child: Stack(
                       fit: StackFit.passthrough,
                       alignment: Alignment.center,
@@ -194,7 +196,8 @@ class _ImageUiState extends State<ImageUi> {
                   );
                 } else {
                   return AspectRatio(
-                    aspectRatio: widget.image.width / widget.image.height,
+                    aspectRatio: max(widget.image.width, 1) /
+                        max(widget.image.height, 1),
                     child: Stack(
                       children: [
                         BlurHash(

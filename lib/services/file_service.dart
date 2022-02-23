@@ -231,9 +231,9 @@ class FileService {
     try {
       if (!kIsWeb) {
         try {
-          if (MediaType.parse(mime(filePath) ?? filePath)
-              .toString()
-              .contains("image")) {
+          final mediaType =
+              MediaType.parse(mime(filePath) ?? filePath).toString();
+          if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
             if (isAndroid() || isIOS()) {
               filePath = await compressImageInMobile(File(filePath));
             } else {
@@ -295,6 +295,7 @@ class FileService {
         format == "jpg" ||
         format == "jpeg" ||
         format == "png" ||
+        format == "gif" ||
         format == "txt" ||
         format == "rar" ||
         format == "zip" ||
