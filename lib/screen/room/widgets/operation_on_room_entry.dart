@@ -44,7 +44,6 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   }
 
   onDeleteRoom(String selected) async {
-    // Navigator.pop<OperationOnRoom>(context, OperationOnRoom.DELETE_ROOM);
     String? roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
         context: context,
