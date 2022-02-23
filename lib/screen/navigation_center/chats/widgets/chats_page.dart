@@ -79,7 +79,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                 TextButton(
                     child: Text(_i18n.get("ok")),
                     onPressed: () {
-                    //  Navigator.of(context).pop();
+                     Navigator.of(context).pop();
                     }),
               ],
             );
