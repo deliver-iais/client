@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
@@ -178,11 +179,18 @@ class _AllImagePageState extends State<AllImagePage> {
                                                 index, filePath.data!);
                                             return InteractiveViewer(
                                                 child: AspectRatio(
-                                              aspectRatio: jsonDecode(
-                                                      mediaSnapShot.data!
-                                                          .json)["width"] /
-                                                  jsonDecode(mediaSnapShot
-                                                      .data!.json)["height"],
+                                              aspectRatio: max(
+                                                      jsonDecode(mediaSnapShot
+                                                              .data!
+                                                              .json)["width"]
+                                                          as int,
+                                                      1) /
+                                                  max(
+                                                      jsonDecode(mediaSnapShot
+                                                              .data!
+                                                              .json)["height"]
+                                                          as int,
+                                                      1),
                                               child: kIsWeb
                                                   ? Image.network(
                                                       filePath.data!)
