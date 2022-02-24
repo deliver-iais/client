@@ -95,7 +95,6 @@ class RoutingService {
       {List<Message> forwardedMessages = const [],
       List<Media> forwardedMedia = const [],
       bool popAllBeforePush = false,
-      List<String>? inputFilePaths,
       pro.ShareUid? shareUid,
       bool forceToOpenRoom = false}) {
     //todo forwardMedia
@@ -104,7 +103,6 @@ class RoutingService {
           RoomPage(
             key: ValueKey("/room/$roomId"),
             roomId: roomId,
-            inputFilePaths: inputFilePaths,
             forwardedMessages: forwardedMessages,
             forwardedMedia: forwardedMedia,
             shareUid: shareUid,

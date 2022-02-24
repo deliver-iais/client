@@ -30,10 +30,10 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver/web_classes/js.dart'
@@ -51,6 +51,7 @@ class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
+  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>?> _decodeMessageForWebNotification(
@@ -159,7 +160,10 @@ class FireBaseServices {
   void subscribeRoom(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
-        // var req = _firebaseServices.registration(null); //todo
+        await _queryServicesClient.sendGlitch(SendGlitchReq()
+          ..offlineNotification =
+              (GlitchOfOfflineNotification()..room = roomUid.asUid()));
+
         _requestedRoom.add(roomUid);
       } catch (e) {
         _logger.e(e);
@@ -256,6 +260,6 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     _seenDao.saveMySeen(
       Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
     );
- //   AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
+    //   AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
   }
 }

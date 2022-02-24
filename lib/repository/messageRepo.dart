@@ -534,13 +534,15 @@ class MessageRepo {
 
     await _fileRepo.cloneFileInLocalDirectory(f, packetId, file.name);
 
-    var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
+    var pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
 
     await _savePendingMessage(pm);
 
     var m = await _sendFileToServerOfPendingMessage(pm);
-    if (m != null) {
+    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
       await _sendMessageToServer(m);
+    } else if (m != null) {
+      _messageDao.savePendingMessage(m);
     }
   }
 
@@ -588,12 +590,16 @@ class MessageRepo {
       var newJson = fileInfo.writeToJson();
 
       var newPm = pm.copyWith(
-          msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
+          msg: pm.msg.copyWith(json: newJson),
+          status: SendingStatus.UPLOAD_FILE_COMPELED);
 
       // Update pending messages table
       await _savePendingMessage(newPm);
 
       _updateRoomLastMessage(newPm);
+      return newPm;
+    } else {
+      var newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
       return newPm;
     }
   }
@@ -656,14 +662,17 @@ class MessageRepo {
     for (var pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
-          case SendingStatus.SENDING_FILE:
+          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+            break;
+          case SendingStatus.PENDING:
+          case SendingStatus.UPLOAD_FILE_COMPELED:
+            await _sendMessageToServer(pendingMessage);
+            break;
+          case SendingStatus.UPLIOD_FILE_FAIL:
             var pm = await _sendFileToServerOfPendingMessage(pendingMessage);
             if (pm != null) {
               await _sendMessageToServer(pm);
             }
-            break;
-          case SendingStatus.PENDING:
-            await _sendMessageToServer(pendingMessage);
             break;
         }
       }
@@ -1140,7 +1149,7 @@ class MessageRepo {
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }
 
-   fetchBlockedRoom() async {
+  fetchBlockedRoom() async {
     try {
       GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());

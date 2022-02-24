@@ -40,7 +40,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
     return FutureBuilder<String?>(
       key: _futureKey,
       future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
-          thumbnailSize: ThumbnailSize.medium),
+          thumbnailSize: ThumbnailSize.small),
       builder: (c, thumbnail) {
         if (thumbnail.hasData && thumbnail.data != null) {
           return Container(

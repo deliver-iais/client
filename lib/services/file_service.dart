@@ -24,7 +24,7 @@ import 'package:universal_html/html.dart' as html;
 
 import 'ext_storage_services.dart';
 
-enum ThumbnailSize { medium }
+enum ThumbnailSize { medium,small }
 
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();

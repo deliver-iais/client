@@ -152,6 +152,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                               mediaSnapshot.data!.json)["uuid"],
                                           fileName: jsonDecode(
                                               mediaSnapshot.data!.json)["name"],
+                                          isPendingMessage: false,
                                           onPressed: () async {
                                             await _fileRepo.getFile(
                                                 jsonDecode(mediaSnapshot

@@ -84,8 +84,13 @@ class SeenDaoImpl implements SeenDao {
     return Hive.openBox<Seen>(_key());
   }
 
-  static Future<Box<Seen>> _openMySeen() {
-    BoxInfo.addBox(_key2());
-    return Hive.openBox<Seen>(_key2());
+  static Future<Box<Seen>> _openMySeen() async {
+    try {
+      BoxInfo.addBox(_key2());
+      return Hive.openBox<Seen>(_key2());
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_key2());
+      return Hive.openBox<Seen>(_key2());
+    }
   }
 }

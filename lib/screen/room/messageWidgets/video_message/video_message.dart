@@ -142,7 +142,7 @@ class _VideoMessageState extends State<VideoMessage> {
                 return FutureBuilder<String?>(
                   future: _fileRepo.getFileIfExist(video.uuid, video.name),
                   builder: (c, s) {
-                    if (s.hasData && s.data != null) {
+                    if (s.hasData && s.data != null && false) {
                       return videoWidget(
                         child: VideoUi(
                           videoFilePath: s.data!,
@@ -179,35 +179,11 @@ class _VideoMessageState extends State<VideoMessage> {
                                           videoLength: videoLength,
                                           video: video);
                                     } else {
-                                      return videoWidget(
-                                          child: DownloadVideoWidget(
-                                            name: video.name,
-                                            uuid: video.uuid,
-                                            download: () async {
-                                              await _fileRepo.getFile(
-                                                  video.uuid, video.name);
-                                            },
-                                            background: background,
-                                            foreground: foreground,
-                                          ),
-                                          video: video,
-                                          videoLength: videoLength);
+                                      return  downloadWidget(video, background, foreground, videoLength);
                                     }
                                   });
                             } else {
-                              return videoWidget(
-                                  child: DownloadVideoWidget(
-                                    name: video.name,
-                                    uuid: video.uuid,
-                                    download: () async {
-                                      await _fileRepo.getFile(
-                                          video.uuid, video.name);
-                                    },
-                                    background: background,
-                                    foreground: foreground,
-                                  ),
-                                  video: video,
-                                  videoLength: videoLength);
+                              return  downloadWidget(video, background, foreground, videoLength);
                             }
                           });
                     }
@@ -217,6 +193,22 @@ class _VideoMessageState extends State<VideoMessage> {
             }),
       ),
     );
+  }
+
+  Widget downloadWidget(File video, Color background, Color foreground, String videoLength)  {
+        return videoWidget(
+        child: DownloadVideoWidget(
+          name: video.name,
+          uuid: video.uuid,
+          download: () async {
+            await _fileRepo.getFile(
+                video.uuid, video.name);
+          },
+          background: background,
+          foreground: foreground,
+        ),
+        video: video,
+        videoLength: videoLength);
   }
 
   Widget videoWidget(

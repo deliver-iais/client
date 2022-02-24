@@ -16,6 +16,7 @@ class LoadFileStatus extends StatefulWidget {
   final String? messagePacketId; // TODO Needs to be refactored
   final Function onPressed;
   final Color background;
+  final bool  isPendingMessage;
   final Color foreground;
 
   const LoadFileStatus({
@@ -25,6 +26,7 @@ class LoadFileStatus extends StatefulWidget {
     this.messagePacketId,
     required this.onPressed,
     required this.background,
+    required this.isPendingMessage,
     required this.foreground,
   }) : super(key: key);
 
@@ -54,25 +56,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   }
 
   Widget builds(BuildContext context) {
-    if (widget.messagePacketId != null) {
-      return StreamBuilder<PendingMessage?>(
-          stream: _messageRepo.watchPendingMessage(widget.messagePacketId!),
-          builder: (context, pendingMessage) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Stack(
-                  children: <Widget>[
-                    if (pendingMessage.hasData)
-                      if (pendingMessage.data!.status ==
-                          SendingStatus.SENDING_FILE)
-                        buildUpload(),
-                    if (!pendingMessage.hasData) buildDownload()
-                  ],
-                ),
-              ],
-            );
-          });
+    if (widget.isPendingMessage) {
+      return buildUpload();
+
     } else {
       return buildDownload();
     }
