@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -16,6 +17,7 @@ import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -58,11 +60,13 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<LiveLocationRepo>(returnNullOnMissingStub: true),
   MockSpec<SeenDao>(returnNullOnMissingStub: true),
   MockSpec<MucServices>(returnNullOnMissingStub: true),
+  MockSpec<FireBaseServices>(returnNullOnMissingStub: true),
   MockSpec<CoreServices>(returnNullOnMissingStub: true),
   MockSpec<QueryServiceClient>(returnNullOnMissingStub: true),
   MockSpec<SharedDao>(returnNullOnMissingStub: true),
   MockSpec<AvatarRepo>(returnNullOnMissingStub: true),
   MockSpec<BlockDao>(returnNullOnMissingStub: true),
+  MockSpec<MediaDao>(returnNullOnMissingStub: true),
 ])
 MockCoreServices getAndRegisterCoreServices(
     {ConnectionStatus connectionStatus = ConnectionStatus.Connecting}) {
@@ -81,6 +85,20 @@ MockLogger getAndRegisterLogger() {
   _removeRegistrationIfExists<Logger>();
   final service = MockLogger();
   GetIt.I.registerSingleton<Logger>(service);
+  return service;
+}
+
+MockFireBaseServices getAndRegisterFireBaseServices() {
+  _removeRegistrationIfExists<FireBaseServices>();
+  final service = MockFireBaseServices();
+  GetIt.I.registerSingleton<FireBaseServices>(service);
+  return service;
+}
+
+MockMediaDao getAndRegisterMediaDao() {
+  _removeRegistrationIfExists<MediaDao>();
+  final service = MockMediaDao();
+  GetIt.I.registerSingleton<MediaDao>(service);
   return service;
 }
 
@@ -378,10 +396,12 @@ void registerServices() {
   getAndRegisterLiveLocationRepo();
   getAndRegisterSeenDao();
   getAndRegisterMucServices();
+  getAndRegisterFireBaseServices();
   getAndRegisterQueryServiceClient();
   getAndRegisterSharedDao();
   getAndRegisterAvatarRepo();
   getAndRegisterBlockDao();
+  getAndRegisterMediaDao();
 }
 
 void unregisterServices() {
@@ -394,10 +414,12 @@ void unregisterServices() {
   GetIt.I.unregister<LiveLocationRepo>();
   GetIt.I.unregister<SeenDao>();
   GetIt.I.unregister<MucServices>();
+  GetIt.I.unregister<FireBaseServices>();
   GetIt.I.unregister<QueryServiceClient>();
   GetIt.I.unregister<SharedDao>();
   GetIt.I.unregister<AvatarRepo>();
   GetIt.I.unregister<BlockDao>();
+  GetIt.I.unregister<MediaDao>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {
