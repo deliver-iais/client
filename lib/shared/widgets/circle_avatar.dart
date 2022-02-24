@@ -50,7 +50,7 @@ class CircleAvatarWidget extends StatelessWidget {
       child: Hero(
         tag: contactUid.asString(),
         child: Container(
-          key: _globalKey,
+          key: kIsWeb?null: _globalKey,
           width: radius * 2,
           height: radius * 2,
           clipBehavior: Clip.hardEdge,

@@ -78,7 +78,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
-import 'package:universal_html/html.dart' as html;
 import 'box/dao/contact_dao.dart';
 import 'box/dao/custom_notication_dao.dart';
 import 'box/dao/media_dao.dart';
@@ -239,7 +238,6 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
-  print("finish injection");
 }
 
 Future setupFlutterNotification() async {
@@ -247,10 +245,6 @@ Future setupFlutterNotification() async {
 }
 
 void main() async {
-
-  html.window.onBeforeUnload.listen((event) async{
-    print("refreshhhhhhhh");
-  });
 
   WidgetsFlutterBinding.ensureInitialized();
 
