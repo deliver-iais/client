@@ -50,7 +50,7 @@ class I18N {
   Locale get locale => _language.value.locale;
 
   String get(String key) {
-    return _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "");
+    return _values!= null && _values!.isNotEmpty? _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : ""):key.replaceAll("_"," ");
   }
 
   String verb(String key, {isFirstPerson = false}) {

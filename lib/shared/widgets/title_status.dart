@@ -109,16 +109,12 @@ class _TitleStatusState extends State<TitleStatus> {
   title(I18N i18n, TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
-        return "dis";
         return i18n.get("disconnected").capitalCase;
       case TitleStatusConditions.Connecting:
-        return "con";
         return i18n.get("connecting").capitalCase;
       case TitleStatusConditions.Updating:
-        return "upd";
         return i18n.get("updating").capitalCase;
       case TitleStatusConditions.Normal:
-        return "connn";
         return i18n.get("connected");
     }
   }

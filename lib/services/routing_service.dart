@@ -241,7 +241,6 @@ class RoutingService {
             onGenerateRoute: (r) => CupertinoPageRoute(
                 settings: r.copyWith(name: "/"),
                 builder: (c) {
-                 return MaterialApp(home: Text("routing serviddd"),);
                   if (isLarge(context)) {
                     return _empty;
                   } else {
