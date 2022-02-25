@@ -57,6 +57,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  awesome_notifications:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: e6f2fad194ffecf67b431fb62dcdec10ef594b62
+      url: "https://github.com/androidwoman/awesome_notifications-0.6.16.git"
+    source: git
+    version: "0.6.15"
   badges:
     dependency: "direct main"
     description:
@@ -332,15 +341,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.0"
-  desktop_window:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: main
-      resolved-ref: "4d59ebdad7c6f95efca34882d23853bb881d1d55"
-      url: "https://github.com/deliver-iais/desktop_window.git"
-    source: git
-    version: "0.4.0"
   device_info:
     dependency: "direct main"
     description:

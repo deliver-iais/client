@@ -20,7 +20,6 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:desktop_window/desktop_window.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
@@ -152,7 +151,6 @@ class WindowsNotifier implements Notifier {
             if (event is ActivatedEvent) {
               if (lastAvatar != null) {
                 _routingService.openRoom(lastAvatar.uid);
-                DesktopWindow.focus();
               }
               if(event is DissmissedEvent) {
                 WinToast.instance().bringWindowToFront();

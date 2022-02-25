@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 // import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -34,6 +35,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver/web_classes/js.dart'
@@ -233,33 +235,35 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     }
     try {
       _notificationServices.showNotification(msg, roomName: roomName!);
+
     } catch (_) {
-      // AwesomeNotifications().initialize(
-      //     null,
-      //     [
-      //       NotificationChannel(
-      //           channelKey: 'basic_channel',
-      //           channelName: 'Basic notifications',
-      //           channelDescription: 'Notification channel for basic tests',
-      //           defaultColor: Colors.lightBlueAccent,
-      //           ledColor: Colors.white)
-      //     ],
-      //     // Channel groups are only visual and are not required
-      //     debug: false);
-      // AwesomeNotifications().createNotification(
-      //     content: NotificationContent(
-      //         id: msg.id.toInt() + roomUid.hashCode,
-      //         channelKey: 'basic_channel',
-      //         title: roomName,
-      //         body: msg.text.text));
+      AwesomeNotifications().initialize(
+          null,
+          [
+            NotificationChannel(
+                channelKey: 'basic_channel',
+                channelName: 'Basic notifications',
+                channelDescription: 'Notification channel for basic tests',
+                defaultColor: Colors.lightBlueAccent,
+                ledColor: Colors.white)
+          ],
+          // Channel groups are only visual and are not required
+          debug: false);
+      AwesomeNotifications().createNotification(
+          content: NotificationContent(
+              id: msg.id.toInt() + roomUid.hashCode,
+              channelKey: 'basic_channel',
+              title: roomName,
+              body: msg.text.text));
     }
   } else if (remoteMessage.data.containsKey("seen")) {
     pb_seen.Seen seen =
         pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
     _notificationServices.cancelRoomNotifications(seen.to.asString());
+    _notificationServices.cancelNotificationById(0);
     _seenDao.saveMySeen(
       Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
     );
-    //   AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
+      AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
   }
 }
