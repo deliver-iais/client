@@ -83,6 +83,8 @@ class _CircularFileStatusIndicatorState
                       messagePacketId: widget.message.packetId,
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
+                        setState(() {
+                        });
                       },
                       background: widget.backgroundColor,
                       foreground: widget.foregroundColor,

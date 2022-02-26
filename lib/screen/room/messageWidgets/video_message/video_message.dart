@@ -179,11 +179,13 @@ class _VideoMessageState extends State<VideoMessage> {
                                           videoLength: videoLength,
                                           video: video);
                                     } else {
-                                      return  downloadWidget(video, background, foreground, videoLength);
+                                      return downloadWidget(video, background,
+                                          foreground, videoLength);
                                     }
                                   });
                             } else {
-                              return  downloadWidget(video, background, foreground, videoLength);
+                              return downloadWidget(
+                                  video, background, foreground, videoLength);
                             }
                           });
                     }
@@ -195,14 +197,14 @@ class _VideoMessageState extends State<VideoMessage> {
     );
   }
 
-  Widget downloadWidget(File video, Color background, Color foreground, String videoLength)  {
-        return videoWidget(
+  Widget downloadWidget(
+      File video, Color background, Color foreground, String videoLength) {
+    return videoWidget(
         child: DownloadVideoWidget(
           name: video.name,
           uuid: video.uuid,
           download: () async {
-            await _fileRepo.getFile(
-                video.uuid, video.name);
+            await _fileRepo.getFile(video.uuid, video.name);
           },
           background: background,
           foreground: foreground,

@@ -50,7 +50,7 @@ class CircleAvatarWidget extends StatelessWidget {
       child: Hero(
         tag: contactUid.asString(),
         child: Container(
-          key: kIsWeb?null: _globalKey,
+          key: kIsWeb ? null : _globalKey,
           width: radius * 2,
           height: radius * 2,
           clipBehavior: Clip.hardEdge,
@@ -75,11 +75,10 @@ class CircleAvatarWidget extends StatelessWidget {
       );
     } else {
       return StreamBuilder<String?>(
-          // key: _streamKey,
+          key: _streamKey,
           initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
           stream: _avatarRepo
-              .getLastAvatarFilePathStream(contactUid, false)
-              .asBroadcastStream(),
+              .getLastAvatarFilePathStream(contactUid, false),
           builder: (context, snapshot) =>
               builder(context, snapshot, textColor));
     }

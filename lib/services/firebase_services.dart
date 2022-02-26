@@ -204,7 +204,7 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     Uid roomUid = getRoomUid(_authRepo, msg);
     try {
       saveMessage(msg, roomUid, _messageDao, _authRepo, _accountRepo, _roomDao,
-          _mediaQueryRepo);
+          _seenDao, _mediaQueryRepo);
     } catch (_) {}
 
     try {
