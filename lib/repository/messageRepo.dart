@@ -223,8 +223,8 @@ class MessageRepo {
       if (r.lastMessage == null) return;
       var category = r.lastMessage!.to.asUid().category;
       if (r.lastMessage!.id == null) return;
-      if (_allRoomMetaData[r.uid] != null &&
-          !_authRepo.isCurrentUser(r.lastMessage!.from) &&
+      if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
+          _allRoomMetaData[r.uid] != null &&
           (category == Categories.GROUP || category == Categories.USER)) {
         fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
