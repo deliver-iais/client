@@ -790,7 +790,7 @@ void main() {
     group('sendMultipleFilesMessages -', () {
       PendingMessage pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(type: MessageType.FILE),
-          status: SendingStatus.SENDING_FILE,
+          status: SendingStatus.UPLOAD_FILE_INPROGRSS,
           failed: false);
 
       test('When called should initUploadProgress', () async {
@@ -876,7 +876,7 @@ void main() {
             json:
                 "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
           ),
-          status: SendingStatus.SENDING_FILE);
+          status: SendingStatus.UPLOAD_FILE_INPROGRSS);
       test('When called should getAllPendingMessages', () async {
         final messageDao = getAndRegisterMessageDao();
         await MessageRepo().sendPendingMessages();
