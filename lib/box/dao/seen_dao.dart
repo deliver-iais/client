@@ -37,7 +37,7 @@ class SeenDaoImpl implements SeenDao {
   Future<Seen> getMySeen(String uid) async {
     var box = await _openMySeen();
 
-    return box.get(uid) ?? Seen(uid: uid, messageId: 0);
+    return box.get(uid) ?? Seen(uid: uid, messageId: -1);
   }
 
   @override

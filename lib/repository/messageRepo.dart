@@ -88,6 +88,7 @@ class MessageRepo {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
+  Map<String, RoomMetadata> _allRoomMetaData = {};
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -135,6 +136,7 @@ class MessageRepo {
 
   @visibleForTesting
   Future<void> updatingMessages() async {
+    _allRoomMetaData = {};
     bool finished = false;
     int pointer = 0;
     var fetchAllRoom = await _sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM);
@@ -145,10 +147,10 @@ class MessageRepo {
             await _queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
               ..pointer = pointer
               ..limit = 10);
-
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+          _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (room == null) {
             _seenDao.saveMySeen(
@@ -217,16 +219,14 @@ class MessageRepo {
 
   Future<void> updatingLastSeen() async {
     var rooms = await _roomDao.getAllRooms();
-
     for (var r in rooms) {
       if (r.lastMessage == null) return;
       var category = r.lastMessage!.to.asUid().category;
       if (r.lastMessage!.id == null) return;
-      if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
+      if (_allRoomMetaData[r.uid] != null &&
+          !_authRepo.isCurrentUser(r.lastMessage!.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        var rm = await _queryServiceClient
-            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
-        fetchCurrentUserLastSeen(rm.roomMeta);
+        fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       var othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {

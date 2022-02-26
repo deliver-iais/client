@@ -204,7 +204,7 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     Uid roomUid = getRoomUid(_authRepo, msg);
     try {
       saveMessage(msg, roomUid, _messageDao, _authRepo, _accountRepo, _roomDao,
-          _mediaQueryRepo);
+          _seenDao, _mediaQueryRepo);
     } catch (_) {}
 
     try {
@@ -235,7 +235,6 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     }
     try {
       _notificationServices.showNotification(msg, roomName: roomName!);
-
     } catch (_) {
       AwesomeNotifications().initialize(
           null,
@@ -264,6 +263,6 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     _seenDao.saveMySeen(
       Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
     );
-      AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
+    AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
   }
 }
