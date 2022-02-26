@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -111,6 +111,16 @@ class IOSNotifier implements Notifier {
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
+  WindowsNotifier() {
+    scheduleMicrotask(() async {
+      final ret = await WinToast.instance().initialize(
+          appName: APPLICATION_NAME,
+          companyName: APPLICATION_DOMAIN,
+          productName: APPLICATION_NAME);
+      assert(ret);
+    });
+  }
+
   @override
   notify(MessageBrief message) async {
     if (message.ignoreNotification!) return;
@@ -134,7 +144,7 @@ class WindowsNotifier implements Notifier {
           if (event is ActivatedEvent) {
             _routingService.openRoom(lastAvatar.uid);
           }
-          if(event is DissmissedEvent) {
+          if (event is DissmissedEvent) {
             WinToast.instance().bringWindowToFront();
           }
         });
@@ -152,7 +162,7 @@ class WindowsNotifier implements Notifier {
               if (lastAvatar != null) {
                 _routingService.openRoom(lastAvatar.uid);
               }
-              if(event is DissmissedEvent) {
+              if (event is DissmissedEvent) {
                 WinToast.instance().bringWindowToFront();
               }
             }
@@ -165,8 +175,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancel(int id, String roomId) {
-  }
+  cancel(int id, String roomId) {}
 
   @override
   cancelAll() {}

@@ -45,22 +45,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    if(isWindows()){
-      scheduleMicrotask(() async {
-        final ret = await WinToast.instance().initialize(
-            appName: APPLICATION_NAME,
-            companyName: 'deliver.co.ir',
-            productName: 'deliver');
-        assert(ret);
-        setState(() {
-        });
-      });
-    }
-
-    if (kIsWeb) {
-    //  html.document.onContextMenu.listen((event) => event.preventDefault());
-    }
-
     _coreServices.initStreamConnection();
     if (isAndroid() || isIOS()) {
       _notificationServices.cancelAllNotifications();
@@ -121,7 +105,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return false;
       },
       child: Container(
-          color:theme.colorScheme.background,
+          color: theme.colorScheme.background,
           child: _routingService.outlet(context)),
     );
   }
