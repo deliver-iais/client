@@ -1,12 +1,8 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-
-import 'package:desktoasts/desktoasts.dart'
-    if (dart.library.html) 'package:deliver/web_classes/web_desktoasts.dart'
-    as windows_notify;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -24,7 +20,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:desktop_window/desktop_window.dart';
+import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -111,14 +107,19 @@ class IOSNotifier implements Notifier {
   cancelById(int id) {}
 }
 
+//init on Home_Page init because can't load Deliver Icon and should be init inside initState() function
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  final windows_notify.ToastService _windowsNotificationServices =
-      windows_notify.ToastService(
-    appName: APPLICATION_NAME,
-    companyName: "deliver.co.ir",
-    productName: APPLICATION_NAME,
-  );
+
+  WindowsNotifier() {
+    scheduleMicrotask(() async {
+      final ret = await WinToast.instance().initialize(
+          appName: APPLICATION_NAME,
+          companyName: APPLICATION_DOMAIN,
+          productName: APPLICATION_NAME);
+      assert(ret);
+    });
+  }
 
   @override
   notify(MessageBrief message) async {
@@ -134,32 +135,35 @@ class WindowsNotifier implements Notifier {
         String? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        windows_notify.Toast toast = windows_notify.Toast(
-            type: windows_notify.ToastType.imageAndText02,
+        Toast? toast = await WinToast.instance().showToast(
+            type: ToastType.imageAndText02,
             title: message.roomName!,
             subtitle: createNotificationTextFromMessageBrief(message),
-            image: File(file!));
-        _windowsNotificationServices.show(toast);
-        _windowsNotificationServices.stream.listen((event) {
-          if (event is windows_notify.ToastActivated) {
+            imagePath: file!);
+        toast!.eventStream.listen((event) {
+          if (event is ActivatedEvent) {
             _routingService.openRoom(lastAvatar.uid);
+          }
+          if (event is DissmissedEvent) {
+            WinToast.instance().bringWindowToFront();
           }
         });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          windows_notify.Toast toast = windows_notify.Toast(
-            type: windows_notify.ToastType.imageAndText02,
+          Toast? toast = await WinToast.instance().showToast(
+            type: ToastType.imageAndText02,
             title: message.roomName!,
-            image: deliverIcon,
+            imagePath: deliverIcon.path,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
-          _windowsNotificationServices.show(toast);
-          _windowsNotificationServices.stream.listen((event) {
-            if (event is windows_notify.ToastActivated) {
+          toast!.eventStream.listen((event) {
+            if (event is ActivatedEvent) {
               if (lastAvatar != null) {
                 _routingService.openRoom(lastAvatar.uid);
-                DesktopWindow.focus();
+              }
+              if (event is DissmissedEvent) {
+                WinToast.instance().bringWindowToFront();
               }
             }
           });

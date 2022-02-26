@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -15,6 +16,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:universal_html/html.dart' as html;
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:win_toast/win_toast.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -43,10 +45,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    if (kIsWeb) {
-      html.document.onContextMenu.listen((event) => event.preventDefault());
-    }
-
     _coreServices.initStreamConnection();
     if (isAndroid() || isIOS()) {
       _notificationServices.cancelAllNotifications();
@@ -107,7 +105,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return false;
       },
       child: Container(
-          color:theme.colorScheme.background,
+          color: theme.colorScheme.background,
           child: _routingService.outlet(context)),
     );
   }

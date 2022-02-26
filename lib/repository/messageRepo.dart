@@ -88,6 +88,7 @@ class MessageRepo {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
+  Map<String, RoomMetadata> _allRoomMetaData = {};
 
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -135,6 +136,7 @@ class MessageRepo {
 
   @visibleForTesting
   Future<void> updatingMessages() async {
+    _allRoomMetaData = {};
     bool finished = false;
     int pointer = 0;
     var fetchAllRoom = await _sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM);
@@ -145,10 +147,10 @@ class MessageRepo {
             await _queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
               ..pointer = pointer
               ..limit = 10);
-
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+          _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (room == null) {
             _seenDao.saveMySeen(
@@ -217,16 +219,14 @@ class MessageRepo {
 
   Future<void> updatingLastSeen() async {
     var rooms = await _roomDao.getAllRooms();
-
     for (var r in rooms) {
       if (r.lastMessage == null) return;
       var category = r.lastMessage!.to.asUid().category;
       if (r.lastMessage!.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
+          _allRoomMetaData[r.uid] != null &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        var rm = await _queryServiceClient
-            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
-        fetchCurrentUserLastSeen(rm.roomMeta);
+        fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       var othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
@@ -534,13 +534,15 @@ class MessageRepo {
 
     await _fileRepo.cloneFileInLocalDirectory(f, packetId, file.name);
 
-    var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
+    var pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
 
     await _savePendingMessage(pm);
 
     var m = await _sendFileToServerOfPendingMessage(pm);
-    if (m != null) {
+    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
       await _sendMessageToServer(m);
+    } else if (m != null) {
+      _messageDao.savePendingMessage(m);
     }
   }
 
@@ -588,12 +590,16 @@ class MessageRepo {
       var newJson = fileInfo.writeToJson();
 
       var newPm = pm.copyWith(
-          msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
+          msg: pm.msg.copyWith(json: newJson),
+          status: SendingStatus.UPLOAD_FILE_COMPELED);
 
       // Update pending messages table
       await _savePendingMessage(newPm);
 
       _updateRoomLastMessage(newPm);
+      return newPm;
+    } else {
+      var newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
       return newPm;
     }
   }
@@ -656,14 +662,17 @@ class MessageRepo {
     for (var pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
-          case SendingStatus.SENDING_FILE:
+          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+            break;
+          case SendingStatus.PENDING:
+          case SendingStatus.UPLOAD_FILE_COMPELED:
+            await _sendMessageToServer(pendingMessage);
+            break;
+          case SendingStatus.UPLIOD_FILE_FAIL:
             var pm = await _sendFileToServerOfPendingMessage(pendingMessage);
             if (pm != null) {
               await _sendMessageToServer(pm);
             }
-            break;
-          case SendingStatus.PENDING:
-            await _sendMessageToServer(pendingMessage);
             break;
         }
       }
@@ -1140,7 +1149,7 @@ class MessageRepo {
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }
 
-   fetchBlockedRoom() async {
+  fetchBlockedRoom() async {
     try {
       GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());

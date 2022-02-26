@@ -1,3 +1,5 @@
+import 'package:deliver/models/file.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 
 import 'package:deliver/screen/navigation_center/chats/widgets/contact_pic.dart';
@@ -9,13 +11,13 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToShareFile extends StatelessWidget {
   final Uid uid;
-  final List<String>? sharedFilePath;
-  final String? sharedText;
+  final List<String> sharedFilePath;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ChatItemToShareFile(
-      {Key? key, required this.uid, this.sharedText, this.sharedFilePath})
+      {Key? key, required this.uid, required this.sharedFilePath})
       : super(key: key);
 
   @override
@@ -26,8 +28,11 @@ class ChatItemToShareFile extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            _routingService.openRoom(uid.asString(),
-                inputFilePaths: sharedFilePath);
+            for (String path in sharedFilePath) {
+              _messageRepo.sendFileMessage(
+                  uid, File(path, path.split(".").last));
+            }
+            _routingService.openRoom(uid.asString());
           },
           child: SizedBox(
             height: 50,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+// import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
@@ -30,6 +31,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
@@ -51,6 +53,7 @@ class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
+  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>?> _decodeMessageForWebNotification(
@@ -159,7 +162,10 @@ class FireBaseServices {
   void subscribeRoom(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
-        // var req = _firebaseServices.registration(null); //todo
+        await _queryServicesClient.sendGlitch(SendGlitchReq()
+          ..offlineNotification =
+              (GlitchOfOfflineNotification()..room = roomUid.asUid()));
+
         _requestedRoom.add(roomUid);
       } catch (e) {
         _logger.e(e);
@@ -198,7 +204,7 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     Uid roomUid = getRoomUid(_authRepo, msg);
     try {
       saveMessage(msg, roomUid, _messageDao, _authRepo, _accountRepo, _roomDao,
-          _mediaQueryRepo);
+          _seenDao, _mediaQueryRepo);
     } catch (_) {}
 
     try {
@@ -253,6 +259,7 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     pb_seen.Seen seen =
         pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
     _notificationServices.cancelRoomNotifications(seen.to.asString());
+    _notificationServices.cancelNotificationById(0);
     _seenDao.saveMySeen(
       Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
     );

@@ -117,6 +117,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         LoadFileStatus(
                                           fileId: fileId,
                                           fileName: fileName,
+                                          isPendingMessage: false,
                                           onPressed: () async {
                                             await _fileRepo.getFile(
                                                 fileId, fileName);

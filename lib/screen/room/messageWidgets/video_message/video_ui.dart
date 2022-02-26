@@ -64,25 +64,19 @@ class _VideoUiState extends State<VideoUi> {
                 return Hero(
                   tag: widget.videoMessage.uuid,
                   child: VideoPlayerWidget(
-                    videoFilePath: widget.videoFilePath,showAppBar: true,
+                    videoFilePath: widget.videoFilePath,
+                    showAppBar: true,
                   ),
                 );
               }));
             }
           },
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 100,
-            child: FittedBox(
-              fit: BoxFit.fitWidth,
-              child: Center(
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height / 2,
-                  child: VideoPlayer(
-                    _videoPlayerController,
-                  ),
-                ),
+          child: LimitedBox(
+            maxWidth: MediaQuery.of(context).size.width,
+            maxHeight:MediaQuery.of(context).size.height/2 ,
+            child: Center(
+              child: VideoPlayer(
+                _videoPlayerController,
               ),
             ),
           ),
@@ -107,7 +101,8 @@ class _VideoUiState extends State<VideoUi> {
                     return Hero(
                       tag: widget.videoMessage.uuid,
                       child: VideoPlayerWidget(
-                        videoFilePath: widget.videoFilePath,showAppBar: true,
+                        videoFilePath: widget.videoFilePath,
+                        showAppBar: true,
                       ),
                     );
                   }));

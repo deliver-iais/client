@@ -282,8 +282,6 @@ void main() {
 
         await MessageRepo().updatingLastSeen();
         verify(authRepo.isCurrentUser(testUid.asString()));
-        verify(queryServiceClient
-            .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid));
       });
       test('When called if lastMessage id not be null should getOthersSeen ',
           () async {
@@ -790,7 +788,7 @@ void main() {
     group('sendMultipleFilesMessages -', () {
       PendingMessage pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(type: MessageType.FILE),
-          status: SendingStatus.SENDING_FILE,
+          status: SendingStatus.UPLOAD_FILE_INPROGRSS,
           failed: false);
 
       test('When called should initUploadProgress', () async {
@@ -876,7 +874,7 @@ void main() {
             json:
                 "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
           ),
-          status: SendingStatus.SENDING_FILE);
+          status: SendingStatus.UPLIOD_FILE_FAIL);
       test('When called should getAllPendingMessages', () async {
         final messageDao = getAndRegisterMessageDao();
         await MessageRepo().sendPendingMessages();
@@ -903,7 +901,7 @@ void main() {
             msg: pm.msg.copyWith(
                 json:
                     "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}"),
-            status: SendingStatus.PENDING)));
+            status: SendingStatus.UPLOAD_FILE_COMPELED)));
       });
       test(
           'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE and cloned file are not null should updateRoom',
