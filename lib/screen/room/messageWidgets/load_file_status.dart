@@ -16,7 +16,7 @@ class LoadFileStatus extends StatefulWidget {
   final String? messagePacketId; // TODO Needs to be refactored
   final Function onPressed;
   final Color background;
-  final bool  isPendingMessage;
+  final bool isPendingMessage;
   final Color foreground;
 
   const LoadFileStatus({
@@ -39,6 +39,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   final _fileService = GetIt.I.get<FileService>();
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
+
   @override
   void initState() {
     _fileService.initProgressBar(widget.fileId);
@@ -52,17 +53,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
         height: 50,
         decoration:
             BoxDecoration(shape: BoxShape.circle, color: widget.background),
-        child: builds(context));
+        child: widget.isPendingMessage ? buildUpload() : buildDownload());
   }
 
-  Widget builds(BuildContext context) {
-    if (widget.isPendingMessage) {
-      return buildUpload();
-
-    } else {
-      return buildDownload();
-    }
-  }
 
   Widget buildUpload() {
     return StreamBuilder<double?>(
@@ -132,7 +125,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
             return CircularPercentIndicator(
               radius: 50.0,
               lineWidth: 4.0,
-              animation: true,
               percent: min(snapshot.data!, 1.0),
               backgroundColor: widget.background,
               progressColor: widget.foreground,
