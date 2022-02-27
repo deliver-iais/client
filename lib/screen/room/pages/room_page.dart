@@ -637,13 +637,14 @@ class _RoomPageState extends State<RoomPage> {
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return AppBar(
       actions: [
-        if (room.uid.asUid().isUser() && !isLinux())
-          IconButton(
-              onPressed: () {
-                _routingService.openCallScreen(room.uid.asUid(),
-                    isVideoCall: true, context: context);
-              },
-              icon: const Icon(Icons.videocam)),
+        //TODO after increase bandwidth we add videoCall
+        // if (room.uid.asUid().isUser() && !isLinux())
+        //   IconButton(
+        //       onPressed: () {
+        //         _routingService.openCallScreen(room.uid.asUid(),
+        //             isVideoCall: true, context: context);
+        //       },
+        //       icon: const Icon(Icons.videocam)),
         if (room.uid.asUid().isUser() && !isLinux())
           IconButton(
               onPressed: () {
