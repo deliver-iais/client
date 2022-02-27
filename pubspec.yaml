@@ -51,7 +51,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  win_toast: ^0.0.2
+  win_toast: 0.0.2
   msix: 3.1.0
   flare_flutter: 3.0.2 # Animation Viewer Library
   lottie: 1.2.1
@@ -80,6 +80,10 @@ dependencies:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+  desktop_window: # CHANG TOP PAGE IN WINDOWS
+    git:
+      url: https://github.com/deliver-iais/desktop_window.git
+      ref: main
   dio: 4.0.3 # HTTP Invoker Library
   mime_type: 1.0.0 # Get mime type of file path
   jwt_decoder: 2.0.1 # TODO, read documentation and update it

@@ -10,6 +10,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
+import 'package:desktop_window/desktop_window.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -172,10 +173,32 @@ class WindowsNotifier implements Notifier {
             imagePath: file!);
         toast!.eventStream.listen((event) {
           if (event is ActivatedEvent) {
-            _routingService.openRoom(lastAvatar.uid);
-          }
-          if (event is DissmissedEvent) {
-            WinToast.instance().bringWindowToFront();
+            if (!isCall) {
+              if (lastAvatar != null) {
+                _routingService.openRoom(lastAvatar.uid);
+                WinToast.instance().bringWindowToFront();
+                DesktopWindow.focus();
+              }
+            } else {
+              if (event.actionIndex == 1) {
+                //Decline
+                callRepo.declineCall();
+                WinToast.instance().bringWindowToFront();
+              } else if (event.actionIndex == 0) {
+                //Accept
+                WinToast.instance().bringWindowToFront();
+                if (callRepo.isVideo) {
+                  _routingService.openCallScreen(message.roomUid!,
+                      isVideoCall: true, isCallAccepted: true);
+                } else {
+                  _routingService.openCallScreen(message.roomUid!,
+                      isCallAccepted: true);
+                }
+              }
+            }
+            if (event is DissmissedEvent) {
+              WinToast.instance().bringWindowToFront();
+            }
           }
         });
       } else {
@@ -193,11 +216,13 @@ class WindowsNotifier implements Notifier {
               if (!isCall) {
                 if (lastAvatar != null) {
                   _routingService.openRoom(lastAvatar.uid);
+                  WinToast.instance().bringWindowToFront();
                 }
               } else {
                 if (event.actionIndex == 1) {
                   //Decline
                   callRepo.declineCall();
+                  WinToast.instance().bringWindowToFront();
                 } else if (event.actionIndex == 0) {
                   //Accept
                   WinToast.instance().bringWindowToFront();
