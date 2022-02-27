@@ -43,9 +43,10 @@ class CallListWidget extends StatelessWidget {
                     ),
                     Text(
                       "  (2) January 1 at 4:07 PM",
+                      // TODO color alpha !!!!????
                       style: TextStyle(
                         color:
-                            ExtraTheme.of(context).textMessage.withAlpha(130),
+                            ExtraTheme.of(context).colorScheme.primary.withAlpha(130),
                         fontSize: 12,
                         height: 1.2,
                       ),

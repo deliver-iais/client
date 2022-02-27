@@ -6,7 +6,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -30,21 +30,23 @@ class _CallListState extends State<CallList> {
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
+            //TODO color style !!!
             title: Text(
               I18N.of(context)!.get("calls"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
+              style: TextStyle(color: ExtraTheme.of(context).colorScheme.primary),
             ),
             leading: _routingService.backButtonLeading(),
           ),
         ),
         body: FluidContainerWidget(
             child: Container(
+              //TODO backGround Color ???
                 margin: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: ExtraTheme.of(context).boxOuterBackground,
+                  color: ExtraTheme.of(context).colorScheme.background,
                 ),
-                child: FutureBuilder<List<CallEvent>?>(
+                child: FutureBuilder<FetchUserCallsRes>(
                     future: callRepo.fetchUserCallList(_authRepo.currentUserUid,
                         DateTime.now().month, DateTime.now().year),
                     builder: (context, snapshot) {
@@ -56,16 +58,16 @@ class _CallListState extends State<CallList> {
                                     (BuildContext context, int index) {
                                   return const Divider();
                                 },
-                                itemCount: snapshot.data!.length,
+                                itemCount: snapshot.data!.cellEvents.length,
                                 itemBuilder: (BuildContext ctx, int index) {
                                   return GestureDetector(
                                     onTap: () {
                                       _routingService.openRoom(snapshot
-                                          .data![index].member
+                                          .data!.cellEvents[index].callEvent.member
                                           .asString());
                                     },
                                     child: CallListWidget(
-                                        callEvent: snapshot.data![index]),
+                                        callEvent: snapshot.data!.cellEvents[index].callEvent),
                                   );
                                 }));
                       }

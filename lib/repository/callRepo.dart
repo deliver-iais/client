@@ -1083,19 +1083,17 @@ class CallRepo {
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
-  Future<List<CallEvent>?> fetchUserCallList(
+  Future<FetchUserCallsRes> fetchUserCallList(
     Uid roomUid,
     int month,
     int year,
   ) async {
-    FetchUserCallsRes r =
-        await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
+    return await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
           ..roomUid = roomUid
           ..limit=2
           ..fetchingDirectionType=FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
           ..month = month
           ..year = year);
-    return r.cellEvents;
   }
 }
 
