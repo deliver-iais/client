@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
@@ -62,6 +63,8 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
+const _calls = CallList(key: ValueKey("/calls"));
+
 class RoutingService {
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
@@ -91,6 +94,8 @@ class RoutingService {
   void openNewContact() => _push(_newContact);
 
   void openScanQrCode() => _push(_scanQrCode);
+
+  void openCallsList() => _push(_calls);
 
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
