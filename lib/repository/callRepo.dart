@@ -324,7 +324,7 @@ class CallRepo {
         _candidate.add({
           'candidate': e.candidate.toString(),
           'sdpMid': e.sdpMid.toString(),
-          'sdpMlineIndex': e.sdpMlineIndex!,
+          'sdpMlineIndex': e.sdpMLineIndex!,
         });
       }
     };
