@@ -135,6 +135,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           height: 110,
+                          width: 110,
                           child: FloatingActionButton(
                             backgroundColor: const Color(0xffcf6869),
                             heroTag: "2",
