@@ -6,7 +6,8 @@ class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
 
   final bool expandContent;
-  const SenderAndContent({Key? key, required this.messages, this.expandContent = true}) : super(key: key);
+  final Color? highlightColor;
+  const SenderAndContent({Key? key, required this.messages, this.expandContent = true, this.highlightColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +21,10 @@ class SenderAndContent extends StatelessWidget {
       showSender: true,
       showSenderInSeparatedLine: true,
       showSeenStatus: false,
+      showRoomDetails: false,
       lastMessageId: messages.first.id!,
       expandContent: expandContent,
+      primaryColor: highlightColor
     );
   }
 }

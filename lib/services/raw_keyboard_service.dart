@@ -17,7 +17,9 @@ class RawKeyboardService {
 
   void controlVHandle(TextEditingController controller) async {
     ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
-    controller.text = data!.text!;
+    controller.text = controller.text+ data!.text!;
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
   }
 
   void controlXHandle(TextEditingController controller) {
@@ -72,8 +74,7 @@ class RawKeyboardService {
       Function scrollDownInMention,
       event,
       int mentionSelectedIndex,
-      Function scrollUpInMention,
-      Function sendMentionByEnter) {
+      Function scrollUpInMention) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -84,11 +85,7 @@ class RawKeyboardService {
         mentionData != "-") {
       scrollDownInMentions(scrollDownInMention);
     }
-    if (isKeyPressed(event, PhysicalKeyboardKey.enter) &&
-        mentionData != "-" &&
-        mentionSelectedIndex >= 0) {
-      sendMention(sendMentionByEnter);
-    }
+
   }
 
   navigateInBotCommand(

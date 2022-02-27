@@ -59,7 +59,6 @@ class BotRepo {
     if (botInfo != null) {
       return botInfo;
     }
-
     return fetchBotInfo(botUid);
   }
 

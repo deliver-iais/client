@@ -5,8 +5,8 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,6 +24,7 @@ class TextUI extends StatelessWidget {
   final Function? onUsernameClick;
   final bool isBotMessage;
   final Function? onBotCommandClick;
+  final CustomColorScheme colorScheme;
 
   const TextUI(
       {Key? key,
@@ -35,11 +36,14 @@ class TextUI extends StatelessWidget {
       this.searchTerm,
       this.onUsernameClick,
       this.isBotMessage = false,
+      required this.colorScheme,
       this.onBotCommandClick})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     String text = extractText(message);
     List<Block> blocks = extractBlocks(text, context);
     List<TextSpan> spans = blocks.map<TextSpan>((b) {
@@ -66,7 +70,7 @@ class TextUI extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
-      padding: const EdgeInsets.only(top: 4, right: 8, left: 8),
+      padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
       child: Column(
         crossAxisAlignment:
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -74,20 +78,23 @@ class TextUI extends StatelessWidget {
         children: [
           RichText(
             text: TextSpan(
-                children: spans, style: Theme.of(context).textTheme.bodyText2),
+                children: spans,
+                style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
           LinkPreview(
             link: link,
             maxWidth: linkPreviewMaxWidth,
-            color: messageExtraContentColor(isSender, context),
+            backgroundColor: colorScheme.onPrimary,
+            foregroundColor: colorScheme.primary,
           ),
           TimeAndSeenStatus(
             message,
             isSender,
             isSeen,
-            needsBackground: false,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             needsPositioned: false,
             needsPadding: false,
           )
@@ -98,9 +105,9 @@ class TextUI extends StatelessWidget {
 
   String extractText(Message msg) {
     if (msg.type == MessageType.TEXT) {
-      return msg.json!.toText().text.trim();
+      return msg.json.toText().text.trim();
     } else if (msg.type == MessageType.FILE) {
-      return msg.json!.toFile().caption.trim();
+      return msg.json.toFile().caption.trim();
     } else {
       return "";
     }

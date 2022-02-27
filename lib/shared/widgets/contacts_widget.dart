@@ -22,13 +22,10 @@ class ContactWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: currentMember
-            ? Theme.of(context).colorScheme.secondary
-            : isSelected
-                ? Theme.of(context).focusColor
-                : null,
+        color: isSelected ? theme.focusColor : null,
       ),
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -45,15 +42,17 @@ class ContactWidget extends StatelessWidget {
               overflow: TextOverflow.fade,
               maxLines: 1,
               softWrap: false,
-              style: Theme.of(context).textTheme.subtitle1,
+              style: theme.textTheme.subtitle1,
             ),
           ),
           if (circleIcon != null)
             IconButton(
+              splashRadius: 40,
+              iconSize: 24,
               onPressed: () => onCircleIcon?.call(),
               icon: Icon(
                 circleIcon,
-                size: 21,
+                color: theme.colorScheme.primary,
               ),
             ),
         ],

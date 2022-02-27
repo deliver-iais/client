@@ -48,6 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   tryInitAccountRepo() async {
+
     try {
      await _accountRepo.checkUpdatePlatformSessionInformation();
       _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {
@@ -109,6 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget desktopLock() {
+    final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
         backgroundColor: const Color(0xffeefef7),
@@ -128,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 20),
               Text(
                 "Enter your local password",
-                style: Theme.of(context).primaryTextTheme.subtitle1,
+                style:theme.primaryTextTheme.subtitle1,
               ),
               SizedBox(
                 width: 190,

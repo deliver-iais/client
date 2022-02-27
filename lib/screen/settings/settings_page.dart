@@ -3,6 +3,7 @@ import 'package:deliver/models/account.dart';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 
 import 'package:deliver/services/routing_service.dart';
 
@@ -16,8 +17,7 @@ import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/dark.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -40,20 +40,19 @@ class _SettingsPageState extends State<SettingsPage> {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
-            title: Text(
-              _i18n.get("settings"),
-              style: TextStyle(color: ExtraTheme.of(context).textField),
-            ),
+            title: Text(_i18n.get("settings")),
             leading: _routingService.backButtonLeading(),
           ),
         ),
@@ -68,10 +67,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                _routingService.openShowAllAvatars(
-                                    uid: _authRepo.currentUserUid,
-                                    hasPermissionToDeleteAvatar: true,
-                                    heroTag: "avatar");
+                                var lastAvatar =
+                                    await _avatarRepo.getLastAvatar(
+                                        _authRepo.currentUserUid, false);
+                                if (lastAvatar?.createdOn != null && lastAvatar!.createdOn > 0) {
+                                  _routingService.openShowAllAvatars(
+                                      uid: _authRepo.currentUserUid,
+                                      hasPermissionToDeleteAvatar: true,
+                                      heroTag: "avatar");
+                                }
                               },
                               child: CircleAvatarWidget(
                                   _authRepo.currentUserUid, 35)),
@@ -93,14 +97,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style: Theme.of(context)
+                                        style:theme
                                             .textTheme
                                             .headline6,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         snapshot.data!.userName ?? "",
-                                        style: Theme.of(context)
+                                        style:theme
                                             .primaryTextTheme
                                             .subtitle1,
                                       ),
@@ -109,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         buildPhoneNumber(
                                             snapshot.data!.countryCode!,
                                             snapshot.data!.nationalNumber!),
-                                        style: Theme.of(context)
+                                        style:theme
                                             .textTheme
                                             .subtitle1,
                                       )

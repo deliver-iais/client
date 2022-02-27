@@ -1,4 +1,3 @@
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 
@@ -16,23 +15,11 @@ class BotRadioGroup extends FormField<String> {
             ) {
               return InputDecorator(
                 decoration: InputDecoration(
-                  label: Center(
-                    child: Text(
-                      formField.id,
-                      style: const TextStyle(color: Colors.blue, fontSize: 16),
-                    ),
+                  label: Text(
+                    formField.id,
+                    style: const TextStyle(fontSize: 16),
                   ),
                   errorText: field.hasError ? field.errorText : null,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
                 ),
                 child: Column(
                   children: [
@@ -41,18 +28,8 @@ class BotRadioGroup extends FormField<String> {
                             ? formField.list.values
                             : formField.radioButtonList.values)
                       ListTile(
-                          title: GestureDetector(
-                            onTap: () {},
-                            child: Text(
-                              f,
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: field.value == f
-                                      ? Colors.green
-                                      : ExtraTheme.of(field.context)
-                                          .textField),
-                            ),
-                          ),
+                          dense: true,
+                          title: Text(f, style: const TextStyle(fontSize: 16)),
                           leading: Radio<String?>(
                             value: f,
                             groupValue: field.value,

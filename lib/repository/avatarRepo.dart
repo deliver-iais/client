@@ -88,7 +88,7 @@ class AvatarRepo {
 
     Avatar? ac = _avatarCache.get(key);
 
-    if (ac != null && (nowTime - ac.lastUpdate!) > AVATAR_CACHE_TIME) {
+    if (ac != null && (nowTime - ac.lastUpdate) > AVATAR_CACHE_TIME) {
       _logger.v(
           "exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdate}");
       return true;
@@ -102,12 +102,12 @@ class AvatarRepo {
       _logger.v("last avatar is null - $userUid");
       return true;
     } else if ((lastAvatar.fileId == null || lastAvatar.fileId!.isEmpty) &&
-        (nowTime - lastAvatar.lastUpdate!) > NULL_AVATAR_CACHE_TIME) {
+        (nowTime - lastAvatar.lastUpdate) > NULL_AVATAR_CACHE_TIME) {
       // has no avatar and exceeded from 4 hours
       _logger.v(
           "exceeded from $NULL_AVATAR_CACHE_TIME DAO, and AVATAR WAS NULL - $userUid");
       return true;
-    } else if ((nowTime - lastAvatar.lastUpdate!) > AVATAR_CACHE_TIME) {
+    } else if ((nowTime - lastAvatar.lastUpdate) > AVATAR_CACHE_TIME) {
       // 24 hours
       _logger.v("exceeded from $AVATAR_CACHE_TIME in DAO - $userUid");
       return true;
@@ -155,9 +155,11 @@ class AvatarRepo {
     return _avatarFilePathCache.get(key);
   }
 
-  String getAvatarCacheKey(Uid userUid) => "${userUid.category}-${userUid.node}";
+  String getAvatarCacheKey(Uid userUid) =>
+      "${userUid.category}-${userUid.node}";
 
-  Stream<String> getLastAvatarFilePathStream(Uid userUid, bool forceToUpdate) async* {
+  Stream<String> getLastAvatarFilePathStream(
+      Uid userUid, bool forceToUpdate) async* {
     await fetchAvatar(userUid, forceToUpdate);
     var key = getAvatarCacheKey(userUid);
 
@@ -178,7 +180,8 @@ class AvatarRepo {
       if (event != null && event.fileId != null && event.fileName != null) {
         _avatarCache.set(key, event);
         String? path = await _fileRepo.getFile(event.fileId!, event.fileName!,
-            thumbnailSize: ThumbnailSize.medium);
+            thumbnailSize:
+                event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium);
         if (path != null) {
           _avatarFilePathCache.set(key, path);
           bs.sink.add(path);
@@ -218,13 +221,14 @@ class AvatarRepo {
       } else {
         setAvatarReqAccepted = await addAvatarRequest(addAvatarReq);
       }
-      if (setAvatarReqAccepted!) {
+      if (setAvatarReqAccepted) {
         await _avatarDao.saveAvatars(uid.asString(), [
           Avatar(
               uid: uid.asString(),
               createdOn: createOn,
               fileId: fileInfo.uuid,
-              fileName: fileInfo.name)
+              fileName: fileInfo.name,
+              lastUpdate: DateTime.now().millisecondsSinceEpoch)
         ]);
       }
     } catch (e) {
@@ -232,7 +236,7 @@ class AvatarRepo {
     }
   }
 
-  Future<bool?> addAvatarRequest(query.AddAvatarReq addAvatarReq) async {
+  Future<bool> addAvatarRequest(query.AddAvatarReq addAvatarReq) async {
     try {
       await _queryServices.addAvatar(addAvatarReq);
       return true;

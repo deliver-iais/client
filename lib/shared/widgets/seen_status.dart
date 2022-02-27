@@ -3,7 +3,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -18,9 +17,11 @@ class SeenStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
-    final color = iconColor ?? ExtraTheme.of(context).seenStatus;
+    final color = iconColor ?? theme.primaryColor;
+    const size = 16.0;
     Widget pendingMessage = Container(
         child: Lottie.asset(
       'assets/animations/clock.json',
@@ -54,7 +55,7 @@ class SeenStatus extends StatelessWidget {
       return Icon(
         Icons.done_all,
         color: color,
-        size: 15,
+        size: size,
       );
     } else {
       return StreamBuilder<Seen?>(
@@ -62,17 +63,17 @@ class SeenStatus extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Icon(
-              snapshot.data!.messageId! >= message.id!
+              snapshot.data!.messageId >= message.id!
                   ? Icons.done_all
                   : Icons.done,
               color: color,
-              size: 15,
+              size: size,
             );
           } else {
             return Icon(
               Icons.done,
               color: color,
-              size: 15,
+              size: size,
             );
           }
         },

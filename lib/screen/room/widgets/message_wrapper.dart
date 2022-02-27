@@ -1,65 +1,71 @@
 import 'dart:math';
 
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
   final Widget child;
-  final bool isSent;
+  final String uid;
+  final CustomColorScheme colorScheme;
+  final bool isSender;
+  final bool isFirstMessageInGroupedMessages;
 
-  const MessageWrapper({Key? key, required this.child, required this.isSent})
+  const MessageWrapper(
+      {Key? key,
+      required this.child,
+      required this.uid,
+      required this.colorScheme,
+      required this.isSender,
+      this.isFirstMessageInGroupedMessages = true})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const radius = Radius.circular(10);
-    const border = BorderRadius.all(radius);
-    return Container(
-      padding: const EdgeInsets.all(4.0),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Container(
-        decoration: const BoxDecoration(borderRadius: border, boxShadow: [
-          BoxShadow(
-              color: Colors.black38, blurRadius: 0.5, offset: Offset(0, 0.5))
-        ]),
-        child: Stack(
-          children: [
-            Positioned(
-              left: isSent ? null : 0,
-              right: !isSent ? null : 0,
-              top: 0,
-              child: !isSent
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CustomPaint(
-                        foregroundPainter: OPainter(isSent
-                            ? ExtraTheme.of(context).sentMessageBox
-                            : ExtraTheme.of(context).receivedMessageBox),
-                      ))
-                  : Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.rotationY(pi),
-                      child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CustomPaint(
-                            foregroundPainter: OPainter(isSent
-                                ? ExtraTheme.of(context).sentMessageBox
-                                : ExtraTheme.of(context).receivedMessageBox),
-                          )),
-                    ),
-            ),
-            ClipRRect(
-                borderRadius: border,
-                child: Container(
-                    color: isSent
-                        ? ExtraTheme.of(context).sentMessageBox
-                        : ExtraTheme.of(context).receivedMessageBox,
-                    child: child)),
-          ],
+    var border = messageBorder;
+
+    if (isFirstMessageInGroupedMessages) {
+      if (isSender) {
+        border = border.copyWith(topRight: Radius.zero);
+      } else {
+        border = border.copyWith(topLeft: Radius.zero);
+      }
+    }
+
+    const width = 6.0;
+    const height = 30.0;
+    final color = colorScheme.primaryContainer;
+
+    return Stack(
+      children: [
+        Container(
+          clipBehavior: Clip.hardEdge,
+          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2)
+              .copyWith(top: isFirstMessageInGroupedMessages ? (isSender ? 16 : 0) : 2),
+          decoration: BoxDecoration(
+            borderRadius: border,
+            color: color,
+          ),
+          child: child,
         ),
-      ),
+        if (isFirstMessageInGroupedMessages)
+          Positioned(
+            left: isSender ? null : 10 - width,
+            right: !isSender ? null : 10 - width,
+            top: isSender ? 16 : 0,
+            child: !isSender
+                ? CustomPaint(
+                    size: const Size(width, height),
+                    foregroundPainter: OPainter(color))
+                : Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(pi),
+                    child: CustomPaint(
+                        size: const Size(width, height),
+                        foregroundPainter: OPainter(color)),
+                  ),
+          ),
+      ],
     );
   }
 }
@@ -75,17 +81,20 @@ class OPainter extends CustomPainter {
 
     var path = Path();
 
-    path.moveTo(20, 4);
+    final x = size.width;
+    final y = size.height;
 
-    path.lineTo(-5, 2);
+    path.moveTo(x, 0);
+
+    path.moveTo(0, 0);
 
     path.arcToPoint(
-      const Offset(0, 20),
-      radius: const Radius.circular(40),
+      Offset(x, y),
+      radius: Radius.circular(y * 2),
       clockwise: true,
     );
 
-    path.lineTo(20, 5);
+    path.lineTo(x, 0);
 
     canvas.drawPath(path, paint);
   }

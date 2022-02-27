@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,15 @@ class LiveLocationMessageWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
+  final CustomColorScheme colorScheme;
 
-  const LiveLocationMessageWidget(this.message, this.isSeen, this.isSender, {Key? key}) : super(key: key);
+  const LiveLocationMessageWidget(
+    this.message,
+    this.isSeen,
+    this.isSender, {
+    Key? key,
+    required this.colorScheme,
+  }) : super(key: key);
 
   @override
   _LiveLocationMessageWidgetState createState() =>
@@ -33,7 +41,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
 
   @override
   void initState() {
-    liveLocation = widget.message.json!.toLiveLocation();
+    liveLocation = widget.message.json.toLiveLocation();
     _liveLocationRepo.updateLiveLocation(liveLocation);
     super.initState();
   }
@@ -104,8 +112,13 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             )
           ],
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-            needsBackground: true),
+        TimeAndSeenStatus(
+          widget.message,
+          widget.isSender,
+          widget.isSeen,
+          backgroundColor: widget.colorScheme.primaryContainer,
+          foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+        ),
       ],
     );
   }

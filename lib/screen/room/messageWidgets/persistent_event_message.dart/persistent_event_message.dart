@@ -7,14 +7,14 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -36,15 +36,14 @@ class PersistentEventMessage extends StatelessWidget {
       required this.message,
       this.onPinMessageClick,
       required this.maxWidth})
-      : persistentEventMessage = message.json!.toPersistentEvent(),
+      : persistentEventMessage = message.json.toPersistentEvent(),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return message.json == "{}"
-        ? Container(
-            height: 0.0,
-          )
+    final theme = Theme.of(context);
+    return message.json == EMPTY_MESSAGE
+        ? const SizedBox.shrink()
         : persistentEventMessage.whichType() ==
                 PersistentEvent_Type.botSpecificPersistentEvent
             ? Padding(
@@ -53,23 +52,33 @@ class PersistentEventMessage extends StatelessWidget {
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
                   ),
+                  padding: const EdgeInsets.only(
+                      top: 5, left: 8.0, right: 8.0, bottom: 4.0),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).dividerColor.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(20),
+                    color: theme.chipTheme.backgroundColor,
+                    borderRadius: secondaryBorder,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_i18n.get("bot_not_responding"),
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: ExtraTheme.of(context).textField)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CupertinoIcons.exclamationmark_bubble,
+                            color: theme.colorScheme.error,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_i18n.get("bot_not_responding"),
+                              style: const TextStyle(fontSize: 16)),
+                        ],
+                      ),
                       if (persistentEventMessage
                           .botSpecificPersistentEvent.errorMessage.isNotEmpty)
                         Text(
                             persistentEventMessage
                                 .botSpecificPersistentEvent.errorMessage,
-                            style: Theme.of(context).textTheme.headline5),
+                            style: theme.textTheme.caption)
                     ],
                   ),
                 ),
@@ -79,7 +88,11 @@ class PersistentEventMessage extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: BlurContainer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: theme.chipTheme.backgroundColor,
+                          borderRadius: tertiaryBorder,
+                          border: Border.fromBorderSide(theme.chipTheme.side!)),
                       padding: const EdgeInsets.only(
                           top: 5, left: 8.0, right: 8.0, bottom: 4.0),
                       child: FutureBuilder<List<Widget>?>(
@@ -101,19 +114,26 @@ class PersistentEventMessage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (message.json!.toPersistentEvent().whichType() ==
+                  if (message.json.toPersistentEvent().whichType() ==
                           PersistentEvent_Type.mucSpecificPersistentEvent &&
-                      message.json!
+                      message
+                              .json
                               .toPersistentEvent()
                               .mucSpecificPersistentEvent
                               .issue ==
                           MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
                     FutureBuilder<String?>(
-                        future: _fileRepo.getFile(
-                            persistentEventMessage
-                                .mucSpecificPersistentEvent.avatar.fileUuid,
-                            persistentEventMessage
-                                .mucSpecificPersistentEvent.avatar.fileName),
+                        future:
+                            _fileRepo
+                                .getFile(
+                                    persistentEventMessage
+                                        .mucSpecificPersistentEvent
+                                        .avatar
+                                        .fileUuid,
+                                    persistentEventMessage
+                                        .mucSpecificPersistentEvent
+                                        .avatar
+                                        .fileName),
                         builder: (context, fileSnapshot) {
                           if (fileSnapshot.hasData &&
                               fileSnapshot.data != null) {
@@ -146,10 +166,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    height: 1,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    fontSize: 14, height: 1, fontWeight: FontWeight.bold),
               ),
               onTap: () => _routingServices.openRoom(persistentEventMessage
                   .mucSpecificPersistentEvent.issuer
@@ -171,10 +188,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14,
-                    height: 1,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                    fontSize: 14, height: 1, fontWeight: FontWeight.bold),
               ),
               onTap: () => _routingServices.openRoom(persistentEventMessage
                   .mucSpecificPersistentEvent.assignee
@@ -194,7 +208,7 @@ class PersistentEventMessage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.bold, height: 1, color: Colors.white),
+                    fontSize: 14, fontWeight: FontWeight.bold, height: 1),
               ),
               onTap: () => onPinMessageClick!(persistentEventMessage
                   .mucSpecificPersistentEvent.messageId
@@ -207,7 +221,7 @@ class PersistentEventMessage extends StatelessWidget {
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
-          style: const TextStyle(fontSize: 14, height: 1, color: Colors.white),
+          style: const TextStyle(fontSize: 14, height: 1),
         );
         return [
           issuerWidget,
@@ -296,10 +310,10 @@ class PersistentEventMessage extends StatelessWidget {
     if (m != null) {
       switch (m.type) {
         case MessageType.TEXT:
-          return m.json!.toText().text;
+          return m.json.toText().text;
 
         case MessageType.FILE:
-          return m.json!.toFile().caption;
+          return m.json.toFile().caption;
 
         case MessageType.STICKER:
           // TODO: Handle this case.

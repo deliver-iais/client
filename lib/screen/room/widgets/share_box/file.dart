@@ -42,90 +42,97 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
     return FutureBuilder<List<String>>(
         future: _future,
         builder: (context, files) {
-          if (files.hasData) {
-            return ListView.builder(
-                controller: widget.scrollController,
-                itemCount: files.data!.length + 1,
-                itemBuilder: (ctx, index) {
-                  if (index == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.add_circle_outlined,
-                              color: Colors.cyanAccent,
-                              size: 39,
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              _i18n.get("choose_other_files"),
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 17),
-                            ),
-                          ],
-                        ),
-                        onTap: () async {
-                          FilePickerResult? result = await FilePicker.platform
-                              .pickFiles(allowMultiple: true);
-                          if (result != null && result.files.isNotEmpty) {
-                            showCaptionDialog(
-                                roomUid: widget.roomUid,
-                                context: context,
-                                type: result.files.first.path!.split(".").last,
-                                files: result.files
-                                    .map((e) => File(e.path!, e.name))
-                                    .toList());
-                          }
-                        },
-                      ),
-                    );
-                  } else {
-                    var fileItem = files.data![index - 1];
-                    var selected = widget.selectedFiles[index - 1] ?? false;
-
-                    return GestureDetector(
-                      child: Container(
-                        color: selected ? Colors.black12 : Colors.white,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            IconButton(
-                              icon: const Icon(
-                                Icons.insert_drive_file,
-                                color: Colors.deepOrange,
-                                size: 33,
+          if (files.hasData && files.data != null) {
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: widget.selectedFiles.values.isNotEmpty ? 50 : 0),
+              child: ListView.builder(
+                  controller: widget.scrollController,
+                  itemCount: files.data!.length + 1,
+                  itemBuilder: (ctx, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.add_circle_outlined,
+                                color: Colors.cyanAccent,
+                                size: 39,
                               ),
-                              onPressed: () =>
-                                  widget.onClick(index - 1, fileItem),
-                            ),
-                            const SizedBox(
-                              width: 22,
-                            ),
-                            Flexible(
-                              child: Text(
-                                fileItem.split("/").last,
-                                overflow: TextOverflow.ellipsis,
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                _i18n.get("choose_other_files"),
                                 style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                ),
-                                maxLines: 1,
+                                    color: Colors.black, fontSize: 17),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          onTap: () async {
+                            FilePickerResult? result = await FilePicker.platform
+                                .pickFiles(allowMultiple: true);
+                            if (result != null && result.files.isNotEmpty) {
+                              showCaptionDialog(
+                                  roomUid: widget.roomUid,
+                                  context: context,
+                                  type:
+                                      result.files.first.path!.split(".").last,
+                                  files: result.files
+                                      .map((e) => File(e.path!, e.name))
+                                      .toList());
+                            }
+                          },
                         ),
-                      ),
-                      onTap: () => widget.onClick(index - 1, fileItem),
-                    );
-                  }
-                });
+                      );
+                    } else {
+                      var fileItem = files.data![index - 1];
+                      var selected = widget.selectedFiles[index - 1] ?? false;
+
+                      return GestureDetector(
+                        child: Container(
+                          color: selected ? Colors.black12 : Colors.white,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.insert_drive_file,
+                                  color: Colors.deepOrange,
+                                  size: 33,
+                                ),
+                                onPressed: () =>
+                                    widget.onClick(index - 1, fileItem),
+                              ),
+                              const SizedBox(
+                                width: 22,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  fileItem.split("/").last,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () => widget.onClick(index - 1, fileItem),
+                      );
+                    }
+                  }),
+            );
           }
-          return const SizedBox.shrink();
+          return const CircularProgressIndicator(
+            color: Colors.blue,
+          );
         });
   }
 }

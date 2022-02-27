@@ -15,7 +15,7 @@ abstract class RoomDao {
 
   Future<Room?> getRoom(String roomUid);
 
-  Stream<Room?> watchRoom(String roomUid);
+  Stream<Room> watchRoom(String roomUid);
 
   Future<List<Room>> getAllGroups();
 }
@@ -46,8 +46,8 @@ class RoomDaoImpl implements RoomDao {
   @override
   Stream<List<Room>> watchAllRooms() async* {
     var box = await _openRoom();
-    if(box.isEmpty){
-      box = await  _openRoom();
+    if (box.isEmpty) {
+      box = await _openRoom();
     }
     yield sorted(box.values
         .where((element) =>
@@ -57,7 +57,7 @@ class RoomDaoImpl implements RoomDao {
 
     yield* box.watch().map((event) => sorted(box.values
         .where((element) => (element.lastMessageId != null &&
-            (element.deleted == null || element.deleted == false)))
+            (element.deleted == null || !element.deleted!)))
         .toList()));
   }
 
@@ -86,12 +86,14 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<Room?> watchRoom(String roomUid) async* {
+  Stream<Room> watchRoom(String roomUid) async* {
     var box = await _openRoom();
 
-    yield box.get(roomUid);
+    yield box.get(roomUid) ?? Room(uid: roomUid);
 
-    yield* box.watch(key: roomUid).map((event) => box.get(roomUid));
+    yield* box
+        .watch(key: roomUid)
+        .map((event) => box.get(roomUid) ?? Room(uid: roomUid));
   }
 
   static String _keyRoom() => "room";
@@ -112,7 +114,7 @@ class RoomDaoImpl implements RoomDao {
     return box.values
         .where((element) =>
             element.uid.asUid().category == Categories.GROUP &&
-            (element.deleted == null || element.deleted != true))
+            (element.deleted == null || !element.deleted!))
         .toList();
   }
 }

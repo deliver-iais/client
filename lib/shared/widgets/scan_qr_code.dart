@@ -13,8 +13,6 @@ import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
-
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart'
     as contact_pb;
@@ -73,6 +71,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   Widget _buildQrView(BuildContext context) {
+    final theme = Theme.of(context);
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
         ? 250.0
@@ -84,7 +83,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       onQRViewCreated: (QRViewController controller) =>
           _onQRViewCreated(controller, context),
       overlay: QrScannerOverlayShape(
-          borderColor: Theme.of(context).primaryColor,
+          borderColor: theme.primaryColor,
           borderRadius: 10,
           borderLength: 30,
           borderWidth: 10,
@@ -174,12 +173,13 @@ class _ScanQrCode extends State<ScanQrCode> {
       String? countryCode,
       String? nationalNumber,
       required BuildContext context}) async {
+    final theme = Theme.of(context);
     var res = await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
           toastText:
               "$firstName $lastName ${I18N.of(context)!.get("contact_exist")}",
-          tostContext: context);
+          toastContext: context);
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -190,8 +190,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             children: <Widget>[
               Text(
                 _i18n.get("sure_add_contact"),
-                style: TextStyle(
-                  color: ExtraTheme.of(context).textField,
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
@@ -202,12 +201,11 @@ class _ScanQrCode extends State<ScanQrCode> {
               Text(
                 buildName(firstName, lastName),
                 style: TextStyle(
-                    color: ExtraTheme.of(context).username, fontSize: 20),
+                    color:theme.primaryColor, fontSize: 20),
               ),
               Text(
                 buildPhoneNumber(countryCode, nationalNumber),
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
               const SizedBox(
                 height: 40,
@@ -220,7 +218,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var res = await _contactRepo.addContact(
+                      var newContactAdded = await _contactRepo.sendNewContact(
                           contact_pb.Contact()
                             ..firstName = firstName!
                             ..lastName = lastName!
@@ -228,12 +226,11 @@ class _ScanQrCode extends State<ScanQrCode> {
                                 countryCode: int.parse(countryCode),
                                 nationalNumber:
                                     Int64(int.parse(nationalNumber))));
-                      _contactRepo.getContacts();
-                      if (res) {
+                      if (newContactAdded) {
                         ToastDisplay.showToast(
                             toastText:
                                 "$firstName$lastName ${_i18n.get("contact_add")}",
-                            tostContext: context);
+                            toastContext: context);
                         Navigator.of(context).pop();
                       }
                     },
@@ -250,6 +247,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   void handleSendMsgToBot(
       BuildContext context, String botId, String text) async {
+    final theme = Theme.of(context);
     controller.pauseCamera();
 
     showFloatingModalBottomSheet(
@@ -261,8 +259,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           children: <Widget>[
             Text(
               "${_i18n.get("send_msg_to")} $botId",
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
@@ -272,8 +269,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             ),
             Text(
               text,
-              style: TextStyle(
-                  color: ExtraTheme.of(context).username, fontSize: 25),
+              style: TextStyle(color: theme.primaryColor, fontSize: 25),
             ),
             const SizedBox(
               height: 40,
@@ -339,16 +335,14 @@ class _ScanQrCode extends State<ScanQrCode> {
           children: <Widget>[
             Text(
               botId,
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
             Text(
               _i18n.get("get_private_data_access_${privateDataType.name}"),
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),

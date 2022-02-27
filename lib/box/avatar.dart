@@ -20,14 +20,14 @@ class Avatar {
   String? fileName;
 
   @HiveField(4)
-  int? lastUpdate;
+  int lastUpdate;
 
   Avatar(
       {required this.uid,
       required this.createdOn,
       this.fileId,
       this.fileName,
-      this.lastUpdate});
+      required this.lastUpdate});
 
   Avatar copyWith(
           {String? uid,

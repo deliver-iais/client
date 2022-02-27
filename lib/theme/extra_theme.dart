@@ -1,47 +1,45 @@
+import 'dart:math';
+
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ExtraThemeData {
-  Color centerPageDetails;
-  Color boxOuterBackground = const Color(0xfde2f8f0);
-  Color boxBackground = const Color(0xfde2f8f0);
-  Color menuIconButton;
-  Color chatOrContactItemDetails;
-  Color sentMessageBox;
-  Color sentMessageBoxForeground;
-  Color receivedMessageBox;
-  Color persistentEventMessage;
-  Color seenStatus; //green white
-  Color messageDetails;
-  Color circularFileStatus;
-  Color fileMessageDetails;
-  Color inputBoxBackground;
-  Color fileSharingDetails;
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  final Material3ColorScheme colorScheme;
+  final List<CustomColorScheme> customColorsSchemeList;
+  final CustomColorScheme primaryColorsScheme;
 
-  // TODO refactor all of these
-  Color username; // primary
-  Color textMessage; // -> normal
-  Color textField; //green white -> normal
-  Color textDetails;
+  Color lowlight() => colorScheme.onPrimary;
+
+  Color highlight() => colorScheme.primary;
+
+  Color surfaceElevation(int number, {isSender = false}) => elevation(
+      colorScheme.surface,
+      isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer,
+      number);
+
+  CustomColorScheme messageColorScheme(String uid) {
+    if (_authRepo.isCurrentUser(uid)) {
+      return primaryColorsScheme;
+    }
+    var hash = 0;
+    for (var i = 0; i < uid.length; i++) {
+      hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    final finalHash = hash.abs() % (100);
+    var r = Random(finalHash);
+    return customColorsSchemeList[r.nextInt(customColorsSchemeList.length)];
+  }
 
   ExtraThemeData(
-      {required this.centerPageDetails,
-      required this.boxOuterBackground,
-      required this.boxBackground,
-      required this.textDetails,
-      required this.menuIconButton,
-      required this.username,
-      required this.chatOrContactItemDetails,
-      required this.sentMessageBox,
-      required this.receivedMessageBox,
-      required this.textMessage,
-      required this.seenStatus,
-      required this.messageDetails,
-      required this.persistentEventMessage,
-      required this.circularFileStatus,
-      required this.fileMessageDetails,
-      required this.textField,
-      required this.inputBoxBackground,
-      required this.fileSharingDetails, required this.sentMessageBoxForeground});
+      {required this.colorScheme, required this.customColorsSchemeList})
+      : primaryColorsScheme = CustomColorScheme(
+            colorScheme.primary,
+            colorScheme.onPrimary,
+            colorScheme.primaryContainer,
+            colorScheme.onPrimaryContainer);
 }
 
 class ExtraTheme extends InheritedWidget {
@@ -51,7 +49,7 @@ class ExtraTheme extends InheritedWidget {
     Key? key,
     required Widget child,
     required this.extraThemeData,
-  })  : super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
     return context
@@ -60,8 +58,5 @@ class ExtraTheme extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(ExtraTheme oldWidget) {
-    // TODO ???
-    return true;
-  }
+  bool updateShouldNotify(ExtraTheme oldWidget) => false;
 }

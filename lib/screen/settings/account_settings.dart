@@ -12,7 +12,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
@@ -57,7 +56,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (kIsWeb || isDesktop()) {
       if (isLinux()) {
         final typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -68,7 +67,9 @@ class _AccountSettingsState extends State<AccountSettings> {
         FilePickerResult? result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
-          path = kIsWeb?Uri.dataFromBytes(result.files.first.bytes!.toList()).toString():result.files.first.path;
+          path = kIsWeb
+              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
+              : result.files.first.path;
         }
       }
 
@@ -168,6 +169,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (widget.forceToSetUsernameAndName) return false;
@@ -183,10 +185,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               if (widget.forceToSetUsernameAndName)
                 Text(
                   _i18n.get("should_set_username_and_name"),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline6!
-                      .copyWith(fontSize: 10),
+                  style: theme.textTheme.headline6!.copyWith(fontSize: 10),
                 )
             ]),
             leading: !widget.forceToSetUsernameAndName
@@ -250,7 +249,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                               .withOpacity(0.9),
                                         ),
                                         child: CircleAvatarWidget(
-                                            _authRepo.currentUserUid, 130,hideName: true,)),
+                                          _authRepo.currentUserUid,
+                                          130,
+                                          hideName: true,
+                                        )),
                                   ),
                                   Center(
                                     child: Padding(
@@ -284,9 +286,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   key: _usernameFormKey,
                                   child: TextFormField(
                                       minLines: 1,
-                                      style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).textField),
                                       initialValue: snapshot.data!.userName,
                                       textInputAction: TextInputAction.send,
                                       onChanged: (str) {
@@ -338,8 +337,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 TextFormField(
                                   initialValue: snapshot.data!.firstName ?? "",
                                   minLines: 1,
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
                                   textInputAction: TextInputAction.send,
                                   onChanged: (str) {
                                     setState(() {
@@ -356,9 +353,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 TextFormField(
                                     initialValue: snapshot.data!.lastName ?? "",
                                     minLines: 1,
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).textField),
                                     textInputAction: TextInputAction.send,
                                     onChanged: (str) {
                                       setState(() {
@@ -373,9 +367,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 TextFormField(
                                     initialValue: snapshot.data!.email ?? "",
                                     minLines: 1,
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).textField),
                                     textInputAction: TextInputAction.send,
                                     onChanged: (str) {
                                       setState(() {
@@ -411,21 +402,6 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   InputDecoration buildInputDecoration(label, bool isOptional) {
     return InputDecoration(
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        disabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Colors.red,
-          ),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
         suffixIcon: isOptional
             ? const Padding(
                 padding: EdgeInsets.only(top: 20, left: 25),
@@ -435,8 +411,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                 ),
               )
             : const SizedBox.shrink(),
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.blue));
+        labelText: label);
   }
 
   String? validateFirstName(String? value) {

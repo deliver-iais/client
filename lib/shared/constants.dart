@@ -6,16 +6,19 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "Deliver";
+const APPLICATION_NAME = "We";
 const APPLICATION_DOMAIN = "deliver-co.ir";
-const SPDA="spda";
-const TEXT="text";
-const JOIN="join";
-const LOGIN="login";
-const VERSION =
-    "1.6.6"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+const SPDA = "spda";
+const TEXT = "text";
+const JOIN = "join";
+const LOGIN = "login";
+// if change the VERSION , is necessary to change version in pubspec.yaml file
+const VERSION = "1.7.0";
 const LOG_OUT = "log_out";
+const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
+const int TEXT_MESSAGE_MAX_LENGTH = 50;
+const int TEXT_MESSAGE_MAX_LINE = 20;
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
 // ignore: non_constant_identifier_names
@@ -106,16 +109,32 @@ const LIVE_LOCATION_TRACK_ID = 19;
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 
 // UI
-const MAIN_BORDER_RADIUS = 10.0;
-
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
 
 const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;
 
-const double NAVIGATION_PANEL_SIZE = 384;
+const double NAVIGATION_PANEL_SIZE = 320;
 const double MIN_WIDTH = 200;
+
+//FEATURE DISCOVERY ID
+const String feature1 = 'feature1',
+    feature2 = 'feature2',
+    feature3 = 'feature3';
+
+const mainBorder = BorderRadius.all(Radius.circular(28));
+
+const secondaryBorder = BorderRadius.all(Radius.circular(12));
+
+const tertiaryBorder = BorderRadius.all(Radius.circular(8));
+
+const messageBorder = BorderRadius.all(Radius.circular(14));
+
+const backgroundBorder = BorderRadius.only(
+    topLeft: Radius.circular(12), topRight: Radius.circular(12));
+
+const buttonBorder = BorderRadius.all(Radius.circular(20));
 
 // Screen Breakdown
 bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
@@ -133,8 +152,8 @@ double animationSquareSize(BuildContext context) => isLarge(context)
 double maxWidthOfMessage(BuildContext context) => min(
     (MediaQuery.of(context).size.width -
             (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-        0.7,
-    400);
+        0.8,
+    450);
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

@@ -2,6 +2,7 @@ package ir.we.deliver;
 
 import android.Manifest;
 import android.app.Activity;
+
 import android.content.Context;
 import android.os.Environment;
 import com.nabinbhandari.android.permissions.PermissionHandler;
@@ -31,7 +32,6 @@ import java.util.ArrayList;
 public class Application extends FlutterActivity implements PluginRegistrantCallback {
     private static final String GET_MEDIA_CHANNEL = "read_external";
     private static final String GET_PATH_CHANNEL = "get_path";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

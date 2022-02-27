@@ -2,12 +2,15 @@ import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ImageFolderWidget extends StatefulWidget {
   final StorageFile storageFile;
@@ -33,7 +36,17 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   final List<String> _selectedImage = [];
   final _i18n = GetIt.I.get<I18N>();
   final TextEditingController _textEditingController = TextEditingController();
+  final _keyboardVisibilityController = KeyboardVisibilityController();
+  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final _messageRepo = GetIt.I.get<MessageRepo>();
+
+  @override
+  void initState() {
+    _keyboardVisibilityController.onChange.listen((event) {
+      _insertCaption.add(event);
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +67,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 _selectedImage.isNotEmpty
                     ? "selected: ${_selectedImage.length}"
                     : widget.storageFile.folderName,
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 19),
+                style: const TextStyle(fontSize: 19),
               )
             : const SizedBox.shrink(),
       ),
@@ -88,8 +100,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),
+                            borderRadius: secondaryBorder,
                             image: DecorationImage(
                                 image: Image.file(
                                   File(imagePath),
@@ -101,134 +112,55 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                           child: widget.selectAvatar
                               ? const SizedBox.shrink()
                               : Align(
-                                  alignment: Alignment.topRight,
+                                  alignment: Alignment.bottomRight,
                                   child: GestureDetector(
-                                    onTap: () => onTap(imagePath),
-                                    child: Icon(
-                                      _selectedImage.contains(imagePath)
-                                          ? Icons.check_circle_outline
-                                          : Icons.panorama_fish_eye,
-                                      color: Colors.white,
-                                      size: 38,
-                                    ),
-                                  ),
+                                      onTap: () => onTap(imagePath),
+                                      child: Container(
+                                        width: 28,
+                                        height: 28,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(24),
+                                            color: Theme.of(context)
+                                                .hoverColor
+                                                .withOpacity(0.5)),
+                                        child: Center(
+                                          child: Icon(
+                                            _selectedImage.contains(imagePath)
+                                                ? Icons.check_circle_outline
+                                                : Icons.panorama_fish_eye,
+                                            color: Colors.white,
+                                            size: 28,
+                                          ),
+                                        ),
+                                      )),
                                 )),
                     ),
                   ));
             },
           ),
-          buildInputCaption(canPop: false)
+          buildInputCaption(
+              i18n: _i18n,
+              insertCaption: _insertCaption,
+              context: context,
+              captionEditingController: _textEditingController,
+              count: _selectedImage.length,
+              send: () {
+                widget.pop();
+                _send();
+              })
         ],
       ),
     );
   }
 
-  Stack buildInputCaption({required bool canPop}) {
-    return Stack(
-      children: [
-        _selectedImage.isNotEmpty && !widget.selectAvatar
-            ? Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).dialogBackgroundColor,
-                    border: Border.all(
-                      color: Colors.transparent,
-                    ),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: _i18n.get("caption"),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 8),
-                    ),
-                    style: TextStyle(color: ExtraTheme.of(context).textField),
-                    autocorrect: true,
-                    textInputAction: TextInputAction.newline,
-                    minLines: 1,
-                    maxLines: 15,
-                    controller: _textEditingController,
-                  ),
-                ),
-              )
-            : const SizedBox.shrink(),
-        _selectedImage.isNotEmpty
-            ? Positioned(
-                right: 20,
-                bottom: 20,
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: <Widget>[
-                    Container(
-                      decoration: const BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)
-                        ],
-                        shape: BoxShape.circle,
-                      ),
-                      child: ClipOval(
-                        child: Material(
-                          color: Theme.of(context).primaryColor, // button color
-                          child: InkWell(
-                              splashColor: Colors.red, // inkwell color
-                              child: const SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: Icon(
-                                    Icons.send,
-                                    size: 30,
-                                    color: Colors.white,
-                                  )),
-                              onTap: () {
-                                widget.pop();
-                                if (canPop) {
-                                  Navigator.pop(context);
-                                }
-
-                                _messageRepo.sendMultipleFilesMessages(
-                                    widget.roomUid,
-                                    _selectedImage
-                                        .map((e) =>
-                                            model.File(e, e.split(".").last))
-                                        .toList(),
-                                    caption: _textEditingController.text);
-                              }),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      child: Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              _selectedImage.length.toString(),
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 11),
-                            ),
-                          ],
-                        ),
-                        width: 16.0,
-                        height: 16.0,
-                        decoration: BoxDecoration(
-                          // color: Theme.of(context).dialogBackgroundColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.lightBlue,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      top: 35.0,
-                      right: 0.0,
-                      left: 25,
-                    ),
-                  ],
-                ),
-              )
-            : const SizedBox.shrink(),
-      ],
-    );
+  void _send() {
+    _messageRepo.sendMultipleFilesMessages(
+        widget.roomUid,
+        _selectedImage
+            .map((e) => model.File(e, e.split(".").last))
+            .toList(),
+        caption: _textEditingController.text);
   }
 
   void onTap(String imagePath) {
@@ -255,9 +187,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     if (_selectedImage.isNotEmpty)
                       Text(
                         _selectedImage.length.toString(),
-                        style: TextStyle(
-                            fontSize: 25,
-                            color: ExtraTheme.of(context).textField),
+                        style: const TextStyle(fontSize: 25),
                       ),
                     IconButton(
                       onPressed: () async {
@@ -311,21 +241,32 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     ),
                   ),
                 ),
-                buildInputCaption(canPop: true)
+                buildInputCaption(
+                    i18n: _i18n,
+                    insertCaption: _insertCaption,
+                    context: context,
+                    captionEditingController: _textEditingController,
+                    count: _selectedImage.length,
+                    send: () {
+                      widget.pop();
+                      Navigator.pop(context);
+                      _send();
+                    })
               ],
             ));
       });
     }));
   }
 }
+
 Future<String?> cropImage(String imagePath) async {
   File? croppedFile = await ImageCropper.cropImage(
       sourcePath: imagePath,
       aspectRatioPresets: Platform.isAndroid
           ? [CropAspectRatioPreset.square]
           : [
-        CropAspectRatioPreset.square,
-      ],
+              CropAspectRatioPreset.square,
+            ],
       cropStyle: CropStyle.rectangle,
       androidUiSettings: const AndroidUiSettings(
           toolbarTitle: "image",

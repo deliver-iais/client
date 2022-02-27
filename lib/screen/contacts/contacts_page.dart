@@ -11,7 +11,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -30,6 +30,7 @@ class _ContactsPageState extends State<ContactsPage> {
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
 
@@ -51,15 +52,13 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           titleSpacing: 8,
-          title: Text(
-            I18N.of(context)!.get("contacts"),
-            style: TextStyle(color: ExtraTheme.of(context).textField),
-          ),
+          title: Text(_i18n.get("contacts")),
           leading: _routingService.backButtonLeading(),
         ),
       ),
@@ -67,8 +66,8 @@ class _ContactsPageState extends State<ContactsPage> {
         child: Container(
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).boxOuterBackground,
+            borderRadius: mainBorder,
+            color: theme.colorScheme.surface,
           ),
           child: StreamBuilder<List<Contact>>(
               stream: _contactRepo.watchAll(),
@@ -85,7 +84,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: SearchBox(
-                            borderRadius: BorderRadius.circular(8),
+                            // borderRadius: mainBorder,
                             onChange: _queryTermDebouncedSubject.add,
                             onCancel: () => _queryTermDebouncedSubject.add("")),
                       ),
@@ -120,7 +119,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                       },
                                       child: ContactWidget(
                                           contact: c,
-                                          circleIcon: Icons.qr_code_rounded,
+                                          circleIcon: CupertinoIcons.qrcode,
                                           onCircleIcon: () => showQrCode(
                                               context,
                                               buildShareUserUrl(
@@ -145,7 +144,7 @@ class _ContactsPageState extends State<ContactsPage> {
                           onPressed: () {
                             _routingService.openNewContact();
                           },
-                          label: Text(I18N.of(context)!.get("add_new_contact")),
+                          label: Text(_i18n.get("add_new_contact")),
                         ),
                       ),
                     ],
@@ -158,6 +157,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   _showSyncContactDialog(BuildContext context) async {
+   
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
@@ -172,14 +172,14 @@ class _ContactsPageState extends State<ContactsPage> {
                 height: 80,
                 color: Colors.blue,
                 child: const Icon(
-                  Icons.contacts,
+                  CupertinoIcons.profile_circled,
                   color: Colors.white,
                   size: 40,
                 ),
               ),
               content: SizedBox(
                 width: 200,
-                child: Text(I18N.of(context)!.get("send_contacts_message"),
+                child: Text(_i18n.get("send_contacts_message"),
                     style: Theme.of(context).textTheme.subtitle1),
               ),
               actions: <Widget>[
@@ -191,7 +191,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       _contactRepo.syncContacts();
                     },
                     child: Text(
-                      I18N.of(context)!.get("continue"),
+                      _i18n.get("continue"),
                     ))
               ],
             );

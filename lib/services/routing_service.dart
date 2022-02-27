@@ -1,5 +1,7 @@
 import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/call_screen.dart';
@@ -9,8 +11,11 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
-import 'package:deliver/screen/profile/pages/media_details_page.dart';
+import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
+import 'package:deliver/screen/profile/widgets/all_image_page.dart';
+import 'package:deliver/screen/profile/widgets/all_video_page.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
@@ -20,13 +25,11 @@ import 'package:deliver/screen/settings/pages/log_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -69,8 +72,11 @@ class RoutingService {
       _navigatorObserver.currentRoute.stream;
 
   // Functions
-  void openSettings({bool popAllBeforePush = false}) =>
+  void openSettings({bool popAllBeforePush = false}) {
+    if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
+    }
+  }
 
   void openLanguageSettings() => _push(_languageSettings);
 
@@ -88,16 +94,18 @@ class RoutingService {
 
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
+      List<Media> forwardedMedia = const [],
       bool popAllBeforePush = false,
-      List<String>? inputFilePaths,
-      pro.ShareUid? shareUid}) {
-    if (!isInRoom(roomId)) {
+      pro.ShareUid? shareUid,
+      bool forceToOpenRoom = false}) {
+    //todo forwardMedia
+    if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
           RoomPage(
             key: ValueKey("/room/$roomId"),
             roomId: roomId,
-            inputFilePaths: inputFilePaths,
             forwardedMessages: forwardedMessages,
+            forwardedMedia: forwardedMedia,
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);
@@ -127,7 +135,7 @@ class RoutingService {
           {required Uid uid,
           required bool hasPermissionToDeleteAvatar,
           required String heroTag}) =>
-      _push(MediaDetailsPage.showAvatar(
+      _push(AllAvatarPage(
           key: const ValueKey("/media-details"),
           userUid: uid,
           hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
@@ -135,28 +143,25 @@ class RoutingService {
 
   void openShowAllVideos(
           {required Uid uid,
-          required int mediaPosition,
-          required int mediasLength}) =>
-      _push(MediaDetailsPage.showVideo(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
+          required int initIndex,
+          required int videosLength}) =>
+      _push(AllVideoPage(
+        const ValueKey("/media-details"),
+        roomUid: uid.asString(),
+        initIndex: initIndex,
+        videoCount: videosLength,
       ));
 
-  void openShowAllMedia(
-          {required Uid uid,
-          required bool hasPermissionToDeletePic,
-          required int mediaPosition,
-          required int mediasLength,
-          required String heroTag}) =>
-      _push(MediaDetailsPage.showMedia(
-        key: const ValueKey("/media-details"),
-        userUid: uid,
-        hasPermissionToDeletePic: hasPermissionToDeletePic,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
-        heroTag: heroTag,
+  void openShowAllImage({
+    required String uid,
+    required int initIndex,
+    required int messageId,
+  }) =>
+      _push(AllImagePage(
+        const ValueKey("/media-details"),
+        messageId: messageId,
+        initIndex: initIndex,
+        roomUid: uid,
       ));
 
   void openCustomNotificationSoundSelection(String roomId) =>
@@ -179,10 +184,13 @@ class RoutingService {
       ));
 
   void openSelectForwardMessage(
-          {List<Message>? forwardedMessages, pro.ShareUid? sharedUid}) =>
+          {List<Message>? forwardedMessages,
+          List<Media>? medias,
+          pro.ShareUid? sharedUid}) =>
       _push(SelectionToForwardPage(
         key: const ValueKey("/selection-to-forward-page"),
         forwardedMessages: forwardedMessages,
+        medias: medias,
         shareUid: sharedUid,
       ));
 
@@ -194,8 +202,6 @@ class RoutingService {
 
   void openShareFile({required List<String> path}) => _push(ShareInputFile(
       key: const ValueKey("/share_file_page"), inputSharedFilePath: path));
-
-  bool isInRoomPage() => _path().contains("/room/");
 
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
@@ -275,7 +281,7 @@ class RoutingService {
       await authRepo.deleteTokens();
       dbManager.deleteDB();
       mainNavigatorState.currentState?.pushAndRemoveUntil(
-          MaterialPageRoute(builder: (c) => const SplashScreen()),
+          MaterialPageRoute(builder: (c) => const LoginPage()),
           (route) => route.isFirst);
     }
     popAll();
@@ -308,28 +314,28 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
 }
 
 class Empty extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   const Empty({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const Background(),
-        Center(
-          child: BlurContainer(
-              skew: 4,
-              padding:
-                  const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-              // decoration: BoxDecoration(
-              //     borderRadius: const BorderRadius.all(Radius.circular(20)),
-              //     color: Theme.of(context).dividerColor.withOpacity(0.25)),
-              child: Text("Please select a chat to start messaging",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText2!
-                      .copyWith(color: Colors.white))),
-        ),
-      ],
+    final theme = Theme.of(context);
+    return Scaffold(
+      body: Stack(
+        children: [
+          Center(
+            child: BlurContainer(
+                skew: 4,
+                padding:
+                    const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
+                child: Text(
+                    _i18n.get("please_select_a_chat_to_start_messaging"),
+                    style: theme.textTheme.bodyText2!
+                        .copyWith(color: Colors.white))),
+          ),
+        ],
+      ),
     );
   }
 }

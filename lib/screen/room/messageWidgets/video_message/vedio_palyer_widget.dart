@@ -1,13 +1,16 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoFilePath;
+  final bool showAppBar;
 
-  const VideoPlayerWidget({Key? key, required this.videoFilePath})
+  const VideoPlayerWidget(
+      {Key? key, required this.videoFilePath, required this.showAppBar})
       : super(key: key);
 
   @override
@@ -32,6 +35,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _chewieController = ChewieController(
       videoPlayerController: _controller,
       autoPlay: true,
+      showOptions: false,
       aspectRatio: _controller.value.aspectRatio,
       looping: true,
     );
@@ -47,11 +51,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: widget.showAppBar ? AppBar() : null,
       body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.black,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: secondaryBorder,
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),

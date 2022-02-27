@@ -23,11 +23,11 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +41,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
-  final int? replyMessageId;
+  final int replyMessageId;
   final Function? resetRoomPageDetails;
   final bool waitingForForward;
   final Function? sendForwardMessage;
@@ -60,7 +60,7 @@ class InputMessage extends StatefulWidget {
     required this.scrollToLastSentMessage,
     required this.focusNode,
     required this.textController,
-    this.replyMessageId,
+    this.replyMessageId = 0,
     this.resetRoomPageDetails,
     this.waitingForForward = false,
     this.sendForwardMessage,
@@ -95,7 +95,6 @@ class _InputMessageWidget extends State<InputMessage> {
   final BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
-  late TextSelection _textSelection;
   TextEditingController captionTextController = TextEditingController();
   bool isMentionSelected = false;
 
@@ -113,6 +112,9 @@ class _InputMessageWidget extends State<InputMessage> {
   final _botRepo = GetIt.I.get<BotRepo>();
   var record = Record();
 
+  final ValueNotifier<TextDirection> _textDir =
+      ValueNotifier(TextDirection.ltr);
+
   var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
   var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
@@ -129,7 +131,7 @@ class _InputMessageWidget extends State<InputMessage> {
           builder: (context) {
             return ShareBox(
                 currentRoomId: currentRoom.uid.asUid(),
-                replyMessageId: widget.replyMessageId!,
+                replyMessageId: widget.replyMessageId,
                 resetRoomPageDetails: widget.resetRoomPageDetails!,
                 scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
@@ -159,13 +161,7 @@ class _InputMessageWidget extends State<InputMessage> {
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
-      if (widget.textController.text.isNotEmpty &&
-          widget.textController.text.isNotEmpty) {
-        _showSendIcon.add(true);
-      } else {
-        _showSendIcon.add(false);
-      }
-
+      _showSendIcon.add(widget.textController.text.isNotEmpty);
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -221,6 +217,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return WillPopScope(
       onWillPop: () async {
@@ -263,7 +260,9 @@ class _InputMessageWidget extends State<InputMessage> {
                 );
               }),
           Container(
-            color: ExtraTheme.of(context).inputBoxBackground,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+            ),
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
@@ -292,22 +291,22 @@ class _InputMessageWidget extends State<InputMessage> {
                                     stream: _backSubject.stream,
                                     builder: (context, snapshot) {
                                       return IconButton(
+                                        iconSize: _backSubject.value ? 24 : 28,
                                         icon: Icon(
                                           _backSubject.value
-                                              ? Icons.keyboard
-                                              : Icons.mood,
-                                          color:
-                                              ExtraTheme.of(context).textField,
+                                              ? CupertinoIcons
+                                                  .keyboard_chevron_compact_down
+                                              : CupertinoIcons.smiley,
                                         ),
                                         onPressed: () {
                                           if (_backSubject.value) {
                                             _backSubject.add(false);
-                                            FocusScope.of(context).unfocus();
+                                            widget.focusNode.requestFocus();
                                           } else if (!_backSubject.value) {
                                             FocusScope.of(context).unfocus();
                                             Timer(
                                                 const Duration(
-                                                    milliseconds: 50), () {
+                                                    milliseconds: 200), () {
                                               _backSubject.add(true);
                                             });
                                           }
@@ -317,48 +316,46 @@ class _InputMessageWidget extends State<InputMessage> {
                                 Flexible(
                                   child: RawKeyboardListener(
                                     focusNode: keyboardRawFocusNode,
-                                    child: TextField(
-                                      focusNode: widget.focusNode,
-                                      autofocus: widget.replyMessageId! > 0 ||
-                                          isDesktop(),
-                                      controller: widget.textController,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 4, vertical: 8),
-                                        border: InputBorder.none,
-                                        hintText: i18n.get("message"),
+                                    child:
+                                        ValueListenableBuilder<TextDirection>(
+                                      valueListenable: _textDir,
+                                      builder: (context, value, child) =>
+                                          TextField(
+                                        focusNode: widget.focusNode,
+                                        autofocus: widget.replyMessageId > 0 ||
+                                            isDesktop(),
+                                        controller: widget.textController,
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 14, vertical: 12),
+                                          border: InputBorder.none,
+                                          hintText: i18n.get("message"),
+                                        ),
+                                        autocorrect: true,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        minLines: 1,
+                                        maxLines: 15,
+                                        textDirection: value,
+                                        style: theme.textTheme.subtitle1,
+                                        onTap: () => _backSubject.add(false),
+                                        onChanged: (str) {
+                                          if (str.trim().length < 2) {
+                                            final dir = getDirection(str);
+                                            if (dir != value) {
+                                              _textDir.value = dir;
+                                            }
+                                          }
+                                          if (str.isNotEmpty) {
+                                            isTypingActivitySubject
+                                                .add(ActivityType.TYPING);
+                                          } else {
+                                            noActivitySubject
+                                                .add(ActivityType.NO_ACTIVITY);
+                                          }
+                                        },
                                       ),
-                                      autocorrect: true,
-                                      textInputAction: TextInputAction.newline,
-                                      minLines: 1,
-                                      maxLines: 15,
-                                      textAlign: widget.textController.text
-                                                  .isNotEmpty &&
-                                              widget.textController.text
-                                                  .isPersian()
-                                          ? TextAlign.right
-                                          : TextAlign.left,
-                                      textDirection: widget.textController.text
-                                                  .isNotEmpty &&
-                                              widget.textController.text
-                                                  .isPersian()
-                                          ? TextDirection.rtl
-                                          : TextDirection.ltr,
-                                      style:
-                                          Theme.of(context).textTheme.subtitle1,
-                                      onTap: () => _backSubject.add(false),
-                                      onChanged: (str) {
-                                        _textSelection =
-                                            widget.textController.selection;
-                                        if (str.isNotEmpty) {
-                                          isTypingActivitySubject
-                                              .add(ActivityType.TYPING);
-                                        } else {
-                                          noActivitySubject
-                                              .add(ActivityType.NO_ACTIVITY);
-                                        }
-                                      },
                                     ),
                                   ),
                                 ),
@@ -370,8 +367,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                         if (snapshot.hasData &&
                                             !snapshot.data!) {
                                           return IconButton(
+                                            iconSize: 28,
                                             icon: const Icon(
-                                              Icons.workspaces_outline,
+                                              CupertinoIcons.slash_circle,
                                             ),
                                             onPressed: () => _botCommandQuery
                                                 .add(_botCommandQuery.value ==
@@ -390,10 +388,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           !sh.data! &&
                                           !widget.waitingForForward) {
                                         return IconButton(
-                                            icon: Icon(
-                                              Icons.attach_file,
-                                              color: ExtraTheme.of(context)
-                                                  .textField,
+                                            icon: const Icon(
+                                              CupertinoIcons.paperclip,
                                             ),
                                             onPressed: () {
                                               _backSubject.add(false);
@@ -410,7 +406,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           widget.waitingForForward) {
                                         return IconButton(
                                           icon: const Icon(
-                                            Icons.send,
+                                            CupertinoIcons.paperplane_fill,
                                             color: Colors.blue,
                                           ),
                                           onPressed: widget.textController.text
@@ -538,8 +534,31 @@ class _InputMessageWidget extends State<InputMessage> {
                       height: 270.0,
                       child: EmojiKeyboard(
                         onTap: (emoji) {
-                          widget.textController.text =
-                              widget.textController.text + emoji.toString();
+                          if (widget.textController.text.isNotEmpty) {
+                            int start =
+                                widget.textController.selection.baseOffset;
+                            String block_1 =
+                                widget.textController.text.substring(0, start);
+                            block_1 = block_1.substring(0, start);
+                            String block_2 = widget.textController.text
+                                .substring(
+                                    start, widget.textController.text.length);
+                            widget.textController.text =
+                                block_1 + emoji + block_2;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: widget.textController.text.length -
+                                        block_2.length));
+                          } else {
+                            widget.textController.text =
+                                widget.textController.text + emoji;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: widget.textController.text.length));
+                          }
+                          if (isDesktop()) {
+                            widget.focusNode.requestFocus();
+                          }
                         },
                       ));
                 } else {
@@ -552,18 +571,21 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onMentionSelected(s) {
-    int start = _textSelection.baseOffset;
+    int start = widget.textController.selection.baseOffset;
 
     String block_1 = widget.textController.text.substring(0, start);
     int indexOf = block_1.lastIndexOf("@");
-    block_1 = block_1.substring(0, indexOf+1);
+    block_1 = block_1.substring(0, indexOf + 1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + s + " " + block_2;
-    widget.textController.selection = TextSelection.fromPosition(
-        TextPosition(offset: widget.textController.text.length));
+    widget.textController.selection = TextSelection.fromPosition(TextPosition(
+        offset: widget.textController.text.length - block_2.length));
     _mentionQuery.add("-");
     isMentionSelected = true;
+    if (isDesktop()) {
+      widget.focusNode.requestFocus();
+    }
   }
 
   onCommandClick(String command) {
@@ -609,12 +631,12 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
-            _mentionData,
-            scrollDownInMentions,
-            event,
-            mentionSelectedIndex,
-            scrollUpInMentions,
-            sendMentionByEnter);
+          _mentionData,
+          scrollDownInMentions,
+          event,
+          mentionSelectedIndex,
+          scrollUpInMentions,
+        );
       });
     }
     if (widget.currentRoom.uid.asUid().isBot()) {
@@ -655,8 +677,9 @@ class _InputMessageWidget extends State<InputMessage> {
         query: _mentionData);
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id!);
+    } else {
+      sendMessage();
     }
-    sendMessage();
   }
 
   scrollDownInBotCommand() {
@@ -689,7 +712,6 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.textController.text.contains("\n") &&
         widget.textController.text.contains("@") &&
         isMentionSelected) {
-      widget.textController.clear();
       isMentionSelected = false;
     } else {
       noActivitySubject.add(ActivityType.NO_ACTIVITY);
@@ -701,7 +723,7 @@ class _InputMessageWidget extends State<InputMessage> {
     var text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
-      if (widget.replyMessageId! > 0) {
+      if (widget.replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
@@ -759,7 +781,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
       }
 
-      showCaptionDialog(files: res, icons: Icons.file_upload);
+      showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);
     } catch (e) {
       _logger.d(e.toString());
     }
@@ -805,11 +827,20 @@ class _InputMessageWidget extends State<InputMessage> {
     // ignore: missing_enum_constant_in_switch
     switch (widget.editableMessage!.type) {
       case MessageType.TEXT:
-        text = widget.editableMessage!.json!.toText().text;
+        text = widget.editableMessage!.json.toText().text;
         break;
       case MessageType.FILE:
-        text = widget.editableMessage!.json!.toFile().caption;
+        text = widget.editableMessage!.json.toFile().caption;
     }
     return text + " ";
   }
+}
+
+TextDirection getDirection(String v) {
+  final string = v.trim();
+  if (string.isEmpty) return TextDirection.ltr;
+  if (string.isPersian()) {
+    return TextDirection.rtl;
+  }
+  return TextDirection.ltr;
 }

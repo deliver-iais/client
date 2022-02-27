@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -12,12 +13,14 @@ class AudioAndDocumentFileUI extends StatefulWidget {
   final double maxWidth;
   final bool isSender;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   const AudioAndDocumentFileUI(
       {Key? key,
       required this.message,
       required this.maxWidth,
       required this.isSender,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -28,7 +31,7 @@ class AudioAndDocumentFileUI extends StatefulWidget {
 class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, top: 6),
       child: Row(
@@ -39,6 +42,8 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
         children: <Widget>[
           CircularFileStatusIndicator(
             message: widget.message,
+            backgroundColor: widget.colorScheme.onPrimary,
+            foregroundColor: widget.colorScheme.primary,
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
@@ -68,7 +73,9 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                 if (file.caption.isEmpty)
                   TimeAndSeenStatus(
                       widget.message, widget.isSender, widget.isSeen,
-                      needsPositioned: false, needsBackground: false)
+                      foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+                      backgroundColor: widget.colorScheme.primaryContainer,
+                      needsPositioned: false)
               ],
             ),
           ),

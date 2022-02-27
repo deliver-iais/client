@@ -37,6 +37,7 @@ class _TitleStatusState extends State<TitleStatus> {
 
   I18N i18n = GetIt.I.get<I18N>();
 
+
   @override
   void initState() {
     if (widget.currentRoomUid != null) {
@@ -50,7 +51,10 @@ class _TitleStatusState extends State<TitleStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<TitleStatusConditions>(
+
+
+
+  return  StreamBuilder<TitleStatusConditions>(
         stream: _messageRepo.updatingStatus.stream,
         builder: (context, snapshot) {
           return AnimatedSwitcher(
@@ -127,7 +131,6 @@ class _TitleStatusState extends State<TitleStatus> {
               return ActivityStatus(
                 activity: activity.data!,
                 roomUid: widget.currentRoomUid!,
-                style: widget.style,
               );
             }
           } else {
@@ -137,6 +140,7 @@ class _TitleStatusState extends State<TitleStatus> {
   }
 
   Widget normalActivity() {
+    final theme = Theme.of(context);
     if (widget.currentRoomUid!.category == Categories.USER) {
       return StreamBuilder<LastActivity?>(
           stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
@@ -150,7 +154,7 @@ class _TitleStatusState extends State<TitleStatus> {
                   overflow: TextOverflow.fade,
                   softWrap: false,
                   style: widget.style
-                      .copyWith(color: Theme.of(context).primaryColor),
+                      .copyWith(color:theme.primaryColor),
                 );
               } else {
                 String lastActivityTime =
@@ -162,7 +166,7 @@ class _TitleStatusState extends State<TitleStatus> {
                     overflow: TextOverflow.fade,
                     softWrap: false,
                     style: widget.style
-                        .copyWith(color: Theme.of(context).primaryColor));
+                        .copyWith(color:theme.primaryColor));
               }
             }
             return const SizedBox.shrink();

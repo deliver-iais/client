@@ -1,18 +1,25 @@
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
 
 class FormResultWidget extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
+  final CustomColorScheme colorScheme;
 
   const FormResultWidget(
-      {Key? key, required this.message, required this.isSeen, required this.isSender}) : super(key: key);
+      {Key? key,
+      required this.message,
+      required this.isSeen,
+      required this.colorScheme,
+      required this.isSender})
+      : super(key: key);
 
   @override
   _FormResultWidgetState createState() => _FormResultWidgetState();
@@ -23,13 +30,12 @@ class _FormResultWidgetState extends State<FormResultWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var formResult = widget.message.json!.toFormResult();
+    var formResult = widget.message.json.toFormResult();
 
     return PageStorage(
       bucket: PageStorage.of(context)!,
-      child: Container(
+      child: SizedBox(
         width: 250,
-        color: Colors.black.withAlpha(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -41,7 +47,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   for (final key in formResult.values.keys)
                     if (key.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        padding: const EdgeInsets.only(top: 4, bottom: 2),
                         child: TextField(
                           enabled: false,
                           readOnly: true,
@@ -49,15 +55,12 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           controller: TextEditingController(
                               text: formResult.values[key]),
                           decoration: InputDecoration(
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                              ),
                               border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                                  borderRadius: secondaryBorder),
                               labelText: key,
-                              labelStyle:
-                                  const TextStyle(color: Colors.blue, fontSize: 16)),
+                              labelStyle: TextStyle(
+                                  color: widget.colorScheme.onPrimaryContainer,
+                                  fontSize: 16)),
                         ),
                       )
                 ],
@@ -71,14 +74,14 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.6,
-                      color: ExtraTheme.of(context).textMessage.withAlpha(150),
+                      color: widget.colorScheme.onPrimaryContainerLowlight(),
                     )),
                 TimeAndSeenStatus(
                   widget.message,
                   widget.isSender,
                   widget.isSeen,
-                  needsBackground: false,
                   needsPositioned: false,
+                  foregroundColor: widget.colorScheme.onPrimaryContainer,
                 ),
               ],
             )

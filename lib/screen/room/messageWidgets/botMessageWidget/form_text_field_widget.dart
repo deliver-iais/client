@@ -1,6 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
-    as form_pb;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -11,9 +10,11 @@ class FormInputTextFieldWidget extends StatefulWidget {
   final Function setFormKey;
 
   const FormInputTextFieldWidget(
-      {Key? key, required this.formField,
+      {Key? key,
+      required this.formField,
       required this.setResult,
-      required this.setFormKey}) : super(key: key);
+      required this.setFormKey})
+      : super(key: key);
 
   @override
   _FormInputTextFieldWidgetState createState() =>
@@ -55,52 +56,24 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
 
   TextFormField buildTextFormField(TextInputType keyboardType,
       {int? maxLength}) {
-    return maxLength != null && maxLength > 0
-        ? TextFormField(
-            minLines: 1,
-            controller: TextEditingController(),
-            maxLength: maxLength,
-            inputFormatters: [
-              if (keyboardType == TextInputType.number)
-                FilteringTextInputFormatter.digitsOnly
-            ],
-            validator: validateFormTextField,
-            onChanged: (str) {
-              widget.setResult(str);
-            },
-            keyboardType: keyboardType,
-            decoration: buildInputDecoration(),
-          )
-        : TextFormField(
-            minLines: 1,
-            inputFormatters: [
-              if (keyboardType == TextInputType.number)
-                FilteringTextInputFormatter.digitsOnly
-            ],
-            validator: validateFormTextField,
-            onChanged: (str) {
-              widget.setResult(str);
-            },
-            keyboardType: keyboardType,
-            decoration: buildInputDecoration(),
-          );
+    return TextFormField(
+      minLines: 1,
+      maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
+      inputFormatters: [
+        if (keyboardType == TextInputType.number)
+          FilteringTextInputFormatter.digitsOnly
+      ],
+      validator: validateFormTextField,
+      onChanged: (str) {
+        widget.setResult(str);
+      },
+      keyboardType: keyboardType,
+      decoration: buildInputDecoration(),
+    );
   }
 
   InputDecoration buildInputDecoration() {
     return InputDecoration(
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        disabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red),
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        ),
         suffixIcon: widget.formField.isOptional
             ? const SizedBox.shrink()
             : const Padding(
@@ -110,8 +83,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
                   style: TextStyle(color: Colors.red),
                 ),
               ),
-        labelText: widget.formField.id,
-        labelStyle: const TextStyle(color: Colors.grey));
+        labelText: widget.formField.id);
   }
 
   String? validateFormTextField(String? value) {
@@ -124,14 +96,12 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
         return _i18n.get("enter_numeric_value");
       }
     }
-    int max =
-        widget.formField.whichType() == form_pb.Form_Field_Type.textField
-            ? widget.formField.textField.max
-            : widget.formField.textField.max;
-    int min =
-        widget.formField.whichType() == form_pb.Form_Field_Type.textField
-            ? widget.formField.textField.min
-            : widget.formField.textField.min;
+    int max = widget.formField.whichType() == form_pb.Form_Field_Type.textField
+        ? widget.formField.textField.max
+        : widget.formField.textField.max;
+    int min = widget.formField.whichType() == form_pb.Form_Field_Type.textField
+        ? widget.formField.textField.min
+        : widget.formField.textField.min;
     if (value.isEmpty && widget.formField.isOptional) {
       return null;
     } else if (max > 0 && value.length > max) {

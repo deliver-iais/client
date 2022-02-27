@@ -7,9 +7,9 @@ abstract class SeenDao {
 
   Stream<Seen?> watchOthersSeen(String uid);
 
-  Future<Seen?> getMySeen(String uid);
+  Future<Seen> getMySeen(String uid);
 
-  Stream<Seen?> watchMySeen(String uid);
+  Stream<Seen> watchMySeen(String uid);
 
   Future<void> saveOthersSeen(Seen seen);
 
@@ -34,19 +34,21 @@ class SeenDaoImpl implements SeenDao {
   }
 
   @override
-  Future<Seen?> getMySeen(String uid) async {
+  Future<Seen> getMySeen(String uid) async {
     var box = await _openMySeen();
 
-    return box.get(uid);
+    return box.get(uid) ?? Seen(uid: uid, messageId: -1);
   }
 
   @override
-  Stream<Seen?> watchMySeen(String uid) async* {
+  Stream<Seen> watchMySeen(String uid) async* {
     var box = await _openMySeen();
 
-    yield box.get(uid);
+    yield box.get(uid) ?? Seen(uid: uid, messageId: 0);
 
-    yield* box.watch(key: uid).map((event) => box.get(uid));
+    yield* box
+        .watch(key: uid)
+        .map((event) => box.get(uid) ?? Seen(uid: uid, messageId: 0));
   }
 
   @override
@@ -55,7 +57,7 @@ class SeenDaoImpl implements SeenDao {
 
     var othersSeen = box.get(seen.uid);
 
-    if (othersSeen == null || othersSeen.messageId! < seen.messageId!) {
+    if (othersSeen == null || othersSeen.messageId < seen.messageId) {
       box.put(seen.uid, seen);
     }
   }
@@ -67,7 +69,7 @@ class SeenDaoImpl implements SeenDao {
     var mySeen = box.get(seen.uid);
 
     if (mySeen == null ||
-        mySeen.messageId! < seen.messageId! ||
+        mySeen.messageId < seen.messageId ||
         seen.hiddenMessageCount != null) {
       box.put(seen.uid, seen);
     }
@@ -82,8 +84,13 @@ class SeenDaoImpl implements SeenDao {
     return Hive.openBox<Seen>(_key());
   }
 
-  static Future<Box<Seen>> _openMySeen() {
-    BoxInfo.addBox(_key2());
-    return Hive.openBox<Seen>(_key2());
+  static Future<Box<Seen>> _openMySeen() async {
+    try {
+      BoxInfo.addBox(_key2());
+      return Hive.openBox<Seen>(_key2());
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_key2());
+      return Hive.openBox<Seen>(_key2());
+    }
   }
 }

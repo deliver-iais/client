@@ -1,25 +1,27 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ToastDisplay {
   static showToast(
-      {IconData ? toastIcon,
-      Color ? toastColor,
-      required BuildContext tostContext,
-     required String toastText}) {
+      {IconData? toastIcon,
+      Color? toastColor,
+      required BuildContext toastContext,
+      required String toastText}) {
     FToast fToast = FToast();
-    fToast.init(tostContext);
-    toastColor ??= Theme.of(tostContext).scaffoldBackgroundColor;
+    fToast.init(toastContext);
+    toastColor ??= Theme.of(toastContext).colorScheme.surface;
     Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Theme.of(tostContext).dividerColor,
-            blurRadius: 2,
+            color: Theme.of(toastContext).dividerColor,
+            blurRadius: 16,
           )
         ],
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: mainBorder,
         color: toastColor,
       ),
       child: Row(
@@ -43,6 +45,5 @@ class ToastDisplay {
       gravity: ToastGravity.BOTTOM,
       toastDuration: const Duration(seconds: 2),
     );
-
   }
 }

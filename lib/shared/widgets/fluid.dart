@@ -19,6 +19,7 @@ class FluidWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Container(
@@ -26,10 +27,10 @@ class FluidWidget extends StatelessWidget {
           child: Center(
             child: ClipRRect(
               borderRadius: isLargeWidth(constraints.maxWidth)
-                  ? const BorderRadius.all(Radius.circular(8))
+                  ? mainBorder
                   : BorderRadius.zero,
               child: Container(
-                color: Theme.of(context).backgroundColor,
+                color:theme.backgroundColor,
                 constraints: BoxConstraints(
                     maxWidth: isLargeWidth(constraints.maxWidth)
                         ? FLUID_MAX_WIDTH

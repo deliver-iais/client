@@ -14,8 +14,9 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:feature_discovery/feature_discovery.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
@@ -82,29 +83,40 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0.0),
-          child: GestureDetector(
-            onTap: () {
-              if (_scrollController.hasClients) {
-                _scrollController.animateTo(
-                  0.0,
-                  curve: Curves.easeOut,
-                  duration: ANIMATION_DURATION * 3,
-                );
-              }
-            },
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              leading: Row(
-                children: [
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
+        child: GestureDetector(
+          onTap: () {
+            if (_scrollController.hasClients) {
+              _scrollController.animateTo(
+                0.0,
+                curve: Curves.easeOut,
+                duration: ANIMATION_DURATION * 3,
+              );
+            }
+          },
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            leading: Row(
+              children: [
+                const SizedBox(
+                  width: 10,
+                ),
+                DescribedFeatureOverlay(
+                  featureId: feature3,
+                  tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                  backgroundColor: Colors.indigo,
+                  targetColor: Colors.indigoAccent,
+                  title: const Text('You can go to setting'),
+                  overflowMode: OverflowMode.extendBackground,
+                  description: _featureDiscoveryDescriptionWidget(
+                      isCircleAvatarWidget: true,
+                      description:
+                          "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app"),
+                  child: GestureDetector(
                     child: Center(
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
@@ -115,39 +127,45 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       _routingServices.openSettings(popAllBeforePush: true);
                     },
                   ),
-                ],
-              ),
-              titleSpacing: 8.0,
-              title: TitleStatus(
-                style: Theme.of(context).textTheme.headline6!,
-                normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                    style: Theme.of(context).textTheme.headline6,
-                    key: ValueKey(randomString(10))),
-              ),
-              actions: [
-                if (!isDesktop())
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: ExtraTheme.of(context).menuIconButton,
-                    ),
-                    child: IconButton(
-                        onPressed: () {
-                          _routingService.openScanQrCode();
-                        },
-                        icon: const Icon(
-                          Icons.qr_code,
-                        )),
-                  ),
-                const SizedBox(
-                  width: 8,
                 ),
-                buildMenu(context),
-                const SizedBox(
-                  width: 8,
-                )
               ],
             ),
+            titleSpacing: 8.0,
+            title: TitleStatus(
+              style: theme.textTheme.headline6!,
+              normalConditionWidget: Text(I18N.of(context)!.get("chats"),
+                  style: theme.textTheme.headline6,
+                  key: ValueKey(randomString(10))),
+            ),
+            actions: [
+              if (!isDesktop())
+                DescribedFeatureOverlay(
+                  featureId: feature2,
+                  tapTarget: const Icon(
+                    CupertinoIcons.qrcode_viewfinder,
+                  ),
+                  backgroundColor: Colors.deepPurple,
+                  targetColor: Colors.deepPurpleAccent,
+                  title: const Text('You can scan QR Code'),
+                  description: _featureDiscoveryDescriptionWidget(
+                      description:
+                          'for desktop app you can scan QR Code and login to your account'),
+                  child: IconButton(
+                      onPressed: () {
+                        _routingService.openScanQrCode();
+                      },
+                      icon: const Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                      )),
+                ),
+              const SizedBox(
+                width: 8,
+              ),
+              buildMenu(context),
+              const SizedBox(
+                width: 8,
+              )
+            ],
           ),
         ),
       ),
@@ -181,47 +199,54 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget buildMenu(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: ExtraTheme.of(context).menuIconButton,
+    final theme = Theme.of(context);
+    return DescribedFeatureOverlay(
+      featureId: feature1,
+      tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
+      backgroundColor: Colors.blue,
+      targetColor: Colors.lightBlueAccent,
+      title: const Text('You can create new group and new channel'),
+      description: _featureDiscoveryDescriptionWidget(
+          description:
+              'If you touch this icon you can create new channel or new group with the your contact'),
+      child: IconTheme(
+        data: IconThemeData(
+          size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
+          color: PopupMenuTheme.of(context).textStyle?.color,
         ),
-        child: IconTheme(
-          data: IconThemeData(
-            size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
-            color: PopupMenuTheme.of(context).textStyle?.color,
-          ),
-          child: PopupMenuButton(
-              icon: Icon(Icons.create,
-                  color: Theme.of(context).colorScheme.onSurface),
-              onSelected: selectChatMenu,
-              itemBuilder: (context) => [
-                    PopupMenuItem<String>(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.group),
-                          const SizedBox(width: 8),
-                          Text(_i18n.get("newGroup")),
-                        ],
-                      ),
-                      value: "newGroup",
+        child: PopupMenuButton(
+            icon: const Icon(
+              CupertinoIcons.plus_app,
+            ),
+            onSelected: selectChatMenu,
+            itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(CupertinoIcons.group),
+                        const SizedBox(width: 8),
+                        Text(_i18n.get("newGroup")),
+                      ],
                     ),
-                    PopupMenuItem<String>(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.rss_feed_rounded),
-                          const SizedBox(width: 8),
-                          Text(
-                            _i18n.get("newChannel"),
-                          )
-                        ],
-                      ),
-                      value: "newChannel",
-                    )
-                  ]),
-        ));
+                    value: "newGroup",
+                  ),
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(CupertinoIcons.news),
+                        const SizedBox(width: 8),
+                        Text(
+                          _i18n.get("newChannel"),
+                        )
+                      ],
+                    ),
+                    value: "newChannel",
+                  )
+                ]),
+      ),
+    );
   }
 
   selectChatMenu(String key) {
@@ -236,6 +261,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget searchResult(String query) {
+    final theme = Theme.of(context);
     return Expanded(
         child: FutureBuilder<List<List<Uid>>>(
             future: searchUidList(query),
@@ -261,7 +287,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     Text(_i18n.get("not_found"),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headline6),
+                        style: theme.textTheme.headline6),
                   ],
                 );
               }
@@ -280,14 +306,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget buildTitle(String title) {
+    final theme = Theme.of(context);
     return Container(
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 4),
         width: double.infinity,
-        color: Theme.of(context).dividerColor.withAlpha(10),
+        color: theme.dividerColor.withAlpha(10),
         child: Text(title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).primaryTextTheme.caption));
+            style: theme.primaryTextTheme.caption));
   }
 
   Future<List<List<Uid>>> searchUidList(String query) async {
@@ -323,6 +350,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget _contactResultWidget(
       {required Uid uid, required BuildContext context}) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Row(
@@ -337,13 +365,72 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                   return Text(
                     snaps.data ?? "",
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: theme.textTheme.subtitle1,
                   );
                 }),
           ],
         ),
         const SizedBox(height: 8),
         const Divider()
+      ],
+    );
+  }
+
+  Widget _featureDiscoveryDescriptionWidget(
+      {required String description, bool isCircleAvatarWidget = false}) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Text(description),
+        Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () async =>
+                      FeatureDiscovery.completeCurrentStep(context),
+                  child: Text(
+                    'Understood',
+                    style:
+                        theme.textTheme.button!.copyWith(color: Colors.white),
+                  ),
+                ),
+                TextButton(
+                    onPressed: () => FeatureDiscovery.dismissAll(context),
+                    child: Text(
+                      'Dismiss',
+                      style:
+                          theme.textTheme.button!.copyWith(color: Colors.white),
+                    )),
+              ],
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            isAndroid() && isCircleAvatarWidget
+                ? InkWell(
+                    onTap: () {
+                      FeatureDiscovery.dismissAll(context);
+                      _routingService.openContacts();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'sync contacts',
+                          style: theme.textTheme.button!
+                              .copyWith(color: Colors.lightGreenAccent),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.lightGreenAccent,
+                        )
+                      ],
+                    ))
+                : const SizedBox.shrink(),
+          ],
+        ),
       ],
     );
   }

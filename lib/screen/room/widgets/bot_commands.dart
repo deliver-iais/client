@@ -1,6 +1,5 @@
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -12,10 +11,12 @@ class BotCommands extends StatefulWidget {
   final int botCommandSelectedIndex;
 
   const BotCommands(
-      {Key? key, required this.botUid,
+      {Key? key,
+      required this.botUid,
       required this.onCommandClick,
       this.query,
-      required this.botCommandSelectedIndex}) : super(key: key);
+      required this.botCommandSelectedIndex})
+      : super(key: key);
 
   @override
   _BotCommandsState createState() => _BotCommandsState();
@@ -26,6 +27,7 @@ class _BotCommandsState extends State<BotCommands> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<BotInfo?>(
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
@@ -38,8 +40,8 @@ class _BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color: ExtraTheme.of(context).boxBackground,
-            height: botCommands.keys.length * (26.0 + 16),
+            color:theme.backgroundColor,
+            height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
                 child: ListView.separated(
               itemCount: botCommands.length,
@@ -47,7 +49,7 @@ class _BotCommandsState extends State<BotCommands> {
                 Color _botCommandItemColor = Colors.transparent;
                 if (widget.botCommandSelectedIndex == index &&
                     widget.botCommandSelectedIndex != -1) {
-                  _botCommandItemColor = Theme.of(context).focusColor;
+                  _botCommandItemColor =theme.focusColor;
                 }
                 return Container(
                   color: _botCommandItemColor,
@@ -63,7 +65,7 @@ class _BotCommandsState extends State<BotCommands> {
                           children: [
                             Text(
                               "/" + botCommands.keys.toList()[index],
-                              style: Theme.of(context).textTheme.subtitle1,
+                              style:theme.textTheme.subtitle1,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -71,7 +73,7 @@ class _BotCommandsState extends State<BotCommands> {
                                 opacity: 0.6,
                                 child: Text(
                                   botCommands.values.toList()[index],
-                                  style: Theme.of(context).textTheme.bodyText2,
+                                  style:theme.textTheme.bodyText2,
                                 ),
                               ),
                             ),
@@ -87,7 +89,7 @@ class _BotCommandsState extends State<BotCommands> {
                 );
               },
               separatorBuilder: (BuildContext context, int index) =>
-                  Divider(color: ExtraTheme.of(context).boxOuterBackground),
+                  const Divider(),
             )),
           );
         } else {

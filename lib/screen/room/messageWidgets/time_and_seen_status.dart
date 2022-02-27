@@ -1,27 +1,29 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class TimeAndSeenStatus extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
-  final bool needsBackground;
   final bool needsPositioned;
   final bool needsPadding;
-  final _i18n = GetIt.I.get<I18N>();
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
-  TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
+  const TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
       {Key? key,
       this.needsPositioned = true,
-      this.needsBackground = false,
-      this.needsPadding = true})
+      this.needsPadding = true,
+      this.backgroundColor,
+      this.foregroundColor})
       : super(key: key);
 
   @override
@@ -41,26 +43,23 @@ class TimeAndSeenStatus extends StatelessWidget {
 
   Widget buildWidget(BuildContext context) {
     return RepaintBoundary(
-      child: BlurContainer(
+      child: Container(
+        margin: const EdgeInsets.all(4),
         padding: needsPadding
             ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
             : null,
-        skew: 5,
-        blurIsEnabled: needsBackground,
+        decoration:
+            BoxDecoration(color: backgroundColor, borderRadius: tertiaryBorder),
         child: DefaultTextStyle(
           style: TextStyle(
-            color: needsBackground
-                ? Colors.white
-                : ExtraTheme.of(context).textMessage.withAlpha(130),
-            fontSize: 12,
-            height: 1.2,
+            color: foregroundColor,
+            fontSize: 13,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.edited != null && message.edited!)
-                Text(_i18n.get("edited")),
+              if (message.edited) Text(_i18n.get("edited")),
               MsgTime(time: date(message.time)),
               if (isSender)
                 Padding(
@@ -68,9 +67,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                   child: SeenStatus(
                     message,
                     isSeen: isSeen,
-                    iconColor: needsBackground
-                        ? Colors.white
-                        : ExtraTheme.of(context).seenStatus,
+                    iconColor: foregroundColor,
                   ),
                 )
             ],

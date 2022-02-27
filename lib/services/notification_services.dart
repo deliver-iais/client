@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:async';
+
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/message_type.dart';
@@ -9,10 +10,6 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
-
-import 'package:desktoasts/desktoasts.dart'
-    if (dart.library.html) 'package:deliver/web_classes/web_desktoasts.dart'
-    as windows_notify;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -32,7 +29,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:desktop_window/desktop_window.dart';
+import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -40,6 +37,8 @@ abstract class Notifier {
   cancel(int id, String roomId);
 
   cancelAll();
+
+  cancelById(int id);
 }
 
 MessageBrief synthesize(MessageBrief mb) {
@@ -85,6 +84,10 @@ class NotificationServices {
     _notifier.cancel(roomUid.hashCode, roomUid);
   }
 
+  void cancelNotificationById(int id) {
+    _notifier.cancelById(id);
+  }
+
   void cancelAllNotifications() {
     _notifier.cancelAll();
   }
@@ -107,6 +110,9 @@ class FakeNotifier implements Notifier {
 
   @override
   cancelAll() {}
+
+  @override
+  cancelById(int id) {}
 }
 
 class IOSNotifier implements Notifier {
@@ -118,16 +124,24 @@ class IOSNotifier implements Notifier {
 
   @override
   cancelAll() {}
+
+  @override
+  cancelById(int id) {}
 }
 
+//init on Home_Page init because can't load Deliver Icon and should be init inside initState() function
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
-  final windows_notify.ToastService _windowsNotificationServices =
-      windows_notify.ToastService(
-    appName: APPLICATION_NAME,
-    companyName: "deliver.co.ir",
-    productName: "deliver",
-  );
+
+  WindowsNotifier() {
+    scheduleMicrotask(() async {
+      final ret = await WinToast.instance().initialize(
+          appName: APPLICATION_NAME,
+          companyName: APPLICATION_DOMAIN,
+          productName: APPLICATION_NAME);
+      assert(ret);
+    });
+  }
 
   @override
   notify(MessageBrief message) async {
@@ -138,63 +152,71 @@ class WindowsNotifier implements Notifier {
     List<String> actions = [];
     final _logger = GetIt.I.get<Logger>();
     final callRepo = GetIt.I.get<CallRepo>();
+    bool isCall = false;
     try {
       Avatar? lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid!, false);
       if (message.type == MessageType.CALL) {
         actions = ['Accept', 'Decline'];
+        isCall = true;
       }
       if (lastAvatar != null && lastAvatar.fileId != null) {
         String? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        windows_notify.Toast toast = windows_notify.Toast(
-            type: windows_notify.ToastType.imageAndText02,
+        Toast? toast = await WinToast.instance().showToast(
+            type: ToastType.imageAndText02,
             title: message.roomName!,
             actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
-            image: File(file!));
-        _windowsNotificationServices.show(toast);
-        _windowsNotificationServices.stream.listen((event) {
-          if (event is windows_notify.ToastActivated) {
+            imagePath: file!);
+        toast!.eventStream.listen((event) {
+          if (event is ActivatedEvent) {
             _routingService.openRoom(lastAvatar.uid);
+          }
+          if (event is DissmissedEvent) {
+            WinToast.instance().bringWindowToFront();
           }
         });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          windows_notify.Toast toast = windows_notify.Toast(
-            type: windows_notify.ToastType.imageAndText02,
+          Toast? toast = await WinToast.instance().showToast(
+            type: ToastType.imageAndText02,
             title: message.roomName!,
-            image: deliverIcon,
+            imagePath: deliverIcon.path,
             actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
-          _windowsNotificationServices.show(toast);
+          toast!.eventStream.listen((event) {
+            if (event is ActivatedEvent) {
+              if (!isCall) {
+                if (lastAvatar != null) {
+                  _routingService.openRoom(lastAvatar.uid);
+                }
+              } else {
+                if (event.actionIndex == 1) {
+                  //Decline
+                  callRepo.declineCall();
+                } else if (event.actionIndex == 0) {
+                  //Accept
+                  WinToast.instance().bringWindowToFront();
+                  if (callRepo.isVideo) {
+                    _routingService.openCallScreen(message.roomUid!,
+                        isVideoCall: true, isCallAccepted: true);
+                  } else {
+                    _routingService.openCallScreen(message.roomUid!,
+                        isCallAccepted: true);
+                  }
+                }
+              }
+              if (event is DissmissedEvent) {
+                WinToast.instance().bringWindowToFront();
+              }
+            }
+          });
         }
       }
-      _windowsNotificationServices.stream.listen((event) {
-        if (event is windows_notify.ToastActivated) {
-          _routingService.openRoom(message.roomUid!.asString());
-          DesktopWindow.focus();
-        } else if (event is windows_notify.ToastInteracted) {
-          if (event.action == 1) {
-            //Decline
-            callRepo.declineCall();
-          } else if (event.action == 0) {
-            //Accept
-            DesktopWindow.focus();
-            if (callRepo.isVideo) {
-              _routingService.openCallScreen(message.roomUid!,
-                  isVideoCall: true, isCallAccepted: true);
-            } else {
-              _routingService.openCallScreen(message.roomUid!,
-                  isCallAccepted: true);
-
-            }
-          }
-        }
-      });
     } catch (e) {
       _logger.e(e);
     }
@@ -205,11 +227,17 @@ class WindowsNotifier implements Notifier {
 
   @override
   cancelAll() {}
+
+  @override
+  cancelById(int id) {}
 }
 
 class WebNotifier implements Notifier {
   @override
   cancel(int id, String roomId) {}
+
+  @override
+  cancelById(int id) {}
 
   @override
   cancelAll() {}
@@ -228,6 +256,9 @@ class LinuxNotifier implements Notifier {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+
+  @override
+  cancelById(int id) {}
 
   LinuxNotifier() {
     var notificationSetting =
@@ -251,7 +282,7 @@ class LinuxNotifier implements Notifier {
 
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
 
-    if (la != null) {
+    if (la != null && la.fileId != null) {
       var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
@@ -362,6 +393,11 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
+  cancelById(int id) {
+    _flutterLocalNotificationsPlugin.cancel(id);
+  }
+
+  @override
   notify(MessageBrief message) async {
     if (message.ignoreNotification!) return;
     String? filePath;
@@ -369,9 +405,9 @@ class AndroidNotifier implements Notifier {
     String selectedNotificationSound = "that_was_quick";
     Room? room = await _roomRepo.getRoom(message.roomUid!.asString());
     var selectedSound =
-        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
+    await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
-    if (la != null && la.fileId!=null && la.fileName!= null) {
+    if (la != null && la.fileId != null && la.fileName != null) {
       var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
@@ -407,22 +443,23 @@ class AndroidNotifier implements Notifier {
       }
     } else {
       InboxStyleInformation inboxStyleInformation =
-          const InboxStyleInformation([], contentTitle: 'new messages');
+      const InboxStyleInformation([], contentTitle: 'new messages');
 
       AndroidNotificationDetails androidNotificationDetails =
-          AndroidNotificationDetails(
-              selectedNotificationSound + message.roomUid!.asString(),
-              channel.name,
-              channelDescription: channel.description,
-              styleInformation: inboxStyleInformation,
-              groupKey: channel.groupId,
-              playSound: true,
-              sound: RawResourceAndroidNotificationSound(
-                  selectedNotificationSound),
-              setAsGroupSummary: true);
-      await _flutterLocalNotificationsPlugin.show(
-          0, 'Attention', 'new messages',
+      AndroidNotificationDetails(
+          selectedNotificationSound + message.roomUid!.asString(),
+          channel.name,
+          channelDescription: channel.description,
+          styleInformation: inboxStyleInformation,
+          groupKey: channel.groupId,
+          playSound: true,
+          sound:
+          RawResourceAndroidNotificationSound(selectedNotificationSound),
+          setAsGroupSummary: true);
+      _flutterLocalNotificationsPlugin.show(
+          message.roomUid.hashCode, 'Attention', 'new messages',
           notificationDetails: androidNotificationDetails);
+
       var platformChannelSpecifics = AndroidNotificationDetails(
         selectedNotificationSound + message.roomUid!.asString(),
         channel.name,
@@ -434,8 +471,7 @@ class AndroidNotifier implements Notifier {
         sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
       );
       _flutterLocalNotificationsPlugin.show(
-          message.roomUid!.asString().hashCode +
-              message.text.toString().hashCode,
+          message.roomUid!.asString().hashCode + message.id!,
           message.roomName,
           createNotificationTextFromMessageBrief(message),
           notificationDetails: platformChannelSpecifics,
@@ -530,6 +566,9 @@ class MacOSNotifier implements Notifier {
       _logger.e(e);
     }
   }
+
+  @override
+  cancelById(int id) {}
 }
 
 String createNotificationTextFromMessageBrief(MessageBrief mb) {

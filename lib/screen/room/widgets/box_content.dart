@@ -10,7 +10,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 
-import 'package:deliver/screen/room/messageWidgets/locatioin_message.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
@@ -20,13 +20,13 @@ import 'package:deliver/screen/room/widgets/share_private_data_request_message_w
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
-import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
@@ -42,6 +42,8 @@ class BoxContent extends StatefulWidget {
   final Function? onBotCommandClick;
   final Function onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
+  final bool isFirstMessageInGroupedMessages;
+  final CustomColorScheme colorScheme;
 
   const BoxContent(
       {Key? key,
@@ -53,8 +55,10 @@ class BoxContent extends StatefulWidget {
       this.pattern,
       this.onUsernameClick,
       this.onBotCommandClick,
+      required this.isFirstMessageInGroupedMessages,
       required this.scrollToMessage,
       required this.onArrowIconClick,
+      required this.colorScheme,
       required this.storePosition})
       : super(key: key);
 
@@ -86,25 +90,18 @@ class _BoxContentState extends State<BoxContent> {
           alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
           children: [
             RepaintBoundary(
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isDebugEnabled())
-                      DebugC(label: "message details", children: [
-                        Debug(widget.message.id, label: "id"),
-                        Debug(widget.message.packetId, label: "packetId"),
-                      ]),
-                    if (widget.message.roomUid.asUid().category ==
-                            Categories.GROUP &&
-                        !widget.isSender)
-                      senderNameBox(),
-                    if (hasReply()) replyToIdBox(),
-                    if (isForwarded()) forwardedFromBox(),
-                    messageBox()
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isDebugEnabled())
+                    DebugC(label: "message details", children: [
+                      Debug(widget.message.id, label: "id"),
+                      Debug(widget.message.packetId, label: "packetId"),
+                    ]),
+                  if (hasReply()) replyToIdBox(),
+                  if (isForwarded()) forwardedFromBox(),
+                  messageBox()
+                ],
               ),
             ),
             isDesktop() | kIsWeb
@@ -121,7 +118,11 @@ class _BoxContentState extends State<BoxContent> {
                         child: Container(
                           margin: const EdgeInsets.all(2),
                           child: const BlurContainer(
-                              child: Icon(Icons.arrow_drop_down_sharp)),
+                              padding: EdgeInsets.all(3),
+                              child: Icon(
+                                CupertinoIcons.chevron_down,
+                                size: 16,
+                              )),
                         ),
                       ),
                     ),
@@ -140,66 +141,23 @@ class _BoxContentState extends State<BoxContent> {
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId!,
+          replyToId: widget.message.replyToId,
           maxWidth: widget.minWidth,
-          color: messageExtraContentColor(widget.isSender, context),
+          backgroundColor: widget.colorScheme.onPrimary,
+          foregroundColor: widget.colorScheme.primary,
         ),
-      ),
-    );
-  }
-
-  Widget senderNameBox() {
-    return Container(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: widget.isSender
-            ? ExtraTheme.of(context).sentMessageBox
-            : ExtraTheme.of(context).receivedMessageBox,
-      ),
-      child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.from.asUid()),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return showName(snapshot.data!);
-          } else {
-            return const Text("");
-          }
-        },
-      ),
-    );
-  }
-
-  Widget showName(String name) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        child: Container(
-          constraints:
-              BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
-          child: Text(
-            name.trim(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: Theme.of(context).primaryTextTheme.bodyText2,
-          ),
-        ),
-        onTap: () {
-          _routingServices.openRoom(widget.message.from);
-        },
       ),
     );
   }
 
   Widget forwardedFromBox() {
     return Container(
-      margin: const EdgeInsets.only(left: 4, top: 2, bottom: 4, right: 4),
-      padding: const EdgeInsets.only(left: 4, right: 8, top: 2, bottom: 0),
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 2),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).buttonTheme.colorScheme?.primary,
+        borderRadius: secondaryBorder,
+        color: widget.colorScheme.primary,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -209,23 +167,17 @@ class _BoxContentState extends State<BoxContent> {
             child: GestureDetector(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.keyboard_arrow_right_rounded,
-                      size: 15,
-                      color:
-                          Theme.of(context).buttonTheme.colorScheme?.onPrimary),
+                  Icon(CupertinoIcons.arrowshape_turn_up_right,
+                      size: 15, color: widget.colorScheme.onPrimary),
                   Flexible(
                     child: Text(snapshot.data ?? "",
                         softWrap: false,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
-                            color: Theme.of(context)
-                                .buttonTheme
-                                .colorScheme
-                                ?.onPrimary,
-                            fontSize: 12)),
+                            color: widget.colorScheme.onPrimary, fontSize: 12)),
                   ),
                 ],
               ),
@@ -244,6 +196,7 @@ class _BoxContentState extends State<BoxContent> {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     }
 
@@ -252,9 +205,10 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: widget.minWidth,
+          minWidth: isForwarded() || hasReply() ? widget.minWidth : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
+          colorScheme: widget.colorScheme,
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick!,
           isBotMessage: widget.message.from.asUid().category == Categories.BOT,
@@ -265,24 +219,34 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           maxWidth: widget.maxWidth,
           minWidth: widget.minWidth,
+          colorScheme: widget.colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
         );
 
       case MessageType.STICKER:
         return StickerMessageWidget(
-            widget.message, widget.isSender, widget.isSeen);
+          widget.message,
+          widget.isSender,
+          widget.isSeen,
+          colorScheme: widget.colorScheme,
+        );
 
       case MessageType.LOCATION:
         return LocationMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
 
       case MessageType.LIVE_LOCATION:
         return LiveLocationMessageWidget(
-            widget.message, widget.isSender, widget.isSeen);
+          widget.message,
+          widget.isSender,
+          widget.isSeen,
+          colorScheme: widget.colorScheme,
+        );
 
       case MessageType.POLL:
         // TODO: Handle this case.
@@ -292,11 +256,24 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.FORM:
-        return BotFormMessage(message: widget.message, isSeen: true);
+        return BotFormMessage(
+          message: widget.message,
+          maxWidth: widget.maxWidth * 0.85,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
+        );
       case MessageType.BUTTONS:
-        return BotButtonsWidget(message: widget.message);
+        return BotButtonsWidget(
+          message: widget.message,
+          maxWidth: widget.maxWidth * 0.85,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
+        );
       case MessageType.PERSISTENT_EVENT:
         // we show peristant event message in roompage
         break;
@@ -305,20 +282,25 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return SharePrivateDataRequestMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
+          maxWidth: widget.maxWidth * 0.75,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return SharePrivateDataAcceptMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.NOT_SET:
+        // TODO: Show not supported in this version...
         // TODO: Handle this case.
         break;
       case MessageType.CALL:
@@ -333,8 +315,7 @@ class _BoxContentState extends State<BoxContent> {
 
   bool hasReply() {
     return widget.message.to.asUid().category != Categories.BOT &&
-        widget.message.replyToId != null &&
-        widget.message.replyToId! > 0;
+        widget.message.replyToId > 0;
   }
 
   bool isForwarded() {

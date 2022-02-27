@@ -1,11 +1,10 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -35,26 +34,6 @@ class CircleAvatarWidget extends StatelessWidget {
       this.showSavedMessageLogoIfNeeded = false})
       : super(key: key);
 
-  Color colorFor(BuildContext context, String text) {
-    var hash = 0;
-    for (var i = 0; i < text.length; i++) {
-      hash = text.codeUnitAt(i) + ((hash << 5) - hash);
-    }
-    final finalHash = hash.abs() % (100);
-    var r = Random(finalHash);
-    return RandomColor(r).randomColor(
-        colorHue: ColorHue.multiple(colorHues: [
-          ColorHue.blue,
-          ColorHue.yellow,
-          ColorHue.red,
-          ColorHue.orange
-        ], random: r),
-        colorBrightness: Theme.of(context).brightness == Brightness.dark
-            ? ColorBrightness.light
-            : ColorBrightness.dark,
-        colorSaturation: ColorSaturation.highSaturation);
-  }
-
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
       _authRepo.isCurrentUser(contactUid.asString());
@@ -63,66 +42,57 @@ class CircleAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var color = colorFor(context, contactUid.asString());
-
-    if (isSavedMessage()) color = Colors.blue;
-    if (isSystem()) color = Colors.white;
-
-    var textColor =
-        changeColor(color, saturation: 0.8, lightness: 0.5).computeLuminance() >
-                0.5
-            ? Colors.black
-            : Colors.white;
+    var scheme =
+        ExtraTheme.of(context).messageColorScheme(contactUid.asString());
 
     return HeroMode(
       enabled: isHeroEnabled,
       child: Hero(
         tag: contactUid.asString(),
         child: Container(
-          key: _globalKey,
+          key: kIsWeb ? null : _globalKey,
           width: radius * 2,
           height: radius * 2,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: !isSystem()
-                  ? LinearGradient(colors: [
-                      changeColor(color, saturation: 0.8, lightness: 0.4),
-                      changeColor(color, saturation: 0.8, lightness: 0.5),
-                      changeColor(color, saturation: 0.8, lightness: 0.7),
-                    ], begin: Alignment.bottomCenter, end: Alignment.topCenter)
-                  : null),
-          child: contactUid.category == Categories.SYSTEM
-              ? const Image(
-                  image: AssetImage('assets/images/logo.png'),
-                )
-              : isSavedMessage()
-                  ? Icon(
-                      Icons.bookmark,
-                      size: radius,
-                      color: Colors.white,
-                    )
-                  : StreamBuilder<String?>(
-                      key: _streamKey,
-                      initialData:
-                          _avatarRepo.fastForwardAvatarFilePath(contactUid),
-                      stream: _avatarRepo.getLastAvatarFilePathStream(
-                          contactUid, false),
-                      builder: (context, snapshot) =>
-                          builder(context, snapshot, textColor)),
+          clipBehavior: Clip.hardEdge,
+          decoration:
+              BoxDecoration(shape: BoxShape.circle, color: scheme.primary),
+          child: getImageWidget(contactUid, scheme.onPrimary),
         ),
       ),
     );
   }
 
+  Widget getImageWidget(Uid uid, Color textColor) {
+    if (uid.category == Categories.SYSTEM) {
+      return const Image(
+        image: AssetImage('assets/images/logo.png'),
+      );
+    } else if (isSavedMessage()) {
+      return Icon(
+        Icons.bookmark,
+        size: radius,
+        color: textColor,
+      );
+    } else {
+      return StreamBuilder<String?>(
+          key: _streamKey,
+          initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
+          stream: _avatarRepo
+              .getLastAvatarFilePathStream(contactUid, false),
+          builder: (context, snapshot) =>
+              builder(context, snapshot, textColor));
+    }
+  }
+
   Widget builder(
       BuildContext context, AsyncSnapshot<String?> snapshot, Color textColor) {
     if (snapshot.hasData) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: kIsWeb
-            ? Image.network(snapshot.data!).image
-            : Image.file(File(snapshot.data!)).image,
-      );
+      return kIsWeb
+          ? Image.network(snapshot.data!, fit: BoxFit.fill)
+          : Image.file(
+              File(snapshot.data!),
+              fit: BoxFit.cover,
+            );
     } else {
       return showDisplayName(textColor);
     }
@@ -158,6 +128,7 @@ class CircleAvatarWidget extends StatelessWidget {
         child: Text(
       name.length > 1 ? name.substring(0, 1).toUpperCase() : name.toUpperCase(),
       maxLines: 1,
+      style: TextStyle(color: textColor, fontSize: radius, height: 1),
     ));
   }
 }

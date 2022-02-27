@@ -25,13 +25,14 @@ class MediaMetaDataAdapter extends TypeAdapter<MediaMetaData> {
       audiosCount: fields[5] as int,
       musicsCount: fields[6] as int,
       linkCount: fields[7] as int,
+      lastUpdateTime: fields[8] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, MediaMetaData obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.roomId)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class MediaMetaDataAdapter extends TypeAdapter<MediaMetaData> {
       ..writeByte(6)
       ..write(obj.musicsCount)
       ..writeByte(7)
-      ..write(obj.linkCount);
+      ..write(obj.linkCount)
+      ..writeByte(8)
+      ..write(obj.lastUpdateTime);
   }
 
   @override

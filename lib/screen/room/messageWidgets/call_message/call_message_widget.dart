@@ -20,10 +20,10 @@ class CallMessageWidget extends StatelessWidget {
   final bool _isVideo;
 
   CallMessageWidget({Key? key, required this.message})
-      : _callEvent = message.json!.toCallEvent().newStatus,
-        _callDuration = message.json!.toCallDuration(),
+      : _callEvent = message.json.toCallEvent().newStatus,
+        _callDuration = message.json.toCallDuration(),
         _isVideo =
-            message.json!.toCallEvent().callType == CallEvent_CallType.VIDEO
+            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO
                 ? true
                 : false,
         super(key: key);
@@ -47,9 +47,10 @@ class CallMessageWidget extends StatelessWidget {
                 const SizedBox(
                   height: 5,
                 ),
+                //TODO color call Widget
                 DefaultTextStyle(
                     style: TextStyle(
-                      color: ExtraTheme.of(context).textMessage.withAlpha(130),
+                      color: ExtraTheme.of(context).colorScheme.primary.withAlpha(130),
                       fontSize: 12,
                       height: 1.2,
                     ),

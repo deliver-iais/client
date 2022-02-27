@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,14 +18,16 @@ class LinkPreview extends StatelessWidget {
   final double maxWidth;
   final double maxHeight;
   final bool isProfile;
-  final Color? color;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   const LinkPreview(
       {Key? key,
       required this.link,
       required this.maxWidth,
-      this.color,
-      this.maxHeight = double.infinity,
+      this.backgroundColor,
+      this.foregroundColor,
+      this.maxHeight = 120,
       this.isProfile = false})
       : super(key: key);
 
@@ -66,6 +69,7 @@ class LinkPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     if (link.isEmpty) return const SizedBox.shrink();
     return FutureBuilder<Metadata?>(
+        initialData: cache.get(link),
         future: _fetchMetadata(link),
         builder: (context, snapshot) {
           if ((!snapshot.hasData || snapshot.data == null) ||
@@ -86,12 +90,14 @@ class LinkPreview extends StatelessWidget {
   }
 
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-        margin: const EdgeInsets.only(top: 10),
+        margin: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
         constraints: BoxConstraints(
             minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: color),
+            borderRadius: secondaryBorder, color: backgroundColor),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,19 +113,23 @@ class LinkPreview extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: Theme.of(context).primaryTextTheme.bodyText2,
+                style: theme.primaryTextTheme.bodyText2
+                    ?.copyWith(color: foregroundColor),
               ),
             ),
             if (data.description != null)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                child: Text(
-                  data.description!,
-                  textDirection: data.description!.isPersian()
-                      ? TextDirection.rtl
-                      : TextDirection.ltr,
-                  style: Theme.of(context).textTheme.bodyText2,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 2.0),
+                  child: Text(
+                    data.description!,
+                    textDirection: data.description!.isPersian()
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
+                    style: theme.textTheme.bodyText2,
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
           ],

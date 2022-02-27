@@ -5,7 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_s
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -13,10 +12,14 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 
 class CircularFileStatusIndicator extends StatefulWidget {
   final Message message;
+  final Color backgroundColor;
+  final Color foregroundColor;
 
   const CircularFileStatusIndicator({
     Key? key,
     required this.message,
+    required this.backgroundColor,
+    required this.foregroundColor,
   }) : super(key: key);
 
   @override
@@ -31,17 +34,19 @@ class _CircularFileStatusIndicatorState
 
   @override
   void initState() {
-    _fileServices.initProgressBar(widget.message.json!.toFile().uuid);
+    _fileServices.initProgressBar(widget.message.json.toFile().uuid);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
         builder: (c, fileSnapShot) {
-          if (fileSnapShot.hasData && fileSnapShot.data != null && widget.message.id!= null) {
+          if (fileSnapShot.hasData &&
+              fileSnapShot.data != null &&
+              widget.message.id != null) {
             return showExitFile(file, fileSnapShot.data!);
           } else {
             return StreamBuilder<double>(
@@ -59,24 +64,30 @@ class _CircularFileStatusIndicatorState
                             return LoadFileStatus(
                               fileId: file.uuid,
                               fileName: file.name,
+                              isPendingMessage: widget.message.id==null,
                               messagePacketId: widget.message.packetId,
-                              roomUid: widget.message.roomUid,
                               onPressed: () async {
                                 await _fileRepo.getFile(file.uuid, file.name);
                                 setState(() {});
                               },
+                              background: widget.backgroundColor,
+                              foreground: widget.foregroundColor,
                             );
                           }
                         });
                   } else {
                     return LoadFileStatus(
                       fileId: file.uuid,
+                      isPendingMessage: widget.message.id==null,
                       fileName: file.name,
                       messagePacketId: widget.message.packetId,
-                      roomUid: widget.message.roomUid,
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
+                        setState(() {
+                        });
                       },
+                      background: widget.backgroundColor,
+                      foreground: widget.foregroundColor,
                     );
                   }
                 });
@@ -88,11 +99,16 @@ class _CircularFileStatusIndicatorState
     return file.type.contains("audio")
         ? PlayAudioStatus(
             fileId: file.uuid,
+            filePath: filePath,
             fileName: file.name,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
           )
         : OpenFileStatus(
             filePath: filePath,
             file: file,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
           );
   }
 }

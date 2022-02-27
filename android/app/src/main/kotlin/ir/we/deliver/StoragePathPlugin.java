@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -20,10 +21,8 @@ import com.nabinbhandari.android.permissions.Permissions;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 
-import java.io.File;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * StoragePathPlugin
@@ -140,7 +139,7 @@ public class StoragePathPlugin {
             List<String> allMusicPath = new ArrayList<>();
             //retrieve song info
             ContentResolver musicResolver = activity.getContentResolver();
-            Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
             if (musicCursor != null && musicCursor.moveToFirst()) {
@@ -159,40 +158,11 @@ public class StoragePathPlugin {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    private void getAllFile2(Result result) {
-        try {
-            List<String> allMusicPath = new ArrayList<>();
-            //retrieve song info
-            ContentResolver musicResolver = activity.getContentResolver();
-            Uri musicUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // musicUri = MediaStore.getDocumentUri(activity.getApplicationContext(),MediaStore.);
-            } else {
-                musicUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-            }
-            Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-
-            if (musicCursor != null && musicCursor.moveToFirst()) {
-                //get columns
-                int data = musicCursor.getColumnIndex
-                        (MediaStore.Audio.Media.DATA);
-                do {
-                    allMusicPath.add((musicCursor.getString(data)));
-                } while (musicCursor.moveToNext());
-            }
-            Gson gson = new GsonBuilder().create();
-
-            result.success(gson.toJson(allMusicPath));
-        } catch (Exception e) {
-            result.error("1", e.toString(), null);
-        }
-    }
 
     public void getFilesPath(Result result) {
         Permissions.check(activity, Manifest.permission.READ_EXTERNAL_STORAGE, null, new PermissionHandler() {
 
+            @RequiresApi(api = Build.VERSION_CODES.Q)
             @Override
             public void onGranted() {
                 getAllFile(result);
@@ -207,6 +177,7 @@ public class StoragePathPlugin {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void getAllFile(Result result) {
         ArrayList<String> allFilePath = new ArrayList<>();
         Uri collection;
@@ -231,6 +202,13 @@ public class StoragePathPlugin {
         String rtf = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf");
         String html = MimeTypeMap.getSingleton().getMimeTypeFromExtension("html");
         String apk = MimeTypeMap.getSingleton().getMimeTypeFromExtension("apk");
+        String mp4 = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp4");
+        String zip = MimeTypeMap.getSingleton().getMimeTypeFromExtension("zip");
+        String rar = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rar");
+        String mkv = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mkv");
+        String webm = MimeTypeMap.getSingleton().getMimeTypeFromExtension("webm");
+
+
 
         String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
@@ -243,15 +221,19 @@ public class StoragePathPlugin {
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk};
+        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk, mp4, zip, rar,mkv,webm};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL);
+            collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         } else {
             collection = MediaStore.Files.getContentUri("external");
         }
-
 
         try (Cursor cursor = activity.getContentResolver().query(collection, projection, where, selectionArgs, sortOrder)) {
             assert cursor != null;

@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
 
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 
@@ -17,6 +18,7 @@ class FileMessageUi extends StatefulWidget {
   final bool isSender;
   final Function? onUsernameClick;
   final bool isSeen;
+  final CustomColorScheme colorScheme;
 
   const FileMessageUi(
       {Key? key,
@@ -25,6 +27,7 @@ class FileMessageUi extends StatefulWidget {
       required this.minWidth,
       required this.isSender,
       this.onUsernameClick,
+      required this.colorScheme,
       required this.isSeen})
       : super(key: key);
 
@@ -35,7 +38,7 @@ class FileMessageUi extends StatefulWidget {
 class _FileMessageUiState extends State<FileMessageUi> {
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json!.toFile();
+    var file = widget.message.json.toFile();
     var type = file.type;
     var caption = file.caption;
     var dimensions =
@@ -47,20 +50,19 @@ class _FileMessageUiState extends State<FileMessageUi> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (isDebugEnabled())
-          DebugC(
-              label: "file details",
-              children: [Debug(file)]),
+          DebugC(label: "file details", children: [Debug(file)]),
         _buildMainUi(type),
         if (caption.isNotEmpty)
           SizedBox(
             width: width,
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                padding: const EdgeInsets.only(top: 4),
                 child: TextUI(
                   message: widget.message,
                   maxWidth: widget.maxWidth,
                   isSender: widget.isSender,
                   isSeen: widget.isSeen,
+                  colorScheme: widget.colorScheme,
                   onUsernameClick: widget.onUsernameClick,
                 )),
           )
@@ -69,20 +71,25 @@ class _FileMessageUiState extends State<FileMessageUi> {
   }
 
   Widget _buildMainUi(String type) {
-    if (type.contains('image') || type.contains("png")|| type.contains("jpg")) {
+    if (type.contains('image') ||
+        type.contains("png") ||
+        type.contains("jpg")) {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,
         minWidth: widget.minWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     } else if (type.contains('video')) {
       return VideoMessage(
         message: widget.message,
         maxWidth: widget.maxWidth,
+        minWidth: widget.minWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     } else {
       return AudioAndDocumentFileUI(
@@ -90,6 +97,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         maxWidth: widget.maxWidth,
         isSender: widget.isSender,
         isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
       );
     }
   }

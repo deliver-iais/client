@@ -3,7 +3,9 @@ import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -32,6 +34,21 @@ class _IntroPageState extends State<IntroPage> {
         introAnimationController.play(pauseTime: d - 0.05);
       });
     });
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      FeatureDiscovery.discoverFeatures(
+        context,
+        isAndroid() || isIOS()
+            ? const <String>{
+                feature1,
+                feature2,
+                feature3,
+              }
+            : const <String>{
+                feature1,
+                feature3,
+              },
+      );
+    });
     super.initState();
   }
 
@@ -43,6 +60,7 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     double animationSize = animationSquareSize(context);
     double paddingTop = 40;
     return FluidWidget(
@@ -55,8 +73,8 @@ class _IntroPageState extends State<IntroPage> {
                 widgetTitle: Column(
                   children: <Widget>[
                     Text(
-                      'Deliver',
-                      style: Theme.of(context).primaryTextTheme.headline5,
+                      APPLICATION_NAME,
+                      style:theme.primaryTextTheme.headline5,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -64,7 +82,7 @@ class _IntroPageState extends State<IntroPage> {
                         width: animationSize,
                         child: Text(
                           'The world`s fastest messaging app. It is free and secure.',
-                          style: Theme.of(context).primaryTextTheme.subtitle1,
+                          style:theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -79,7 +97,7 @@ class _IntroPageState extends State<IntroPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'Fast',
-                        style: Theme.of(context).primaryTextTheme.headline5,
+                        style:theme.primaryTextTheme.headline5,
                       ),
                     ),
                     Padding(
@@ -88,7 +106,7 @@ class _IntroPageState extends State<IntroPage> {
                         width: animationSize,
                         child: Text(
                           'We delivers messages fastest than any other application.',
-                          style: Theme.of(context).primaryTextTheme.subtitle1,
+                          style:theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -103,7 +121,7 @@ class _IntroPageState extends State<IntroPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'Powerful',
-                        style: Theme.of(context).primaryTextTheme.headline5,
+                        style:theme.primaryTextTheme.headline5,
                       ),
                     ),
                     Padding(
@@ -112,7 +130,7 @@ class _IntroPageState extends State<IntroPage> {
                         width: animationSize,
                         child: Text(
                           'Messenger has no limits on the size of your media and chats.',
-                          style: Theme.of(context).primaryTextTheme.subtitle1,
+                          style:theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -130,7 +148,7 @@ class _IntroPageState extends State<IntroPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'Secure',
-                        style: Theme.of(context).primaryTextTheme.headline5,
+                        style:theme.primaryTextTheme.headline5,
                       ),
                     ),
                     Padding(
@@ -139,7 +157,7 @@ class _IntroPageState extends State<IntroPage> {
                         width: animationSize,
                         child: Text(
                           'Messenger keeps your messages safe from hacker attacks.',
-                          style: Theme.of(context).primaryTextTheme.subtitle1,
+                          style:theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -153,11 +171,11 @@ class _IntroPageState extends State<IntroPage> {
             nameSkipBtn: _i18n.get("skip"),
             nameNextBtn: _i18n.get("next"),
             onDonePress: navigateToLoginPage,
-            styleNameSkipBtn: Theme.of(context).primaryTextTheme.button!,
-            styleNameDoneBtn: Theme.of(context).primaryTextTheme.button!,
-            styleNamePrevBtn: Theme.of(context).primaryTextTheme.button!,
+            styleNameSkipBtn:theme.primaryTextTheme.button!,
+            styleNameDoneBtn:theme.primaryTextTheme.button!,
+            styleNamePrevBtn:theme.primaryTextTheme.button!,
             colorDot: const Color(0xFFBCE0FD),
-            colorActiveDot: Theme.of(context).primaryColor,
+            colorActiveDot:theme.primaryColor,
             onSkipPress: navigateToLoginPage,
             onAnimationChange: (d) {
               subject.add(d);

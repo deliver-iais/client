@@ -187,6 +187,7 @@ class RoomRepo {
       var room = await _roomDao.getRoom(roomUid.asString());
       _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
+          deleted: true,
           firstMessageId: room!.lastMessageId ?? 0,
           lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
       return true;
@@ -262,7 +263,7 @@ class RoomRepo {
 
   Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
-  Stream<Room?> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
+  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 
@@ -272,9 +273,9 @@ class RoomRepo {
   Future<void> createRoomIfNotExist(String roomUid) =>
       _roomDao.updateRoom(Room(uid: roomUid));
 
-  Stream<Seen?> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
+  Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
-  Future<Seen?> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+  Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
 
   Future<Seen?> getOthersSeen(String roomUid) =>
       _seenDao.getOthersSeen(roomUid);

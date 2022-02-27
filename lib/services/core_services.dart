@@ -2,9 +2,13 @@
 
 import 'dart:async';
 
+import 'package:deliver/box/media_meta_data.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -24,6 +28,7 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -65,6 +70,7 @@ class CoreServices {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
 
   Timer? _connectionTimer;
   var _lastPongTime = 0;
@@ -325,6 +331,7 @@ class CoreServices {
       _seenDao.saveMySeen(
         Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
       );
+      _notificationServices.cancelRoomNotifications(roomId.asString());
     } else {
       _seenDao.saveOthersSeen(
         Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
@@ -351,13 +358,20 @@ class CoreServices {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       var msg = pm.msg.copyWith(id: id, time: time);
-      _messageDao.deletePendingMessage(packetId);
+      try {
+        _messageDao.deletePendingMessage(packetId);
+      } catch (e) {
+        _logger.e(e);
+      }
       _messageDao.saveMessage(msg);
       _roomDao.updateRoom(
           Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id));
 
       if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
         _notificationServices.playSoundOut();
+      }
+      if (msg.type == MessageType.FILE) {
+        _updateRoomMetaData(msg.roomUid, msg, _mediaQueryRepo);
       }
     }
   }
@@ -438,7 +452,8 @@ class CoreServices {
                   roomUid,
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
-                      .toInt());
+                      .toInt(),
+                  message.time.toInt());
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
               var mes = await _messageDao.getMessage(
@@ -446,10 +461,10 @@ class CoreServices {
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
-              _messageDao.saveMessage(mes!..json = "{}");
+              _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
-              break;
+              return;
           }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
@@ -476,7 +491,8 @@ class CoreServices {
         _callEvents.add(callEvents);
       }
     }
-    saveMessage(message, roomUid);
+    saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
+        _roomDao, _seenDao, _mediaQueryRepo);
 
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
@@ -489,7 +505,7 @@ class CoreServices {
     }
   }
 
-  messageEdited(Uid roomUid, int id) async {
+  messageEdited(Uid roomUid, int id, int time) async {
     var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
@@ -499,11 +515,13 @@ class CoreServices {
         _authRepo, _messageDao, res.messages.first);
     var room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
-      _roomDao.updateRoom(
-          room.copyWith(lastUpdatedMessageId: res.messages.first.id.toInt()));
+      _roomDao.updateRoom(room.copyWith(
+          lastUpdateTime: time,
+          lastUpdatedMessageId: res.messages.first.id.toInt()));
     } else {
       _roomDao.updateRoom(room.copyWith(
         lastMessage: msg,
+        lastUpdateTime: time,
         lastUpdatedMessageId: res.messages.first.id.toInt(),
       ));
     }
@@ -525,30 +543,6 @@ class CoreServices {
         uid: userUid.asString(),
         time: time,
         lastUpdate: DateTime.now().millisecondsSinceEpoch));
-  }
-
-  Future<Uid> saveMessage(Message message, Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
-
-    bool isMention = false;
-    if (roomUid.category == Categories.GROUP) {
-      // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
-      if (message.text.text
-          .contains("@${(await _accountRepo.getAccount()).userName}")) {
-        isMention = true;
-      }
-    }
-    _roomDao.updateRoom(
-      Room(
-          uid: roomUid.asString(),
-          lastMessage: msg,
-          lastMessageId: msg!.id,
-          mentioned: isMention,
-          deleted: false,
-          lastUpdateTime: msg.time),
-    );
-
-    return roomUid;
   }
 
   void _saveRoomPresenceTypeChange(
@@ -582,7 +576,80 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
   return showNotify;
 }
 
-// TODO, refactor this!!!, we don't need this be functional
+Future<Uid> saveMessage(
+    Message message,
+    Uid roomUid,
+    MessageDao messageDao,
+    AuthRepo authRepo,
+    AccountRepo accountRepo,
+    RoomDao roomDao,
+    SeenDao seenDao,
+    MediaQueryRepo mediaQueryRepo) async {
+  var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
+
+  bool isMention = false;
+  if (roomUid.category == Categories.GROUP) {
+    // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
+    if (message.text.text
+        .contains("@${(await accountRepo.getAccount()).userName}")) {
+      isMention = true;
+    }
+  }
+  roomDao.updateRoom(
+    Room(
+        uid: roomUid.asString(),
+        lastMessage: msg,
+        lastMessageId: msg!.id,
+        mentioned: isMention,
+        deleted: false,
+        lastUpdateTime: msg.time),
+  );
+  if (message.whichType() == Message_Type.file) {
+    _updateRoomMetaData(roomUid.asString(), msg, mediaQueryRepo);
+  }
+  fetchSeen(seenDao, roomUid.asString());
+
+  return roomUid;
+}
+
+fetchSeen(SeenDao seenDao, String roomUid) async {
+  var res = await seenDao.getMySeen(roomUid);
+  if (res.messageId == -1) {
+    seenDao.saveMySeen(Seen(uid: roomUid, messageId: 0));
+  }
+}
+
+Future<void> _updateRoomMetaData(String roomUid, message_pb.Message message,
+    MediaQueryRepo mediaQueryRepo) async {
+  try {
+    var file = message.json.toFile();
+    if (file.type.contains("image") ||
+        file.type.contains("jpg") ||
+        file.type.contains("png")) {
+      var mediaMetaData = await mediaQueryRepo.getMediaMetaData(roomUid);
+      if (mediaMetaData != null) {
+        mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
+            lastUpdateTime: message.time.toInt(),
+            imagesCount: mediaMetaData.imagesCount + 1));
+      } else {
+        mediaQueryRepo.saveMediaMetaData(MediaMetaData(
+            roomId: roomUid,
+            imagesCount: 1,
+            musicsCount: 0,
+            videosCount: 0,
+            audiosCount: 0,
+            documentsCount: 0,
+            filesCount: 0,
+            linkCount: 0,
+            lastUpdateTime: message.time.toInt()));
+      }
+      mediaQueryRepo.saveMediaFromMessage(message);
+    }
+  } catch (e) {
+    // _logger.e(e);
+  }
+}
+
 Future<message_pb.Message?> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
   try {
