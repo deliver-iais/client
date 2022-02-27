@@ -1,6 +1,5 @@
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -21,7 +20,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
   Color _switchCameraIcon = Colors.black45;
   Color _offVideoCamIcon = Colors.black45;
   Color _speakerIcon = Colors.black45;
-  Color _screenShareIcon = Colors.black45;
+
+  // Color _screenShareIcon = Colors.black45;
   Color _muteMicIcon = Colors.black45;
   final callRepo = GetIt.I.get<CallRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -135,17 +135,6 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           height: 110,
-                          width: 110,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                Colors.white.withOpacity(0.07),
-                                Colors.white.withOpacity(0.05)
-                              ],
-                              stops: const [.5, 1],
-                            ),
-                          ),
                           child: FloatingActionButton(
                             backgroundColor: const Color(0xffcf6869),
                             heroTag: "2",
@@ -192,12 +181,12 @@ class _CallBottomRowState extends State<CallBottomRow> {
     setState(() {});
   }
 
-  _shareScreen() {
-    callRepo.shareScreen();
-    screenShareIndex++;
-    _screenShareIcon = screenShareIndex.isOdd ? Colors.grey : Colors.black45;
-    setState(() {});
-  }
+  // _shareScreen() {
+  //   callRepo.shareScreen();
+  //   screenShareIndex++;
+  //   _screenShareIcon = screenShareIndex.isOdd ? Colors.grey : Colors.black45;
+  //   setState(() {});
+  // }
 
   _enableSpeaker() {
     _speakerIcon = callRepo.enableSpeakerVoice() ? Colors.grey : Colors.black45;
