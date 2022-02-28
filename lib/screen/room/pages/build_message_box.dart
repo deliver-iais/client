@@ -190,9 +190,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             message.json.toCallEvent().newStatus ==
                 CallEvent_CallStatus.DECLINED)) {
       if (_authRepo.isCurrentUser(message.to)) {
-        messageWidget = showSentMessage(message, isFirstMessageInGroupedMessages);
+        messageWidget =
+            showSentMessage(message, isFirstMessageInGroupedMessages);
       } else {
-        messageWidget = showReceivedMessage(message, isFirstMessageInGroupedMessages);
+        messageWidget =
+            showReceivedMessage(message, isFirstMessageInGroupedMessages);
       }
     } else if (_authRepo.isCurrentUser(message.from)) {
       messageWidget = showSentMessage(message, isFirstMessageInGroupedMessages);
@@ -305,7 +307,15 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showReceivedMessage(
       Message message, bool isFirstMessageInGroupedMessages) {
-    final colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
+    final CustomColorScheme colorScheme;
+    if (message.type == MessageType.CALL &&
+        (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
+            message.json.toCallEvent().newStatus ==
+                CallEvent_CallStatus.DECLINED)) {
+      colorScheme = ExtraTheme.of(context).messageColorScheme(message.to);
+    } else {
+      colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
+    }
 
     Widget messageWidget = ReceivedMessageBox(
       message: message,
