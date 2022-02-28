@@ -134,6 +134,8 @@ class IOSNotifier implements Notifier {
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
+  Map<int, Toast> toastById = {};
+
   WindowsNotifier() {
     scheduleMicrotask(() async {
       final ret = await WinToast.instance().initialize(
@@ -184,6 +186,9 @@ class WindowsNotifier implements Notifier {
           );
         }
       }
+      if(isCall){
+        toastById[toast!.id] = toast;
+      }
       toast!.eventStream.listen((event) {
         if (event is ActivatedEvent) {
           if (!isCall) {
@@ -207,10 +212,8 @@ class WindowsNotifier implements Notifier {
               }
             }
           }
-          if (event is DissmissedEvent) {
-            WinToast.instance().bringWindowToFront();
-          }
         }
+        toastById.remove(toast!.id);
       });
     } catch (e) {
       _logger.e(e);
@@ -224,7 +227,10 @@ class WindowsNotifier implements Notifier {
   cancelAll() {}
 
   @override
-  cancelById(int id) {}
+  cancelById(int id) {
+    toastById[id]!.dismiss();
+    toastById.remove(id);
+  }
 }
 
 class WebNotifier implements Notifier {
