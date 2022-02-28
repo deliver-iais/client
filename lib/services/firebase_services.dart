@@ -1,7 +1,4 @@
 import 'dart:convert';
-
-// import 'package:awesome_notifications/awesome_notifications.dart';
-// import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -237,24 +234,6 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
       _notificationServices.showNotification(msg, roomName: roomName!);
 
     } catch (_) {
-      // AwesomeNotifications().initialize(
-      //     null,
-      //     [
-      //       NotificationChannel(
-      //           channelKey: 'basic_channel',
-      //           channelName: 'Basic notifications',
-      //           channelDescription: 'Notification channel for basic tests',
-      //           defaultColor: Colors.lightBlueAccent,
-      //           ledColor: Colors.white)
-      //     ],
-      //     // Channel groups are only visual and are not required
-      //     debug: false);
-      // AwesomeNotifications().createNotification(
-      //     content: NotificationContent(
-      //         id: msg.id.toInt() + roomUid.hashCode,
-      //         channelKey: 'basic_channel',
-      //         title: roomName,
-      //         body: msg.text.text));
     }
   } else if (remoteMessage.data.containsKey("seen")) {
     pb_seen.Seen seen =
@@ -264,6 +243,5 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     _seenDao.saveMySeen(
       Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
     );
-     // AwesomeNotifications().cancel(seen.id.toInt() + seen.to.hashCode);
   }
 }
