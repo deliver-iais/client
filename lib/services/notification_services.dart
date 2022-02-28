@@ -154,6 +154,7 @@ class WindowsNotifier implements Notifier {
     final _logger = GetIt.I.get<Logger>();
     final callRepo = GetIt.I.get<CallRepo>();
     bool isCall = false;
+    Toast? toast;
     try {
       Avatar? lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid!, false);
@@ -165,83 +166,52 @@ class WindowsNotifier implements Notifier {
         String? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        Toast? toast = await WinToast.instance().showToast(
+        toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
             title: message.roomName!,
             actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
             imagePath: file!);
-        toast!.eventStream.listen((event) {
-          if (event is ActivatedEvent) {
-            if (!isCall) {
-              if (lastAvatar != null) {
-                _routingService.openRoom(lastAvatar.uid);
-                WinToast.instance().bringWindowToFront();
-                DesktopWindow.focus();
-              }
-            } else {
-              if (event.actionIndex == 1) {
-                //Decline
-                callRepo.declineCall();
-                WinToast.instance().bringWindowToFront();
-              } else if (event.actionIndex == 0) {
-                //Accept
-                WinToast.instance().bringWindowToFront();
-                if (callRepo.isVideo) {
-                  _routingService.openCallScreen(message.roomUid!,
-                      isVideoCall: true, isCallAccepted: true);
-                } else {
-                  _routingService.openCallScreen(message.roomUid!,
-                      isCallAccepted: true);
-                }
-              }
-            }
-            if (event is DissmissedEvent) {
-              WinToast.instance().bringWindowToFront();
-            }
-          }
-        });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          Toast? toast = await WinToast.instance().showToast(
+          toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
             title: message.roomName!,
             imagePath: deliverIcon.path,
             actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
-          toast!.eventStream.listen((event) {
-            if (event is ActivatedEvent) {
-              if (!isCall) {
-                if (lastAvatar != null) {
-                  _routingService.openRoom(lastAvatar.uid);
-                  WinToast.instance().bringWindowToFront();
-                }
-              } else {
-                if (event.actionIndex == 1) {
-                  //Decline
-                  callRepo.declineCall();
-                  WinToast.instance().bringWindowToFront();
-                } else if (event.actionIndex == 0) {
-                  //Accept
-                  WinToast.instance().bringWindowToFront();
-                  if (callRepo.isVideo) {
-                    _routingService.openCallScreen(message.roomUid!,
-                        isVideoCall: true, isCallAccepted: true);
-                  } else {
-                    _routingService.openCallScreen(message.roomUid!,
-                        isCallAccepted: true);
-                  }
-                }
-              }
-              if (event is DissmissedEvent) {
-                WinToast.instance().bringWindowToFront();
-              }
-            }
-          });
         }
       }
+      toast!.eventStream.listen((event) {
+        if (event is ActivatedEvent) {
+          if (!isCall) {
+            if (lastAvatar != null) {
+              _routingService.openRoom(lastAvatar.uid);
+              DesktopWindow.focus();
+            }
+          } else {
+            if (event.actionIndex == 1) {
+              //Decline
+              callRepo.declineCall();
+            } else if (event.actionIndex == 0) {
+              //Accept
+              DesktopWindow.focus();
+              if (callRepo.isVideo) {
+                _routingService.openCallScreen(message.roomUid!,
+                    isVideoCall: true, isCallAccepted: true);
+              } else {
+                _routingService.openCallScreen(message.roomUid!,
+                    isCallAccepted: true);
+              }
+            }
+          }
+          if (event is DissmissedEvent) {
+            WinToast.instance().bringWindowToFront();
+          }
+        }
+      });
     } catch (e) {
       _logger.e(e);
     }
@@ -430,7 +400,7 @@ class AndroidNotifier implements Notifier {
     String selectedNotificationSound = "that_was_quick";
     Room? room = await _roomRepo.getRoom(message.roomUid!.asString());
     var selectedSound =
-    await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
+        await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
     if (la != null && la.fileId != null && la.fileName != null) {
       var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
@@ -468,19 +438,19 @@ class AndroidNotifier implements Notifier {
       }
     } else {
       InboxStyleInformation inboxStyleInformation =
-      const InboxStyleInformation([], contentTitle: 'new messages');
+          const InboxStyleInformation([], contentTitle: 'new messages');
 
       AndroidNotificationDetails androidNotificationDetails =
-      AndroidNotificationDetails(
-          selectedNotificationSound + message.roomUid!.asString(),
-          channel.name,
-          channelDescription: channel.description,
-          styleInformation: inboxStyleInformation,
-          groupKey: channel.groupId,
-          playSound: true,
-          sound:
-          RawResourceAndroidNotificationSound(selectedNotificationSound),
-          setAsGroupSummary: true);
+          AndroidNotificationDetails(
+              selectedNotificationSound + message.roomUid!.asString(),
+              channel.name,
+              channelDescription: channel.description,
+              styleInformation: inboxStyleInformation,
+              groupKey: channel.groupId,
+              playSound: true,
+              sound: RawResourceAndroidNotificationSound(
+                  selectedNotificationSound),
+              setAsGroupSummary: true);
       _flutterLocalNotificationsPlugin.show(
           message.roomUid.hashCode, 'Attention', 'new messages',
           notificationDetails: androidNotificationDetails);
