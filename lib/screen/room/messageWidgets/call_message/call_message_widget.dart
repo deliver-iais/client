@@ -47,12 +47,12 @@ class CallMessageWidget extends StatelessWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                //TODO color call Widget
                 DefaultTextStyle(
                     style: TextStyle(
-                      color: ExtraTheme.of(context).colorScheme.primary.withAlpha(130),
-                      fontSize: 12,
-                      height: 1.2,
+                      color: ExtraTheme.of(context)
+                          .messageColorScheme(message.from)
+                          .onPrimaryContainerLowlight(),
+                      fontSize: 13,
                     ),
                     child: Row(
                       children: [
