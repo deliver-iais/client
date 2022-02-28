@@ -228,14 +228,15 @@ class WindowsNotifier implements Notifier {
     // id=0 means remove all notify for this roomId
     if (toastByRoomId.containsKey(roomId)) {
       var roomIdToast = toastByRoomId[roomId];
-      if (id == 0) {
-        for (var element in roomIdToast!.keys) {
-          roomIdToast[element]!.dismiss();
-          roomIdToast.remove(element);
-        }
+      for (var element in roomIdToast!.keys.toList()) {
+        roomIdToast[element]!.dismiss();
+        roomIdToast.remove(element);
       }
-      roomIdToast![id]!.dismiss();
-      roomIdToast.remove(id);
+
+      if (roomIdToast[id] != null) {
+        roomIdToast[id]!.dismiss();
+        roomIdToast.remove(id);
+      }
     }
   }
 

@@ -12,7 +12,6 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -48,6 +47,7 @@ class CallRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -856,7 +856,7 @@ class CallRepo {
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     if (isWindows()) {
-      WindowsNotifier().cancel(0, roomUid!.asString());
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
     if (isForce || (_isCaller && callDuration == 0)) {
       _callDuration = calculateCallEndTime();
