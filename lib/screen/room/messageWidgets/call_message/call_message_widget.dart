@@ -60,7 +60,7 @@ class CallMessageWidget extends StatelessWidget {
                           _autRepo.isCurrentUser(message.from)
                               ? Icons.call_made
                               : Icons.call_received,
-                          color: Colors.green,
+                          color: _callDuration != 0 ? Colors.green : Colors.red,
                           size: 14,
                         ),
                         MsgTime(

@@ -9,7 +9,7 @@ class CallState extends StatelessWidget {
   final bool isCurrentUser;
   final callRepo = GetIt.I.get<CallRepo>();
 
-   CallState(
+  CallState(
       {Key? key,
       required this.callStatus,
       required this.time,
@@ -22,23 +22,19 @@ class CallState extends StatelessWidget {
         isCurrentUser &&
         time == 0) {
       return const Text("canceled call");
-    } else if (callStatus == CallEvent_CallStatus.DECLINED &&
-        time == 0) {
+    } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
       return const Text("call declined");
-    } else if (callStatus == CallEvent_CallStatus.BUSY &&
-        time == 0) {
+    } else if (callStatus == CallEvent_CallStatus.BUSY && time == 0) {
       return const Text("Busy");
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
-        !callRepo. isCaller &&
+        !callRepo.isCaller &&
         time == 0) {
       return const Text("missed call");
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
-        !callRepo. isCaller &&
+        isCurrentUser &&
         time != 0) {
       return const Text("Incoming call");
-    } else if (callStatus == CallEvent_CallStatus.ENDED &&
-        callRepo. isCaller &&
-        time != 0) {
+    } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
       return const Text("outgoing call");
     } else {
       return const SizedBox.shrink();
