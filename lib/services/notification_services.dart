@@ -134,7 +134,7 @@ class IOSNotifier implements Notifier {
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
-  Map<int, Toast> toastById = {};
+  Map<String, Map<int, Toast>> toastByRoomId = {};
 
   WindowsNotifier() {
     scheduleMicrotask(() async {
@@ -157,6 +157,9 @@ class WindowsNotifier implements Notifier {
     final callRepo = GetIt.I.get<CallRepo>();
     bool isCall = false;
     Toast? toast;
+    if(!toastByRoomId.containsKey(message.roomUid!.node!)) {
+      toastByRoomId[message.roomUid!.node!] = {};
+    }
     try {
       Avatar? lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid!, false);
@@ -186,9 +189,8 @@ class WindowsNotifier implements Notifier {
           );
         }
       }
-      if(isCall){
-        toastById[toast!.id] = toast;
-      }
+      var roomIdToast = toastByRoomId[message.roomUid!.node!];
+      roomIdToast![message.id!] = toast!;
       toast!.eventStream.listen((event) {
         if (event is ActivatedEvent) {
           if (!isCall) {
@@ -213,7 +215,8 @@ class WindowsNotifier implements Notifier {
             }
           }
         }
-        toastById.remove(toast!.id);
+        var roomIdToast = toastByRoomId[message.roomUid!.node!];
+        roomIdToast!.remove(message.id);
       });
     } catch (e) {
       _logger.e(e);
@@ -221,15 +224,25 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancel(int id, String roomId) {}
+  cancel(int id, String roomId) { // id=0 means remove all notify for this roomId
+    if(toastByRoomId.containsKey(roomId)) {
+      var roomIdToast = toastByRoomId[roomId];
+      if (id == 0) {
+        roomIdToast!.keys.forEach((element) {
+          roomIdToast[element]!.dismiss();
+          roomIdToast.remove(element);
+        });
+      }
+      roomIdToast![id]!.dismiss();
+      roomIdToast!.remove(id);
+    }
+  }
 
   @override
   cancelAll() {}
 
   @override
   cancelById(int id) {
-    toastById[id]!.dismiss();
-    toastById.remove(id);
   }
 }
 
