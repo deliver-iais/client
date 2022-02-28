@@ -30,6 +30,9 @@ class CallMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isIncomingCall = _callEvent == CallEvent_CallStatus.DECLINED
+        ? _autRepo.isCurrentUser(message.to)
+        : _autRepo.isCurrentUser(message.from);
     return Container(
         width: 200,
         margin: const EdgeInsets.all(10),
@@ -57,7 +60,7 @@ class CallMessageWidget extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(
-                          _autRepo.isCurrentUser(message.from)
+                          isIncomingCall
                               ? Icons.call_made
                               : Icons.call_received,
                           color: _callDuration != 0 ? Colors.green : Colors.red,

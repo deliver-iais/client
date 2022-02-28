@@ -367,7 +367,6 @@ class AndroidNotifier implements Notifier {
   ) async {
     final callRepo = GetIt.I.get<CallRepo>();
     callRepo.declineCall();
-    _routingService.pop();
   }
 
   Future<dynamic> onCallAccepted(
