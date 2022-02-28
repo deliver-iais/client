@@ -157,8 +157,8 @@ class WindowsNotifier implements Notifier {
     final callRepo = GetIt.I.get<CallRepo>();
     bool isCall = false;
     Toast? toast;
-    if(!toastByRoomId.containsKey(message.roomUid!.node!)) {
-      toastByRoomId[message.roomUid!.node!] = {};
+    if (!toastByRoomId.containsKey(message.roomUid!.node)) {
+      toastByRoomId[message.roomUid!.node] = {};
     }
     try {
       Avatar? lastAvatar =
@@ -189,9 +189,9 @@ class WindowsNotifier implements Notifier {
           );
         }
       }
-      var roomIdToast = toastByRoomId[message.roomUid!.node!];
+      var roomIdToast = toastByRoomId[message.roomUid!.node];
       roomIdToast![message.id!] = toast!;
-      toast!.eventStream.listen((event) {
+      toast.eventStream.listen((event) {
         if (event is ActivatedEvent) {
           if (!isCall) {
             if (lastAvatar != null) {
@@ -215,7 +215,7 @@ class WindowsNotifier implements Notifier {
             }
           }
         }
-        var roomIdToast = toastByRoomId[message.roomUid!.node!];
+        var roomIdToast = toastByRoomId[message.roomUid!.node];
         roomIdToast!.remove(message.id);
       });
     } catch (e) {
@@ -224,17 +224,18 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancel(int id, String roomId) { // id=0 means remove all notify for this roomId
-    if(toastByRoomId.containsKey(roomId)) {
+  cancel(int id, String roomId) {
+    // id=0 means remove all notify for this roomId
+    if (toastByRoomId.containsKey(roomId)) {
       var roomIdToast = toastByRoomId[roomId];
       if (id == 0) {
-        roomIdToast!.keys.forEach((element) {
+        for (var element in roomIdToast!.keys) {
           roomIdToast[element]!.dismiss();
           roomIdToast.remove(element);
-        });
+        }
       }
       roomIdToast![id]!.dismiss();
-      roomIdToast!.remove(id);
+      roomIdToast.remove(id);
     }
   }
 
@@ -242,8 +243,7 @@ class WindowsNotifier implements Notifier {
   cancelAll() {}
 
   @override
-  cancelById(int id) {
-  }
+  cancelById(int id) {}
 }
 
 class WebNotifier implements Notifier {

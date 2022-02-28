@@ -10,7 +10,9 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -255,6 +257,21 @@ class CallRepo {
           if (!_reconnectTry) {
             callingStatus.add(CallStatus.DISCONNECTED);
           }
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateNew:
+          // TODO: Handle this case.
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateChecking:
+          // TODO: Handle this case.
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+          // TODO: Handle this case.
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateCount:
+          // TODO: Handle this case.
+          break;
+        case RTCIceConnectionState.RTCIceConnectionStateClosed:
+          // TODO: Handle this case.
           break;
       }
     };
@@ -838,6 +855,9 @@ class CallRepo {
     String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+    if (isWindows()) {
+      WindowsNotifier().cancel(0, roomUid!.asString());
+    }
     if (isForce || (_isCaller && callDuration == 0)) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
@@ -1089,11 +1109,12 @@ class CallRepo {
     int year,
   ) async {
     return await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
-          ..roomUid = roomUid
-          ..limit=2
-          ..fetchingDirectionType=FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
-          ..month = month
-          ..year = year);
+      ..roomUid = roomUid
+      ..limit = 2
+      ..fetchingDirectionType =
+          FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
+      ..month = month
+      ..year = year);
   }
 }
 
