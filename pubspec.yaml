@@ -51,7 +51,11 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  win_toast: 0.0.2
+  win_toast:
+    git:
+      url: git://github.com/AmirhosseinShk/flutter-plugins.git
+      path: packages/win_toast
+      ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
   msix: 3.1.0
   flare_flutter: 3.0.2 # Animation Viewer Library
   lottie: 1.2.1
