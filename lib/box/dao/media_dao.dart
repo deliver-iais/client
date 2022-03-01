@@ -14,6 +14,8 @@ abstract class MediaDao {
   Future<int?> getIndexOfMedia(String roomUid, int messageId);
 
   Future deleteMedia(String roomId, int messageId);
+
+  Future clear(String roomId);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -73,5 +75,11 @@ class MediaDaoImpl implements MediaDao {
   Future deleteMedia(String roomId, int messageId) async {
     var box = await _open(roomId);
     box.delete(messageId);
+  }
+
+  @override
+  Future clear(String roomId) async {
+    var box = await _open(roomId);
+    await box.clear();
   }
 }
