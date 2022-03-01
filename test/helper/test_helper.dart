@@ -1,19 +1,27 @@
 import 'dart:async';
 
 import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/custom_notication_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as seen_box;
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -65,6 +73,14 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<SharedDao>(returnNullOnMissingStub: true),
   MockSpec<AvatarRepo>(returnNullOnMissingStub: true),
   MockSpec<BlockDao>(returnNullOnMissingStub: true),
+  MockSpec<I18N>(returnNullOnMissingStub: true),
+  MockSpec<MuteDao>(returnNullOnMissingStub: true),
+  MockSpec<UidIdNameDao>(returnNullOnMissingStub: true),
+  MockSpec<ContactRepo>(returnNullOnMissingStub: true),
+  MockSpec<AccountRepo>(returnNullOnMissingStub: true),
+  MockSpec<MucRepo>(returnNullOnMissingStub: true),
+  MockSpec<BotRepo>(returnNullOnMissingStub: true),
+  MockSpec<CustomNotificatonDao>(returnNullOnMissingStub: true),
 ])
 MockCoreServices getAndRegisterCoreServices(
     {ConnectionStatus connectionStatus = ConnectionStatus.Connecting}) {
@@ -83,6 +99,62 @@ MockLogger getAndRegisterLogger() {
   _removeRegistrationIfExists<Logger>();
   final service = MockLogger();
   GetIt.I.registerSingleton<Logger>(service);
+  return service;
+}
+
+MockI18N getAndRegisterI18N() {
+  _removeRegistrationIfExists<I18N>();
+  final service = MockI18N();
+  GetIt.I.registerSingleton<I18N>(service);
+  return service;
+}
+
+MockMuteDao getAndRegisterMuteDao() {
+  _removeRegistrationIfExists<MuteDao>();
+  final service = MockMuteDao();
+  GetIt.I.registerSingleton<MuteDao>(service);
+  return service;
+}
+
+MockUidIdNameDao getAndRegisterUidIdNameDao() {
+  _removeRegistrationIfExists<UidIdNameDao>();
+  final service = MockUidIdNameDao();
+  GetIt.I.registerSingleton<UidIdNameDao>(service);
+  return service;
+}
+
+MockContactRepo getAndRegisterContactRepo() {
+  _removeRegistrationIfExists<ContactRepo>();
+  final service = MockContactRepo();
+  GetIt.I.registerSingleton<ContactRepo>(service);
+  return service;
+}
+
+MockAccountRepo getAndRegisterAccountRepo() {
+  _removeRegistrationIfExists<AccountRepo>();
+  final service = MockAccountRepo();
+  GetIt.I.registerSingleton<AccountRepo>(service);
+  return service;
+}
+
+MockMucRepo getAndRegisterMucRepo() {
+  _removeRegistrationIfExists<MucRepo>();
+  final service = MockMucRepo();
+  GetIt.I.registerSingleton<MucRepo>(service);
+  return service;
+}
+
+MockBotRepo getAndRegisterBotRepo() {
+  _removeRegistrationIfExists<BotRepo>();
+  final service = MockBotRepo();
+  GetIt.I.registerSingleton<BotRepo>(service);
+  return service;
+}
+
+MockCustomNotificatonDao getAndRegisterCustomNotificatonDao() {
+  _removeRegistrationIfExists<CustomNotificatonDao>();
+  final service = MockCustomNotificatonDao();
+  GetIt.I.registerSingleton<CustomNotificatonDao>(service);
   return service;
 }
 
@@ -392,6 +464,14 @@ void registerServices() {
   getAndRegisterAvatarRepo();
   getAndRegisterBlockDao();
   getAndRegisterFireBaseServices();
+  getAndRegisterI18N();
+  getAndRegisterMuteDao();
+  getAndRegisterUidIdNameDao();
+  getAndRegisterContactRepo();
+  getAndRegisterAccountRepo();
+  getAndRegisterMucRepo();
+  getAndRegisterBotRepo();
+  getAndRegisterCustomNotificatonDao();
 }
 
 void unregisterServices() {
@@ -409,6 +489,13 @@ void unregisterServices() {
   GetIt.I.unregister<AvatarRepo>();
   GetIt.I.unregister<BlockDao>();
   GetIt.I.unregister<FireBaseServices>();
+  GetIt.I.unregister<I18N>();
+  GetIt.I.unregister<MuteDao>();
+  GetIt.I.unregister<ContactRepo>();
+  GetIt.I.unregister<AccountRepo>();
+  GetIt.I.unregister<MucRepo>();
+  GetIt.I.unregister<BotRepo>();
+  GetIt.I.unregister<CustomNotificatonDao>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {
