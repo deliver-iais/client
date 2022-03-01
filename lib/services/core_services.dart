@@ -433,7 +433,7 @@ class CoreServices {
       }
     }
     saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
-        _roomDao, _mediaQueryRepo);
+        _roomDao, _seenDao, _mediaQueryRepo);
 
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
@@ -522,6 +522,7 @@ Future<Uid> saveMessage(
     AuthRepo authRepo,
     AccountRepo accountRepo,
     RoomDao roomDao,
+    SeenDao seenDao,
     MediaQueryRepo mediaQueryRepo) async {
   var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
 
@@ -545,8 +546,16 @@ Future<Uid> saveMessage(
   if (message.whichType() == Message_Type.file) {
     _updateRoomMetaData(roomUid.asString(), msg, mediaQueryRepo);
   }
+  fetchSeen(seenDao, roomUid.asString());
 
   return roomUid;
+}
+
+fetchSeen(SeenDao seenDao, String roomUid) async {
+  var res = await seenDao.getMySeen(roomUid);
+  if (res.messageId == -1) {
+    seenDao.saveMySeen(Seen(uid: roomUid, messageId: 0));
+  }
 }
 
 Future<void> _updateRoomMetaData(String roomUid, message_pb.Message message,

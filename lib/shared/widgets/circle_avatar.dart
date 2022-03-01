@@ -50,7 +50,7 @@ class CircleAvatarWidget extends StatelessWidget {
       child: Hero(
         tag: contactUid.asString(),
         child: Container(
-          key: _globalKey,
+          key: kIsWeb ? null : _globalKey,
           width: radius * 2,
           height: radius * 2,
           clipBehavior: Clip.hardEdge,
@@ -77,7 +77,8 @@ class CircleAvatarWidget extends StatelessWidget {
       return StreamBuilder<String?>(
           key: _streamKey,
           initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid, false),
+          stream: _avatarRepo
+              .getLastAvatarFilePathStream(contactUid, false),
           builder: (context, snapshot) =>
               builder(context, snapshot, textColor));
     }

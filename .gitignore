@@ -47,3 +47,5 @@ android/key.jks
 *.snap
 
 *.dmg
+
+installer/ipa_creator

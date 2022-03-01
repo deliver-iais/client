@@ -208,6 +208,7 @@ class _ImageUiState extends State<ImageUi> {
                             child: LoadFileStatus(
                           fileId: widget.image.uuid,
                           fileName: widget.image.name,
+                          isPendingMessage: widget.message.id == null,
                           messagePacketId: widget.message.packetId,
                           onPressed: () async {
                             await _fileRepo.getFile(

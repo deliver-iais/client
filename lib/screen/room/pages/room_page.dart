@@ -67,7 +67,6 @@ const int PAGE_SIZE = 16;
 class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message>? forwardedMessages;
-  final List<String>? inputFilePaths;
   final proto.ShareUid? shareUid;
   final List<Media>? forwardedMedia;
 
@@ -75,7 +74,6 @@ class RoomPage extends StatefulWidget {
       {Key? key,
       required this.roomId,
       this.forwardedMessages,
-      this.inputFilePaths,
       this.forwardedMedia,
       this.shareUid})
       : super(key: key);
@@ -289,7 +287,6 @@ class _RoomPageState extends State<RoomPage> {
     _getLastSeen();
     _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
-    sendInputSharedFile();
     _waitingForForwardedMessage.add((widget.forwardedMessages != null &&
             widget.forwardedMessages!.isNotEmpty) ||
         widget.shareUid != null ||
@@ -983,14 +980,6 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-  sendInputSharedFile() async {
-    if (widget.inputFilePaths != null) {
-      for (String path in widget.inputFilePaths!) {
-        _messageRepo.sendFileMessage(
-            widget.roomId.asUid(), File(path, path.split(".").last));
-      }
-    }
-  }
 
   _scrollToMessage({required int id}) {
     _itemScrollController.scrollTo(

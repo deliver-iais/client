@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
 
-version: 2.0.0  #if change the version , is necessary to change VERSION  in constants.dart
+version: 2.0.1  #if change the version , is necessary to change VERSION  in constants.dart
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -51,7 +51,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  desktoasts: 0.0.2
+  win_toast: ^0.0.2
   msix: 3.1.0
   flare_flutter: 3.0.2 # Animation Viewer Library
   lottie: 1.2.1
@@ -86,7 +86,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/pub-dart-artifactory
-      ref: tags/v1.11.12
+      ref: tags/v1.11.19
 
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
@@ -96,7 +96,7 @@ dependencies:
   firebase_messaging:
     git:
       url: https://github.com/deliver-iais/firebase-messaging.git
-      ref: 875230afa2c81ad7f5458cc207b99bffe3a307cb
+      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
 
   ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
@@ -138,10 +138,6 @@ dependencies:
   camera: 0.9.4+5
   file_selector_linux: 0.0.2+1
   file_selector: 0.8.2+1
-  desktop_window: # CHANG TOP PAGE IN WINDOWS
-    git:
-      url: https://github.com/deliver-iais/desktop_window.git
-      ref: main
   service_worker: 0.2.4
   meta: 1.7.0
   flutter_dropzone: 3.0.3
@@ -157,10 +153,7 @@ dependencies:
   tuple: 2.0.0
   great_list_view: 0.1.4
   material_color_utilities: 0.1.4
-  awesome_notifications: # NOTIFICATION LIB FOR ANDROID
-    git:
-      url: https://github.com/androidwoman/awesome_notifications-0.6.16.git
-      ref: master
+
   clock: 1.1.0
   desktop_lifecycle: 0.1.0
 

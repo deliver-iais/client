@@ -78,7 +78,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
-
 import 'box/dao/contact_dao.dart';
 import 'box/dao/custom_notication_dao.dart';
 import 'box/dao/media_dao.dart';
@@ -246,6 +245,7 @@ Future setupFlutterNotification() async {
 }
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   Logger().i("Application has been started.");

@@ -24,7 +24,7 @@ import 'package:universal_html/html.dart' as html;
 
 import 'ext_storage_services.dart';
 
-enum ThumbnailSize { medium }
+enum ThumbnailSize { medium,small }
 
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
@@ -171,9 +171,17 @@ class FileService {
       options: Options(responseType: ResponseType.bytes),
       cancelToken: cancelToken,
     );
-    final file = await localThumbnailFile(uuid, filename.split(".").last, size);
-    file.writeAsBytesSync(res.data);
-    return file.path;
+    if (kIsWeb) {
+      var blob = html.Blob(
+          <Object>[res.data], "application/${filename.split(".").last}");
+      var url = html.Url.createObjectUrlFromBlob(blob);
+      return url;
+    } else {
+      final file =
+          await localThumbnailFile(uuid, filename.split(".").last, size);
+      file.writeAsBytesSync(res.data);
+      return file.path;
+    }
   }
 
   void initProgressBar(String uploadId) {
