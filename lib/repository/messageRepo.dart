@@ -869,6 +869,9 @@ class MessageRepo {
                           .messageId
                           .toInt());
                   if (mes != null) {
+                    if (mes.type == MessageType.FILE && mes.id != null) {
+                      _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
+                    }
                     _messageDao.saveMessage(mes.copyWith(json: EMPTY_MESSAGE));
                     _roomDao.updateRoom(Room(
                         uid: roomUid.asString(), lastUpdatedMessageId: mes.id));

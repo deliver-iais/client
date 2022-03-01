@@ -1,15 +1,12 @@
 import 'dart:convert';
 
-import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
-import 'package:deliver/box/message.dart';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +37,6 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
-  final _messageDao = GetIt.I.get<MessageDao>();
 
   Future<Media?> _getMedia(int index) async {
     if (_mediaCache.values.toList().isNotEmpty &&
@@ -52,11 +48,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
           widget.roomUid.asString(), widget.type, page, index);
       if (res != null) {
         for (Media media in res) {
-          Message? message = await _messageDao.getMessage(
-              widget.roomUid.asString(), media.messageId);
-          if (message != null && !message.json.isEmptyMessage()) {
-            _mediaCache[media.messageId] = media;
-          }
+          _mediaCache[media.messageId] = media;
         }
       }
       return _mediaCache.values.toList()[index];

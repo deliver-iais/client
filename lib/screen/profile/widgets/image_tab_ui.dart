@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media_meta_data.dart';
-import 'package:deliver/box/message.dart';
+
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:deliver/box/media.dart';
@@ -36,7 +34,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _messageDao = GetIt.I.get<MessageDao>();
+
   final _mediaCache = <int, Media>{};
 
   Future<Media?> _getMedia(int index) async {
@@ -49,11 +47,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
           widget.roomUid.asString(), MediaType.IMAGE, page, index);
       if (res != null) {
         for (Media media in res) {
-          Message? message = await _messageDao.getMessage(
-              widget.roomUid.asString(), media.messageId);
-          if (message != null && !message.json.isEmptyMessage()) {
-            _mediaCache[media.messageId] = media;
-          }
+          _mediaCache[media.messageId] = media;
         }
       }
       return _mediaCache.values.toList()[index];

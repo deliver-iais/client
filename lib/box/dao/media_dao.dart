@@ -34,7 +34,6 @@ class MediaDaoImpl implements MediaDao {
   @override
   Future<void> save(Media media) async {
     var box = await _open(media.roomId);
-    print(media.messageId);
     box.put(media.messageId, media);
   }
 

@@ -6,15 +6,12 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
-import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
-import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/foundation.dart';
@@ -46,7 +43,6 @@ class _AllImagePageState extends State<AllImagePage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
-  final _messageDao = GetIt.I.get<MessageDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
@@ -64,11 +60,7 @@ class _AllImagePageState extends State<AllImagePage> {
           widget.roomUid, MediaType.IMAGE, page, index);
       if (res != null) {
         for (Media media in res) {
-          Message? message =
-              await _messageDao.getMessage(widget.roomUid, media.messageId);
-          if (message != null && !message.json.isEmptyMessage()) {
-            _mediaCache[media.messageId] = media;
-          }
+          _mediaCache[media.messageId] = media;
         }
       }
       return _mediaCache.values.toList()[index];
