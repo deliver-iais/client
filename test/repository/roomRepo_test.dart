@@ -210,5 +210,29 @@ void main() {
         });
       });
     });
+    group('getIdByUid -', () {
+      test('When called should getIdByUid', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await RoomRepo().getIdByUid(testUid);
+        verify(queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid));
+      });
+      test(
+          'When called should getIdByUid and update uidIdNameDao with new value',
+          () async {
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        getAndRegisterQueryServiceClient(getIdByUidData: "test");
+        var id = await RoomRepo().getIdByUid(testUid);
+        verify(uidIdNameDao.update(testUid.asString(), id: "test"));
+        expect(id, "test");
+      });
+      test('When called should getIdByUid and if get error should return null',
+          () async {
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        getAndRegisterQueryServiceClient(getIdByUidGetError: true);
+        var id = await RoomRepo().getIdByUid(testUid);
+        verifyNever(uidIdNameDao.update(testUid.asString(), id: "test"));
+        expect(id, null);
+      });
+    });
   });
 }

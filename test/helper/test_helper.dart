@@ -329,6 +329,8 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     int updateMessageId = 0,
     bool updateMessageGetError = false,
     bool removePrivateRoomGetError = false,
+    bool getIdByUidGetError = false,
+    String? getIdByUidData,
     message_pb.MessageByClient? updatedMessageFile}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
@@ -444,6 +446,14 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
               .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid))
           .thenAnswer((realInvocation) =>
               MockResponseFuture<RemovePrivateRoomRes>(RemovePrivateRoomRes()));
+  getIdByUidGetError
+      ? when(service.getIdByUid(GetIdByUidReq()..uid = testUid)).thenThrow(
+          (realInvocation) =>
+              MockResponseFuture<GetIdByUidRes>(GetIdByUidRes()))
+      : when(service.getIdByUid(GetIdByUidReq()..uid = testUid)).thenAnswer(
+          (realInvocation) => MockResponseFuture<GetIdByUidRes>(
+              GetIdByUidRes(id: getIdByUidData)));
+
   return service;
 }
 
