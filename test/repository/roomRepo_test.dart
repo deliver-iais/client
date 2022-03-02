@@ -39,7 +39,13 @@ void main() {
           () async {
         expect(await RoomRepo().getSlangName(emptyUid), "");
       });
-      //todo add another test when getName test pass
+      test('When called if isSameEntity  be false should  return getName',
+          () async {
+        getAndRegisterBotRepo(
+            botInfo:
+                BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
+        expect(await RoomRepo().getSlangName(botUid), "test");
+      });
     });
     group('isVerified -', () {
       test(
@@ -149,6 +155,19 @@ void main() {
         expect(name, "test");
         expect(roomNameCache[botUid.asString()], "test");
       });
+      //todo add test after getIdByUid test passed
+    });
+    group('getId -', () {
+      test('When called if category is bot should return uid.node', () async {
+        expect(await RoomRepo().getId(botUid), botUid.node);
+      });
+      test('When called should userInfo and if not be null should return it',
+          () async {
+        final uidIdNameDao = getAndRegisterUidIdNameDao(getByUidHasData: true);
+        expect(await RoomRepo().getId(testUid), "test");
+        verify(uidIdNameDao.getByUid(testUid.asString()));
+      });
+      //todo add test after getIdByUid test passed
     });
   });
 }
