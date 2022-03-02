@@ -135,6 +135,7 @@ MockAccountRepo getAndRegisterAccountRepo() {
   _removeRegistrationIfExists<AccountRepo>();
   final service = MockAccountRepo();
   GetIt.I.registerSingleton<AccountRepo>(service);
+  when(service.getName()).thenAnswer((realInvocation) => Future.value("test"));
   return service;
 }
 
