@@ -1,3 +1,5 @@
+import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/muc.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -110,14 +112,43 @@ void main() {
       });
       test(
           'When called if category is user should getContact from contactRepo and if contact be empty should getContactFromServer and save it in cache',
-              () async {
-            roomNameCache.clear();
-            final contactRepo = getAndRegisterContactRepo(getContactFromServerData: "test");
-            var name = await RoomRepo().getName(testUid);
-            verify(contactRepo.getContactFromServer(testUid));
-            expect(name, "test");
-            expect(roomNameCache[testUid.asString()], "test");
-          });
+          () async {
+        roomNameCache.clear();
+        final contactRepo =
+            getAndRegisterContactRepo(getContactFromServerData: "test");
+        var name = await RoomRepo().getName(testUid);
+        verify(contactRepo.getContactFromServer(testUid));
+        expect(name, "test");
+        expect(roomNameCache[testUid.asString()], "test");
+      });
+      test(
+          'When called if category is group or channel should fetchMucInfo and if muc not be empty should update uidIdNameDao and save it in cache',
+          () async {
+        roomNameCache.clear();
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        final mucRepo = getAndRegisterMucRepo(
+            fetchMucInfo: Muc(uid: testUid.asString(), name: "test"));
+        var name = await RoomRepo().getName(groupUid);
+        verify(mucRepo.fetchMucInfo(groupUid));
+        verify(uidIdNameDao.update(groupUid.asString(), name: "test"));
+        expect(name, "test");
+        expect(roomNameCache[groupUid.asString()], "test");
+      });
+      test(
+          'When called if category is Bot should getBotInfo and if botInfo not be empty should update uidIdNameDao and save it in cache',
+          () async {
+        roomNameCache.clear();
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        final botRepo = getAndRegisterBotRepo(
+            botInfo:
+                BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
+        var name = await RoomRepo().getName(botUid);
+        verify(botRepo.getBotInfo(botUid));
+        verify(uidIdNameDao.update(botUid.asString(),
+            name: "test", id: botUid.node));
+        expect(name, "test");
+        expect(roomNameCache[botUid.asString()], "test");
+      });
     });
   });
 }

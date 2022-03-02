@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notication_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -9,6 +10,7 @@ import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as seen_box;
@@ -123,14 +125,15 @@ MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false}) {
   _removeRegistrationIfExists<UidIdNameDao>();
   final service = MockUidIdNameDao();
   GetIt.I.registerSingleton<UidIdNameDao>(service);
-  when(service.getByUid(testUid.asString())).thenAnswer((realInvocation) =>
-      Future.value(getByUidHasData
+  when(service.getByUid(any)).thenAnswer((realInvocation) => Future.value(
+      getByUidHasData
           ? UidIdName(uid: testUid.asString(), name: "test", id: "test")
           : null));
   return service;
 }
 
-MockContactRepo getAndRegisterContactRepo({bool getContactHasData = false,String? getContactFromServerData}) {
+MockContactRepo getAndRegisterContactRepo(
+    {bool getContactHasData = false, String? getContactFromServerData}) {
   _removeRegistrationIfExists<ContactRepo>();
   final service = MockContactRepo();
   GetIt.I.registerSingleton<ContactRepo>(service);
@@ -143,7 +146,8 @@ MockContactRepo getAndRegisterContactRepo({bool getContactHasData = false,String
               countryCode: "098",
               nationalNumber: "098")
           : null));
-  when(service.getContactFromServer(testUid)).thenAnswer((realInvocation) => Future.value(getContactFromServerData));
+  when(service.getContactFromServer(testUid))
+      .thenAnswer((realInvocation) => Future.value(getContactFromServerData));
   return service;
 }
 
@@ -155,17 +159,20 @@ MockAccountRepo getAndRegisterAccountRepo() {
   return service;
 }
 
-MockMucRepo getAndRegisterMucRepo() {
+MockMucRepo getAndRegisterMucRepo({Muc? fetchMucInfo}) {
   _removeRegistrationIfExists<MucRepo>();
   final service = MockMucRepo();
   GetIt.I.registerSingleton<MucRepo>(service);
+  when(service.fetchMucInfo(any))
+      .thenAnswer((realInvocation) => Future.value(fetchMucInfo));
   return service;
 }
 
-MockBotRepo getAndRegisterBotRepo() {
+MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
   _removeRegistrationIfExists<BotRepo>();
   final service = MockBotRepo();
   GetIt.I.registerSingleton<BotRepo>(service);
+  when(service.getBotInfo(botUid)).thenAnswer((realInvocation) => Future.value(botInfo));
   return service;
 }
 
@@ -244,7 +251,7 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   _removeRegistrationIfExists<AuthRepo>();
   final service = MockAuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(service);
-  when(service.isCurrentUser(testUid.asString())).thenReturn(isCurrentUser);
+  when(service.isCurrentUser(any)).thenReturn(isCurrentUser);
   when(service.currentUserUid).thenReturn(testUid);
   return service;
 }

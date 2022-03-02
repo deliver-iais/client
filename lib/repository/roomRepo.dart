@@ -128,14 +128,6 @@ class RoomRepo {
         }
       }
     }
-        //why????
-    if (uidIdName != null && uidIdName.id != null && uidIdName.id!.isNotEmpty) {
-      // Set in cache
-      roomNameCache.set(uid.asString(), uidIdName.id!);
-
-      return uidIdName.id!;
-    }
-     //why???
 
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||

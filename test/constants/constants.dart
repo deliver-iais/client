@@ -37,3 +37,4 @@ Room testRoom = Room(uid: testUid.asString());
 Uid botUid = Uid(category: Categories.BOT, node: "father_bot", sessionId: "*");
 Uid systemUid = Uid(category: Categories.SYSTEM, node: "Notification Service", sessionId: "*");
 Uid emptyUid = Uid(category: Categories.USER, node: "", sessionId: "*");
+Uid groupUid = Uid(category: Categories.GROUP, node: "", sessionId: "*");
