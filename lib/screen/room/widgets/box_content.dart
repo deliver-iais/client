@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.dart';
+import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 
 import 'package:deliver/screen/room/messageWidgets/location_message.dart';
@@ -302,6 +303,10 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Show not supported in this version...
         // TODO: Handle this case.
         break;
+      case MessageType.CALL:
+        return CallMessageWidget(
+          message: widget.message,
+        );
       default:
         break;
     }

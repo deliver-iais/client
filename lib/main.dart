@@ -33,6 +33,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
@@ -44,6 +45,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
@@ -72,6 +74,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -233,11 +236,15 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
 
+  GetIt.I.registerSingleton<CallService>(CallService());
+
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
 
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
+
+  GetIt.I.registerSingleton<CallRepo>(CallRepo());
 }
 
 Future setupFlutterNotification() async {
@@ -310,7 +317,8 @@ class MyApp extends StatelessWidget {
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
               },
-              child: MaterialApp(
+              child: WithForegroundTask(
+                child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'Deliver',
                 locale: _i18n.locale,
@@ -340,7 +348,7 @@ class MyApp extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   child: c!,
                 ),
-              )),
+              ))),
         );
       },
     );

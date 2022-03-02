@@ -1,8 +1,16 @@
 import 'dart:async';
 
+import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
+import 'package:desktop_window/desktop_window.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -13,7 +21,9 @@ import 'package:deliver/repository/avatarRepo.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -50,12 +60,25 @@ class NotificationServices {
   final _notifier = GetIt.I.get<Notifier>();
 
   void showNotification(pro.Message message, {String? roomName}) async {
-    final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
-        .copyWith(roomName: roomName);
-    if (mb.ignoreNotification!) return;
+    if (message.whichType() == Message_Type.callEvent) {
+      if (message.callEvent.newStatus == CallEvent_CallStatus.CREATED) {
+        final mb =
+            (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+                .copyWith(roomName: roomName);
+        if (mb.ignoreNotification!) return;
 
-    // TODO change place of synthesizer if we want more styled texts in android
-    _notifier.notify(synthesize(mb));
+        // TODO change place of synthesizer if we want more styled texts in android
+        _notifier.notify(synthesize(mb));
+      }
+    } else {
+      final mb =
+          (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+              .copyWith(roomName: roomName);
+      if (mb.ignoreNotification ?? false) return;
+
+      // TODO change place of synthesizer if we want more styled texts in android
+      _notifier.notify(synthesize(mb));
+    }
   }
 
   void cancelRoomNotifications(String roomUid) {
@@ -111,6 +134,8 @@ class IOSNotifier implements Notifier {
 class WindowsNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
+  Map<String, Map<int, Toast>> toastByRoomId = {};
+
   WindowsNotifier() {
     scheduleMicrotask(() async {
       final ret = await WinToast.instance().initialize(
@@ -127,55 +152,92 @@ class WindowsNotifier implements Notifier {
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     final _fileServices = GetIt.I.get<FileService>();
+    List<String> actions = [];
     final _logger = GetIt.I.get<Logger>();
+    final callRepo = GetIt.I.get<CallRepo>();
+    bool isCall = false;
+    Toast? toast;
+    if (!toastByRoomId.containsKey(message.roomUid!.node)) {
+      toastByRoomId[message.roomUid!.node] = {};
+    }
     try {
       Avatar? lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid!, false);
+      if (message.type == MessageType.CALL) {
+        actions = ['Accept', 'Decline'];
+        isCall = true;
+      }
       if (lastAvatar != null && lastAvatar.fileId != null) {
         String? file = await fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
-        Toast? toast = await WinToast.instance().showToast(
+        toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
             title: message.roomName!,
+            actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
             imagePath: file!);
-        toast!.eventStream.listen((event) {
-          if (event is ActivatedEvent) {
-            _routingService.openRoom(lastAvatar.uid);
-          }
-          if (event is DissmissedEvent) {
-            WinToast.instance().bringWindowToFront();
-          }
-        });
       } else {
         var deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
-          Toast? toast = await WinToast.instance().showToast(
+          toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
             title: message.roomName!,
             imagePath: deliverIcon.path,
+            actions: actions,
             subtitle: createNotificationTextFromMessageBrief(message),
           );
-          toast!.eventStream.listen((event) {
-            if (event is ActivatedEvent) {
-              if (lastAvatar != null) {
-                _routingService.openRoom(lastAvatar.uid);
-              }
-              if (event is DissmissedEvent) {
-                WinToast.instance().bringWindowToFront();
-              }
-            }
-          });
         }
       }
+      var roomIdToast = toastByRoomId[message.roomUid!.node];
+      roomIdToast![message.id!] = toast!;
+      toast.eventStream.listen((event) {
+        if (event is ActivatedEvent) {
+          if (!isCall) {
+            if (lastAvatar != null) {
+              _routingService.openRoom(lastAvatar.uid);
+              DesktopWindow.focus();
+            }
+          } else {
+            if (event.actionIndex == 1) {
+              //Decline
+              callRepo.declineCall();
+            } else if (event.actionIndex == 0) {
+              //Accept
+              DesktopWindow.focus();
+              if (callRepo.isVideo) {
+                _routingService.openCallScreen(message.roomUid!,
+                    isVideoCall: true, isCallAccepted: true);
+              } else {
+                _routingService.openCallScreen(message.roomUid!,
+                    isCallAccepted: true);
+              }
+            }
+          }
+        }
+        var roomIdToast = toastByRoomId[message.roomUid!.node];
+        roomIdToast!.remove(message.id);
+      });
     } catch (e) {
       _logger.e(e);
     }
   }
 
   @override
-  cancel(int id, String roomId) {}
+  cancel(int id, String roomId) {
+    // id=0 means remove all notify for this roomId
+    if (toastByRoomId.containsKey(roomId)) {
+      var roomIdToast = toastByRoomId[roomId];
+      for (var element in roomIdToast!.keys.toList()) {
+        roomIdToast[element]!.clear();
+        roomIdToast.remove(element);
+      }
+      // if (roomIdToast[id] != null) {
+      //   roomIdToast[id]!.dismiss();
+      //   roomIdToast.remove(id);
+      // }
+    }
+  }
 
   @override
   cancelAll() {}
@@ -287,6 +349,8 @@ class AndroidNotifier implements Notifier {
       groupId: "all_group");
 
   AndroidNotifier() {
+    ConnectycubeFlutterCallKit.instance
+        .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     var notificationSetting =
@@ -312,6 +376,35 @@ class AndroidNotifier implements Notifier {
     return;
   }
 
+  Future<dynamic> onCallRejected(
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {
+    final callRepo = GetIt.I.get<CallRepo>();
+    callRepo.declineCall();
+  }
+
+  Future<dynamic> onCallAccepted(
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {
+    final callRepo = GetIt.I.get<CallRepo>();
+    if (callRepo.isVideo) {
+      modifyRoutingByNotificationVideoCall.add({userInfo!["uid"]!: true});
+    } else {
+      modifyRoutingByNotificationAudioCall
+          .add({callRepo.roomUid!.asString(): true});
+    }
+  }
+
   @override
   cancelById(int id) {
     _flutterLocalNotificationsPlugin.cancel(id);
@@ -320,9 +413,10 @@ class AndroidNotifier implements Notifier {
   @override
   notify(MessageBrief message) async {
     if (message.ignoreNotification!) return;
-
+    String? filePath;
     AndroidBitmap<Object>? largeIcon;
     String selectedNotificationSound = "that_was_quick";
+    Room? room = await _roomRepo.getRoom(message.roomUid!.asString());
     var selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid!.asString());
     var la = await _avatarRepo.getLastAvatar(message.roomUid!, false);
@@ -340,40 +434,62 @@ class AndroidNotifier implements Notifier {
       }
     }
 
-    InboxStyleInformation inboxStyleInformation =
-        const InboxStyleInformation([], contentTitle: 'new messages');
+    if (message.type == MessageType.CALL) {
+      final messageRepo = GetIt.I.get<MessageRepo>();
+      final callRepo = GetIt.I.get<CallRepo>();
+      CallStatus callState = callRepo.callingStatus.value;
+      if (callState != CallStatus.IN_CALL ||
+          callState != CallStatus.CONNECTED ||
+          callState != CallStatus.ACCEPTED) {
+        var lastMessages = await messageRepo.fetchLastMessages(
+            message.roomUid!, room!.lastMessageId!, room.firstMessageId, room,
+            limit: 10, type: FetchMessagesReq_Type.BACKWARD_FETCH);
+        ConnectycubeFlutterCallKit.showCallNotification(
+            sessionId: lastMessages!.id.toString(),
+            callType: callRepo.isVideo ? 1 : 2,
+            callerId: lastMessages.id,
+            callerName: message.roomName,
+            userInfo: {"uid": room.uid},
+            opponentsIds: {1},
+            path: filePath);
+        ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+      }
+    } else {
+      InboxStyleInformation inboxStyleInformation =
+          const InboxStyleInformation([], contentTitle: 'new messages');
 
-    AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
-            selectedNotificationSound + message.roomUid!.asString(),
-            channel.name,
-            channelDescription: channel.description,
-            styleInformation: inboxStyleInformation,
-            groupKey: channel.groupId,
-            playSound: true,
-            sound:
-                RawResourceAndroidNotificationSound(selectedNotificationSound),
-            setAsGroupSummary: true);
-    _flutterLocalNotificationsPlugin.show(
-        message.roomUid.hashCode, 'Attention', 'new messages',
-        notificationDetails: androidNotificationDetails);
+      AndroidNotificationDetails androidNotificationDetails =
+          AndroidNotificationDetails(
+              selectedNotificationSound + message.roomUid!.asString(),
+              channel.name,
+              channelDescription: channel.description,
+              styleInformation: inboxStyleInformation,
+              groupKey: channel.groupId,
+              playSound: true,
+              sound: RawResourceAndroidNotificationSound(
+                  selectedNotificationSound),
+              setAsGroupSummary: true);
+      _flutterLocalNotificationsPlugin.show(
+          message.roomUid.hashCode, 'Attention', 'new messages',
+          notificationDetails: androidNotificationDetails);
 
-    var platformChannelSpecifics = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid!.asString(),
-      channel.name,
-      channelDescription: channel.description,
-      groupKey: channel.groupId,
-      largeIcon: largeIcon,
-      styleInformation: const BigTextStyleInformation(''),
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-    );
-    _flutterLocalNotificationsPlugin.show(
-        message.roomUid!.asString().hashCode + message.id!,
-        message.roomName,
-        createNotificationTextFromMessageBrief(message),
-        notificationDetails: platformChannelSpecifics,
-        payload: message.roomUid!.asString());
+      var platformChannelSpecifics = AndroidNotificationDetails(
+        selectedNotificationSound + message.roomUid!.asString(),
+        channel.name,
+        channelDescription: channel.description,
+        groupKey: channel.groupId,
+        largeIcon: largeIcon,
+        styleInformation: const BigTextStyleInformation(''),
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+      );
+      _flutterLocalNotificationsPlugin.show(
+          message.roomUid!.asString().hashCode + message.id!,
+          message.roomName,
+          createNotificationTextFromMessageBrief(message),
+          notificationDetails: platformChannelSpecifics,
+          payload: message.roomUid!.asString());
+    }
   }
 
   @override
@@ -440,7 +556,6 @@ class MacOSNotifier implements Notifier {
 
     var macOSPlatformChannelSpecifics =
         MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
-
     _flutterLocalNotificationsPlugin.show(message.roomUid!.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
         notificationDetails: macOSPlatformChannelSpecifics,

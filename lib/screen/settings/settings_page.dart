@@ -164,6 +164,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
                     },
+                  ),
+                  SettingsTile(
+                    title: _i18n.get("calls"),
+                    leading: const Icon(Icons.call),
+                    onPressed: (BuildContext context) {
+                      _routingService.openCallsList();
+                    },
                   )
                 ],
               ),

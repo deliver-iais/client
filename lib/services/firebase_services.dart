@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -32,7 +33,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver/web_classes/js.dart'
