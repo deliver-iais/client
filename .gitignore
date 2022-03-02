@@ -47,5 +47,4 @@ android/key.jks
 *.snap
 
 *.dmg
-/pubspec.lock
-/pubspec.lock
+installer/ipa_creator
