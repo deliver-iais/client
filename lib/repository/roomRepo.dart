@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
@@ -183,7 +184,7 @@ class RoomRepo {
           uid: roomUid.asString(),
           deleted: true,
           firstMessageId: room!.lastMessageId ?? 0,
-          lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+          lastUpdateTime: clock.now().millisecondsSinceEpoch));
       return true;
     } catch (e) {
       _logger.e(e);

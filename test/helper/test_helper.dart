@@ -172,7 +172,8 @@ MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
   _removeRegistrationIfExists<BotRepo>();
   final service = MockBotRepo();
   GetIt.I.registerSingleton<BotRepo>(service);
-  when(service.getBotInfo(botUid)).thenAnswer((realInvocation) => Future.value(botInfo));
+  when(service.getBotInfo(botUid))
+      .thenAnswer((realInvocation) => Future.value(botInfo));
   return service;
 }
 
@@ -327,6 +328,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     int? mentionIdList,
     int updateMessageId = 0,
     bool updateMessageGetError = false,
+    bool removePrivateRoomGetError = false,
     message_pb.MessageByClient? updatedMessageFile}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
@@ -433,6 +435,15 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   when(service.getBlockedList(GetBlockedListReq())).thenAnswer(
       (realInvocation) => MockResponseFuture<GetBlockedListRes>(
           GetBlockedListRes(uidList: [testUid])));
+  removePrivateRoomGetError
+      ? when(service
+              .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid))
+          .thenThrow((realInvocation) =>
+              MockResponseFuture<RemovePrivateRoomRes>(RemovePrivateRoomRes()))
+      : when(service
+              .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid))
+          .thenAnswer((realInvocation) =>
+              MockResponseFuture<RemovePrivateRoomRes>(RemovePrivateRoomRes()));
   return service;
 }
 

@@ -1,8 +1,11 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -168,6 +171,44 @@ void main() {
         verify(uidIdNameDao.getByUid(testUid.asString()));
       });
       //todo add test after getIdByUid test passed
+    });
+    group('deleteRoom -', () {
+      test('When called if should removePrivateRoom', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await RoomRepo().deleteRoom(testUid);
+        verify(queryServiceClient
+            .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid));
+      });
+      test(
+          'When called should getRoom and update firstMessageId with room!.lastMessageId',
+          () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
+          var deleted = await RoomRepo().deleteRoom(testUid);
+          verify(roomDao.getRoom(testUid.asString()));
+          verify(roomDao.updateRoom(Room(
+              uid: testUid.asString(),
+              deleted: true,
+              firstMessageId: 0,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+          expect(deleted, true);
+        });
+      });
+      test('When called if removePrivateRoom get error should return false',
+          () async {
+        withClock(Clock.fixed(DateTime(2000)), () async {
+          getAndRegisterQueryServiceClient(removePrivateRoomGetError: true);
+          final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
+          var deleted = await RoomRepo().deleteRoom(testUid);
+          verifyNever(roomDao.getRoom(testUid.asString()));
+          verifyNever(roomDao.updateRoom(Room(
+              uid: testUid.asString(),
+              deleted: true,
+              firstMessageId: 0,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+          expect(deleted, false);
+        });
+      });
     });
   });
 }
