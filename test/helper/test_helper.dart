@@ -453,6 +453,13 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
       : when(service.getIdByUid(GetIdByUidReq()..uid = testUid)).thenAnswer(
           (realInvocation) => MockResponseFuture<GetIdByUidRes>(
               GetIdByUidRes(id: getIdByUidData)));
+  getIdByUidGetError
+      ? when(service.getIdByUid(GetIdByUidReq()..uid = groupUid)).thenThrow(
+          (realInvocation) =>
+              MockResponseFuture<GetIdByUidRes>(GetIdByUidRes()))
+      : when(service.getIdByUid(GetIdByUidReq()..uid = groupUid)).thenAnswer(
+          (realInvocation) => MockResponseFuture<GetIdByUidRes>(
+              GetIdByUidRes(id: getIdByUidData)));
 
   return service;
 }

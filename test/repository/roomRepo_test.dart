@@ -158,7 +158,17 @@ void main() {
         expect(name, "test");
         expect(roomNameCache[botUid.asString()], "test");
       });
-      //todo add test after getIdByUid test passed
+      test(
+          'When called should getIdByUid and if username not be empty should update uidIdNameDao and save it in cache',
+          () async {
+        roomNameCache.clear();
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        getAndRegisterQueryServiceClient(getIdByUidData: "test");
+        var name = await RoomRepo().getName(groupUid);
+        verify(uidIdNameDao.update(groupUid.asString(), id: "test"));
+        expect(name, "test");
+        expect(roomNameCache[groupUid.asString()], "test");
+      });
     });
     group('getId -', () {
       test('When called if category is bot should return uid.node', () async {
@@ -170,7 +180,12 @@ void main() {
         expect(await RoomRepo().getId(testUid), "test");
         verify(uidIdNameDao.getByUid(testUid.asString()));
       });
-      //todo add test after getIdByUid test passed
+      test(
+          'When called should userInfo and if  be null should return getIdByUid',
+          () async {
+        getAndRegisterQueryServiceClient(getIdByUidData: "test");
+        expect(await RoomRepo().getId(testUid), "test");
+      });
     });
     group('deleteRoom -', () {
       test('When called if should removePrivateRoom', () async {
