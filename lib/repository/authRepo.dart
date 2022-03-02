@@ -37,7 +37,7 @@ class AuthRepo {
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final requestLock = Lock();
   static final _deviceInfo = DeviceInfoPlugin();
-  
+
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
     ..node = "";
@@ -276,6 +276,9 @@ class AuthRepo {
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
+
+  bool isCurrentUserUid(Uid uid) =>
+      uid.isUser() && uid.node == currentUserUid.node;
 
   bool isCurrentUserSender(Message msg) => isCurrentUser(msg.from);
 

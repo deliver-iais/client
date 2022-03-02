@@ -465,17 +465,21 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(call_pb.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, call_pb.CallEvent_CallType callType ) async {
+  sendCallMessage(
+      call_pb.CallEvent_CallStatus newStatus,
+      Uid room,
+      String callId,
+      int callDuration,
+      call_pb.CallEvent_CallType callType) async {
     String json = (call_pb.CallEvent()
-      ..newStatus = newStatus
-      ..id = callId
-      ..callDuration = Int64(callDuration)
-      ..callType = callType )
+          ..newStatus = newStatus
+          ..id = callId
+          ..callDuration = Int64(callDuration)
+          ..callType = callType)
         .writeToJson();
 
     Message msg =
-    _createMessage(room)
-        .copyWith(type: MessageType.CALL, json: json);
+        _createMessage(room).copyWith(type: MessageType.CALL, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -851,8 +855,8 @@ class MessageRepo {
                       Room(uid: message.from.asString(), deleted: false));
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                      .isSameEntity(_authRepo.currentUserUid.asString())) {
+                  if (_authRepo.isCurrentUserUid(message
+                      .persistEvent.mucSpecificPersistentEvent.assignee)) {
                     _roomDao.updateRoom(
                         Room(uid: message.from.asString(), deleted: true));
                     continue;
