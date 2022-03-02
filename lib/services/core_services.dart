@@ -315,7 +315,7 @@ class CoreServices {
     Uid? roomId;
     switch (seen.to.category) {
       case Categories.USER:
-        seen.to.asString() == _authRepo.currentUserUid.asString()
+        _authRepo.isCurrentUserUid(seen.to)
             ? roomId = seen.from
             : roomId = seen.to;
         break;
@@ -403,8 +403,8 @@ class CoreServices {
               }
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
-              if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_authRepo.currentUserUid.asString())) {
+              if (_authRepo.isCurrentUserUid(
+                  message.persistEvent.mucSpecificPersistentEvent.assignee)) {
                 _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: true));
                 return;
@@ -412,16 +412,16 @@ class CoreServices {
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
             case MucSpecificPersistentEvent_Issue.ADD_USER:
-              if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_authRepo.currentUserUid.asString())) {
+              if (_authRepo.isCurrentUserUid(
+                  message.persistEvent.mucSpecificPersistentEvent.assignee)) {
                 _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: false));
               }
               break;
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-              if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_authRepo.currentUserUid.asString())) {
+              if (_authRepo.isCurrentUserUid(
+                  message.persistEvent.mucSpecificPersistentEvent.assignee)) {
                 _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: true));
                 return;
