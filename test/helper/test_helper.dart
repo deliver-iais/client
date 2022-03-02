@@ -41,8 +41,8 @@ import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
+import '../constants/constants.dart';
 import '../helper/test_helper.mocks.dart';
-import '../repository/messageRepo_test.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
@@ -106,6 +106,7 @@ MockI18N getAndRegisterI18N() {
   _removeRegistrationIfExists<I18N>();
   final service = MockI18N();
   GetIt.I.registerSingleton<I18N>(service);
+  when(service.get("you")).thenReturn("you");
   return service;
 }
 
