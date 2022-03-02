@@ -12,6 +12,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as seen_box;
+import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -45,6 +46,7 @@ import '../constants/constants.dart';
 import '../helper/test_helper.mocks.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver/box/contact.dart' as contact_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -117,17 +119,31 @@ MockMuteDao getAndRegisterMuteDao() {
   return service;
 }
 
-MockUidIdNameDao getAndRegisterUidIdNameDao() {
+MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false}) {
   _removeRegistrationIfExists<UidIdNameDao>();
   final service = MockUidIdNameDao();
   GetIt.I.registerSingleton<UidIdNameDao>(service);
+  when(service.getByUid(testUid.asString())).thenAnswer((realInvocation) =>
+      Future.value(getByUidHasData
+          ? UidIdName(uid: testUid.asString(), name: "test", id: "test")
+          : null));
   return service;
 }
 
-MockContactRepo getAndRegisterContactRepo() {
+MockContactRepo getAndRegisterContactRepo({bool getContactHasData = false,String? getContactFromServerData}) {
   _removeRegistrationIfExists<ContactRepo>();
   final service = MockContactRepo();
   GetIt.I.registerSingleton<ContactRepo>(service);
+  when(service.getContact(testUid)).thenAnswer((realInvocation) => Future.value(
+      getContactHasData
+          ? contact_pb.Contact(
+              uid: testUid.asString(),
+              firstName: "test",
+              lastName: "test",
+              countryCode: "098",
+              nationalNumber: "098")
+          : null));
+  when(service.getContactFromServer(testUid)).thenAnswer((realInvocation) => Future.value(getContactFromServerData));
   return service;
 }
 

@@ -86,6 +86,38 @@ void main() {
         var name = await RoomRepo().getName(testUid);
         expect(name, "test");
       });
+      test(
+          'When called if name is in Is in UidIdName Table should return name and set it in roomNameCache',
+          () async {
+        roomNameCache.clear();
+        final uidIdNameDao = getAndRegisterUidIdNameDao(getByUidHasData: true);
+        var name = await RoomRepo().getName(testUid);
+        verify(uidIdNameDao.getByUid(testUid.asString()));
+        expect(name, "test");
+        expect(roomNameCache[testUid.asString()], "test");
+      });
+      test(
+          'When called if category is user should getContact from contactRepo and if contact not be empty should save name to cache and update uidIdNameDao',
+          () async {
+        roomNameCache.clear();
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        final contactRepo = getAndRegisterContactRepo(getContactHasData: true);
+        var name = await RoomRepo().getName(testUid);
+        verify(contactRepo.getContact(testUid));
+        expect(name, "testtest");
+        expect(roomNameCache[testUid.asString()], "testtest");
+        verify(uidIdNameDao.update(testUid.asString(), name: "testtest"));
+      });
+      test(
+          'When called if category is user should getContact from contactRepo and if contact be empty should getContactFromServer and save it in cache',
+              () async {
+            roomNameCache.clear();
+            final contactRepo = getAndRegisterContactRepo(getContactFromServerData: "test");
+            var name = await RoomRepo().getName(testUid);
+            verify(contactRepo.getContactFromServer(testUid));
+            expect(name, "test");
+            expect(roomNameCache[testUid.asString()], "test");
+          });
     });
   });
 }
