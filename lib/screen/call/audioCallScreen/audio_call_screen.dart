@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -8,11 +9,8 @@ import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.d
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../models/call_timer.dart';
 
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;

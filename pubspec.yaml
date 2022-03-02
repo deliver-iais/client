@@ -97,6 +97,11 @@ dependencies:
       url: https://github.com/deliver-iais/grpc-dart
       ref: 29af7df647c0999a41c6b4186de8709574d81de5
 
+  desktop_window: # CHANG TOP PAGE IN WINDOWS
+    git:
+      url: https://github.com/deliver-iais/desktop_window.git
+      ref: main
+
   firebase_messaging:
     git:
       url: https://github.com/deliver-iais/firebase-messaging.git

@@ -50,7 +50,6 @@ class _CallListState extends State<CallList> {
                     future: callRepo.fetchUserCallList(_authRepo.currentUserUid,
                         DateTime.now().month, DateTime.now().year),
                     builder: (context, snapshot) {
-                      print(snapshot.data);
                       if (snapshot.hasData && snapshot.data != null) {
                         return Scrollbar(
                             child: ListView.separated(

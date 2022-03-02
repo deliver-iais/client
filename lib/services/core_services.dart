@@ -476,9 +476,6 @@ class CoreServices {
         case PersistentEvent_Type.notSet:
           // TODO: Handle this case.
           break;
-        case PersistentEvent_Type.botSpecificPersistentEvent:
-          // TODO: Handle this case.
-          break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
       var callEvents =
