@@ -26,6 +26,7 @@ import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -89,6 +90,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _logger = GetIt.I.get<Logger>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  CallEvent_CallStatus? _callEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +110,15 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         if (!msgBefore!.json.isEmptyMessage()) {
           isFirstMessageInGroupedMessages = false;
         }
+      }
+    }
+
+    if (msg.type == MessageType.CALL) {
+      _callEvent = msg.json.toCallEvent().newStatus;
+      if (_callEvent != CallEvent_CallStatus.BUSY &&
+          _callEvent != CallEvent_CallStatus.DECLINED &&
+          _callEvent != CallEvent_CallStatus.ENDED) {
+        return const SizedBox.shrink();
       }
     }
 
@@ -174,7 +185,18 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       return const SizedBox.shrink();
     }
     Widget messageWidget;
-    if (_authRepo.isCurrentUser(message.from)) {
+    if (message.type == MessageType.CALL &&
+        (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
+            message.json.toCallEvent().newStatus ==
+                CallEvent_CallStatus.DECLINED)) {
+      if (_authRepo.isCurrentUser(message.to)) {
+        messageWidget =
+            showSentMessage(message, isFirstMessageInGroupedMessages);
+      } else {
+        messageWidget =
+            showReceivedMessage(message, isFirstMessageInGroupedMessages);
+      }
+    } else if (_authRepo.isCurrentUser(message.from)) {
       messageWidget = showSentMessage(message, isFirstMessageInGroupedMessages);
     } else {
       messageWidget =
@@ -285,7 +307,15 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showReceivedMessage(
       Message message, bool isFirstMessageInGroupedMessages) {
-    final colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
+    final CustomColorScheme colorScheme;
+    if (message.type == MessageType.CALL &&
+        (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
+            message.json.toCallEvent().newStatus ==
+                CallEvent_CallStatus.DECLINED)) {
+      colorScheme = ExtraTheme.of(context).messageColorScheme(message.to);
+    } else {
+      colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
+    }
 
     Widget messageWidget = ReceivedMessageBox(
       message: message,

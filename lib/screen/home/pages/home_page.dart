@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -9,14 +8,13 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
-import 'package:universal_html/html.dart' as html;
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import 'package:win_toast/win_toast.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -99,15 +97,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return WillPopScope(
-      onWillPop: () async {
-        if (!_routingService.canPop()) return true;
-        _routingService.maybePop();
-        return false;
-      },
-      child: Container(
-          color: theme.colorScheme.background,
-          child: _routingService.outlet(context)),
-    );
+        onWillPop: () async {
+          if (!_routingService.canPop()) return true;
+          _routingService.maybePop();
+          return false;
+        },
+        child: WithForegroundTask(
+          child: Container(
+              color: theme.colorScheme.background,
+              child: _routingService.outlet(context)),
+        ));
   }
 
   void checkIfUsernameIsSet() async {
