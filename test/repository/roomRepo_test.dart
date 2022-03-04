@@ -497,5 +497,35 @@ void main() {
         verify(queryServiceClient.getUidById(GetUidByIdReq()..id = "test"));
       });
     });
+    group('reportRoom -', () {
+      test('When called should report the room', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        RoomRepo().reportRoom(testUid);
+        verify(queryServiceClient.report(ReportReq()..uid = testUid));
+      });
+    });
+
+    group('getAllGroups -', () {
+      test('When called should get all group', () async {
+        final roomDao = getAndRegisterRoomDao();
+        expect(await RoomRepo().getAllGroups(), [testRoom]);
+        verify(roomDao.getAllGroups());
+      });
+    });
+    group('updateRoomDraft -', () {
+      test('When called should update RoomDraft', () async {
+        final roomDao = getAndRegisterRoomDao();
+        RoomRepo().updateRoomDraft(testUid.asString(), "test");
+        verify(roomDao.updateRoom(testRoom.copyWith(draft: "test")));
+      });
+    });
+    group('isDeletedRoom -', () {
+      test('When called should return room.deleted', () async {
+        final roomDao =
+            getAndRegisterRoomDao(rooms: [testRoom.copyWith(deleted: true)]);
+        expect(await RoomRepo().isDeletedRoom(testUid.asString()), true);
+        verify(roomDao.getRoom(testUid.asString()));
+      });
+    });
   });
 }

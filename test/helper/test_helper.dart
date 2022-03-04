@@ -121,7 +121,8 @@ MockMuteDao getAndRegisterMuteDao() {
   return service;
 }
 
-MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false,bool getUidByIdHasData=false}) {
+MockUidIdNameDao getAndRegisterUidIdNameDao(
+    {bool getByUidHasData = false, bool getUidByIdHasData = false}) {
   _removeRegistrationIfExists<UidIdNameDao>();
   final service = MockUidIdNameDao();
   GetIt.I.registerSingleton<UidIdNameDao>(service);
@@ -131,8 +132,8 @@ MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false,bool g
           : null));
   when(service.search("test")).thenAnswer((realInvocation) =>
       Future.value([UidIdName(uid: testUid.asString(), name: "test")]));
-  when(service.getUidById("test"))
-      .thenAnswer((realInvocation) => Future.value(getUidByIdHasData ? testUid.asString() : null));
+  when(service.getUidById("test")).thenAnswer((realInvocation) =>
+      Future.value(getUidByIdHasData ? testUid.asString() : null));
   return service;
 }
 
@@ -244,6 +245,7 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
       .thenAnswer((realInvocation) => Stream.value([testRoom]));
   when(service.watchRoom(testUid.asString()))
       .thenAnswer((realInvocation) => Stream.value(testRoom));
+  when(service.getAllGroups()).thenAnswer((realInvocation) => Future.value([testRoom]));
   return service;
 }
 
@@ -488,6 +490,8 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   when(service.getUidById(GetUidByIdReq()..id = "test")).thenAnswer(
       (realInvocation) =>
           MockResponseFuture<GetUidByIdRes>(GetUidByIdRes(uid: testUid)));
+  when(service.report(ReportReq()..uid = testUid)).thenAnswer(
+      (realInvocation) => MockResponseFuture<ReportRes>(ReportRes()));
   return service;
 }
 
