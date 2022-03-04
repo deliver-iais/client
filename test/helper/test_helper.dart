@@ -129,6 +129,8 @@ MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false}) {
       getByUidHasData
           ? UidIdName(uid: testUid.asString(), name: "test", id: "test")
           : null));
+  when(service.search("test")).thenAnswer((realInvocation) =>
+      Future.value([UidIdName(uid: testUid.asString(), name: "test")]));
   return service;
 }
 

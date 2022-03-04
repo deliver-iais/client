@@ -461,5 +461,16 @@ void main() {
         expect(await RoomRepo().getAllRooms(), [testUid]);
       });
     });
+    group('searchInRoomAndContacts -', () {
+      test('When called if text be empty should return []', () async {
+        expect(await RoomRepo().searchInRoomAndContacts(""), []);
+      });
+      test('When called should search text in uidIdNameDao and return uid list',
+          () async {
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        expect(await RoomRepo().searchInRoomAndContacts("test"), [testUid]);
+        verify(uidIdNameDao.search("test"));
+      });
+    });
   });
 }
