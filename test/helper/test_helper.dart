@@ -502,6 +502,10 @@ MockBlockDao getAndRegisterBlockDao() {
   _removeRegistrationIfExists<BlockDao>();
   final service = MockBlockDao();
   GetIt.I.registerSingleton<BlockDao>(service);
+  when(service.isBlocked(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value(false));
+  when(service.watchIsBlocked(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value(false));
   return service;
 }
 

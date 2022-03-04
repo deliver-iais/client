@@ -323,5 +323,35 @@ void main() {
         verify(customNotificationDao.getCustomNotif(testUid.asString()));
       });
     });
+    group('mute -', () {
+      test('When called should mute room', () async {
+        final muteDao = getAndRegisterMuteDao();
+        RoomRepo().mute(testUid.asString());
+        verify(muteDao.mute(testUid.asString()));
+      });
+    });
+    group('unMute -', () {
+      test('When called should unMute room', () async {
+        final muteDao = getAndRegisterMuteDao();
+        RoomRepo().unmute(testUid.asString());
+        verify(muteDao.unmute(testUid.asString()));
+      });
+    });
+    group('isRoomBlocked -', () {
+      test('When called should check is RoomBlocked', () async {
+        final blockDao = getAndRegisterBlockDao();
+        expect(await RoomRepo().isRoomBlocked(testUid.asString()), false);
+        verify(blockDao.isBlocked(testUid.asString()));
+      });
+    });
+    group('watchIsRoomBlocked -', () {
+      test('When called should return IsRoomBlocked stream', () async {
+        final blockDao = getAndRegisterBlockDao();
+        var value =
+            await RoomRepo().watchIsRoomBlocked(testUid.asString()).first;
+        expect(value, false);
+        verify(blockDao.watchIsBlocked(testUid.asString()));
+      });
+    });
   });
 }
