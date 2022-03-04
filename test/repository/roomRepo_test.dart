@@ -472,16 +472,30 @@ void main() {
         verify(uidIdNameDao.search("test"));
       });
     });
-    group('searchInRoomAndContacts -', () {
-      test('When called if text be empty should return []', () async {
-        expect(await RoomRepo().searchInRoomAndContacts(""), []);
+    group('getUidById -', () {
+      test('When called if uidIdNameDao contain uid should return uid',
+          () async {
+        final uidIdNameDao =
+            getAndRegisterUidIdNameDao(getUidByIdHasData: true);
+        expect(await RoomRepo().getUidById("test"), testUid.asString());
+        verify(uidIdNameDao.getUidById("test"));
       });
-      test('When called should search text in uidIdNameDao and return uid list',
-              () async {
-            final uidIdNameDao = getAndRegisterUidIdNameDao();
-            expect(await RoomRepo().searchInRoomAndContacts("test"), [testUid]);
-            verify(uidIdNameDao.search("test"));
-          });
+      test(
+          'When called if uidIdNameDao doesnt contain uid should fetchUidById and update uidIdNameDao',
+          () async {
+        final uidIdNameDao = getAndRegisterUidIdNameDao();
+        expect(await RoomRepo().getUidById("test"), testUid.asString());
+        verify(uidIdNameDao.update(testUid.asString(), id: "test"));
+      });
+    });
+    group('fetchUidById -', () {
+      test(
+          'When called if uidIdNameDao doesnt contain uid should fetchUidById and update uidIdNameDao',
+          () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        expect(await RoomRepo().fetchUidById("test"), testUid);
+        verify(queryServiceClient.getUidById(GetUidByIdReq()..id = "test"));
+      });
     });
   });
 }

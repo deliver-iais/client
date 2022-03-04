@@ -121,7 +121,7 @@ MockMuteDao getAndRegisterMuteDao() {
   return service;
 }
 
-MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false}) {
+MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false,bool getUidByIdHasData=false}) {
   _removeRegistrationIfExists<UidIdNameDao>();
   final service = MockUidIdNameDao();
   GetIt.I.registerSingleton<UidIdNameDao>(service);
@@ -131,6 +131,8 @@ MockUidIdNameDao getAndRegisterUidIdNameDao({bool getByUidHasData = false}) {
           : null));
   when(service.search("test")).thenAnswer((realInvocation) =>
       Future.value([UidIdName(uid: testUid.asString(), name: "test")]));
+  when(service.getUidById("test"))
+      .thenAnswer((realInvocation) => Future.value(getUidByIdHasData ? testUid.asString() : null));
   return service;
 }
 
@@ -483,7 +485,9 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
       .thenAnswer((realInvocation) => MockResponseFuture<BlockRes>(BlockRes()));
   when(service.unblock(UnblockReq()..uid = testUid)).thenAnswer(
       (realInvocation) => MockResponseFuture<UnblockRes>(UnblockRes()));
-
+  when(service.getUidById(GetUidByIdReq()..id = "test")).thenAnswer(
+      (realInvocation) =>
+          MockResponseFuture<GetUidByIdRes>(GetUidByIdRes(uid: testUid)));
   return service;
 }
 
