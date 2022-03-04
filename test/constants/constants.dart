@@ -3,6 +3,7 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:geolocator/geolocator.dart';
@@ -33,6 +34,10 @@ PendingMessage testPendingMessage = PendingMessage(
     ),
     failed: false,
     status: SendingStatus.PENDING);
+Activity testActivity = Activity(
+    to: testUid,
+    from: testUid,
+    typeOfActivity: ActivityType.CHOOSING_STICKER);
 Room testRoom = Room(uid: testUid.asString());
 Uid botUid = Uid(category: Categories.BOT, node: "father_bot", sessionId: "*");
 Uid systemUid = Uid(category: Categories.SYSTEM, node: "Notification Service", sessionId: "*");

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/muc.dart';
@@ -5,8 +7,10 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:mockito/mockito.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:test/test.dart';
 
 import '../constants/constants.dart';
@@ -247,6 +251,51 @@ void main() {
         var id = await RoomRepo().getIdByUid(testUid);
         verifyNever(uidIdNameDao.update(testUid.asString(), id: "test"));
         expect(id, null);
+      });
+    });
+    group('updateActivity -', () {
+      test(
+          'When called if activityObject[roomUid.node] be null should set it with new Activity',
+          () async {
+        final roomRepo = getAndRegisterRealRoomRepo();
+        BehaviorSubject<Activity> subject = BehaviorSubject();
+        subject.add(testActivity);
+        roomRepo.updateActivity(testActivity);
+        expect(roomRepo.activityObject[testUid.node]?.value, subject.value);
+      });
+      test(
+          'When called if activityObject[roomUid.node] not be null should set it with new Activity and after 10 seconds should set it with noActivity',
+          () async {
+        final roomRepo = getAndRegisterRealRoomRepo();
+        BehaviorSubject<Activity> subject = BehaviorSubject();
+        subject.add(testActivity);
+        roomRepo.activityObject[testUid.node] = subject;
+        roomRepo.updateActivity(testActivity);
+        expect(roomRepo.activityObject[testUid.node]?.value, subject.value);
+        await Future.delayed(const Duration(seconds: 10));
+        Activity noActivity = Activity()
+          ..from = testActivity.from
+          ..typeOfActivity = ActivityType.NO_ACTIVITY
+          ..to = testActivity.to;
+        expect(roomRepo.activityObject[testUid.node]?.value, noActivity);
+      });
+    });
+    group('initActivity -', () {
+      test(
+          'When called if activityObject[roomUid.node] be null should initialize it ',
+          () async {
+        final roomRepo = getAndRegisterRealRoomRepo();
+        BehaviorSubject<Activity> subject = BehaviorSubject();
+        roomRepo.initActivity(testUid.asString());
+        expect(roomRepo.activityObject[testUid.asString()]?.valueOrNull,
+            subject.valueOrNull);
+      });
+    });
+    group('updateRoomName -', () {
+      test('When called should set name to roomNameCache', () async {
+        final roomRepo = getAndRegisterRealRoomRepo();
+        roomRepo.updateRoomName(testUid, "test");
+        expect(roomNameCache[testUid.asString()], "test");
       });
     });
   });

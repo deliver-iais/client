@@ -248,6 +248,13 @@ MockRoomRepo getAndRegisterRoomRepo(
   return service;
 }
 
+RoomRepo getAndRegisterRealRoomRepo() {
+  _removeRegistrationIfExists<RoomRepo>();
+  final service = RoomRepo();
+  GetIt.I.registerSingleton<RoomRepo>(service);
+  return service;
+}
+
 MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   _removeRegistrationIfExists<AuthRepo>();
   final service = MockAuthRepo();
