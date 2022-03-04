@@ -277,7 +277,7 @@ class RoomRepo {
 
   Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
-  void block(String uid, {bool? block}) async {
+  block(String uid, {bool? block}) async {
     if (block!) {
       await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
       _blockDao.block(uid);

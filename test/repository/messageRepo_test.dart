@@ -1760,7 +1760,7 @@ void main() {
         await MessageRepo().fetchBlockedRoom();
         verify(queryServiceClient.getBlockedList(GetBlockedListReq()));
       });
-      test('When called should getBlockedList and block theme', () async {
+      test('When called should getBlockedList and block them', () async {
         final blockDao = getAndRegisterBlockDao();
         await MessageRepo().fetchBlockedRoom();
         verify(blockDao.block(testUid.asString()));

@@ -421,5 +421,45 @@ void main() {
         verify(seenDao.saveMySeen(testSeen));
       });
     });
+    group('block -', () {
+      test('When called if block is true should block room', () async {
+        final blockDao = getAndRegisterBlockDao();
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await RoomRepo().block(testUid.asString(), block: true);
+        verify(queryServiceClient.block(BlockReq()..uid = testUid));
+        verify(blockDao.block(testUid.asString()));
+      });
+      test('When called if block is false should unblock room', () async {
+        final blockDao = getAndRegisterBlockDao();
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await RoomRepo().block(testUid.asString(), block: false);
+        verify(queryServiceClient.unblock(UnblockReq()..uid = testUid));
+        verify(blockDao.unblock(testUid.asString()));
+      });
+    });
+    group('fetchBlockedRoom -', () {
+      test('When called should getBlockedList', () async {
+        final queryServiceClient = getAndRegisterQueryServiceClient();
+        await RoomRepo().fetchBlockedRoom();
+        verify(queryServiceClient.getBlockedList(GetBlockedListReq()));
+      });
+      test('When called should getBlockedList and block them', () async {
+        final blockDao = getAndRegisterBlockDao();
+        await RoomRepo().fetchBlockedRoom();
+        verify(blockDao.block(testUid.asString()));
+      });
+    });
+    group('getAllRooms -', () {
+      test('When called should getAllRooms', () async {
+        final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
+        await RoomRepo().getAllRooms();
+        verify(roomDao.getAllRooms());
+      });
+      test('When called should getAllRooms and return their uid', () async {
+        getAndRegisterRoomDao(rooms: [testRoom]);
+        await RoomRepo().getAllRooms();
+        expect(await RoomRepo().getAllRooms(), [testUid]);
+      });
+    });
   });
 }

@@ -307,7 +307,8 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   when(service.getMySeen(testUid.asString())).thenAnswer((realInvocation) =>
       Future.value(
           seen_box.Seen(uid: testUid.asString(), messageId: messageId)));
-  when(service.watchMySeen(testUid.asString())).thenAnswer((realInvocation) => Stream.value(testSeen));
+  when(service.watchMySeen(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value(testSeen));
   return service;
 }
 
@@ -476,6 +477,10 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
       : when(service.getIdByUid(GetIdByUidReq()..uid = groupUid)).thenAnswer(
           (realInvocation) => MockResponseFuture<GetIdByUidRes>(
               GetIdByUidRes(id: getIdByUidData)));
+  when(service.block(BlockReq()..uid = testUid))
+      .thenAnswer((realInvocation) => MockResponseFuture<BlockRes>(BlockRes()));
+  when(service.unblock(UnblockReq()..uid = testUid)).thenAnswer(
+      (realInvocation) => MockResponseFuture<UnblockRes>(UnblockRes()));
 
   return service;
 }
