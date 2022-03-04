@@ -236,6 +236,10 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
       .thenAnswer((realInvocation) => Future.value(rooms));
   when(service.getRoom(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value(rooms?.first));
+  when(service.watchAllRooms())
+      .thenAnswer((realInvocation) => Stream.value([testRoom]));
+  when(service.watchRoom(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value(testRoom));
   return service;
 }
 
@@ -303,6 +307,7 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   when(service.getMySeen(testUid.asString())).thenAnswer((realInvocation) =>
       Future.value(
           seen_box.Seen(uid: testUid.asString(), messageId: messageId)));
+  when(service.watchMySeen(testUid.asString())).thenAnswer((realInvocation) => Stream.value(testSeen));
   return service;
 }
 

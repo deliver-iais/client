@@ -594,7 +594,7 @@ void main() {
         verify(queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid));
         verify(
-            seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
+            seenDo.saveOthersSeen(testSeen));
       });
     });
     group('fetchCurrentUserLastSeen -', () {

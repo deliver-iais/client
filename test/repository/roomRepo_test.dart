@@ -353,5 +353,73 @@ void main() {
         verify(blockDao.watchIsBlocked(testUid.asString()));
       });
     });
+    group('watchAllRooms -', () {
+      test('When called should return list of rooms stream', () async {
+        final roomDao = getAndRegisterRoomDao();
+        var value = await RoomRepo().watchAllRooms().first;
+        expect(value, [testRoom]);
+        verify(roomDao.watchAllRooms());
+      });
+    });
+    group('watchRoom -', () {
+      test('When called should return room stream', () async {
+        final roomDao = getAndRegisterRoomDao();
+        var value = await RoomRepo().watchRoom(testUid.asString()).first;
+        expect(value, testRoom);
+        verify(roomDao.watchRoom(testUid.asString()));
+      });
+    });
+    group('getRoom -', () {
+      test('When called should return room', () async {
+        final roomDao = getAndRegisterRoomDao();
+        expect(await RoomRepo().getRoom(testUid.asString()), testRoom);
+        verify(roomDao.getRoom(testUid.asString()));
+      });
+    });
+    group('resetMention -', () {
+      test('When called should update room', () async {
+        final roomDao = getAndRegisterRoomDao();
+        await RoomRepo().resetMention(testUid.asString());
+        verify(roomDao.updateRoom(testRoom.copyWith(mentioned: false)));
+      });
+    });
+    group('createRoomIfNotExist -', () {
+      test('When called should update room', () async {
+        final roomDao = getAndRegisterRoomDao();
+        await RoomRepo().createRoomIfNotExist(testUid.asString());
+        verify(roomDao.updateRoom(testRoom));
+      });
+    });
+    group('watchMySeen -', () {
+      test('When called should return seen stream', () async {
+        final seenDao = getAndRegisterSeenDao();
+        var value = await RoomRepo().watchMySeen(testUid.asString()).first;
+        expect(value, testSeen);
+        verify(seenDao.watchMySeen(testUid.asString()));
+      });
+    });
+    group('getMySeen -', () {
+      test('When called should return my seen', () async {
+        final seenDao = getAndRegisterSeenDao();
+        var value = await RoomRepo().getMySeen(testUid.asString());
+        expect(value, testSeen);
+        verify(seenDao.getMySeen(testUid.asString()));
+      });
+    });
+    group('getOthersSeen -', () {
+      test('When called should return other seen', () async {
+        final seenDao = getAndRegisterSeenDao();
+        var value = await RoomRepo().getOthersSeen(testUid.asString());
+        expect(value, testSeen);
+        verify(seenDao.getOthersSeen(testUid.asString()));
+      });
+    });
+    group('saveMySeen -', () {
+      test('When called should save my seen', () async {
+        final seenDao = getAndRegisterSeenDao();
+        RoomRepo().saveMySeen(testSeen);
+        verify(seenDao.saveMySeen(testSeen));
+      });
+    });
   });
 }

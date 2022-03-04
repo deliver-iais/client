@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -38,8 +39,11 @@ Activity testActivity = Activity(
     to: testUid,
     from: testUid,
     typeOfActivity: ActivityType.CHOOSING_STICKER);
+Seen testSeen = Seen(uid: testUid.asString(), messageId: 0);
+
 Room testRoom = Room(uid: testUid.asString());
 Uid botUid = Uid(category: Categories.BOT, node: "father_bot", sessionId: "*");
-Uid systemUid = Uid(category: Categories.SYSTEM, node: "Notification Service", sessionId: "*");
+Uid systemUid = Uid(
+    category: Categories.SYSTEM, node: "Notification Service", sessionId: "*");
 Uid emptyUid = Uid(category: Categories.USER, node: "", sessionId: "*");
 Uid groupUid = Uid(category: Categories.GROUP, node: "", sessionId: "*");
