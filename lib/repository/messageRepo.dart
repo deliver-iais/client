@@ -8,6 +8,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -35,6 +36,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
@@ -87,6 +89,7 @@ class MessageRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
@@ -464,6 +467,22 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
+  sendCallMessage(call_pb.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, call_pb.CallEvent_CallType callType ) async {
+    String json = (call_pb.CallEvent()
+      ..newStatus = newStatus
+      ..id = callId
+      ..callDuration = Int64(callDuration)
+      ..callType = callType )
+        .writeToJson();
+
+    Message msg =
+    _createMessage(room)
+        .copyWith(type: MessageType.CALL, json: json);
+
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+  }
+
   sendLocationMessage(Position locationData, Uid room,
       {String? forwardedFrom, int replyId = 0}) async {
     String json = (location_pb.Location()
@@ -648,6 +667,9 @@ class MessageRepo {
         break;
       case MessageType.FORM:
         byClient.form = message.json.toForm();
+        break;
+      case MessageType.CALL:
+        byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
         break;
       default:
         break;
@@ -876,6 +898,9 @@ class MessageRepo {
                           .messageId
                           .toInt());
                   if (mes != null) {
+                    if (mes.type == MessageType.FILE && mes.id != null) {
+                      _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
+                    }
                     _messageDao.saveMessage(mes.copyWith(json: EMPTY_MESSAGE));
                     _roomDao.updateRoom(Room(
                         uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
@@ -1058,6 +1083,9 @@ class MessageRepo {
   deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
+        if (msg.type == MessageType.FILE && msg.id != null) {
+          _mediaDao.deleteMedia(msg.roomUid, msg.id!);
+        }
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {

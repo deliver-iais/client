@@ -41,6 +41,8 @@ class MessageTypeAdapter extends TypeAdapter<MessageType> {
         return MessageType.SHARE_PRIVATE_DATA_REQUEST;
       case 13:
         return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
+      case 14:
+        return MessageType.CALL;
       default:
         return MessageType.TEXT;
     }
@@ -90,6 +92,9 @@ class MessageTypeAdapter extends TypeAdapter<MessageType> {
         break;
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         writer.writeByte(13);
+        break;
+      case MessageType.CALL:
+        writer.writeByte(14);
         break;
     }
   }

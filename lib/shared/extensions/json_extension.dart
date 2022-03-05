@@ -1,4 +1,5 @@
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
@@ -64,6 +65,9 @@ extension JsonMapper on String {
   SharePrivateDataRequest toSharePrivateDataRequest() {
     return SharePrivateDataRequest.fromJson(this);
   }
+  CallEvent toCallEvent(){
+    return CallEvent.fromJson(this);
+  }
 
   bool isEmptyMessage() {
     return this == EMPTY_MESSAGE;
@@ -71,5 +75,9 @@ extension JsonMapper on String {
 
   bool chatIsDeleted() {
     return this == DELETED_ROOM_MESSAGE;
+  }
+
+  int toCallDuration(){
+    return CallEvent.fromJson(this).callDuration.toInt();
   }
 }

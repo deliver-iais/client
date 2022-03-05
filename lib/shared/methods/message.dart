@@ -135,6 +135,9 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
         ignoreNotification = true;
       }
       break;
+    case message_pb.Message_Type.callEvent:
+      typeDetails = i18n.get("call");
+      break;
     default:
       ignoreNotification = true;
       if (kDebugMode) {
@@ -320,6 +323,9 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
       msg.sharePrivateDataAcceptance =
           message.json.toSharePrivateDataAcceptance();
       break;
+    case MessageType.CALL:
+      msg.callEvent = message.json.toCallEvent();
+      break;
     case MessageType.NOT_SET:
       break;
     default:
@@ -402,7 +408,8 @@ String messageBodyToJson(message_pb.Message message) {
 
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       return message.sharePrivateDataAcceptance.writeToJson();
-
+    case MessageType.CALL:
+      return message.callEvent.writeToJson();
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
   }
@@ -436,13 +443,19 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.SHARE_PRIVATE_DATA_REQUEST;
     case message_pb.Message_Type.sharePrivateDataAcceptance:
       return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
+    case message_pb.Message_Type.callEvent:
+      return MessageType.CALL;
     default:
       return MessageType.NOT_SET;
   }
 }
 
 Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) {
-  return authRepo.isCurrentUser(message.from.asString())
-      ? message.to
-      : (message.to.isUser() ? message.from : message.to);
+  return getRoomUidOf(authRepo, message.from, message.to);
+}
+
+Uid getRoomUidOf(AuthRepo authRepo, Uid from, Uid to) {
+  return authRepo.isCurrentUser(from.asString())
+      ? to
+      : (to.isUser() ? from : to);
 }
