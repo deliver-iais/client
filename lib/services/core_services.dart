@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
@@ -71,6 +72,7 @@ class CoreServices {
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
 
   Timer? _connectionTimer;
   var _lastPongTime = 0;
@@ -461,6 +463,11 @@ class CoreServices {
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
+              if (mes != null &&
+                  mes.type == MessageType.FILE &&
+                  mes.id != null) {
+                _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
+              }
               _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));

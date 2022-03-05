@@ -6,6 +6,8 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notication_dao.dart';
+import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -48,6 +50,8 @@ class RoomRepo {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _customNotifDao = GetIt.I.get<CustomNotificatonDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
+  final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
 
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
@@ -185,6 +189,8 @@ class RoomRepo {
       await _queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
       var room = await _roomDao.getRoom(roomUid.asString());
+      _mediaDao.clear(roomUid.asString());
+      _mediaMetaDataDao.clear(roomUid.asString());
       _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
           deleted: true,
