@@ -650,8 +650,7 @@ class _RoomPageState extends State<RoomPage> {
         if (room.uid.asUid().isUser() &&
             !isLinux() &&
             accessToCallUidList.values
-                .contains(_authRepo.currentUserUid.asString()) &&
-            accessToCallUidList.values.contains(room.uid))
+                .contains(_authRepo.currentUserUid.asString()))
           IconButton(
               onPressed: () {
                 _routingService.openCallScreen(room.uid.asUid(),
