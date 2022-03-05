@@ -18,6 +18,7 @@ import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/access_to_call.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
@@ -459,7 +460,8 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  onDelete() {
+  onDelete() async {
+    await _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid());
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -643,7 +645,10 @@ class _RoomPageState extends State<RoomPage> {
         //             isVideoCall: true, context: context);
         //       },
         //       icon: const Icon(Icons.videocam)),
-        if (room.uid.asUid().isUser() && !isLinux())
+        if (room.uid.asUid().isUser() &&
+            !isLinux() &&
+            accessToCallUidList.values
+                .contains(_authRepo.currentUserUid.asString()))
           IconButton(
               onPressed: () {
                 _routingService.openCallScreen(room.uid.asUid(),
@@ -926,7 +931,11 @@ class _RoomPageState extends State<RoomPage> {
       return const SizedBox(height: 1000);
     }
 
-    Widget? widget = _messageWidgetCache.get(index);
+    Widget? widget;
+
+    if (!tuple.item2!.json.isEmptyMessage() && !tuple.item2!.edited) {
+      widget = _messageWidgetCache.get(index);
+    }
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
@@ -988,7 +997,6 @@ class _RoomPageState extends State<RoomPage> {
       _replyMessageId = id;
     });
   }
-
 
   _scrollToMessage({required int id}) {
     _itemScrollController.scrollTo(

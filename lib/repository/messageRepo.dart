@@ -8,6 +8,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -88,6 +89,7 @@ class MessageRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
@@ -900,6 +902,9 @@ class MessageRepo {
                           .messageId
                           .toInt());
                   if (mes != null) {
+                    if (mes.type == MessageType.FILE && mes.id != null) {
+                      _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
+                    }
                     _messageDao.saveMessage(mes.copyWith(json: EMPTY_MESSAGE));
                     _roomDao.updateRoom(Room(
                         uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
@@ -1082,6 +1087,9 @@ class MessageRepo {
   deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
+        if (msg.type == MessageType.FILE && msg.id != null) {
+          _mediaDao.deleteMedia(msg.roomUid, msg.id!);
+        }
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
