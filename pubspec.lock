@@ -455,8 +455,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "875230afa2c81ad7f5458cc207b99bffe3a307cb"
-      resolved-ref: "875230afa2c81ad7f5458cc207b99bffe3a307cb"
+      ref: "7fcaebdf56e7285014422e7e484ce0c2ec403d24"
+      resolved-ref: "7fcaebdf56e7285014422e7e484ce0c2ec403d24"
       url: "https://github.com/deliver-iais/firebase-messaging.git"
     source: git
     version: "11.2.6"

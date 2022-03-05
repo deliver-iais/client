@@ -139,27 +139,25 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   ));
             },
           ),
-          buildInputCaption(
-              i18n: _i18n,
-              insertCaption: _insertCaption,
-              context: context,
-              captionEditingController: _textEditingController,
-              count: _selectedImage.length,
-              send: () {
-                widget.pop();
-                _send();
-              })
+          if (_selectedImage.isNotEmpty)
+            buildInputCaption(
+                i18n: _i18n,
+                insertCaption: _insertCaption,
+                context: context,
+                captionEditingController: _textEditingController,
+                count: _selectedImage.length,
+                send: () {
+                  widget.pop();
+                  _send();
+                })
         ],
       ),
     );
   }
 
   void _send() {
-    _messageRepo.sendMultipleFilesMessages(
-        widget.roomUid,
-        _selectedImage
-            .map((e) => model.File(e, e.split(".").last))
-            .toList(),
+    _messageRepo.sendMultipleFilesMessages(widget.roomUid,
+        _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
         caption: _textEditingController.text);
   }
 
@@ -241,17 +239,19 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     ),
                   ),
                 ),
-                buildInputCaption(
-                    i18n: _i18n,
-                    insertCaption: _insertCaption,
-                    context: context,
-                    captionEditingController: _textEditingController,
-                    count: _selectedImage.length,
-                    send: () {
-                      widget.pop();
-                      Navigator.pop(context);
-                      _send();
-                    })
+                if (_selectedImage.isNotEmpty &&
+                    _selectedImage.contains(imagePath))
+                  buildInputCaption(
+                      i18n: _i18n,
+                      insertCaption: _insertCaption,
+                      context: context,
+                      captionEditingController: _textEditingController,
+                      count: _selectedImage.length,
+                      send: () {
+                        widget.pop();
+                        Navigator.pop(context);
+                        _send();
+                      })
               ],
             ));
       });
