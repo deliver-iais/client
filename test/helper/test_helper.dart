@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notication_dao.dart';
+import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -85,6 +87,8 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<MucRepo>(returnNullOnMissingStub: true),
   MockSpec<BotRepo>(returnNullOnMissingStub: true),
   MockSpec<CustomNotificatonDao>(returnNullOnMissingStub: true),
+  MockSpec<MediaDao>(returnNullOnMissingStub: true),
+  MockSpec<MediaMetaDataDao>(returnNullOnMissingStub: true),
 ])
 MockCoreServices getAndRegisterCoreServices(
     {ConnectionStatus connectionStatus = ConnectionStatus.Connecting}) {
@@ -245,7 +249,8 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
       .thenAnswer((realInvocation) => Stream.value([testRoom]));
   when(service.watchRoom(testUid.asString()))
       .thenAnswer((realInvocation) => Stream.value(testRoom));
-  when(service.getAllGroups()).thenAnswer((realInvocation) => Future.value([testRoom]));
+  when(service.getAllGroups())
+      .thenAnswer((realInvocation) => Future.value([testRoom]));
   return service;
 }
 
@@ -300,6 +305,24 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   when(service.createLiveLocation(testUid, 0)).thenAnswer((realInvocation) =>
       MockResponseFuture<CreateLiveLocationRes>(
           CreateLiveLocationRes(uuid: testUid.asString())));
+  return service;
+}
+
+MockMediaDao getAndRegisterMediaDao() {
+  _removeRegistrationIfExists<MediaDao>();
+  final service = MockMediaDao();
+  GetIt.I.registerSingleton<MediaDao>(service);
+  when(service.clear(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value());
+  return service;
+}
+
+MockMediaMetaDataDao getAndRegisterMediaMetaDataDao() {
+  _removeRegistrationIfExists<MediaMetaDataDao>();
+  final service = MockMediaMetaDataDao();
+  GetIt.I.registerSingleton<MediaMetaDataDao>(service);
+  when(service.clear(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value());
   return service;
 }
 
@@ -559,7 +582,9 @@ void registerServices() {
   getAndRegisterAccountRepo();
   getAndRegisterMucRepo();
   getAndRegisterBotRepo();
+  getAndRegisterMediaDao();
   getAndRegisterCustomNotificatonDao();
+  getAndRegisterMediaMetaDataDao();
 }
 
 void unregisterServices() {
@@ -584,6 +609,8 @@ void unregisterServices() {
   GetIt.I.unregister<MucRepo>();
   GetIt.I.unregister<BotRepo>();
   GetIt.I.unregister<CustomNotificatonDao>();
+  GetIt.I.unregister<MediaDao>();
+  GetIt.I.unregister<MediaMetaDataDao>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {

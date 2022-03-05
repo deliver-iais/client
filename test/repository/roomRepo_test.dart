@@ -192,6 +192,13 @@ void main() {
       });
     });
     group('deleteRoom -', () {
+      test('When called if should delete media table', () async {
+        final mediaDao = getAndRegisterMediaDao();
+        final mediaMetaDataDao = getAndRegisterMediaMetaDataDao();
+        await RoomRepo().deleteRoom(testUid);
+        verify(mediaMetaDataDao.clear(testUid.asString()));
+        verify(mediaDao.clear(testUid.asString()));
+      });
       test('When called if should removePrivateRoom', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().deleteRoom(testUid);
