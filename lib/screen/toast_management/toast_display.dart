@@ -1,11 +1,13 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lottie/lottie.dart';
 
 class ToastDisplay {
   static showToast(
       {IconData? toastIcon,
       Color? toastColor,
+      bool isSaveToast = false,
       required BuildContext toastContext,
       required String toastText}) {
     FToast fToast = FToast();
@@ -32,6 +34,8 @@ class ToastDisplay {
             const SizedBox(
               width: 12.0,
             ),
+          if (isSaveToast)
+            Lottie.asset("assets/animations/file-save.json", width: 40),
           Text(
             toastText,
             style: const TextStyle(fontSize: 16),

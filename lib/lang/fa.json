@@ -296,5 +296,8 @@
   "got_it": "باشه",
   "please_select_a_chat_to_start_messaging": "لطفا برای آغاز یک چت، یکی از چت ها را انتخاب کنید",
   "select_an_image": "یک عکس انتخاب کنید",
-  "forwarded_medias": "فایل های باز ارسال شده"
+  "forwarded_medias": "فایل های باز ارسال شده",
+  "photo_saved": "عکس درگالری ذخیره شد",
+  "file_saved": "فایل در دانلود ها ذخیره شد",
+  "music_saved": "موزیک ذخیره شد"
 }
