@@ -7,6 +7,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -65,7 +66,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
             element.extension ?? element.name.split(".").last);
         int size = element.size ?? 0;
-        _isFileSizeAccept = size < 104857600;
+        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
           break;
@@ -86,10 +87,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    print("new build");
     return !_isFileFormatAccept || !_isFileSizeAccept
         ? FileErrorDialog(
-            i18n: _i18n,
             isFileFormatAccept: _isFileFormatAccept,
             invalidFormatFileName: _invalidFormatFileName,
             invalidSizeFileName: _invalidSizeFileName)
@@ -414,7 +413,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     for (var element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
-      _isFileSizeAccept = element.size < 104857600;
+      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;
       if (!_isFileFormatAccept) {
         _invalidFormatFileName = element.name;
         break;
@@ -440,19 +439,17 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 }
 
 class FileErrorDialog extends StatelessWidget {
-  const FileErrorDialog({
+  FileErrorDialog({
     Key? key,
-    required I18N i18n,
     required bool isFileFormatAccept,
     required String invalidFormatFileName,
     required String invalidSizeFileName,
-  })  : _i18n = i18n,
-        _isFileFormatAccept = isFileFormatAccept,
+  })  : _isFileFormatAccept = isFileFormatAccept,
         _invalidFormatFileName = invalidFormatFileName,
         _invalidSizeFileName = invalidSizeFileName,
         super(key: key);
 
-  final I18N _i18n;
+  final _i18n = GetIt.I.get<I18N>();
   final bool _isFileFormatAccept;
   final String _invalidFormatFileName;
   final String _invalidSizeFileName;
