@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:deliver/box/pending_message.dart';
-import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:dio/dio.dart';

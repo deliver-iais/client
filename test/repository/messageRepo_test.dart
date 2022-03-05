@@ -1574,6 +1574,14 @@ void main() {
       });
     });
     group('deleteMessage -', () {
+      test(
+          'When called if msg.id != null and msg type be file should delete the media from mediaDao',
+          () async {
+        final mediaDao = getAndRegisterMediaDao();
+        await MessageRepo().deleteMessage(
+            [testMessage.copyWith(type: MessageType.FILE, id: 1)]);
+        verify(mediaDao.deleteMedia(testUid.asString(), 1));
+      });
       test('When called if msg.id == null should deletePendingMessage',
           () async {
         final messageDao = getAndRegisterMessageDao();

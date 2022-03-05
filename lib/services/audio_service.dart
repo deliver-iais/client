@@ -42,7 +42,13 @@ abstract class AudioPlayerModule {
 
   void playSoundIn();
 
+  void playBeepSound();
+
   void resume();
+
+  void stopPlayBeepSound();
+
+  void playBusySound();
 }
 
 class AudioService {
@@ -127,15 +133,30 @@ class AudioService {
     _playerModule.playSoundIn();
   }
 
+  void playBeepSound() {
+    _playerModule.playBeepSound();
+  }
+
   void resume() {
     _playerModule.resume();
+  }
+
+  void stopPlayBeepSound() {
+    _playerModule.stopPlayBeepSound();
+  }
+
+  void playBusySound() {
+    _playerModule.playBusySound();
   }
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  final AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
+  final AudioCache _fastAudioPlayer =
+      AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
+  final AudioCache _callFastAudioPlayer =
+      AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
 
   @override
   Stream<Duration> get audioCurrentPosition =>
@@ -192,12 +213,33 @@ class NormalAudioPlayer implements AudioPlayerModule {
   void resume() {
     _audioPlayer.resume();
   }
+
+  @override
+  void playBeepSound() {
+    _callFastAudioPlayer.play(
+      "beep_ringing_calling_sound.mp3",
+    );
+  }
+
+  @override
+  void stopPlayBeepSound() {
+    _callFastAudioPlayer.fixedPlayer!.stop();
+  }
+
+  @override
+  void playBusySound() {
+    _callFastAudioPlayer.play(
+      "busy_sound.mp3",
+    );
+  }
 }
 
 class VlcAudioPlayer implements AudioPlayerModule {
   // final Player _audioPlayer = Player(id: 0);
   // final Player _fastAudioPlayerOut = Player(id: 1);
   // final Player _fastAudioPlayerIn = Player(id: 1);
+  // final Player _fastAudioPlayerBeep = Player(id: 2);
+  // final Player _fastAudioPlayerBusy = Player(id: 3);
 
   @override
   Stream<Duration?>? get audioCurrentPosition => null;
@@ -256,5 +298,23 @@ class VlcAudioPlayer implements AudioPlayerModule {
   @override
   void resume() {
     // _audioPlayer.play();
+  }
+
+  @override
+  void playBeepSound() {
+    // _fastAudioPlayerBeep
+    //     .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
+    // _fastAudioPlayerBeep.play();
+  }
+
+  @override
+  void stopPlayBeepSound() {
+    // _fastAudioPlayerBeep.stop();
+  }
+
+  @override
+  void playBusySound() {
+    // _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
+    // _fastAudioPlayerBusy.play();
   }
 }

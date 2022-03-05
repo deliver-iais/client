@@ -260,6 +260,8 @@
   "sure_delete_messages": "Are sure you want to delete these messages ?",
   "send_location_permission": "Are sure you want to send your location?",
   "edited": "edited",
+  "call": "Call",
+  "calls": "Calls",
   "change_group_avatar": "changed group avatar",
   "change_channel_avatar": "changed channel avatar",
   "show_in_folder": "Show in folder",

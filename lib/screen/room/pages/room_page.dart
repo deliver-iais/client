@@ -12,7 +12,6 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
@@ -462,7 +461,8 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  onDelete() {
+  onDelete() async {
+    await _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid());
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -637,6 +637,23 @@ class _RoomPageState extends State<RoomPage> {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return AppBar(
+      actions: [
+        //TODO after increase bandwidth we add videoCall
+        // if (room.uid.asUid().isUser() && !isLinux())
+        //   IconButton(
+        //       onPressed: () {
+        //         _routingService.openCallScreen(room.uid.asUid(),
+        //             isVideoCall: true, context: context);
+        //       },
+        //       icon: const Icon(Icons.videocam)),
+        if (room.uid.asUid().isUser() && !isLinux())
+          IconButton(
+              onPressed: () {
+                _routingService.openCallScreen(room.uid.asUid(),
+                    context: context);
+              },
+              icon: const Icon(Icons.call)),
+      ],
       leading: GestureDetector(
         child: StreamBuilder<bool>(
             stream: _searchMode.stream,
@@ -912,7 +929,11 @@ class _RoomPageState extends State<RoomPage> {
       return const SizedBox(height: 1000);
     }
 
-    Widget? widget = _messageWidgetCache.get(index);
+    Widget? widget;
+
+    if (!tuple.item2!.json.isEmptyMessage() && !tuple.item2!.edited) {
+      widget = _messageWidgetCache.get(index);
+    }
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);

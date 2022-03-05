@@ -8,6 +8,8 @@ abstract class MediaMetaDataDao {
   Stream<MediaMetaData?> get(String roomUid);
 
   Future<MediaMetaData?> getAsFuture(String roomUid);
+
+  Future clear(String roomUid);
 }
 
 class MediaMetaDataDaoImpl implements MediaMetaDataDao {
@@ -42,5 +44,11 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Future clear(String roomUid) async {
+    var box = await _open();
+    await box.delete(roomUid);
   }
 }

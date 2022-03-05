@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver/box/media_meta_data.dart';
+
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -33,6 +34,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+
   final _mediaCache = <int, Media>{};
 
   Future<Media?> _getMedia(int index) async {
@@ -88,7 +90,9 @@ class _ImageTabUiState extends State<ImageTabUi> {
         children: [
           GestureDetector(
               onTap: () => _routingService.openShowAllImage(
-                  uid: widget.roomUid.asString(), messageId: media.messageId,initIndex:index),
+                  uid: widget.roomUid.asString(),
+                  messageId: media.messageId,
+                  initIndex: index),
               onLongPress: () => _addSelectedMedia(media),
               child: FutureBuilder<String?>(
                   future: _fileRepo.getFileIfExist(
@@ -137,8 +141,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                           size: 25,
                         ),
                       ),
-                    )
-                ))
+                    )))
         ],
       ),
     );

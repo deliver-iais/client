@@ -2,12 +2,15 @@
 
 import 'dart:async';
 
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -36,6 +39,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -68,6 +72,7 @@ class CoreServices {
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
 
   Timer? _connectionTimer;
   var _lastPongTime = 0;
@@ -87,6 +92,18 @@ class CoreServices {
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
+  final BehaviorSubject<CallEvents> callEvents =
+      BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> _callEvents =
+      BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> groupCallEvents =
+      BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> _groupCallEvents =
+      BehaviorSubject.seeded(CallEvents.none);
+
   //TODO test
   initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
@@ -96,6 +113,12 @@ class CoreServices {
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
+    });
+    _callEvents.distinct().listen((event) {
+      callEvents.add(event);
+    });
+    _groupCallEvents.distinct().listen((event) {
+      groupCallEvents.add(event);
     });
   }
 
@@ -173,10 +196,28 @@ class CoreServices {
             _saveRoomPresenceTypeChange(serverPacket.roomPresenceTypeChanged);
             break;
           case ServerPacket_Type.callOffer:
-            // TODO: Handle this case.
+            var callEvents = CallEvents.callOffer(serverPacket.callOffer,
+                roomUid: getRoomUid(_authRepo, serverPacket.message));
+            if (serverPacket.callOffer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_AUDIO ||
+                serverPacket.callOffer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_VIDEO) {
+              _groupCallEvents.add(callEvents);
+            } else {
+              _callEvents.add(callEvents);
+            }
             break;
           case ServerPacket_Type.callAnswer:
-            // TODO: Handle this case.
+            var callEvents = CallEvents.callAnswer(serverPacket.callAnswer,
+                roomUid: getRoomUid(_authRepo, serverPacket.message));
+            if (serverPacket.callAnswer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_AUDIO ||
+                serverPacket.callAnswer.callType ==
+                    call_pb.CallEvent_CallType.GROUP_VIDEO) {
+              _groupCallEvents.add(callEvents);
+            } else {
+              _callEvents.add(callEvents);
+            }
             break;
           case ServerPacket_Type.expletivePacket:
             // TODO: Handle this case.
@@ -226,6 +267,20 @@ class CoreServices {
     ClientPacket clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
+    _sendPacket(clientPacket);
+  }
+
+  sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
+    ClientPacket clientPacket = ClientPacket()
+      ..callAnswer = callAnswerByClient
+      ..id = callAnswerByClient.id.toString();
+    _sendPacket(clientPacket);
+  }
+
+  sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
+    ClientPacket clientPacket = ClientPacket()
+      ..callOffer = callOfferByClient
+      ..id = callOfferByClient.id.toString();
     _sendPacket(clientPacket);
   }
 
@@ -408,6 +463,11 @@ class CoreServices {
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
                       .toInt());
+              if (mes != null &&
+                  mes.type == MessageType.FILE &&
+                  mes.id != null) {
+                _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
+              }
               _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
               _roomDao.updateRoom(
                   Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
@@ -423,6 +483,16 @@ class CoreServices {
         case PersistentEvent_Type.notSet:
           // TODO: Handle this case.
           break;
+      }
+    } else if (message.whichType() == Message_Type.callEvent) {
+      var callEvents =
+          CallEvents.callEvent(message.callEvent, roomUid: message.from);
+      if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
+          message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
+        _groupCallEvents.add(callEvents);
+      } else {
+        // its group Call
+        _callEvents.add(callEvents);
       }
     }
     saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
@@ -462,7 +532,9 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
+    if (_routingServices.isInRoom(roomUid.asString()) &&
+        !isDesktop() &&
+        message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
       _notificationServices.playSoundIn();
     } else {
       _notificationServices.showNotification(message);

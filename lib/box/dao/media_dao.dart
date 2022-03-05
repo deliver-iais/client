@@ -12,6 +12,10 @@ abstract class MediaDao {
   Future save(Media media);
 
   Future<int?> getIndexOfMedia(String roomUid, int messageId);
+
+  Future deleteMedia(String roomId, int messageId);
+
+  Future clear(String roomId);
 }
 
 class MediaDaoImpl implements MediaDao {
@@ -65,5 +69,17 @@ class MediaDaoImpl implements MediaDao {
   List<Media> sorted(List<Media> list) {
     list.sort((a, b) => (b.messageId) - (a.messageId));
     return list;
+  }
+
+  @override
+  Future deleteMedia(String roomId, int messageId) async {
+    var box = await _open(roomId);
+    box.delete(messageId);
+  }
+
+  @override
+  Future clear(String roomId) async {
+    var box = await _open(roomId);
+    await box.clear();
   }
 }
