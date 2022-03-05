@@ -81,7 +81,8 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                                   type:
                                       result.files.first.path!.split(".").last,
                                   files: result.files
-                                      .map((e) => File(e.path!, e.name))
+                                      .map((e) =>
+                                          File(e.path!, e.name, size: e.size))
                                       .toList());
                             }
                           },

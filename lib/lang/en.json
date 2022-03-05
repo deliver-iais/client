@@ -288,5 +288,6 @@
   "got_it": "Got it",
   "please_select_a_chat_to_start_messaging": "Please select a chat to start messaging",
   "select_an_image": "Select an image",
-  "forwarded_medias": "Forwarded medias"
+  "forwarded_medias": "Forwarded medias",
+  "file_size_error": "File size is more than 100 MB The selected file size must be less than 100 MB"
 }

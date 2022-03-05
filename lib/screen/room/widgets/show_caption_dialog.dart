@@ -49,8 +49,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   String _type = "";
   final FocusNode _captionFocusNode = FocusNode();
   bool _isFileFormatAccept = false;
+  bool _isFileSizeAccept = false;
   model.File? _editedFile;
   String _invalidFormatFileName = "";
+  String _invalidSizeFileName = "";
 
   @override
   void initState() {
@@ -61,8 +63,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
             element.extension ?? element.name.split(".").last);
+        int size = element.size ?? 0;
+        _isFileSizeAccept = size < 104857600;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
+          break;
+        }
+        if (!_isFileSizeAccept) {
+          _invalidSizeFileName = element.name;
           break;
         }
       }
@@ -77,14 +85,16 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return !_isFileFormatAccept
+    return !_isFileFormatAccept || !_isFileSizeAccept
         ? AlertDialog(
             title: Text(
               _i18n.get("error"),
               style: const TextStyle(fontSize: 16, color: Colors.blue),
             ),
             content: Text(
-              _i18n.get("cant_sent") + " " + _invalidFormatFileName,
+              !_isFileFormatAccept
+                  ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+                  : _invalidSizeFileName + " " + _i18n.get("file_size_error"),
             ),
             actions: [
               Row(
@@ -424,16 +434,23 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     for (var element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
+      _isFileSizeAccept = element.size < 104857600;
       if (!_isFileFormatAccept) {
         _invalidFormatFileName = element.name;
         break;
       }
+      if (!_isFileSizeAccept) {
+        _invalidSizeFileName = element.name;
+        break;
+      }
     }
-    if (_isFileFormatAccept) {
+    if (_isFileFormatAccept && _isFileSizeAccept) {
       return result;
     } else {
       ToastDisplay.showToast(
-          toastText: _i18n.get("cant_sent") + " " + _invalidFormatFileName,
+          toastText: !_isFileFormatAccept
+              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+              : _i18n.get("file_size_error"),
           toastContext: context);
       return null;
     }
