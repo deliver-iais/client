@@ -1,27 +1,38 @@
+import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/dao/call_info_dao.dart';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
+
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class CallList extends StatefulWidget {
-  const CallList({Key? key}) : super(key: key);
+class CallListPage extends StatefulWidget {
+  const CallListPage({Key? key}) : super(key: key);
 
   @override
-  _CallListState createState() => _CallListState();
+  _CallListPageState createState() => _CallListPageState();
 }
 
-class _CallListState extends State<CallList> {
+class _CallListPageState extends State<CallListPage> {
   I18N i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final callRepo = GetIt.I.get<CallRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _callListDao = GetIt.I.get<CallInfoDao>();
+
+  @override
+  void initState() {
+    callRepo.fetchUserCallList(
+        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +56,8 @@ class _CallListState extends State<CallList> {
                   borderRadius: BorderRadius.circular(10),
                   color: ExtraTheme.of(context).colorScheme.background,
                 ),
-                child: FutureBuilder<FetchUserCallsRes>(
-                    future: callRepo.fetchUserCallList(_authRepo.currentUserUid,
-                        DateTime.now().month, DateTime.now().year),
+                child: FutureBuilder<List<CallInfo>>(
+                    future: _callListDao.getAll(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         return Scrollbar(
@@ -56,18 +66,15 @@ class _CallListState extends State<CallList> {
                                     (BuildContext context, int index) {
                                   return const Divider();
                                 },
-                                itemCount: snapshot.data!.cellEvents.length,
+                                itemCount: snapshot.data!.length,
                                 itemBuilder: (BuildContext ctx, int index) {
-                                  print(snapshot.data!.cellEvents[index]);
                                   return GestureDetector(
                                     onTap: () {
-                                      _routingService.openRoom(snapshot
-                                          .data!.cellEvents[index].to
-                                          .asString());
+                                      _routingService
+                                          .openRoom(snapshot.data![index].to);
                                     },
                                     child: CallListWidget(
-                                        callEvent:
-                                            snapshot.data!.cellEvents[index]),
+                                        callEvent: snapshot.data![index]),
                                   );
                                 }));
                       }

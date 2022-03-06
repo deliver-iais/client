@@ -63,7 +63,7 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
-const _calls = CallList(key: ValueKey("/calls"));
+const _calls = CallListPage(key: ValueKey("/calls"));
 
 class RoutingService {
   final _homeNavigatorState = GlobalKey<NavigatorState>();

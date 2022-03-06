@@ -104,7 +104,10 @@ const MEDIA_TRACK_ID = 16;
 const MEDIA_META_DATA_TRACK_ID = 17;
 const MEDIA_TYPE_TRACK_ID = 18;
 const LIVE_LOCATION_TRACK_ID = 19;
-
+const CALL_INFO_TRACK_ID = 20;
+const CALL_EVENT_TRACK_ID=21;
+const CALL_STATUS_TRACK_ID=22;
+const CALL_TYPE_TRACK_ID=23;
 // Animation
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 

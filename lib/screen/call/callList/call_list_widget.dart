@@ -1,8 +1,9 @@
+import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/call_type.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -19,7 +20,7 @@ class CallListWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          CircleAvatarWidget(callEvent.to, 23,
+          CircleAvatarWidget(callEvent.to.asUid(), 23,
               isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
           const SizedBox(
             width: 15,
@@ -29,7 +30,7 @@ class CallListWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FutureBuilder<String>(
-                    future: _roomRepo.getName(callEvent.to),
+                    future: _roomRepo.getName(callEvent.to.asUid()),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         return Text(
@@ -69,7 +70,7 @@ class CallListWidget extends StatelessWidget {
           IconButton(
             onPressed: null,
             icon: Icon(
-              callEvent.callEvent.callType == CallEvent_CallType.VIDEO
+              callEvent.callEvent.callType == CallType.VIDEO
                   ? Icons.videocam_rounded
                   : Icons.call,
               color: Colors.blueAccent,

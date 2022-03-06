@@ -5,6 +5,11 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/box/call_event.dart' as call_event;
+import 'package:deliver/box/call_info.dart' as call_info;
+import 'package:deliver/box/call_status.dart' as call_status;
+import 'package:deliver/box/call_type.dart';
+import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
@@ -12,6 +17,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -48,6 +54,7 @@ class CallRepo {
   final _callService = GetIt.I.get<CallService>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _callListDao = GetIt.I.get<CallInfoDao>();
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -1118,13 +1125,67 @@ class CallRepo {
     int month,
     int year,
   ) async {
-    return await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
-      ..roomUid = roomUid
-      ..limit = 100
-      ..fetchingDirectionType =
-          FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
-      ..month = month - 1
-      ..year = year);
+    FetchUserCallsRes callLists =
+        await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
+          ..roomUid = roomUid
+          ..limit = 100
+          ..fetchingDirectionType =
+              FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
+          ..month = month - 1
+          ..year = year);
+    for (var call in callLists.cellEvents) {
+      call_event.CallEvent callEvent = call_event.CallEvent(
+          callDuration: call.callEvent.callDuration.toInt(),
+          endOfCallTime: call.callEvent.endOfCallTime.toInt(),
+          callType: findCallEventType(call.callEvent.callType),
+          newStatus: findCallEventStatus(call.callEvent.newStatus),
+          id: call.callEvent.id);
+      call_info.CallInfo callList = call_info.CallInfo(
+          callEvent: callEvent,
+          from: call.from.asString(),
+          to: call.to.asString());
+      _callListDao.save(callList);
+    }
+    return callLists;
+  }
+
+  call_status.CallStatus findCallEventStatus(
+      CallEvent_CallStatus eventCallStatus) {
+    switch (eventCallStatus) {
+      case CallEvent_CallStatus.CREATED:
+        return call_status.CallStatus.CREATED;
+      case CallEvent_CallStatus.BUSY:
+        return call_status.CallStatus.BUSY;
+      case CallEvent_CallStatus.DECLINED:
+        return call_status.CallStatus.DECLINED;
+      case CallEvent_CallStatus.ENDED:
+        return call_status.CallStatus.ENDED;
+      case CallEvent_CallStatus.INVITE:
+        return call_status.CallStatus.INVITE;
+      case CallEvent_CallStatus.IS_RINGING:
+        return call_status.CallStatus.IS_RINGING;
+      case CallEvent_CallStatus.JOINED:
+        return call_status.CallStatus.JOINED;
+      case CallEvent_CallStatus.KICK:
+        return call_status.CallStatus.KICK;
+      case CallEvent_CallStatus.LEFT:
+        return call_status.CallStatus.LEFT;
+    }
+    return call_status.CallStatus.ENDED;
+  }
+
+  CallType findCallEventType(CallEvent_CallType eventCallType) {
+    switch (eventCallType) {
+      case CallEvent_CallType.VIDEO:
+        return CallType.VIDEO;
+      case CallEvent_CallType.AUDIO:
+        return CallType.AUDIO;
+      case CallEvent_CallType.GROUP_AUDIO:
+        return CallType.GROUP_AUDIO;
+      case CallEvent_CallType.GROUP_VIDEO:
+        return CallType.GROUP_VIDEO;
+    }
+    return CallType.AUDIO;
   }
 }
 
