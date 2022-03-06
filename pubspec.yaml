@@ -63,6 +63,7 @@ dependencies:
   permission_handler: 8.3.0 # ANDROID ONLY SUPPORTED
   synchronized: 3.0.0
   path_provider: 2.0.7
+  path_provider_android: 2.0.11
   path: 1.8.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -90,7 +91,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/pub-dart-artifactory
-      ref: tags/v1.11.19
+      ref: tags/v1.11.22
 
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:

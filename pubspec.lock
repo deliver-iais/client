@@ -322,11 +322,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.11.19"
-      resolved-ref: "76fa76881ebc86b9d5357831db7a48e90ea2a567"
+      ref: "tags/v1.11.22"
+      resolved-ref: "758796bec4d03146cbb6e99dc37c816f7fc50e84"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.11.19"
+    version: "1.11.22"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -1117,12 +1117,12 @@ packages:
     source: hosted
     version: "2.0.7"
   path_provider_android:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.11"
   path_provider_ios:
     dependency: transitive
     description:
