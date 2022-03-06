@@ -133,11 +133,13 @@ class CallRepo {
                 }
                 _incomingCall(event.roomUid!);
               } else {
+                var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
                 messageRepo.sendCallMessage(
                     CallEvent_CallStatus.BUSY,
                     event.roomUid!,
                     callEvent.id,
                     0,
+                    endOfCallDuration,
                     _isVideo
                         ? CallEvent_CallType.VIDEO
                         : CallEvent_CallType.AUDIO);
@@ -736,11 +738,13 @@ class CallRepo {
   void _incomingCall(Uid roomId) {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
+    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.IS_RINGING,
         _roomUid!,
         _callId,
         0,
+        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
@@ -769,11 +773,13 @@ class CallRepo {
 
   _sendStartCallEvent() {
     _callIdGenerator();
+    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.CREATED,
         _roomUid!,
         _callId,
         0,
+        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
@@ -795,11 +801,13 @@ class CallRepo {
   void declineCall() {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
+    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
         _callId,
         0,
+        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     _dispose();
   }
@@ -861,11 +869,13 @@ class CallRepo {
     if (isForce || (_isCaller && callDuration == 0)) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
+      var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
       messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
           _callId,
           _callDuration!,
+          endOfCallDuration,
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     } else {
       _callDuration = callDuration;
