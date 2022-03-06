@@ -161,7 +161,7 @@ dependencies:
   collection: 1.15.0
   tuple: 2.0.0
   great_list_view: 0.1.4
-  material_color_utilities: 0.1.4
+  material_color_utilities:
 
   clock: 1.1.0
   desktop_lifecycle: 0.1.0

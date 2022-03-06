@@ -11,6 +11,7 @@ import 'package:deliver/box/call_status.dart' as call_status;
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/call_service.dart';
@@ -55,6 +56,7 @@ class CallRepo {
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -1002,6 +1004,8 @@ class CallRepo {
 
   //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   _dispose() async {
+    await fetchUserCallList(
+        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
     if (isAndroid()) {
       _receivePort?.close();
       await _stopForegroundTask();
