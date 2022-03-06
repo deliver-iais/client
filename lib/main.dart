@@ -97,7 +97,13 @@ Future<void> setupDI() async {
       filter: GetIt.I.get<DeliverLogFilter>(),
       level: kDebugMode ? Level.info : Level.nothing));
 
-  await Hive.initFlutter("db");
+  try{
+    await Hive.initFlutter("db");
+  }catch(e){
+    print(e.toString());
+  }
+
+
 
   Hive.registerAdapter(AvatarAdapter());
   Hive.registerAdapter(LastActivityAdapter());
