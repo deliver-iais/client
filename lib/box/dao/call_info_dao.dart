@@ -7,6 +7,8 @@ abstract class CallInfoDao {
   Future<List<CallInfo>> getAll();
 
   Future<void> save(CallInfo callList);
+
+  Stream<List<CallInfo>> watchAllCalls();
 }
 
 class CallInfoDaoImpl implements CallInfoDao {
@@ -29,5 +31,12 @@ class CallInfoDaoImpl implements CallInfoDao {
   static Future<Box<CallInfo>> _open() {
     BoxInfo.addBox(_key());
     return Hive.openBox<CallInfo>(_key());
+  }
+
+  @override
+  Stream<List<CallInfo>> watchAllCalls() async* {
+    var box = await _open();
+
+    yield box.values.toList();
   }
 }

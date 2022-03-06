@@ -29,9 +29,13 @@ class _CallListPageState extends State<CallListPage> {
 
   @override
   void initState() {
-    callRepo.fetchUserCallList(
-        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
+    fetchUserCallList();
     super.initState();
+  }
+
+  fetchUserCallList() async {
+    await callRepo.fetchUserCallList(
+        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
   }
 
   @override
@@ -56,18 +60,18 @@ class _CallListPageState extends State<CallListPage> {
                   borderRadius: BorderRadius.circular(10),
                   color: ExtraTheme.of(context).colorScheme.background,
                 ),
-                child: FutureBuilder<List<CallInfo>>(
-                    future: _callListDao.getAll(),
+                child: StreamBuilder<List<CallInfo>>(
+                    stream: _callListDao.watchAllCalls(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        var calls = snapshot.data?.reversed.toList();
+                        var calls = snapshot.data!.reversed.toList();
                         return Scrollbar(
                             child: ListView.separated(
                                 separatorBuilder:
                                     (BuildContext context, int index) {
                                   return const Divider();
                                 },
-                                itemCount: calls!.length,
+                                itemCount: calls.length,
                                 itemBuilder: (BuildContext ctx, int index) {
                                   return GestureDetector(
                                     onTap: () {
@@ -77,6 +81,9 @@ class _CallListPageState extends State<CallListPage> {
                                         CallListWidget(callEvent: calls[index]),
                                   );
                                 }));
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
                       }
                       return const SizedBox.shrink();
                     }))));

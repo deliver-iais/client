@@ -31,6 +31,7 @@ import 'package:logger/logger.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
+import 'package:fixnum/fixnum.dart';
 
 enum CallStatus {
   CREATED,
@@ -1124,33 +1125,38 @@ class CallRepo {
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
-  Future<FetchUserCallsRes> fetchUserCallList(
+  Future<FetchUserCallsRes?> fetchUserCallList(
     Uid roomUid,
     int month,
     int year,
   ) async {
-    FetchUserCallsRes callLists =
-        await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
-          ..roomUid = roomUid
-          ..limit = 100
-          ..fetchingDirectionType =
-              FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
-          ..month = month - 1
-          ..year = year);
-    for (var call in callLists.cellEvents) {
-      call_event.CallEvent callEvent = call_event.CallEvent(
-          callDuration: call.callEvent.callDuration.toInt(),
-          endOfCallTime: call.callEvent.endOfCallTime.toInt(),
-          callType: findCallEventType(call.callEvent.callType),
-          newStatus: findCallEventStatus(call.callEvent.newStatus),
-          id: call.callEvent.id);
-      call_info.CallInfo callList = call_info.CallInfo(
-          callEvent: callEvent,
-          from: call.from.asString(),
-          to: call.to.asString());
-      await _callListDao.save(callList);
+    try {
+      FetchUserCallsRes callLists =
+          await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
+            ..roomUid = roomUid
+            ..limit = 200
+            ..pointer = Int64(DateTime.now().millisecondsSinceEpoch)
+            ..fetchingDirectionType =
+                FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
+            ..month = month - 1
+            ..year = year);
+      for (var call in callLists.cellEvents) {
+        call_event.CallEvent callEvent = call_event.CallEvent(
+            callDuration: call.callEvent.callDuration.toInt(),
+            endOfCallTime: call.callEvent.endOfCallTime.toInt(),
+            callType: findCallEventType(call.callEvent.callType),
+            newStatus: findCallEventStatus(call.callEvent.newStatus),
+            id: call.callEvent.id);
+        call_info.CallInfo callList = call_info.CallInfo(
+            callEvent: callEvent,
+            from: call.from.asString(),
+            to: call.to.asString());
+        await _callListDao.save(callList);
+      }
+      return callLists;
+    } catch (_) {
+      return null;
     }
-    return callLists;
   }
 
   call_status.CallStatus findCallEventStatus(
