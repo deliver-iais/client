@@ -52,7 +52,7 @@ class CallListWidget extends StatelessWidget {
                       size: 14,
                     ),
                     Text(
-                      callEvent.callEvent.callDuration.toString(),
+                      callEvent.callEvent.endOfCallTime.toString(),
                       style: TextStyle(
                         color: ExtraTheme.of(context)
                             .colorScheme

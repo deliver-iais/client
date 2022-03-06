@@ -1144,7 +1144,7 @@ class CallRepo {
           callEvent: callEvent,
           from: call.from.asString(),
           to: call.to.asString());
-      _callListDao.save(callList);
+      await _callListDao.save(callList);
     }
     return callLists;
   }
