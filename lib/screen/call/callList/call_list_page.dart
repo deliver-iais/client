@@ -60,21 +60,21 @@ class _CallListPageState extends State<CallListPage> {
                     future: _callListDao.getAll(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
+                        var calls = snapshot.data?.reversed.toList();
                         return Scrollbar(
                             child: ListView.separated(
                                 separatorBuilder:
                                     (BuildContext context, int index) {
                                   return const Divider();
                                 },
-                                itemCount: snapshot.data!.length,
+                                itemCount: calls!.length,
                                 itemBuilder: (BuildContext ctx, int index) {
                                   return GestureDetector(
                                     onTap: () {
-                                      _routingService
-                                          .openRoom(snapshot.data![index].to);
+                                      _routingService.openRoom(calls[index].to);
                                     },
-                                    child: CallListWidget(
-                                        callEvent: snapshot.data![index]),
+                                    child:
+                                        CallListWidget(callEvent: calls[index]),
                                   );
                                 }));
                       }

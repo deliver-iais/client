@@ -6,15 +6,21 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 
 class CallListWidget extends StatelessWidget {
   final CallInfo callEvent;
 
   CallListWidget({Key? key, required this.callEvent}) : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  late final DateTime time;
 
   @override
   Widget build(BuildContext context) {
+    time = DateTime.fromMillisecondsSinceEpoch(
+        callEvent.callEvent.endOfCallTime,
+        isUtc: false);
+    final String monthName = DateFormat('MMMM').format(time);
     return Container(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -45,14 +51,23 @@ class CallListWidget extends StatelessWidget {
                     }),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.call_made,
                       //Icons.call_received,
-                      color: Colors.green,
+                      color: callEvent.callEvent.callDuration == 0
+                          ? Colors.red
+                          : Colors.green,
                       size: 14,
                     ),
                     Text(
-                      callEvent.callEvent.endOfCallTime.toString(),
+                      " " +
+                          monthName +
+                          " " +
+                          time.day.toString() +
+                          " at " +
+                          time.hour.toString() +
+                          ":" +
+                          time.minute.toString(),
                       style: TextStyle(
                         color: ExtraTheme.of(context)
                             .colorScheme
