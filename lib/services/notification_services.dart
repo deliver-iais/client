@@ -31,6 +31,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:win_toast/win_toast.dart';
+import 'package:desktop_window/desktop_window.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
@@ -94,8 +95,6 @@ class NotificationServices {
   }
 
   void playSoundIn() async {}
-
-  void playIncomingMsg() async {}
 
   void playSoundOut() {
     _audioService.playSoundOut();
@@ -281,6 +280,7 @@ class LinuxNotifier implements Notifier {
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {
+        DesktopWindow.focus();
         _routingService.openRoom(room);
       }
       return;
