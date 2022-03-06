@@ -30,17 +30,16 @@ class _CallListState extends State<CallList> {
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
-            //TODO color style !!!
             title: Text(
               I18N.of(context)!.get("calls"),
-              style: TextStyle(color: ExtraTheme.of(context).colorScheme.primary),
+              style:
+                  TextStyle(color: ExtraTheme.of(context).colorScheme.primary),
             ),
             leading: _routingService.backButtonLeading(),
           ),
         ),
         body: FluidContainerWidget(
             child: Container(
-              //TODO backGround Color ???
                 margin: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -59,14 +58,16 @@ class _CallListState extends State<CallList> {
                                 },
                                 itemCount: snapshot.data!.cellEvents.length,
                                 itemBuilder: (BuildContext ctx, int index) {
+                                  print(snapshot.data!.cellEvents[index]);
                                   return GestureDetector(
                                     onTap: () {
                                       _routingService.openRoom(snapshot
-                                          .data!.cellEvents[index].callEvent.member
+                                          .data!.cellEvents[index].to
                                           .asString());
                                     },
                                     child: CallListWidget(
-                                        callEvent: snapshot.data!.cellEvents[index].callEvent),
+                                        callEvent:
+                                            snapshot.data!.cellEvents[index]),
                                   );
                                 }));
                       }

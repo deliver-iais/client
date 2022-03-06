@@ -1110,10 +1110,10 @@ class CallRepo {
   ) async {
     return await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
       ..roomUid = roomUid
-      ..limit = 2
+      ..limit = 100
       ..fetchingDirectionType =
           FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
-      ..month = month
+      ..month = month - 1
       ..year = year);
   }
 }
