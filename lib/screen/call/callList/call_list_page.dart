@@ -2,6 +2,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -23,7 +24,15 @@ class _CallListPageState extends State<CallListPage> {
   I18N i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final callRepo = GetIt.I.get<CallRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
+
+  @override
+  void initState() {
+    callRepo.fetchUserCallList(
+        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
