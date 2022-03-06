@@ -472,6 +472,7 @@ class MessageRepo {
       ..newStatus = newStatus
       ..id = callId
       ..callDuration = Int64(callDuration)
+      ..endOfCallTime = Int64(endOfCallDuration)
       ..callType = callType )
         .writeToJson();
 
