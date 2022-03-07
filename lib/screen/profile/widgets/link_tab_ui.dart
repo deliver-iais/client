@@ -48,25 +48,28 @@ class _LinkTabUiState extends State<LinkTabUi> {
         stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
         builder: (context, snapshot) {
           _mediaCache.clear();
-          return ListView.separated (itemCount: widget.linksCount,separatorBuilder: (c, i) {
-            return const Divider();
-          }, itemBuilder: (c, index) {
-            return FutureBuilder<Media?>(
-                future: _getMedia(index),
-                builder: (c, mediaSnapShot) {
-                  if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-                    return SizedBox(
-                      child: LinkPreview(
-                        link: jsonDecode(mediaSnapShot.data!.json)["url"],
-                        maxWidth: 100,
-                        isProfile: true,
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                });
-          });
+          return ListView.separated(
+              itemCount: widget.linksCount,
+              separatorBuilder: (c, i) {
+                return const Divider();
+              },
+              itemBuilder: (c, index) {
+                return FutureBuilder<Media?>(
+                    future: _getMedia(index),
+                    builder: (c, mediaSnapShot) {
+                      if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
+                        return SizedBox(
+                          child: LinkPreview(
+                            link: jsonDecode(mediaSnapShot.data!.json)["url"],
+                            maxWidth: 100,
+                            isProfile: true,
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    });
+              });
         });
   }
 }
