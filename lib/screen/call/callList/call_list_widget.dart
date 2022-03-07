@@ -6,6 +6,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -18,22 +19,19 @@ class CallListWidget extends StatelessWidget {
   final _authRepo = GetIt.I.get<AuthRepo>();
   late final DateTime time;
   late final bool isIncomingCall;
+  late final Uid caller;
+  late final String monthName;
 
   @override
   Widget build(BuildContext context) {
-    time = DateTime.fromMillisecondsSinceEpoch(
-        callEvent.callEvent.endOfCallTime,
-        isUtc: false);
-    final String monthName = DateFormat('MMMM').format(time);
-    isIncomingCall = callEvent.callEvent.newStatus == CallStatus.DECLINED
-        ? _authRepo.isCurrentUser(callEvent.to)
-        : _authRepo.isCurrentUser(callEvent.from);
+    init();
+
     return Container(
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          CircleAvatarWidget(callEvent.to.asUid(), 23,
+          CircleAvatarWidget(caller, 23,
               isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
           const SizedBox(
             width: 15,
@@ -43,7 +41,7 @@ class CallListWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FutureBuilder<String>(
-                    future: _roomRepo.getName(callEvent.to.asUid()),
+                    future: _roomRepo.getName(caller),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         return Text(
@@ -101,5 +99,18 @@ class CallListWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void init() {
+    time = DateTime.fromMillisecondsSinceEpoch(
+        callEvent.callEvent.endOfCallTime,
+        isUtc: false);
+    monthName = DateFormat('MMMM').format(time);
+    isIncomingCall = callEvent.callEvent.newStatus == CallStatus.DECLINED
+        ? _authRepo.isCurrentUser(callEvent.to)
+        : _authRepo.isCurrentUser(callEvent.from);
+    caller = _authRepo.isCurrentUser(callEvent.to)
+        ? callEvent.from.asUid()
+        : callEvent.to.asUid();
   }
 }
