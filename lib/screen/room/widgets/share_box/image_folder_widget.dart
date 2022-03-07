@@ -19,6 +19,7 @@ class ImageFolderWidget extends StatefulWidget {
   final bool selectAvatar;
   final Function? setAvatar;
   final int replyMessageId;
+  final Function? resetRoomPageDetails;
 
   const ImageFolderWidget(
     this.storageFile,
@@ -28,6 +29,7 @@ class ImageFolderWidget extends StatefulWidget {
     this.selectAvatar = false,
     this.setAvatar,
     this.replyMessageId = 0,
+    this.resetRoomPageDetails,
   }) : super(key: key);
 
   @override
@@ -160,6 +162,9 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     _messageRepo.sendMultipleFilesMessages(widget.roomUid,
         _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
         replyToId: widget.replyMessageId, caption: _textEditingController.text);
+    if (widget.resetRoomPageDetails != null) {
+      widget.resetRoomPageDetails!();
+    }
   }
 
   void onTap(String imagePath) {

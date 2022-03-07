@@ -161,6 +161,8 @@ class _ShareBoxState extends State<ShareBox> {
                                             Navigator.pop(context);
                                           },
                                           roomUid: widget.currentRoomId,
+                                          resetRoomPageDetails:
+                                              widget.resetRoomPageDetails,
                                         )
                                       : currentPage == Page.location
                                           ? showLocation(

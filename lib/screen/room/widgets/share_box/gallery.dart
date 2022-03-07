@@ -21,6 +21,7 @@ class ShareBoxGallery extends StatefulWidget {
   final Uid roomUid;
   final Function pop;
   final int replyMessageId;
+  final Function? resetRoomPageDetails;
 
   const ShareBoxGallery(
       {Key? key,
@@ -29,7 +30,7 @@ class ShareBoxGallery extends StatefulWidget {
       this.setAvatar,
       required this.pop,
       required this.roomUid,
-      this.replyMessageId = 0})
+      this.replyMessageId = 0, this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -149,6 +150,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,
                                 replyMessageId: widget.replyMessageId,
+                                resetRoomPageDetails:
+                                    widget.resetRoomPageDetails,
                               );
                             }));
                           },
