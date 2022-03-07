@@ -151,7 +151,11 @@ class _ShareBoxState extends State<ShareBox> {
                                               : finalSelected.remove(index);
                                         });
                                       },
-                                      selectedFiles: selectedFiles)
+                                      selectedFiles: selectedFiles,
+                                      resetRoomPageDetails:
+                                          widget.resetRoomPageDetails,
+                                      replyMessageId: widget.replyMessageId,
+                                    )
                                   : currentPage == Page.gallery
                                       ? ShareBoxGallery(
                                           replyMessageId: widget.replyMessageId,
@@ -503,6 +507,8 @@ showCaptionDialog(
     {String? type,
     List<model.File>? files,
     required Uid roomUid,
+    Function? resetRoomPageDetails,
+    int replyMessageId = 0,
     Message? editableMessage,
     required BuildContext context,
     bool showSelectedImage = false}) async {
@@ -511,6 +517,8 @@ showCaptionDialog(
       context: context,
       builder: (context) {
         return ShowCaptionDialog(
+          resetRoomPageDetails: resetRoomPageDetails,
+          replyMessageId: replyMessageId,
           type: type,
           showSelectedImage: showSelectedImage,
           editableMessage: editableMessage,

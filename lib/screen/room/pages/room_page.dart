@@ -159,6 +159,8 @@ class _RoomPageState extends State<RoomPage> {
       child: DragDropWidget(
         roomUid: widget.roomId,
         height: MediaQuery.of(context).size.height,
+        replyMessageId: _repliedMessage.value?.id ?? 0,
+        resetRoomPageDetails: _resetRoomPageDetails,
         child: Scaffold(
           appBar: buildAppbar(),
           body: buildBody(),
@@ -960,6 +962,7 @@ class _RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       onDelete: onDelete,
       changeReplyMessageId: _changeReplyMessageId,
+      resetRoomPageDetails: _resetRoomPageDetails,
     );
 
     if (index == 0) {
@@ -990,7 +993,6 @@ class _RoomPageState extends State<RoomPage> {
       _replyMessageId = id;
     });
   }
-
 
   _scrollToMessage({required int id}) {
     _itemScrollController.scrollTo(
