@@ -154,6 +154,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       selectedFiles: selectedFiles)
                                   : currentPage == Page.gallery
                                       ? ShareBoxGallery(
+                                          replyMessageId: widget.replyMessageId,
                                           scrollController: scrollController,
                                           selectAvatar: false,
                                           pop: () {

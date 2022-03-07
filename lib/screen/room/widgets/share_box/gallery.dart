@@ -20,6 +20,7 @@ class ShareBoxGallery extends StatefulWidget {
   final bool selectAvatar;
   final Uid roomUid;
   final Function pop;
+  final int replyMessageId;
 
   const ShareBoxGallery(
       {Key? key,
@@ -27,7 +28,8 @@ class ShareBoxGallery extends StatefulWidget {
       required this.scrollController,
       this.setAvatar,
       required this.pop,
-      required this.roomUid})
+      required this.roomUid,
+      this.replyMessageId = 0})
       : super(key: key);
 
   @override
@@ -146,6 +148,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 },
                                 selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,
+                                replyMessageId: widget.replyMessageId,
                               );
                             }));
                           },
@@ -174,7 +177,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       widthFactor: 200,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).hoverColor.withOpacity(0.5),
+                                          color: Theme.of(context)
+                                              .hoverColor
+                                              .withOpacity(0.5),
                                           borderRadius: mainBorder,
                                         ),
                                         child: Text(
