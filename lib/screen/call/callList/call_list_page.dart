@@ -2,15 +2,19 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 
 class CallListPage extends StatefulWidget {
   const CallListPage({Key? key}) : super(key: key);
@@ -24,6 +28,7 @@ class _CallListPageState extends State<CallListPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final callRepo = GetIt.I.get<CallRepo>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -60,12 +65,40 @@ class _CallListPageState extends State<CallListPage> {
                                 },
                                 itemCount: calls.length,
                                 itemBuilder: (BuildContext ctx, int index) {
-                                  return GestureDetector(
+                                  final DateTime time;
+                                  final bool isIncomingCall;
+                                  final Uid caller;
+                                  final String monthName;
+                                  time = DateTime.fromMillisecondsSinceEpoch(
+                                      calls[index].callEvent.endOfCallTime,
+                                      isUtc: false);
+                                  monthName = DateFormat('MMMM').format(time);
+                                  isIncomingCall = calls[index]
+                                              .callEvent
+                                              .newStatus ==
+                                          CallStatus.DECLINED
+                                      ? _authRepo.isCurrentUser(calls[index].to)
+                                      : _authRepo
+                                          .isCurrentUser(calls[index].from);
+                                  caller =
+                                      _authRepo.isCurrentUser(calls[index].to)
+                                          ? calls[index].from.asUid()
+                                          : calls[index].to.asUid();
+                                  return InkWell(
                                     onTap: () {
-                                      _routingService.openRoom(calls[index].to);
+                                      _routingService.openCallDetails(
+                                          callEvent: calls[index],
+                                          time: time,
+                                          caller: caller,
+                                          isIncomingCall: isIncomingCall,
+                                          monthName: monthName);
                                     },
-                                    child:
-                                        CallListWidget(callEvent: calls[index]),
+                                    child: CallListWidget(
+                                        callEvent: calls[index],
+                                        time: time,
+                                        caller: caller,
+                                        isIncomingCall: isIncomingCall,
+                                        monthName: monthName),
                                   );
                                 }));
                       } else if (snapshot.connectionState ==

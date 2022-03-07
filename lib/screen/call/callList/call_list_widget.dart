@@ -1,31 +1,31 @@
 import 'package:deliver/box/call_info.dart';
-import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 
 class CallListWidget extends StatelessWidget {
   final CallInfo callEvent;
+  final DateTime time;
+  final bool isIncomingCall;
+  final Uid caller;
+  final String monthName;
 
-  CallListWidget({Key? key, required this.callEvent}) : super(key: key);
+  CallListWidget(
+      {Key? key,
+      required this.time,
+      required this.isIncomingCall,
+      required this.caller,
+      required this.monthName,
+      required this.callEvent})
+      : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  late final DateTime time;
-  late final bool isIncomingCall;
-  late final Uid caller;
-  late final String monthName;
 
   @override
   Widget build(BuildContext context) {
-    init();
-
     return Container(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -99,18 +99,5 @@ class CallListWidget extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void init() {
-    time = DateTime.fromMillisecondsSinceEpoch(
-        callEvent.callEvent.endOfCallTime,
-        isUtc: false);
-    monthName = DateFormat('MMMM').format(time);
-    isIncomingCall = callEvent.callEvent.newStatus == CallStatus.DECLINED
-        ? _authRepo.isCurrentUser(callEvent.to)
-        : _authRepo.isCurrentUser(callEvent.from);
-    caller = _authRepo.isCurrentUser(callEvent.to)
-        ? callEvent.from.asUid()
-        : callEvent.to.asUid();
   }
 }
