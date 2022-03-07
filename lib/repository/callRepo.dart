@@ -177,6 +177,8 @@ class CallRepo {
           break;
       }
     });
+    fetchUserCallList(
+        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
   }
 
   /*
@@ -808,7 +810,7 @@ class CallRepo {
     _offerSdp = await _createOffer();
   }
 
-  void declineCall() {
+  Future<void> declineCall() async {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
@@ -819,7 +821,7 @@ class CallRepo {
         0,
         endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-    _dispose();
+    await _dispose();
   }
 
   void _receivedCallAnswer(CallAnswer callAnswer) async {
@@ -853,18 +855,18 @@ class CallRepo {
 
   void receivedBusyCall() {
     callingStatus.add(CallStatus.BUSY);
-    Timer(const Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 4), () async {
       callingStatus.add(CallStatus.ENDED);
-      _dispose();
+      await _dispose();
     });
   }
 
   void receivedDeclinedCall() async {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
-    Timer(const Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 4), () async {
       callingStatus.add(CallStatus.ENDED);
-      _dispose();
+      await _dispose();
     });
   }
 
@@ -1005,8 +1007,6 @@ class CallRepo {
 
   //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   _dispose() async {
-    await fetchUserCallList(
-        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
     if (isAndroid()) {
       _receivePort?.close();
       await _stopForegroundTask();
@@ -1032,7 +1032,9 @@ class CallRepo {
     }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 2), () async {
+      await fetchUserCallList(
+          _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
       callingStatus.add(CallStatus.NO_CALL);
     });
     switching.add(false);
@@ -1125,37 +1127,38 @@ class CallRepo {
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
-  Future<FetchUserCallsRes?> fetchUserCallList(
+  Future<void> fetchUserCallList(
     Uid roomUid,
     int month,
     int year,
   ) async {
     try {
-      FetchUserCallsRes callLists =
-          await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
+      await _queryServiceClient
+          .fetchUserCalls(FetchUserCallsReq()
             ..roomUid = roomUid
-            ..limit = 200
+            ..limit = 100
             ..pointer = Int64(DateTime.now().millisecondsSinceEpoch)
             ..fetchingDirectionType =
                 FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
             ..month = month - 1
-            ..year = year);
-      for (var call in callLists.cellEvents) {
-        call_event.CallEvent callEvent = call_event.CallEvent(
-            callDuration: call.callEvent.callDuration.toInt(),
-            endOfCallTime: call.callEvent.endOfCallTime.toInt(),
-            callType: findCallEventType(call.callEvent.callType),
-            newStatus: findCallEventStatus(call.callEvent.newStatus),
-            id: call.callEvent.id);
-        call_info.CallInfo callList = call_info.CallInfo(
-            callEvent: callEvent,
-            from: call.from.asString(),
-            to: call.to.asString());
-        await _callListDao.save(callList);
-      }
-      return callLists;
-    } catch (_) {
-      return null;
+            ..year = year)
+          .then((callLists) async {
+        for (var call in callLists.cellEvents) {
+          call_event.CallEvent callEvent = call_event.CallEvent(
+              callDuration: call.callEvent.callDuration.toInt(),
+              endOfCallTime: call.callEvent.endOfCallTime.toInt(),
+              callType: findCallEventType(call.callEvent.callType),
+              newStatus: findCallEventStatus(call.callEvent.newStatus),
+              id: call.callEvent.id);
+          call_info.CallInfo callList = call_info.CallInfo(
+              callEvent: callEvent,
+              from: call.from.asString(),
+              to: call.to.asString());
+          await _callListDao.save(callList);
+        }
+      });
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
