@@ -1,5 +1,7 @@
 import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -13,7 +15,9 @@ class CallListWidget extends StatelessWidget {
 
   CallListWidget({Key? key, required this.callEvent}) : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   late final DateTime time;
+  late final bool isIncomingCall;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +25,9 @@ class CallListWidget extends StatelessWidget {
         callEvent.callEvent.endOfCallTime,
         isUtc: false);
     final String monthName = DateFormat('MMMM').format(time);
+    isIncomingCall = callEvent.callEvent.newStatus == CallStatus.DECLINED
+        ? _authRepo.isCurrentUser(callEvent.to)
+        : _authRepo.isCurrentUser(callEvent.from);
     return Container(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -52,8 +59,7 @@ class CallListWidget extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.call_made,
-                      //Icons.call_received,
+                      isIncomingCall ? Icons.call_made : Icons.call_received,
                       color: callEvent.callEvent.callDuration == 0
                           ? Colors.red
                           : Colors.green,
