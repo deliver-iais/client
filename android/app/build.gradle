@@ -34,8 +34,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     compileSdkVersion 31
     compileOptions {
-        sourceCompatibility 11
-        targetCompatibility 11
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
 
     sourceSets {
