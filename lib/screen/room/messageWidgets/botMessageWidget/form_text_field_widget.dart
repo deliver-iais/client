@@ -30,7 +30,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Form(
           key: _formKey,
           child: widget.formField.whichType() ==
