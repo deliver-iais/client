@@ -99,68 +99,90 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Stack(
+  Widget buildWidget() {
+    return Row(
       children: [
-        SizedBox(
-          width: widget.maxWidth,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (form.title.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6.0),
-                  child: Center(
-                    child: Text(
-                      form.title.titleCase,
-                      style: theme.textTheme.subtitle1?.copyWith(
-                          color: widget.colorScheme.onPrimaryContainer),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
+          onPressed: () async {
+            showDialog(
+                context: context,
+                builder: (c) {
+                  return AlertDialog(
+                    title: Center(
+                      child: Text(
+                        widget.message.json.toForm().title.titleCase,
+                        style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                            color: widget.colorScheme.onPrimaryContainer),
+                      ),
                     ),
-                  ),
-                ),
-              if (form.title.isNotEmpty) const Divider(),
-              if (form.title.isNotEmpty) const SizedBox(height: 8),
-              ..._widgets,
-              const SizedBox(
-                height: 3,
-              ),
-              if (widget.message.roomUid.isBot())
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        primary: widget.colorScheme.primary),
-                    onPressed: () {
-                      var validate = true;
-
-                      for (var field in formFieldsKey.values) {
-                        if (field.currentState == null ||
-                            !field.currentState!.validate()) {
-                          validate = false;
-                          break;
-                        }
-                      }
-                      if (validate) {
-                        _messageRepo.sendFormResultMessage(widget.message.from,
-                            formResultMap, widget.message.id!);
-                      }
-                    },
-                    child: Text(
-                      _i18n.get("submit"),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 8),
-            ],
-          ),
+                    content: buildDialog(),
+                    actions: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: widget.colorScheme.primary),
+                        onPressed: () {
+                          Navigator.pop(c);
+                        },
+                        child: Text(
+                          _i18n.get("close"),
+                        ),
+                      ),
+                      if (widget.message.roomUid.isBot())
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: widget.colorScheme.primary),
+                          onPressed: () {
+                            var validate = true;
+                            for (var field in formFieldsKey.values) {
+                              if (field.currentState == null ||
+                                  !field.currentState!.validate()) {
+                                validate = false;
+                                break;
+                              }
+                            }
+                            if (validate) {
+                              _messageRepo.sendFormResultMessage(
+                                  widget.message.from,
+                                  formResultMap,
+                                  widget.message.id!);
+                              Navigator.pop(c);
+                            }
+                          },
+                          child: Text(
+                            _i18n.get("submit"),
+                          ),
+                        ),
+                    ],
+                  );
+                });
+          },
+          child: Text("view form"),
         ),
         TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
             backgroundColor: widget.colorScheme.primaryContainer,
             foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return buildWidget();
+  }
+
+  Widget buildDialog() {
+    return SizedBox(
+        width: 400,
+        child: Expanded(
+            child: ListView.builder(
+                itemCount: 20,
+                addAutomaticKeepAlives: true,
+                itemBuilder: (c, i) {
+                  return TextField(
+                    key: Key("$i"),
+                  );
+                })));
   }
 
   void setResult(int index, value) {

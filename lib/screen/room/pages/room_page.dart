@@ -233,7 +233,7 @@ class _RoomPageState extends State<RoomPage> {
                     pendingMessages.length -
                     room.firstMessageId;
                 _itemCountSubject.add(_itemCount);
-                if(_itemCount<50) _defaultMessageHeight = 50;
+                if (_itemCount < 50) _defaultMessageHeight = 50;
 
                 return buildMessagesListView();
               }),
@@ -297,10 +297,13 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      _scrollEvent.add(true);
-
       var position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
+        if (_itemCount - position.first.index > 20) {
+          _scrollEvent.add(true);
+        } else {
+          _scrollEvent.add(false);
+        }
         ItemPosition firstItem = position
             .where((ItemPosition position) => position.itemLeadingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
@@ -319,10 +322,8 @@ class _RoomPageState extends State<RoomPage> {
     });
 
     MergeStream([
-      _scrollEvent.map((event) => true),
-      _scrollEvent
-          .debounceTime(const Duration(milliseconds: 1000))
-          .map((event) => false)
+      _scrollEvent.stream,
+      _scrollEvent.debounceTime(const Duration(milliseconds: 1000))
     ]).listen((event) => _isScrolling.add(event));
 
     // If new message arrived, scroll to the end of page if we are close to end of the page

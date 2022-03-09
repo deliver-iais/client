@@ -18,6 +18,8 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_accept_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_request_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
+import 'package:deliver/shared/extensions/cap_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -27,6 +29,7 @@ import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 

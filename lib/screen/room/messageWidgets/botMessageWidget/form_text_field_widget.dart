@@ -26,11 +26,13 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
 
   final _formKey = GlobalKey<FormState>();
 
+  TextEditingController editingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
       child: Form(
           key: _formKey,
           child: widget.formField.whichType() ==
@@ -58,6 +60,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
       {int? maxLength}) {
     return TextFormField(
       minLines: 1,
+      controller: editingController,
       maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
       inputFormatters: [
         if (keyboardType == TextInputType.number)
