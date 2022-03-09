@@ -1,9 +1,12 @@
 import 'dart:io';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/crop_image.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +34,8 @@ class ImageFolderWidget extends StatefulWidget {
   @override
   State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
 }
+
+final _cropperKey = GlobalKey();
 
 class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   final List<String> _selectedImage = [];
@@ -189,19 +194,24 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       ),
                     IconButton(
                       onPressed: () async {
-                        var res = await cropImage(imagePath);
-                        if (res != null) {
-                          if (_selectedImage.contains(imagePath)) {
-                            _selectedImage.remove(imagePath);
-                            _selectedImage.add(res);
-                          }
-                          set(() {
-                            imagePath = res;
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
+                          return CropImage(imagePath, (croppedPass) {
+                            if (croppedPass != null) {
+                              if (_selectedImage.contains(imagePath)) {
+                                _selectedImage.remove(imagePath);
+                                _selectedImage.add(croppedPass);
+                              }
+                              set(() {
+                                imagePath = croppedPass;
+                              });
+                              setState(() {
+                                widget.storageFile.files[index] = croppedPass;
+                              });
+                            }
                           });
-                          setState(() {
-                            widget.storageFile.files[index] = res;
-                          });
-                        }
+                        }));
+
+
                       },
                       icon: const Icon(
                         Icons.crop,
@@ -260,27 +270,34 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
 }
 
 Future<String?> cropImage(String imagePath) async {
-  File? croppedFile = await ImageCropper.cropImage(
-      sourcePath: imagePath,
-      aspectRatioPresets: Platform.isAndroid
-          ? [CropAspectRatioPreset.square]
-          : [
-              CropAspectRatioPreset.square,
-            ],
-      cropStyle: CropStyle.rectangle,
-      androidUiSettings: const AndroidUiSettings(
-          toolbarTitle: "image",
-          toolbarColor: Colors.blueAccent,
-          hideBottomControls: true,
-          showCropGrid: false,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false),
-      iosUiSettings: const IOSUiSettings(
-        title: "image",
-      ));
-  if (croppedFile != null) {
-    return croppedFile.path;
+  try {
+    // Define a key
+
+    //
+    // File? croppedFile = await ImageCropper().cropImage(
+    //     sourcePath: imagePath,
+    //     aspectRatioPresets: Platform.isAndroid
+    //         ? [CropAspectRatioPreset.square]
+    //         : [
+    //             CropAspectRatioPreset.square,
+    //           ],
+    //     cropStyle: CropStyle.rectangle,
+    //     androidUiSettings: const AndroidUiSettings(
+    //         toolbarTitle: "image",
+    //         toolbarColor: Colors.blueAccent,
+    //         hideBottomControls: true,
+    //         showCropGrid: false,
+    //         toolbarWidgetColor: Colors.white,
+    //         initAspectRatio: CropAspectRatioPreset.original,
+    //         lockAspectRatio: false),
+    //     iosUiSettings: const IOSUiSettings(
+    //       title: "image",
+    //     ));
+    // if (croppedFile != null) {
+    //   return croppedFile.path;
+    // }
+    return null;
+  } catch (e) {
+    return e.toString();
   }
-  return null;
 }
