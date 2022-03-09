@@ -174,7 +174,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   void cropAvatar(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
+    File? croppedFile = await ImageCropper().cropImage(
         sourcePath: imagePath,
         aspectRatioPresets: Platform.isAndroid
             ? [CropAspectRatioPreset.square]

@@ -56,7 +56,7 @@ dependencies:
       url: git://github.com/AmirhosseinShk/flutter-plugins.git
       path: packages/win_toast
       ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
-  msix: 3.1.0
+
   flare_flutter: 3.0.2 # Animation Viewer Library
   lottie: 1.2.1
   date_time_format: 2.0.1
@@ -110,7 +110,7 @@ dependencies:
 
   ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
-  image_cropper: 1.4.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
+  image_cropper: 1.5.0 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.4.0
   image_size_getter: 1.0.0
@@ -174,9 +174,11 @@ dependencies:
     git:
       url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git
       ref: master
-  flutter_foreground_task: ^3.5.5
+  flutter_foreground_task: 3.5.5
+  crop: 0.5.2
 
 dev_dependencies:
+  msix: 3.1.0
   build_runner: ^2.1.5
   test:
   mockito:

@@ -174,7 +174,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       widthFactor: 200,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).hoverColor.withOpacity(0.5),
+                                          color: Theme.of(context)
+                                              .hoverColor
+                                              .withOpacity(0.5),
                                           borderRadius: mainBorder,
                                         ),
                                         child: Text(
