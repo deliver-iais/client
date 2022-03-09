@@ -1,7 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/audio_message/audio_play_progress.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_form_field.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
@@ -9,7 +8,6 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/settings_ui/src/cupertino_settings_section.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -170,29 +168,28 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     );
                   });
             } else {
-              showGeneralDialog(
-                context: context,
-                barrierColor: Theme.of(context).primaryColor,
-                transitionDuration: const Duration(milliseconds: 40),
-                pageBuilder: (con, __, ___) {
-                  return Scaffold(
-                    appBar: AppBar(
-                      leading: IconButton(
-                        icon: const Icon(CupertinoIcons.clear),
-                        onPressed: () => Navigator.pop(con),
-                      ),
-                      centerTitle: true,
-                      title: Text(
-                        form.title,
-                        style:
-                            TextStyle(color: theme.primaryColor, fontSize: 18),
-                      ),
-                    ),
-                    body: buildCenter(),
-                    floatingActionButton: buildSubmit(_errorText, con),
-                  );
-                },
-              );
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (c) {
+                        return Scaffold(
+                          appBar: AppBar(
+                            leading: IconButton(
+                              icon: const Icon(CupertinoIcons.clear),
+                              onPressed: () => Navigator.pop(c),
+                            ),
+                            centerTitle: true,
+                            title: Text(
+                              form.title,
+                              style: TextStyle(
+                                  color: theme.primaryColor, fontSize: 18),
+                            ),
+                          ),
+                          body: buildCenter(),
+                          floatingActionButton: buildSubmit(_errorText, c),
+                        );
+                      },
+                      fullscreenDialog: true));
             }
           },
           child: Text(

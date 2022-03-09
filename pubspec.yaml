@@ -154,6 +154,7 @@ dependencies:
   universal_html: 2.0.8
   js: 0.6.3
   platform_detect: 2.0.0
+  avatar_glow: 2.0.2
 
   flutter_keyboard_visibility: 5.1.1
 
