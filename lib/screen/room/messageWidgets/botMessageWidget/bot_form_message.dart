@@ -1,17 +1,24 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/audio_message/audio_play_progress.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_form_field.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/settings_ui/src/cupertino_settings_section.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
   final Message message;
@@ -42,6 +49,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   late proto_pb.Form form;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     form = widget.message.json.toForm();
@@ -61,9 +70,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
               setResult(index, value);
             },
           ));
-          _widgets.add(const SizedBox(
-            height: 5,
-          ));
           break;
         case proto_pb.Form_Field_Type.checkbox:
           _widgets.add(CheckBoxFormField(
@@ -72,9 +78,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               setResult(index, value);
             },
           ));
-          _widgets.add(const SizedBox(
-            height: 5,
-          ));
+
           break;
         case proto_pb.Form_Field_Type.radioButtonList:
         case proto_pb.Form_Field_Type.list:
@@ -87,9 +91,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
               setResult(index, value);
             },
           ));
-          _widgets.add(const SizedBox(
-            height: 5,
-          ));
           break;
         case proto_pb.Form_Field_Type.notSet:
           _widgets.add(const SizedBox.shrink());
@@ -99,90 +100,151 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
-  Widget buildWidget() {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         ElevatedButton(
           style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
-          onPressed: () async {
-            showDialog(
-                context: context,
-                builder: (c) {
-                  return AlertDialog(
-                    title: Center(
-                      child: Text(
-                        widget.message.json.toForm().title.titleCase,
-                        style: Theme.of(context).textTheme.subtitle1?.copyWith(
-                            color: widget.colorScheme.onPrimaryContainer),
-                      ),
-                    ),
-                    content: buildDialog(),
-                    actions: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            primary: widget.colorScheme.primary),
-                        onPressed: () {
-                          Navigator.pop(c);
-                        },
-                        child: Text(
-                          _i18n.get("close"),
+          onPressed: () {
+            final BehaviorSubject<String> _errorText =
+                BehaviorSubject.seeded("");
+            if (isDesktop() || kIsWeb) {
+              showDialog(
+                  context: context,
+                  builder: (c) {
+                    return AlertDialog(
+                      title: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              form.title.titleCase,
+                              style: theme.textTheme.subtitle1?.copyWith(
+                                  color: widget.colorScheme.onPrimaryContainer),
+                            ),
+                            StreamBuilder<String>(
+                                stream: _errorText.stream,
+                                builder: (c, s) {
+                                  if (s.hasData && s.data != null) {
+                                    return Text(
+                                      s.data!,
+                                      style: const TextStyle(
+                                          color: Colors.red, fontSize: 13),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                })
+                          ],
                         ),
                       ),
-                      if (widget.message.roomUid.isBot())
+                      content: SingleChildScrollView(
+                        controller: _scrollController,
+                        child: Container(
+                          width: isLarge(c) ? 400 : 300,
+                          decoration: BoxDecoration(
+                              border: Border.all(width: 2, color: Colors.blue),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5))),
+                          child: Expanded(
+                            child: Column(
+                              children: _widgets,
+                            ),
+                          ),
+                        ),
+                      ),
+                      actions: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               primary: widget.colorScheme.primary),
                           onPressed: () {
-                            var validate = true;
-                            for (var field in formFieldsKey.values) {
-                              if (field.currentState == null ||
-                                  !field.currentState!.validate()) {
-                                validate = false;
-                                break;
-                              }
-                            }
-                            if (validate) {
-                              _messageRepo.sendFormResultMessage(
-                                  widget.message.from,
-                                  formResultMap,
-                                  widget.message.id!);
-                              Navigator.pop(c);
-                            }
+                            Navigator.pop(c);
                           },
                           child: Text(
-                            _i18n.get("submit"),
+                            _i18n.get("close"),
                           ),
                         ),
-                    ],
+                        buildSubmit(_errorText, c),
+                      ],
+                    );
+                  });
+            } else {
+              showGeneralDialog(
+                context: context,
+                barrierColor: Theme.of(context).primaryColor,
+                transitionDuration: const Duration(milliseconds: 40),
+                pageBuilder: (con, __, ___) {
+                  return Scaffold(
+                    appBar: AppBar(
+                      leading: IconButton(
+                        icon: const Icon(CupertinoIcons.clear),
+                        onPressed: () => Navigator.pop(con),
+                      ),
+                      centerTitle: true,
+                      title: Text(
+                        form.title,
+                        style:
+                            TextStyle(color: theme.primaryColor, fontSize: 18),
+                      ),
+                    ),
+                    body: buildCenter(),
+                    floatingActionButton: buildSubmit(_errorText, con),
                   );
-                });
+                },
+              );
+            }
           },
-          child: Text("view form"),
+          child: Text(
+            "${form.title}",
+          ),
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-            backgroundColor: widget.colorScheme.primaryContainer,
-            foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
       ],
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return buildWidget();
+  Center buildCenter() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Expanded(
+            child: Column(
+              children: _widgets,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget buildDialog() {
-    return SizedBox(
-        width: 400,
-        child: Expanded(
-            child: ListView.builder(
-                itemCount: 20,
-                addAutomaticKeepAlives: true,
-                itemBuilder: (c, i) {
-                  return TextField(
-                    key: Key("$i"),
-                  );
-                })));
+  ElevatedButton buildSubmit(
+      BehaviorSubject<String> _errorText, BuildContext c) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
+      onPressed: () {
+        var validate = true;
+        for (var field in formFieldsKey.values) {
+          if (field.currentState == null || !field.currentState!.validate()) {
+            _errorText.add(
+                form.fields[formFieldsKey.values.toList().indexOf(field)].id +
+                    "  " +
+                    _i18n.get("not_empty"));
+            validate = false;
+            break;
+          }
+        }
+        if (validate) {
+          _messageRepo.sendFormResultMessage(
+              widget.message.from, formResultMap, widget.message.id!);
+          Navigator.pop(c);
+        }
+      },
+      child: Text(
+        _i18n.get("submit"),
+      ),
+    );
   }
 
   void setResult(int index, value) {

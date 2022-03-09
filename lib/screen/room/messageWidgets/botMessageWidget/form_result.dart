@@ -40,7 +40,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 6, left: 4, right: 4),
+              padding: const EdgeInsets.only(top: 5, left: 4, right: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
