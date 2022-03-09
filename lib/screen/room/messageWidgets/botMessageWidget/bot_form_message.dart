@@ -153,7 +153,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             }
           },
           child: Text(
-            "${form.title}",
+            form.title,
           ),
         ),
       ],
@@ -185,13 +185,15 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Widget buildCenter() {
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Expanded(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: _widgets,
+    return Center(
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: _widgets,
+            ),
           ),
         ),
       ),
