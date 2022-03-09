@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:crop/crop.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +20,11 @@ class _CropImageState extends State<CropImage> {
   double _rotation = 0;
   BoxShape shape = BoxShape.rectangle;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
@@ -33,7 +39,12 @@ class _CropImageState extends State<CropImage> {
               Builder(
                 builder: (context) => IconButton(
                   icon: const Icon(Icons.save),
-                  onPressed: () async {},
+                  onPressed: () async {
+                    var byteData =
+                        await cropped.toByteData(format: ImageByteFormat.png);
+                    var buffer = byteData!.buffer.asUint8List();
+                    print(buffer.length.toString());
+                  },
                 ),
               ),
             ],
@@ -54,14 +65,6 @@ class _CropImageState extends State<CropImage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crop Demo'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.link),
-          onPressed: () {
-            //  launch('https://github.com/xclud/flutter_crop');
-          },
-        ),
         actions: <Widget>[
           IconButton(
             onPressed: _cropImage,
@@ -83,9 +86,6 @@ class _CropImageState extends State<CropImage> {
                       _rotation = ((decomposition.rotation + 180) % 360) - 180;
                     });
                   }
-
-                  // print(
-                  //     "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
                 },
                 controller: controller,
                 shape: shape,
@@ -93,19 +93,8 @@ class _CropImageState extends State<CropImage> {
                   File(widget.imagePath),
                   fit: BoxFit.cover,
                 ),
-                /* It's very important to set `fit: BoxFit.cover`.
-                   Do NOT remove this line.
-                   There are a lot of issues on github repo by people who remove this line and their image is not shown correctly.
-                */
-                foreground: IgnorePointer(
-                  child: Container(
-                    alignment: Alignment.bottomRight,
-                    child: const Text(
-                      'Foreground Object',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ),
+
+
                 helper: shape == BoxShape.rectangle
                     ? Container(
                         decoration: BoxDecoration(

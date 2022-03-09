@@ -196,22 +196,22 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
                           return CropImage(imagePath, (croppedPass) {
-                            print(croppedPass.toString());
+                            if (croppedPass != null) {
+                              if (_selectedImage.contains(imagePath)) {
+                                _selectedImage.remove(imagePath);
+                                _selectedImage.add(croppedPass);
+                              }
+                              set(() {
+                                imagePath = croppedPass;
+                              });
+                              setState(() {
+                                widget.storageFile.files[index] = croppedPass;
+                              });
+                            }
                           });
                         }));
-                        var res = await cropImage(imagePath);
-                        if (res != null) {
-                          if (_selectedImage.contains(imagePath)) {
-                            _selectedImage.remove(imagePath);
-                            _selectedImage.add(res);
-                          }
-                          set(() {
-                            imagePath = res;
-                          });
-                          setState(() {
-                            widget.storageFile.files[index] = res;
-                          });
-                        }
+
+
                       },
                       icon: const Icon(
                         Icons.crop,
