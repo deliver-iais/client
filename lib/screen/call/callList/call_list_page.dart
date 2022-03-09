@@ -9,6 +9,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
@@ -26,7 +27,6 @@ class CallListPage extends StatefulWidget {
 class _CallListPageState extends State<CallListPage> {
   I18N i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final callRepo = GetIt.I.get<CallRepo>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
@@ -57,6 +57,14 @@ class _CallListPageState extends State<CallListPage> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         var calls = snapshot.data!.reversed.toList();
+                        if (snapshot.data!.isEmpty) {
+                          return const TGS.asset(
+                            'assets/animations/not-found.tgs',
+                            width: 180,
+                            height: 150,
+                            repeat: true,
+                          );
+                        }
                         return Scrollbar(
                             child: ListView.separated(
                                 separatorBuilder:
