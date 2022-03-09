@@ -44,6 +44,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   final Map<String, String> formResultMap = {};
   final Map<String, GlobalKey<FormState>> formFieldsKey = {};
   final List<Widget> _widgets = [];
+  final BehaviorSubject<String> _errorText = BehaviorSubject.seeded("");
 
   late proto_pb.Form form;
 
@@ -106,52 +107,16 @@ class _BotFormMessageState extends State<BotFormMessage> {
         ElevatedButton(
           style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
           onPressed: () {
-            final BehaviorSubject<String> _errorText =
-                BehaviorSubject.seeded("");
+            _errorText.add("");
             if (isDesktop() || kIsWeb) {
               showDialog(
                   context: context,
                   builder: (c) {
                     return AlertDialog(
                       title: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              form.title.titleCase,
-                              style: theme.textTheme.subtitle1?.copyWith(
-                                  color: widget.colorScheme.onPrimaryContainer),
-                            ),
-                            StreamBuilder<String>(
-                                stream: _errorText.stream,
-                                builder: (c, s) {
-                                  if (s.hasData && s.data != null) {
-                                    return Text(
-                                      s.data!,
-                                      style: const TextStyle(
-                                          color: Colors.red, fontSize: 13),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                })
-                          ],
-                        ),
+                        child: buildTitle(theme, _errorText),
                       ),
-                      content: SingleChildScrollView(
-                        controller: _scrollController,
-                        child: Container(
-                          width: isLarge(c) ? 400 : 300,
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 2, color: Colors.blue),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Expanded(
-                            child: Column(
-                              children: _widgets,
-                            ),
-                          ),
-                        ),
-                      ),
+                      content: buildCenter(),
                       actions: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -174,17 +139,12 @@ class _BotFormMessageState extends State<BotFormMessage> {
                       builder: (c) {
                         return Scaffold(
                           appBar: AppBar(
-                            leading: IconButton(
-                              icon: const Icon(CupertinoIcons.clear),
-                              onPressed: () => Navigator.pop(c),
-                            ),
-                            centerTitle: true,
-                            title: Text(
-                              form.title,
-                              style: TextStyle(
-                                  color: theme.primaryColor, fontSize: 18),
-                            ),
-                          ),
+                              leading: IconButton(
+                                icon: const Icon(CupertinoIcons.clear),
+                                onPressed: () => Navigator.pop(c),
+                              ),
+                              centerTitle: true,
+                              title: buildTitle(theme, _errorText)),
                           body: buildCenter(),
                           floatingActionButton: buildSubmit(_errorText, c),
                         );
@@ -200,16 +160,38 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  Center buildCenter() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Expanded(
-            child: Column(
-              children: _widgets,
-            ),
+  Column buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          form.title.titleCase,
+          style: theme.textTheme.subtitle1
+              ?.copyWith(color: widget.colorScheme.onPrimaryContainer),
+        ),
+        StreamBuilder<String>(
+            stream: _errorText.stream,
+            builder: (c, s) {
+              if (s.hasData && s.data != null) {
+                return Text(
+                  s.data!,
+                  style: const TextStyle(color: Colors.red, fontSize: 13),
+                );
+              }
+              return const SizedBox.shrink();
+            })
+      ],
+    );
+  }
+
+  Widget buildCenter() {
+    return SingleChildScrollView(
+      controller: _scrollController,
+      child: Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: _widgets,
           ),
         ),
       ),

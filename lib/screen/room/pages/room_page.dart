@@ -816,7 +816,7 @@ class _RoomPageState extends State<RoomPage> {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) =>
-          _buildMessage(index + room.firstMessageId),
+          _buildMessage(index + room.firstMessageId-1),
       separatorBuilder: (context, index) {
         int firstIndex = index+room.firstMessageId;
 
