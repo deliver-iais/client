@@ -78,7 +78,7 @@ class AvatarRepo {
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
-    if (userUid == _authRepo.currentUserUid) {
+    if (_authRepo.isCurrentUserUid(userUid)) {
       _logger.v("current user avatar update needed");
       return true;
     }
