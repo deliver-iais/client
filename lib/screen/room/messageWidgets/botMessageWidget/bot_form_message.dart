@@ -102,62 +102,64 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
-          onPressed: () {
-            _errorText.add("");
-            if (isDesktop() || kIsWeb) {
-              showDialog(
-                  context: context,
-                  builder: (c) {
-                    return AlertDialog(
-                      title: Center(
-                        child: buildTitle(theme, _errorText),
-                      ),
-                      content: buildCenter(),
-                      actions: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              primary: widget.colorScheme.primary),
-                          onPressed: () {
-                            Navigator.pop(c);
-                          },
-                          child: Text(
-                            _i18n.get("close"),
-                          ),
+    return Row(children: [
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
+        onPressed: () {
+          _errorText.add("");
+          if (isDesktop() || kIsWeb) {
+            showDialog(
+                context: context,
+                builder: (c) {
+                  return AlertDialog(
+                    title: Center(
+                      child: buildTitle(theme, _errorText),
+                    ),
+                    content: buildContent(),
+                    actions: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: widget.colorScheme.primary),
+                        onPressed: () {
+                          Navigator.pop(c);
+                        },
+                        child: Text(
+                          _i18n.get("close"),
                         ),
-                        buildSubmit(_errorText, c),
-                      ],
-                    );
-                  });
-            } else {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (c) {
-                        return Scaffold(
-                          appBar: AppBar(
-                              leading: IconButton(
-                                icon: const Icon(CupertinoIcons.clear),
-                                onPressed: () => Navigator.pop(c),
-                              ),
-                              centerTitle: true,
-                              title: buildTitle(theme, _errorText)),
-                          body: buildCenter(),
-                          floatingActionButton: buildSubmit(_errorText, c),
-                        );
-                      },
-                      fullscreenDialog: true));
-            }
-          },
-          child: Text(
-            form.title,
-          ),
+                      ),
+                      buildSubmit(_errorText, c),
+                    ],
+                  );
+                });
+          } else {
+            FocusScope.of(context).unfocus();
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (c) {
+                      return Scaffold(
+                        appBar: AppBar(
+                            leading: IconButton(
+                              icon: const Icon(CupertinoIcons.clear),
+                              onPressed: () => Navigator.pop(c),
+                            ),
+                            centerTitle: true,
+                            title: buildTitle(theme, _errorText)),
+                        body: buildContent(),
+                        floatingActionButton: buildSubmit(_errorText, c),
+                      );
+                    },
+                    fullscreenDialog: true));
+          }
+        },
+        child: Text(
+          form.title,
         ),
-      ],
-    );
+      ),
+      TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+          backgroundColor: widget.colorScheme.primaryContainer,needsPositioned: false,
+          foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
+    ],);
   }
 
   Column buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
@@ -166,8 +168,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
       children: [
         Text(
           form.title.titleCase,
-          style: theme.textTheme.subtitle1
-              ?.copyWith(color: widget.colorScheme.onPrimaryContainer),
+          style: theme.textTheme.subtitle2
+              ?.copyWith(color: widget.colorScheme.primary,fontSize: 18),
         ),
         StreamBuilder<String>(
             stream: _errorText.stream,
@@ -184,16 +186,14 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  Widget buildCenter() {
+  Widget buildContent() {
     return Center(
       child: SingleChildScrollView(
         controller: _scrollController,
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: _widgets,
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: _widgets,
           ),
         ),
       ),

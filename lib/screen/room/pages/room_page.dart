@@ -816,7 +816,7 @@ class _RoomPageState extends State<RoomPage> {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) =>
-          _buildMessage(index + room.firstMessageId-1),
+          _buildMessage(index + room.firstMessageId),
       separatorBuilder: (context, index) {
         int firstIndex = index+room.firstMessageId;
 
@@ -905,9 +905,6 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
-    if (index < room.firstMessageId) {
-      return const SizedBox(height: 10);
-    }
     if (index == _itemCount) {
       return const SizedBox(height: 1);
     }

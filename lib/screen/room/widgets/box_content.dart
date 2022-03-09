@@ -18,8 +18,6 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_accept_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_request_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
-import 'package:deliver/shared/extensions/cap_extension.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
