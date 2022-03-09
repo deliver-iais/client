@@ -477,8 +477,7 @@ class MessageRepo {
         .writeToJson();
 
     Message msg =
-    _createMessage(room)
-        .copyWith(type: MessageType.CALL, json: json);
+        _createMessage(room).copyWith(type: MessageType.CALL, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -854,8 +853,8 @@ class MessageRepo {
                       Room(uid: message.from.asString(), deleted: false));
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                      .isSameEntity(_authRepo.currentUserUid.asString())) {
+                  if (_authRepo.isCurrentUserUid(message
+                      .persistEvent.mucSpecificPersistentEvent.assignee)) {
                     _roomDao.updateRoom(
                         Room(uid: message.from.asString(), deleted: true));
                     continue;
