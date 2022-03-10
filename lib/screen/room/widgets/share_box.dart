@@ -501,6 +501,7 @@ showCaptionDialog(
     List<model.File>? files,
     required Uid roomUid,
     Message? editableMessage,
+    String? caption,
     required BuildContext context,
     bool showSelectedImage = false}) async {
   if (files!.isEmpty && editableMessage == null) return;
@@ -509,6 +510,7 @@ showCaptionDialog(
       builder: (context) {
         return ShowCaptionDialog(
           type: type,
+          caption: caption,
           showSelectedImage: showSelectedImage,
           editableMessage: editableMessage,
           currentRoom: roomUid,

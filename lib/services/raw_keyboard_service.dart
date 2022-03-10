@@ -32,8 +32,10 @@ class RawKeyboardService {
       showCaptionDialog(
           context: context,
           files: fileList,
+          caption: controller.text,
           roomUid: roomUid,
           type: files.length == 1 ? name.split(".").last : "file");
+      controller.clear();
     } else {
       ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
       controller.text = controller.text + data!.text!;

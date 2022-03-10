@@ -23,6 +23,7 @@ class ShowCaptionDialog extends StatefulWidget {
   final Uid currentRoom;
   final Message? editableMessage;
   final bool showSelectedImage;
+  final String? caption;
 
   const ShowCaptionDialog(
       {Key? key,
@@ -30,7 +31,8 @@ class ShowCaptionDialog extends StatefulWidget {
       this.type,
       required this.currentRoom,
       this.showSelectedImage = false,
-      this.editableMessage})
+      this.editableMessage,
+      this.caption})
       : super(key: key);
 
   @override
@@ -65,6 +67,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
           _invalidFormatFileName = element.name;
           break;
         }
+      }
+      if (widget.caption != null && widget.caption!.isNotEmpty) {
+        _editingController.text = widget.caption!;
       }
     } else {
       _editableFile = widget.editableMessage!.json.toFile();
@@ -319,7 +324,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
-            caption: _editingController.text.toString());
+            caption: widget.caption ?? _editingController.text.toString());
   }
 
   Row buildRow(int index, {bool showManage = true}) {
