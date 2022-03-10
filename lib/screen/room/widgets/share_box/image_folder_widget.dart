@@ -1,18 +1,18 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:custom_image_crop/custom_image_crop.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/crop_image.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ImageFolderWidget extends StatefulWidget {
@@ -34,8 +34,6 @@ class ImageFolderWidget extends StatefulWidget {
   @override
   State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
 }
-
-final _cropperKey = GlobalKey();
 
 class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   final List<String> _selectedImage = [];
@@ -195,23 +193,14 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     IconButton(
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return CropImage(imagePath, (croppedPass) {
-                            if (croppedPass != null) {
-                              if (_selectedImage.contains(imagePath)) {
-                                _selectedImage.remove(imagePath);
-                                _selectedImage.add(croppedPass);
-                              }
+                          return CropImage(imagePath, (path) {
+                            if (path != null) {
                               set(() {
-                                imagePath = croppedPass;
-                              });
-                              setState(() {
-                                widget.storageFile.files[index] = croppedPass;
+                                imagePath = path;
                               });
                             }
                           });
                         }));
-
-
                       },
                       icon: const Icon(
                         Icons.crop,
@@ -266,38 +255,5 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             ));
       });
     }));
-  }
-}
-
-Future<String?> cropImage(String imagePath) async {
-  try {
-    // Define a key
-
-    //
-    // File? croppedFile = await ImageCropper().cropImage(
-    //     sourcePath: imagePath,
-    //     aspectRatioPresets: Platform.isAndroid
-    //         ? [CropAspectRatioPreset.square]
-    //         : [
-    //             CropAspectRatioPreset.square,
-    //           ],
-    //     cropStyle: CropStyle.rectangle,
-    //     androidUiSettings: const AndroidUiSettings(
-    //         toolbarTitle: "image",
-    //         toolbarColor: Colors.blueAccent,
-    //         hideBottomControls: true,
-    //         showCropGrid: false,
-    //         toolbarWidgetColor: Colors.white,
-    //         initAspectRatio: CropAspectRatioPreset.original,
-    //         lockAspectRatio: false),
-    //     iosUiSettings: const IOSUiSettings(
-    //       title: "image",
-    //     ));
-    // if (croppedFile != null) {
-    //   return croppedFile.path;
-    // }
-    return null;
-  } catch (e) {
-    return e.toString();
   }
 }

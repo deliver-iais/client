@@ -110,7 +110,6 @@ dependencies:
 
   ## (WEB NOT SUPPORTED BI-Directional Streaming)
   image_picker: 0.8.4+4 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
-  image_cropper: 1.5.0 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
   vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.4.0
   image_size_getter: 1.0.0
@@ -175,8 +174,7 @@ dependencies:
       url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git
       ref: master
   flutter_foreground_task: 3.5.5
-  crop: 0.5.2
-  image_cropping: 0.0.11
+  custom_image_crop: 0.0.4
 
 dev_dependencies:
   msix: 3.1.0
