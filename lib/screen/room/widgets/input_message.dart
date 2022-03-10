@@ -627,7 +627,8 @@ class _InputMessageWidget extends State<InputMessage> {
         return KeyEventResult.handled;
       }
     }
-    _rawKeyboardService.handleCopyPastKeyPress(widget.textController, event);
+    _rawKeyboardService.handleCopyPastKeyPress(
+        widget.textController, event, context, currentRoom.uid.asUid());
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
