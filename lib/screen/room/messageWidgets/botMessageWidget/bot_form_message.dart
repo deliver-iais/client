@@ -145,7 +145,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             ),
                             centerTitle: true,
                             title: buildTitle(theme, _errorText)),
-                        body: buildContent(),
+                        body: Center(child: buildContent()),
                         floatingActionButton: buildSubmit(_errorText, c),
                       );
                     },
@@ -187,14 +187,13 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Widget buildContent() {
-    return Center(
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: _widgets,
-          ),
+    return SingleChildScrollView(
+      controller: _scrollController,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _widgets,
         ),
       ),
     );

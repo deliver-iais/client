@@ -30,12 +30,17 @@ const TEST_USER_PHONE_NUMBER = "1234567890";
 
 const STUN_SERVER_URL = 'stun:217.218.7.16:3478';
 const STUN_SERVER_URL_2 = 'stun:stun.l.google.com:19302';
-const TURN_SERVER_URL = 'turn:217.218.7.16:3478?transport=udp'; //turn:47.102.201.4:19303?transport=udp //turn:217.218.7.16:3478?transport=udp
+const TURN_SERVER_URL =
+    'turn:217.218.7.16:3478?transport=udp'; //turn:47.102.201.4:19303?transport=udp //turn:217.218.7.16:3478?transport=udp
 const TURN_SERVER_USERNAME = 'deliver'; //1639512193:flutter-webrtc //deliver
-const TURN_SERVER_PASSWORD = 'Deliver@123'; //WyxSLuhpUNpFWrD44gmTGN0q93E //Deliver@123
-const TURN_SERVER_URL_2 = 'turn:47.102.201.4:19303?transport=udp'; //turn:47.102.201.4:19303?transport=udp //turn:217.218.7.16:3478?transport=udp
-const TURN_SERVER_USERNAME_2 = '1639512193:flutter-webrtc'; //1639512193:flutter-webrtc //deliver
-const TURN_SERVER_PASSWORD_2 = 'WyxSLuhpUNpFWrD44gmTGN0q93E'; //WyxSLuhpUNpFWrD44gmTGN0q93E //Deliver@123
+const TURN_SERVER_PASSWORD =
+    'Deliver@123'; //WyxSLuhpUNpFWrD44gmTGN0q93E //Deliver@123
+const TURN_SERVER_URL_2 =
+    'turn:47.102.201.4:19303?transport=udp'; //turn:47.102.201.4:19303?transport=udp //turn:217.218.7.16:3478?transport=udp
+const TURN_SERVER_USERNAME_2 =
+    '1639512193:flutter-webrtc'; //1639512193:flutter-webrtc //deliver
+const TURN_SERVER_PASSWORD_2 =
+    'WyxSLuhpUNpFWrD44gmTGN0q93E'; //WyxSLuhpUNpFWrD44gmTGN0q93E //Deliver@123
 const STATUS_CAMERA_OPEN = "camera-open";
 const STATUS_CAMERA_CLOSE = "camera-close";
 const STATUS_MIC_OPEN = "mic-open";
@@ -47,9 +52,12 @@ const STATUS_CONNECTION_CONNECTED = "connection-connected";
 const STATUS_CONNECTION_FAILED = "connection-failed";
 const STATUS_CONNECTION_DISCONNECTED = "connection-disconnected";
 const STATUS_CONNECTION_ENDED = "connection-ended";
-const WEBRTC_MAX_BITRATE = 256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
-const WEBRTC_MIN_BITRATE = 128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
-const WEBRTC_MAX_FRAME_RATE = 30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+const WEBRTC_MAX_BITRATE =
+    256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
+const WEBRTC_MIN_BITRATE =
+    128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+const WEBRTC_MAX_FRAME_RATE =
+    30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME = "SHARED_DAO_THEME";
