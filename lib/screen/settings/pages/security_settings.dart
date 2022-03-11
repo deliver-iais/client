@@ -85,7 +85,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       builder: (context, setState2) => AlertDialog(
         titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-        backgroundColor: Colors.white,
         content: TextField(
           onChanged: (p) => setState2(() => _currentPass = p),
           obscureText: true,
@@ -127,7 +126,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       builder: (context, setState2) => AlertDialog(
         titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-        backgroundColor: Colors.white,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

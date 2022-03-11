@@ -279,8 +279,6 @@ class _RoomPageState extends State<RoomPage> {
     initPendingMessages();
 
     // Log page data
-    _logger.wtf(_authRepo.currentUserUid);
-    _logger.wtf(widget.roomId);
     _getScrollPosition();
     if (!isDesktop()) {
       _fireBaseServices.sendFireBaseToken();
