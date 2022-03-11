@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -63,7 +64,7 @@ class _DevicesPageState extends State<DevicesPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
                             _i18n.get("this_device"),
-                            style:theme.primaryTextTheme.subtitle2,
+                            style: theme.primaryTextTheme.subtitle2,
                           ),
                         ),
                         sessionWidget(currentSession),
@@ -92,7 +93,7 @@ class _DevicesPageState extends State<DevicesPage> {
                         vertical: 16.0, horizontal: 24.0),
                     child: Center(
                       child: Text(_i18n.get("active_sessions"),
-                          style:theme.primaryTextTheme.subtitle1),
+                          style: theme.primaryTextTheme.subtitle1),
                     ),
                   ),
                 if (otherSessions.isNotEmpty)
@@ -148,14 +149,14 @@ class _DevicesPageState extends State<DevicesPage> {
                 maxLines: 1,
                 overflow: TextOverflow.fade,
                 softWrap: false,
-                style:theme.textTheme.subtitle2,
+                style: theme.textTheme.subtitle2,
               ),
               Text(
                 session.ip.isEmpty ? "No IP Provided" : session.ip,
-                style:theme.textTheme.caption,
+                style: theme.textTheme.caption,
               ),
               DefaultTextStyle(
-                style:theme.textTheme.caption!,
+                style: theme.textTheme.caption!,
                 child: Row(
                   children: [
                     const Text("Created On: "),
@@ -203,14 +204,27 @@ class _DevicesPageState extends State<DevicesPage> {
                     child: Text(_i18n.get("delete")),
                     style: TextButton.styleFrom(primary: Colors.red),
                     onPressed: () async {
+                      if (sessions.length > 1) {
+                        var res = await _accountRepo.revokeAllOtherSession();
+                        Navigator.pop(context);
+                        if (res) {
+                          setState(() {});
+                        }else{
+                          ToastDisplay.showToast(toastContext: context, toastText:_i18n.get("error_occurred"));
+                        }
+                      } else {
+                        var res = await _accountRepo
+                            .revokeSession(sessions.first.sessionId.toString());
+                        Navigator.pop(context);
+                        if (res) {
+                          setState(() {});
+                        }else{
+                          ToastDisplay.showToast(toastContext: context, toastText:_i18n.get("error_occurred"));
+                        }
+                      }
                       List<String> sessionIds = [];
                       for (var element in sessions) {
                         sessionIds.add(element.sessionId.toString());
-                      }
-                      var res = await _accountRepo.deleteSessions(sessionIds);
-                      Navigator.pop(context);
-                      if (res) {
-                        setState(() {});
                       }
                     },
                   ),

@@ -280,7 +280,7 @@ class RoutingService {
     final fireBaseServices = GetIt.I.get<FireBaseServices>();
     final dbManager = GetIt.I.get<DBManager>();
     if (authRepo.isLoggedIn()) {
-      accountRepo.deleteSessions([authRepo.currentUserUid.sessionId]);
+      await accountRepo.logOut();
       if (!isDesktop()) fireBaseServices.deleteToken();
       coreServices.closeConnection();
       await authRepo.deleteTokens();

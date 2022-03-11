@@ -252,7 +252,6 @@ Future setupFlutterNotification() async {
 }
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   Logger().i("Application has been started.");
@@ -283,7 +282,7 @@ void main() async {
   Logger().i("Dependency Injection setup done.");
 
   runApp(FeatureDiscovery.withProvider(
-      persistenceProvider: const NoPersistenceProvider(),child: MyApp()));
+      persistenceProvider: const NoPersistenceProvider(), child: MyApp()));
 }
 
 _setWindowSize() {
@@ -318,7 +317,7 @@ class MyApp extends StatelessWidget {
                     : KeyEventResult.ignored;
               },
               child: WithForegroundTask(
-                child: MaterialApp(
+                  child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'Deliver',
                 locale: _i18n.locale,
