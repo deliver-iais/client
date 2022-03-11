@@ -10,6 +10,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -96,6 +97,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
+  late TextSelectionControls selectionControls;
   bool isMentionSelected = false;
 
   bool startAudioRecorder = false;
@@ -205,6 +207,10 @@ class _InputMessageWidget extends State<InputMessage> {
         _mentionQuery.add("-");
       }
     });
+    selectionControls = CustomTextSelectionController(
+        buildContext: context,
+        controller: captionTextController,
+        roomUid: currentRoom.uid.asUid());
     super.initState();
   }
 
@@ -321,6 +327,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                       valueListenable: _textDir,
                                       builder: (context, value, child) =>
                                           TextField(
+                                        selectionControls: isDesktop()
+                                            ? selectionControls
+                                            : null,
                                         focusNode: widget.focusNode,
                                         autofocus: widget.replyMessageId > 0 ||
                                             isDesktop(),
