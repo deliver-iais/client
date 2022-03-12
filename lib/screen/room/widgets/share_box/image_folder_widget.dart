@@ -1,15 +1,16 @@
 import 'dart:io';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ImageFolderWidget extends StatefulWidget {
@@ -143,22 +144,26 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   ));
             },
           ),
-          buildInputCaption(
-              i18n: _i18n,
-              insertCaption: _insertCaption,
-              context: context,
-              captionEditingController: _textEditingController,
-              count: _selectedImage.length,
-              send: () {
-                widget.pop();
-                _send();
-              })
+          if (_selectedImage.isNotEmpty)
+            buildInputCaption(
+                i18n: _i18n,
+                insertCaption: _insertCaption,
+                context: context,
+                captionEditingController: _textEditingController,
+                count: _selectedImage.length,
+                send: () {
+                  widget.pop();
+                  _send();
+                })
         ],
       ),
     );
   }
 
   void _send() {
+    _messageRepo.sendMultipleFilesMessages(widget.roomUid,
+        _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
+        caption: _textEditingController.text);
     _messageRepo.sendMultipleFilesMessages(widget.roomUid,
         _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
         replyToId: widget.replyMessageId, caption: _textEditingController.text);
@@ -195,19 +200,15 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       ),
                     IconButton(
                       onPressed: () async {
-                        var res = await cropImage(imagePath);
-                        if (res != null) {
-                          if (_selectedImage.contains(imagePath)) {
-                            _selectedImage.remove(imagePath);
-                            _selectedImage.add(res);
-                          }
-                          set(() {
-                            imagePath = res;
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
+                          return CropImage(imagePath, (path) {
+                            if (path != null) {
+                              set(() {
+                                imagePath = path;
+                              });
+                            }
                           });
-                          setState(() {
-                            widget.storageFile.files[index] = res;
-                          });
-                        }
+                        }));
                       },
                       icon: const Icon(
                         Icons.crop,
@@ -245,46 +246,22 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     ),
                   ),
                 ),
-                buildInputCaption(
-                    i18n: _i18n,
-                    insertCaption: _insertCaption,
-                    context: context,
-                    captionEditingController: _textEditingController,
-                    count: _selectedImage.length,
-                    send: () {
-                      widget.pop();
-                      Navigator.pop(context);
-                      _send();
-                    })
+                if (_selectedImage.isNotEmpty &&
+                    _selectedImage.contains(imagePath))
+                  buildInputCaption(
+                      i18n: _i18n,
+                      insertCaption: _insertCaption,
+                      context: context,
+                      captionEditingController: _textEditingController,
+                      count: _selectedImage.length,
+                      send: () {
+                        widget.pop();
+                        Navigator.pop(context);
+                        _send();
+                      })
               ],
             ));
       });
     }));
   }
-}
-
-Future<String?> cropImage(String imagePath) async {
-  File? croppedFile = await ImageCropper.cropImage(
-      sourcePath: imagePath,
-      aspectRatioPresets: Platform.isAndroid
-          ? [CropAspectRatioPreset.square]
-          : [
-              CropAspectRatioPreset.square,
-            ],
-      cropStyle: CropStyle.rectangle,
-      androidUiSettings: const AndroidUiSettings(
-          toolbarTitle: "image",
-          toolbarColor: Colors.blueAccent,
-          hideBottomControls: true,
-          showCropGrid: false,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false),
-      iosUiSettings: const IOSUiSettings(
-        title: "image",
-      ));
-  if (croppedFile != null) {
-    return croppedFile.path;
-  }
-  return null;
 }

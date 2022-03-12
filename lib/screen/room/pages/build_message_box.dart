@@ -405,7 +405,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         onShare();
         break;
       case OperationOnMessage.SAVE_TO_GALLERY:
-        onSaveTOGallery();
+        onSaveTOGallery(context);
         break;
       case OperationOnMessage.SAVE_TO_DOWNLOADS:
         onSaveTODownloads();
@@ -525,19 +525,31 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  onSaveTOGallery() {
+  onSaveTOGallery(BuildContext context) {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
+    ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("photo_saved"),
+        isSaveToast: true);
   }
 
   onSaveTODownloads() {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
+    ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("file_saved"),
+        isSaveToast: true);
   }
 
   onSaveToMusic() {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
+    ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("music_saved"),
+        isSaveToast: true);
   }
 
   onDeleteMessage() {

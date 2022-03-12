@@ -55,67 +55,72 @@ public class StoragePathPlugin {
     }
 
     private void getAllImage(Result result) {
-        filesModelArrayList = new ArrayList<>();
-        boolean hasFolder = false;
-        int position = 0;
-        Uri uri;
-        Cursor cursor;
-        int column_index_data, column_index_folder_name;
+        try{
+            filesModelArrayList = new ArrayList<>();
+            boolean hasFolder = false;
+            int position = 0;
+            Uri uri;
+            Cursor cursor;
+            int column_index_data, column_index_folder_name;
 
-        String absolutePathOfImage;
-        uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            String absolutePathOfImage;
+            uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-        String[] projection = {
-                MediaStore.MediaColumns.DATA,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
+            String[] projection = {
+                    MediaStore.MediaColumns.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
 
-        final String orderBy = MediaStore.Images.Media.DATE_TAKEN;
-        cursor = activity.getContentResolver().query(uri, projection, null, null, orderBy + " DESC");
+            final String orderBy = MediaStore.Images.Media.DATE_TAKEN;
+            cursor = activity.getContentResolver().query(uri, projection, null, null, orderBy + " DESC");
 
-        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-        column_index_folder_name = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-        while (cursor.moveToNext()) {
-            absolutePathOfImage = cursor.getString(column_index_data);
+            column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+            column_index_folder_name = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+            while (cursor.moveToNext()) {
+                absolutePathOfImage = cursor.getString(column_index_data);
 
-            for (int i = 0; i < filesModelArrayList.size(); i++) {
-                if (filesModelArrayList.get(i) != null &&
-                        filesModelArrayList.get(i).getFolder() != null &&
-                        filesModelArrayList.get(i).getFolder().equals(cursor.getString(column_index_folder_name))) {
-                    hasFolder = true;
-                    position = i;
-                    break;
-                } else {
-                    hasFolder = false;
+                for (int i = 0; i < filesModelArrayList.size(); i++) {
+                    if (filesModelArrayList.get(i) != null &&
+                            filesModelArrayList.get(i).getFolder() != null &&
+                            filesModelArrayList.get(i).getFolder().equals(cursor.getString(column_index_folder_name))) {
+                        hasFolder = true;
+                        position = i;
+                        break;
+                    } else {
+                        hasFolder = false;
+                    }
                 }
+
+
+                if (hasFolder) {
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.addAll(filesModelArrayList.get(position).getFiles());
+                    arrayList.add(absolutePathOfImage);
+                    filesModelArrayList.get(position).setFiles(arrayList);
+
+                } else {
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.add(absolutePathOfImage);
+                    FileModel obj_model = new FileModel();
+                    obj_model.setFolder(cursor.getString(column_index_folder_name));
+                    obj_model.setFiles(arrayList);
+
+                    filesModelArrayList.add(obj_model);
+
+                }
+
             }
-
-
-            if (hasFolder) {
-                ArrayList<String> arrayList = new ArrayList<>();
-                arrayList.addAll(filesModelArrayList.get(position).getFiles());
-                arrayList.add(absolutePathOfImage);
-                filesModelArrayList.get(position).setFiles(arrayList);
-
-            } else {
-                ArrayList<String> arrayList = new ArrayList<>();
-                arrayList.add(absolutePathOfImage);
-                FileModel obj_model = new FileModel();
-                obj_model.setFolder(cursor.getString(column_index_folder_name));
-                obj_model.setFiles(arrayList);
-
-                filesModelArrayList.add(obj_model);
-
+            Gson gson = new GsonBuilder().create();
+//            Type listType = new TypeToken() {
+//            }.getType();
+            String json = gson.toJson(filesModelArrayList);
+            if (cursor != null) {
+                cursor.close();
             }
+            result.success(json);
+        }catch (Exception e){
+            result.success(e.toString());
+        }
 
-        }
-        Gson gson = new GsonBuilder().create();
-        Type listType = new TypeToken<ArrayList<FileModel>>() {
-        }.getType();
-        String json = gson.toJson(filesModelArrayList, listType);
-        if (cursor != null) {
-            cursor.close();
-        }
-        result.success(json);
     }
 
 

@@ -257,7 +257,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       chipTheme: theme.chipTheme.copyWith(
         backgroundColor: colorScheme.surface,
         labelStyle:
-            theme.chipTheme.labelStyle.copyWith(color: colorScheme.onSurface),
+            theme.chipTheme.labelStyle?.copyWith(color: colorScheme.onSurface),
         shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
         side: BorderSide(width: 1.0, color: colorScheme.outline),
       ),

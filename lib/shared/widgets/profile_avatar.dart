@@ -9,13 +9,13 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 
 // TODO Move to profile folder, it is not shared widget
@@ -50,8 +50,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             return CircleAvatar(
               radius: 40,
               backgroundImage: kIsWeb
-                  ? Image.network(s.data!).image
-                  : Image.file(File(s.data!)).image,
+                  ? Image
+                  .network(s.data!)
+                  .image
+                  : Image
+                  .file(File(s.data!))
+                  .image,
               child: const Center(
                 child: SizedBox(
                     height: 20.0,
@@ -120,7 +124,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     if (kIsWeb || isDesktop()) {
       if (isLinux()) {
         final typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+        XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -174,27 +178,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   void cropAvatar(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
-        sourcePath: imagePath,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square]
-            : [
-                CropAspectRatioPreset.square,
-              ],
-        cropStyle: CropStyle.rectangle,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: _i18n.get("avatar"),
-            toolbarColor: Colors.blueAccent,
-            hideBottomControls: true,
-            showCropGrid: false,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: _i18n.get("avatar"),
-        ));
-    if (croppedFile != null) {
-      _setAvatar(croppedFile.path);
-    }
+    Navigator.push(context, MaterialPageRoute(builder: (c) {
+      return CropImage(imagePath, (path) {
+        if (path != null) {
+          imagePath = path;
+        }
+        _setAvatar(imagePath);
+      });
+    }));
   }
 }

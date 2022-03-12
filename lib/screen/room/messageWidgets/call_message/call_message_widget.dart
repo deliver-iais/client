@@ -15,7 +15,7 @@ class CallMessageWidget extends StatelessWidget {
   final Message message;
   final CallEvent_CallStatus _callEvent;
   final int _callDuration;
-  final _autRepo = GetIt.I.get<AuthRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final bool _isVideo;
 
@@ -31,8 +31,8 @@ class CallMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isIncomingCall = _callEvent == CallEvent_CallStatus.DECLINED
-        ? _autRepo.isCurrentUser(message.to)
-        : _autRepo.isCurrentUser(message.from);
+        ? _authRepo.isCurrentUser(message.to)
+        : _authRepo.isCurrentUser(message.from);
     return Container(
         width: 200,
         margin: const EdgeInsets.all(10),
@@ -45,7 +45,7 @@ class CallMessageWidget extends StatelessWidget {
                 CallState(
                   time: _callDuration,
                   callStatus: _callEvent,
-                  isCurrentUser: _autRepo.isCurrentUser(message.from),
+                  isCurrentUser: _authRepo.isCurrentUser(message.from),
                 ),
                 const SizedBox(
                   height: 5,
