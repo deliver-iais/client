@@ -1,20 +1,32 @@
 import 'dart:async';
 
+import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
+import 'package:deliver/box/dao/custom_notication_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as seen_box;
+import 'package:deliver/box/uid_id_name.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -34,10 +46,11 @@ import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
+import '../constants/constants.dart';
 import '../helper/test_helper.mocks.dart';
-import '../repository/messageRepo_test.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver/box/contact.dart' as contact_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -56,17 +69,26 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<RoomDao>(returnNullOnMissingStub: true),
   MockSpec<RoomRepo>(returnNullOnMissingStub: true),
   MockSpec<AuthRepo>(returnNullOnMissingStub: true),
+  MockSpec<FireBaseServices>(returnNullOnMissingStub: true),
   MockSpec<FileRepo>(returnNullOnMissingStub: true),
   MockSpec<LiveLocationRepo>(returnNullOnMissingStub: true),
   MockSpec<SeenDao>(returnNullOnMissingStub: true),
   MockSpec<MucServices>(returnNullOnMissingStub: true),
-  MockSpec<FireBaseServices>(returnNullOnMissingStub: true),
   MockSpec<CoreServices>(returnNullOnMissingStub: true),
   MockSpec<QueryServiceClient>(returnNullOnMissingStub: true),
   MockSpec<SharedDao>(returnNullOnMissingStub: true),
   MockSpec<AvatarRepo>(returnNullOnMissingStub: true),
   MockSpec<BlockDao>(returnNullOnMissingStub: true),
+  MockSpec<I18N>(returnNullOnMissingStub: true),
+  MockSpec<MuteDao>(returnNullOnMissingStub: true),
+  MockSpec<UidIdNameDao>(returnNullOnMissingStub: true),
+  MockSpec<ContactRepo>(returnNullOnMissingStub: true),
+  MockSpec<AccountRepo>(returnNullOnMissingStub: true),
+  MockSpec<MucRepo>(returnNullOnMissingStub: true),
+  MockSpec<BotRepo>(returnNullOnMissingStub: true),
+  MockSpec<CustomNotificatonDao>(returnNullOnMissingStub: true),
   MockSpec<MediaDao>(returnNullOnMissingStub: true),
+  MockSpec<MediaMetaDataDao>(returnNullOnMissingStub: true),
 ])
 MockCoreServices getAndRegisterCoreServices(
     {ConnectionStatus connectionStatus = ConnectionStatus.Connecting}) {
@@ -88,17 +110,90 @@ MockLogger getAndRegisterLogger() {
   return service;
 }
 
-MockFireBaseServices getAndRegisterFireBaseServices() {
-  _removeRegistrationIfExists<FireBaseServices>();
-  final service = MockFireBaseServices();
-  GetIt.I.registerSingleton<FireBaseServices>(service);
+MockI18N getAndRegisterI18N() {
+  _removeRegistrationIfExists<I18N>();
+  final service = MockI18N();
+  GetIt.I.registerSingleton<I18N>(service);
+  when(service.get("you")).thenReturn("you");
   return service;
 }
 
-MockMediaDao getAndRegisterMediaDao() {
-  _removeRegistrationIfExists<MediaDao>();
-  final service = MockMediaDao();
-  GetIt.I.registerSingleton<MediaDao>(service);
+MockMuteDao getAndRegisterMuteDao() {
+  _removeRegistrationIfExists<MuteDao>();
+  final service = MockMuteDao();
+  GetIt.I.registerSingleton<MuteDao>(service);
+  return service;
+}
+
+MockUidIdNameDao getAndRegisterUidIdNameDao(
+    {bool getByUidHasData = false, bool getUidByIdHasData = false}) {
+  _removeRegistrationIfExists<UidIdNameDao>();
+  final service = MockUidIdNameDao();
+  GetIt.I.registerSingleton<UidIdNameDao>(service);
+  when(service.getByUid(any)).thenAnswer((realInvocation) => Future.value(
+      getByUidHasData
+          ? UidIdName(uid: testUid.asString(), name: "test", id: "test")
+          : null));
+  when(service.search("test")).thenAnswer((realInvocation) =>
+      Future.value([UidIdName(uid: testUid.asString(), name: "test")]));
+  when(service.getUidById("test")).thenAnswer((realInvocation) =>
+      Future.value(getUidByIdHasData ? testUid.asString() : null));
+  return service;
+}
+
+MockContactRepo getAndRegisterContactRepo(
+    {bool getContactHasData = false, String? getContactFromServerData}) {
+  _removeRegistrationIfExists<ContactRepo>();
+  final service = MockContactRepo();
+  GetIt.I.registerSingleton<ContactRepo>(service);
+  when(service.getContact(testUid)).thenAnswer((realInvocation) => Future.value(
+      getContactHasData
+          ? contact_pb.Contact(
+              uid: testUid.asString(),
+              firstName: "test",
+              lastName: "test",
+              countryCode: "098",
+              nationalNumber: "098")
+          : null));
+  when(service.getContactFromServer(testUid))
+      .thenAnswer((realInvocation) => Future.value(getContactFromServerData));
+  return service;
+}
+
+MockAccountRepo getAndRegisterAccountRepo() {
+  _removeRegistrationIfExists<AccountRepo>();
+  final service = MockAccountRepo();
+  GetIt.I.registerSingleton<AccountRepo>(service);
+  when(service.getName()).thenAnswer((realInvocation) => Future.value("test"));
+  return service;
+}
+
+MockMucRepo getAndRegisterMucRepo({Muc? fetchMucInfo}) {
+  _removeRegistrationIfExists<MucRepo>();
+  final service = MockMucRepo();
+  GetIt.I.registerSingleton<MucRepo>(service);
+  when(service.fetchMucInfo(any))
+      .thenAnswer((realInvocation) => Future.value(fetchMucInfo));
+  return service;
+}
+
+MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
+  _removeRegistrationIfExists<BotRepo>();
+  final service = MockBotRepo();
+  GetIt.I.registerSingleton<BotRepo>(service);
+  when(service.getBotInfo(botUid))
+      .thenAnswer((realInvocation) => Future.value(botInfo));
+  return service;
+}
+
+MockCustomNotificatonDao getAndRegisterCustomNotificatonDao() {
+  _removeRegistrationIfExists<CustomNotificatonDao>();
+  final service = MockCustomNotificatonDao();
+  GetIt.I.registerSingleton<CustomNotificatonDao>(service);
+  when(service.isHaveCustomNotif(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value(false));
+  when(service.getCustomNotif(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value("/test"));
   return service;
 }
 
@@ -150,6 +245,12 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
       .thenAnswer((realInvocation) => Future.value(rooms));
   when(service.getRoom(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value(rooms?.first));
+  when(service.watchAllRooms())
+      .thenAnswer((realInvocation) => Stream.value([testRoom]));
+  when(service.watchRoom(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value(testRoom));
+  when(service.getAllGroups())
+      .thenAnswer((realInvocation) => Future.value([testRoom]));
   return service;
 }
 
@@ -166,11 +267,18 @@ MockRoomRepo getAndRegisterRoomRepo(
   return service;
 }
 
+RoomRepo getAndRegisterRealRoomRepo() {
+  _removeRegistrationIfExists<RoomRepo>();
+  final service = RoomRepo();
+  GetIt.I.registerSingleton<RoomRepo>(service);
+  return service;
+}
+
 MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   _removeRegistrationIfExists<AuthRepo>();
   final service = MockAuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(service);
-  when(service.isCurrentUser(testUid.asString())).thenReturn(isCurrentUser);
+  when(service.isCurrentUser(any)).thenReturn(isCurrentUser);
   when(service.currentUserUid).thenReturn(testUid);
   return service;
 }
@@ -200,6 +308,24 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   return service;
 }
 
+MockMediaDao getAndRegisterMediaDao() {
+  _removeRegistrationIfExists<MediaDao>();
+  final service = MockMediaDao();
+  GetIt.I.registerSingleton<MediaDao>(service);
+  when(service.clear(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value());
+  return service;
+}
+
+MockMediaMetaDataDao getAndRegisterMediaMetaDataDao() {
+  _removeRegistrationIfExists<MediaMetaDataDao>();
+  final service = MockMediaMetaDataDao();
+  GetIt.I.registerSingleton<MediaMetaDataDao>(service);
+  when(service.clear(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value());
+  return service;
+}
+
 MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
@@ -210,6 +336,8 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   when(service.getMySeen(testUid.asString())).thenAnswer((realInvocation) =>
       Future.value(
           seen_box.Seen(uid: testUid.asString(), messageId: messageId)));
+  when(service.watchMySeen(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value(testSeen));
   return service;
 }
 
@@ -246,6 +374,9 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
     int? mentionIdList,
     int updateMessageId = 0,
     bool updateMessageGetError = false,
+    bool removePrivateRoomGetError = false,
+    bool getIdByUidGetError = false,
+    String? getIdByUidData,
     message_pb.MessageByClient? updatedMessageFile}) {
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
@@ -352,6 +483,38 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   when(service.getBlockedList(GetBlockedListReq())).thenAnswer(
       (realInvocation) => MockResponseFuture<GetBlockedListRes>(
           GetBlockedListRes(uidList: [testUid])));
+  removePrivateRoomGetError
+      ? when(service
+              .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid))
+          .thenThrow((realInvocation) =>
+              MockResponseFuture<RemovePrivateRoomRes>(RemovePrivateRoomRes()))
+      : when(service
+              .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid))
+          .thenAnswer((realInvocation) =>
+              MockResponseFuture<RemovePrivateRoomRes>(RemovePrivateRoomRes()));
+  getIdByUidGetError
+      ? when(service.getIdByUid(GetIdByUidReq()..uid = testUid)).thenThrow(
+          (realInvocation) =>
+              MockResponseFuture<GetIdByUidRes>(GetIdByUidRes()))
+      : when(service.getIdByUid(GetIdByUidReq()..uid = testUid)).thenAnswer(
+          (realInvocation) => MockResponseFuture<GetIdByUidRes>(
+              GetIdByUidRes(id: getIdByUidData)));
+  getIdByUidGetError
+      ? when(service.getIdByUid(GetIdByUidReq()..uid = groupUid)).thenThrow(
+          (realInvocation) =>
+              MockResponseFuture<GetIdByUidRes>(GetIdByUidRes()))
+      : when(service.getIdByUid(GetIdByUidReq()..uid = groupUid)).thenAnswer(
+          (realInvocation) => MockResponseFuture<GetIdByUidRes>(
+              GetIdByUidRes(id: getIdByUidData)));
+  when(service.block(BlockReq()..uid = testUid))
+      .thenAnswer((realInvocation) => MockResponseFuture<BlockRes>(BlockRes()));
+  when(service.unblock(UnblockReq()..uid = testUid)).thenAnswer(
+      (realInvocation) => MockResponseFuture<UnblockRes>(UnblockRes()));
+  when(service.getUidById(GetUidByIdReq()..id = "test")).thenAnswer(
+      (realInvocation) =>
+          MockResponseFuture<GetUidByIdRes>(GetUidByIdRes(uid: testUid)));
+  when(service.report(ReportReq()..uid = testUid)).thenAnswer(
+      (realInvocation) => MockResponseFuture<ReportRes>(ReportRes()));
   return service;
 }
 
@@ -382,6 +545,17 @@ MockBlockDao getAndRegisterBlockDao() {
   _removeRegistrationIfExists<BlockDao>();
   final service = MockBlockDao();
   GetIt.I.registerSingleton<BlockDao>(service);
+  when(service.isBlocked(testUid.asString()))
+      .thenAnswer((realInvocation) => Future.value(false));
+  when(service.watchIsBlocked(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value(false));
+  return service;
+}
+
+MockFireBaseServices getAndRegisterFireBaseServices() {
+  _removeRegistrationIfExists<MockFireBaseServices>();
+  final service = MockFireBaseServices();
+  GetIt.I.registerSingleton<FireBaseServices>(service);
   return service;
 }
 
@@ -396,12 +570,21 @@ void registerServices() {
   getAndRegisterLiveLocationRepo();
   getAndRegisterSeenDao();
   getAndRegisterMucServices();
-  getAndRegisterFireBaseServices();
   getAndRegisterQueryServiceClient();
   getAndRegisterSharedDao();
   getAndRegisterAvatarRepo();
   getAndRegisterBlockDao();
+  getAndRegisterFireBaseServices();
+  getAndRegisterI18N();
+  getAndRegisterMuteDao();
+  getAndRegisterUidIdNameDao();
+  getAndRegisterContactRepo();
+  getAndRegisterAccountRepo();
+  getAndRegisterMucRepo();
+  getAndRegisterBotRepo();
   getAndRegisterMediaDao();
+  getAndRegisterCustomNotificatonDao();
+  getAndRegisterMediaMetaDataDao();
 }
 
 void unregisterServices() {
@@ -414,12 +597,20 @@ void unregisterServices() {
   GetIt.I.unregister<LiveLocationRepo>();
   GetIt.I.unregister<SeenDao>();
   GetIt.I.unregister<MucServices>();
-  GetIt.I.unregister<FireBaseServices>();
   GetIt.I.unregister<QueryServiceClient>();
   GetIt.I.unregister<SharedDao>();
   GetIt.I.unregister<AvatarRepo>();
   GetIt.I.unregister<BlockDao>();
+  GetIt.I.unregister<FireBaseServices>();
+  GetIt.I.unregister<I18N>();
+  GetIt.I.unregister<MuteDao>();
+  GetIt.I.unregister<ContactRepo>();
+  GetIt.I.unregister<AccountRepo>();
+  GetIt.I.unregister<MucRepo>();
+  GetIt.I.unregister<BotRepo>();
+  GetIt.I.unregister<CustomNotificatonDao>();
   GetIt.I.unregister<MediaDao>();
+  GetIt.I.unregister<MediaMetaDataDao>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {
