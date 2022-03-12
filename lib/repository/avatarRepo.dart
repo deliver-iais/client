@@ -245,7 +245,7 @@ class AvatarRepo {
     }
   }
 
-  Future<bool?> deleteAvatar(Avatar avatar) async {
+  Future<void> deleteAvatar(Avatar avatar) async {
     avatar_pb.Avatar deleteAvatar = avatar_pb.Avatar();
     deleteAvatar.fileUuid = avatar.fileId!;
     deleteAvatar.fileName = avatar.fileName!;

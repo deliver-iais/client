@@ -78,6 +78,7 @@ class RoomRepo {
     if (name != null && name.isNotEmpty && !name.contains("null")) {
       return name;
     }
+    return null;
   }
 
   Future<String> getName(Uid uid) async {

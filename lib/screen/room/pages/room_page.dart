@@ -435,6 +435,8 @@ class _RoomPageState extends State<RoomPage> {
       }
       return _messageCache.get(id);
     }
+
+    return null;
   }
 
   void _resetRoomPageDetails() {
@@ -816,7 +818,7 @@ class _RoomPageState extends State<RoomPage> {
       itemBuilder: (context, index) =>
           _buildMessage(index + room.firstMessageId),
       separatorBuilder: (context, index) {
-        int firstIndex = index+room.firstMessageId;
+        int firstIndex = index + room.firstMessageId;
 
         index = index + (room.firstMessageId);
 
@@ -835,7 +837,8 @@ class _RoomPageState extends State<RoomPage> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
-                        _authRepo.isCurrentUser(snapshot.data!.from) ||snapshot.data!.json.isEmptyMessage()) {
+                        _authRepo.isCurrentUser(snapshot.data!.from) ||
+                        snapshot.data!.json.isEmptyMessage()) {
                       return const SizedBox.shrink();
                     }
                     return const UnreadMessageBar();

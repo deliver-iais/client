@@ -5,8 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_for
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;

@@ -43,7 +43,7 @@ class _CropImageState extends State<CropImage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("crop"),
+        title: const Text("crop"),
         systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       body: Column(

@@ -59,6 +59,7 @@ class CallRepo {
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
+  // ignore: unused_field
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
   List<Map<String, Object>> _candidate = [];
@@ -1125,7 +1126,9 @@ void startCallback() {
 }
 
 class FirstTaskHandler extends TaskHandler {
+  // ignore: prefer_typing_uninitialized_variables
   late final callStatus;
+  // ignore: prefer_typing_uninitialized_variables
   late final sPort;
 
   @override

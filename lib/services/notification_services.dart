@@ -31,7 +31,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:win_toast/win_toast.dart';
-import 'package:desktop_window/desktop_window.dart';
 
 abstract class Notifier {
   notify(MessageBrief message);
