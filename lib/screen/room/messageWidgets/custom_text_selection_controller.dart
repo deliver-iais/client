@@ -1,9 +1,14 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:flutter/rendering.dart';
 import 'package:pasteboard/pasteboard.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CustomTextSelectionController extends CupertinoTextSelectionControls {
   TextEditingController controller;
@@ -39,21 +44,35 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
           ? () async {
               handlePaste(delegate);
               final files = await Pasteboard.files();
-              if (files.isNotEmpty) {
-                List<model.File> fileList = [];
-                String name = "";
+              Uint8List? image = await Pasteboard.image;
+              List<model.File> fileList = [];
+              String name = "";
+              if (image != null) {
+                final tempDir = await getTemporaryDirectory();
+                File file = File(
+                    '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png');
+                file.writeAsBytesSync(image);
+                name = file.path.replaceAll("\\", "/").split("/").last;
+                fileList.add(model.File(file.path, name,
+                    extension: name.split(".").last));
+              } else if (files.isNotEmpty) {
                 for (var file in files) {
                   name = file.replaceAll("\\", "/").split("/").last;
                   fileList.add(
                       model.File(file, name, extension: name.split(".").last));
                 }
+              }
+              if (fileList.isNotEmpty) {
                 showCaptionDialog(
                     context: buildContext,
                     files: fileList,
-                    caption: controller.text,
+                    caption:
+                        controller.text.isNotEmpty ? controller.text : null,
                     roomUid: roomUid,
-                    type: files.length == 1 ? name.split(".").last : "file");
-                controller.clear();
+                    type: fileList.length == 1 ? name.split(".").last : "file");
+                Timer(Duration.zero, () {
+                  controller.clear();
+                });
               }
             }
           : null,

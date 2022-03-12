@@ -33,7 +33,9 @@ class RawKeyboardService {
     String name = "";
     if (image != null) {
       final tempDir = await getTemporaryDirectory();
-      File file = await File('${tempDir.path}/screenshot.png').create();
+      File file = await File(
+              '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png')
+          .create();
       file.writeAsBytesSync(image);
       name = file.path.replaceAll("\\", "/").split("/").last;
       fileList
