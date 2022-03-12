@@ -70,6 +70,8 @@ class FileRepo {
         _logger.e(e);
         return null;
       }
+    } else {
+      return null;
     }
   }
 

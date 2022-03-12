@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
@@ -43,6 +44,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _botRepo = GetIt.I.get<BotRepo>();
+  final _callRepo = GetIt.I.get<CallRepo>();
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
@@ -68,6 +70,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
             context: context);
       }
     });
+    _callRepo.fetchUserCallList(
+        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
     super.initState();
   }
 

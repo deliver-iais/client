@@ -200,14 +200,30 @@ class AccountRepo {
     }
   }
 
-  Future<bool> deleteSessions(List<String> sessions) async {
+  Future<bool> revokeSession(String session) async {
     try {
       await _sessionServicesClient
-          .revokeSession(RevokeSessionReq(sessionIds: sessions));
+          .revokeSession(RevokeSessionReq(sessionIds: [session]));
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  Future<bool> revokeAllOtherSession() async {
+    try {
+      _sessionServicesClient
+          .revokeAllOtherSessions(RevokeAllOtherSessionsReq());
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> logOut() async {
+    try {
+      await _sessionServicesClient.logoutSession(LogoutSessionReq());
+    } catch (_) {}
   }
 
   Future<String> getName() async {
