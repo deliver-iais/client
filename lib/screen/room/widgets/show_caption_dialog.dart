@@ -23,6 +23,8 @@ class ShowCaptionDialog extends StatefulWidget {
   final Uid currentRoom;
   final Message? editableMessage;
   final bool showSelectedImage;
+  final int replyMessageId;
+  final Function? resetRoomPageDetails;
 
   const ShowCaptionDialog(
       {Key? key,
@@ -30,7 +32,9 @@ class ShowCaptionDialog extends StatefulWidget {
       this.type,
       required this.currentRoom,
       this.showSelectedImage = false,
-      this.editableMessage})
+      this.editableMessage,
+      required this.resetRoomPageDetails,
+      required this.replyMessageId})
       : super(key: key);
 
   @override
@@ -319,7 +323,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
+            replyToId: widget.replyMessageId,
             caption: _editingController.text.toString());
+    if (widget.resetRoomPageDetails != null) widget.resetRoomPageDetails!();
   }
 
   Row buildRow(int index, {bool showManage = true}) {

@@ -55,6 +55,7 @@ class BuildMessageBox extends StatefulWidget {
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
   final void Function(int) changeReplyMessageId;
+  final Function resetRoomPageDetails;
 
   const BuildMessageBox(
       {Key? key,
@@ -74,7 +75,8 @@ class BuildMessageBox extends StatefulWidget {
       required this.selectMultiMessageSubject,
       required this.hasPermissionInGroup,
       required this.hasPermissionInChannel,
-      required this.addForwardMessage})
+      required this.addForwardMessage,
+      required this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -458,6 +460,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         break;
       case MessageType.FILE:
         showCaptionDialog(
+            replyMessageId: widget.replyMessageId,
+            resetRoomPageDetails: widget.resetRoomPageDetails,
             roomUid: widget.message.roomUid.asUid(),
             editableMessage: widget.message,
             files: [],
