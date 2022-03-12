@@ -151,15 +151,22 @@ class _ShareBoxState extends State<ShareBox> {
                                               : finalSelected.remove(index);
                                         });
                                       },
-                                      selectedFiles: selectedFiles)
+                                      selectedFiles: selectedFiles,
+                                      resetRoomPageDetails:
+                                          widget.resetRoomPageDetails,
+                                      replyMessageId: widget.replyMessageId,
+                                    )
                                   : currentPage == Page.gallery
                                       ? ShareBoxGallery(
+                                          replyMessageId: widget.replyMessageId,
                                           scrollController: scrollController,
                                           selectAvatar: false,
                                           pop: () {
                                             Navigator.pop(context);
                                           },
                                           roomUid: widget.currentRoomId,
+                                          resetRoomPageDetails:
+                                              widget.resetRoomPageDetails,
                                         )
                                       : currentPage == Page.location
                                           ? showLocation(
@@ -500,6 +507,8 @@ showCaptionDialog(
     {String? type,
     List<model.File>? files,
     required Uid roomUid,
+    Function? resetRoomPageDetails,
+    int replyMessageId = 0,
     Message? editableMessage,
     String? caption,
     required BuildContext context,
@@ -509,6 +518,8 @@ showCaptionDialog(
       context: context,
       builder: (context) {
         return ShowCaptionDialog(
+          resetRoomPageDetails: resetRoomPageDetails,
+          replyMessageId: replyMessageId,
           type: type,
           caption: caption,
           showSelectedImage: showSelectedImage,

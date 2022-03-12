@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 import 'helper_classes.dart';
@@ -78,7 +80,16 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                         ],
                       ),
                     ),
-                    onTap: () => widget.onClick(index, fileItem.path),
+                    onTap: () async {
+                      if (await fileItem.length() > MAX_FILE_SIZE_BYTE) {
+                        FileErrorDialog(
+                            isFileFormatAccept: true,
+                            invalidFormatFileName: "",
+                            invalidSizeFileName: fileItem.path.split("/").last);
+                      } else {
+                        widget.onClick(index, fileItem.path);
+                      }
+                    },
                   );
                 });
           }

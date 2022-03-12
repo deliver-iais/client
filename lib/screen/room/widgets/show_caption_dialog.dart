@@ -7,6 +7,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,6 +25,8 @@ class ShowCaptionDialog extends StatefulWidget {
   final Uid currentRoom;
   final Message? editableMessage;
   final bool showSelectedImage;
+  final int replyMessageId;
+  final Function? resetRoomPageDetails;
   final String? caption;
 
   const ShowCaptionDialog(
@@ -32,7 +36,9 @@ class ShowCaptionDialog extends StatefulWidget {
       required this.currentRoom,
       this.showSelectedImage = false,
       this.editableMessage,
-      this.caption})
+      required this.resetRoomPageDetails,
+      required this.replyMessageId,
+        this.caption})
       : super(key: key);
 
   @override
@@ -51,8 +57,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   String _type = "";
   final FocusNode _captionFocusNode = FocusNode();
   bool _isFileFormatAccept = false;
+  bool _isFileSizeAccept = false;
   model.File? _editedFile;
   String _invalidFormatFileName = "";
+  String _invalidSizeFileName = "";
 
   @override
   void initState() {
@@ -63,8 +71,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
             element.extension ?? element.name.split(".").last);
+        int size = element.size ?? 0;
+        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
+          break;
+        }
+        if (!_isFileSizeAccept) {
+          _invalidSizeFileName = element.name;
           break;
         }
       }
@@ -82,32 +96,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return !_isFileFormatAccept
-        ? AlertDialog(
-            title: Text(
-              _i18n.get("error"),
-              style: const TextStyle(fontSize: 16, color: Colors.blue),
-            ),
-            content: Text(
-              _i18n.get("cant_sent") + " " + _invalidFormatFileName,
-            ),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      _i18n.get("ok"),
-                      style: const TextStyle(fontSize: 16, color: Colors.blue),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          )
+    return !_isFileFormatAccept || !_isFileSizeAccept
+        ? FileErrorDialog(
+            isFileFormatAccept: _isFileFormatAccept,
+            invalidFormatFileName: _invalidFormatFileName,
+            invalidSizeFileName: _invalidSizeFileName)
         : (widget.files != null && widget.files!.isNotEmpty) ||
                 widget.editableMessage != null
             ? SingleChildScrollView(
@@ -324,7 +317,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
+            replyToId: widget.replyMessageId,
             caption: _editingController.text.toString());
+    if (widget.resetRoomPageDetails != null) widget.resetRoomPageDetails!();
   }
 
   Row buildRow(int index, {bool showManage = true}) {
@@ -429,18 +424,78 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     for (var element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
+      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;
       if (!_isFileFormatAccept) {
         _invalidFormatFileName = element.name;
         break;
       }
+      if (!_isFileSizeAccept) {
+        _invalidSizeFileName = element.name;
+        break;
+      }
     }
-    if (_isFileFormatAccept) {
+    if (_isFileFormatAccept && _isFileSizeAccept) {
       return result;
     } else {
-      ToastDisplay.showToast(
-          toastText: _i18n.get("cant_sent") + " " + _invalidFormatFileName,
-          toastContext: context);
+      if (isDesktop()) {
+        ToastDisplay.showToast(
+            toastText: !_isFileFormatAccept
+                ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+                : _i18n.get("file_size_error"),
+            toastContext: context);
+      }
       return null;
     }
+  }
+}
+
+class FileErrorDialog extends StatelessWidget {
+  FileErrorDialog({
+    Key? key,
+    required bool isFileFormatAccept,
+    required String invalidFormatFileName,
+    required String invalidSizeFileName,
+  })  : _isFileFormatAccept = isFileFormatAccept,
+        _invalidFormatFileName = invalidFormatFileName,
+        _invalidSizeFileName = invalidSizeFileName,
+        super(key: key);
+
+  final _i18n = GetIt.I.get<I18N>();
+  final bool _isFileFormatAccept;
+  final String _invalidFormatFileName;
+  final String _invalidSizeFileName;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        _i18n.get("error"),
+        style: const TextStyle(fontSize: 16, color: Colors.blue),
+      ),
+      content: SizedBox(
+        width: 150,
+        child: Text(
+          !_isFileFormatAccept
+              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+              : _invalidSizeFileName + " " + _i18n.get("file_size_error"),
+        ),
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                _i18n.get("ok"),
+                style: const TextStyle(fontSize: 16, color: Colors.blue),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

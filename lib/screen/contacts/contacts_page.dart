@@ -1,18 +1,16 @@
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -28,7 +26,6 @@ class _ContactsPageState extends State<ContactsPage> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _rootingServices = GetIt.I.get<RoutingService>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
@@ -47,7 +44,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   _syncContacts() {
-    _showSyncContactDialog(context);
+    SyncContact().showSyncContactDialog(context);
   }
 
   @override
@@ -154,51 +151,6 @@ class _ContactsPageState extends State<ContactsPage> {
         ),
       ),
     );
-  }
-
-  _showSyncContactDialog(BuildContext context) async {
-   
-    bool isAlreadyContactAccessTipShowed =
-        await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
-      return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
-              actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-              backgroundColor: Colors.white,
-              title: Container(
-                height: 80,
-                color: Colors.blue,
-                child: const Icon(
-                  CupertinoIcons.profile_circled,
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-              content: SizedBox(
-                width: 200,
-                child: Text(_i18n.get("send_contacts_message"),
-                    style: Theme.of(context).textTheme.subtitle1),
-              ),
-              actions: <Widget>[
-                TextButton(
-                    onPressed: () {
-                      _sharedDao.putBoolean(
-                          SHARED_DAO_SHOW_CONTACT_DIALOG, true);
-                      Navigator.pop(context);
-                      _contactRepo.syncContacts();
-                    },
-                    child: Text(
-                      _i18n.get("continue"),
-                    ))
-              ],
-            );
-          });
-    } else {
-      _contactRepo.syncContacts();
-    }
   }
 
   bool searchHasResult(Contact contact) {

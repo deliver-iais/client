@@ -776,7 +776,7 @@ class _InputMessageWidget extends State<InputMessage> {
       if (isLinux()) {
         final result = await openFiles();
         for (var file in result) {
-          res.add(File(file.path, file.name, extension: file.mimeType));
+          res.add(File(file.path, file.name, extension: file.mimeType,size: await file.length()));
         }
       } else {
         FilePickerResult? result =
@@ -813,6 +813,8 @@ class _InputMessageWidget extends State<InputMessage> {
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
+            resetRoomPageDetails: widget.resetRoomPageDetails,
+            replyMessageId: widget.replyMessageId,
             files: files,
             type: kIsWeb
                 ? files.first.extension
