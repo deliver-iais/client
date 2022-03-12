@@ -209,7 +209,7 @@ class _InputMessageWidget extends State<InputMessage> {
     });
     selectionControls = CustomTextSelectionController(
         buildContext: context,
-        controller: captionTextController,
+        controller: widget.textController,
         roomUid: currentRoom.uid.asUid());
     super.initState();
   }
