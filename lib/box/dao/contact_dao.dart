@@ -26,6 +26,7 @@ class ContactDaoImpl implements ContactDao {
     } catch (e) {
       return null;
     }
+    return null;
   }
 
   @override

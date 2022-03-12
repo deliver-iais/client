@@ -61,7 +61,7 @@ class RoomRepo {
 
   Future<String> getSlangName(Uid uid) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
-    if (uid.isSameEntity(_authRepo.currentUserUid.asString())) {
+    if (_authRepo.isCurrentUserUid(uid)) {
       return _i18n.get("you");
     } else {
       return getName(uid);
@@ -78,6 +78,7 @@ class RoomRepo {
     if (name != null && name.isNotEmpty && !name.contains("null")) {
       return name;
     }
+    return null;
   }
 
   Future<String> getName(Uid uid) async {

@@ -7,13 +7,13 @@ class CallState extends StatelessWidget {
   final CallEvent_CallStatus callStatus;
   final int time;
   final bool isCurrentUser;
+  final TextStyle? textStyle;
   final callRepo = GetIt.I.get<CallRepo>();
 
-  CallState(
-      {Key? key,
-      required this.callStatus,
-      required this.time,
-      required this.isCurrentUser})
+  CallState({Key? key,
+    required this.callStatus,
+    required this.time,
+    required this.isCurrentUser, this.textStyle})
       : super(key: key);
 
   @override
@@ -21,21 +21,21 @@ class CallState extends StatelessWidget {
     if (callStatus == CallEvent_CallStatus.ENDED &&
         isCurrentUser &&
         time == 0) {
-      return const Text("canceled call");
+      return Text("canceled call", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
-      return const Text("call declined");
+      return Text("call declined", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.BUSY && time == 0) {
-      return const Text("Busy");
+      return Text("Busy", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
         !callRepo.isCaller &&
         time == 0) {
-      return const Text("missed call");
+      return Text("missed call", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
         isCurrentUser &&
         time != 0) {
-      return const Text("Incoming call");
+      return Text("Incoming call", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
-      return const Text("outgoing call");
+      return Text("outgoing call", style: textStyle,);
     } else {
       return const SizedBox.shrink();
     }

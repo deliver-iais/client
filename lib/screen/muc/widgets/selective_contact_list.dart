@@ -122,8 +122,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data!.isNotEmpty) {
-                        snapshot.data!.removeWhere((element) => element.uid
-                            .contains(_authRepo.currentUserUid.asString()));
+                        snapshot.data!.removeWhere(
+                            (element) => _authRepo.isCurrentUser(element.uid));
                         contacts = snapshot.data!;
                         items ??= contacts;
 
@@ -143,9 +143,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           return Center(
                             child: Text(
                               i18n.get("no_results"),
-                              style:theme
-                                  .textTheme
-                                  .subtitle1!
+                              style: theme.textTheme.subtitle1!
                                   .copyWith(color: Colors.red),
                             ),
                           );
@@ -171,7 +169,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                     height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color:theme.primaryColor,
+                      color: theme.primaryColor,
                     ),
                     child: widget.mucUid != null
                         ? IconButton(
@@ -187,8 +185,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid!, users);
                               if (usersAdd) {
-                                _routingService
-                                    .openRoom(widget.mucUid!.asString(), popAllBeforePush: true);
+                                _routingService.openRoom(
+                                    widget.mucUid!.asString(),
+                                    popAllBeforePush: true);
                                 // _createMucService.reset();
 
                               } else {
