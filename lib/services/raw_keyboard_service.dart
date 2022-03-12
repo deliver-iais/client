@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -8,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:deliver/models/file.dart' as model;
+import 'package:path_provider/path_provider.dart';
 
 class RawKeyboardService {
   final _routingService = GetIt.I.get<RoutingService>();
@@ -24,27 +28,37 @@ class RawKeyboardService {
   void controlVHandle(TextEditingController controller, BuildContext context,
       Uid roomUid) async {
     final files = await Pasteboard.files();
-    if (files.isNotEmpty) {
-      List<model.File> fileList = [];
-      String name = "";
+    Uint8List? image = await Pasteboard.image;
+    List<model.File> fileList = [];
+    String name = "";
+    if (image != null) {
+      final tempDir = await getTemporaryDirectory();
+      File file = await File('${tempDir.path}/screenshot.png').create();
+      file.writeAsBytesSync(image);
+      name = file.path.replaceAll("\\", "/").split("/").last;
+      fileList
+          .add(model.File(file.path, name, extension: name.split(".").last));
+    } else if (files.isNotEmpty) {
       for (var file in files) {
         name = file.replaceAll("\\", "/").split("/").last;
         fileList.add(model.File(file, name, extension: name.split(".").last));
       }
-      showCaptionDialog(
-          context: context,
-          files: fileList,
-          caption: controller.text.isNotEmpty ? controller.text : null,
-          roomUid: roomUid,
-          type: files.length == 1 ? name.split(".").last : "file");
-      Timer(Duration.zero, () {
-        controller.clear();
-      });
     } else {
       ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
       controller.text = controller.text + data!.text!;
       controller.selection = TextSelection.fromPosition(
           TextPosition(offset: controller.text.length));
+    }
+    if (fileList.isNotEmpty) {
+      showCaptionDialog(
+          context: context,
+          files: fileList,
+          caption: controller.text.isNotEmpty ? controller.text : null,
+          roomUid: roomUid,
+          type: fileList.length == 1 ? name.split(".").last : "file");
+      Timer(Duration.zero, () {
+        controller.clear();
+      });
     }
   }
 
