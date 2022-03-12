@@ -805,56 +805,58 @@ class _RoomPageState extends State<RoomPage> {
           _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
     }
 
-    return ScrollablePositionedList.separated(
-      itemCount: _itemCount + 1,
-      initialScrollIndex: initialScrollIndex,
-      key: _scrollablePositionedListKey,
-      initialAlignment: initialAlignment,
-      physics: _scrollPhysics,
-      reverse: false,
-      addSemanticIndexes: false,
-      shrinkWrap: false,
-      minCacheExtent: 0,
-      itemPositionsListener: _itemPositionsListener,
-      itemScrollController: _itemScrollController,
-      itemBuilder: (context, index) =>
-          _buildMessage(index + room.firstMessageId),
-      separatorBuilder: (context, index) {
-        int firstIndex = index + room.firstMessageId;
+    return DraggableScrollbar(
+      child: ScrollablePositionedList.separated(
+        itemCount: _itemCount + 1,
+        initialScrollIndex: initialScrollIndex,
+        key: _scrollablePositionedListKey,
+        initialAlignment: initialAlignment,
+        physics: _scrollPhysics,
+        reverse: false,
+        addSemanticIndexes: false,
+        shrinkWrap: false,
+        minCacheExtent: 0,
+        itemPositionsListener: _itemPositionsListener,
+        itemScrollController: _itemScrollController,
+        itemBuilder: (context, index) =>
+            _buildMessage(index + room.firstMessageId),
+        separatorBuilder: (context, index) {
+          int firstIndex = index + room.firstMessageId;
 
-        index = index + (room.firstMessageId);
+          index = index + (room.firstMessageId);
 
-        if (index < room.firstMessageId) {
-          return const SizedBox.shrink();
-        }
-        return Column(
-          children: [
-            if (room.lastMessageId != null &&
-                _lastShowedMessageId == firstIndex + 1 &&
-                (room.lastUpdatedMessageId == null ||
-                    (room.lastUpdatedMessageId != null &&
-                        room.lastUpdatedMessageId! < room.lastMessageId!)))
-              FutureBuilder<Message?>(
-                  future: _messageAtIndex(index + 1),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData ||
-                        snapshot.data == null ||
-                        _authRepo.isCurrentUser(snapshot.data!.from) ||
-                        snapshot.data!.json.isEmptyMessage()) {
-                      return const SizedBox.shrink();
-                    }
-                    return const UnreadMessageBar();
-                  }),
-            FutureBuilder<int?>(
-              future: _timeAt(index)!,
-              builder: (context, snapshot) =>
-                  snapshot.hasData && snapshot.data != null
-                      ? ChatTime(currentMessageTime: date(snapshot.data!))
-                      : const SizedBox.shrink(),
-            ),
-          ],
-        );
-      },
+          if (index < room.firstMessageId) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            children: [
+              if (room.lastMessageId != null &&
+                  _lastShowedMessageId == firstIndex + 1 &&
+                  (room.lastUpdatedMessageId == null ||
+                      (room.lastUpdatedMessageId != null &&
+                          room.lastUpdatedMessageId! < room.lastMessageId!)))
+                FutureBuilder<Message?>(
+                    future: _messageAtIndex(index + 1),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData ||
+                          snapshot.data == null ||
+                          _authRepo.isCurrentUser(snapshot.data!.from) ||
+                          snapshot.data!.json.isEmptyMessage()) {
+                        return const SizedBox.shrink();
+                      }
+                      return const UnreadMessageBar();
+                    }),
+              FutureBuilder<int?>(
+                future: _timeAt(index)!,
+                builder: (context, snapshot) =>
+                    snapshot.hasData && snapshot.data != null
+                        ? ChatTime(currentMessageTime: date(snapshot.data!))
+                        : const SizedBox.shrink(),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -1163,5 +1165,96 @@ class _RoomPageState extends State<RoomPage> {
 
   openRoomSearchBox() {
     _searchMode.add(true);
+  }
+}
+class DraggableScrollbar extends StatefulWidget {
+  final double heightScrollThumb;
+  final Widget child;
+  final ItemScrollController controller;
+  final ItemPositionsListener itemPositionsListener;
+
+  DraggableScrollbar({required this.heightScrollThumb,required  this.child,required  this.controller,required this.itemPositionsListener});
+
+  @override
+  _DraggableScrollbarState createState() => new _DraggableScrollbarState();
+}
+
+class _DraggableScrollbarState extends State<DraggableScrollbar> {
+  //this counts offset for scroll thumb in Vertical axis
+ late  double _barOffset;
+  //this counts offset for list in Vertical axis
+  late double _viewOffset;
+  @override
+  void initState() {
+    super.initState();
+    _barOffset = 0.0;
+    _viewOffset = 0.0;
+  }
+
+  //if list takes 300.0 pixels of height on screen and scrollthumb height is 40.0
+  //then max bar offset is 260.0
+  double get barMaxScrollExtent =>
+      context.size!.height - widget.heightScrollThumb;
+  double get barMinScrollExtent => 0.0;
+
+  //this is usually lenght (in pixels) of list
+  //if list has 1000 items of 100.0 pixels each, maxScrollExtent is 100,000.0 pixels
+  double get viewMaxScrollExtent => widget.itemPositionsListener.itemPositions.value.last.itemLeadingEdge;
+  //this is usually 0.0
+  double get viewMinScrollExtent => widget.controller.position.minScrollExtent;
+
+  double getScrollViewDelta(
+      double barDelta,
+      double barMaxScrollExtent,
+      double viewMaxScrollExtent,
+      ) { //propotion
+    return barDelta * viewMaxScrollExtent / barMaxScrollExtent;
+  }
+
+  void _onVerticalDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      _barOffset += details.delta.dy;
+
+      if (_barOffset < barMinScrollExtent) {
+        _barOffset = barMinScrollExtent;
+      }
+      if (_barOffset > barMaxScrollExtent) {
+        _barOffset = barMaxScrollExtent;
+      }
+
+      double viewDelta = getScrollViewDelta(
+          details.delta.dy, barMaxScrollExtent, viewMaxScrollExtent);
+
+      _viewOffset = widget.controller.position.pixels + viewDelta;
+      if (_viewOffset < widget.controller.position.minScrollExtent) {
+        _viewOffset = widget.controller.position.minScrollExtent;
+      }
+      if (_viewOffset > viewMaxScrollExtent) {
+        _viewOffset = viewMaxScrollExtent;
+      }
+      widget.controller.jumpTo(_viewOffset);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Stack(children: <Widget>[
+      widget.child,
+      GestureDetector(
+          onVerticalDragUpdate: _onVerticalDragUpdate,
+          child: Container(
+              alignment: Alignment.topRight,
+              margin: EdgeInsets.only(top: _barOffset),
+              child: _buildScrollThumb())),
+    ]);
+  }
+
+  Widget _buildScrollThumb() {
+    return new Container(
+      height: widget.heightScrollThumb,
+      width: 20.0,
+      child: Icon(CupertinoIcons.ant_circle_fill),
+      color: Colors.blue,
+    );
   }
 }
