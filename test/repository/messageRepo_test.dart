@@ -593,8 +593,7 @@ void main() {
         await MessageRepo().fetchOtherSeen(testUid);
         verify(queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid));
-        verify(
-            seenDo.saveOthersSeen(testSeen));
+        verify(seenDo.saveOthersSeen(testSeen));
       });
     });
     group('fetchCurrentUserLastSeen -', () {
@@ -1144,8 +1143,8 @@ void main() {
                     assignee: testUid)),
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: true)));
+            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+        verify(roomDao.updateRoom(any));
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '

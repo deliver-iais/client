@@ -2,7 +2,7 @@ import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/screen/contacts/Sync_contact.dart';
+import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';

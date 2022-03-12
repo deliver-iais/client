@@ -521,6 +521,10 @@ class MockAuthRepo extends _i1.Mock implements _i25.AuthRepo {
       (super.noSuchMethod(Invocation.method(#isCurrentUser, [uid]),
           returnValue: false) as bool);
   @override
+  bool isCurrentUserUid(_i3.Uid? uid) =>
+      (super.noSuchMethod(Invocation.method(#isCurrentUserUid, [uid]),
+          returnValue: false) as bool);
+  @override
   bool isCurrentUserSender(_i19.Message? msg) =>
       (super.noSuchMethod(Invocation.method(#isCurrentUserSender, [msg]),
           returnValue: false) as bool);
@@ -1305,9 +1309,10 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
       (super.noSuchMethod(Invocation.method(#addAvatarRequest, [addAvatarReq]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
   @override
-  _i18.Future<bool?> deleteAvatar(_i26.Avatar? avatar) =>
-      (super.noSuchMethod(Invocation.method(#deleteAvatar, [avatar]),
-          returnValue: Future<bool?>.value()) as _i18.Future<bool?>);
+  _i18.Future<void> deleteAvatar(_i26.Avatar? avatar) => (super.noSuchMethod(
+      Invocation.method(#deleteAvatar, [avatar]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
 }
 
 /// A class which mocks [BlockDao].
@@ -1534,9 +1539,18 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
       (super.noSuchMethod(Invocation.method(#verifyQrCodeToken, [token]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
   @override
-  _i18.Future<bool> deleteSessions(List<String>? sessions) =>
-      (super.noSuchMethod(Invocation.method(#deleteSessions, [sessions]),
+  _i18.Future<bool> revokeSession(String? session) =>
+      (super.noSuchMethod(Invocation.method(#revokeSession, [session]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+  @override
+  _i18.Future<bool> revokeAllOtherSession() =>
+      (super.noSuchMethod(Invocation.method(#revokeAllOtherSession, []),
+          returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+  @override
+  _i18.Future<void> logOut() => (super.noSuchMethod(
+      Invocation.method(#logOut, []),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
   @override
   _i18.Future<String> getName() =>
       (super.noSuchMethod(Invocation.method(#getName, []),
