@@ -5,6 +5,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/crop_image.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,8 @@ class ShareBoxGallery extends StatefulWidget {
   final bool selectAvatar;
   final Uid roomUid;
   final Function pop;
+  final int replyMessageId;
+  final Function? resetRoomPageDetails;
 
   const ShareBoxGallery(
       {Key? key,
@@ -27,7 +30,8 @@ class ShareBoxGallery extends StatefulWidget {
       required this.scrollController,
       this.setAvatar,
       required this.pop,
-      required this.roomUid})
+      required this.roomUid,
+      this.replyMessageId = 0, this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -146,6 +150,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 },
                                 selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,
+                                replyMessageId: widget.replyMessageId,
+                                resetRoomPageDetails:
+                                    widget.resetRoomPageDetails,
                               );
                             }));
                           },
@@ -174,7 +181,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       widthFactor: 200,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).hoverColor.withOpacity(0.5),
+                                          color: Theme.of(context)
+                                              .hoverColor
+                                              .withOpacity(0.5),
                                           borderRadius: mainBorder,
                                         ),
                                         child: Text(
@@ -266,12 +275,15 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                   children: [
                     IconButton(
                       onPressed: () async {
-                        var res = await cropImage(imagePath);
-                        if (res != null) {
-                          set(() {
-                            imagePath = res;
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
+                          return CropImage(imagePath, (path) {
+                            if (path != null) {
+                              set(() {
+                                imagePath = path;
+                              });
+                            }
                           });
-                        }
+                        }));
                       },
                       icon: const Icon(
                         Icons.crop,

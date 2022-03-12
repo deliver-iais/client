@@ -25,6 +25,7 @@ import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -783,7 +784,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   generateInviteLink(String token) {
-    return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
+    return "https://$APPLICATION_DOMAIN/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
   }
 
   InputDecoration buildInputDecoration(String label) {

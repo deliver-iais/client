@@ -274,7 +274,6 @@ void main() {
           'When called should fetch all room from roomDao and if last message id not be null and isCurrentUser be false should get user room meta',
           () async {
         final authRepo = getAndRegisterAuthRepo(isCurrentUser: false);
-        final queryServiceClient = getAndRegisterQueryServiceClient();
         getAndRegisterRoomDao(rooms: [
           Room(
               uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0))

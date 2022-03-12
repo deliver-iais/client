@@ -17,12 +17,16 @@ class DragDropWidget extends StatelessWidget {
   final Widget child;
   final String roomUid;
   final double height;
+  final Function? resetRoomPageDetails;
+  final int? replyMessageId;
 
   DragDropWidget(
       {Key? key,
       required this.child,
       required this.roomUid,
-      required this.height})
+      required this.height,
+      this.resetRoomPageDetails,
+      this.replyMessageId})
       : super(key: key);
 
   final _routingServices = GetIt.I.get<RoutingService>();
@@ -48,12 +52,14 @@ class DragDropWidget extends StatelessWidget {
                       var modelFile = model.File(url, file.name,
                           extension: file.type, size: file.size);
                       if (!roomUid.asUid().isChannel()) {
-                        showDialogInDesktop([modelFile], context, file.type);
+                        showDialogInDesktop([modelFile], context, file.type,
+                            replyMessageId, resetRoomPageDetails);
                       } else {
                         var res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
                         if (res) {
-                          showDialogInDesktop([modelFile], context, file.type);
+                          showDialogInDesktop([modelFile], context, file.type,
+                              replyMessageId, resetRoomPageDetails);
                         }
                       }
                     } catch (e) {
@@ -73,8 +79,12 @@ class DragDropWidget extends StatelessWidget {
                     extension: element.mimeType, size: await element.length()));
               }
               if (!roomUid.asUid().isChannel()) {
-                showDialogInDesktop(files, context,
-                    mime(files.first.path) ?? files.first.name.split(".").last);
+                showDialogInDesktop(
+                    files,
+                    context,
+                    mime(files.first.path) ?? files.first.name.split(".").last,
+                    replyMessageId,
+                    resetRoomPageDetails);
               } else {
                 var res = await _mucRepo.isMucAdminOrOwner(
                     _authRepo.currentUserUid.asString(), roomUid);
@@ -83,17 +93,24 @@ class DragDropWidget extends StatelessWidget {
                       files,
                       context,
                       mime(files.first.path) ??
-                          files.first.path.split(".").last);
+                          files.first.path.split(".").last,
+                      replyMessageId,
+                      resetRoomPageDetails);
                 }
               }
             },
           );
   }
 
-  void showDialogInDesktop(
-      List<model.File> files, BuildContext context, String type) {
+  void showDialogInDesktop(List<model.File> files, BuildContext context,
+      String type, int? replyMessageId, Function? resetRoomPageDetails) {
     showCaptionDialog(
-        type: type, context: context, files: files, roomUid: roomUid.asUid());
+        type: type,
+        context: context,
+        files: files,
+        roomUid: roomUid.asUid(),
+        replyMessageId: replyMessageId ?? 0,
+        resetRoomPageDetails: resetRoomPageDetails);
     _routingServices.openRoom(roomUid);
   }
 }

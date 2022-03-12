@@ -24,7 +24,7 @@ import 'package:universal_html/html.dart' as html;
 
 import 'ext_storage_services.dart';
 
-enum ThumbnailSize { medium,small }
+enum ThumbnailSize { medium, small }
 
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
@@ -294,6 +294,7 @@ class FileService {
   }
 
   bool isFileFormatAccepted(String format) {
+    format = format.toLowerCase();
     return format == "doc" ||
         format == "pdf" ||
         format == "svg" ||

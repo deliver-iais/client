@@ -95,8 +95,6 @@ class NotificationServices {
 
   void playSoundIn() async {}
 
-  void playIncomingMsg() async {}
-
   void playSoundOut() {
     _audioService.playSoundOut();
   }
@@ -281,6 +279,7 @@ class LinuxNotifier implements Notifier {
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {
+        DesktopWindow.focus();
         _routingService.openRoom(room);
       }
       return;

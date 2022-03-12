@@ -2,33 +2,34 @@
 
 import 'dart:core';
 
+import 'package:deliver/shared/constants.dart';
 import 'package:grpc/grpc.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
 
 // ignore: non_constant_identifier_names
-final QueryClientChannel = ClientChannel("query.deliver-co.ir",
+final QueryClientChannel = ClientChannel("query.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
-final webQueryClientChannel =
-    GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
+final webQueryClientChannel = GrpcWebClientChannel.xhr(
+    Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'));
 
 // ignore: non_constant_identifier_names
-final BotClientChannel = ClientChannel("ms-bot.deliver-co.ir",
+final BotClientChannel = ClientChannel("ms-bot.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 final webBotClientChannel = GrpcWebClientChannel.xhr(
-    Uri(scheme: "https", host: "gwp-ms-bot.deliver-co.ir"));
+    Uri(scheme: "https", host: "gwp-ms-bot.$APPLICATION_DOMAIN"));
 
 // ignore: non_constant_identifier_names
-final StickerClientChannel = ClientChannel("ms-sticker.deliver-co.ir",
+final StickerClientChannel = ClientChannel("ms-sticker.$APPLICATION_DOMAIN",
     port: 8081,
     options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
@@ -38,18 +39,18 @@ final webStickerClientChannel = GrpcWebClientChannel.xhr(
     Uri(scheme: "https", host: "gwp-ms-sticker-co.ir"));
 
 // ignore: non_constant_identifier_names
-final MucServicesClientChannel = ClientChannel("query.deliver-co.ir",
+final MucServicesClientChannel = ClientChannel("query.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
-final webMucServicesClientChannel =
-    GrpcWebClientChannel.xhr(Uri.parse('https://gwp-query.deliver-co.ir'));
+final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
+    Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'));
 
 // ignore: non_constant_identifier_names
-final CoreServicesClientChannel = ClientChannel("core.deliver-co.ir",
+final CoreServicesClientChannel = ClientChannel("core.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
@@ -57,37 +58,40 @@ final CoreServicesClientChannel = ClientChannel("core.deliver-co.ir",
         connectionTimeout: const Duration(seconds: 2)));
 
 final webCoreServicesClientChannel =
-    GrpcWebClientChannel.xhr(Uri.parse("https://gwp-core.deliver-co.ir"));
+    GrpcWebClientChannel.xhr(Uri.parse("https://gwp-core.$APPLICATION_DOMAIN"));
 
 // ignore: non_constant_identifier_names, constant_identifier_names
-const FileServiceBaseUrl = "https://ms-file.deliver-co.ir";
+const FileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 
 // ignore: non_constant_identifier_names
 
 // ignore: non_constant_identifier_names
-final ProfileServicesClientChannel = ClientChannel("ms-profile.deliver-co.ir",
+final ProfileServicesClientChannel = ClientChannel(
+    "ms-profile.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
-final webProfileServicesClientChannel =
-    GrpcWebClientChannel.xhr(Uri.parse('https://gwp-ms-profile.deliver-co.ir'));
+final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
+    Uri.parse('https://gwp-ms-profile.$APPLICATION_DOMAIN'));
 
 // ignore: non_constant_identifier_names
-final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",
+final AvatarServicesClientChannel = ClientChannel(
+    "ms-avatar.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
         connectionTimeout: const Duration(seconds: 2)));
 
-final webAvatarServicesClientChannel =
-    GrpcWebClientChannel.xhr(Uri.parse("https://gwp-ms-avatar.deliver-co.ir"));
+final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
+    Uri.parse("https://gwp-ms-avatar.$APPLICATION_DOMAIN"));
 
 // ignore: non_constant_identifier_names
-final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
+final FirebaseServicesClientChannel = ClientChannel(
+    "ms-firebase.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:
@@ -95,14 +99,14 @@ final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
         connectionTimeout: const Duration(seconds: 2)));
 
 final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
-    Uri(scheme: "https", host: "gwp-ms-firebase.deliver-co.ir"));
+    Uri(scheme: "https", host: "gwp-ms-firebase.$APPLICATION_DOMAIN"));
 
 final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
-    Uri(scheme: "https", host: "gwp-ms-firebase.deliver-co.ir"));
+    Uri(scheme: "https", host: "gwp-ms-firebase.$APPLICATION_DOMAIN"));
 
 // ignore: non_constant_identifier_names
 final LiveLocationServiceClientChannel = ClientChannel(
-    "ms-livelocation.deliver-co.ir",
+    "ms-livelocation.$APPLICATION_DOMAIN",
     port: 443,
     options: ChannelOptions(
         credentials:

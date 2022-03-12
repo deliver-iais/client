@@ -55,6 +55,7 @@ class BuildMessageBox extends StatefulWidget {
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
   final void Function(int) changeReplyMessageId;
+  final Function resetRoomPageDetails;
 
   const BuildMessageBox(
       {Key? key,
@@ -74,7 +75,8 @@ class BuildMessageBox extends StatefulWidget {
       required this.selectMultiMessageSubject,
       required this.hasPermissionInGroup,
       required this.hasPermissionInChannel,
-      required this.addForwardMessage})
+      required this.addForwardMessage,
+      required this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -403,7 +405,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         onShare();
         break;
       case OperationOnMessage.SAVE_TO_GALLERY:
-        onSaveTOGallery();
+        onSaveTOGallery(context);
         break;
       case OperationOnMessage.SAVE_TO_DOWNLOADS:
         onSaveTODownloads();
@@ -458,6 +460,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         break;
       case MessageType.FILE:
         showCaptionDialog(
+            replyMessageId: widget.replyMessageId,
+            resetRoomPageDetails: widget.resetRoomPageDetails,
             roomUid: widget.message.roomUid.asUid(),
             editableMessage: widget.message,
             files: [],
@@ -521,19 +525,31 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  onSaveTOGallery() {
+  onSaveTOGallery(BuildContext context) {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
+    ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("photo_saved"),
+        isSaveToast: true);
   }
 
   onSaveTODownloads() {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
+    ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("file_saved"),
+        isSaveToast: true);
   }
 
   onSaveToMusic() {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
+    ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("music_saved"),
+        isSaveToast: true);
   }
 
   onDeleteMessage() {

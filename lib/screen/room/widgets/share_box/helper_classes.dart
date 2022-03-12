@@ -13,7 +13,7 @@ class StorageFile {
 
   factory StorageFile.fromJson(Map<String, dynamic> json) {
     return StorageFile(
-        files: json['files'] as List ,
+        files: json['files'] as List,
         folderName: json['folderName'].toString());
   }
 }

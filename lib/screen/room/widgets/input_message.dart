@@ -802,6 +802,8 @@ class _InputMessageWidget extends State<InputMessage> {
         context: context,
         builder: (context) {
           return ShowCaptionDialog(
+            resetRoomPageDetails: widget.resetRoomPageDetails,
+            replyMessageId: widget.replyMessageId,
             files: files,
             type: kIsWeb
                 ? files.first.extension

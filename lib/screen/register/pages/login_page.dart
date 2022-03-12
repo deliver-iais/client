@@ -199,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.white,
                     child: QrImage(
                       data:
-                          "https://deliver-co.ir/login?token=${snapshot.data}",
+                          "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
                       version: QrVersions.auto,
                       // embeddedImage: FileImage(File("")),
                       padding: EdgeInsets.zero,

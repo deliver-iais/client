@@ -40,14 +40,14 @@ class _FormResultWidgetState extends State<FormResultWidget> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
+              padding: const EdgeInsets.only(top: 5, left: 4, right: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (final key in formResult.values.keys)
                     if (key.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.only(top: 4, bottom: 2),
+                        padding: const EdgeInsets.only(top: 10, bottom: 2),
                         child: TextField(
                           enabled: false,
                           readOnly: true,
@@ -59,7 +59,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                                   borderRadius: secondaryBorder),
                               labelText: key,
                               labelStyle: TextStyle(
-                                  color: widget.colorScheme.onPrimaryContainer,
+                                  color: widget.colorScheme.primary,
                                   fontSize: 16)),
                         ),
                       )
