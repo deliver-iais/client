@@ -88,8 +88,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                         );
                                       }),
                                 ),
-                                if (!member.memberUid.contains(
-                                        _authRepo.currentUserUid.asString()) &&
+                                if (!_authRepo
+                                        .isCurrentUser(member.memberUid) &&
                                     (_myRoleInThisRoom == MucRole.ADMIN ||
                                         _myRoleInThisRoom == MucRole.OWNER) &&
                                     member.role != MucRole.OWNER)
@@ -115,9 +115,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                       onSelected(key.toString(), member);
                                     },
                                   ),
-                                if (member.memberUid.contains(_authRepo
-                                            .currentUserUid
-                                            .asString()) &&
+                                if (_authRepo.isCurrentUser(member.memberUid) &&
                                         (_myRoleInThisRoom == MucRole.ADMIN ||
                                             _myRoleInThisRoom ==
                                                 MucRole.OWNER) ||
@@ -198,8 +196,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
 
   obtainMyRole(List<Member?> members) {
     for (Member? member in members) {
-      if (member != null &&
-          member.memberUid.contains(_authRepo.currentUserUid.asString())) {
+      if (member != null && _authRepo.isCurrentUser(member.memberUid)) {
         _myRoleInThisRoom = member.role!;
       }
     }

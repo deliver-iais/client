@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -63,7 +64,7 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
-const _calls = CallList(key: ValueKey("/calls"));
+const _calls = CallListPage(key: ValueKey("/calls"));
 
 class RoutingService {
   final _homeNavigatorState = GlobalKey<NavigatorState>();
@@ -96,6 +97,21 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openCallsList() => _push(_calls);
+
+  void openCallDetails(
+      {required time,
+      required isIncomingCall,
+      required caller,
+      required monthName,
+      required callEvent}) {
+    _push(CallDetailPage(
+        key: const ValueKey("/call_detail"),
+        callEvent: callEvent,
+        time: time,
+        caller: caller,
+        isIncomingCall: isIncomingCall,
+        monthName: monthName));
+  }
 
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
@@ -280,7 +296,7 @@ class RoutingService {
     final fireBaseServices = GetIt.I.get<FireBaseServices>();
     final dbManager = GetIt.I.get<DBManager>();
     if (authRepo.isLoggedIn()) {
-      accountRepo.deleteSessions([authRepo.currentUserUid.sessionId]);
+      await accountRepo.logOut();
       if (!isDesktop()) fireBaseServices.deleteToken();
       coreServices.closeConnection();
       await authRepo.deleteTokens();

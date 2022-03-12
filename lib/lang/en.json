@@ -138,7 +138,7 @@
   "sending_file_activity": "sending file ...",
   "record_audio_activity": "record audio...",
   "online": "online",
-  "channel_id_not_empty": "channel Id  should not be empty.",
+  "channel_id_not_empty": "channel Id should not be empty",
   "channel_id_length": " length less 5",
   "inter_muc_name": "inter name",
   "close": "Close",
@@ -157,7 +157,8 @@
   "start": "Start",
   "joined_to_group": "Joined To Group",
   "left_the_group": "Left the Group",
-  "this_filed_not_empty": "This field should not be empty.",
+  "this_filed_not_empty": "This field should not be empty",
+  "not_empty": "should not be empty",
   "please_select_one": "please select one",
   "join": "Join",
   "join_link": "Join Link",
@@ -288,5 +289,9 @@
   "got_it": "Got it",
   "please_select_a_chat_to_start_messaging": "Please select a chat to start messaging",
   "select_an_image": "Select an image",
-  "forwarded_medias": "Forwarded medias"
+  "forwarded_medias": "Forwarded medias",
+  "photo_saved": "photo saved to gallery",
+  "file_saved": "file saved to downloads",
+  "music_saved": "Music saved",
+  "file_size_error": "File size is more than 100 MB The selected file size must be less than 100 MB"
 }

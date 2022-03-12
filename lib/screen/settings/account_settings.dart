@@ -17,8 +17,9 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../../shared/widgets/crop_image.dart';
 
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
@@ -112,28 +113,14 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   void cropAvatar(String imagePath) async {
-    File? croppedFile = await ImageCropper.cropImage(
-        sourcePath: imagePath,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square]
-            : [
-                CropAspectRatioPreset.square,
-              ],
-        cropStyle: CropStyle.rectangle,
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: _i18n.get("avatar"),
-            toolbarColor: Colors.blueAccent,
-            hideBottomControls: true,
-            showCropGrid: false,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: _i18n.get("avatar"),
-        ));
-    if (croppedFile != null) {
-      setAvatar(croppedFile.path);
-    }
+    Navigator.push(context, MaterialPageRoute(builder: (c) {
+      return CropImage(imagePath, (path) {
+        if (path != null) {
+            imagePath = path;
+        }
+        setAvatar(imagePath);
+      });
+    }));
   }
 
   Future<void> setAvatar(String path) async {

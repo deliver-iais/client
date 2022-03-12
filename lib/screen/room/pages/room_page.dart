@@ -143,6 +143,7 @@ class _RoomPageState extends State<RoomPage> {
       DesktopLifecycle.instance.isActive;
   bool _appIsActive = true;
   final List<Message> _backroundMessages = [];
+  double _defaultMessageHeight = 1000;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +161,8 @@ class _RoomPageState extends State<RoomPage> {
       child: DragDropWidget(
         roomUid: widget.roomId,
         height: MediaQuery.of(context).size.height,
+        replyMessageId: _repliedMessage.value?.id ?? 0,
+        resetRoomPageDetails: _resetRoomPageDetails,
         child: Scaffold(
           appBar: buildAppbar(),
           body: buildBody(),
@@ -232,6 +235,7 @@ class _RoomPageState extends State<RoomPage> {
                     pendingMessages.length -
                     room.firstMessageId;
                 _itemCountSubject.add(_itemCount);
+                if (_itemCount < 50) _defaultMessageHeight = 50;
 
                 return buildMessagesListView();
               }),
@@ -277,8 +281,6 @@ class _RoomPageState extends State<RoomPage> {
     initPendingMessages();
 
     // Log page data
-    _logger.wtf(_authRepo.currentUserUid);
-    _logger.wtf(widget.roomId);
     _getScrollPosition();
     if (!isDesktop()) {
       _fireBaseServices.sendFireBaseToken();
@@ -295,10 +297,13 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      _scrollEvent.add(true);
-
       var position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
+        if (_itemCount - position.first.index > 20) {
+          _scrollEvent.add(true);
+        } else {
+          _scrollEvent.add(false);
+        }
         ItemPosition firstItem = position
             .where((ItemPosition position) => position.itemLeadingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
@@ -317,10 +322,8 @@ class _RoomPageState extends State<RoomPage> {
     });
 
     MergeStream([
-      _scrollEvent.map((event) => true),
-      _scrollEvent
-          .debounceTime(const Duration(milliseconds: 1000))
-          .map((event) => false)
+      _scrollEvent.stream,
+      _scrollEvent.debounceTime(const Duration(milliseconds: 1000))
     ]).listen((event) => _isScrolling.add(event));
 
     // If new message arrived, scroll to the end of page if we are close to end of the page
@@ -354,14 +357,14 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).listen((event) async {
+    _roomRepo.watchRoom(widget.roomId).distinct().listen((event) async {
       // Remove changed messages from cache
       if (room.lastUpdatedMessageId != null &&
           room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
-        final id = room.lastUpdatedMessageId!;
+        final id = event.lastUpdatedMessageId!;
 
         // Invalid Message Widget Cache
-        _messageWidgetCache.set(id, null);
+        _messageWidgetCache.set(id - 1, null);
 
         final msg = await _getMessage(id, useCache: false);
 
@@ -376,9 +379,12 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void initPendingMessages() {
-    _messageRepo
-        .watchPendingMessages(widget.roomId)
-        .listen(_pendingMessages.add);
+    _messageRepo.watchPendingMessages(widget.roomId).listen((event) {
+      if (event.isNotEmpty) {
+        _defaultMessageHeight = 50;
+      }
+      _pendingMessages.add(event);
+    });
   }
 
   void subscribeOnPositionToSendSeen() {
@@ -386,7 +392,7 @@ class _RoomPageState extends State<RoomPage> {
     _positionSubject
         .where((_) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
-        .map((event) => event + room.firstMessageId + 1)
+        .map((event) => event + room.firstMessageId)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -431,6 +437,8 @@ class _RoomPageState extends State<RoomPage> {
       }
       return _messageCache.get(id);
     }
+
+    return null;
   }
 
   void _resetRoomPageDetails() {
@@ -788,16 +796,17 @@ class _RoomPageState extends State<RoomPage> {
         : 0);
 
     int initialScrollIndex = scrollIndex;
-    double initialAlignment = 0;
+    double initialAlignment = 1;
 
     if (_lastScrollPositionIndex < scrollIndex &&
         _lastScrollPositionIndex != -1) {
       initialScrollIndex = _lastScrollPositionIndex;
-      initialAlignment = _lastScrollPositionAlignment;
+      initialAlignment =
+          _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
     }
 
     return ScrollablePositionedList.separated(
-      itemCount: _itemCount,
+      itemCount: _itemCount + 1,
       initialScrollIndex: initialScrollIndex,
       key: _scrollablePositionedListKey,
       initialAlignment: initialAlignment,
@@ -811,7 +820,7 @@ class _RoomPageState extends State<RoomPage> {
       itemBuilder: (context, index) =>
           _buildMessage(index + room.firstMessageId),
       separatorBuilder: (context, index) {
-        int firstIndex = index;
+        int firstIndex = index + room.firstMessageId;
 
         index = index + (room.firstMessageId);
 
@@ -830,7 +839,8 @@ class _RoomPageState extends State<RoomPage> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
-                        _authRepo.isCurrentUser(snapshot.data!.from)) {
+                        _authRepo.isCurrentUser(snapshot.data!.from) ||
+                        snapshot.data!.json.isEmptyMessage()) {
                       return const SizedBox.shrink();
                     }
                     return const UnreadMessageBar();
@@ -898,8 +908,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
-    if (index < room.firstMessageId) {
-      return const SizedBox(height: 10);
+    if (index == _itemCount) {
+      return const SizedBox(height: 1);
     }
 
     late final Widget widget;
@@ -930,7 +940,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Widget _cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
     if (tuple == null || tuple.item2 == null) {
-      return const SizedBox(height: 1000);
+      return SizedBox(height: _defaultMessageHeight);
     }
 
     Widget? widget;
@@ -969,6 +979,7 @@ class _RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       onDelete: onDelete,
       changeReplyMessageId: _changeReplyMessageId,
+      resetRoomPageDetails: _resetRoomPageDetails,
     );
 
     if (index == 0) {

@@ -12,13 +12,17 @@ class ShareBoxFile extends StatefulWidget {
   final Function onClick;
   final Map<int, bool> selectedFiles;
   final Uid roomUid;
+  final Function resetRoomPageDetails;
+  final int replyMessageId;
 
   const ShareBoxFile(
       {Key? key,
       required this.scrollController,
       required this.onClick,
       required this.roomUid,
-      required this.selectedFiles})
+      required this.selectedFiles,
+      required this.resetRoomPageDetails,
+      required this.replyMessageId})
       : super(key: key);
 
   @override
@@ -76,12 +80,16 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                                 .pickFiles(allowMultiple: true);
                             if (result != null && result.files.isNotEmpty) {
                               showCaptionDialog(
+                                  resetRoomPageDetails:
+                                      widget.resetRoomPageDetails,
+                                  replyMessageId: widget.replyMessageId,
                                   roomUid: widget.roomUid,
                                   context: context,
                                   type:
                                       result.files.first.path!.split(".").last,
                                   files: result.files
-                                      .map((e) => File(e.path!, e.name))
+                                      .map((e) =>
+                                          File(e.path!, e.name, size: e.size))
                                       .toList());
                             }
                           },

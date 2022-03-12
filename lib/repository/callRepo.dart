@@ -5,13 +5,20 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/box/call_event.dart' as call_event;
+import 'package:deliver/box/call_info.dart' as call_info;
+import 'package:deliver/box/call_status.dart' as call_status;
+import 'package:deliver/box/call_type.dart';
+import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -24,6 +31,7 @@ import 'package:logger/logger.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
+import 'package:fixnum/fixnum.dart';
 
 enum CallStatus {
   CREATED,
@@ -48,6 +56,8 @@ class CallRepo {
   final _callService = GetIt.I.get<CallService>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _callListDao = GetIt.I.get<CallInfoDao>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -59,6 +69,7 @@ class CallRepo {
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
+  // ignore: unused_field
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
   List<Map<String, Object>> _candidate = [];
@@ -133,11 +144,13 @@ class CallRepo {
                 }
                 _incomingCall(event.roomUid!);
               } else {
+                var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
                 messageRepo.sendCallMessage(
                     CallEvent_CallStatus.BUSY,
                     event.roomUid!,
                     callEvent.id,
                     0,
+                    endOfCallDuration,
                     _isVideo
                         ? CallEvent_CallType.VIDEO
                         : CallEvent_CallType.AUDIO);
@@ -736,11 +749,13 @@ class CallRepo {
   void _incomingCall(Uid roomId) {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
+    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.IS_RINGING,
         _roomUid!,
         _callId,
         0,
+        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
@@ -769,11 +784,13 @@ class CallRepo {
 
   _sendStartCallEvent() {
     _callIdGenerator();
+    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.CREATED,
         _roomUid!,
         _callId,
         0,
+        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
@@ -792,16 +809,18 @@ class CallRepo {
     _offerSdp = await _createOffer();
   }
 
-  void declineCall() {
+  Future<void> declineCall() async {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
+    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
         _callId,
         0,
+        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-    _dispose();
+    await _dispose();
   }
 
   void _receivedCallAnswer(CallAnswer callAnswer) async {
@@ -835,18 +854,18 @@ class CallRepo {
 
   void receivedBusyCall() {
     callingStatus.add(CallStatus.BUSY);
-    Timer(const Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 4), () async {
       callingStatus.add(CallStatus.ENDED);
-      _dispose();
+      await _dispose();
     });
   }
 
   void receivedDeclinedCall() async {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
-    Timer(const Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 4), () async {
       callingStatus.add(CallStatus.ENDED);
-      _dispose();
+      await _dispose();
     });
   }
 
@@ -861,11 +880,13 @@ class CallRepo {
     if (isForce || (_isCaller && callDuration == 0)) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
+      var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
       messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
           _callId,
           _callDuration!,
+          endOfCallDuration,
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     } else {
       _callDuration = callDuration;
@@ -1010,7 +1031,9 @@ class CallRepo {
     }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 2), () async {
+      await fetchUserCallList(
+          _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
       callingStatus.add(CallStatus.NO_CALL);
     });
     switching.add(false);
@@ -1103,18 +1126,76 @@ class CallRepo {
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
-  Future<FetchUserCallsRes> fetchUserCallList(
+  Future<void> fetchUserCallList(
     Uid roomUid,
     int month,
     int year,
   ) async {
-    return await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
-      ..roomUid = roomUid
-      ..limit = 2
-      ..fetchingDirectionType =
-          FetchMediasReq_FetchingDirectionType.FORWARD_FETCH
-      ..month = month
-      ..year = year);
+    try {
+      FetchUserCallsRes callLists =
+          await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
+            ..roomUid = roomUid
+            ..limit = 200
+            ..pointer = Int64(DateTime.now().millisecondsSinceEpoch)
+            ..fetchingDirectionType =
+                FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
+            ..month = month - 1
+            ..year = year);
+      for (var call in callLists.cellEvents) {
+        call_event.CallEvent callEvent = call_event.CallEvent(
+            callDuration: call.callEvent.callDuration.toInt(),
+            endOfCallTime: call.callEvent.endOfCallTime.toInt(),
+            callType: findCallEventType(call.callEvent.callType),
+            newStatus: findCallEventStatus(call.callEvent.newStatus),
+            id: call.callEvent.id);
+        call_info.CallInfo callList = call_info.CallInfo(
+            callEvent: callEvent,
+            from: call.from.asString(),
+            to: call.to.asString());
+        await _callListDao.save(callList);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  call_status.CallStatus findCallEventStatus(
+      CallEvent_CallStatus eventCallStatus) {
+    switch (eventCallStatus) {
+      case CallEvent_CallStatus.CREATED:
+        return call_status.CallStatus.CREATED;
+      case CallEvent_CallStatus.BUSY:
+        return call_status.CallStatus.BUSY;
+      case CallEvent_CallStatus.DECLINED:
+        return call_status.CallStatus.DECLINED;
+      case CallEvent_CallStatus.ENDED:
+        return call_status.CallStatus.ENDED;
+      case CallEvent_CallStatus.INVITE:
+        return call_status.CallStatus.INVITE;
+      case CallEvent_CallStatus.IS_RINGING:
+        return call_status.CallStatus.IS_RINGING;
+      case CallEvent_CallStatus.JOINED:
+        return call_status.CallStatus.JOINED;
+      case CallEvent_CallStatus.KICK:
+        return call_status.CallStatus.KICK;
+      case CallEvent_CallStatus.LEFT:
+        return call_status.CallStatus.LEFT;
+    }
+    return call_status.CallStatus.ENDED;
+  }
+
+  CallType findCallEventType(CallEvent_CallType eventCallType) {
+    switch (eventCallType) {
+      case CallEvent_CallType.VIDEO:
+        return CallType.VIDEO;
+      case CallEvent_CallType.AUDIO:
+        return CallType.AUDIO;
+      case CallEvent_CallType.GROUP_AUDIO:
+        return CallType.GROUP_AUDIO;
+      case CallEvent_CallType.GROUP_VIDEO:
+        return CallType.GROUP_VIDEO;
+    }
+    return CallType.AUDIO;
   }
 }
 
@@ -1125,7 +1206,9 @@ void startCallback() {
 }
 
 class FirstTaskHandler extends TaskHandler {
+  // ignore: prefer_typing_uninitialized_variables
   late final callStatus;
+  // ignore: prefer_typing_uninitialized_variables
   late final sPort;
 
   @override

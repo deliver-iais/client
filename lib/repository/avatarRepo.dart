@@ -78,7 +78,7 @@ class AvatarRepo {
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
-    if (userUid == _authRepo.currentUserUid) {
+    if (_authRepo.isCurrentUserUid(userUid)) {
       _logger.v("current user avatar update needed");
       return true;
     }
@@ -245,7 +245,7 @@ class AvatarRepo {
     }
   }
 
-  Future<bool?> deleteAvatar(Avatar avatar) async {
+  Future<void> deleteAvatar(Avatar avatar) async {
     avatar_pb.Avatar deleteAvatar = avatar_pb.Avatar();
     deleteAvatar.fileUuid = avatar.fileId!;
     deleteAvatar.fileName = avatar.fileName!;

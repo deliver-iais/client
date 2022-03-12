@@ -232,16 +232,16 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
     }
     try {
       _notificationServices.showNotification(msg, roomName: roomName!);
-
-    } catch (_) {
-    }
+    } catch (_) {}
   } else if (remoteMessage.data.containsKey("seen")) {
     pb_seen.Seen seen =
         pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
-    _notificationServices.cancelRoomNotifications(seen.to.asString());
-    _notificationServices.cancelNotificationById(0);
-    _seenDao.saveMySeen(
-      Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
-    );
+    if (_authRepo.isCurrentUser(seen.from.asString())) {
+      _notificationServices.cancelRoomNotifications(seen.to.asString());
+      _notificationServices.cancelNotificationById(0);
+      _seenDao.saveMySeen(
+        Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
+      );
+    }
   }
 }
