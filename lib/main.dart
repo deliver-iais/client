@@ -1,9 +1,14 @@
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/call_event.dart';
+import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/call_status.dart';
+import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
+import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
@@ -118,6 +123,10 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaMetaDataAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
   Hive.registerAdapter(LiveLocationAdapter());
+  Hive.registerAdapter(CallInfoAdapter());
+  Hive.registerAdapter(CallEventAdapter());
+  Hive.registerAdapter(CallStatusAdapter());
+  Hive.registerAdapter(CallTypeAdapter());
 
   GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -137,6 +146,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
   GetIt.I.registerSingleton<DBManager>(DBManager());
   GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
+  GetIt.I.registerSingleton<CallInfoDao>(CallInfoDaoImpl());
 
   GetIt.I.registerSingleton<I18N>(I18N());
 

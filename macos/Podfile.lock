@@ -5,6 +5,8 @@ PODS:
     - FlutterMacOS
   - desktop_lifecycle (0.0.1):
     - FlutterMacOS
+  - desktop_window (0.0.1):
+    - FlutterMacOS
   - Firebase/CoreOnly (8.11.0):
     - FirebaseCore (= 8.11.0)
   - Firebase/Messaging (8.11.0):
@@ -43,6 +45,9 @@ PODS:
     - nanopb (~> 2.30908.0)
   - flutter_local_notifications (0.0.1):
     - FlutterMacOS
+  - flutter_webrtc (0.7.1):
+    - FlutterMacOS
+    - WebRTC-SDK (= 97.4692.02)
   - FlutterMacOS (1.0.0)
   - geolocator_apple (1.2.0):
     - FlutterMacOS
@@ -85,6 +90,7 @@ PODS:
     - FlutterMacOS
   - wakelock_macos (0.0.1):
     - FlutterMacOS
+  - WebRTC-SDK (97.4692.02)
   - window_size (0.0.2):
     - FlutterMacOS
 
@@ -92,9 +98,11 @@ DEPENDENCIES:
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
   - desktop_lifecycle (from `Flutter/ephemeral/.symlinks/plugins/desktop_lifecycle/macos`)
+  - desktop_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_window/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
+  - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
@@ -116,6 +124,7 @@ SPEC REPOS:
     - GoogleUtilities
     - nanopb
     - PromisesObjC
+    - WebRTC-SDK
 
 EXTERNAL SOURCES:
   audioplayers:
@@ -124,12 +133,16 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
   desktop_lifecycle:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_lifecycle/macos
+  desktop_window:
+    :path: Flutter/ephemeral/.symlinks/plugins/desktop_window/macos
   firebase_core:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_core/macos
   firebase_messaging:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos
   flutter_local_notifications:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
+  flutter_webrtc:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   geolocator_apple:
@@ -153,6 +166,7 @@ SPEC CHECKSUMS:
   audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   desktop_lifecycle: a600c10e12fe033c7be9078f2e929b8241f2c1e3
+  desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
   Firebase: 44dd9724c84df18b486639e874f31436eaa9a20c
   firebase_core: 76a7538b389ae1231102dbbdd4f3772eec9abbf8
   firebase_messaging: 5661e6d32b41d9539163b227945fcfc5819f8bf1
@@ -161,6 +175,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 25764cf322e77f99449395870a65b2bef88e1545
   FirebaseMessaging: 02e248e8997f71fa8cc9d78e9d49ec1a701ba14a
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
+  flutter_webrtc: 31df53d94ad7847b370226d47f110fd1316022ea
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   geolocator_apple: 821be05bbdb1b49500e029ebcbf2d6acf2dfb966
   GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
@@ -170,9 +185,10 @@ SPEC CHECKSUMS:
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
-  shared_preferences_macos: 480ce071d0666e37cef23fe6c702293a3d21799e
+  shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   url_launcher_macos: 45af3d61de06997666568a7149c1be98b41c95d4
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
+  WebRTC-SDK: dda4e50186f9eed672dc6bcf4faafb30c6ce48e3
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 
 PODFILE CHECKSUM: c7161fcf45d4fd9025dc0f48a76d6e64e52f8176
