@@ -16,11 +16,12 @@ import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -38,7 +39,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -209,7 +209,8 @@ class _InputMessageWidget extends State<InputMessage> {
     });
     selectionControls = CustomTextSelectionController(
         buildContext: context,
-        controller: widget.textController,
+        textController: widget.textController,
+        captionController: captionTextController,
         roomUid: currentRoom.uid.asUid());
     super.initState();
   }

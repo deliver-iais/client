@@ -2,22 +2,24 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver/models/file.dart' as model;
 import 'package:flutter/rendering.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CustomTextSelectionController extends CupertinoTextSelectionControls {
-  TextEditingController controller;
+  TextEditingController captionController;
+  TextEditingController textController;
   BuildContext buildContext;
   Uid roomUid;
 
   CustomTextSelectionController(
-      {required this.controller,
+      {required this.captionController,
       required this.buildContext,
+      required this.textController,
       required this.roomUid});
 
   @override
@@ -66,12 +68,13 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
                 showCaptionDialog(
                     context: buildContext,
                     files: fileList,
-                    caption:
-                        controller.text.isNotEmpty ? controller.text : null,
+                    caption: captionController.text.isNotEmpty
+                        ? captionController.text
+                        : null,
                     roomUid: roomUid,
                     type: fileList.length == 1 ? name.split(".").last : "file");
                 Timer(Duration.zero, () {
-                  controller.clear();
+                  textController.clear();
                 });
               }
             }
