@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +56,11 @@ class RawKeyboardService {
       showCaptionDialog(
           context: context,
           files: fileList,
-          caption: controller.text.isNotEmpty ? controller.text : null,
+          caption: controller.text.isNotEmpty
+              ? !isLinux()
+                  ? controller.text
+                  : null
+              : null,
           roomUid: roomUid,
           type: fileList.length == 1 ? name.split(".").last : "file");
       Timer(Duration.zero, () {
