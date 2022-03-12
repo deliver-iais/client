@@ -765,7 +765,7 @@ class _InputMessageWidget extends State<InputMessage> {
       if (isLinux()) {
         final result = await openFiles();
         for (var file in result) {
-          res.add(File(file.path, file.name, extension: file.mimeType));
+          res.add(File(file.path, file.name, extension: file.mimeType,size: await file.length()));
         }
       } else {
         FilePickerResult? result =

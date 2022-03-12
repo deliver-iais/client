@@ -130,6 +130,9 @@ const double BREAKDOWN_SIZE = 768;
 const double NAVIGATION_PANEL_SIZE = 320;
 const double MIN_WIDTH = 200;
 
+//File
+const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
+
 //FEATURE DISCOVERY ID
 const String feature1 = 'feature1',
     feature2 = 'feature2',
