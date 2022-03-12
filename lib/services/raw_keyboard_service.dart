@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -35,7 +37,9 @@ class RawKeyboardService {
           caption: controller.text.isNotEmpty ? controller.text : null,
           roomUid: roomUid,
           type: files.length == 1 ? name.split(".").last : "file");
-      controller.clear();
+      Timer(Duration.zero, () {
+        controller.clear();
+      });
     } else {
       ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
       controller.text = controller.text + data!.text!;
