@@ -110,7 +110,7 @@ class _RoomPageState extends State<RoomPage> {
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
 
   final _scrollEvent = BehaviorSubject.seeded(false);
-  final _isScrolling = BehaviorSubject.seeded(false);
+  final _isScrolling = BehaviorSubject.seeded(true);
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -806,6 +806,15 @@ class _RoomPageState extends State<RoomPage> {
     }
 
     return DraggableScrollbar(
+      heightScrollThumb: 40.0,
+      itemPositionsListener: _itemPositionsListener,
+      controller: _itemScrollController,
+      scrollToDown: () {
+        // ScrollNext(pageitemcount: 1);
+      },
+      scrollToUp: () {
+        // ScrollBack(pageitemcount: 1);
+      },
       child: ScrollablePositionedList.separated(
         itemCount: _itemCount + 1,
         initialScrollIndex: initialScrollIndex,
@@ -1167,13 +1176,23 @@ class _RoomPageState extends State<RoomPage> {
     _searchMode.add(true);
   }
 }
+
 class DraggableScrollbar extends StatefulWidget {
   final double heightScrollThumb;
   final Widget child;
+  final Function scrollToUp;
+  final Function scrollToDown;
+
   final ItemScrollController controller;
   final ItemPositionsListener itemPositionsListener;
 
-  DraggableScrollbar({required this.heightScrollThumb,required  this.child,required  this.controller,required this.itemPositionsListener});
+  DraggableScrollbar(
+      {required this.heightScrollThumb,
+      required this.child,
+      required this.scrollToDown,
+      required this.scrollToUp,
+      required this.controller,
+      required this.itemPositionsListener});
 
   @override
   _DraggableScrollbarState createState() => new _DraggableScrollbarState();
@@ -1181,9 +1200,15 @@ class DraggableScrollbar extends StatefulWidget {
 
 class _DraggableScrollbarState extends State<DraggableScrollbar> {
   //this counts offset for scroll thumb in Vertical axis
- late  double _barOffset;
+  late double _barOffset;
+
   //this counts offset for list in Vertical axis
   late double _viewOffset;
+
+  int _currentIndex = 0;
+
+  double dy = 0;
+
   @override
   void initState() {
     super.initState();
@@ -1193,26 +1218,34 @@ class _DraggableScrollbarState extends State<DraggableScrollbar> {
 
   //if list takes 300.0 pixels of height on screen and scrollthumb height is 40.0
   //then max bar offset is 260.0
-  double get barMaxScrollExtent =>
-      context.size!.height - widget.heightScrollThumb;
+  double get barMaxScrollExtent => context.size!.height;
+
   double get barMinScrollExtent => 0.0;
 
   //this is usually lenght (in pixels) of list
   //if list has 1000 items of 100.0 pixels each, maxScrollExtent is 100,000.0 pixels
-  double get viewMaxScrollExtent => widget.itemPositionsListener.itemPositions.value.last.itemLeadingEdge;
-  //this is usually 0.0
-  double get viewMinScrollExtent => widget.controller.position.minScrollExtent;
+  double get viewMaxScrollExtent =>
+      widget.itemPositionsListener.itemPositions.value.last.itemLeadingEdge;
+
+  // //this is usually 0.0
+  // double get viewMinScrollExtent => widget.controller.position.minScrollExtent;
 
   double getScrollViewDelta(
-      double barDelta,
-      double barMaxScrollExtent,
-      double viewMaxScrollExtent,
-      ) { //propotion
+    double barDelta,
+    double barMaxScrollExtent,
+    double viewMaxScrollExtent,
+  ) {
+    //propotion
     return barDelta * viewMaxScrollExtent / barMaxScrollExtent;
   }
 
   void _onVerticalDragUpdate(DragUpdateDetails details) {
     setState(() {
+      print(details.localPosition.dy);
+      if (dy == 0) {
+        dy = details.localPosition.dy;
+      }
+
       _barOffset += details.delta.dy;
 
       if (_barOffset < barMinScrollExtent) {
@@ -1224,15 +1257,31 @@ class _DraggableScrollbarState extends State<DraggableScrollbar> {
 
       double viewDelta = getScrollViewDelta(
           details.delta.dy, barMaxScrollExtent, viewMaxScrollExtent);
+      List<ItemPosition> l =
+          widget.itemPositionsListener.itemPositions.value.toList();
+      l.sort((a, b) => (b.index) - (a.index));
 
-      _viewOffset = widget.controller.position.pixels + viewDelta;
-      if (_viewOffset < widget.controller.position.minScrollExtent) {
-        _viewOffset = widget.controller.position.minScrollExtent;
+      // _viewOffset = widget.controller.position.pixels + viewDelta;
+      // if (_viewOffset < widget.controller.position.minScrollExtent) {
+      //   _viewOffset = widget.controller.position.minScrollExtent;
+      // }
+      // if (_viewOffset > viewMaxScrollExtent) {
+      //   _viewOffset = viewMaxScrollExtent;
+      // }
+
+      if (_currentIndex == 0) {
+        _currentIndex = l.last.index;
       }
-      if (_viewOffset > viewMaxScrollExtent) {
-        _viewOffset = viewMaxScrollExtent;
+      if (_currentIndex >= 0) {
+        if (dy >= details.localPosition.dy) {
+          _currentIndex = _currentIndex - 1;
+        } else {
+          _currentIndex = _currentIndex + 1;
+        }
+        dy = details.localPosition.dy;
+
+        widget.controller.jumpTo(index: _currentIndex);
       }
-      widget.controller.jumpTo(_viewOffset);
     });
   }
 
@@ -1253,7 +1302,6 @@ class _DraggableScrollbarState extends State<DraggableScrollbar> {
     return new Container(
       height: widget.heightScrollThumb,
       width: 20.0,
-      child: Icon(CupertinoIcons.ant_circle_fill),
       color: Colors.blue,
     );
   }
