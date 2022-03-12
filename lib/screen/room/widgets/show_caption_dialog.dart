@@ -324,7 +324,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
-            caption: widget.caption ?? _editingController.text.toString());
+            caption: _editingController.text.toString());
   }
 
   Row buildRow(int index, {bool showManage = true}) {

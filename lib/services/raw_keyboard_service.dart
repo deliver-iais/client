@@ -32,7 +32,7 @@ class RawKeyboardService {
       showCaptionDialog(
           context: context,
           files: fileList,
-          caption: controller.text,
+          caption: controller.text.isNotEmpty ? controller.text : null,
           roomUid: roomUid,
           type: files.length == 1 ? name.split(".").last : "file");
       controller.clear();
