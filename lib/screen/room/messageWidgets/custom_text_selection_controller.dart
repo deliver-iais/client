@@ -68,8 +68,8 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
                 showCaptionDialog(
                     context: buildContext,
                     files: fileList,
-                    caption: captionController.text.isNotEmpty
-                        ? captionController.text
+                    caption: textController.text.isNotEmpty
+                        ? textController.text
                         : null,
                     roomUid: roomUid,
                     type: fileList.length == 1 ? name.split(".").last : "file");
