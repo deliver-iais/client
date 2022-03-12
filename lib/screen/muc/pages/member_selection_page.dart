@@ -1,6 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/contacts/Sync_contact.dart';
+import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';

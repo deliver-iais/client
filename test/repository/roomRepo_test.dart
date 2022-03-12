@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 
 import 'package:clock/clock.dart';
@@ -37,6 +39,7 @@ void main() {
     group('getSlangName -', () {
       test('When called if currentUserUid same to uid should return you',
           () async {
+        getAndRegisterAuthRepo(isCurrentUser: true);
         final i18N = getAndRegisterI18N();
         RoomRepo().getSlangName(testUid);
         verify(i18N.get("you"));
@@ -44,10 +47,12 @@ void main() {
       });
       test('When called if category is user and node be empty should return ""',
           () async {
+        getAndRegisterAuthRepo(isCurrentUser: false);
         expect(await RoomRepo().getSlangName(emptyUid), "");
       });
       test('When called if isSameEntity  be false should  return getName',
           () async {
+        getAndRegisterAuthRepo(isCurrentUser: false);
         getAndRegisterBotRepo(
             botInfo:
                 BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
