@@ -7,8 +7,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
-// const APPLICATION_DOMAIN = "deliver-co.ir";
-const APPLICATION_DOMAIN = "wemessenger.ir";
+const APPLICATION_DOMAIN = "deliver-co.ir";
+// const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
 const TEXT = "text";
 const JOIN = "join";
