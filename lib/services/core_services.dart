@@ -8,7 +8,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
@@ -71,7 +71,7 @@ class CoreServices {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
 
   Timer? _connectionTimer;
@@ -588,7 +588,7 @@ Future<Uid> saveMessage(
     AccountRepo accountRepo,
     RoomDao roomDao,
     SeenDao seenDao,
-    MediaQueryRepo mediaQueryRepo) async {
+    MediaRepo mediaQueryRepo) async {
   var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
 
   bool isMention = false;
@@ -624,7 +624,7 @@ fetchSeen(SeenDao seenDao, String roomUid) async {
 }
 
 Future<void> _updateRoomMetaData(String roomUid, message_pb.Message message,
-    MediaQueryRepo mediaQueryRepo) async {
+    MediaRepo mediaQueryRepo) async {
   try {
     var file = message.json.toFile();
     if (file.type.contains("image") ||
