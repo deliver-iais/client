@@ -109,7 +109,7 @@ class _CallListPageState extends State<CallListPage> {
                                           monthName: monthName),
                                       collapsed: const SizedBox.shrink(),
                                       expanded: SizedBox(
-                                        height: 400,
+                                        height: 250,
                                         child: CallDetailPage(
                                             callEvent: calls[index],
                                             time: time,

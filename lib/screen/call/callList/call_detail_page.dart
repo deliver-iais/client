@@ -5,7 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -40,31 +39,10 @@ class _CallDetailPageState extends State<CallDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: AppBar(
-            titleSpacing: 8,
-            title: Text(
-              "Call Info",
-              style:
-                  TextStyle(color: ExtraTheme.of(context).colorScheme.primary),
-            ),
-            actions: [
-              IconButton(
-                  onPressed: () =>
-                      _routingService.openRoom(widget.caller.asString()),
-                  icon: const Icon(Icons.message)),
-              IconButton(
-                  onPressed: () => _routingService.openCallScreen(widget.caller,
-                      context: context),
-                  icon: const Icon(Icons.call))
-            ],
-            leading: _routingService.backButtonLeading(),
-          ),
-        ),
-        body: FluidContainerWidget(
-            child: Container(
+    return Column(
+      children: [
+        const Divider(),
+        Container(
           margin: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -93,7 +71,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,6 +95,18 @@ class _CallDetailPageState extends State<CallDetailPage> {
                       )
                     ],
                   ),
+                  Row(
+                    children: [
+                      IconButton(
+                          onPressed: () => _routingService
+                              .openRoom(widget.caller.asString()),
+                          icon: const Icon(Icons.message)),
+                      IconButton(
+                          onPressed: () => _routingService
+                              .openCallScreen(widget.caller, context: context),
+                          icon: const Icon(Icons.call)),
+                    ],
+                  ),
                   Text(
                     DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(
                         widget.callEvent.callEvent.callDuration,
@@ -133,7 +123,9 @@ class _CallDetailPageState extends State<CallDetailPage> {
               ),
             ],
           ),
-        )));
+        ),
+      ],
+    );
   }
 
   CallEvent_CallStatus findCallEventStatus(CallStatus eventCallStatus) {
