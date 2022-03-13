@@ -14,7 +14,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -138,7 +138,7 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final ValueListenable<bool> _lifecycleDesktop =
       DesktopLifecycle.instance.isActive;
   bool _appIsActive = true;
@@ -392,7 +392,7 @@ class _RoomPageState extends State<RoomPage> {
     _positionSubject
         .where((_) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
-        .map((event) => event + room.firstMessageId)
+        .map((event) => event + room.firstMessageId+1)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -401,7 +401,6 @@ class _RoomPageState extends State<RoomPage> {
         .listen((event) async {
       if (room.lastMessageId != null) {
         var msg = await _getMessage(event);
-
         if (msg == null) return;
         if (_appIsActive) {
           _sendSeenMessage([msg]);
@@ -807,7 +806,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount + 1,
-      initialScrollIndex: initialScrollIndex,
+      initialScrollIndex: initialScrollIndex+1,
       key: _scrollablePositionedListKey,
       initialAlignment: initialAlignment,
       physics: _scrollPhysics,
@@ -908,8 +907,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
-    if (index == _itemCount) {
-      return const SizedBox(height: 1);
+    if (index>= _itemCount+room.firstMessageId) {
+      return const SizedBox.shrink();
     }
 
     late final Widget widget;

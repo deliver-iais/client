@@ -14,6 +14,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
@@ -25,6 +26,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -90,6 +92,7 @@ class MessageRepo {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
+  final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
@@ -467,13 +470,19 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(call_pb.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, int  endOfCallDuration,call_pb.CallEvent_CallType callType ) async {
+  sendCallMessage(
+      call_pb.CallEvent_CallStatus newStatus,
+      Uid room,
+      String callId,
+      int callDuration,
+      int endOfCallDuration,
+      call_pb.CallEvent_CallType callType) async {
     String json = (call_pb.CallEvent()
-      ..newStatus = newStatus
-      ..id = callId
-      ..callDuration = Int64(callDuration)
-      ..endOfCallTime = Int64(endOfCallDuration)
-      ..callType = callType )
+          ..newStatus = newStatus
+          ..id = callId
+          ..callDuration = Int64(callDuration)
+          ..endOfCallTime = Int64(endOfCallDuration)
+          ..callType = callType)
         .writeToJson();
 
     Message msg =
@@ -787,6 +796,10 @@ class MessageRepo {
   Future<List<Message?>> getPage(
       int page, String roomId, int containsId, int lastMessageId,
       {int pageSize = 16}) async {
+    if (containsId > lastMessageId) {
+      return [];
+    }
+
     var completer = _completerMap["$roomId-$page"];
 
     if (completer != null && !completer.isCompleted) {
@@ -1173,6 +1186,7 @@ class MessageRepo {
     editableMessage.json = updatedFile.writeToJson();
     editableMessage.edited = true;
     _messageDao.saveMessage(editableMessage);
+    _mediaRepo.updateMedia(editableMessage);
     _roomDao.updateRoom(Room(
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }
