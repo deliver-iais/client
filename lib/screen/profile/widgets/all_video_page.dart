@@ -5,7 +5,7 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -37,7 +37,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
   late final LruCache _fileCache;

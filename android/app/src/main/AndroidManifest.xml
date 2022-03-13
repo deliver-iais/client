@@ -166,6 +166,7 @@
             android:name="com.github.alezhka.flutter_incoming_call.IncomingCallActivity"
             android:theme="@style/Theme.AppCompat"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:showOnLockScreen="true">
             <intent-filter>
                 <action android:name="com.github.alezhka.flutter_incoming_call.activity.ACTION_INCOMING_CALL" />

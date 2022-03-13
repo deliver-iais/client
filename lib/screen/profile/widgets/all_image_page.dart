@@ -9,7 +9,7 @@ import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -41,7 +41,7 @@ class _AllImagePageState extends State<AllImagePage> {
   final SwiperController _swiperController = SwiperController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
