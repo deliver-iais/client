@@ -114,9 +114,9 @@ const MEDIA_META_DATA_TRACK_ID = 17;
 const MEDIA_TYPE_TRACK_ID = 18;
 const LIVE_LOCATION_TRACK_ID = 19;
 const CALL_INFO_TRACK_ID = 20;
-const CALL_EVENT_TRACK_ID=21;
-const CALL_STATUS_TRACK_ID=22;
-const CALL_TYPE_TRACK_ID=23;
+const CALL_EVENT_TRACK_ID = 21;
+const CALL_STATUS_TRACK_ID = 22;
+const CALL_TYPE_TRACK_ID = 23;
 // Animation
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 
@@ -137,6 +137,10 @@ const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
 const String feature1 = 'feature1',
     feature2 = 'feature2',
     feature3 = 'feature3';
+
+//TEXT FIELD
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH = 1000;
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = 100;
 
 const mainBorder = BorderRadius.all(Radius.circular(28));
 
