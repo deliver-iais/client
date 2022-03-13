@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormInputTextFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
@@ -28,6 +29,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _textEditingController = TextEditingController();
   DateTime? _selectedDate;
+  Jalali? _selectedDateJalali;
 
   @override
   Widget build(BuildContext context) {
@@ -85,22 +87,40 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   }
 
   _selectDate(BuildContext context) async {
-    DateTime? newSelectedDate = await showDatePicker(
+    if (widget.formField.dateField.isHijriShamsi) {
+      Jalali? picked = await showPersianDatePicker(
         context: context,
-        initialDate: _selectedDate ?? DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2040),
-        builder: (BuildContext context, Widget? child) {
-          return child!;
-        });
+        initialDate: _selectedDateJalali ?? Jalali.now(),
+        firstDate: Jalali(1385, 8),
+        lastDate: Jalali(1450, 9),
+      );
+      if (picked != null) {
+        _selectedDateJalali = picked;
+        var label = picked.formatFullDate();
+        _textEditingController
+          ..text = label
+          ..selection = TextSelection.fromPosition(TextPosition(
+              offset: _textEditingController.text.length,
+              affinity: TextAffinity.upstream));
+      }
+    } else {
+      DateTime? newSelectedDate = await showDatePicker(
+          context: context,
+          initialDate: _selectedDate ?? DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2040),
+          builder: (BuildContext context, Widget? child) {
+            return child!;
+          });
 
-    if (newSelectedDate != null) {
-      _selectedDate = newSelectedDate;
-      _textEditingController
-        ..text = DateFormat.yMMMd().format(_selectedDate!)
-        ..selection = TextSelection.fromPosition(TextPosition(
-            offset: _textEditingController.text.length,
-            affinity: TextAffinity.upstream));
+      if (newSelectedDate != null) {
+        _selectedDate = newSelectedDate;
+        _textEditingController
+          ..text = DateFormat.yMMMd().format(_selectedDate!)
+          ..selection = TextSelection.fromPosition(TextPosition(
+              offset: _textEditingController.text.length,
+              affinity: TextAffinity.upstream));
+      }
     }
   }
 
