@@ -467,13 +467,19 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(call_pb.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, int  endOfCallDuration,call_pb.CallEvent_CallType callType ) async {
+  sendCallMessage(
+      call_pb.CallEvent_CallStatus newStatus,
+      Uid room,
+      String callId,
+      int callDuration,
+      int endOfCallDuration,
+      call_pb.CallEvent_CallType callType) async {
     String json = (call_pb.CallEvent()
-      ..newStatus = newStatus
-      ..id = callId
-      ..callDuration = Int64(callDuration)
-      ..endOfCallTime = Int64(endOfCallDuration)
-      ..callType = callType )
+          ..newStatus = newStatus
+          ..id = callId
+          ..callDuration = Int64(callDuration)
+          ..endOfCallTime = Int64(endOfCallDuration)
+          ..callType = callType)
         .writeToJson();
 
     Message msg =
@@ -787,6 +793,10 @@ class MessageRepo {
   Future<List<Message?>> getPage(
       int page, String roomId, int containsId, int lastMessageId,
       {int pageSize = 16}) async {
+    if (containsId > lastMessageId) {
+      return [];
+    }
+
     var completer = _completerMap["$roomId-$page"];
 
     if (completer != null && !completer.isCompleted) {

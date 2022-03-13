@@ -392,7 +392,7 @@ class _RoomPageState extends State<RoomPage> {
     _positionSubject
         .where((_) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
-        .map((event) => event + room.firstMessageId)
+        .map((event) => event + room.firstMessageId+1)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -401,7 +401,6 @@ class _RoomPageState extends State<RoomPage> {
         .listen((event) async {
       if (room.lastMessageId != null) {
         var msg = await _getMessage(event);
-
         if (msg == null) return;
         if (_appIsActive) {
           _sendSeenMessage([msg]);
@@ -807,7 +806,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount + 1,
-      initialScrollIndex: initialScrollIndex,
+      initialScrollIndex: initialScrollIndex+1,
       key: _scrollablePositionedListKey,
       initialAlignment: initialAlignment,
       physics: _scrollPhysics,
@@ -908,8 +907,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
-    if (index == _itemCount) {
-      return const SizedBox(height: 1);
+    if (index>= _itemCount+room.firstMessageId) {
+      return const SizedBox.shrink();
     }
 
     late final Widget widget;
