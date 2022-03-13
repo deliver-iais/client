@@ -14,6 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
@@ -100,64 +101,86 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(children: [
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
-        onPressed: () {
-          _errorText.add("");
-          if (isDesktop() || kIsWeb) {
-            showDialog(
-                context: context,
-                builder: (c) {
-                  return AlertDialog(
-                    title: Center(
-                      child: buildTitle(theme, _errorText),
-                    ),
-                    content: buildContent(),
-                    actions: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            primary: widget.colorScheme.primary),
-                        onPressed: () {
-                          Navigator.pop(c);
-                        },
-                        child: Text(
-                          _i18n.get("close"),
-                        ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _errorText.add("");
+            if (isDesktop() || kIsWeb) {
+              showDialog(
+                  context: context,
+                  builder: (c) {
+                    return AlertDialog(
+                      title: Center(
+                        child: buildTitle(theme, _errorText),
                       ),
-                      buildSubmit(_errorText, c),
-                    ],
-                  );
-                });
-          } else {
-            FocusScope.of(context).unfocus();
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (c) {
-                      return Scaffold(
-                        appBar: AppBar(
-                            leading: IconButton(
-                              icon: const Icon(CupertinoIcons.clear),
-                              onPressed: () => Navigator.pop(c),
-                            ),
-                            centerTitle: true,
-                            title: buildTitle(theme, _errorText)),
-                        body: Center(child: buildContent()),
-                        floatingActionButton: buildSubmit(_errorText, c),
-                      );
-                    },
-                    fullscreenDialog: true));
-          }
-        },
-        child: Text(
-          form.title,
+                      content: buildContent(),
+                      actions: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: widget.colorScheme.primary),
+                          onPressed: () {
+                            Navigator.pop(c);
+                          },
+                          child: Text(
+                            _i18n.get("close"),
+                          ),
+                        ),
+                        buildSubmit(_errorText, c),
+                      ],
+                    );
+                  });
+            } else {
+              FocusScope.of(context).unfocus();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (c) {
+                        return Scaffold(
+                          appBar: AppBar(
+                              leading: IconButton(
+                                icon: const Icon(CupertinoIcons.clear),
+                                onPressed: () => Navigator.pop(c),
+                              ),
+                              centerTitle: true,
+                              title: buildTitle(theme, _errorText)),
+                          body: Center(child: buildContent()),
+                          floatingActionButton: buildSubmit(_errorText, c),
+                        );
+                      },
+                      fullscreenDialog: true));
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: theme.backgroundColor,
+                  borderRadius: const BorderRadius.all(Radius.circular(25))),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Lottie.asset("assets/animations/form_animation.zip",
+                      width: 50, height: 50),
+                  Text(
+                    form.title,
+                    style: theme.textTheme.bodyText2,
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  )
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
-      TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
-          backgroundColor: widget.colorScheme.primaryContainer,needsPositioned: false,
-          foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
-    ],);
+        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+            backgroundColor: widget.colorScheme.primaryContainer,
+            needsPositioned: false,
+            foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
+      ],
+    );
   }
 
   Column buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
@@ -167,7 +190,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         Text(
           form.title.titleCase,
           style: theme.textTheme.subtitle2
-              ?.copyWith(color: widget.colorScheme.primary,fontSize: 18),
+              ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
         ),
         StreamBuilder<String>(
             stream: _errorText.stream,
