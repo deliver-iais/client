@@ -14,7 +14,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -138,7 +138,7 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final ValueListenable<bool> _lifecycleDesktop =
       DesktopLifecycle.instance.isActive;
   bool _appIsActive = true;
