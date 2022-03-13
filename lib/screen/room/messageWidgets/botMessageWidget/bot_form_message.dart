@@ -5,6 +5,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_for
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
@@ -101,76 +102,100 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        GestureDetector(
-          onTap: () {
-            _errorText.add("");
-            if (isDesktop() || kIsWeb) {
-              showDialog(
-                  context: context,
-                  builder: (c) {
-                    return AlertDialog(
-                      title: Center(
-                        child: buildTitle(theme, _errorText),
-                      ),
-                      content: buildContent(),
-                      actions: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              primary: widget.colorScheme.primary),
-                          onPressed: () {
-                            Navigator.pop(c);
-                          },
-                          child: Text(
-                            _i18n.get("close"),
-                          ),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () {
+              _errorText.add("");
+              if (isDesktop() || kIsWeb) {
+                showDialog(
+                    context: context,
+                    builder: (c) {
+                      return AlertDialog(
+                        title: Center(
+                          child: buildTitle(theme, _errorText),
                         ),
-                        buildSubmit(_errorText, c),
+                        content: buildContent(),
+                        actions: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: widget.colorScheme.primary),
+                            onPressed: () {
+                              Navigator.pop(c);
+                            },
+                            child: Text(
+                              _i18n.get("close"),
+                            ),
+                          ),
+                          buildSubmit(_errorText, c),
+                        ],
+                      );
+                    });
+              } else {
+                FocusScope.of(context).unfocus();
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (c) {
+                          return Scaffold(
+                            appBar: AppBar(
+                                leading: IconButton(
+                                  icon: const Icon(CupertinoIcons.clear),
+                                  onPressed: () => Navigator.pop(c),
+                                ),
+                                centerTitle: true,
+                                title: buildTitle(theme, _errorText)),
+                            body: Center(child: buildContent()),
+                            floatingActionButton: buildSubmit(_errorText, c),
+                          );
+                        },
+                        fullscreenDialog: true));
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: theme.backgroundColor,
+                    borderRadius: secondaryBorder),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Lottie.asset(
+                      "assets/animations/touch.zip",
+                      width: 80,
+                      height: 80,
+                      delegates: LottieDelegates(
+                        values: [
+                          ValueDelegate.color(
+                            const ['**'],
+                            value: widget.colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          _i18n.get("form"),
+                          style: theme.textTheme.bodyText1?.copyWith(
+                              color: widget.colorScheme.onPrimaryContainer),
+                        ),
+                        Text(
+                          form.title,
+                          style: theme.textTheme.bodyText2?.copyWith(
+                              color: widget.colorScheme.onPrimaryContainer),
+                        ),
                       ],
-                    );
-                  });
-            } else {
-              FocusScope.of(context).unfocus();
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (c) {
-                        return Scaffold(
-                          appBar: AppBar(
-                              leading: IconButton(
-                                icon: const Icon(CupertinoIcons.clear),
-                                onPressed: () => Navigator.pop(c),
-                              ),
-                              centerTitle: true,
-                              title: buildTitle(theme, _errorText)),
-                          body: Center(child: buildContent()),
-                          floatingActionButton: buildSubmit(_errorText, c),
-                        );
-                      },
-                      fullscreenDialog: true));
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: theme.backgroundColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(25))),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Lottie.asset("assets/animations/form_animation.zip",
-                      width: 50, height: 50),
-                  Text(
-                    form.title,
-                    style: theme.textTheme.bodyText2,
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  )
-                ],
+                    ),
+                    const SizedBox(
+                      width: 24,
+                    )
+                  ],
+                ),
               ),
             ),
           ),
