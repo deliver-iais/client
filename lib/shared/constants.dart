@@ -7,8 +7,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
-// const APPLICATION_DOMAIN = "deliver-co.ir";
-const APPLICATION_DOMAIN = "wemessenger.ir";
+const APPLICATION_DOMAIN = "deliver-co.ir";
+// const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
 const TEXT = "text";
 const JOIN = "join";
@@ -19,7 +19,11 @@ const LOG_OUT = "log_out";
 const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
 const int TEXT_MESSAGE_MAX_LENGTH = 50;
-const int TEXT_MESSAGE_MAX_LINE = 20;
+const int TEXT_MESSAGE_MAX_LINE = 25;
+//TEXT FIELD
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 4;
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
+    INPUT_MESSAGE_TEXT_FIELD_MAX_LINE * TEXT_MESSAGE_MAX_LENGTH;
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
 // ignore: non_constant_identifier_names
@@ -137,10 +141,6 @@ const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
 const String feature1 = 'feature1',
     feature2 = 'feature2',
     feature3 = 'feature3';
-
-//TEXT FIELD
-const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH = 1000;
-const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = 100;
 
 const mainBorder = BorderRadius.all(Radius.circular(28));
 
