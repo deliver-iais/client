@@ -62,11 +62,11 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   TextFormField buildTextFormField(TextInputType keyboardType,
       {int? maxLength}) {
     return TextFormField(
-      focusNode: keyboardType == TextInputType.datetime
+      focusNode: keyboardType == TextInputType.number
           ? AlwaysDisabledFocusNode()
           : null,
       onTap: () {
-        if (keyboardType == TextInputType.datetime) {
+        if (keyboardType == TextInputType.number) {
           _selectDate(context);
         }
       },
@@ -95,6 +95,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
         lastDate: Jalali(1450, 9),
       );
       if (picked != null) {
+        widget.setResult(picked.toDateTime().microsecondsSinceEpoch.toString());
         _selectedDateJalali = picked;
         var label = picked.formatFullDate();
         _textEditingController
@@ -114,6 +115,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           });
 
       if (newSelectedDate != null) {
+        widget.setResult(newSelectedDate.microsecondsSinceEpoch.toString());
         _selectedDate = newSelectedDate;
         _textEditingController
           ..text = DateFormat.yMMMd().format(_selectedDate!)
