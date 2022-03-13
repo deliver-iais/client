@@ -43,7 +43,7 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
@@ -214,7 +214,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
   GetIt.I.registerSingleton<MucRepo>(MucRepo());
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
-  GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+  GetIt.I.registerSingleton<MediaRepo>(MediaRepo());
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 

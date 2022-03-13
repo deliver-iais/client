@@ -65,6 +65,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   void initState() {
     _isFileFormatAccept = widget.editableMessage != null;
+    _isFileSizeAccept = widget.editableMessage != null;
     if (widget.editableMessage == null) {
       _type = widget.type!;
       for (var element in widget.files!) {
