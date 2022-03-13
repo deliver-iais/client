@@ -10,6 +10,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
@@ -22,6 +23,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -39,6 +41,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -340,6 +343,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                               const EdgeInsets.symmetric(
                                                   horizontal: 14, vertical: 12),
                                           border: InputBorder.none,
+                                          counterText: "",
                                           hintText: i18n.get("message"),
                                         ),
                                         autocorrect: true,
@@ -347,6 +351,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                             TextInputAction.newline,
                                         minLines: 1,
                                         maxLines: 15,
+                                        maxLength:
+                                            INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                                        inputFormatters: [
+                                          MaxLinesTextInputFormatter(
+                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LINE)
+                                          //max line of text field
+                                        ],
                                         textDirection: value,
                                         style: theme.textTheme.subtitle1,
                                         onTap: () => _backSubject.add(false),
@@ -776,7 +787,8 @@ class _InputMessageWidget extends State<InputMessage> {
       if (isLinux()) {
         final result = await openFiles();
         for (var file in result) {
-          res.add(File(file.path, file.name, extension: file.mimeType,size: await file.length()));
+          res.add(File(file.path, file.name,
+              extension: file.mimeType, size: await file.length()));
         }
       } else {
         FilePickerResult? result =
