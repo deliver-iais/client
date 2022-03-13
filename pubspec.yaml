@@ -226,6 +226,7 @@ flutter:
     - assets/audios/beep_ringing_calling_sound.mp3
     - assets/audios/busy_sound.mp3
     - assets/animations/file-save.json
+    - assets/animations/arrow.json
     - assets/animations/form_animation.zip
 
   # An image asset can refer to one or more resolution-specific "variants", see

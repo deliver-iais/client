@@ -33,9 +33,9 @@ class CallState extends StatelessWidget {
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
         isCurrentUser &&
         time != 0) {
-      return Text("Incoming call", style: textStyle,);
-    } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
       return Text("outgoing call", style: textStyle,);
+    } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
+      return Text("Incoming call", style: textStyle,);
     } else {
       return const SizedBox.shrink();
     }
