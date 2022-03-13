@@ -1,7 +1,18 @@
+import 'dart:async';
+
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pasteboard/pasteboard.dart';
+import 'package:deliver/models/file.dart' as model;
+import 'package:path_provider/path_provider.dart';
 
 class RawKeyboardService {
   final _routingService = GetIt.I.get<RoutingService>();
@@ -15,11 +26,47 @@ class RawKeyboardService {
         ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  void controlVHandle(TextEditingController controller) async {
-    ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
-    controller.text = controller.text+ data!.text!;
-    controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: controller.text.length));
+  void controlVHandle(TextEditingController controller, BuildContext context,
+      Uid roomUid) async {
+    final files = await Pasteboard.files();
+    Uint8List? image = await Pasteboard.image;
+    List<model.File> fileList = [];
+    String name = "";
+    if (image != null) {
+      final tempDir = await getTemporaryDirectory();
+      File file = await File(
+              '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png')
+          .create();
+      file.writeAsBytesSync(image);
+      name = file.path.replaceAll("\\", "/").split("/").last;
+      fileList
+          .add(model.File(file.path, name, extension: name.split(".").last));
+    } else if (files.isNotEmpty) {
+      for (var file in files) {
+        name = file.replaceAll("\\", "/").split("/").last;
+        fileList.add(model.File(file, name, extension: name.split(".").last));
+      }
+    } else {
+      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      controller.text = controller.text + data!.text!;
+      controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: controller.text.length));
+    }
+    if (fileList.isNotEmpty) {
+      showCaptionDialog(
+          context: context,
+          files: fileList,
+          caption: controller.text.isNotEmpty
+              ? !isLinux()
+                  ? controller.text
+                  : null
+              : null,
+          roomUid: roomUid,
+          type: fileList.length == 1 ? name.split(".").last : "file");
+      Timer(Duration.zero, () {
+        controller.clear();
+      });
+    }
   }
 
   void controlXHandle(TextEditingController controller) {
@@ -69,12 +116,8 @@ class RawKeyboardService {
     }
   }
 
-  navigateInMentions(
-      String mentionData,
-      Function scrollDownInMention,
-      event,
-      int mentionSelectedIndex,
-      Function scrollUpInMention) {
+  navigateInMentions(String mentionData, Function scrollDownInMention, event,
+      int mentionSelectedIndex, Function scrollUpInMention) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -85,7 +128,6 @@ class RawKeyboardService {
         mentionData != "-") {
       scrollDownInMentions(scrollDownInMention);
     }
-
   }
 
   navigateInBotCommand(
@@ -104,7 +146,8 @@ class RawKeyboardService {
     }
   }
 
-  void handleCopyPastKeyPress(TextEditingController controller, event) {
+  void handleCopyPastKeyPress(TextEditingController controller, event,
+      BuildContext context, Uid roomUid) {
     if (isKeyPressed(event, PhysicalKeyboardKey.keyA) &&
         event.isControlPressed) {
       controlAHandle(controller);
@@ -119,7 +162,7 @@ class RawKeyboardService {
     }
     if (isKeyPressed(event, PhysicalKeyboardKey.keyV) &&
         event.isControlPressed) {
-      controlVHandle(controller);
+      controlVHandle(controller, context, roomUid);
     }
   }
 

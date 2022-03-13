@@ -11,16 +11,18 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -98,6 +100,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
+  late TextSelectionControls selectionControls;
   bool isMentionSelected = false;
 
   bool startAudioRecorder = false;
@@ -207,6 +210,11 @@ class _InputMessageWidget extends State<InputMessage> {
         _mentionQuery.add("-");
       }
     });
+    selectionControls = CustomTextSelectionController(
+        buildContext: context,
+        textController: widget.textController,
+        captionController: captionTextController,
+        roomUid: currentRoom.uid.asUid());
     super.initState();
   }
 
@@ -323,6 +331,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                       valueListenable: _textDir,
                                       builder: (context, value, child) =>
                                           TextField(
+                                        selectionControls: isDesktop()
+                                            ? selectionControls
+                                            : null,
                                         focusNode: widget.focusNode,
                                         autofocus: widget.replyMessageId > 0 ||
                                             isDesktop(),
@@ -339,7 +350,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         textInputAction:
                                             TextInputAction.newline,
                                         minLines: 1,
-                                        maxLines: 8,
+                                        maxLines: 15,
                                         maxLength:
                                             INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
                                         inputFormatters: [
@@ -637,7 +648,8 @@ class _InputMessageWidget extends State<InputMessage> {
         return KeyEventResult.handled;
       }
     }
-    _rawKeyboardService.handleCopyPastKeyPress(widget.textController, event);
+    _rawKeyboardService.handleCopyPastKeyPress(
+        widget.textController, event, context, currentRoom.uid.asUid());
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(

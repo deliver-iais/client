@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_window
   flutter_webrtc
   image_compression_flutter
+  pasteboard
   url_launcher_windows
   win_toast
   window_size

@@ -175,6 +175,7 @@ dependencies:
       ref: master
   flutter_foreground_task: 3.5.5
   custom_image_crop: 0.0.4
+  pasteboard: ^0.0.2
 
 dev_dependencies:
   msix: 3.1.0
@@ -226,6 +227,8 @@ flutter:
     - assets/audios/busy_sound.mp3
     - assets/animations/file-save.json
     - assets/animations/arrow.json
+    - assets/animations/form_animation.zip
+    - assets/animations/touch.zip
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
