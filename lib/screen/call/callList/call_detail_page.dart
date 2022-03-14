@@ -2,6 +2,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
+import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -10,19 +11,16 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
-  final DateTime time;
   final bool isIncomingCall;
   final Uid caller;
   final String monthName;
 
   const CallDetailPage(
       {Key? key,
-      required this.time,
       required this.isIncomingCall,
       required this.caller,
       required this.monthName,
@@ -42,49 +40,43 @@ class _CallDetailPageState extends State<CallDetailPage> {
     return Column(
       children: [
         const Divider(),
-        Container(
-          margin: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: ExtraTheme.of(context).colorScheme.background,
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatarWidget(
-                      widget.isIncomingCall
-                          ? widget.caller
-                          : _authRepo.currentUserUid,
-                      23,
-                      isHeroEnabled: false,
-                      showSavedMessageLogoIfNeeded: false),
-                  Lottie.asset("assets/animations/arrow.json", height: 100),
-                  CircleAvatarWidget(
-                      widget.isIncomingCall
-                          ? _authRepo.currentUserUid
-                          : widget.caller,
-                      23,
-                      isHeroEnabled: false,
-                      showSavedMessageLogoIfNeeded: false),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CallState(
-                          textStyle: const TextStyle(fontSize: 17),
-                          callStatus: findCallEventStatus(
-                              widget.callEvent.callEvent.newStatus),
-                          time: widget.callEvent.callEvent.callDuration,
-                          isCurrentUser:
-                              _authRepo.isCurrentUser(widget.callEvent.from)),
-                      Text(
-                        DateFormat.jm().format(widget.time),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatarWidget(
+                widget.isIncomingCall
+                    ? widget.caller
+                    : _authRepo.currentUserUid,
+                23,
+                isHeroEnabled: false,
+                showSavedMessageLogoIfNeeded: false),
+            Lottie.asset("assets/animations/arrow.json", height: 100),
+            CircleAvatarWidget(
+                widget.isIncomingCall
+                    ? _authRepo.currentUserUid
+                    : widget.caller,
+                23,
+                isHeroEnabled: false,
+                showSavedMessageLogoIfNeeded: false),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CallState(
+                        textStyle: const TextStyle(fontSize: 17),
+                        callStatus: findCallEventStatus(
+                            widget.callEvent.callEvent.newStatus),
+                        time: widget.callEvent.callEvent.callDuration,
+                        isCurrentUser:
+                            _authRepo.isCurrentUser(widget.callEvent.from)),
+                    if (widget.callEvent.callEvent.callDuration != 0)
+                      DefaultTextStyle(
                         style: TextStyle(
                           color: ExtraTheme.of(context)
                               .colorScheme
@@ -92,37 +84,32 @@ class _CallDetailPageState extends State<CallDetailPage> {
                               .withAlpha(130),
                           fontSize: 14,
                         ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                          onPressed: () => _routingService
-                              .openRoom(widget.caller.asString()),
-                          icon: const Icon(Icons.message)),
-                      IconButton(
-                          onPressed: () => _routingService
-                              .openCallScreen(widget.caller, context: context),
-                          icon: const Icon(Icons.call)),
-                    ],
-                  ),
-                  Text(
-                    DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(
-                        widget.callEvent.callEvent.callDuration,
-                        isUtc: true)),
-                    style: TextStyle(
-                      color: ExtraTheme.of(context)
-                          .colorScheme
-                          .primary
-                          .withAlpha(130),
-                      fontSize: 14,
-                    ),
-                  )
-                ],
-              ),
-            ],
-          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("call duration: "),
+                            CallTime(
+                                time: DateTime.fromMillisecondsSinceEpoch(
+                                    widget.callEvent.callEvent.callDuration,
+                                    isUtc: true)),
+                          ],
+                        ),
+                      ),
+                  ],
+                )),
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () =>
+                        _routingService.openRoom(widget.caller.asString()),
+                    icon: const Icon(Icons.message)),
+                IconButton(
+                    onPressed: () => _routingService
+                        .openCallScreen(widget.caller, context: context),
+                    icon: const Icon(Icons.call)),
+              ],
+            ),
+          ],
         ),
       ],
     );
