@@ -61,36 +61,34 @@ class _CallDetailPageState extends State<CallDetailPage> {
           ],
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CallState(
-                        textStyle: const TextStyle(fontSize: 17),
-                        callStatus: findCallEventStatus(
-                            widget.callEvent.callEvent.newStatus),
-                        time: widget.callEvent.callEvent.callDuration,
-                        isCurrentUser:
-                            _authRepo.isCurrentUser(widget.callEvent.from)),
-                    if (widget.callEvent.callEvent.callDuration != 0)
-                      DefaultTextStyle(
-                        style: TextStyle(
-                          color: ExtraTheme.of(context)
-                              .colorScheme
-                              .primary
-                              .withAlpha(130),
-                          fontSize: 14,
-                        ),
-                        child: CallTime(
-                            time: DateTime.fromMillisecondsSinceEpoch(
-                                widget.callEvent.callEvent.callDuration,
-                                isUtc: true)),
-                      ),
-                  ],
-                )),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CallState(
+                    textStyle: const TextStyle(fontSize: 17),
+                    callStatus: findCallEventStatus(
+                        widget.callEvent.callEvent.newStatus),
+                    time: widget.callEvent.callEvent.callDuration,
+                    isCurrentUser:
+                        _authRepo.isCurrentUser(widget.callEvent.from)),
+                if (widget.callEvent.callEvent.callDuration != 0)
+                  DefaultTextStyle(
+                    style: TextStyle(
+                      color: ExtraTheme.of(context)
+                          .colorScheme
+                          .primary
+                          .withAlpha(130),
+                      fontSize: 14,
+                    ),
+                    child: CallTime(
+                        time: DateTime.fromMillisecondsSinceEpoch(
+                            widget.callEvent.callEvent.callDuration,
+                            isUtc: true)),
+                  ),
+              ],
+            ),
             Row(
               children: [
                 IconButton(
