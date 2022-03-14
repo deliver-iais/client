@@ -84,16 +84,10 @@ class _CallDetailPageState extends State<CallDetailPage> {
                               .withAlpha(130),
                           fontSize: 14,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text("call duration: "),
-                            CallTime(
-                                time: DateTime.fromMillisecondsSinceEpoch(
-                                    widget.callEvent.callEvent.callDuration,
-                                    isUtc: true)),
-                          ],
-                        ),
+                        child: CallTime(
+                            time: DateTime.fromMillisecondsSinceEpoch(
+                                widget.callEvent.callEvent.callDuration,
+                                isUtc: true)),
                       ),
                   ],
                 )),
