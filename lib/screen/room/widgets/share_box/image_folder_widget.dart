@@ -163,9 +163,6 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   void _send() {
     _messageRepo.sendMultipleFilesMessages(widget.roomUid,
         _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
-        caption: _textEditingController.text);
-    _messageRepo.sendMultipleFilesMessages(widget.roomUid,
-        _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
         replyToId: widget.replyMessageId, caption: _textEditingController.text);
     if (widget.resetRoomPageDetails != null) {
       widget.resetRoomPageDetails!();

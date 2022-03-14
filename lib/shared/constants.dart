@@ -7,19 +7,23 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
-// const APPLICATION_DOMAIN = "deliver-co.ir";
-const APPLICATION_DOMAIN = "wemessenger.ir";
+const APPLICATION_DOMAIN = "deliver-co.ir";
+// const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
 const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.7.1";
+const VERSION = "1.8.0";
 const LOG_OUT = "log_out";
 const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
 const int TEXT_MESSAGE_MAX_LENGTH = 50;
-const int TEXT_MESSAGE_MAX_LINE = 20;
+const int TEXT_MESSAGE_MAX_LINE = 25;
+//TEXT FIELD
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 4;
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
+    INPUT_MESSAGE_TEXT_FIELD_MAX_LINE * TEXT_MESSAGE_MAX_LENGTH;
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
 // ignore: non_constant_identifier_names
@@ -114,9 +118,9 @@ const MEDIA_META_DATA_TRACK_ID = 17;
 const MEDIA_TYPE_TRACK_ID = 18;
 const LIVE_LOCATION_TRACK_ID = 19;
 const CALL_INFO_TRACK_ID = 20;
-const CALL_EVENT_TRACK_ID=21;
-const CALL_STATUS_TRACK_ID=22;
-const CALL_TYPE_TRACK_ID=23;
+const CALL_EVENT_TRACK_ID = 21;
+const CALL_STATUS_TRACK_ID = 22;
+const CALL_TYPE_TRACK_ID = 23;
 // Animation
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 
