@@ -4,6 +4,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -86,6 +87,7 @@ class CallListWidget extends StatelessWidget {
               ],
             ),
           ),
+          ExpandableIcon(),
           IconButton(
             onPressed: null,
             icon: Icon(
