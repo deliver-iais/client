@@ -278,6 +278,7 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.Table:
         return BotTableWidget(
           message: widget.message,
+          colorScheme: widget.colorScheme,
         );
       case MessageType.PERSISTENT_EVENT:
         // we show peristant event message in roompage
