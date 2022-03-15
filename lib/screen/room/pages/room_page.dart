@@ -807,14 +807,9 @@ class _RoomPageState extends State<RoomPage> {
 
     return DraggableScrollbar(
       heightScrollThumb: 40.0,
+      itemCount: _itemCount,
       itemPositionsListener: _itemPositionsListener,
       controller: _itemScrollController,
-      scrollToDown: () {
-        // ScrollNext(pageitemcount: 1);
-      },
-      scrollToUp: () {
-        // ScrollBack(pageitemcount: 1);
-      },
       child: ScrollablePositionedList.separated(
         itemCount: _itemCount + 1,
         initialScrollIndex: initialScrollIndex,
@@ -1180,129 +1175,122 @@ class _RoomPageState extends State<RoomPage> {
 class DraggableScrollbar extends StatefulWidget {
   final double heightScrollThumb;
   final Widget child;
-  final Function scrollToUp;
-  final Function scrollToDown;
+  final int itemCount;
 
   final ItemScrollController controller;
   final ItemPositionsListener itemPositionsListener;
 
-  DraggableScrollbar(
-      {required this.heightScrollThumb,
+  const DraggableScrollbar(
+      {Key? key,
+      required this.heightScrollThumb,
       required this.child,
-      required this.scrollToDown,
-      required this.scrollToUp,
+      required this.itemCount,
       required this.controller,
-      required this.itemPositionsListener});
+      required this.itemPositionsListener})
+      : super(key: key);
 
   @override
-  _DraggableScrollbarState createState() => new _DraggableScrollbarState();
+  _DraggableScrollbarState createState() => _DraggableScrollbarState();
 }
 
 class _DraggableScrollbarState extends State<DraggableScrollbar> {
-  //this counts offset for scroll thumb in Vertical axis
   late double _barOffset;
 
-  //this counts offset for list in Vertical axis
-  late double _viewOffset;
+  bool _startScroll = false;
 
-  int _currentIndex = 0;
+  int _index = 0;
 
-  double dy = 0;
+  final BehaviorSubject<double> _botton = BehaviorSubject.seeded(0.0);
 
   @override
   void initState() {
     super.initState();
     _barOffset = 0.0;
-    _viewOffset = 0.0;
+    widget.itemPositionsListener.itemPositions.addListener(() {
+      if (!_startScroll) _restPosition();
+    });
   }
 
-  //if list takes 300.0 pixels of height on screen and scrollthumb height is 40.0
-  //then max bar offset is 260.0
-  double get barMaxScrollExtent => context.size!.height;
-
-  double get barMinScrollExtent => 0.0;
-
-  //this is usually lenght (in pixels) of list
-  //if list has 1000 items of 100.0 pixels each, maxScrollExtent is 100,000.0 pixels
-  double get viewMaxScrollExtent =>
-      widget.itemPositionsListener.itemPositions.value.last.itemLeadingEdge;
-
-  // //this is usually 0.0
-  // double get viewMinScrollExtent => widget.controller.position.minScrollExtent;
-
-  double getScrollViewDelta(
-    double barDelta,
-    double barMaxScrollExtent,
-    double viewMaxScrollExtent,
-  ) {
-    //propotion
-    return barDelta * viewMaxScrollExtent / barMaxScrollExtent;
+  _restPosition() {
+    List<ItemPosition> res =
+        widget.itemPositionsListener.itemPositions.value.toList();
+    res.sort((a, b) => (b.index) - (a.index));
+    double h = ((((widget.itemCount - res.first.index) / widget.itemCount) *
+        MediaQuery.of(context).size.height));
+    _botton.add(h);
   }
 
   void _onVerticalDragUpdate(DragUpdateDetails details) {
-    setState(() {
-      print(details.localPosition.dy);
-      if (dy == 0) {
-        dy = details.localPosition.dy;
-      }
+    _startScroll = true;
 
-      _barOffset += details.delta.dy;
+    List<ItemPosition> l =
+        widget.itemPositionsListener.itemPositions.value.toList();
+    l.sort((a, b) => (b.index) - (a.index));
+    if (_index <= 0) {
+      _index = l.last.index;
+    }
 
-      if (_barOffset < barMinScrollExtent) {
-        _barOffset = barMinScrollExtent;
-      }
-      if (_barOffset > barMaxScrollExtent) {
-        _barOffset = barMaxScrollExtent;
-      }
+    if (details.delta.dy > 0) {
+      _index = _index++;
+    } else {
+      _index = _index--;
+    }
 
-      double viewDelta = getScrollViewDelta(
-          details.delta.dy, barMaxScrollExtent, viewMaxScrollExtent);
-      List<ItemPosition> l =
-          widget.itemPositionsListener.itemPositions.value.toList();
-      l.sort((a, b) => (b.index) - (a.index));
+    if (_index <= 0 || _index >= widget.itemCount) {
+      return;
+    }
 
-      // _viewOffset = widget.controller.position.pixels + viewDelta;
-      // if (_viewOffset < widget.controller.position.minScrollExtent) {
-      //   _viewOffset = widget.controller.position.minScrollExtent;
-      // }
-      // if (_viewOffset > viewMaxScrollExtent) {
-      //   _viewOffset = viewMaxScrollExtent;
-      // }
+    _barOffset = ((((widget.itemCount - _index) / widget.itemCount) *
+        (MediaQuery.of(context).size.height)));
 
-      if (_currentIndex == 0) {
-        _currentIndex = l.last.index;
-      }
-      if (_currentIndex >= 0) {
-        if (dy >= details.localPosition.dy) {
-          _currentIndex = _currentIndex - 1;
-        } else {
-          _currentIndex = _currentIndex + 1;
-        }
-        dy = details.localPosition.dy;
+    _botton.add(_barOffset);
 
-        widget.controller.jumpTo(index: _currentIndex);
-      }
-    });
+    widget.controller.jumpTo(index: _index, alignment: 0.5);
+    _startScroll = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Stack(children: <Widget>[
-      widget.child,
-      GestureDetector(
-          onVerticalDragUpdate: _onVerticalDragUpdate,
-          child: Container(
-              alignment: Alignment.topRight,
-              margin: EdgeInsets.only(top: _barOffset),
-              child: _buildScrollThumb())),
+    return Stack(children: <Widget>[
+      ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: widget.child,
+      ),
+      StreamBuilder<double>(
+          stream: _botton.stream,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              return Positioned(
+                right: 2.0,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: max(
+                          MediaQuery.of(context).size.height -
+                              snapshot.data! -
+                              160,
+                          5),
+                      bottom: snapshot.data!),
+                  child: GestureDetector(
+                      onVerticalDragUpdate: _onVerticalDragUpdate,
+                      onVerticalDragCancel: () => _startScroll = false,
+                      onVerticalDragDown: (d) => _startScroll = false,
+                      child: _buildScrollThumb()),
+                ),
+              );
+            }
+            return SizedBox.shrink();
+          }),
     ]);
   }
 
   Widget _buildScrollThumb() {
-    return new Container(
-      height: widget.heightScrollThumb,
-      width: 20.0,
-      color: Colors.blue,
+    return Container(
+      height: 60,
+      width: 8,
+      decoration: BoxDecoration(
+        color: Colors.black26,
+        borderRadius: BorderRadius.circular(10),
+      ),
     );
   }
 }
