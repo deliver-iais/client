@@ -764,7 +764,7 @@ class CallRepo {
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-  startCall(Uid roomId, bool isVideo) async {
+  Future<bool> startCall(Uid roomId, bool isVideo) async {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       _isCaller = true;
       _isVideo = isVideo;
@@ -782,8 +782,10 @@ class CallRepo {
         }
       });
       _sendStartCallEvent();
+      return true;
     } else {
       _logger.i("User on Call ... !");
+      return false;
     }
   }
 
@@ -1077,8 +1079,9 @@ class CallRepo {
     Timer(const Duration(seconds: 2), () async {
       if (_isInitRenderer) {
         await disposeRenderer();
-        _callService.setUserCallState = UserCallState.NOCALL;
       }
+      _callService.setUserCallState = UserCallState.NOCALL;
+      _callService.setCallNotification = false;
     });
   }
 

@@ -495,9 +495,7 @@ class CoreServices {
         _groupCallEvents.add(callEvents);
       } else {
         // its group Call
-        if(!(callEvents.callEvent!.newStatus == CallEvent_CallStatus.IS_RINGING && _callService.getUserCallState == UserCallState.INUSERCALL)) {
-          _callEvents.add(callEvents);
-        }
+        _callEvents.add(callEvents);
       }
     }
     saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
@@ -537,12 +535,10 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    if (_routingServices.isInRoom(roomUid.asString()) &&
-        !isDesktop() &&
-        message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
-      _notificationServices.playSoundIn();
-    } else {
+    if (!_callService.isCallNotification && _routingServices.isInRoom(roomUid.asString()) &&
+        message.callEvent.newStatus == CallEvent_CallStatus.CREATED) {
       _notificationServices.showNotification(message);
+      _callService.setCallNotification = true;
     }
   }
 

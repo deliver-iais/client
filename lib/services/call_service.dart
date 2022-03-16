@@ -14,8 +14,13 @@ enum UserCallState {
 
 class CallService {
   UserCallState _callState = UserCallState.NOCALL;
+  bool _isCallNotification = false;
 
   UserCallState get getUserCallState => _callState;
 
   set setUserCallState(UserCallState cs) => _callState = cs;
+
+  bool get isCallNotification => _isCallNotification;
+
+  set setCallNotification(bool cn) => _isCallNotification = cn;
 }

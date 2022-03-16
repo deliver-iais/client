@@ -14,6 +14,8 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../services/call_service.dart';
+
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
   final DateTime time;
@@ -37,6 +39,7 @@ class CallDetailPage extends StatefulWidget {
 class _CallDetailPageState extends State<CallDetailPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _callService = GetIt.I.get<CallService>();
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +59,12 @@ class _CallDetailPageState extends State<CallDetailPage> {
                       _routingService.openRoom(widget.caller.asString()),
                   icon: const Icon(Icons.message)),
               IconButton(
-                  onPressed: () => _routingService.openCallScreen(widget.caller,
-                      context: context),
+                  onPressed: () => {
+                  if (_callService.getUserCallState == UserCallState.NOCALL || !_callService.isCallNotification) {
+                    _routingService.openCallScreen(widget.caller,
+                        context: context)
+                    }
+                  },
                   icon: const Icon(Icons.call))
             ],
             leading: _routingService.backButtonLeading(),
