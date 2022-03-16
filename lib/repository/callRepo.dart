@@ -1055,7 +1055,7 @@ class CallRepo {
     }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
-    Timer(const Duration(seconds: 2), () async {
+    Timer(const Duration(seconds: 1), () async {
       await fetchUserCallList(
           _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
       callingStatus.add(CallStatus.NO_CALL);
@@ -1065,7 +1065,6 @@ class CallRepo {
     _answerSdp = "";
     _callId = "";
     _roomUid = null;
-    _callService.setUserCallState = UserCallState.NOCALL;
     _isSharing = false;
     _isCaller = false;
     _isVideo = false;
@@ -1075,9 +1074,10 @@ class CallRepo {
     _startCallTime = 0;
     _callDuration = 0;
     callTimer.add(CallTimer(0, 0, 0));
-    Timer(const Duration(seconds: 4), () async {
+    Timer(const Duration(seconds: 2), () async {
       if (_isInitRenderer) {
         await disposeRenderer();
+        _callService.setUserCallState = UserCallState.NOCALL;
       }
     });
   }
