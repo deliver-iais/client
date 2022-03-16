@@ -150,6 +150,7 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<I18N>(I18N());
 
+  GetIt.I.registerSingleton<CallService>(CallService());
   // Order is important, don't change it!
   GetIt.I.registerSingleton<AuthServiceClient>(AuthServiceClient(
       kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
@@ -245,8 +246,6 @@ Future<void> setupDI() async {
   }
 
   GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
-
-  GetIt.I.registerSingleton<CallService>(CallService());
 
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());

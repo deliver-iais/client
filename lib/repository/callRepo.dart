@@ -765,9 +765,9 @@ class CallRepo {
   }
 
   startCall(Uid roomId, bool isVideo) async {
-    _isCaller = true;
-    _isVideo = isVideo;
     if (_callService.getUserCallState == UserCallState.NOCALL) {
+      _isCaller = true;
+      _isVideo = isVideo;
       _callService.setUserCallState = UserCallState.INUSERCALL;
       _roomUid = roomId;
       await initCall(false);

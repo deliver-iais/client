@@ -48,6 +48,8 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:fixnum/fixnum.dart';
 
+import 'call_service.dart';
+
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
 const MIN_BACKOFF_TIME = kIsWeb ? 16 : 4;
@@ -73,6 +75,7 @@ class CoreServices {
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
+  final _callService = GetIt.I.get<CallService>();
 
   Timer? _connectionTimer;
   var _lastPongTime = 0;
@@ -492,7 +495,9 @@ class CoreServices {
         _groupCallEvents.add(callEvents);
       } else {
         // its group Call
-        _callEvents.add(callEvents);
+        if(!(callEvents.callEvent!.newStatus == CallEvent_CallStatus.IS_RINGING && _callService.getUserCallState == UserCallState.INUSERCALL)) {
+          _callEvents.add(callEvents);
+        }
       }
     }
     saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
