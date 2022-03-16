@@ -648,7 +648,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
         return KeyEventResult.handled;
       }
-      if (event is RawKeyDownEvent &&
+      if (event.isControlPressed && event is RawKeyDownEvent &&
           event.physicalKey == PhysicalKeyboardKey.keyV) {
         _handleCV(event);
         return KeyEventResult.handled;
