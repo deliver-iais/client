@@ -59,12 +59,12 @@ class _CallDetailPageState extends State<CallDetailPage> {
                       _routingService.openRoom(widget.caller.asString()),
                   icon: const Icon(Icons.message)),
               IconButton(
-                  onPressed: () => {
-                  if (_callService.getUserCallState == UserCallState.NOCALL || !_callService.isCallNotification) {
-                    _routingService.openCallScreen(widget.caller,
-                        context: context)
-                    }
-                  },
+                  onPressed:
+                      (_callService.getUserCallState == UserCallState.NOCALL ||
+                              !_callService.isCallNotification)
+                          ? () => _routingService.openCallScreen(widget.caller,
+                              context: context)
+                          : null,
                   icon: const Icon(Icons.call))
             ],
             leading: _routingService.backButtonLeading(),

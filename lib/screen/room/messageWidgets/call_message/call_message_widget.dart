@@ -3,6 +3,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -17,6 +18,7 @@ class CallMessageWidget extends StatelessWidget {
   final int _callDuration;
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  static final _callService = GetIt.I.get<CallService>();
   final bool _isVideo;
 
   CallMessageWidget({Key? key, required this.message})
@@ -83,10 +85,13 @@ class CallMessageWidget extends StatelessWidget {
               ],
             ),
             InkWell(
-              onTap: () {
-                _routingService.openCallScreen(message.roomUid.asUid(),
-                    isVideoCall: _isVideo, context: context);
-              },
+              onTap: (_callService.getUserCallState == UserCallState.NOCALL ||
+                      !_callService.isCallNotification)
+                  ? () => _routingService.openCallScreen(
+                      message.roomUid.asUid(),
+                      isVideoCall: _isVideo,
+                      context: context)
+                  : null,
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Icon(
