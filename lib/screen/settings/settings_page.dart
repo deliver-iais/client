@@ -21,6 +21,7 @@ import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -53,7 +54,6 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: UltimateAppBar(
-          preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
             title: Text(_i18n.get("settings")),
@@ -137,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                     title: _i18n.get("qr_share"),
-                    leading: const Icon(Icons.qr_code),
+                    leading: const Icon(CupertinoIcons.qrcode),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
                       showQrCode(
@@ -151,7 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: _i18n.get("saved_message"),
-                    leading: const Icon(Icons.bookmark),
+                    leading: const Icon(CupertinoIcons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
@@ -159,14 +159,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: _i18n.get("contacts"),
-                    leading: const Icon(Icons.contacts),
+                    leading: const Icon(CupertinoIcons.person_2),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
                     },
                   ),
                   SettingsTile(
                     title: _i18n.get("calls"),
-                    leading: const Icon(Icons.call),
+                    leading: const Icon(CupertinoIcons.phone),
                     onPressed: (BuildContext context) {
                       _routingService.openCallsList();
                     },
@@ -178,7 +178,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile.switchTile(
                     title: _i18n.get("notification"),
-                    leading: const Icon(Icons.notifications_active),
+                    leading: const Icon(CupertinoIcons.bell),
                     switchValue: !_uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
@@ -186,14 +186,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("language"),
                     subtitle: I18N.of(context)!.locale.language().name,
-                    leading: const Icon(Icons.language),
+                    leading: const Icon(CupertinoIcons.textformat_abc),
                     onPressed: (BuildContext context) {
                       _routingService.openLanguageSettings();
                     },
                   ),
                   SettingsTile.switchTile(
                     title: _i18n.get("dark_mode"),
-                    leading: const Icon(Icons.brightness_2),
+                    leading: const Icon(CupertinoIcons.moon),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
                       setState(() {
@@ -203,14 +203,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: _i18n.get("security"),
-                    leading: const Icon(Icons.security),
+                    leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
                     onPressed: (BuildContext context) =>
                         _routingService.openSecuritySettings(),
                     trailing: const SizedBox.shrink(),
                   ),
                   SettingsTile(
                     title: _i18n.get("devices"),
-                    leading: const Icon(Icons.devices),
+                    leading: const Icon(CupertinoIcons.device_desktop),
                     onPressed: (c) {
                       _routingService.openDevices();
                     },
@@ -218,7 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (isDesktop())
                     SettingsTile.switchTile(
                       title: _i18n.get("send_by_shift_enter"),
-                      leading: const Icon(Icons.keyboard),
+                      leading: const Icon(CupertinoIcons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
                         setState(() => _uxService.toggleSendByEnter());
@@ -245,6 +245,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                       title: _i18n.get("version"),
+                      leading: const Icon(CupertinoIcons.square_stack_3d_down_right),
                       trailing: UxService.isDeveloperMode
                           ? FutureBuilder<String?>(
                               future: SmsAutoFill().getAppSignature,
@@ -262,7 +263,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                   SettingsTile(
                     title: _i18n.get("logout"),
-                    leading: const Icon(Icons.exit_to_app),
+                    leading: const Icon(CupertinoIcons.square_arrow_left),
                     onPressed: (BuildContext context) =>
                         openLogoutAlertDialog(context, _i18n),
                     trailing: const SizedBox.shrink(),

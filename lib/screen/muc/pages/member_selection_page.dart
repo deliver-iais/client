@@ -68,17 +68,10 @@ class MemberSelectionPage extends StatelessWidget {
         ),
       ),
       body: FluidContainerWidget(
-        child: Container(
-          margin: const EdgeInsets.all(24.0),
-          padding: const EdgeInsets.only(bottom: 16.0),
-          decoration: BoxDecoration(
-            borderRadius: mainBorder,
-            color: theme.colorScheme.surface,
-          ),
-          child: SelectiveContactsList(
-            isChannel: isChannel,
-            mucUid: mucUid,
-          ),
+        showStandardContainer: true,
+        child: SelectiveContactsList(
+          isChannel: isChannel,
+          mucUid: mucUid,
         ),
       ),
     );

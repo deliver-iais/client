@@ -1,4 +1,5 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -285,10 +286,6 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
           }
         },
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: mainBorder,
-            color: theme.colorScheme.surface,
-          ),
           height: widget.subtitle == null ? 44.0 : 57.0,
           child: Row(
             children: rowChildren,

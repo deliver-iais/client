@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 class UltimateAppBar extends StatelessWidget implements PreferredSizeWidget {
   const UltimateAppBar(
-      {Key? key, required this.child, required this.preferredSize})
+      {Key? key,
+      required this.child,
+      this.preferredSize = const Size.fromHeight(50.0)})
       : super(key: key);
 
   /// The widget below this widget in the tree.
