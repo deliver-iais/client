@@ -35,13 +35,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -647,7 +648,13 @@ class _InputMessageWidget extends State<InputMessage> {
         }
         return KeyEventResult.handled;
       }
+      if (event.isControlPressed && event is RawKeyDownEvent &&
+          event.physicalKey == PhysicalKeyboardKey.keyV) {
+        _handleCV(event);
+        return KeyEventResult.handled;
+      }
     }
+
     _rawKeyboardService.handleCopyPastKeyPress(
         widget.textController, event, context, currentRoom.uid.asUid());
     if (widget.currentRoom.uid.asUid().isGroup()) {
@@ -669,6 +676,19 @@ class _InputMessageWidget extends State<InputMessage> {
     }
 
     return KeyEventResult.ignored;
+  }
+
+  _handleCV(RawKeyEvent event) async {
+    final files = await Pasteboard.files();
+    if (files.isEmpty) {
+      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      widget.textController.text = widget.textController.text + data!.text!;
+      widget.textController.selection = TextSelection.fromPosition(
+          TextPosition(offset: widget.textController.text.length));
+    } else {
+      _rawKeyboardService.controlVHandle(
+          widget.textController, context, widget.currentRoom.uid.asUid());
+    }
   }
 
   scrollUpInBotCommand() {

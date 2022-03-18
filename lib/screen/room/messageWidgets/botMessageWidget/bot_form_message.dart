@@ -119,6 +119,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
                           child: buildTitle(theme, _errorText),
                         ),
                         content: buildContent(),
+                        contentPadding:
+                        const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 10.0),
                         actions: [
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -212,10 +214,28 @@ class _BotFormMessageState extends State<BotFormMessage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          form.title.titleCase,
-          style: theme.textTheme.subtitle2
-              ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset(
+              "assets/animations/form_animation.zip",
+              width: 60,
+              height: 60,
+              delegates: LottieDelegates(
+                values: [
+                  ValueDelegate.color(
+                    const ['**'],
+                    value: widget.colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              form.title.titleCase,
+              style: theme.textTheme.subtitle2
+                  ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
+            ),
+          ],
         ),
         StreamBuilder<String>(
             stream: _errorText.stream,
@@ -236,7 +256,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     return SingleChildScrollView(
       controller: _scrollController,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: _widgets,

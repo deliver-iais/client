@@ -329,7 +329,7 @@ class MyApp extends StatelessWidget {
               child: WithForegroundTask(
                   child: MaterialApp(
                 debugShowCheckedModeBanner: false,
-                title: 'Deliver',
+                title: APPLICATION_NAME,
                 locale: _i18n.locale,
                 theme: _uxService.theme,
                 navigatorKey: _routingService.mainNavigatorState,
