@@ -12,6 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+import 'dart:math' as math;
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
@@ -43,21 +44,15 @@ class _CallDetailPageState extends State<CallDetailPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatarWidget(
-                widget.isIncomingCall
-                    ? widget.caller
-                    : _authRepo.currentUserUid,
-                23,
-                isHeroEnabled: false,
-                showSavedMessageLogoIfNeeded: false),
-            Lottie.asset("assets/animations/arrow.json", height: 100),
-            CircleAvatarWidget(
-                widget.isIncomingCall
-                    ? _authRepo.currentUserUid
-                    : widget.caller,
-                23,
-                isHeroEnabled: false,
-                showSavedMessageLogoIfNeeded: false),
+            CircleAvatarWidget(_authRepo.currentUserUid, 23,
+                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.rotationY(widget.isIncomingCall ? math.pi : 0),
+              child: Lottie.asset("assets/animations/arrow.json", height: 100),
+            ),
+            CircleAvatarWidget(widget.caller, 23,
+                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
           ],
         ),
         Row(
