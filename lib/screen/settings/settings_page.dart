@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/account.dart';
 
@@ -17,6 +19,7 @@ import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/foundation.dart';
 
@@ -48,7 +51,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        appBar: PreferredSize(
+        extendBodyBehindAppBar: true,
+        appBar: UltimateAppBar(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
@@ -70,7 +74,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 var lastAvatar =
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
-                                if (lastAvatar?.createdOn != null && lastAvatar!.createdOn > 0) {
+                                if (lastAvatar?.createdOn != null &&
+                                    lastAvatar!.createdOn > 0) {
                                   _routingService.openShowAllAvatars(
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
@@ -97,25 +102,19 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style:theme
-                                            .textTheme
-                                            .headline6,
+                                        style: theme.textTheme.headline6,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         snapshot.data!.userName ?? "",
-                                        style:theme
-                                            .primaryTextTheme
-                                            .subtitle1,
+                                        style: theme.primaryTextTheme.subtitle1,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         buildPhoneNumber(
                                             snapshot.data!.countryCode!,
                                             snapshot.data!.nationalNumber!),
-                                        style:theme
-                                            .textTheme
-                                            .subtitle1,
+                                        style: theme.textTheme.subtitle1,
                                       )
                                     ],
                                   );
