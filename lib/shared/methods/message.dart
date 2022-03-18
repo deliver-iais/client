@@ -328,6 +328,9 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
       break;
     case MessageType.NOT_SET:
       break;
+    case MessageType.Table:
+      msg.table = message.json.toTable();
+      break;
     default:
       break;
   }
@@ -412,6 +415,8 @@ String messageBodyToJson(message_pb.Message message) {
       return message.callEvent.writeToJson();
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
+    case MessageType.Table:
+      return message.table.writeToJson();
   }
 }
 
@@ -445,6 +450,8 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
     case message_pb.Message_Type.callEvent:
       return MessageType.CALL;
+    case message_pb.Message_Type.table:
+      return MessageType.Table;
     default:
       return MessageType.NOT_SET;
   }
