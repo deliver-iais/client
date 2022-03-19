@@ -311,7 +311,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: MergeStream([
-        _uxService.themeStream,
+        _uxService.themeIndexStream,
+        _uxService.themeIsDarkStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {

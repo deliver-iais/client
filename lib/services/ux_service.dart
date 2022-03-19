@@ -68,8 +68,9 @@ class UxService {
 
   final _sharedDao = GetIt.I.get<SharedDao>();
 
-  final _theme = BehaviorSubject.seeded(LightTheme);
-  final _extraTheme = BehaviorSubject.seeded(LightExtraTheme);
+  final _themeIndex = BehaviorSubject.seeded(0);
+  final _themeIsDark = BehaviorSubject.seeded(false);
+
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop());
 
@@ -93,39 +94,55 @@ class UxService {
     _sharedDao.get(SHARED_DAO_THEME).then((event) {
       if (event != null) {
         if (event.contains(DarkThemeName)) {
-          _theme.add(DarkTheme);
-          _extraTheme.add(DarkExtraTheme);
-        } else if (event.contains(LightThemeName)) {
-          _theme.add(LightTheme);
-          _extraTheme.add(LightExtraTheme);
+          _themeIsDark.add(true);
         } else {
-          _theme.add(LightTheme);
-          _extraTheme.add(LightExtraTheme);
+          _themeIsDark.add(false);
         }
+      }
+    });
+    _sharedDao.get(SHARED_DAO_THEME_COLOR).then((event) {
+      if (event != null) {
+        try {
+          final colorIndex = int.parse(event);
+          _themeIndex.add(colorIndex);
+        } catch (_) {}
       }
     });
   }
 
-  Stream get themeStream => _theme.stream.distinct().map((event) => event);
+  Stream get themeIndexStream =>
+      _themeIndex.stream.distinct().map((event) => event);
 
-  ThemeData get theme => _theme.value;
+  Stream get themeIsDarkStream =>
+      _themeIsDark.stream.distinct().map((event) => event);
 
-  ExtraThemeData get extraTheme => _extraTheme.value;
+  ThemeData get theme =>
+      getThemeScheme(_themeIndex.value).theme(_themeIsDark.value);
+
+  ExtraThemeData get extraTheme =>
+      getThemeScheme(_themeIndex.value).extraTheme(_themeIsDark.value);
+
+  bool get themeIsDark => _themeIsDark.value;
+
+  int get themeIndex => _themeIndex.value;
 
   bool get sendByEnter => isDesktop() ? _sendByEnter.value : false;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
-  toggleTheme() {
-    if (theme == DarkTheme) {
+  toggleThemeLightingMode() {
+    if (_themeIsDark.value) {
       _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
-      _theme.add(LightTheme);
-      _extraTheme.add(LightExtraTheme);
+      _themeIsDark.add(false);
     } else {
       _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
-      _theme.add(DarkTheme);
-      _extraTheme.add(DarkExtraTheme);
+      _themeIsDark.add(true);
     }
+  }
+
+  selectTheme(int index) {
+    _sharedDao.put(SHARED_DAO_THEME_COLOR, index.toString());
+    _themeIndex.add(index);
   }
 
   toggleSendByEnter() {

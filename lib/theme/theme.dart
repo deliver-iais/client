@@ -4,13 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 
-final corePalette = CorePalette.of(0xFF0060a7);
-
-final _colorSchemeLight = Material3ColorScheme.lightOfCorePalette(corePalette);
-
-final _colorSchemeDark = Material3ColorScheme.darkOfCorePalette(corePalette);
-
-final List<HctColor> customHctColors = [
+final List<HctColor> _customHctColors = [
   HctColor.fromInt(Colors.orange.value),
   HctColor.fromInt(Colors.brown.value),
   HctColor.fromInt(Colors.yellow.value),
@@ -24,21 +18,30 @@ final List<HctColor> customHctColors = [
 // ignore: constant_identifier_names
 const LightThemeName = "Light";
 
-// ignore: non_constant_identifier_names
-ExtraThemeData LightExtraTheme = getExtraThemeData(
-  _colorSchemeLight,
-  customHctColors,
-);
-
-// ignore: non_constant_identifier_names
-ThemeData LightTheme = getThemeData(_colorSchemeLight);
-
 // ignore: constant_identifier_names
 const DarkThemeName = "Dark";
 
-// ignore: non_constant_identifier_names
-ExtraThemeData DarkExtraTheme =
-    getExtraThemeData(_colorSchemeDark, customHctColors);
+final palettes = [
+  const Color(0xFF0060a7),
+  Colors.red,
+  Colors.green,
+  Colors.yellow,
+];
 
-// ignore: non_constant_identifier_names
-ThemeData DarkTheme = getThemeData(_colorSchemeDark);
+ThemeScheme getThemeScheme(int index) =>
+    ThemeScheme(CorePalette.of(palettes[index % palettes.length].value));
+
+class ThemeScheme {
+  final Material3ColorScheme _dark;
+  final Material3ColorScheme _light;
+
+  ThemeScheme(CorePalette palette)
+      : _dark = Material3ColorScheme.lightOfCorePalette(palette),
+        _light = Material3ColorScheme.darkOfCorePalette(palette);
+
+  theme(bool isDark) => isDark ? getThemeData(_dark) : getThemeData(_light);
+
+  extraTheme(bool isDark) => isDark
+      ? getExtraThemeData(_dark, _customHctColors)
+      : getExtraThemeData(_light, _customHctColors);
+}

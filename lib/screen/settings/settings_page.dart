@@ -191,16 +191,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       _routingService.openLanguageSettings();
                     },
                   ),
-                  SettingsTile.switchTile(
-                    title: _i18n.get("dark_mode"),
-                    leading: const Icon(CupertinoIcons.moon),
-                    switchValue: _uxService.theme == DarkTheme,
-                    onToggle: (value) {
-                      setState(() {
-                        _uxService.toggleTheme();
-                      });
-                    },
-                  ),
                   SettingsTile(
                     title: _i18n.get("security"),
                     leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
@@ -226,6 +216,34 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                 ],
               ),
+              Section(
+                title: 'Theme',
+                children: [
+                  SettingsTile(
+                    title: "Main Color",
+                    leading: const Icon(CupertinoIcons.color_filter),
+                    trailing: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < palettes.length; i++)
+                            color(palettes[i], i)
+                        ],
+                      ),
+                    ),
+                  ),
+                  SettingsTile.switchTile(
+                    title: _i18n.get("dark_mode"),
+                    leading: const Icon(CupertinoIcons.moon),
+                    switchValue: !_uxService.themeIsDark,
+                    onToggle: (value) {
+                      setState(() {
+                        _uxService.toggleThemeLightingMode();
+                      });
+                    },
+                  ),
+                ],
+              ),
               if (UxService.isDeveloperMode)
                 Section(
                   title: 'Developer Mode',
@@ -245,7 +263,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                       title: _i18n.get("version"),
-                      leading: const Icon(CupertinoIcons.square_stack_3d_down_right),
+                      leading:
+                          const Icon(CupertinoIcons.square_stack_3d_down_right),
                       trailing: UxService.isDeveloperMode
                           ? FutureBuilder<String?>(
                               future: SmsAutoFill().getAppSignature,
@@ -299,6 +318,33 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           );
         });
+  }
+
+  Widget color(Color color, int index) {
+    bool isSelected = _uxService.themeIndex == index;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _uxService.selectTheme(index);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: isSelected
+                  ? Border.all(color: Theme.of(context).primaryColor, width: 2)
+                  : null),
+          padding: const EdgeInsets.all(4),
+          child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color,
+              ),
+              width: 32,
+              height: 32),
+        ),
+      ),
+    );
   }
 }
 
