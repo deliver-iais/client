@@ -34,6 +34,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -66,6 +67,8 @@ import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
+import '../models/call_event_type.dart';
+import '../services/call_service.dart';
 import '../shared/constants.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
@@ -94,6 +97,8 @@ class MessageRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
+  final _callService = GetIt.I.get<CallService>();
+
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
   final updatingStatus =
@@ -487,6 +492,30 @@ class MessageRepo {
 
     Message msg =
         _createMessage(room).copyWith(type: MessageType.CALL, json: json);
+
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+  }
+
+  sendCallMessageWithMemberOrCallOwnerPvp(
+      call_pb.CallEvent_CallStatus newStatus,
+      Uid room,
+      String callId,
+      int callDuration,
+      int endOfCallDuration,
+      Uid memberOrCallOwnerPvp,
+      call_pb.CallEvent_CallType callType) async {
+    String json = (call_pb.CallEvent()
+      ..newStatus = newStatus
+      ..id = callId
+      ..callDuration = Int64(callDuration)
+      ..endOfCallTime = Int64(endOfCallDuration)
+      ..memberOrCallOwnerPvp = memberOrCallOwnerPvp
+      ..callType = callType)
+        .writeToJson();
+
+    Message msg =
+    _createMessage(room).copyWith(type: MessageType.CALL, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -928,6 +957,17 @@ class MessageRepo {
 
             default:
               break;
+          }
+        } else if (_callService.getUserCallState != UserCallState.NOCALL
+            && message.whichType() == message_pb.Message_Type.callEvent) {
+          var callEvents =
+          CallEvents.callEvent(message.callEvent, roomUid: message.from);
+          if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
+              message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
+            // its group Call
+            _callService.addGroupCallEvent(callEvents);
+          } else {
+            _callService.addCallEvent(callEvents);
           }
         } else {}
       } catch (e) {

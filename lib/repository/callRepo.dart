@@ -97,6 +97,7 @@ class CallRepo {
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
+  Uid? _callOwner;
 
   Uid? get roomUid => _roomUid;
 
@@ -111,7 +112,9 @@ class CallRepo {
 
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
-  Timer? timerResend;
+  Timer? timerResendCreate;
+  Timer? timerResendOffer;
+  Timer? timerResendAnswer;
   Timer? timerConnectionFailed;
   Timer? timerDisconnected;
   BehaviorSubject<CallTimer> callTimer =
@@ -121,12 +124,10 @@ class CallRepo {
   ReceivePort? _receivePort;
 
   CallRepo() {
-    _coreServices.callEvents.listen((event) async {
+    _callService.callEvents.listen((event) async {
       switch (event.callType) {
         case CallTypes.Answer:
-          if (!_reconnectTry) {
-            callingStatus.add(CallStatus.IN_CALL);
-          }
+          timerResendOffer!.cancel();
           _receivedCallAnswer(event.callAnswer!);
           break;
         case CallTypes.Offer:
@@ -136,12 +137,13 @@ class CallRepo {
           var callEvent = event.callEvent;
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
-              timerResend!.cancel();
+              timerResendCreate!.cancel();
               callingStatus.add(CallStatus.IS_RINGING);
               break;
             case CallEvent_CallStatus.CREATED:
               if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
+                _callOwner = callEvent.memberOrCallOwnerPvp;
                 _callId = callEvent.id;
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
@@ -271,6 +273,8 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
+          } else{
+            timerResendAnswer!.cancel();
           }
           break;
         case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
@@ -319,6 +323,8 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
+          }else{
+            timerResendAnswer!.cancel();
           }
           if (!kIsWeb) {
             _startCallTimerAndChangeStatus();
@@ -665,9 +671,6 @@ class CallRepo {
   }
 
   Future<bool> _startForegroundTask() async {
-    // You can save data using the saveData function.
-    await FlutterForegroundTask.saveData(key: 'callStatus', value: "Connected");
-
     ReceivePort? receivePort;
     if (await FlutterForegroundTask.isRunningService) {
       receivePort = await FlutterForegroundTask.restartService();
@@ -705,10 +708,12 @@ class CallRepo {
   bool muteMicrophone() {
     if (_localStream != null) {
       bool enabled = _localStream!.getAudioTracks()[0].enabled;
-      if (enabled) {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
-      } else {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
+      if(_isConnected) {
+        if (enabled) {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
+        } else {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
+        }
       }
       _localStream!.getAudioTracks()[0].enabled = !enabled;
       return enabled;
@@ -742,10 +747,12 @@ class CallRepo {
   bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream!.getVideoTracks()[0].enabled;
-      if (enabled) {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
-      } else {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+      if(_isConnected) {
+        if (enabled) {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
+        } else {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+        }
       }
       _localStream!.getVideoTracks()[0].enabled = !enabled;
       return enabled;
@@ -795,15 +802,16 @@ class CallRepo {
   _sendStartCallEvent() {
     _callIdGenerator();
     var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-    messageRepo.sendCallMessage(
+    messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
         CallEvent_CallStatus.CREATED,
         _roomUid!,
         _callId,
         0,
         endOfCallDuration,
+        _authRepo.currentUserUid,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
     //Set Timer 10 sec for resend Call Created Event if user offline
-    timerResend = Timer(const Duration(seconds: 10), () {
+    timerResendCreate = Timer(const Duration(seconds: 10), () {
       if (callingStatus.value == CallStatus.CREATED) {
         _sendStartCallEvent();
       }
@@ -824,6 +832,16 @@ class CallRepo {
     _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
     callingStatus.add(CallStatus.CONNECTING);
+
+    //after accept Call w8 for 30 sec if don't connecting force end Call
+    timerConnectionFailed = Timer(const Duration(seconds: 30), () {
+      if (callingStatus.value != CallStatus.CONNECTED) {
+        _logger.i("Call Can't Connected !!");
+        callingStatus.add(CallStatus.ENDED);
+        endCall(true);
+        timerResendAnswer!.cancel();
+      }
+    });
   }
 
   Future<void> declineCall() async {
@@ -900,13 +918,24 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED,
-          _roomUid!,
-          _callId,
-          _callDuration!,
-          endOfCallDuration,
-          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      if(isForce){
+        messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
+            CallEvent_CallStatus.ENDED,
+            _roomUid!,
+            _callId,
+            _callDuration!,
+            endOfCallDuration,
+            _callOwner!,
+            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      }else {
+        messageRepo.sendCallMessage(
+            CallEvent_CallStatus.ENDED,
+            _roomUid!,
+            _callId,
+            _callDuration!,
+            endOfCallDuration,
+            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+      }
     } else {
       _callDuration = callDuration;
     }
@@ -914,12 +943,12 @@ class CallRepo {
   }
 
   endCall(bool isForce) async {
-    if (isForce) {
-      receivedEndCall(0, isForce);
-    } else if (_isCaller) {
-      receivedEndCall(0, isForce);
-    } else {
-      _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+    if(_callService.getUserCallState != CallStatus.NO_CALL) {
+      if (isForce || _isCaller) {
+        receivedEndCall(0, isForce);
+      } else {
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+      }
     }
   }
 
@@ -1003,9 +1032,13 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
+    timerResendOffer =  Timer(const Duration(seconds: 8), () {
+      _coreServices.sendCallOffer(callOfferByClient);
+    });
   }
 
   _calculateCandidateAndSendAnswer() async {
+    //TODO we need timer here for reSend Answer
     _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
@@ -1023,6 +1056,9 @@ class CallRepo {
     if (_reconnectTry) {
       callingStatus.add(CallStatus.IN_CALL);
     }
+    timerResendAnswer =  Timer(const Duration(seconds: 8), () {
+      _coreServices.sendCallAnswer(callAnswerByClient);
+    });
     //Set Timer 30 sec for end call if Call doesn't Connected
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
@@ -1243,21 +1279,17 @@ void startCallback() {
 
 class FirstTaskHandler extends TaskHandler {
   // ignore: prefer_typing_uninitialized_variables
-  late final callStatus;
-  // ignore: prefer_typing_uninitialized_variables
   late final sPort;
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     // You can use the getData function to get the data you saved.
-    callStatus = await FlutterForegroundTask.getData<String>(key: 'callStatus');
     sPort = sendPort;
   }
 
   @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     // Send data to the main isolate.
-    sendPort?.send(callStatus);
   }
 
   @override

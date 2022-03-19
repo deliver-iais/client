@@ -91,7 +91,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://github.com/deliver-iais/pub-dart-artifactory
-      ref: tags/v1.11.23
+      ref: tags/v1.11.28
 
   grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:

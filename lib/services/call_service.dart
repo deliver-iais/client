@@ -1,3 +1,7 @@
+import 'package:rxdart/rxdart.dart';
+
+import '../models/call_event_type.dart';
+
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
   // ignore: constant_identifier_names
@@ -13,6 +17,36 @@ enum UserCallState {
 }
 
 class CallService {
+
+  final BehaviorSubject<CallEvents> callEvents =
+  BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> _callEvents =
+  BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> groupCallEvents =
+  BehaviorSubject.seeded(CallEvents.none);
+
+  final BehaviorSubject<CallEvents> _groupCallEvents =
+  BehaviorSubject.seeded(CallEvents.none);
+
+  CallService(){
+    _callEvents.distinct().listen((event) {
+      callEvents.add(event);
+    });
+    _groupCallEvents.distinct().listen((event) {
+      groupCallEvents.add(event);
+    });
+  }
+
+  addCallEvent(CallEvents event){
+    _callEvents.add(event);
+  }
+
+  addGroupCallEvent(CallEvents event){
+    _groupCallEvents.add(event);
+  }
+
   UserCallState _callState = UserCallState.NOCALL;
   bool _isCallNotification = false;
 

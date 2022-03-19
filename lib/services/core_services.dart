@@ -95,18 +95,6 @@ class CoreServices {
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-  final BehaviorSubject<CallEvents> callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
   //TODO test
   initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
@@ -116,12 +104,6 @@ class CoreServices {
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
-    });
-    _callEvents.distinct().listen((event) {
-      callEvents.add(event);
-    });
-    _groupCallEvents.distinct().listen((event) {
-      groupCallEvents.add(event);
     });
   }
 
@@ -205,9 +187,9 @@ class CoreServices {
                     call_pb.CallEvent_CallType.GROUP_AUDIO ||
                 serverPacket.callOffer.callType ==
                     call_pb.CallEvent_CallType.GROUP_VIDEO) {
-              _groupCallEvents.add(callEvents);
+              _callService.addGroupCallEvent(callEvents);
             } else {
-              _callEvents.add(callEvents);
+              _callService.addCallEvent(callEvents);
             }
             break;
           case ServerPacket_Type.callAnswer:
@@ -217,9 +199,9 @@ class CoreServices {
                     call_pb.CallEvent_CallType.GROUP_AUDIO ||
                 serverPacket.callAnswer.callType ==
                     call_pb.CallEvent_CallType.GROUP_VIDEO) {
-              _groupCallEvents.add(callEvents);
+              _callService.addGroupCallEvent(callEvents);
             } else {
-              _callEvents.add(callEvents);
+              _callService.addCallEvent(callEvents);
             }
             break;
           case ServerPacket_Type.expletivePacket:
@@ -492,10 +474,10 @@ class CoreServices {
           CallEvents.callEvent(message.callEvent, roomUid: message.from);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        _groupCallEvents.add(callEvents);
-      } else {
         // its group Call
-        _callEvents.add(callEvents);
+        _callService.addGroupCallEvent(callEvents);
+      } else {
+        _callService.addCallEvent(callEvents);
       }
     }
     saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
