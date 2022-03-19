@@ -111,6 +111,7 @@ class CallRepo {
 
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
+  Timer? timerResend;
   Timer? timerConnectionFailed;
   Timer? timerDisconnected;
   BehaviorSubject<CallTimer> callTimer =
@@ -135,10 +136,11 @@ class CallRepo {
           var callEvent = event.callEvent;
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
+              timerResend!.cancel();
               callingStatus.add(CallStatus.IS_RINGING);
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
+              if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 _callId = callEvent.id;
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
@@ -764,11 +766,14 @@ class CallRepo {
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-  Future<bool> startCall(Uid roomId, bool isVideo) async {
+  startCall(Uid roomId, bool isVideo) async {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
+      //can't call another ppl or received any call notification
+      _callService.setCallNotification = true;
+      _callService.setUserCallState = UserCallState.INUSERCALL;
+
       _isCaller = true;
       _isVideo = isVideo;
-      _callService.setUserCallState = UserCallState.INUSERCALL;
       _roomUid = roomId;
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
@@ -782,10 +787,8 @@ class CallRepo {
         }
       });
       _sendStartCallEvent();
-      return true;
     } else {
       _logger.i("User on Call ... !");
-      return false;
     }
   }
 
@@ -799,6 +802,12 @@ class CallRepo {
         0,
         endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
+    //Set Timer 10 sec for resend Call Created Event if user offline
+    timerResend = Timer(const Duration(seconds: 10), () {
+      if (callingStatus.value == CallStatus.CREATED) {
+        _sendStartCallEvent();
+      }
+    });
   }
 
   _callIdGenerator() {

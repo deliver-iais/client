@@ -60,8 +60,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
                   icon: const Icon(Icons.message)),
               IconButton(
                   onPressed:
-                      (_callService.getUserCallState == UserCallState.NOCALL ||
-                              !_callService.isCallNotification)
+                      (_callService.getUserCallState == UserCallState.NOCALL)
                           ? () => _routingService.openCallScreen(widget.caller,
                               context: context)
                           : null,

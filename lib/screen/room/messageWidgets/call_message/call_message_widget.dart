@@ -32,7 +32,7 @@ class CallMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isIncomingCall = _callEvent == CallEvent_CallStatus.DECLINED
+    bool isIncomingCall = (_callEvent == CallEvent_CallStatus.DECLINED || _callEvent == CallEvent_CallStatus.BUSY)
         ? _authRepo.isCurrentUser(message.to)
         : _authRepo.isCurrentUser(message.from);
     return Container(
@@ -85,8 +85,7 @@ class CallMessageWidget extends StatelessWidget {
               ],
             ),
             InkWell(
-              onTap: (_callService.getUserCallState == UserCallState.NOCALL ||
-                      !_callService.isCallNotification)
+              onTap: (_callService.getUserCallState == UserCallState.NOCALL)
                   ? () => _routingService.openCallScreen(
                       message.roomUid.asUid(),
                       isVideoCall: _isVideo,

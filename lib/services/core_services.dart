@@ -535,8 +535,8 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    if (!_callService.isCallNotification && _routingServices.isInRoom(roomUid.asString()) &&
-        message.callEvent.newStatus == CallEvent_CallStatus.CREATED) {
+    if ((!_callService.isCallNotification && message.callEvent.newStatus == CallEvent_CallStatus.CREATED) ||
+      _routingServices.isInRoom(roomUid.asString())) {
       _notificationServices.showNotification(message);
       _callService.setCallNotification = true;
     }

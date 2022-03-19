@@ -662,8 +662,7 @@ class _RoomPageState extends State<RoomPage> {
                 .contains(_authRepo.currentUserUid.asString()))
           IconButton(
               onPressed:
-                  (_callService.getUserCallState == UserCallState.NOCALL ||
-                          !_callService.isCallNotification)
+                  (_callService.getUserCallState == UserCallState.NOCALL)
                       ? () => _routingService.openCallScreen(room.uid.asUid(),
                           context: context)
                       : null,
