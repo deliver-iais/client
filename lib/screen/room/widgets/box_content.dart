@@ -6,6 +6,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_table_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
@@ -272,6 +273,11 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
+          colorScheme: widget.colorScheme,
+        );
+      case MessageType.Table:
+        return BotTableWidget(
+          message: widget.message,
           colorScheme: widget.colorScheme,
         );
       case MessageType.PERSISTENT_EVENT:
