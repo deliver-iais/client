@@ -229,7 +229,6 @@ flutter:
     - assets/animations/arrow.json
     - assets/animations/form_animation.zip
     - assets/animations/touch.zip
-    - assets/animations/dots.zip
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
