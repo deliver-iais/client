@@ -652,7 +652,7 @@ class _RoomPageState extends State<RoomPage> {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return UltimateAppBar(
-      preferredSize: const Size.fromHeight(60.0),
+      preferredSize: const Size.fromHeight(54.0),
       child: AppBar(
         actions: [
           //TODO after increase bandwidth we add videoCall

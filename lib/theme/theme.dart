@@ -10,7 +10,6 @@ final List<HctColor> _customHctColors = [
   HctColor.fromInt(Colors.yellowAccent.value),
   HctColor.fromInt(Colors.green.value),
   HctColor.fromInt(Colors.lightGreen.value),
-  HctColor.fromInt(Colors.red.value),
   HctColor.fromInt(Colors.purple.value)
 ];
 
