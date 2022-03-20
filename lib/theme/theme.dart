@@ -23,7 +23,7 @@ const DarkThemeName = "Dark";
 
 final palettes = [
   const Color(0xFF0060a7),
-  Colors.red,
+  const Color(0xff5c00a7),
   Colors.green,
   Colors.yellow,
 ];
