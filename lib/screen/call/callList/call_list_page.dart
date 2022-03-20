@@ -6,14 +6,11 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:deliver/theme/color_scheme.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/material.dart';

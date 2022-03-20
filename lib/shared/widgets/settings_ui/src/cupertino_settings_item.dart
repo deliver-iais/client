@@ -1,5 +1,3 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

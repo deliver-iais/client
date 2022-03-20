@@ -1,5 +1,4 @@
 import 'package:deliver/theme/color_scheme.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
@@ -15,6 +14,7 @@ final List<HctColor> _customHctColors = [
   HctColor.fromInt(Colors.purple.value)
 ];
 
+// TODO remove these
 // ignore: constant_identifier_names
 const LightThemeName = "Light";
 
