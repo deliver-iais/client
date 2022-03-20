@@ -60,8 +60,7 @@ class CallRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   final _candidateNumber = 10;
-  final _candidateTimeLimit = 1000 ; // 1 sec
-
+  final _candidateTimeLimit = 1000; // 1 sec
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -70,9 +69,13 @@ class CallRepo {
 
   RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
 
+  bool get isSpeaker => _isSpeaker;
+
+  bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
+
   // ignore: unused_field
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
@@ -91,6 +94,7 @@ class CallRepo {
   bool _isVideo = false;
   bool _isConnected = false;
   bool _isSpeaker = false;
+  bool _isMicMuted = false;
   bool _isInitRenderer = false;
   bool _isDCRecived = false;
   bool _reconnectTry = false;
@@ -141,7 +145,8 @@ class CallRepo {
               callingStatus.add(CallStatus.IS_RINGING);
               break;
             case CallEvent_CallStatus.CREATED:
-              if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
+              if (event.roomUid == _roomUid ||
+                  _callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 _callOwner = callEvent.memberOrCallOwnerPvp;
                 _callId = callEvent.id;
@@ -273,7 +278,7 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
-          } else{
+          } else {
             timerResendAnswer!.cancel();
           }
           break;
@@ -323,7 +328,7 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
-          }else{
+          } else {
             timerResendAnswer!.cancel();
           }
           if (!kIsWeb) {
@@ -708,7 +713,7 @@ class CallRepo {
   bool muteMicrophone() {
     if (_localStream != null) {
       bool enabled = _localStream!.getAudioTracks()[0].enabled;
-      if(_isConnected) {
+      if (_isConnected) {
         if (enabled) {
           _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
         } else {
@@ -716,6 +721,7 @@ class CallRepo {
         }
       }
       _localStream!.getAudioTracks()[0].enabled = !enabled;
+      _isMicMuted = !_isMicMuted;
       return enabled;
     }
     return false;
@@ -747,7 +753,7 @@ class CallRepo {
   bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream!.getVideoTracks()[0].enabled;
-      if(_isConnected) {
+      if (_isConnected) {
         if (enabled) {
           _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
         } else {
@@ -918,7 +924,7 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      if(isForce){
+      if (isForce) {
         messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
@@ -927,7 +933,7 @@ class CallRepo {
             endOfCallDuration,
             _callOwner!,
             _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-      }else {
+      } else {
         messageRepo.sendCallMessage(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
@@ -943,7 +949,7 @@ class CallRepo {
   }
 
   endCall(bool isForce) async {
-    if(_callService.getUserCallState != CallStatus.NO_CALL) {
+    if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (isForce || _isCaller) {
         receivedEndCall(0, isForce);
       } else {
@@ -1007,8 +1013,12 @@ class CallRepo {
 
   Future<void> _waitUntilCandidateConditionDone() async {
     final completer = Completer();
-    _logger.i("Time for w8:" + (DateTime.now().millisecondsSinceEpoch - _candidateStartTime).toString() );
-    if ((_candidate.length >= _candidateNumber) || (DateTime.now().millisecondsSinceEpoch - _candidateStartTime > _candidateTimeLimit)) {
+    _logger.i("Time for w8:" +
+        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime)
+            .toString());
+    if ((_candidate.length >= _candidateNumber) ||
+        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime >
+            _candidateTimeLimit)) {
       completer.complete();
     } else {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -1032,7 +1042,7 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
-    timerResendOffer =  Timer(const Duration(seconds: 8), () {
+    timerResendOffer = Timer(const Duration(seconds: 8), () {
       _coreServices.sendCallOffer(callOfferByClient);
     });
   }
@@ -1056,7 +1066,7 @@ class CallRepo {
     if (_reconnectTry) {
       callingStatus.add(CallStatus.IN_CALL);
     }
-    timerResendAnswer =  Timer(const Duration(seconds: 8), () {
+    timerResendAnswer = Timer(const Duration(seconds: 8), () {
       _coreServices.sendCallAnswer(callAnswerByClient);
     });
     //Set Timer 30 sec for end call if Call doesn't Connected
@@ -1113,6 +1123,8 @@ class CallRepo {
     _callId = "";
     _roomUid = null;
     _isSharing = false;
+    _isMicMuted = false;
+    _isSpeaker = false;
     _isCaller = false;
     _isVideo = false;
     _isConnected = false;

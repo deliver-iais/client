@@ -29,6 +29,17 @@ class _CallBottomRowState extends State<CallBottomRow> {
   int screenShareIndex = 0;
 
   @override
+  void initState() {
+    _speakerIcon = callRepo.isSpeaker ? Colors.grey : Colors.black45;
+    _muteMicIcon = callRepo.isMicMuted ? Colors.grey : Colors.black45;
+    _offVideoCamIcon =
+        callRepo.mute_camera.value ? Colors.grey : Colors.black45;
+    _switchCameraIcon = callRepo.switching.value ? Colors.grey : Colors.black45;
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.isIncomingCall) {
       return Padding(
