@@ -41,8 +41,6 @@ class _CallListPageState extends State<CallListPage> {
             titleSpacing: 8,
             title: Text(
               I18N.of(context)!.get("calls"),
-              style:
-                  TextStyle(color: ExtraTheme.of(context).colorScheme.primary),
             ),
             leading: _routingService.backButtonLeading(),
           ),

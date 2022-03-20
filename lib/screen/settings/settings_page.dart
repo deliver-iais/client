@@ -328,14 +328,16 @@ class _SettingsPageState extends State<SettingsPage> {
         onTap: () {
           _uxService.selectTheme(index);
         },
-        child: Container(
+        child: AnimatedContainer(
+          duration: ANIMATION_DURATION * 2,
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: isSelected
                   ? Border.all(color: Theme.of(context).primaryColor, width: 2)
                   : null),
           padding: const EdgeInsets.all(4),
-          child: Container(
+          child: AnimatedContainer(
+              duration: ANIMATION_DURATION * 2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: color,
