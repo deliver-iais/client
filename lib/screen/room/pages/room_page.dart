@@ -257,6 +257,13 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _getScrollPosition() async {
+    _routingService.isInRoomStream.listen((value) {
+      if (value[widget.roomId] != null && value[widget.roomId]!) {
+        _scrollToMessage(
+            id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount);
+        _lastShowedMessageId = -1;
+      }
+    });
     String? scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
 
@@ -392,7 +399,7 @@ class _RoomPageState extends State<RoomPage> {
     _positionSubject
         .where((_) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
-        .map((event) => event + room.firstMessageId+1)
+        .map((event) => event + room.firstMessageId + 1)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -806,7 +813,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount + 1,
-      initialScrollIndex: initialScrollIndex+1,
+      initialScrollIndex: initialScrollIndex + 1,
       key: _scrollablePositionedListKey,
       initialAlignment: initialAlignment,
       physics: _scrollPhysics,
@@ -907,7 +914,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
-    if (index>= _itemCount+room.firstMessageId) {
+    if (index >= _itemCount + room.firstMessageId) {
       return const SizedBox.shrink();
     }
 
@@ -1011,24 +1018,26 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _scrollToMessage({required int id}) {
-    _itemScrollController.scrollTo(
-      index: id,
-      duration: const Duration(microseconds: 1),
-      alignment: .5,
-      curve: Curves.easeOut,
-      opacityAnimationWeights: [20, 20, 60],
-    );
-    if (id != -1) {
-      setState(() {
-        _replyMessageId = id;
-      });
-    }
-    if (_replyMessageId != -1) {
-      Timer(const Duration(seconds: 3), () {
+    if (_itemScrollController.isAttached) {
+      _itemScrollController.scrollTo(
+        index: id,
+        duration: const Duration(seconds: 1),
+        alignment: .5,
+        curve: Curves.fastOutSlowIn,
+        opacityAnimationWeights: [20, 20, 60],
+      );
+      if (id != -1) {
         setState(() {
-          _replyMessageId = -1;
+          _replyMessageId = id;
         });
-      });
+      }
+      if (_replyMessageId != -1) {
+        Timer(const Duration(seconds: 3), () {
+          setState(() {
+            _replyMessageId = -1;
+          });
+        });
+      }
     }
   }
 
