@@ -650,8 +650,11 @@ class CallRepo {
     final _avatarRepo = GetIt.I.get<AvatarRepo>();
     final _fileRepo = GetIt.I.get<FileRepo>();
     var la = await _avatarRepo.getLastAvatar(roomUid!, false);
-    var path = await _fileRepo.getFileIfExist(la!.fileId!, la.fileName!,
-        thumbnailSize: ThumbnailSize.medium);
+    String? avatarPath;
+    if (la != null && la.fileId != null && la.fileName != null) {
+      avatarPath = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+          thumbnailSize: ThumbnailSize.medium);
+    }
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id',
@@ -659,7 +662,7 @@ class CallRepo {
         channelDescription:
             'This notification appears when the foreground service is running.',
         channelImportance: NotificationChannelImportance.LOW,
-        avatarPath: path,
+        avatarPath: avatarPath,
         priority: NotificationPriority.LOW,
         isSticky: false,
         iconData: const NotificationIconData(
