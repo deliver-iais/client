@@ -12,10 +12,13 @@ import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -644,6 +647,11 @@ class CallRepo {
   }
 
   _initForegroundTask() async {
+    final _avatarRepo = GetIt.I.get<AvatarRepo>();
+    final _fileRepo = GetIt.I.get<FileRepo>();
+    var la = await _avatarRepo.getLastAvatar(roomUid!, false);
+    var path = await _fileRepo.getFileIfExist(la!.fileId!, la.fileName!,
+        thumbnailSize: ThumbnailSize.medium);
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id',
@@ -651,6 +659,7 @@ class CallRepo {
         channelDescription:
             'This notification appears when the foreground service is running.',
         channelImportance: NotificationChannelImportance.LOW,
+        avatarPath: path,
         priority: NotificationPriority.LOW,
         isSticky: false,
         iconData: const NotificationIconData(

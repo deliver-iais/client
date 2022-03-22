@@ -173,7 +173,10 @@ dependencies:
     git:
       url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git
       ref: master
-  flutter_foreground_task: 3.5.5
+  flutter_foreground_task:
+    git:
+      url: https://github.com/androidwoman/flutter_foreground_task.git
+      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   custom_image_crop: 0.0.4
   pasteboard: ^0.0.2
 
