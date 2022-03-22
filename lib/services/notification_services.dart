@@ -425,6 +425,7 @@ class AndroidNotifier implements Notifier {
 
       if (path != null && path.isNotEmpty) {
         largeIcon = FilePathAndroidBitmap(path);
+        filePath = path;
       }
     }
     if (selectedSound != null) {
