@@ -322,7 +322,7 @@ class MyApp extends StatelessWidget {
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
                 _rawKeyboardService.escapeHandling(event);
-                _rawKeyboardService.searchHandling(event: event);
+                _rawKeyboardService.searchHandling(event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;

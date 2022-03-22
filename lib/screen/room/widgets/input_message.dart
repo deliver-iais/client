@@ -26,6 +26,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -626,43 +627,33 @@ class _InputMessageWidget extends State<InputMessage> {
     _botCommandQuery.add("-");
   }
 
-  KeyEventResult handleKeyPress(event) {
-    if (event is RawKeyEvent) {
-      if (!_uxService.sendByEnter &&
-          event.isShiftPressed &&
-          (event.physicalKey == PhysicalKeyboardKey.enter ||
-              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        if (event is RawKeyDownEvent) {
-          if (widget.currentRoom.uid.isGroup() &&
-              mentionSelectedIndex >= 0 &&
-              _mentionData != "_") {
-            sendMentionByEnter();
-          } else {
-            sendMessage();
-          }
-        }
-        return KeyEventResult.handled;
-      } else if (_uxService.sendByEnter &&
-          !event.isShiftPressed &&
-          (event.physicalKey == PhysicalKeyboardKey.enter ||
-              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        if (event is RawKeyDownEvent) {
-          if (widget.currentRoom.uid.isGroup() &&
-              mentionSelectedIndex >= 0 &&
-              _mentionData != "_") {
-            sendMentionByEnter();
-          } else {
-            sendMessage();
-          }
-        }
-        return KeyEventResult.handled;
+  KeyEventResult handleKeyPress(RawKeyEvent event) {
+    if (!_uxService.sendByEnter &&
+        event.isShiftPressed &&
+        isEnterClicked(event)) {
+      if (widget.currentRoom.uid.isGroup() &&
+          mentionSelectedIndex >= 0 &&
+          _mentionData != "_") {
+        sendMentionByEnter();
+      } else {
+        sendMessage();
       }
-      if (event.isControlPressed &&
-          event is RawKeyDownEvent &&
-          event.physicalKey == PhysicalKeyboardKey.keyV) {
-        _handleCV(event);
-        return KeyEventResult.handled;
+      return KeyEventResult.handled;
+    } else if (_uxService.sendByEnter &&
+        !event.isShiftPressed &&
+        isEnterClicked(event)) {
+      if (widget.currentRoom.uid.isGroup() &&
+          mentionSelectedIndex >= 0 &&
+          _mentionData != "_") {
+        sendMentionByEnter();
+      } else {
+        sendMessage();
       }
+      return KeyEventResult.handled;
+    }
+    if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyV)) {
+      _handleCV(event);
+      return KeyEventResult.handled;
     }
 
     _rawKeyboardService.handleCopyPastKeyPress(
