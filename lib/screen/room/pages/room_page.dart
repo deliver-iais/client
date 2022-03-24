@@ -264,8 +264,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _getScrollPosition() async {
-    _routingService.isInRoomStream.listen((value) {
-      if (value[widget.roomId] != null && value[widget.roomId]!) {
+    _routingService.shouldScrollInRoom.listen((shouldScroll) {
+      if (shouldScroll) {
         _scrollToMessage(
             id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount);
         _lastShowedMessageId = -1;
