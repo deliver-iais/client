@@ -1,4 +1,3 @@
-import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -284,11 +283,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             });
           }
         },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: mainBorder,
-            color: theme.colorScheme.surface,
-          ),
+        child: SizedBox(
           height: widget.subtitle == null ? 44.0 : 57.0,
           child: Row(
             children: rowChildren,
