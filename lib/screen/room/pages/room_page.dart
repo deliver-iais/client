@@ -45,6 +45,7 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -164,6 +165,7 @@ class _RoomPageState extends State<RoomPage> {
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
         child: Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: buildAppbar(),
           body: buildBody(),
         ),
@@ -216,8 +218,13 @@ class _RoomPageState extends State<RoomPage> {
             keyboardWidget(),
           ],
         ),
-        pinMessageWidget(),
-        AudioPlayerAppBar(),
+        Column(
+          children: [
+            const SizedBox(height: 60),
+            AudioPlayerAppBar(),
+            pinMessageWidget(),
+          ],
+        ),
       ],
     );
   }
@@ -392,7 +399,7 @@ class _RoomPageState extends State<RoomPage> {
     _positionSubject
         .where((_) =>
             ModalRoute.of(context)?.isCurrent ?? false) // is in current page
-        .map((event) => event + room.firstMessageId+1)
+        .map((event) => event + room.firstMessageId + 1)
         .where(
             (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId)
         .map((event) => _lastReceivedMessageId = event)
@@ -644,141 +651,145 @@ class _RoomPageState extends State<RoomPage> {
     final theme = Theme.of(context);
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
-    return AppBar(
-      actions: [
-        //TODO after increase bandwidth we add videoCall
-        // if (room.uid.asUid().isUser() && !isLinux())
-        //   IconButton(
-        //       onPressed: () {
-        //         _routingService.openCallScreen(room.uid.asUid(),
-        //             isVideoCall: true, context: context);
-        //       },
-        //       icon: const Icon(Icons.videocam)),
-        if (room.uid.asUid().isUser() &&
-            !isLinux() &&
-            accessToCallUidList.values
-                .contains(_authRepo.currentUserUid.asString()))
-          IconButton(
-              onPressed: () {
-                _routingService.openCallScreen(room.uid.asUid(),
-                    context: context);
-              },
-              icon: const Icon(Icons.call)),
-      ],
-      leading: GestureDetector(
-        child: StreamBuilder<bool>(
-            stream: _searchMode.stream,
-            builder: (c, s) {
-              if (s.hasData && s.data!) {
-                return IconButton(
-                    icon: const Icon(CupertinoIcons.search),
-                    onPressed: () {
-                      //   searchMessage(controller.text, checkSearchResult);
-                    });
-              } else {
-                return StreamBuilder<bool>(
-                    stream: _selectMultiMessageSubject.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!) {
-                        return Row(
-                          children: [
-                            Badge(
-                              child: IconButton(
-                                  color: theme.primaryColor,
-                                  icon: const Icon(
-                                    CupertinoIcons.xmark,
-                                    size: 25,
-                                  ),
-                                  onPressed: () {
-                                    onDelete();
-                                  }),
-                              badgeColor: theme.primaryColor,
-                              badgeContent: Text(
-                                _selectedMessages.length.toString(),
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: theme.colorScheme.onPrimary),
-                              ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return _routingService.backButtonLeading(
-                          back: () {
-                            // _notificationServices.reset("\t");
-                          },
-                        );
-                      }
-                    });
-              }
-            }),
-      ),
-      titleSpacing: 0.0,
-      title: StreamBuilder<bool>(
-        stream: _searchMode.stream,
-        builder: (c, s) {
-          if (s.hasData && s.data!) {
-            return Row(
-              children: [
-                Flexible(
-                  child: TextField(
-                    minLines: 1,
-                    controller: controller,
-                    autofocus: true,
-                    onTap: () {
-                      checkSearchResult.add(false);
-                    },
-                    onChanged: (s) {
-                      checkSearchResult.add(false);
-                    },
-                    textInputAction: TextInputAction.search,
-                    onSubmitted: (str) async {
-                      //   searchMessage(str, checkSearchResult);
-                    },
-                    decoration: InputDecoration(
-                        hintText: _i18n.get("search"),
-                        suffix: StreamBuilder<bool>(
-                          stream: checkSearchResult.stream,
-                          builder: (c, s) {
-                            if (s.hasData && s.data!) {
-                              return Text(_i18n.get("not_found"));
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                        fillColor: Colors.white),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return StreamBuilder<bool>(
-              stream: _selectMultiMessageSubject.stream,
-              builder: (c, sm) {
-                if (sm.hasData && sm.data!) {
-                  return _selectMultiMessageAppBar();
+    return UltimateAppBar(
+      preferredSize: const Size.fromHeight(54.0),
+      child: AppBar(
+        actions: [
+          //TODO after increase bandwidth we add videoCall
+          // if (room.uid.asUid().isUser() && !isLinux())
+          //   IconButton(
+          //       onPressed: () {
+          //         _routingService.openCallScreen(room.uid.asUid(),
+          //             isVideoCall: true, context: context);
+          //       },
+          //       icon: const Icon(Icons.videocam)),
+          if (room.uid.asUid().isUser() &&
+              !isLinux() &&
+              accessToCallUidList.values
+                  .contains(_authRepo.currentUserUid.asString()))
+            IconButton(
+                onPressed: () {
+                  _routingService.openCallScreen(room.uid.asUid(),
+                      context: context);
+                },
+                icon: const Icon(Icons.call)),
+        ],
+        leading: GestureDetector(
+          child: StreamBuilder<bool>(
+              stream: _searchMode.stream,
+              builder: (c, s) {
+                if (s.hasData && s.data!) {
+                  return IconButton(
+                      icon: const Icon(CupertinoIcons.search),
+                      onPressed: () {
+                        //   searchMessage(controller.text, checkSearchResult);
+                      });
                 } else {
-                  if (widget.roomId.isMuc()) {
-                    return MucAppbarTitle(mucUid: widget.roomId);
-                  } else if (widget.roomId.asUid().category == Categories.BOT) {
-                    return BotAppbarTitle(botUid: widget.roomId.asUid());
-                  } else {
-                    return UserAppbarTitle(
-                      userUid: widget.roomId.asUid(),
-                    );
-                  }
+                  return StreamBuilder<bool>(
+                      stream: _selectMultiMessageSubject.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!) {
+                          return Row(
+                            children: [
+                              Badge(
+                                child: IconButton(
+                                    color: theme.primaryColor,
+                                    icon: const Icon(
+                                      CupertinoIcons.xmark,
+                                      size: 25,
+                                    ),
+                                    onPressed: () {
+                                      onDelete();
+                                    }),
+                                badgeColor: theme.primaryColor,
+                                badgeContent: Text(
+                                  _selectedMessages.length.toString(),
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: theme.colorScheme.onPrimary),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return _routingService.backButtonLeading(
+                            back: () {
+                              // _notificationServices.reset("\t");
+                            },
+                          );
+                        }
+                      });
                 }
-              },
-            );
-          }
-        },
-      ),
-      bottom: const PreferredSize(
-        child: Divider(),
-        preferredSize: Size.fromHeight(1),
+              }),
+        ),
+        titleSpacing: 0.0,
+        title: StreamBuilder<bool>(
+          stream: _searchMode.stream,
+          builder: (c, s) {
+            if (s.hasData && s.data!) {
+              return Row(
+                children: [
+                  Flexible(
+                    child: TextField(
+                      minLines: 1,
+                      controller: controller,
+                      autofocus: true,
+                      onTap: () {
+                        checkSearchResult.add(false);
+                      },
+                      onChanged: (s) {
+                        checkSearchResult.add(false);
+                      },
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (str) async {
+                        //   searchMessage(str, checkSearchResult);
+                      },
+                      decoration: InputDecoration(
+                          hintText: _i18n.get("search"),
+                          suffix: StreamBuilder<bool>(
+                            stream: checkSearchResult.stream,
+                            builder: (c, s) {
+                              if (s.hasData && s.data!) {
+                                return Text(_i18n.get("not_found"));
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
+                          ),
+                          fillColor: Colors.white),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return StreamBuilder<bool>(
+                stream: _selectMultiMessageSubject.stream,
+                builder: (c, sm) {
+                  if (sm.hasData && sm.data!) {
+                    return _selectMultiMessageAppBar();
+                  } else {
+                    if (widget.roomId.isMuc()) {
+                      return MucAppbarTitle(mucUid: widget.roomId);
+                    } else if (widget.roomId.asUid().category ==
+                        Categories.BOT) {
+                      return BotAppbarTitle(botUid: widget.roomId.asUid());
+                    } else {
+                      return UserAppbarTitle(
+                        userUid: widget.roomId.asUid(),
+                      );
+                    }
+                  }
+                },
+              );
+            }
+          },
+        ),
+        bottom: const PreferredSize(
+          child: Divider(),
+          preferredSize: Size.fromHeight(1),
+        ),
       ),
     );
   }
@@ -806,7 +817,7 @@ class _RoomPageState extends State<RoomPage> {
 
     return ScrollablePositionedList.separated(
       itemCount: _itemCount + 1,
-      initialScrollIndex: initialScrollIndex+1,
+      initialScrollIndex: initialScrollIndex + 1,
       key: _scrollablePositionedListKey,
       initialAlignment: initialAlignment,
       physics: _scrollPhysics,
@@ -907,7 +918,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget _buildMessage(int index) {
-    if (index>= _itemCount+room.firstMessageId) {
+    if (index >= _itemCount + room.firstMessageId) {
       return const SizedBox.shrink();
     }
 

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,7 +33,12 @@ class RawKeyboardService {
     Uint8List? image = await Pasteboard.image;
     List<model.File> fileList = [];
     String name = "";
-    if (image != null) {
+    if (files.isNotEmpty) {
+      for (var file in files) {
+        name = file.replaceAll("\\", "/").split("/").last;
+        fileList.add(model.File(file, name, extension: name.split(".").last));
+      }
+    } else if (image != null) {
       final tempDir = await getTemporaryDirectory();
       File file = await File(
               '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png')
@@ -41,11 +47,6 @@ class RawKeyboardService {
       name = file.path.replaceAll("\\", "/").split("/").last;
       fileList
           .add(model.File(file.path, name, extension: name.split(".").last));
-    } else if (files.isNotEmpty) {
-      for (var file in files) {
-        name = file.replaceAll("\\", "/").split("/").last;
-        fileList.add(model.File(file, name, extension: name.split(".").last));
-      }
     } else {
       ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
       controller.text = controller.text + data!.text!;
@@ -103,21 +104,20 @@ class RawKeyboardService {
     scrollDownInBotCommands();
   }
 
-  void searchHandling({event}) {
-    if (event.physicalKey == PhysicalKeyboardKey.keyF &&
-        event.isControlPressed) {
+  void searchHandling(RawKeyEvent event) {
+    if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.escape)) {
       controlFHandle();
     }
   }
 
-  void escapeHandling(event) {
+  void escapeHandling(RawKeyEvent event) {
     if (isKeyPressed(event, PhysicalKeyboardKey.escape)) {
       _routingService.maybePop();
     }
   }
 
-  navigateInMentions(String mentionData, Function scrollDownInMention, event,
-      int mentionSelectedIndex, Function scrollUpInMention) {
+  navigateInMentions(String mentionData, Function scrollDownInMention,
+      RawKeyEvent event, int mentionSelectedIndex, Function scrollUpInMention) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -131,7 +131,7 @@ class RawKeyboardService {
   }
 
   navigateInBotCommand(
-      event,
+      RawKeyEvent event,
       Function scrollDownInBotCommands,
       Function scrollUpInBotCommands,
       Function sendBotCommandByEnter,
@@ -146,27 +146,16 @@ class RawKeyboardService {
     }
   }
 
-  void handleCopyPastKeyPress(TextEditingController controller, event,
-      BuildContext context, Uid roomUid) {
-    if (isKeyPressed(event, PhysicalKeyboardKey.keyA) &&
-        event.isControlPressed) {
+  void handleCopyPastKeyPress(TextEditingController controller,
+      RawKeyEvent event, BuildContext context, Uid roomUid) {
+    if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyA)) {
       controlAHandle(controller);
-    }
-    if (isKeyPressed(event, PhysicalKeyboardKey.keyC) &&
-        event.isControlPressed) {
+    } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyC)) {
       controlCHandle(controller);
-    }
-    if (isKeyPressed(event, PhysicalKeyboardKey.keyX) &&
-        event.isControlPressed) {
+    } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyX)) {
       controlXHandle(controller);
-    }
-    if (isKeyPressed(event, PhysicalKeyboardKey.keyV) &&
-        event.isControlPressed) {
+    } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyV)) {
       controlVHandle(controller, context, roomUid);
     }
-  }
-
-  isKeyPressed(event, PhysicalKeyboardKey key) {
-    return event is RawKeyDownEvent && event.physicalKey == key;
   }
 }

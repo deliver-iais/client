@@ -1,8 +1,12 @@
 include:
   - project: deliver/devops
     file: /deployment/templates/base.yml
+    rules:
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   - project: deliver/devops
     file: /deployment/templates/commons.yml
+    rules:
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 stages:
   - build
