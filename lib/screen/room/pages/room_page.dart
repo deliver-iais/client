@@ -264,6 +264,13 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _getScrollPosition() async {
+    _routingService.shouldScrollInRoom.listen((shouldScroll) {
+      if (shouldScroll) {
+        _scrollToMessage(
+            id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount);
+        _lastShowedMessageId = -1;
+      }
+    });
     String? scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
 
@@ -1022,24 +1029,26 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _scrollToMessage({required int id}) {
-    _itemScrollController.scrollTo(
-      index: id,
-      duration: const Duration(microseconds: 1),
-      alignment: .5,
-      curve: Curves.easeOut,
-      opacityAnimationWeights: [20, 20, 60],
-    );
-    if (id != -1) {
-      setState(() {
-        _replyMessageId = id;
-      });
-    }
-    if (_replyMessageId != -1) {
-      Timer(const Duration(seconds: 3), () {
+    if (_itemScrollController.isAttached) {
+      _itemScrollController.scrollTo(
+        index: id,
+        duration: const Duration(seconds: 1),
+        alignment: .5,
+        curve: Curves.fastOutSlowIn,
+        opacityAnimationWeights: [20, 20, 60],
+      );
+      if (id != -1) {
         setState(() {
-          _replyMessageId = -1;
+          _replyMessageId = id;
         });
-      });
+      }
+      if (_replyMessageId != -1) {
+        Timer(const Duration(seconds: 3), () {
+          setState(() {
+            _replyMessageId = -1;
+          });
+        });
+      }
     }
   }
 
