@@ -9,6 +9,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -40,63 +41,71 @@ class _CallDetailPageState extends State<CallDetailPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Divider(),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          child: Divider(),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatarWidget(_authRepo.currentUserUid, 23,
+            CircleAvatarWidget(_authRepo.currentUserUid, 24,
                 isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+            const SizedBox(width: 26),
             Transform(
               alignment: Alignment.center,
               transform: Matrix4.rotationY(widget.isIncomingCall ? math.pi : 0),
               child: Lottie.asset("assets/animations/arrow.json", height: 100),
             ),
-            CircleAvatarWidget(widget.caller, 23,
+            const SizedBox(width: 26),
+            CircleAvatarWidget(widget.caller, 24,
                 isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CallState(
-                    textStyle: const TextStyle(fontSize: 17),
-                    callStatus: findCallEventStatus(
-                        widget.callEvent.callEvent.newStatus),
-                    time: widget.callEvent.callEvent.callDuration,
-                    isCurrentUser:
-                        _authRepo.isCurrentUser(widget.callEvent.from)),
-                if (widget.callEvent.callEvent.callDuration != 0)
-                  DefaultTextStyle(
-                    style: TextStyle(
-                      color: ExtraTheme.of(context)
-                          .colorScheme
-                          .primary
-                          .withAlpha(130),
-                      fontSize: 14,
+        Container(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CallState(
+                      textStyle: const TextStyle(fontSize: 17),
+                      callStatus: findCallEventStatus(
+                          widget.callEvent.callEvent.newStatus),
+                      time: widget.callEvent.callEvent.callDuration,
+                      isCurrentUser:
+                          _authRepo.isCurrentUser(widget.callEvent.from)),
+                  if (widget.callEvent.callEvent.callDuration != 0)
+                    DefaultTextStyle(
+                      style: TextStyle(
+                        color: ExtraTheme.of(context)
+                            .colorScheme
+                            .primary
+                            .withAlpha(130),
+                        fontSize: 14,
+                      ),
+                      child: CallTime(
+                          time: DateTime.fromMillisecondsSinceEpoch(
+                              widget.callEvent.callEvent.callDuration,
+                              isUtc: true)),
                     ),
-                    child: CallTime(
-                        time: DateTime.fromMillisecondsSinceEpoch(
-                            widget.callEvent.callEvent.callDuration,
-                            isUtc: true)),
-                  ),
-              ],
-            ),
-            Row(
-              children: [
-                IconButton(
-                    onPressed: () =>
-                        _routingService.openRoom(widget.caller.asString()),
-                    icon: const Icon(Icons.message)),
-                IconButton(
-                    onPressed: () => _routingService
-                        .openCallScreen(widget.caller, context: context),
-                    icon: const Icon(Icons.call)),
-              ],
-            ),
-          ],
+                ],
+              ),
+              Row(
+                children: [
+                  IconButton(
+                      onPressed: () =>
+                          _routingService.openRoom(widget.caller.asString()),
+                      icon: const Icon(CupertinoIcons.chat_bubble)),
+                  IconButton(
+                      onPressed: () => _routingService
+                          .openCallScreen(widget.caller, context: context),
+                      icon: const Icon(CupertinoIcons.phone)),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );

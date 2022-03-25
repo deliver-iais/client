@@ -58,12 +58,20 @@ class CallListWidget extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
+                      callEvent.callEvent.callType == CallType.VIDEO
+                          ? Icons.videocam_rounded
+                          : Icons.call,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
                       isIncomingCall ? Icons.call_made : Icons.call_received,
                       color: callEvent.callEvent.callDuration == 0
                           ? Colors.red
                           : Colors.green,
                       size: 14,
                     ),
+                    const SizedBox(width: 4),
                     Text(
                       " " +
                           monthName +
@@ -88,16 +96,6 @@ class CallListWidget extends StatelessWidget {
             ),
           ),
           ExpandableIcon(),
-          IconButton(
-            onPressed: null,
-            icon: Icon(
-              callEvent.callEvent.callType == CallType.VIDEO
-                  ? Icons.videocam_rounded
-                  : Icons.call,
-              color: Colors.blueAccent,
-              size: 21,
-            ),
-          ),
         ],
       ),
     );
