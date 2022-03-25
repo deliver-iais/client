@@ -19,6 +19,7 @@ class _HasCallRowState extends State<HasCallRow> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
@@ -42,13 +43,13 @@ class _HasCallRowState extends State<HasCallRow> {
                 child: callRepo.roomUid != null
                     ? Container(
                         margin: const EdgeInsets.only(bottom: 4),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                             gradient: LinearGradient(
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                           colors: [
-                            Color.fromARGB(255, 23, 218, 255),
-                            Color.fromARGB(255, 1, 99, 246),
+                            theme.colorScheme.primary,
+                            theme.colorScheme.primary.withAlpha(100),
                           ],
                         )),
                         child: Padding(
@@ -106,7 +107,7 @@ class _HasCallRowState extends State<HasCallRow> {
                           ),
                         ),
                         width: MediaQuery.of(context).size.width,
-                        height: 30,
+                        height: 40,
                       )
                     : const SizedBox.shrink());
           } else {

@@ -140,7 +140,6 @@ class _CallBottomRowState extends State<CallBottomRow> {
                               onPressed: () => _enableSpeaker(theme),
                               child: const Icon(
                                 Icons.volume_up_rounded,
-                                color: Colors.white70,
                                 size: 35,
                               ),
                             )),
@@ -169,9 +168,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
                               backgroundColor: _muteMicIcon,
                               onPressed: () => _muteMic(theme),
                               child: const Icon(
-                                Icons.mic_off,
+                                Icons.mic_off_rounded,
                                 size: 35,
-                                color: Colors.white70,
                               ),
                             ))
                       ])));

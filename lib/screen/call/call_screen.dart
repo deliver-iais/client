@@ -137,28 +137,28 @@ class _CallScreenState extends State<CallScreen> {
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
                   ? InVideoCallPage(
-                localRenderer: _localRenderer,
-                remoteRenderer: _remoteRenderer,
-                roomUid: widget.roomUid,
-                hangUp: _hangUp,
-              )
+                      localRenderer: _localRenderer,
+                      remoteRenderer: _remoteRenderer,
+                      roomUid: widget.roomUid,
+                      hangUp: _hangUp,
+                    )
                   : AudioCallScreen(
-                  roomUid: widget.roomUid,
-                  callStatus: "Connecting",
-                  hangUp: _hangUp);
+                      roomUid: widget.roomUid,
+                      callStatus: "Connecting",
+                      hangUp: _hangUp);
             case CallStatus.RECONNECTING:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
                   ? InVideoCallPage(
-                localRenderer: _localRenderer,
-                remoteRenderer: _remoteRenderer,
-                roomUid: widget.roomUid,
-                hangUp: _hangUp,
-              )
+                      localRenderer: _localRenderer,
+                      remoteRenderer: _remoteRenderer,
+                      roomUid: widget.roomUid,
+                      hangUp: _hangUp,
+                    )
                   : AudioCallScreen(
-                  roomUid: widget.roomUid,
-                  callStatus: "Reconnecting",
-                  hangUp: _hangUp);
+                      roomUid: widget.roomUid,
+                      callStatus: "Reconnecting",
+                      hangUp: _hangUp);
             case CallStatus.FAILED:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
@@ -285,11 +285,6 @@ class _CallScreenState extends State<CallScreen> {
   _hangUp() async {
     _logger.i("Call hang Up ...!");
     _audioService.stopPlayBeepSound();
-    // if (isDesktop()) {
-    //   _routingService.pop();
-    // } else {
-    //   Navigator.of(context).pop();
-    // }
     callRepo.endCall(false);
   }
 }
