@@ -26,7 +26,7 @@ class ConnectionStatus extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
             decoration: BoxDecoration(
-              color: extraTheme.colorScheme.tertiaryContainer,
+              color: extraTheme.colorScheme.secondaryContainer,
               borderRadius: tertiaryBorder,
             ),
             curve: Curves.easeInOut,
@@ -45,7 +45,7 @@ class ConnectionStatus extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(title(snapshot.data ?? TitleStatusConditions.Normal),
                     style: theme.textTheme.subtitle1?.copyWith(
-                        color: extraTheme.colorScheme.onTertiaryContainer)),
+                        color: extraTheme.colorScheme.onSecondaryContainer)),
               ],
             ),
           );
