@@ -8,9 +8,11 @@ class FadeAudioCallBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xff273745),
+        color:
+            Color.alphaBlend(Colors.black54, theme.primaryColor.withAlpha(170)),
         image: DecorationImage(
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
