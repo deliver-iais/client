@@ -12,7 +12,7 @@ class FadeAudioCallBackground extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color:
-            Color.alphaBlend(Colors.black54, theme.primaryColor.withAlpha(170)),
+            Color.alphaBlend(Colors.black54, theme.primaryColor.withAlpha(150)),
         image: DecorationImage(
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
