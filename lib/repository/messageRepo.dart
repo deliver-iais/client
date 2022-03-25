@@ -14,7 +14,6 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
@@ -39,6 +38,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
@@ -679,6 +679,9 @@ class MessageRepo {
         break;
       case MessageType.CALL:
         byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
+        break;
+      case MessageType.Table:
+        byClient.table = form_pb.Table.fromJson(message.json);
         break;
       default:
         break;

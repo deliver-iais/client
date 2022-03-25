@@ -54,6 +54,10 @@ extension JsonMapper on String {
     return Buttons.fromJson(this);
   }
 
+  Table toTable() {
+    return Table.fromJson(this);
+  }
+
   ShareUid toShareUid() {
     return ShareUid.fromJson(this);
   }
@@ -77,7 +81,7 @@ extension JsonMapper on String {
     return this == DELETED_ROOM_MESSAGE;
   }
 
-  int toCallDuration(){
+  int toCallDuration() {
     return CallEvent.fromJson(this).callDuration.toInt();
   }
 }

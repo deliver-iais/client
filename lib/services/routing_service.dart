@@ -74,6 +74,8 @@ class RoutingService {
   Stream<String> get currentRouteStream =>
       _navigatorObserver.currentRoute.stream;
 
+  BehaviorSubject<bool> shouldScrollInRoom = BehaviorSubject.seeded(false);
+
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
@@ -114,6 +116,9 @@ class RoutingService {
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);
+      shouldScrollInRoom.add(false);
+    } else if (isInRoom(roomId)) {
+      shouldScrollInRoom.add(true);
     }
   }
 
