@@ -218,13 +218,17 @@ class _CallScreenState extends State<CallScreen> {
             case CallStatus.ENDED:
               _logger.i("END!");
               _audioService.stopPlayBeepSound();
-              Timer.run(() {
+              Timer(const Duration(milliseconds: 1500), () async {
                 if (_routingService.canPop()) {
                   _routingService.pop();
                 }
               });
               callRepo.disposeRenderer();
-              return const SizedBox.shrink();
+              return AudioCallScreen(
+                  roomUid: widget.roomUid,
+                  callStatus: "Ended",
+                  isIncomingCall: widget.isIncomingCall,
+                  hangUp: _hangUp);
             case CallStatus.NO_CALL:
               return Container(
                 color: Colors.green,

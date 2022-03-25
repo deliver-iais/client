@@ -1144,11 +1144,11 @@ class CallRepo {
     _callDuration = 0;
     _startCallTime = 0;
     _callDuration = 0;
-    callTimer.add(CallTimer(0, 0, 0));
     Timer(const Duration(seconds: 2), () async {
       if (_isInitRenderer) {
         await disposeRenderer();
       }
+      callTimer.add(CallTimer(0, 0, 0));
       _callService.setUserCallState = UserCallState.NOCALL;
       _callService.setCallNotification = false;
     });
