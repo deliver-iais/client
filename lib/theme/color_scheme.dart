@@ -188,17 +188,28 @@ Color elevation(Color surface, Color primary, int number) =>
 ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
   return ColorScheme(
       primary: colorScheme.primary,
+      onPrimary: colorScheme.onPrimary,
+      primaryContainer: colorScheme.primaryContainer,
+      onPrimaryContainer: colorScheme.onPrimaryContainer,
       primaryVariant: colorScheme.primaryContainer,
       secondary: colorScheme.secondary,
-      secondaryVariant: colorScheme.secondaryContainer,
-      surface: colorScheme.surface,
-      background: colorScheme.background,
-      error: colorScheme.error,
-      onPrimary: colorScheme.onPrimary,
       onSecondary: colorScheme.onSecondary,
+      secondaryVariant: colorScheme.secondaryContainer,
+      secondaryContainer: colorScheme.secondaryContainer,
+      onSecondaryContainer: colorScheme.onSecondaryContainer,
+      surface: colorScheme.surface,
       onSurface: colorScheme.onSurface,
+      surfaceVariant: colorScheme.surfaceVariant,
+      onSurfaceVariant: colorScheme.onSurfaceVariant,
+      inversePrimary: colorScheme.inversePrimary,
+      inverseSurface: colorScheme.inverseSurface,
+      onInverseSurface: colorScheme.inverseOnSurface,
+      background: colorScheme.background,
       onBackground: colorScheme.onBackground,
+      error: colorScheme.error,
       onError: colorScheme.onError,
+      errorContainer: colorScheme.errorContainer,
+      onErrorContainer: colorScheme.onErrorContainer,
       brightness: colorScheme.brightness);
 }
 

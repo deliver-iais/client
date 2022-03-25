@@ -101,8 +101,8 @@ class _CallListPageState extends State<CallListPage> {
                                       isIncomingCall: isIncomingCall,
                                       monthName: monthName),
                                   collapsed: const SizedBox.shrink(),
-                                  expanded: SizedBox(
-                                    height: 150,
+                                  expanded: Padding(
+                                    padding: const EdgeInsets.only(bottom: 16.0),
                                     child: CallDetailPage(
                                         callEvent: calls[index],
                                         caller: caller,

@@ -6,7 +6,6 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_fi
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -115,7 +114,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
           child: GestureDetector(
             onTap: () {
               _errorText.add("");
-              if (isDesktop() || kIsWeb) {
+              if (isLarge(context)) {
                 showDialog(
                     context: context,
                     builder: (c) {
@@ -124,9 +123,10 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         child: AlertDialog(
                           title: buildTitle(theme, _errorText),
                           content: buildContent(),
-                          titlePadding: const EdgeInsets.only(top: 8),
+                          titlePadding:
+                              const EdgeInsets.only(top: 8, bottom: 8),
                           contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 4),
+                              const EdgeInsets.symmetric(horizontal: 8),
                           actionsPadding: const EdgeInsets.only(
                               left: 4, right: 4, bottom: 4),
                           actions: [
@@ -160,7 +160,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                   ),
                                   centerTitle: true,
                                   title: buildTitle(theme, _errorText)),
-                              body: Center(child: buildContent()),
+                              body: buildContent(),
                               floatingActionButton: buildSubmit(_errorText, c),
                             ),
                           );

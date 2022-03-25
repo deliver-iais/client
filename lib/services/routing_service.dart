@@ -31,7 +31,6 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -332,19 +331,16 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: Stack(
-        children: [
-          Center(
-            child: BlurContainer(
-                skew: 4,
-                padding:
-                    const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-                child: Text(
-                    _i18n.get("please_select_a_chat_to_start_messaging"),
-                    style: theme.textTheme.bodyText2!
-                        .copyWith(color: Colors.white))),
-          ),
-        ],
+      body: Center(
+        child: Container(
+            decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                borderRadius: secondaryBorder),
+            padding:
+                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+            child: Text(_i18n.get("please_select_a_chat_to_start_messaging"),
+                style: theme.textTheme.bodyText2!
+                    .copyWith(color: theme.colorScheme.onPrimaryContainer))),
       ),
     );
   }
