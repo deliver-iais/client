@@ -102,6 +102,11 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final formTheme = theme.copyWith(
+        colorScheme:
+            theme.colorScheme.copyWith(primary: widget.colorScheme.primary));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -114,26 +119,28 @@ class _BotFormMessageState extends State<BotFormMessage> {
                 showDialog(
                     context: context,
                     builder: (c) {
-                      return AlertDialog(
-                        title: Center(
-                          child: buildTitle(theme, _errorText),
-                        ),
-                        content: buildContent(),
-                        contentPadding:
-                        const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 10.0),
-                        actions: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                primary: widget.colorScheme.primary),
-                            onPressed: () {
-                              Navigator.pop(c);
-                            },
-                            child: Text(
-                              _i18n.get("close"),
+                      return Theme(
+                        data: formTheme,
+                        child: AlertDialog(
+                          title: buildTitle(theme, _errorText),
+                          content: buildContent(),
+                          titlePadding: const EdgeInsets.only(top: 8),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 4),
+                          actionsPadding: const EdgeInsets.only(
+                              left: 4, right: 4, bottom: 4),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(c);
+                              },
+                              child: Text(
+                                _i18n.get("close"),
+                              ),
                             ),
-                          ),
-                          buildSubmit(_errorText, c),
-                        ],
+                            buildSubmit(_errorText, c),
+                          ],
+                        ),
                       );
                     });
               } else {
@@ -142,16 +149,20 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     context,
                     MaterialPageRoute(
                         builder: (c) {
-                          return Scaffold(
-                            appBar: AppBar(
-                                leading: IconButton(
-                                  icon: const Icon(CupertinoIcons.clear),
-                                  onPressed: () => Navigator.pop(c),
-                                ),
-                                centerTitle: true,
-                                title: buildTitle(theme, _errorText)),
-                            body: Center(child: buildContent()),
-                            floatingActionButton: buildSubmit(_errorText, c),
+                          return Theme(
+                            data: formTheme,
+                            child: Scaffold(
+                              appBar: AppBar(
+                                  leading: IconButton(
+                                    icon: Icon(CupertinoIcons.clear,
+                                        color: formTheme.colorScheme.primary),
+                                    onPressed: () => Navigator.pop(c),
+                                  ),
+                                  centerTitle: true,
+                                  title: buildTitle(theme, _errorText)),
+                              body: Center(child: buildContent()),
+                              floatingActionButton: buildSubmit(_errorText, c),
+                            ),
                           );
                         },
                         fullscreenDialog: true));
@@ -210,37 +221,19 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  Column buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
+  Widget buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Lottie.asset(
-              "assets/animations/form_animation.zip",
-              width: 60,
-              height: 60,
-              delegates: LottieDelegates(
-                values: [
-                  ValueDelegate.color(
-                    const ['**'],
-                    value: widget.colorScheme.primary,
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              form.title.titleCase,
-              style: theme.textTheme.subtitle2
-                  ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
-            ),
-          ],
+        Text(
+          form.title.titleCase,
+          style: theme.textTheme.subtitle2
+              ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
         ),
         StreamBuilder<String>(
             stream: _errorText.stream,
             builder: (c, s) {
-              if (s.hasData && s.data != null) {
+              if (s.hasData && s.data!.isNotEmpty) {
                 return Text(
                   s.data!,
                   style: const TextStyle(color: Colors.red, fontSize: 13),
@@ -255,12 +248,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
   Widget buildContent() {
     return SingleChildScrollView(
       controller: _scrollController,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _widgets,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: _widgets,
       ),
     );
   }
@@ -268,7 +258,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
   ElevatedButton buildSubmit(
       BehaviorSubject<String> _errorText, BuildContext c) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(primary: widget.colorScheme.primary),
       onPressed: () {
         var validate = true;
         for (var field in formFieldsKey.values) {
