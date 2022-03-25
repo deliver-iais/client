@@ -312,6 +312,7 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.CALL:
         return CallMessageWidget(
           message: widget.message,
+          colorScheme: widget.colorScheme,
         );
       default:
         break;

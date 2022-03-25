@@ -7,13 +7,16 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallMessageWidget extends StatelessWidget {
   final Message message;
+  final CustomColorScheme colorScheme;
   final CallEvent_CallStatus _callEvent;
   final int _callDuration;
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -21,7 +24,8 @@ class CallMessageWidget extends StatelessWidget {
   static final _callService = GetIt.I.get<CallService>();
   final bool _isVideo;
 
-  CallMessageWidget({Key? key, required this.message})
+  CallMessageWidget(
+      {Key? key, required this.message, required this.colorScheme})
       : _callEvent = message.json.toCallEvent().newStatus,
         _callDuration = message.json.toCallDuration(),
         _isVideo =
@@ -94,8 +98,8 @@ class CallMessageWidget extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Icon(
-                  _isVideo ? Icons.videocam : Icons.call,
-                  color: Colors.cyan,
+                  _isVideo ? CupertinoIcons.video_camera : CupertinoIcons.phone,
+                  color: colorScheme.primary,
                   size: 35,
                 ),
               ),

@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -75,6 +74,8 @@ class RoutingService {
   Stream<String> get currentRouteStream =>
       _navigatorObserver.currentRoute.stream;
 
+  BehaviorSubject<bool> shouldScrollInRoom = BehaviorSubject.seeded(false);
+
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
@@ -98,21 +99,6 @@ class RoutingService {
 
   void openCallsList() => _push(_calls);
 
-  void openCallDetails(
-      {required time,
-      required isIncomingCall,
-      required caller,
-      required monthName,
-      required callEvent}) {
-    _push(CallDetailPage(
-        key: const ValueKey("/call_detail"),
-        callEvent: callEvent,
-        time: time,
-        caller: caller,
-        isIncomingCall: isIncomingCall,
-        monthName: monthName));
-  }
-
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
       List<Media> forwardedMedia = const [],
@@ -130,6 +116,9 @@ class RoutingService {
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);
+      shouldScrollInRoom.add(false);
+    } else if (isInRoom(roomId)) {
+      shouldScrollInRoom.add(true);
     }
   }
 

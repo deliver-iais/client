@@ -242,7 +242,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
         border: OutlineInputBorder(borderRadius: secondaryBorder),
       ),
       appBarTheme: AppBarTheme(
-          color: colorScheme.surface,
+          color: colorScheme.surface.withOpacity(0.7),
           elevation: 0,
           titleTextStyle: textTheme.headline5,
           toolbarTextStyle: textTheme.headline6,
