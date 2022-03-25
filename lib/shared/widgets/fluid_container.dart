@@ -13,9 +13,11 @@ class FluidContainerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var widget = child;
+    Widget widget;
     if (showStandardContainer) {
       widget = Container(
+          constraints:
+              const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
           margin: const EdgeInsets.all(24.0),
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
@@ -35,13 +37,13 @@ class FluidContainerWidget extends StatelessWidget {
                 ),
               ]),
           child: child);
+    } else {
+      widget = Container(
+        constraints: const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
+        child: child,
+      );
     }
 
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
-        child: widget,
-      ),
-    );
+    return Center(child: widget);
   }
 }

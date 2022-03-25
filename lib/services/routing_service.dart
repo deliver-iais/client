@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -99,21 +98,6 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openCallsList() => _push(_calls);
-
-  void openCallDetails(
-      {required time,
-      required isIncomingCall,
-      required caller,
-      required monthName,
-      required callEvent}) {
-    _push(CallDetailPage(
-        key: const ValueKey("/call_detail"),
-        callEvent: callEvent,
-        time: time,
-        caller: caller,
-        isIncomingCall: isIncomingCall,
-        monthName: monthName));
-  }
 
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],

@@ -1,17 +1,22 @@
 import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/callRepo.dart';
+
+import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:expandable/expandable.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -32,13 +37,12 @@ class _CallListPageState extends State<CallListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
         appBar: UltimateAppBar(
           child: AppBar(
             titleSpacing: 8,
-            title: Text(
-              I18N.of(context)!.get("calls"),
-            ),
+            title: Text(I18N.of(context)!.get("calls")),
             leading: _routingService.backButtonLeading(),
           ),
         ),
@@ -82,21 +86,30 @@ class _CallListPageState extends State<CallListPage> {
                               caller = _authRepo.isCurrentUser(calls[index].to)
                                   ? calls[index].from.asUid()
                                   : calls[index].to.asUid();
-                              return InkWell(
-                                onTap: () {
-                                  _routingService.openCallDetails(
+                              return ExpandableTheme(
+                                data: ExpandableThemeData(
+                                    hasIcon: false,
+                                    iconColor: theme.colorScheme.primary,
+                                    inkWellBorderRadius: mainBorder,
+                                    animationDuration:
+                                        const Duration(milliseconds: 500)),
+                                child: ExpandablePanel(
+                                  header: CallListWidget(
                                       callEvent: calls[index],
                                       time: time,
                                       caller: caller,
                                       isIncomingCall: isIncomingCall,
-                                      monthName: monthName);
-                                },
-                                child: CallListWidget(
-                                    callEvent: calls[index],
-                                    time: time,
-                                    caller: caller,
-                                    isIncomingCall: isIncomingCall,
-                                    monthName: monthName),
+                                      monthName: monthName),
+                                  collapsed: const SizedBox.shrink(),
+                                  expanded: SizedBox(
+                                    height: 150,
+                                    child: CallDetailPage(
+                                        callEvent: calls[index],
+                                        caller: caller,
+                                        isIncomingCall: isIncomingCall,
+                                        monthName: monthName),
+                                  ),
+                                ),
                               );
                             }));
                   } else if (snapshot.connectionState ==
