@@ -23,8 +23,7 @@ class _HasCallRowState extends State<HasCallRow> {
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
-          if (snapshot.data != CallStatus.ENDED ||
-              snapshot.data != CallStatus.NO_CALL) {
+          if (snapshot.data != CallStatus.NO_CALL) {
             return GestureDetector(
                 onTap: () {
                   if (snapshot.data == CallStatus.CREATED &&

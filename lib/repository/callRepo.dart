@@ -16,6 +16,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/file_service.dart';
@@ -61,6 +62,7 @@ class CallRepo {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   final _candidateNumber = 10;
   final _candidateTimeLimit = 1000; // 1 sec
@@ -146,6 +148,7 @@ class CallRepo {
             case CallEvent_CallStatus.IS_RINGING:
               timerResendCreate!.cancel();
               callingStatus.add(CallStatus.IS_RINGING);
+              _audioService.playBeepSound();
               break;
             case CallEvent_CallStatus.CREATED:
               if (event.roomUid == _roomUid ||
@@ -263,10 +266,12 @@ class CallRepo {
           if (!_reconnectTry) {
             _reconnectTry = true;
             callingStatus.add(CallStatus.RECONNECTING);
+            _audioService.stopPlayBeepSound();
             _reconnectingAfterFailedConnection();
             timerDisconnected = Timer(const Duration(seconds: 10), () {
               if (callingStatus.value == CallStatus.RECONNECTING) {
                 callingStatus.add(CallStatus.ENDED);
+                _audioService.stopPlayBeepSound();
                 _logger.i("Disconnected and Call End!");
                 endCall(true);
               }
@@ -278,6 +283,7 @@ class CallRepo {
         //     break;
         case RTCIceConnectionState.RTCIceConnectionStateConnected:
           callingStatus.add(CallStatus.CONNECTED);
+          _audioService.stopPlayBeepSound();
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
@@ -288,6 +294,7 @@ class CallRepo {
         case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
           if (!_reconnectTry) {
             callingStatus.add(CallStatus.DISCONNECTED);
+            _audioService.stopPlayBeepSound();
           }
           break;
         case RTCIceConnectionState.RTCIceConnectionStateNew:
@@ -328,6 +335,7 @@ class CallRepo {
           //     params.encodings[0].scaleResolutionDownBy = 2;
           // await _videoSender.setParameters(params);
           callingStatus.add(CallStatus.CONNECTED);
+          _audioService.stopPlayBeepSound();
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
@@ -341,6 +349,7 @@ class CallRepo {
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
           if (!_reconnectTry) {
             callingStatus.add(CallStatus.DISCONNECTED);
+            _audioService.stopPlayBeepSound();
           }
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
@@ -348,10 +357,12 @@ class CallRepo {
           if (!_reconnectTry) {
             _reconnectTry = true;
             callingStatus.add(CallStatus.RECONNECTING);
+            _audioService.stopPlayBeepSound();
             _reconnectingAfterFailedConnection();
             timerDisconnected = Timer(const Duration(seconds: 15), () {
               if (callingStatus.value == CallStatus.RECONNECTING) {
                 callingStatus.add(CallStatus.ENDED);
+                _audioService.stopPlayBeepSound();
                 _logger.i("Disconnected and Call End!");
                 endCall(true);
               }
@@ -456,11 +467,13 @@ class CallRepo {
               _startCallTimerAndChangeStatus();
             } else {
               callingStatus.add(CallStatus.CONNECTED);
+              _audioService.stopPlayBeepSound();
               _reconnectTry = false;
             }
             break;
           case STATUS_CONNECTION_CONNECTING:
             callingStatus.add(CallStatus.CONNECTING);
+            _audioService.stopPlayBeepSound();
             break;
           case STATUS_CONNECTION_ENDED:
             //received end from Calle
@@ -495,6 +508,7 @@ class CallRepo {
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
+    _audioService.stopPlayBeepSound();
     if (timerConnectionFailed != null) {
       timerConnectionFailed!.cancel();
     }
@@ -554,6 +568,7 @@ class CallRepo {
           break;
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);
+          _audioService.stopPlayBeepSound();
           break;
       }
     };
@@ -807,6 +822,7 @@ class CallRepo {
         if (callingStatus.value == CallStatus.IS_RINGING ||
             callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.ENDED);
+          _audioService.stopPlayBeepSound();
           _logger.i("User Can't Answer!");
           endCall(false);
         }
@@ -850,12 +866,14 @@ class CallRepo {
     _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
     callingStatus.add(CallStatus.CONNECTING);
+    _audioService.stopPlayBeepSound();
 
     //after accept Call w8 for 30 sec if don't connecting force end Call
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.ENDED);
+        _audioService.stopPlayBeepSound();
         endCall(true);
         timerResendAnswer!.cancel();
       }
@@ -892,6 +910,7 @@ class CallRepo {
     await _setCallCandidate(callOffer.candidates);
     if (!_reconnectTry) {
       callingStatus.add(CallStatus.CONNECTING);
+      _audioService.stopPlayBeepSound();
     }
     //And Create Answer for Calle
     if (!_reconnectTry) {
@@ -909,8 +928,11 @@ class CallRepo {
 
   void receivedBusyCall() {
     callingStatus.add(CallStatus.BUSY);
+    _audioService.stopPlayBeepSound();
+    _audioService.playBusySound();
     Timer(const Duration(seconds: 4), () async {
       callingStatus.add(CallStatus.ENDED);
+      _audioService.stopPlayBeepSound();
       await _dispose();
     });
   }
@@ -920,6 +942,7 @@ class CallRepo {
     callingStatus.add(CallStatus.DECLINED);
     Timer(const Duration(seconds: 4), () async {
       callingStatus.add(CallStatus.ENDED);
+      _audioService.stopPlayBeepSound();
       await _dispose();
     });
   }
@@ -1077,6 +1100,7 @@ class CallRepo {
     _coreServices.sendCallAnswer(callAnswerByClient);
     if (_reconnectTry) {
       callingStatus.add(CallStatus.IN_CALL);
+      _audioService.stopPlayBeepSound();
     }
     timerResendAnswer = Timer(const Duration(seconds: 8), () {
       _coreServices.sendCallAnswer(callAnswerByClient);
@@ -1086,6 +1110,7 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTED) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.ENDED);
+        _audioService.stopPlayBeepSound();
         endCall(false);
       }
     });
@@ -1124,6 +1149,7 @@ class CallRepo {
     }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
+    _audioService.stopPlayBeepSound();
     Timer(const Duration(seconds: 1), () async {
       await fetchUserCallList(
           _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
