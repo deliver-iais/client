@@ -72,7 +72,7 @@ class UxService {
   final _themeIsDark = BehaviorSubject.seeded(false);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
-  final _isAutoNightModeEnable = BehaviorSubject.seeded(false);
+  final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop());
 
   UxService() {
@@ -84,7 +84,7 @@ class UxService {
 
     _sharedDao
         .getBooleanStream(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
-            defaultValue: false)
+            defaultValue: true)
         .distinct()
         .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
@@ -140,6 +140,8 @@ class UxService {
   get isAutoNightModeEnable => _isAutoNightModeEnable.value;
 
   toggleThemeLightingMode() {
+    _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
+    _isAutoNightModeEnable.add(false);
     if (_themeIsDark.value) {
       _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
       _themeIsDark.add(false);
