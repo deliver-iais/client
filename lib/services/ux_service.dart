@@ -7,6 +7,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -148,20 +149,22 @@ class UxService {
     _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
     _isAutoNightModeEnable.add(false);
     if (_themeIsDark.value) {
-      _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
-      _themeIsDark.add(false);
+      toggleThemeToLightMode();
     } else {
-      _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
-      _themeIsDark.add(true);
+      toggleThemeToDarkMode();
     }
   }
 
   toggleThemeToLightMode() {
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white));
     _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
     _themeIsDark.add(false);
   }
 
   toggleThemeToDarkMode() {
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45));
     _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
     _themeIsDark.add(true);
   }
