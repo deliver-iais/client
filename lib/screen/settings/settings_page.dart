@@ -233,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: _i18n.get("dark_mode"),
                     leading: const Icon(CupertinoIcons.moon),
-                    switchValue: !_uxService.themeIsDark,
+                    switchValue: _uxService.themeIsDark,
                     onToggle: (value) {
                       setState(() {
                         _uxService.toggleThemeLightingMode();
