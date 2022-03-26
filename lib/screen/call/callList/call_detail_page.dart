@@ -6,7 +6,6 @@ import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,6 +38,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         const Padding(
@@ -79,10 +79,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
                   if (widget.callEvent.callEvent.callDuration != 0)
                     DefaultTextStyle(
                       style: TextStyle(
-                        color: ExtraTheme.of(context)
-                            .colorScheme
-                            .primary
-                            .withAlpha(130),
+                        color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 14,
                       ),
                       child: CallTime(

@@ -2,7 +2,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,7 +14,6 @@ class ConnectionStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final extraTheme = ExtraTheme.of(context);
     return StreamBuilder<TitleStatusConditions>(
         initialData: TitleStatusConditions.Normal,
         stream: _messageRepo.updatingStatus.stream,
@@ -26,7 +24,7 @@ class ConnectionStatus extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
             decoration: BoxDecoration(
-              color: extraTheme.colorScheme.tertiaryContainer,
+              color: theme.colorScheme.secondaryContainer,
               borderRadius: tertiaryBorder,
             ),
             curve: Curves.easeInOut,
@@ -39,13 +37,13 @@ class ConnectionStatus extends StatelessWidget {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: extraTheme.colorScheme.onTertiaryContainer,
+                    color: theme.colorScheme.onTertiaryContainer,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Text(title(snapshot.data ?? TitleStatusConditions.Normal),
                     style: theme.textTheme.subtitle1?.copyWith(
-                        color: extraTheme.colorScheme.onTertiaryContainer)),
+                        color: theme.colorScheme.onSecondaryContainer)),
               ],
             ),
           );

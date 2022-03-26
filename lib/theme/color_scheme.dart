@@ -65,7 +65,7 @@ class Material3ColorScheme {
   final Color outline;
 
   final Color inverseSurface;
-  final Color inverseOnSurface;
+  final Color onInverseSurface;
   final Color inversePrimary;
 
   const Material3ColorScheme({
@@ -94,7 +94,7 @@ class Material3ColorScheme {
     required this.onErrorContainer,
     required this.outline,
     required this.inverseSurface,
-    required this.inverseOnSurface,
+    required this.onInverseSurface,
     required this.inversePrimary,
   });
 
@@ -136,7 +136,7 @@ class Material3ColorScheme {
         onErrorContainer = Color(errorTones.get(10)),
         outline = Color(neutralVariantTones.get(50)),
         inverseSurface = Color(neutralTones.get(20)),
-        inverseOnSurface = Color(neutralTones.get(95)),
+        onInverseSurface = Color(neutralTones.get(95)),
         inversePrimary = Color(primaryTones.get(80)),
         background = Color(neutralTones.get(99)),
         onBackground = Color(neutralTones.get(10));
@@ -171,7 +171,7 @@ class Material3ColorScheme {
         onErrorContainer = Color(errorTones.get(90)),
         outline = Color(naturalVariantTones.get(60)),
         inverseSurface = Color(naturalTones.get(90)),
-        inverseOnSurface = Color(naturalTones.get(20)),
+        onInverseSurface = Color(naturalTones.get(20)),
         inversePrimary = Color(primaryTones.get(40)),
         background = Color(naturalTones.get(10)),
         onBackground = Color(naturalTones.get(90));
@@ -188,17 +188,31 @@ Color elevation(Color surface, Color primary, int number) =>
 ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
   return ColorScheme(
       primary: colorScheme.primary,
-      primaryVariant: colorScheme.primaryContainer,
-      secondary: colorScheme.secondary,
-      secondaryVariant: colorScheme.secondaryContainer,
-      surface: colorScheme.surface,
-      background: colorScheme.background,
-      error: colorScheme.error,
       onPrimary: colorScheme.onPrimary,
+      primaryContainer: colorScheme.primaryContainer,
+      onPrimaryContainer: colorScheme.onPrimaryContainer,
+      secondary: colorScheme.secondary,
       onSecondary: colorScheme.onSecondary,
+      secondaryContainer: colorScheme.secondaryContainer,
+      onSecondaryContainer: colorScheme.onSecondaryContainer,
+      tertiary: colorScheme.tertiary,
+      onTertiary: colorScheme.onTertiary,
+      tertiaryContainer: colorScheme.tertiaryContainer,
+      onTertiaryContainer: colorScheme.onTertiaryContainer,
+      surface: colorScheme.surface,
       onSurface: colorScheme.onSurface,
+      surfaceVariant: colorScheme.surfaceVariant,
+      onSurfaceVariant: colorScheme.onSurfaceVariant,
+      inversePrimary: colorScheme.inversePrimary,
+      inverseSurface: colorScheme.inverseSurface,
+      onInverseSurface: colorScheme.onInverseSurface,
+      background: colorScheme.background,
       onBackground: colorScheme.onBackground,
+      error: colorScheme.error,
       onError: colorScheme.onError,
+      errorContainer: colorScheme.errorContainer,
+      onErrorContainer: colorScheme.onErrorContainer,
+      outline: colorScheme.outline,
       brightness: colorScheme.brightness);
 }
 
@@ -228,6 +242,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       focusColor: colorScheme.primary.withAlpha(50));
 
   return theme.copyWith(
+      useMaterial3: true,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       snackBarTheme: SnackBarThemeData(
           backgroundColor: colorScheme.inverseSurface,

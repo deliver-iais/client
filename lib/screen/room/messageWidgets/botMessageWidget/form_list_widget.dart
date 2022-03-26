@@ -23,15 +23,15 @@ class FormListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     setFormKey(_formKey);
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
+    return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
         child: Form(
             key: _formKey,
             child: BotRadioGroup(
               formField: formField,
               validator: (value) {
                 if (!formField.isOptional && value == null) {
-                    return _i18n.get("please_select_one");
+                  return _i18n.get("please_select_one");
                 } else {
                   return null;
                 }

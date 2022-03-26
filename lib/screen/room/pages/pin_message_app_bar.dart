@@ -4,7 +4,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -33,7 +32,6 @@ class PinMessageAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final extraThemeData = ExtraTheme.of(context);
     return StreamBuilder<int>(
         stream: lastPinedMessage.stream,
         builder: (c, id) {
@@ -57,7 +55,7 @@ class PinMessageAppBar extends StatelessWidget {
                     borderRadius: secondaryBorder,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: extraThemeData.colorScheme.inverseSurface,
+                        color: theme.colorScheme.inverseSurface,
                         borderRadius: secondaryBorder,
                       ),
                       height: 60,
@@ -113,9 +111,7 @@ class PinMessageAppBar extends StatelessWidget {
                                     i18n.get("pinned_message"),
                                     style: theme.primaryTextTheme.subtitle2
                                         ?.copyWith(
-                                      color: ExtraTheme.of(context)
-                                          .colorScheme
-                                          .inversePrimary,
+                                      color: theme.colorScheme.inversePrimary,
                                     ),
                                   ),
                                 if (mes != null)
@@ -124,12 +120,10 @@ class PinMessageAppBar extends StatelessWidget {
                                       lastMessageId: mes.id!,
                                       hasMentioned: false,
                                       showSeenStatus: false,
-                                      primaryColor: ExtraTheme.of(context)
-                                          .colorScheme
-                                          .inversePrimary,
-                                      naturalColor: ExtraTheme.of(context)
-                                          .colorScheme
-                                          .inverseOnSurface,
+                                      primaryColor:
+                                          theme.colorScheme.inversePrimary,
+                                      naturalColor:
+                                          theme.colorScheme.onInverseSurface,
                                       showSender: false),
                               ],
                             ),
@@ -141,9 +135,7 @@ class PinMessageAppBar extends StatelessWidget {
                               },
                               icon: Icon(
                                 CupertinoIcons.xmark,
-                                color: ExtraTheme.of(context)
-                                    .colorScheme
-                                    .inversePrimary,
+                                color: theme.colorScheme.inversePrimary,
                               ))
                         ],
                       ),
@@ -159,11 +151,11 @@ class PinMessageAppBar extends StatelessWidget {
   }
 
   Color color(BuildContext context, int index) {
-    final extraThemeData = ExtraTheme.of(context);
+    final theme = Theme.of(context);
     return shouldHighlight(index, lastPinedMessage.value)
-        ? extraThemeData.colorScheme.inversePrimary
-        : Color.lerp(extraThemeData.colorScheme.inversePrimary,
-            extraThemeData.colorScheme.inverseSurface, 0.8)!;
+        ? theme.colorScheme.inversePrimary
+        : Color.lerp(theme.colorScheme.inversePrimary,
+            theme.colorScheme.inverseSurface, 0.8)!;
   }
 
   bool shouldHighlight(int index, int id) {
