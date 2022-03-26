@@ -671,6 +671,7 @@ class _RoomPageState extends State<RoomPage> {
           //       },
           //       icon: const Icon(Icons.videocam)),
           if (room.uid.asUid().isUser() &&
+              !_authRepo.isCurrentUser(room.uid)&&
               !isLinux() &&
               accessToCallUidList.values
                   .contains(_authRepo.currentUserUid.asString()))
@@ -679,7 +680,7 @@ class _RoomPageState extends State<RoomPage> {
                   _routingService.openCallScreen(room.uid.asUid(),
                       context: context);
                 },
-                icon: const Icon(Icons.call)),
+                icon: const Icon(Icons.call_rounded)),
         ],
         leading: GestureDetector(
           child: StreamBuilder<bool>(
