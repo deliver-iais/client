@@ -1,4 +1,3 @@
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/account.dart';
 
@@ -238,6 +237,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     onToggle: (value) {
                       setState(() {
                         _uxService.toggleThemeLightingMode();
+                      });
+                    },
+                  ),
+                  SettingsTile.switchTile(
+                    title: _i18n.get("auto_night_mode"),
+                    leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                    switchValue: _uxService.isAutoNightModeEnable,
+                    onToggle: (value) {
+                      setState(() {
+                        _uxService.toggleIsAutoNightMode();
                       });
                     },
                   ),

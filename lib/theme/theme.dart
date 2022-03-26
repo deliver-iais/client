@@ -35,8 +35,8 @@ class ThemeScheme {
   final Material3ColorScheme _light;
 
   ThemeScheme(CorePalette palette)
-      : _dark = Material3ColorScheme.lightOfCorePalette(palette),
-        _light = Material3ColorScheme.darkOfCorePalette(palette);
+      : _dark = Material3ColorScheme.darkOfCorePalette(palette),
+        _light = Material3ColorScheme.lightOfCorePalette(palette);
 
   theme(bool isDark) => isDark ? getThemeData(_dark) : getThemeData(_light);
 

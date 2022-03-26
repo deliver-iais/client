@@ -72,6 +72,7 @@ class UxService {
   final _themeIsDark = BehaviorSubject.seeded(false);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
+  final _isAutoNightModeEnable = BehaviorSubject.seeded(false);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop());
 
   UxService() {
@@ -80,6 +81,12 @@ class UxService {
             defaultValue: kDebugMode ? "INFO" : "NOTHING")
         .map((event) => LogLevelHelper.stringToLevel(event!))
         .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
+
+    _sharedDao
+        .getBooleanStream(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+            defaultValue: false)
+        .distinct()
+        .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
     _sharedDao
         .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
@@ -130,6 +137,8 @@ class UxService {
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
+  get isAutoNightModeEnable => _isAutoNightModeEnable.value;
+
   toggleThemeLightingMode() {
     if (_themeIsDark.value) {
       _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
@@ -138,6 +147,16 @@ class UxService {
       _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
       _themeIsDark.add(true);
     }
+  }
+
+  toggleThemeToLightMode() {
+    _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
+    _themeIsDark.add(false);
+  }
+
+  toggleThemeToDarkMode() {
+    _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
+    _themeIsDark.add(true);
   }
 
   selectTheme(int index) {
@@ -156,6 +175,11 @@ class UxService {
   toggleIsAllNotificationDisabled() {
     _sharedDao.putBoolean(
         SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED, !isAllNotificationDisabled);
+  }
+
+  toggleIsAutoNightMode() {
+    _sharedDao.putBoolean(
+        SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, !isAutoNightModeEnable);
   }
 
   changeLogLevel(String level) {
