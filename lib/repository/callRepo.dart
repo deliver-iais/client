@@ -46,7 +46,8 @@ enum CallStatus {
   RECONNECTING,
   CONNECTED,
   DISCONNECTED,
-  FAILED
+  FAILED,
+  NO_ANSWER
 }
 
 class CallRepo {
@@ -258,7 +259,7 @@ class CallRepo {
             _reconnectingAfterFailedConnection();
             timerDisconnected = Timer(const Duration(seconds: 10), () {
               if (callingStatus.value == CallStatus.RECONNECTING) {
-                callingStatus.add(CallStatus.ENDED);
+                callingStatus.add(CallStatus.NO_ANSWER);
                 _logger.i("Disconnected and Call End!");
                 endCall(true);
               }
@@ -343,7 +344,7 @@ class CallRepo {
             _reconnectingAfterFailedConnection();
             timerDisconnected = Timer(const Duration(seconds: 15), () {
               if (callingStatus.value == CallStatus.RECONNECTING) {
-                callingStatus.add(CallStatus.ENDED);
+                callingStatus.add(CallStatus.NO_ANSWER);
                 _logger.i("Disconnected and Call End!");
                 endCall(true);
               }
@@ -788,7 +789,7 @@ class CallRepo {
       timerDeclined = Timer(const Duration(seconds: 50), () {
         if (callingStatus.value == CallStatus.IS_RINGING ||
             callingStatus.value == CallStatus.CREATED) {
-          callingStatus.add(CallStatus.ENDED);
+          callingStatus.add(CallStatus.NO_ANSWER);
           _logger.i("User Can't Answer!");
           endCall(false);
         }
@@ -837,9 +838,8 @@ class CallRepo {
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
         _logger.i("Call Can't Connected !!");
-        callingStatus.add(CallStatus.ENDED);
+        callingStatus.add(CallStatus.NO_ANSWER);
         endCall(true);
-        timerResendAnswer!.cancel();
       }
     });
   }
@@ -889,21 +889,15 @@ class CallRepo {
     await _setCandidate(candidates);
   }
 
-  void receivedBusyCall() {
+  void receivedBusyCall() async{
     callingStatus.add(CallStatus.BUSY);
-    Timer(const Duration(seconds: 4), () async {
-      callingStatus.add(CallStatus.ENDED);
-      await _dispose();
-    });
+    await _dispose();
   }
 
   void receivedDeclinedCall() async {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
-    Timer(const Duration(seconds: 4), () async {
-      callingStatus.add(CallStatus.ENDED);
-      await _dispose();
-    });
+    await _dispose();
   }
 
   Future<void> receivedEndCall(int callDuration, bool isForce) async {
@@ -1018,8 +1012,8 @@ class CallRepo {
   }
 
   _calculateCandidateAndSendOffer() async {
-    //w8 till candidate gathering conditions complete
     _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
+    //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :" + _candidate.length.toString());
     // Send Candidate to Receiver
@@ -1038,7 +1032,6 @@ class CallRepo {
   }
 
   _calculateCandidateAndSendAnswer() async {
-    //TODO we need timer here for reSend Answer
     _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
@@ -1063,7 +1056,7 @@ class CallRepo {
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
         _logger.i("Call Can't Connected !!");
-        callingStatus.add(CallStatus.ENDED);
+        callingStatus.add(CallStatus.NO_ANSWER);
         endCall(false);
       }
     });
