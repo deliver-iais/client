@@ -679,7 +679,7 @@ class _RoomPageState extends State<RoomPage> {
                   _routingService.openCallScreen(room.uid.asUid(),
                       context: context);
                 },
-                icon: const Icon(Icons.call)),
+                icon: const Icon(CupertinoIcons.phone)),
         ],
         leading: GestureDetector(
           child: StreamBuilder<bool>(
