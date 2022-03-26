@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -105,6 +107,9 @@ class UxService {
         } else {
           _themeIsDark.add(false);
         }
+      } else if (isAutoNightModeEnable &&
+          window.platformBrightness == Brightness.dark) {
+        _themeIsDark.add(true);
       }
     });
     _sharedDao.get(SHARED_DAO_THEME_COLOR).then((event) {
