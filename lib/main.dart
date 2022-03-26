@@ -310,7 +310,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: MergeStream([
-        _uxService.themeStream,
+        _uxService.themeIndexStream,
+        _uxService.themeIsDarkStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {
@@ -320,7 +321,7 @@ class MyApp extends StatelessWidget {
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
                 _rawKeyboardService.escapeHandling(event);
-                _rawKeyboardService.searchHandling(event: event);
+                _rawKeyboardService.searchHandling(event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
