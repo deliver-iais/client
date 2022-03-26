@@ -182,7 +182,7 @@ class CoreServices {
             break;
           case ServerPacket_Type.callOffer:
             var callEvents = CallEvents.callOffer(serverPacket.callOffer,
-                roomUid: getRoomUid(_authRepo, serverPacket.message));
+                roomUid: getRoomUid(_authRepo, serverPacket.message), callId: serverPacket.callOffer.id);
             if (serverPacket.callOffer.callType ==
                     call_pb.CallEvent_CallType.GROUP_AUDIO ||
                 serverPacket.callOffer.callType ==
@@ -194,7 +194,7 @@ class CoreServices {
             break;
           case ServerPacket_Type.callAnswer:
             var callEvents = CallEvents.callAnswer(serverPacket.callAnswer,
-                roomUid: getRoomUid(_authRepo, serverPacket.message));
+                roomUid: getRoomUid(_authRepo, serverPacket.message), callId: serverPacket.callAnswer.id);
             if (serverPacket.callAnswer.callType ==
                     call_pb.CallEvent_CallType.GROUP_AUDIO ||
                 serverPacket.callAnswer.callType ==
@@ -365,6 +365,7 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomUid(_authRepo, message);
+    var isCallEvent = false;
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
@@ -470,8 +471,9 @@ class CoreServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
+      isCallEvent = true;
       var callEvents =
-          CallEvents.callEvent(message.callEvent, roomUid: message.from);
+          CallEvents.callEvent(message.callEvent, roomUid: message.from, callId: message.callEvent.id);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
         // its group Call
@@ -480,9 +482,21 @@ class CoreServices {
         _callService.addCallEvent(callEvents);
       }
     }
-    saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
-        _roomDao, _seenDao, _mediaQueryRepo);
 
+    if(isCallEvent){
+      var callEvents =
+          CallEvents.callEvent(message.callEvent, roomUid: message.from, callId: message.callEvent.id);
+      var newStatus = callEvents.callEvent!.newStatus;
+      if(newStatus == CallEvent_CallStatus.ENDED || newStatus == CallEvent_CallStatus.BUSY
+          || newStatus == CallEvent_CallStatus.DECLINED){
+        _logger.i("saveIncoming Event");
+        saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
+            _roomDao, _seenDao, _mediaQueryRepo);
+      }
+    }else{
+      saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
+          _roomDao, _seenDao, _mediaQueryRepo);
+    }
     if (showNotifyForThisMessage(message, _authRepo) &&
         !_uxService.isAllNotificationDisabled &&
         (!await _roomRepo.isRoomMuted(roomUid.asString()))) {

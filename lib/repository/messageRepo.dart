@@ -958,18 +958,21 @@ class MessageRepo {
             default:
               break;
           }
-        } else if (_callService.getUserCallState != UserCallState.NOCALL
-            && message.whichType() == message_pb.Message_Type.callEvent) {
-          var callEvents =
-          CallEvents.callEvent(message.callEvent, roomUid: message.from);
-          if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
-              message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-            // its group Call
-            _callService.addGroupCallEvent(callEvents);
-          } else {
-            _callService.addCallEvent(callEvents);
-          }
-        } else {}
+        }
+        // else if (_callService.getUserCallState != UserCallState.NOCALL
+        //     && message.whichType() == message_pb.Message_Type.callEvent) {
+        //   _logger.i("its fetch from message Repo");
+        //   var callEvents =
+        //   CallEvents.callEvent(message.callEvent, roomUid: message.from, callId: message.callEvent.id);
+        //   if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
+        //       message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
+        //     // its group Call
+        //     _callService.addGroupCallEvent(callEvents);
+        //   } else {
+        //     _callService.addCallEvent(callEvents);
+        //   }
+        // }
+        else {}
       } catch (e) {
         _logger.e(e);
       }

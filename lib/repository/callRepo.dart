@@ -138,8 +138,10 @@ class CallRepo {
           var callEvent = event.callEvent;
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
-              timerResendCreate!.cancel();
-              callingStatus.add(CallStatus.IS_RINGING);
+              if(_callId == callEvent.id) {
+                timerResendCreate!.cancel();
+                callingStatus.add(CallStatus.IS_RINGING);
+              }
               break;
             case CallEvent_CallStatus.CREATED:
               if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
@@ -167,13 +169,21 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.BUSY:
-              receivedBusyCall();
+              if(_callId == callEvent.id) {
+                timerResendCreate!.cancel();
+                receivedBusyCall();
+              }
               break;
             case CallEvent_CallStatus.DECLINED:
-              receivedDeclinedCall();
+              if(_callId == callEvent.id) {
+                timerResendCreate!.cancel();
+                receivedDeclinedCall();
+              }
               break;
             case CallEvent_CallStatus.ENDED:
-              receivedEndCall(callEvent.callDuration.toInt(), false);
+              if(_callId == callEvent.id) {
+                receivedEndCall(callEvent.callDuration.toInt(), false);
+              }
               break;
             case CallEvent_CallStatus.INVITE:
             case CallEvent_CallStatus.JOINED:
@@ -274,7 +284,7 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
-          } else{
+          } else if(_isCaller){
             timerResendAnswer!.cancel();
           }
           break;
@@ -324,7 +334,7 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
-          }else{
+          }else if(_isCaller){
             timerResendAnswer!.cancel();
           }
           if (!kIsWeb) {
@@ -794,6 +804,7 @@ class CallRepo {
           endCall(false);
         }
       });
+      _callIdGenerator();
       _sendStartCallEvent();
     } else {
       _logger.i("User on Call ... !");
@@ -801,7 +812,6 @@ class CallRepo {
   }
 
   _sendStartCallEvent() {
-    _callIdGenerator();
     var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
         CallEvent_CallStatus.CREATED,
@@ -912,7 +922,12 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+      if(callingStatus.value == CallStatus.NO_ANSWER && !_isConnected){
+        // it means call Not Answered
+        _callDuration = -1;
+      }
       if(isForce){
+        _logger.i("Call Force Ending ...");
         messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
