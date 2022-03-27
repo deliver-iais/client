@@ -1494,8 +1494,12 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
       (super.noSuchMethod(Invocation.method(#hasProfile, [], {#retry: retry}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
   @override
-  _i18.Future<bool> hasUsername() =>
-      (super.noSuchMethod(Invocation.method(#hasUsername, []),
+  _i18.Future<bool> profileInfoIsSet() =>
+      (super.noSuchMethod(Invocation.method(#profileInfoIsSet, []),
+          returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+  @override
+  _i18.Future<bool> fetchCurrentUserId({bool? retry = false}) => (super
+      .noSuchMethod(Invocation.method(#fetchCurrentUserId, [], {#retry: retry}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
   @override
   _i18.Future<_i13.Account> getAccount() =>
@@ -1513,11 +1517,6 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
           Invocation.method(
               #setAccountDetails, [username, firstName, lastName, email]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
-  @override
-  _i18.Future<void> fetchProfile() => (super.noSuchMethod(
-      Invocation.method(#fetchProfile, []),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
   @override
   _i18.Future<List<_i28.Session>> getSessions() =>
       (super.noSuchMethod(Invocation.method(#getSessions, []),

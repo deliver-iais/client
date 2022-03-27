@@ -25,13 +25,12 @@ class AccountRepo {
   final _dbManager = GetIt.I.get<DBManager>();
 
   Future<bool> hasProfile({bool retry = false}) async {
-    if (await _sharedDao.get(SHARED_DAO_USERNAME) != null) {
+    if (await _sharedDao.get(SHARED_DAO_FIRST_NAME) != null) {
       return true;
     }
     try {
       var result =
           await _profileServiceClient.getUserProfile(GetUserProfileReq());
-
       _savePhoneNumber(result.profile.phoneNumber.countryCode,
           result.profile.phoneNumber.nationalNumber.toInt());
 
@@ -40,9 +39,9 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
-        return await hasUsername();
+        return true;
       } else {
-        return await hasUsername();
+        return false;
       }
     } catch (e) {
       _logger.e(e);
@@ -54,8 +53,21 @@ class AccountRepo {
     }
   }
 
-  Future<bool> hasUsername() async {
+  Future<bool> profileInfoIsSet() async {
+    bool isSet = await hasProfile(retry: true);
+    if (!isSet) {
+      return false;
+    } else {
+      return fetchCurrentUserId();
+    }
+  }
+
+  Future<bool> fetchCurrentUserId({bool retry = false}) async {
     try {
+      var res = await _sharedDao.get(SHARED_DAO_USERNAME);
+      if (res != null) {
+        return true;
+      }
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
       if (getIdRequest.id.isNotEmpty) {
@@ -66,7 +78,11 @@ class AccountRepo {
       }
     } catch (e) {
       _logger.e(e);
-      return false;
+      if (retry) {
+        return fetchCurrentUserId();
+      } else {
+        return false;
+      }
     }
   }
 
@@ -134,14 +150,6 @@ class AccountRepo {
     _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName!);
     _sharedDao.put(SHARED_DAO_LAST_NAME, lastName!);
     _sharedDao.put(SHARED_DAO_EMAIL, email!);
-  }
-
-  Future<void> fetchProfile() async {
-    if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
-      await hasUsername();
-    } else if (null == await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
-      await hasProfile(retry: true);
-    }
   }
 
   Future<List<Session>> getSessions() async {
