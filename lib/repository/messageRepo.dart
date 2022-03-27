@@ -25,6 +25,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -37,6 +38,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
@@ -90,6 +92,7 @@ class MessageRepo {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _blockDao = GetIt.I.get<BlockDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
+  final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
@@ -467,13 +470,19 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(call_pb.CallEvent_CallStatus newStatus, Uid room, String callId ,int  callDuration, int  endOfCallDuration,call_pb.CallEvent_CallType callType ) async {
+  sendCallMessage(
+      call_pb.CallEvent_CallStatus newStatus,
+      Uid room,
+      String callId,
+      int callDuration,
+      int endOfCallDuration,
+      call_pb.CallEvent_CallType callType) async {
     String json = (call_pb.CallEvent()
-      ..newStatus = newStatus
-      ..id = callId
-      ..callDuration = Int64(callDuration)
-      ..endOfCallTime = Int64(endOfCallDuration)
-      ..callType = callType )
+          ..newStatus = newStatus
+          ..id = callId
+          ..callDuration = Int64(callDuration)
+          ..endOfCallTime = Int64(endOfCallDuration)
+          ..callType = callType)
         .writeToJson();
 
     Message msg =
@@ -671,6 +680,9 @@ class MessageRepo {
       case MessageType.CALL:
         byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
         break;
+      case MessageType.Table:
+        byClient.table = form_pb.Table.fromJson(message.json);
+        break;
       default:
         break;
     }
@@ -787,6 +799,10 @@ class MessageRepo {
   Future<List<Message?>> getPage(
       int page, String roomId, int containsId, int lastMessageId,
       {int pageSize = 16}) async {
+    if (containsId > lastMessageId) {
+      return [];
+    }
+
     var completer = _completerMap["$roomId-$page"];
 
     if (completer != null && !completer.isCompleted) {
@@ -1173,6 +1189,7 @@ class MessageRepo {
     editableMessage.json = updatedFile.writeToJson();
     editableMessage.edited = true;
     _messageDao.saveMessage(editableMessage);
+    _mediaRepo.updateMedia(editableMessage);
     _roomDao.updateRoom(Room(
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }

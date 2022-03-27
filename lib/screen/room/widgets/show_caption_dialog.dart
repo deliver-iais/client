@@ -27,6 +27,7 @@ class ShowCaptionDialog extends StatefulWidget {
   final bool showSelectedImage;
   final int replyMessageId;
   final Function? resetRoomPageDetails;
+  final String? caption;
 
   const ShowCaptionDialog(
       {Key? key,
@@ -36,7 +37,8 @@ class ShowCaptionDialog extends StatefulWidget {
       this.showSelectedImage = false,
       this.editableMessage,
       required this.resetRoomPageDetails,
-      required this.replyMessageId})
+      required this.replyMessageId,
+        this.caption})
       : super(key: key);
 
   @override
@@ -63,6 +65,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   void initState() {
     _isFileFormatAccept = widget.editableMessage != null;
+    _isFileSizeAccept = widget.editableMessage != null;
     if (widget.editableMessage == null) {
       _type = widget.type!;
       for (var element in widget.files!) {
@@ -79,6 +82,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
           _invalidSizeFileName = element.name;
           break;
         }
+      }
+      if (widget.caption != null && widget.caption!.isNotEmpty) {
+        _editingController.text = widget.caption!;
       }
     } else {
       _editableFile = widget.editableMessage!.json.toFile();

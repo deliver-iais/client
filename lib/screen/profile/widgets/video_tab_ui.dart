@@ -3,7 +3,7 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -36,7 +36,7 @@ class VideoTabUi extends StatefulWidget {
 class _VideoTabUiState extends State<VideoTabUi> {
   final _fileServices = GetIt.I.get<FileService>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
 

@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
@@ -32,7 +31,6 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,6 +73,8 @@ class RoutingService {
   Stream<String> get currentRouteStream =>
       _navigatorObserver.currentRoute.stream;
 
+  BehaviorSubject<bool> shouldScrollInRoom = BehaviorSubject.seeded(false);
+
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
@@ -98,21 +98,6 @@ class RoutingService {
 
   void openCallsList() => _push(_calls);
 
-  void openCallDetails(
-      {required time,
-      required isIncomingCall,
-      required caller,
-      required monthName,
-      required callEvent}) {
-    _push(CallDetailPage(
-        key: const ValueKey("/call_detail"),
-        callEvent: callEvent,
-        time: time,
-        caller: caller,
-        isIncomingCall: isIncomingCall,
-        monthName: monthName));
-  }
-
   void openRoom(String roomId,
       {List<Message> forwardedMessages = const [],
       List<Media> forwardedMedia = const [],
@@ -130,6 +115,9 @@ class RoutingService {
             shareUid: shareUid,
           ),
           popAllBeforePush: popAllBeforePush);
+      shouldScrollInRoom.add(false);
+    } else if (isInRoom(roomId)) {
+      shouldScrollInRoom.add(true);
     }
   }
 
@@ -343,19 +331,16 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: Stack(
-        children: [
-          Center(
-            child: BlurContainer(
-                skew: 4,
-                padding:
-                    const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 2),
-                child: Text(
-                    _i18n.get("please_select_a_chat_to_start_messaging"),
-                    style: theme.textTheme.bodyText2!
-                        .copyWith(color: Colors.white))),
-          ),
-        ],
+      body: Center(
+        child: Container(
+            decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                borderRadius: secondaryBorder),
+            padding:
+                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+            child: Text(_i18n.get("please_select_a_chat_to_start_messaging"),
+                style: theme.textTheme.bodyText2!
+                    .copyWith(color: theme.colorScheme.onPrimaryContainer))),
       ),
     );
   }

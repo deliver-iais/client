@@ -50,5 +50,8 @@ enum MessageType {
   SHARE_PRIVATE_DATA_ACCEPTANCE,
 
   @HiveField(14)
-  CALL
+  CALL,
+
+  @HiveField(15)
+  Table
 }

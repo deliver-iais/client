@@ -10,18 +10,23 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -33,11 +38,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -96,6 +101,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
+  late TextSelectionControls selectionControls;
   bool isMentionSelected = false;
 
   bool startAudioRecorder = false;
@@ -205,6 +211,11 @@ class _InputMessageWidget extends State<InputMessage> {
         _mentionQuery.add("-");
       }
     });
+    selectionControls = CustomTextSelectionController(
+        buildContext: context,
+        textController: widget.textController,
+        captionController: captionTextController,
+        roomUid: currentRoom.uid.asUid());
     super.initState();
   }
 
@@ -228,344 +239,365 @@ class _InputMessageWidget extends State<InputMessage> {
           return true;
         }
       },
-      child: Column(
-        children: <Widget>[
-          StreamBuilder<String>(
-              stream: _mentionQuery.stream.distinct(),
-              builder: (c, showMention) {
-                _mentionData = showMention.data ?? "-";
-                if (showMention.hasData) {
-                  return ShowMentionList(
-                    query: _mentionData,
-                    onSelected: (s) {
-                      onMentionSelected(s);
+      child: IconTheme(
+        data: IconThemeData(opacity: 0.6, color: theme.iconTheme.color),
+        child: Column(
+          children: <Widget>[
+            StreamBuilder<String>(
+                stream: _mentionQuery.stream.distinct(),
+                builder: (c, showMention) {
+                  _mentionData = showMention.data ?? "-";
+                  if (showMention.hasData) {
+                    return ShowMentionList(
+                      query: _mentionData,
+                      onSelected: (s) {
+                        onMentionSelected(s);
+                      },
+                      roomUid: widget.currentRoom.uid,
+                      mentionSelectedIndex: mentionSelectedIndex,
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+            StreamBuilder<String>(
+                stream: _botCommandQuery.stream.distinct(),
+                builder: (c, show) {
+                  _botCommandData = show.data ?? "-";
+                  return BotCommands(
+                    botUid: widget.currentRoom.uid.asUid(),
+                    query: _botCommandData,
+                    onCommandClick: (String command) {
+                      onCommandClick(command);
                     },
-                    roomUid: widget.currentRoom.uid,
-                    mentionSelectedIndex: mentionSelectedIndex,
+                    botCommandSelectedIndex: botCommandSelectedIndex,
                   );
-                }
-                return const SizedBox.shrink();
-              }),
-          StreamBuilder<String>(
-              stream: _botCommandQuery.stream.distinct(),
-              builder: (c, show) {
-                _botCommandData = show.data ?? "-";
-                return BotCommands(
-                  botUid: widget.currentRoom.uid.asUid(),
-                  query: _botCommandData,
-                  onCommandClick: (String command) {
-                    onCommandClick(command);
-                  },
-                  botCommandSelectedIndex: botCommandSelectedIndex,
-                );
-              }),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-            ),
-            child: Stack(
-              // overflow: Overflow.visible,
-              children: <Widget>[
-                StreamBuilder<bool>(
-                    stream: _showSendIcon.stream,
-                    builder: (c, sh) {
-                      if (sh.hasData &&
-                          !sh.data! &&
-                          !widget.waitingForForward &&
-                          !isDesktop()) {
-                        return RecordAudioAnimation(
-                          rightPadding: x,
-                          size: size,
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    }),
-                Row(
-                  children: <Widget>[
-                    !startAudioRecorder
-                        ? Expanded(
-                            child: Row(
-                              children: <Widget>[
-                                StreamBuilder<bool>(
-                                    stream: _backSubject.stream,
-                                    builder: (context, snapshot) {
-                                      return IconButton(
-                                        iconSize: _backSubject.value ? 24 : 28,
-                                        icon: Icon(
-                                          _backSubject.value
-                                              ? CupertinoIcons
-                                                  .keyboard_chevron_compact_down
-                                              : CupertinoIcons.smiley,
-                                        ),
-                                        onPressed: () {
-                                          if (_backSubject.value) {
-                                            _backSubject.add(false);
-                                            widget.focusNode.requestFocus();
-                                          } else if (!_backSubject.value) {
-                                            FocusScope.of(context).unfocus();
-                                            Timer(
-                                                const Duration(
-                                                    milliseconds: 200), () {
-                                              _backSubject.add(true);
-                                            });
-                                          }
-                                        },
-                                      );
-                                    }),
-                                Flexible(
-                                  child: RawKeyboardListener(
-                                    focusNode: keyboardRawFocusNode,
-                                    child:
-                                        ValueListenableBuilder<TextDirection>(
-                                      valueListenable: _textDir,
-                                      builder: (context, value, child) =>
-                                          TextField(
-                                        focusNode: widget.focusNode,
-                                        autofocus: widget.replyMessageId > 0 ||
-                                            isDesktop(),
-                                        controller: widget.textController,
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 14, vertical: 12),
-                                          border: InputBorder.none,
-                                          hintText: i18n.get("message"),
-                                        ),
-                                        autocorrect: true,
-                                        textInputAction:
-                                            TextInputAction.newline,
-                                        minLines: 1,
-                                        maxLines: 15,
-                                        textDirection: value,
-                                        style: theme.textTheme.subtitle1,
-                                        onTap: () => _backSubject.add(false),
-                                        onChanged: (str) {
-                                          if (str.trim().length < 2) {
-                                            final dir = getDirection(str);
-                                            if (dir != value) {
-                                              _textDir.value = dir;
+                }),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+              ),
+              child: Stack(
+                // overflow: Overflow.visible,
+                children: <Widget>[
+                  StreamBuilder<bool>(
+                      stream: _showSendIcon.stream,
+                      builder: (c, sh) {
+                        if (sh.hasData &&
+                            !sh.data! &&
+                            !widget.waitingForForward &&
+                            !isDesktop()) {
+                          return RecordAudioAnimation(
+                            rightPadding: x,
+                            size: size,
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      }),
+                  Row(
+                    children: <Widget>[
+                      !startAudioRecorder
+                          ? Expanded(
+                              child: Row(
+                                children: <Widget>[
+                                  StreamBuilder<bool>(
+                                      stream: _backSubject.stream,
+                                      builder: (context, snapshot) {
+                                        return IconButton(
+                                          iconSize:
+                                              _backSubject.value ? 24 : 28,
+                                          icon: Icon(
+                                            _backSubject.value
+                                                ? CupertinoIcons
+                                                    .keyboard_chevron_compact_down
+                                                : CupertinoIcons.smiley,
+                                          ),
+                                          onPressed: () {
+                                            if (_backSubject.value) {
+                                              _backSubject.add(false);
+                                              widget.focusNode.requestFocus();
+                                            } else if (!_backSubject.value) {
+                                              FocusScope.of(context).unfocus();
+                                              Timer(
+                                                  const Duration(
+                                                      milliseconds: 200), () {
+                                                _backSubject.add(true);
+                                              });
                                             }
-                                          }
-                                          if (str.isNotEmpty) {
-                                            isTypingActivitySubject
-                                                .add(ActivityType.TYPING);
-                                          } else {
-                                            noActivitySubject
-                                                .add(ActivityType.NO_ACTIVITY);
-                                          }
-                                        },
+                                          },
+                                        );
+                                      }),
+                                  Flexible(
+                                    child: RawKeyboardListener(
+                                      focusNode: keyboardRawFocusNode,
+                                      child:
+                                          ValueListenableBuilder<TextDirection>(
+                                        valueListenable: _textDir,
+                                        builder: (context, value, child) =>
+                                            TextField(
+                                          selectionControls: isDesktop()
+                                              ? selectionControls
+                                              : null,
+                                          focusNode: widget.focusNode,
+                                          autofocus:
+                                              widget.replyMessageId > 0 ||
+                                                  isDesktop(),
+                                          controller: widget.textController,
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 14,
+                                                    vertical: 12),
+                                            border: InputBorder.none,
+                                            counterText: "",
+                                            hintText: i18n.get("message"),
+                                          ),
+                                          autocorrect: true,
+                                          textInputAction:
+                                              TextInputAction.newline,
+                                          minLines: 1,
+                                          maxLines: 15,
+                                          maxLength:
+                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                                          inputFormatters: [
+                                            MaxLinesTextInputFormatter(
+                                                INPUT_MESSAGE_TEXT_FIELD_MAX_LINE)
+                                            //max line of text field
+                                          ],
+                                          textDirection: value,
+                                          style: theme.textTheme.subtitle1,
+                                          onTap: () => _backSubject.add(false),
+                                          onChanged: (str) {
+                                            if (str.trim().length < 2) {
+                                              final dir = getDirection(str);
+                                              if (dir != value) {
+                                                _textDir.value = dir;
+                                              }
+                                            }
+                                            if (str.isNotEmpty) {
+                                              isTypingActivitySubject
+                                                  .add(ActivityType.TYPING);
+                                            } else {
+                                              noActivitySubject.add(
+                                                  ActivityType.NO_ACTIVITY);
+                                            }
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                if (currentRoom.uid.asUid().category ==
-                                    Categories.BOT)
+                                  if (currentRoom.uid.asUid().category ==
+                                      Categories.BOT)
+                                    StreamBuilder<bool>(
+                                        stream: _showSendIcon.stream,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData &&
+                                              !snapshot.data!) {
+                                            return IconButton(
+                                              iconSize: 28,
+                                              icon: const Icon(
+                                                CupertinoIcons.slash_circle,
+                                              ),
+                                              onPressed: () => _botCommandQuery
+                                                  .add(_botCommandQuery.value ==
+                                                          "-"
+                                                      ? ""
+                                                      : "-"),
+                                            );
+                                          } else {
+                                            return const SizedBox.shrink();
+                                          }
+                                        }),
                                   StreamBuilder<bool>(
                                       stream: _showSendIcon.stream,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData &&
-                                            !snapshot.data!) {
+                                      builder: (c, sh) {
+                                        if (sh.hasData &&
+                                            !sh.data! &&
+                                            !widget.waitingForForward) {
                                           return IconButton(
-                                            iconSize: 28,
-                                            icon: const Icon(
-                                              CupertinoIcons.slash_circle,
-                                            ),
-                                            onPressed: () => _botCommandQuery
-                                                .add(_botCommandQuery.value ==
-                                                        "-"
-                                                    ? ""
-                                                    : "-"),
-                                          );
+                                              icon: const Icon(
+                                                CupertinoIcons.paperclip,
+                                              ),
+                                              onPressed: () {
+                                                _backSubject.add(false);
+                                                showButtonSheet();
+                                              });
                                         } else {
                                           return const SizedBox.shrink();
                                         }
                                       }),
-                                StreamBuilder<bool>(
-                                    stream: _showSendIcon.stream,
-                                    builder: (c, sh) {
-                                      if (sh.hasData &&
-                                          !sh.data! &&
-                                          !widget.waitingForForward) {
-                                        return IconButton(
+                                  StreamBuilder<bool>(
+                                      stream: _showSendIcon.stream,
+                                      builder: (c, sh) {
+                                        if ((sh.hasData && sh.data!) ||
+                                            widget.waitingForForward) {
+                                          return IconButton(
                                             icon: const Icon(
-                                              CupertinoIcons.paperclip,
+                                              CupertinoIcons.paperplane_fill,
+                                              color: Colors.blue,
                                             ),
-                                            onPressed: () {
-                                              _backSubject.add(false);
-                                              showButtonSheet();
-                                            });
-                                      } else {
-                                        return const SizedBox.shrink();
-                                      }
-                                    }),
-                                StreamBuilder<bool>(
-                                    stream: _showSendIcon.stream,
-                                    builder: (c, sh) {
-                                      if ((sh.hasData && sh.data!) ||
-                                          widget.waitingForForward) {
-                                        return IconButton(
-                                          icon: const Icon(
-                                            CupertinoIcons.paperplane_fill,
-                                            color: Colors.blue,
-                                          ),
-                                          onPressed: widget.textController.text
-                                                      .isEmpty &&
-                                                  !widget.waitingForForward
-                                              ? () async {}
-                                              : () {
-                                                  sendMessage();
-                                                },
-                                        );
-                                      } else {
-                                        return const SizedBox.shrink();
-                                      }
-                                    })
-                              ],
+                                            onPressed: widget.textController
+                                                        .text.isEmpty &&
+                                                    !widget.waitingForForward
+                                                ? () async {}
+                                                : () {
+                                                    sendMessage();
+                                                  },
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      })
+                                ],
+                              ),
+                            )
+                          : RecordAudioSlideWidget(
+                              opacity: opacity(),
+                              time: time,
+                              running: startAudioRecorder,
+                              streamTime: recordSubject,
                             ),
-                          )
-                        : RecordAudioSlideWidget(
-                            opacity: opacity(),
-                            time: time,
-                            running: startAudioRecorder,
-                            streamTime: recordSubject,
-                          ),
-                    StreamBuilder<bool>(
-                        stream: _showSendIcon.stream,
-                        builder: (c, sm) {
-                          if (sm.hasData &&
-                              !sm.data! &&
-                              !widget.waitingForForward &&
-                              !isDesktop()) {
-                            return GestureDetector(
-                                onTapDown: (_) async {
-                                  recordAudioPermission = await checkPermission
-                                      .checkAudioRecorderPermission();
-                                },
-                                onLongPressMoveUpdate: (tg) {
-                                  if (tg.offsetFromOrigin.dx > -dx && started) {
-                                    setState(() {
-                                      x = -tg.offsetFromOrigin.dx;
-                                      startAudioRecorder = true;
-                                    });
-                                  } else {
-                                    if (started) {
-                                      started = false;
-                                      _tickTimer.cancel();
-                                      Vibration.vibrate(duration: 200);
+                      StreamBuilder<bool>(
+                          stream: _showSendIcon.stream,
+                          builder: (c, sm) {
+                            if (sm.hasData &&
+                                !sm.data! &&
+                                !widget.waitingForForward &&
+                                !isDesktop()) {
+                              return GestureDetector(
+                                  onTapDown: (_) async {
+                                    recordAudioPermission =
+                                        await checkPermission
+                                            .checkAudioRecorderPermission();
+                                  },
+                                  onLongPressMoveUpdate: (tg) {
+                                    if (tg.offsetFromOrigin.dx > -dx &&
+                                        started) {
                                       setState(() {
-                                        startAudioRecorder = false;
-                                        x = 0;
-                                        size = 1;
+                                        x = -tg.offsetFromOrigin.dx;
+                                        startAudioRecorder = true;
+                                      });
+                                    } else {
+                                      if (started) {
+                                        started = false;
+                                        _tickTimer.cancel();
+                                        Vibration.vibrate(duration: 200);
+                                        setState(() {
+                                          startAudioRecorder = false;
+                                          x = 0;
+                                          size = 1;
+                                        });
+                                      }
+                                    }
+                                  },
+                                  onLongPressStart: (dw) async {
+                                    if (recordAudioPermission) {
+                                      var s =
+                                          await getApplicationDocumentsDirectory();
+                                      String path = s.path +
+                                          "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
+                                      recordSubject.add(DateTime.now());
+                                      setTime();
+                                      sendRecordActivity();
+                                      Vibration.vibrate(duration: 200);
+                                      // Start recording
+                                      await record.start(
+                                        path: path,
+                                        encoder: AudioEncoder.AAC, // by default
+                                        bitRate: 128000, // by default
+                                        samplingRate: 16000, // by default
+                                      );
+                                      setState(() {
+                                        startAudioRecorder = true;
+                                        size = 2;
+                                        started = true;
+                                        time = DateTime.now();
                                       });
                                     }
-                                  }
-                                },
-                                onLongPressStart: (dw) async {
-                                  if (recordAudioPermission) {
-                                    var s =
-                                        await getApplicationDocumentsDirectory();
-                                    String path = s.path +
-                                        "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
-                                    recordSubject.add(DateTime.now());
-                                    setTime();
-                                    sendRecordActivity();
-                                    Vibration.vibrate(duration: 200);
-                                    // Start recording
-                                    await record.start(
-                                      path: path,
-                                      encoder: AudioEncoder.AAC, // by default
-                                      bitRate: 128000, // by default
-                                      samplingRate: 16000, // by default
-                                    );
-                                    setState(() {
-                                      startAudioRecorder = true;
-                                      size = 2;
-                                      started = true;
-                                      time = DateTime.now();
-                                    });
-                                  }
-                                },
-                                onLongPressEnd: (s) async {
-                                  _tickTimer.cancel();
-                                  var res = await record.stop();
+                                  },
+                                  onLongPressEnd: (s) async {
+                                    _tickTimer.cancel();
+                                    var res = await record.stop();
 
-                                  // _soundRecorder.closeAudioSession();
-                                  recordAudioTimer.cancel();
-                                  noActivitySubject
-                                      .add(ActivityType.NO_ACTIVITY);
-                                  setState(() {
-                                    startAudioRecorder = false;
-                                    x = 0;
-                                    size = 1;
-                                  });
-                                  if (started) {
-                                    try {
-                                      messageRepo.sendFileMessage(
-                                          widget.currentRoom.uid.asUid(),
-                                          File(res!, res));
-                                    } catch (_) {}
-                                  }
-                                },
-                                child: const Opacity(
-                                  opacity: 0,
-                                  child: Material(
-                                    // button color
-                                    child: SizedBox(
-                                      width: 50,
-                                      height: 50,
+                                    // _soundRecorder.closeAudioSession();
+                                    recordAudioTimer.cancel();
+                                    noActivitySubject
+                                        .add(ActivityType.NO_ACTIVITY);
+                                    setState(() {
+                                      startAudioRecorder = false;
+                                      x = 0;
+                                      size = 1;
+                                    });
+                                    if (started) {
+                                      try {
+                                        messageRepo.sendFileMessage(
+                                            widget.currentRoom.uid.asUid(),
+                                            File(res!, res));
+                                      } catch (_) {}
+                                    }
+                                  },
+                                  child: const Opacity(
+                                    opacity: 0,
+                                    child: Material(
+                                      // button color
+                                      child: SizedBox(
+                                        width: 50,
+                                        height: 50,
+                                      ),
                                     ),
-                                  ),
-                                ));
-                          } else {
-                            return const SizedBox(height: 50);
-                          }
-                        })
-                  ],
-                ),
-              ],
+                                  ));
+                            } else {
+                              return const SizedBox(height: 50);
+                            }
+                          })
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          StreamBuilder<bool>(
-              stream: _backSubject.stream,
-              builder: (context, back) {
-                if (back.hasData && back.data!) {
-                  return SizedBox(
-                      height: 270.0,
-                      child: EmojiKeyboard(
-                        onTap: (emoji) {
-                          if (widget.textController.text.isNotEmpty) {
-                            int start =
-                                widget.textController.selection.baseOffset;
-                            String block_1 =
-                                widget.textController.text.substring(0, start);
-                            block_1 = block_1.substring(0, start);
-                            String block_2 = widget.textController.text
-                                .substring(
-                                    start, widget.textController.text.length);
-                            widget.textController.text =
-                                block_1 + emoji + block_2;
-                            widget.textController.selection =
-                                TextSelection.fromPosition(TextPosition(
-                                    offset: widget.textController.text.length -
-                                        block_2.length));
-                          } else {
-                            widget.textController.text =
-                                widget.textController.text + emoji;
-                            widget.textController.selection =
-                                TextSelection.fromPosition(TextPosition(
-                                    offset: widget.textController.text.length));
-                          }
-                          if (isDesktop()) {
-                            widget.focusNode.requestFocus();
-                          }
-                        },
-                      ));
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-        ],
+            StreamBuilder<bool>(
+                stream: _backSubject.stream,
+                builder: (context, back) {
+                  if (back.hasData && back.data!) {
+                    return SizedBox(
+                        height: 270.0,
+                        child: EmojiKeyboard(
+                          onTap: (emoji) {
+                            if (widget.textController.text.isNotEmpty) {
+                              int start =
+                                  widget.textController.selection.baseOffset;
+                              String block_1 = widget.textController.text
+                                  .substring(0, start);
+                              block_1 = block_1.substring(0, start);
+                              String block_2 = widget.textController.text
+                                  .substring(
+                                      start, widget.textController.text.length);
+                              widget.textController.text =
+                                  block_1 + emoji + block_2;
+                              widget.textController.selection =
+                                  TextSelection.fromPosition(TextPosition(
+                                      offset:
+                                          widget.textController.text.length -
+                                              block_2.length));
+                            } else {
+                              widget.textController.text =
+                                  widget.textController.text + emoji;
+                              widget.textController.selection =
+                                  TextSelection.fromPosition(TextPosition(
+                                      offset:
+                                          widget.textController.text.length));
+                            }
+                            if (isDesktop()) {
+                              widget.focusNode.requestFocus();
+                            }
+                          },
+                        ));
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+          ],
+        ),
       ),
     );
   }
@@ -595,39 +627,37 @@ class _InputMessageWidget extends State<InputMessage> {
     _botCommandQuery.add("-");
   }
 
-  KeyEventResult handleKeyPress(event) {
-    if (event is RawKeyEvent) {
-      if (!_uxService.sendByEnter &&
-          event.isShiftPressed &&
-          (event.physicalKey == PhysicalKeyboardKey.enter ||
-              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        if (event is RawKeyDownEvent) {
-          if (widget.currentRoom.uid.isGroup() &&
-              mentionSelectedIndex >= 0 &&
-              _mentionData != "_") {
-            sendMentionByEnter();
-          } else {
-            sendMessage();
-          }
-        }
-        return KeyEventResult.handled;
-      } else if (_uxService.sendByEnter &&
-          !event.isShiftPressed &&
-          (event.physicalKey == PhysicalKeyboardKey.enter ||
-              event.physicalKey == PhysicalKeyboardKey.numpadEnter)) {
-        if (event is RawKeyDownEvent) {
-          if (widget.currentRoom.uid.isGroup() &&
-              mentionSelectedIndex >= 0 &&
-              _mentionData != "_") {
-            sendMentionByEnter();
-          } else {
-            sendMessage();
-          }
-        }
-        return KeyEventResult.handled;
+  KeyEventResult handleKeyPress(RawKeyEvent event) {
+    if (!_uxService.sendByEnter &&
+        event.isShiftPressed &&
+        isEnterClicked(event)) {
+      if (widget.currentRoom.uid.isGroup() &&
+          mentionSelectedIndex >= 0 &&
+          _mentionData != "_") {
+        sendMentionByEnter();
+      } else {
+        sendMessage();
       }
+      return KeyEventResult.handled;
+    } else if (_uxService.sendByEnter &&
+        !event.isShiftPressed &&
+        isEnterClicked(event)) {
+      if (widget.currentRoom.uid.isGroup() &&
+          mentionSelectedIndex >= 0 &&
+          _mentionData != "_") {
+        sendMentionByEnter();
+      } else {
+        sendMessage();
+      }
+      return KeyEventResult.handled;
     }
-    _rawKeyboardService.handleCopyPastKeyPress(widget.textController, event);
+    if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyV)) {
+      _handleCV(event);
+      return KeyEventResult.handled;
+    }
+
+    _rawKeyboardService.handleCopyPastKeyPress(
+        widget.textController, event, context, currentRoom.uid.asUid());
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
@@ -647,6 +677,19 @@ class _InputMessageWidget extends State<InputMessage> {
     }
 
     return KeyEventResult.ignored;
+  }
+
+  _handleCV(RawKeyEvent event) async {
+    final files = await Pasteboard.files();
+    if (files.isEmpty) {
+      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      widget.textController.text = widget.textController.text + data!.text!;
+      widget.textController.selection = TextSelection.fromPosition(
+          TextPosition(offset: widget.textController.text.length));
+    } else {
+      _rawKeyboardService.controlVHandle(
+          widget.textController, context, widget.currentRoom.uid.asUid());
+    }
   }
 
   scrollUpInBotCommand() {
@@ -765,7 +808,8 @@ class _InputMessageWidget extends State<InputMessage> {
       if (isLinux()) {
         final result = await openFiles();
         for (var file in result) {
-          res.add(File(file.path, file.name, extension: file.mimeType,size: await file.length()));
+          res.add(File(file.path, file.name,
+              extension: file.mimeType, size: await file.length()));
         }
       } else {
         FilePickerResult? result =

@@ -21,21 +21,21 @@ class CallState extends StatelessWidget {
     if (callStatus == CallEvent_CallStatus.ENDED &&
         isCurrentUser &&
         time == 0) {
-      return Text("canceled call", style: textStyle,);
+      return Text("Canceled call", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
-      return Text("call declined", style: textStyle,);
+      return Text("Call declined", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.BUSY && time == 0) {
       return Text("Busy", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
         !callRepo.isCaller &&
         time == 0) {
-      return Text("missed call", style: textStyle,);
+      return Text("Missed call", style: textStyle,);
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
         isCurrentUser &&
         time != 0) {
-      return Text("Incoming call", style: textStyle,);
-    } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
       return Text("outgoing call", style: textStyle,);
+    } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
+      return Text("Incoming call", style: textStyle,);
     } else {
       return const SizedBox.shrink();
     }

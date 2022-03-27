@@ -24,7 +24,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 
-class MediaQueryRepo {
+class MediaRepo {
   final _logger = GetIt.I.get<Logger>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
@@ -378,5 +378,26 @@ class MediaQueryRepo {
       "blurHash": file.blurHash,
       "duration": file.duration
     });
+  }
+
+  void updateMedia(Message message) async {
+    _mediaDao.save(Media(
+        createdOn: DateTime.now().millisecondsSinceEpoch,
+        json: buildJsonFromFile(message.json.toFile()),
+        roomId: message.roomUid,
+        messageId: message.id!,
+        type: loadTypeFromString(message.json.toFile().type),
+        createdBy: message.from));
+  }
+
+  MediaType loadTypeFromString(String type) {
+    if (type.contains("image")) {
+      return MediaType.IMAGE;
+    } else if (type.contains("audio") || type.contains("mp3")) {
+      return MediaType.AUDIO;
+    } else if (type.contains("video")) {
+      return MediaType.VIDEO;
+    }
+    return MediaType.DOCUMENT;
   }
 }

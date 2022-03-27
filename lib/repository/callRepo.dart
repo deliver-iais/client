@@ -59,6 +59,10 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
+  final _candidateNumber = 10;
+  final _candidateTimeLimit = 1000 ; // 1 sec
+
+
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
 
@@ -77,6 +81,7 @@ class CallRepo {
   String _offerSdp = "";
   String _answerSdp = "";
   String _callId = "";
+  int _candidateStartTime = 0;
 
   RTCPeerConnection? _peerConnection;
   Map<String, dynamic> _sdpConstraints = {};
@@ -807,6 +812,7 @@ class CallRepo {
     callingStatus.add(CallStatus.ACCEPTED);
     _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
+    callingStatus.add(CallStatus.CONNECTING);
   }
 
   Future<void> declineCall() async {
@@ -837,7 +843,9 @@ class CallRepo {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionOffer(callOffer.body);
     await _setCallCandidate(callOffer.candidates);
-
+    if (!_reconnectTry) {
+      callingStatus.add(CallStatus.CONNECTING);
+    }
     //And Create Answer for Calle
     if (!_reconnectTry) {
       _answerSdp = await _createAnswer();
@@ -957,9 +965,23 @@ class CallRepo {
     return offerSdp;
   }
 
+  Future<void> _waitUntilCandidateConditionDone() async {
+    final completer = Completer();
+    _logger.i("Time for w8:" + (DateTime.now().millisecondsSinceEpoch - _candidateStartTime).toString() );
+    if ((_candidate.length >= _candidateNumber) || (DateTime.now().millisecondsSinceEpoch - _candidateStartTime > _candidateTimeLimit)) {
+      completer.complete();
+    } else {
+      await Future.delayed(const Duration(milliseconds: 100));
+      return _waitUntilCandidateConditionDone();
+    }
+    return completer.future;
+  }
+
   _calculateCandidateAndSendOffer() async {
-    //w8 about 3 Sec for received Candidate
-    await Future.delayed(const Duration(seconds: 3));
+    //w8 till candidate gathering conditions complete
+    _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
+    await _waitUntilCandidateConditionDone();
+    _logger.i("Candidate Number is :" + _candidate.length.toString());
     // Send Candidate to Receiver
     var jsonCandidates = jsonEncode(_candidate);
     //Send offer and Candidate as message to Receiver
@@ -973,8 +995,10 @@ class CallRepo {
   }
 
   _calculateCandidateAndSendAnswer() async {
-    //w8 about 3 Sec for received Candidate
-    await Future.delayed(const Duration(seconds: 3));
+    _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
+    //w8 till candidate gathering conditions complete
+    await _waitUntilCandidateConditionDone();
+    _logger.i("Candidate Number is :" + _candidate.length.toString());
     // Send Candidate back to Sender
     var jsonCandidates = jsonEncode(_candidate);
     //Send Answer and Candidate as message to Sender

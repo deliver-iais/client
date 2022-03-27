@@ -1,4 +1,5 @@
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:flutter/cupertino.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:flutter/foundation.dart';
@@ -34,7 +35,7 @@ class OpenFileStatus extends StatelessWidget {
           padding: EdgeInsets.zero,
           alignment: Alignment.center,
           icon: Icon(
-            Icons.insert_drive_file,
+            CupertinoIcons.folder_open,
             color: foregroundColor,
             size: 27,
           ),

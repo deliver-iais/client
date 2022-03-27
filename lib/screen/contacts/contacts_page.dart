@@ -5,11 +5,11 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -49,10 +49,8 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60.0),
+      appBar: UltimateAppBar(
         child: AppBar(
           titleSpacing: 8,
           title: Text(_i18n.get("contacts")),
@@ -60,95 +58,89 @@ class _ContactsPageState extends State<ContactsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: Container(
-          margin: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            borderRadius: mainBorder,
-            color: theme.colorScheme.surface,
-          ),
-          child: StreamBuilder<List<Contact>>(
-              stream: _contactRepo.watchAll(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Contact>> snapshot) {
-                List<Contact> contacts = snapshot.data ?? [];
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else {
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: SearchBox(
-                            // borderRadius: mainBorder,
-                            onChange: _queryTermDebouncedSubject.add,
-                            onCancel: () => _queryTermDebouncedSubject.add("")),
-                      ),
-                      Expanded(
-                          child: Scrollbar(
-                        child: StreamBuilder<String>(
-                            stream: _queryTermDebouncedSubject.stream,
-                            builder: (context, sna) {
-                              return ListView.separated(
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  if (_authRepo
-                                          .isCurrentUser(contacts[index].uid) ||
-                                      searchHasResult(contacts[index])) {
-                                    return const SizedBox.shrink();
-                                  } else {
-                                    return const Divider();
-                                  }
-                                },
-                                itemCount: snapshot.data!.length,
-                                itemBuilder: (BuildContext ctx, int index) {
-                                  var c = contacts[index];
-                                  if (searchHasResult(c)) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  if (_authRepo.isCurrentUser(c.uid)) {
-                                    return const SizedBox.shrink();
-                                  } else {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        _rootingServices.openRoom(c.uid);
-                                      },
-                                      child: ContactWidget(
-                                          contact: c,
-                                          circleIcon: CupertinoIcons.qrcode,
-                                          onCircleIcon: () => showQrCode(
-                                              context,
-                                              buildShareUserUrl(
-                                                  c.countryCode,
-                                                  c.nationalNumber,
-                                                  c.firstName!,
-                                                  c.lastName!))),
-                                    );
-                                  }
-                                },
-                              );
-                            }),
-                      )),
-                      const Divider(),
-                      SizedBox(
-                        height: 40,
-                        width: double.infinity,
-                        child: TextButton.icon(
-                          icon: const Icon(
-                            Icons.add,
-                          ),
-                          onPressed: () {
-                            _routingService.openNewContact();
-                          },
-                          label: Text(_i18n.get("add_new_contact")),
+        showStandardContainer: true,
+        child: StreamBuilder<List<Contact>>(
+            stream: _contactRepo.watchAll(),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<Contact>> snapshot) {
+              List<Contact> contacts = snapshot.data ?? [];
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SearchBox(
+                          // borderRadius: mainBorder,
+                          onChange: _queryTermDebouncedSubject.add,
+                          onCancel: () => _queryTermDebouncedSubject.add("")),
+                    ),
+                    Expanded(
+                        child: Scrollbar(
+                      child: StreamBuilder<String>(
+                          stream: _queryTermDebouncedSubject.stream,
+                          builder: (context, sna) {
+                            return ListView.separated(
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                if (_authRepo
+                                        .isCurrentUser(contacts[index].uid) ||
+                                    searchHasResult(contacts[index])) {
+                                  return const SizedBox.shrink();
+                                } else {
+                                  return const Divider();
+                                }
+                              },
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (BuildContext ctx, int index) {
+                                var c = contacts[index];
+                                if (searchHasResult(c)) {
+                                  return const SizedBox.shrink();
+                                }
+                                if (_authRepo.isCurrentUser(c.uid)) {
+                                  return const SizedBox.shrink();
+                                } else {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _rootingServices.openRoom(c.uid);
+                                    },
+                                    child: ContactWidget(
+                                        contact: c,
+                                        circleIcon: CupertinoIcons.qrcode,
+                                        onCircleIcon: () => showQrCode(
+                                            context,
+                                            buildShareUserUrl(
+                                                c.countryCode,
+                                                c.nationalNumber,
+                                                c.firstName!,
+                                                c.lastName!))),
+                                  );
+                                }
+                              },
+                            );
+                          }),
+                    )),
+                    const Divider(),
+                    SizedBox(
+                      height: 40,
+                      width: double.infinity,
+                      child: TextButton.icon(
+                        icon: const Icon(
+                          CupertinoIcons.add,
                         ),
+                        onPressed: () {
+                          _routingService.openNewContact();
+                        },
+                        label: Text(_i18n.get("add_new_contact")),
                       ),
-                    ],
-                  );
-                }
-              }),
-        ),
+                    ),
+                  ],
+                );
+              }
+            }),
       ),
     );
   }

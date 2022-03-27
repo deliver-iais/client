@@ -1,6 +1,7 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
@@ -52,8 +53,7 @@ class CupertinoSection extends StatelessWidget {
       if (i < items.length - 1) {
         itemsWithDividers.add(items[i]);
         itemsWithDividers.add(Divider(
-          height: 0.3,
-          color: Colors.grey.shade400,
+          height: 0.2,
           indent: leftPadding,
         ));
       } else {
@@ -64,13 +64,18 @@ class CupertinoSection extends StatelessWidget {
     columnChildren.add(Container(
       decoration: BoxDecoration(
           borderRadius: mainBorder,
-          color:theme.colorScheme.surface,
+          border: Border.all(color: theme.dividerColor),
+          color: theme.colorScheme.surface,
+          gradient: LinearGradient(colors: [
+            theme.colorScheme.surface,
+            elevation(theme.colorScheme.surface, theme.colorScheme.primary, 2)
+          ]),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withOpacity(0.05),
               spreadRadius: 2,
-              blurRadius: 25,
-              offset: const Offset(0, 3), // changes position of shadow
+              blurRadius: 8,
+              offset: const Offset(0, 2), // changes position of shadow
             ),
           ]),
       child: Column(

@@ -1,5 +1,6 @@
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -43,7 +44,7 @@ class RoomName extends StatelessWidget {
                       return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: Icon(
-                            Icons.verified,
+                            CupertinoIcons.checkmark_seal_fill,
                             size: (style ?? theme.textTheme.subtitle2)!
                                     .fontSize ??
                                 15,

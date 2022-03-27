@@ -293,5 +293,6 @@
   "photo_saved": "photo saved to gallery",
   "file_saved": "file saved to downloads",
   "music_saved": "Music saved",
-  "file_size_error": "File size is more than 100 MB The selected file size must be less than 100 MB"
+  "file_size_error": "File size is more than 100 MB The selected file size must be less than 100 MB",
+  "auto_night_mode": "Auto-Night Mode"
 }

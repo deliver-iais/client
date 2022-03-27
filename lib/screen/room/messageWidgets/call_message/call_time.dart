@@ -7,18 +7,16 @@ class CallTime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String callHour = time.hour.toString();
-    String callMin = time.minute.toString();
-    String callSec = time.second.toString();
-    if (callHour.length != 2) {
-      callHour = '0' + callHour;
-    } else {
-      callHour = callHour;
-    }
-    callMin = callMin.length != 2 ? '0' + callMin : callMin;
+    String callHour = time.hour != 0 ? time.hour.toString() : "";
+    String callMin = time.minute != 0 ? time.minute.toString() : "";
+    String callSec = time.second != 0 ? time.second.toString() : "";
 
     return time.microsecondsSinceEpoch != 0
-        ? Text(callHour + ':' + callMin + ':' + callSec)
+        ? Text(callHour.isNotEmpty
+            ? callHour + " hour and " + callMin + "minute"
+            : callMin.isNotEmpty
+                ? callMin + " minute"
+                : callSec + " second")
         : const SizedBox.shrink();
   }
 }

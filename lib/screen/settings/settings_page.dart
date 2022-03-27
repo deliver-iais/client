@@ -17,7 +17,9 @@ import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -48,8 +50,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
+        extendBodyBehindAppBar: true,
+        appBar: UltimateAppBar(
           child: AppBar(
             titleSpacing: 8,
             title: Text(_i18n.get("settings")),
@@ -70,7 +72,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 var lastAvatar =
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
-                                if (lastAvatar?.createdOn != null && lastAvatar!.createdOn > 0) {
+                                if (lastAvatar?.createdOn != null &&
+                                    lastAvatar!.createdOn > 0) {
                                   _routingService.openShowAllAvatars(
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
@@ -97,25 +100,19 @@ class _SettingsPageState extends State<SettingsPage> {
                                         // maxLines: 1,
                                         textDirection: TextDirection.rtl,
                                         // softWrap: false,
-                                        style:theme
-                                            .textTheme
-                                            .headline6,
+                                        style: theme.textTheme.headline6,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         snapshot.data!.userName ?? "",
-                                        style:theme
-                                            .primaryTextTheme
-                                            .subtitle1,
+                                        style: theme.primaryTextTheme.subtitle1,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         buildPhoneNumber(
                                             snapshot.data!.countryCode!,
                                             snapshot.data!.nationalNumber!),
-                                        style:theme
-                                            .textTheme
-                                            .subtitle1,
+                                        style: theme.textTheme.subtitle1,
                                       )
                                     ],
                                   );
@@ -138,7 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                     title: _i18n.get("qr_share"),
-                    leading: const Icon(Icons.qr_code),
+                    leading: const Icon(CupertinoIcons.qrcode),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
                       showQrCode(
@@ -152,7 +149,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: _i18n.get("saved_message"),
-                    leading: const Icon(Icons.bookmark),
+                    leading: const Icon(CupertinoIcons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
@@ -160,14 +157,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: _i18n.get("contacts"),
-                    leading: const Icon(Icons.contacts),
+                    leading: const Icon(CupertinoIcons.person_2),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
                     },
                   ),
                   SettingsTile(
                     title: _i18n.get("calls"),
-                    leading: const Icon(Icons.call),
+                    leading: const Icon(CupertinoIcons.phone),
                     onPressed: (BuildContext context) {
                       _routingService.openCallsList();
                     },
@@ -179,7 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile.switchTile(
                     title: _i18n.get("notification"),
-                    leading: const Icon(Icons.notifications_active),
+                    leading: const Icon(CupertinoIcons.bell),
                     switchValue: !_uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
@@ -187,31 +184,21 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("language"),
                     subtitle: I18N.of(context)!.locale.language().name,
-                    leading: const Icon(Icons.language),
+                    leading: const Icon(CupertinoIcons.textformat_abc),
                     onPressed: (BuildContext context) {
                       _routingService.openLanguageSettings();
                     },
                   ),
-                  SettingsTile.switchTile(
-                    title: _i18n.get("dark_mode"),
-                    leading: const Icon(Icons.brightness_2),
-                    switchValue: _uxService.theme == DarkTheme,
-                    onToggle: (value) {
-                      setState(() {
-                        _uxService.toggleTheme();
-                      });
-                    },
-                  ),
                   SettingsTile(
                     title: _i18n.get("security"),
-                    leading: const Icon(Icons.security),
+                    leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
                     onPressed: (BuildContext context) =>
                         _routingService.openSecuritySettings(),
                     trailing: const SizedBox.shrink(),
                   ),
                   SettingsTile(
                     title: _i18n.get("devices"),
-                    leading: const Icon(Icons.devices),
+                    leading: const Icon(CupertinoIcons.device_desktop),
                     onPressed: (c) {
                       _routingService.openDevices();
                     },
@@ -219,12 +206,50 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (isDesktop())
                     SettingsTile.switchTile(
                       title: _i18n.get("send_by_shift_enter"),
-                      leading: const Icon(Icons.keyboard),
+                      leading: const Icon(CupertinoIcons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
                         setState(() => _uxService.toggleSendByEnter());
                       },
                     )
+                ],
+              ),
+              Section(
+                title: 'Theme',
+                children: [
+                  SettingsTile(
+                    title: "Main Color",
+                    leading: const Icon(CupertinoIcons.color_filter),
+                    trailing: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < palettes.length; i++)
+                            color(palettes[i], i)
+                        ],
+                      ),
+                    ),
+                  ),
+                  SettingsTile.switchTile(
+                    title: _i18n.get("dark_mode"),
+                    leading: const Icon(CupertinoIcons.moon),
+                    switchValue: _uxService.themeIsDark,
+                    onToggle: (value) {
+                      setState(() {
+                        _uxService.toggleThemeLightingMode();
+                      });
+                    },
+                  ),
+                  SettingsTile.switchTile(
+                    title: _i18n.get("auto_night_mode"),
+                    leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                    switchValue: _uxService.isAutoNightModeEnable,
+                    onToggle: (value) {
+                      setState(() {
+                        _uxService.toggleIsAutoNightMode();
+                      });
+                    },
+                  ),
                 ],
               ),
               if (UxService.isDeveloperMode)
@@ -246,6 +271,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                       title: _i18n.get("version"),
+                      leading:
+                          const Icon(CupertinoIcons.square_stack_3d_down_right),
                       trailing: UxService.isDeveloperMode
                           ? FutureBuilder<String?>(
                               future: SmsAutoFill().getAppSignature,
@@ -263,7 +290,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                   SettingsTile(
                     title: _i18n.get("logout"),
-                    leading: const Icon(Icons.exit_to_app),
+                    leading: const Icon(CupertinoIcons.square_arrow_left),
                     onPressed: (BuildContext context) =>
                         openLogoutAlertDialog(context, _i18n),
                     trailing: const SizedBox.shrink(),
@@ -299,6 +326,35 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           );
         });
+  }
+
+  Widget color(Color color, int index) {
+    bool isSelected = _uxService.themeIndex == index;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _uxService.selectTheme(index);
+        },
+        child: AnimatedContainer(
+          duration: ANIMATION_DURATION * 2,
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: isSelected
+                  ? Border.all(color: Theme.of(context).primaryColor, width: 2)
+                  : null),
+          padding: const EdgeInsets.all(4),
+          child: AnimatedContainer(
+              duration: ANIMATION_DURATION * 2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color,
+              ),
+              width: 32,
+              height: 32),
+        ),
+      ),
+    );
   }
 }
 

@@ -6,6 +6,7 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_co
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -105,7 +106,7 @@ class LastMessage extends StatelessWidget {
                       color: primaryColor ?? theme.primaryColor,
                       shape: BoxShape.circle),
                   child: const Icon(
-                    Icons.alternate_email,
+                    CupertinoIcons.at,
                     size: 15,
                   ),
                 ),
@@ -117,7 +118,7 @@ class LastMessage extends StatelessWidget {
                 ),
               if (showRoomDetails && pinned)
                 Icon(
-                  Icons.push_pin,
+                  CupertinoIcons.pin,
                   size: 16,
                   color: theme.colorScheme.onSurface.withAlpha(120),
                 ),
