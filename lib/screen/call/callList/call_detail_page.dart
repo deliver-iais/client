@@ -3,7 +3,6 @@ import 'package:deliver/box/call_status.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
-import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -36,7 +35,6 @@ class CallDetailPage extends StatefulWidget {
 class _CallDetailPageState extends State<CallDetailPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _callService = GetIt.I.get<CallService>();
 
   @override
   Widget build(BuildContext context) {

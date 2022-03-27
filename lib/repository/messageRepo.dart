@@ -34,7 +34,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -67,8 +66,6 @@ import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
-import '../models/call_event_type.dart';
-import '../services/call_service.dart';
 import '../shared/constants.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
@@ -97,7 +94,6 @@ class MessageRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
-  final _callService = GetIt.I.get<CallService>();
 
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
@@ -506,16 +502,16 @@ class MessageRepo {
       Uid memberOrCallOwnerPvp,
       call_pb.CallEvent_CallType callType) async {
     String json = (call_pb.CallEvent()
-      ..newStatus = newStatus
-      ..id = callId
-      ..callDuration = Int64(callDuration)
-      ..endOfCallTime = Int64(endOfCallDuration)
-      ..memberOrCallOwnerPvp = memberOrCallOwnerPvp
-      ..callType = callType)
+          ..newStatus = newStatus
+          ..id = callId
+          ..callDuration = Int64(callDuration)
+          ..endOfCallTime = Int64(endOfCallDuration)
+          ..memberOrCallOwnerPvp = memberOrCallOwnerPvp
+          ..callType = callType)
         .writeToJson();
 
     Message msg =
-    _createMessage(room).copyWith(type: MessageType.CALL, json: json);
+        _createMessage(room).copyWith(type: MessageType.CALL, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);

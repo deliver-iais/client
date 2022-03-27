@@ -9,7 +9,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
@@ -78,8 +77,7 @@ class CircleAvatarWidget extends StatelessWidget {
       return StreamBuilder<String?>(
           key: _streamKey,
           initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-          stream: _avatarRepo
-              .getLastAvatarFilePathStream(contactUid, false),
+          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid, false),
           builder: (context, snapshot) =>
               builder(context, snapshot, textColor));
     }
