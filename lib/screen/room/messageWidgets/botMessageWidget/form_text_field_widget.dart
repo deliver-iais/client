@@ -62,11 +62,11 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   TextFormField buildTextFormField(TextInputType keyboardType,
       {int? maxLength}) {
     return TextFormField(
-      focusNode: keyboardType == TextInputType.number
+      focusNode: keyboardType == TextInputType.datetime
           ? AlwaysDisabledFocusNode()
           : null,
       onTap: () {
-        if (keyboardType == TextInputType.number) {
+        if (keyboardType == TextInputType.datetime) {
           _selectDate(context);
         }
       },
@@ -91,8 +91,8 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
       Jalali? picked = await showPersianDatePicker(
         context: context,
         initialDate: _selectedDateJalali ?? Jalali.now(),
-        firstDate: Jalali(1385, 8),
-        lastDate: Jalali(1450, 9),
+        firstDate: Jalali(1300, 1, 1),
+        lastDate: Jalali(1450, 12, 29),
       );
       if (picked != null) {
         widget.setResult(picked.toDateTime().microsecondsSinceEpoch.toString());
