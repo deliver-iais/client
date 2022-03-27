@@ -1214,6 +1214,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.7.0"
+  persian_datetime_picker:
+    dependency: "direct main"
+    description:
+      name: persian_datetime_picker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.4.0"
   petitparser:
     dependency: transitive
     description:
@@ -1221,6 +1228,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.4.0"
+  pin_code_fields:
+    dependency: "direct main"
+    description:
+      name: pin_code_fields
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "7.3.0"
   pin_input_text_field:
     dependency: transitive
     description:

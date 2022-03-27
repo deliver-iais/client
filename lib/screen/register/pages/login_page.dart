@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
+  final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   var loginWithQrCode = isDesktop();
   bool _acceptPrivacy = !isAndroid();
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
@@ -84,9 +84,7 @@ class _LoginPageState extends State<LoginPage> {
           if (p != null) {
             phoneNumber = p;
             controller.text = p.nationalNumber.toString();
-            setState(() {
-              _isLoading = true;
-            });
+            _isLoading.add(true);
             checkAndGoNext(doNotCheckValidator: true);
           }
         }
@@ -123,33 +121,24 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       var isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-        setState(() {
-          _isLoading = true;
-        });
+        _isLoading.add(true);
         try {
           var isSent = await _authRepo.getVerificationCode(phoneNumber!);
           if (isSent) {
             Navigator.push(context, MaterialPageRoute(builder: (c) {
               return const VerificationPage();
             }));
-
-            setState(() {
-              _isLoading = false;
-            });
+            _isLoading.add(false);
           } else {
             ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
               toastText: _i18n.get("error_occurred"),
               toastContext: context,
             );
-            setState(() {
-              _isLoading = false;
-            });
+            _isLoading.add(false);
           }
         } catch (e) {
-          setState(() {
-            _isLoading = false;
-          });
+          _isLoading.add(false);
           _logger.e(e);
           ToastDisplay.showToast(
 //          TODO more detailed error message needed here.
@@ -245,117 +234,124 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
-    return _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      const SizedBox(height: 5),
-                      IntlPhoneField(
-                        initialCountryCode: phoneNumber != null
-                            ? phoneNumber!.countryCode.toString()
-                            : null,
-                        controller: controller,
-                        validator: (value) => value!.length != 10 ||
-                                (value.isNotEmpty && value[0] == '0')
-                            ? i18n.get("invalid_mobile_number")
-                            : null,
-                        onChanged: (p) {
-                          phoneNumber = p;
-                        },
-                        onSubmitted: (p) {
-                          phoneNumber = p;
-                          checkAndGoNext();
-                        },
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        i18n.get("insert_phone_and_code"),
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: theme.primaryColor,
-                          fontSize: 15,
+    return StreamBuilder<bool>(
+        initialData: _isLoading.value,
+        stream: _isLoading.stream,
+        builder: (c, loading) {
+          if (loading.hasData && loading.data != null && loading.data!) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      children: <Widget>[
+                        const SizedBox(height: 5),
+                        IntlPhoneField(
+                          initialCountryCode: phoneNumber != null
+                              ? phoneNumber!.countryCode.toString()
+                              : null,
+                          controller: controller,
+                          validator: (value) => value!.length != 10 ||
+                                  (value.isNotEmpty && value[0] == '0')
+                              ? i18n.get("invalid_mobile_number")
+                              : null,
+                          onChanged: (p) {
+                            phoneNumber = p;
+                          },
+                          onSubmitted: (p) {
+                            phoneNumber = p;
+                            checkAndGoNext();
+                          },
                         ),
-                      ),
-                      if (isDesktop()) const SizedBox(height: 40),
-                      if (isDesktop())
-                        TextButton(
+                        const SizedBox(height: 15),
+                        Text(
+                          i18n.get("insert_phone_and_code"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: theme.primaryColor,
+                            fontSize: 15,
+                          ),
+                        ),
+                        if (isDesktop()) const SizedBox(height: 40),
+                        if (isDesktop())
+                          TextButton(
+                              child: Text(
+                                "Login with QR Code",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.primaryColor,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  loginWithQrCode = true;
+                                });
+                              }),
+                        if (isAndroid())
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _acceptPrivacy,
+                                onChanged: (c) {
+                                  setState(() {
+                                    _acceptPrivacy = c!;
+                                  });
+                                },
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _acceptPrivacy = true;
+                                  });
+                                },
+                                child: RichText(
+                                  text: TextSpan(children: [
+                                    TextSpan(
+                                        text: "شرایط حریم خصوصی",
+                                        style: const TextStyle(
+                                            color: Colors.blue, fontSize: 13),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () => launch(
+                                              "https://deliver-co.ir/#/termofuse")),
+                                    const TextSpan(
+                                        text:
+                                            " را مطالعه نموده ام و آن را قبول می کنم",
+                                        style: TextStyle(fontSize: 13)),
+                                  ], style: theme.textTheme.bodyText2),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              ),
+                            ],
+                          )
+                      ],
+                    ),
+                  ),
+                  if (_acceptPrivacy)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: TextButton(
                             child: Text(
-                              "Login with QR Code",
+                              i18n.get("next"),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: theme.primaryColor,
-                                fontSize: 13,
+                                fontSize: 14.5,
                               ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                loginWithQrCode = true;
-                              });
-                            }),
-                      if (isAndroid())
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _acceptPrivacy,
-                              onChanged: (c) {
-                                setState(() {
-                                  _acceptPrivacy = c!;
-                                });
-                              },
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _acceptPrivacy = true;
-                                });
-                              },
-                              child: RichText(
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: "شرایط حریم خصوصی",
-                                      style: const TextStyle(
-                                          color: Colors.blue, fontSize: 13),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launch(
-                                            "https://deliver-co.ir/#/termofuse")),
-                                  const TextSpan(
-                                      text:
-                                          " را مطالعه نموده ام و آن را قبول می کنم",
-                                      style: TextStyle(fontSize: 13)),
-                                ], style: theme.textTheme.bodyText2),
-                                textDirection: TextDirection.rtl,
-                              ),
-                            ),
-                          ],
-                        )
-                    ],
-                  ),
-                ),
-                if (_acceptPrivacy)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: TextButton(
-                          child: Text(
-                            i18n.get("next"),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
-                              fontSize: 14.5,
-                            ),
-                          ),
-                          onPressed: checkAndGoNext),
+                            onPressed: checkAndGoNext),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          }
+        });
   }
 }

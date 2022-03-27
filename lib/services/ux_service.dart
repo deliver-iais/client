@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -5,6 +7,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -72,6 +75,7 @@ class UxService {
   final _themeIsDark = BehaviorSubject.seeded(false);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
+  final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop());
 
   UxService() {
@@ -80,6 +84,12 @@ class UxService {
             defaultValue: kDebugMode ? "INFO" : "NOTHING")
         .map((event) => LogLevelHelper.stringToLevel(event!))
         .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
+
+    _sharedDao
+        .getBooleanStream(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+            defaultValue: true)
+        .distinct()
+        .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
     _sharedDao
         .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
@@ -98,6 +108,9 @@ class UxService {
         } else {
           _themeIsDark.add(false);
         }
+      } else if (isAutoNightModeEnable &&
+          window.platformBrightness == Brightness.dark) {
+        _themeIsDark.add(true);
       }
     });
     _sharedDao.get(SHARED_DAO_THEME_COLOR).then((event) {
@@ -130,14 +143,30 @@ class UxService {
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
+  get isAutoNightModeEnable => _isAutoNightModeEnable.value;
+
   toggleThemeLightingMode() {
+    _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
+    _isAutoNightModeEnable.add(false);
     if (_themeIsDark.value) {
-      _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
-      _themeIsDark.add(false);
+      toggleThemeToLightMode();
     } else {
-      _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
-      _themeIsDark.add(true);
+      toggleThemeToDarkMode();
     }
+  }
+
+  toggleThemeToLightMode() {
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white));
+    _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
+    _themeIsDark.add(false);
+  }
+
+  toggleThemeToDarkMode() {
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45));
+    _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
+    _themeIsDark.add(true);
   }
 
   selectTheme(int index) {
@@ -156,6 +185,11 @@ class UxService {
   toggleIsAllNotificationDisabled() {
     _sharedDao.putBoolean(
         SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED, !isAllNotificationDisabled);
+  }
+
+  toggleIsAutoNightMode() {
+    _sharedDao.putBoolean(
+        SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, !isAutoNightModeEnable);
   }
 
   changeLogLevel(String level) {
