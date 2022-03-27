@@ -1,5 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ReplyPreview extends StatelessWidget {
@@ -25,7 +26,7 @@ class ReplyPreview extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              Icons.reply,
+              CupertinoIcons.reply,
               color:theme.primaryColor,
               size: 25,
             ),
@@ -41,7 +42,7 @@ class ReplyPreview extends StatelessWidget {
             IconButton(
               padding: const EdgeInsets.all(0),
               alignment: Alignment.center,
-              icon: const Icon(Icons.close, size: 18),
+              icon: const Icon(CupertinoIcons.xmark, size: 20),
               onPressed: resetRoomPageDetails,
             ),
           ],

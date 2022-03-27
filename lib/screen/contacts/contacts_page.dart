@@ -129,7 +129,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       width: double.infinity,
                       child: TextButton.icon(
                         icon: const Icon(
-                          Icons.add,
+                          CupertinoIcons.add,
                         ),
                         onPressed: () {
                           _routingService.openNewContact();
