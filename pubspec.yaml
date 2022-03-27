@@ -175,6 +175,7 @@ dependencies:
       ref: master
   flutter_foreground_task: 3.5.5
   custom_image_crop: 0.0.4
+  persian_datetime_picker: ^2.4.0
   pasteboard: ^0.0.2
   expandable: ^5.0.1
 
