@@ -13,6 +13,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
@@ -117,7 +118,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return CropImage(imagePath, (path) {
         if (path != null) {
-            imagePath = path;
+          imagePath = path;
         }
         setAvatar(imagePath);
       });
@@ -164,8 +165,8 @@ class _AccountSettingsState extends State<AccountSettings> {
         return true;
       },
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
+        extendBodyBehindAppBar: true,
+        appBar: UltimateAppBar(
           child: AppBar(
             titleSpacing: 8,
             title: Column(children: [
@@ -369,7 +370,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                         const SizedBox(height: 8),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: TextButton(
+                          child: ElevatedButton(
                             child: Text(_i18n.get("save")),
                             onPressed: () async {
                               checkAndSend();

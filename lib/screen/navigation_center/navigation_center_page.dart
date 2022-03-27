@@ -13,8 +13,8 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
-import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,16 +58,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
         .listen((text) => _searchMode.add(text));
     modifyRoutingByNotificationVideoCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
-        _routingService.openCallScreen(
-            event.keys.elementAt(0).asUid(), isCallAccepted: true,isVideoCall:true,
-            context: context);
+        _routingService.openCallScreen(event.keys.elementAt(0).asUid(),
+            isCallAccepted: true, isVideoCall: true, context: context);
       }
     });
     modifyRoutingByNotificationAudioCall.stream.listen((event) {
       if (event.keys.elementAt(0).isNotEmpty) {
-        _routingService.openCallScreen(
-            event.keys.elementAt(0).asUid(), isCallAccepted: true,
-            context: context);
+        _routingService.openCallScreen(event.keys.elementAt(0).asUid(),
+            isCallAccepted: true, context: context);
       }
     });
     _callRepo.fetchUserCallList(
@@ -135,12 +133,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ],
             ),
             titleSpacing: 8.0,
-            title: TitleStatus(
-              style: theme.textTheme.headline6!,
-              normalConditionWidget: Text(I18N.of(context)!.get("chats"),
-                  style: theme.textTheme.headline6,
-                  key: ValueKey(randomString(10))),
-            ),
+            title: Text(I18N.of(context)!.get("chats"),
+                style: theme.textTheme.headline6,
+                key: ValueKey(randomString(10))),
             actions: [
               if (!isDesktop())
                 DescribedFeatureOverlay(
@@ -177,9 +172,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: <Widget>[
             const HasCallRow(),
-            const SizedBox(
-              height: 4,
-            ),
+            const ConnectionStatus(),
             RepaintBoundary(
               child: SearchBox(
                   onChange: _queryTermDebouncedSubject.add,

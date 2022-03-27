@@ -176,7 +176,7 @@ dependencies:
   flutter_foreground_task: 3.5.5
   custom_image_crop: 0.0.4
   pasteboard: ^0.0.2
-  pin_code_fields: 7.3.0
+  expandable: ^5.0.1
 
 dev_dependencies:
   msix: 3.1.0
@@ -215,20 +215,19 @@ flutter:
     - lib/lang/fa.json
     - lib/lang/en.json
     - assets/backgrounds/
+    - assets/emoji/
+    - android/app/src/main/res/raw/
+    - assets/images/no-profile-pic.png
+    - assets/audios/beep_ringing_calling_sound.mp3
+    - assets/audios/busy_sound.mp3
     - assets/animations/done.tgs
     - assets/animations/clock.json
     - assets/animations/not-found.tgs
     - assets/animations/unlock.tgs
     - assets/animations/audio_wave.tgs
-    - assets/emoji/
-    - android/app/src/main/res/raw/
-    - assets/images/no-profile-pic.png
     - assets/animations/accept_call.json
-    - assets/audios/beep_ringing_calling_sound.mp3
-    - assets/audios/busy_sound.mp3
     - assets/animations/file-save.json
     - assets/animations/arrow.json
-    - assets/animations/form_animation.zip
     - assets/animations/touch.zip
 
   # An image asset can refer to one or more resolution-specific "variants", see

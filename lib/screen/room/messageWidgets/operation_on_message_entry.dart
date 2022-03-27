@@ -9,7 +9,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/cupertino.dart';
@@ -289,7 +288,7 @@ void showDeleteMsgDialog(
                   }),
               TextButton(
                 style: TextButton.styleFrom(
-                    primary: ExtraTheme.of(context).colorScheme.error),
+                    primary: Theme.of(context).colorScheme.error),
                 child: Text(_i18n.get("delete")),
                 onPressed: () {
                   _messageRepo.deleteMessage(messages);

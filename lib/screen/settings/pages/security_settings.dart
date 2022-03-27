@@ -4,6 +4,7 @@ import 'package:deliver/services/routing_service.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -42,7 +43,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 children: [
                   SettingsTile.switchTile(
                     title: _i18n.get("enable_local_lock"),
-                    leading: const Icon(Icons.lock),
+                    leading: const Icon(CupertinoIcons.lock),
                     switchValue: _authRepo.isLocalLockEnabled(),
                     onToggle: (bool enabled) {
                       if (enabled) {
@@ -63,7 +64,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   if (_authRepo.isLocalLockEnabled())
                     SettingsTile(
                       title: _i18n.get("edit_password"),
-                      leading: const Icon(Icons.exit_to_app),
+                      leading: const Icon(CupertinoIcons.square_arrow_left),
                       onPressed: (BuildContext c) {
                         showDialog(
                             context: context,
