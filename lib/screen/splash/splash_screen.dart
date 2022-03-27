@@ -48,9 +48,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   tryInitAccountRepo() async {
-
     try {
-     await _accountRepo.checkUpdatePlatformSessionInformation();
+      await _accountRepo.checkUpdatePlatformSessionInformation();
       _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {
         if (_attempts < 3) {
           _attempts++;
@@ -87,8 +86,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
-    bool setUserName = await _accountRepo.hasProfile();
-    if (setUserName) {
+    bool hasProfile = await _accountRepo.profileInfoIsSet();
+    if (hasProfile) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
         return const HomePage();
       }));
@@ -130,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 20),
               Text(
                 "Enter your local password",
-                style:theme.primaryTextTheme.subtitle1,
+                style: theme.primaryTextTheme.subtitle1,
               ),
               SizedBox(
                 width: 190,

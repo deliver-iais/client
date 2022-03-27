@@ -59,8 +59,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (isAndroid() || isIOS()) {
       _notificationServices.cancelAllNotifications();
     }
-
-    checkIfUsernameIsSet();
     if (isAndroid()) {
       checkShareFile(context);
     }
@@ -121,13 +119,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ));
   }
 
-  void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.hasProfile(retry: true)) {
-      _routingService.openAccountSettings(forceToSetUsernameAndName: true);
-    } else {
-      await _accountRepo.fetchProfile();
-    }
-  }
 
   void checkIfVersionChange() async {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {

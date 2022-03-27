@@ -5,6 +5,7 @@ import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -458,7 +459,13 @@ class _AccountSettingsState extends State<AccountSettings> {
               _lastName.isNotEmpty ? _lastName : _account!.lastName,
               _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
-            _routingService.pop();
+            if (widget.forceToSetUsernameAndName) {
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
+                return const HomePage();
+              }),(r)=>false);
+            } else {
+              _routingService.pop();
+            }
           }
         }
       }
