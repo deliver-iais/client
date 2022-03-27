@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -29,6 +31,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _uxService = GetIt.I.get<UxService>();
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
@@ -43,6 +46,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    window.onPlatformBrightnessChanged = () {
+      setState(() {
+        if (_uxService.isAutoNightModeEnable) {
+          window.platformBrightness == Brightness.dark
+              ? _uxService.toggleThemeToDarkMode()
+              : _uxService.toggleThemeToLightMode();
+        }
+      });
+    };
     _coreServices.initStreamConnection();
     if (isAndroid() || isIOS()) {
       _notificationServices.cancelAllNotifications();
