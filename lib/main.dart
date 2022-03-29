@@ -35,6 +35,7 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -96,6 +97,10 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
+  GetIt.I.registerSingleton<AnalyticsRepo>(AnalyticsRepo());
+  GetIt.I.registerSingleton<AnalyticsClientInterceptor>(
+      AnalyticsClientInterceptor());
+
   // Setup Logger
   GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
   GetIt.I.registerSingleton<Logger>(Logger(
@@ -160,46 +165,51 @@ Future<void> setupDI() async {
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
+  final grpcClientInterceptors = [
+    GetIt.I.get<DeliverClientInterceptor>(),
+    GetIt.I.get<AnalyticsClientInterceptor>()
+  ];
+
   GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
       kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
       kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
       kIsWeb ? webQueryClientChannel : QueryClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
       kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(
       kIsWeb ? webBotClientChannel : BotClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
       kIsWeb ? webStickerClientChannel : StickerClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
       kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
       kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
       kIsWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
       kIsWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
 
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
       kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<LiveLocationServiceClient>(
       LiveLocationServiceClient(
           kIsWeb
               ? webLiveLocationClientChannel
               : LiveLocationServiceClientChannel,
-          interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+          interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
 
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());

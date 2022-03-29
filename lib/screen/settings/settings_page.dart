@@ -257,12 +257,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: 'Developer Mode',
                   children: [
                     SettingsTile(
-                      title: 'Log Level',
-                      subtitle: LogLevelHelper.levelToString(
-                          GetIt.I.get<DeliverLogFilter>().level!),
+                      title: 'Developer Page',
+                      subtitle: "Log Level: " +
+                          LogLevelHelper.levelToString(
+                              GetIt.I.get<DeliverLogFilter>().level!),
                       leading: const Icon(Icons.bug_report_rounded),
                       onPressed: (BuildContext context) {
-                        _routingService.openLogSettings();
+                        _routingService.openDeveloperPage();
                       },
                     )
                   ],
