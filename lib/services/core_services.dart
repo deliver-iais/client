@@ -14,7 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message.dart' as message_pb;
+import 'package:deliver/box/message.dart' as message_model;
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -59,7 +59,6 @@ class CoreServices {
   final _logger = GetIt.I.get<Logger>();
   final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _uxService = GetIt.I.get<UxService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -495,12 +494,10 @@ class CoreServices {
         _callEvents.add(callEvents);
       }
     }
-    saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
-        _roomDao, _seenDao, _mediaQueryRepo);
+    final msg = await saveMessage(message, roomUid, _messageDao, _authRepo,
+        _accountRepo, _roomDao, _seenDao, _mediaQueryRepo);
 
-    if (showNotifyForThisMessage(message, _authRepo) &&
-        !_uxService.isAllNotificationDisabled &&
-        (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
+    if (!msg.json.isEmptyMessage() && await showNotifyForThisMessage(message)) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER) {
@@ -562,7 +559,34 @@ class CoreServices {
   }
 }
 
-bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
+Future<bool> showNotifyForThisMessage(Message message) async {
+  final authRepo = GetIt.I.get<AuthRepo>();
+  final uxService = GetIt.I.get<UxService>();
+  final roomRepo = GetIt.I.get<RoomRepo>();
+
+  final roomUid = getRoomUid(authRepo, message);
+
+  if (uxService.isAllNotificationDisabled ||
+      await roomRepo.isRoomMuted(roomUid.asString())) {
+    // If Notification is Off
+    return false;
+  } else if (authRepo.isCurrentUser(message.from.asString())) {
+    // If Message is from Current User
+    return false;
+  } else if (message.whichType() == Message_Type.persistEvent &&
+      message.persistEvent.whichType() ==
+          PersistentEvent_Type.mucSpecificPersistentEvent) {
+    // If Message is PE and Issuer is Current User
+    return !authRepo.isCurrentUser(
+        message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
+  }
+
+  return true;
+}
+
+bool isHiddenMessage(AuthRepo authRepo, Message message) {
+  if (!authRepo.isCurrentUser(message.from.asString())) {}
+
   bool showNotify = true;
   showNotify = !authRepo.isCurrentUser(message.from.asString());
   if (message.whichType() == Message_Type.persistEvent) {
@@ -580,7 +604,7 @@ bool showNotifyForThisMessage(Message message, AuthRepo authRepo) {
   return showNotify;
 }
 
-Future<Uid> saveMessage(
+Future<message_model.Message> saveMessage(
     Message message,
     Uid roomUid,
     MessageDao messageDao,
@@ -613,7 +637,7 @@ Future<Uid> saveMessage(
   }
   fetchSeen(seenDao, roomUid.asString());
 
-  return roomUid;
+  return msg;
 }
 
 fetchSeen(SeenDao seenDao, String roomUid) async {
@@ -623,7 +647,7 @@ fetchSeen(SeenDao seenDao, String roomUid) async {
   }
 }
 
-Future<void> _updateRoomMetaData(String roomUid, message_pb.Message message,
+Future<void> _updateRoomMetaData(String roomUid, message_model.Message message,
     MediaRepo mediaQueryRepo) async {
   try {
     var file = message.json.toFile();
@@ -654,7 +678,7 @@ Future<void> _updateRoomMetaData(String roomUid, message_pb.Message message,
   }
 }
 
-Future<message_pb.Message?> saveMessageInMessagesDB(
+Future<message_model.Message?> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
   try {
     final msg = extractMessage(authRepo, message);

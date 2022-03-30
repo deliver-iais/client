@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
-import 'package:deliver/box/dao/custom_notication_dao.dart';
+import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -86,7 +86,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<AccountRepo>(returnNullOnMissingStub: true),
   MockSpec<MucRepo>(returnNullOnMissingStub: true),
   MockSpec<BotRepo>(returnNullOnMissingStub: true),
-  MockSpec<CustomNotificatonDao>(returnNullOnMissingStub: true),
+  MockSpec<CustomNotificationDao>(returnNullOnMissingStub: true),
   MockSpec<MediaDao>(returnNullOnMissingStub: true),
   MockSpec<MediaMetaDataDao>(returnNullOnMissingStub: true),
 ])
@@ -187,9 +187,9 @@ MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
 }
 
 MockCustomNotificatonDao getAndRegisterCustomNotificatonDao() {
-  _removeRegistrationIfExists<CustomNotificatonDao>();
+  _removeRegistrationIfExists<CustomNotificationDao>();
   final service = MockCustomNotificatonDao();
-  GetIt.I.registerSingleton<CustomNotificatonDao>(service);
+  GetIt.I.registerSingleton<CustomNotificationDao>(service);
   when(service.isHaveCustomNotif(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value(false));
   when(service.getCustomNotif(testUid.asString()))
@@ -609,7 +609,7 @@ void unregisterServices() {
   GetIt.I.unregister<AccountRepo>();
   GetIt.I.unregister<MucRepo>();
   GetIt.I.unregister<BotRepo>();
-  GetIt.I.unregister<CustomNotificatonDao>();
+  GetIt.I.unregister<CustomNotificationDao>();
   GetIt.I.unregister<MediaDao>();
   GetIt.I.unregister<MediaMetaDataDao>();
 }

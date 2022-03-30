@@ -10,7 +10,7 @@ import 'package:deliver/box/avatar.dart' as _i26;
 import 'package:deliver/box/bot_info.dart' as _i15;
 import 'package:deliver/box/contact.dart' as _i56;
 import 'package:deliver/box/dao/block_dao.dart' as _i48;
-import 'package:deliver/box/dao/custom_notication_dao.dart' as _i64;
+import 'package:deliver/box/dao/custom_notification_dao.dart' as _i64;
 import 'package:deliver/box/dao/last_activity_dao.dart' as _i44;
 import 'package:deliver/box/dao/media_dao.dart' as _i65;
 import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i68;
@@ -133,32 +133,39 @@ class MockLogger extends _i1.Mock implements _i16.Logger {
   void v(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(Invocation.method(#v, [message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void d(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(Invocation.method(#d, [message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void i(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(Invocation.method(#i, [message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void w(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(Invocation.method(#w, [message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void e(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(Invocation.method(#e, [message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void wtf(dynamic message, [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(Invocation.method(#wtf, [message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void log(_i16.Level? level, dynamic message,
           [dynamic error, StackTrace? stackTrace]) =>
       super.noSuchMethod(
           Invocation.method(#log, [level, message, error, stackTrace]),
           returnValueForMissingStub: null);
+
   @override
   void close() => super.noSuchMethod(Invocation.method(#close, []),
       returnValueForMissingStub: null);
@@ -173,56 +180,66 @@ class MockMessageDao extends _i1.Mock implements _i17.MessageDao {
       Invocation.method(#saveMessage, [message]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> deleteMessage(_i19.Message? message) => (super.noSuchMethod(
       Invocation.method(#deleteMessage, [message]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<_i19.Message?> getMessage(String? roomUid, int? id) =>
       (super.noSuchMethod(Invocation.method(#getMessage, [roomUid, id]),
               returnValue: Future<_i19.Message?>.value())
           as _i18.Future<_i19.Message?>);
+
   @override
   _i18.Future<List<_i19.Message?>>? getMessagePage(String? roomUid, int? page,
           {int? pageSize = 16}) =>
       (super.noSuchMethod(Invocation.method(
               #getMessagePage, [roomUid, page], {#pageSize: pageSize}))
           as _i18.Future<List<_i19.Message?>>?);
+
   @override
   _i18.Future<List<_i20.PendingMessage>> getPendingMessages(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getPendingMessages, [roomUid]),
               returnValue: Future<List<_i20.PendingMessage>>.value(
                   <_i20.PendingMessage>[]))
           as _i18.Future<List<_i20.PendingMessage>>);
+
   @override
   _i18.Stream<List<_i20.PendingMessage>> watchPendingMessages(
           String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#watchPendingMessages, [roomUid]),
               returnValue: Stream<List<_i20.PendingMessage>>.empty())
           as _i18.Stream<List<_i20.PendingMessage>>);
+
   @override
   _i18.Future<_i20.PendingMessage?> getPendingMessage(String? packetId) =>
       (super.noSuchMethod(Invocation.method(#getPendingMessage, [packetId]),
               returnValue: Future<_i20.PendingMessage?>.value())
           as _i18.Future<_i20.PendingMessage?>);
+
   @override
   _i18.Stream<_i20.PendingMessage?> watchPendingMessage(String? packetId) =>
       (super.noSuchMethod(Invocation.method(#watchPendingMessage, [packetId]),
               returnValue: Stream<_i20.PendingMessage?>.empty())
           as _i18.Stream<_i20.PendingMessage?>);
+
   @override
   _i18.Future<List<_i20.PendingMessage>> getAllPendingMessages() =>
       (super.noSuchMethod(Invocation.method(#getAllPendingMessages, []),
               returnValue: Future<List<_i20.PendingMessage>>.value(
                   <_i20.PendingMessage>[]))
           as _i18.Future<List<_i20.PendingMessage>>);
+
   @override
   _i18.Future<void> deletePendingMessage(String? packetId) =>
       (super.noSuchMethod(Invocation.method(#deletePendingMessage, [packetId]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Future<void> savePendingMessage(_i20.PendingMessage? pm) =>
       (super.noSuchMethod(Invocation.method(#savePendingMessage, [pm]),
@@ -240,29 +257,35 @@ class MockRoomDao extends _i1.Mock implements _i21.RoomDao {
       Invocation.method(#updateRoom, [room]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> deleteRoom(_i22.Room? room) => (super.noSuchMethod(
       Invocation.method(#deleteRoom, [room]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<List<_i22.Room>> getAllRooms() =>
       (super.noSuchMethod(Invocation.method(#getAllRooms, []),
               returnValue: Future<List<_i22.Room>>.value(<_i22.Room>[]))
           as _i18.Future<List<_i22.Room>>);
+
   @override
   _i18.Stream<List<_i22.Room>> watchAllRooms() =>
       (super.noSuchMethod(Invocation.method(#watchAllRooms, []),
               returnValue: Stream<List<_i22.Room>>.empty())
           as _i18.Stream<List<_i22.Room>>);
+
   @override
   _i18.Future<_i22.Room?> getRoom(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getRoom, [roomUid]),
           returnValue: Future<_i22.Room?>.value()) as _i18.Future<_i22.Room?>);
+
   @override
   _i18.Stream<_i22.Room> watchRoom(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#watchRoom, [roomUid]),
           returnValue: Stream<_i22.Room>.empty()) as _i18.Stream<_i22.Room>);
+
   @override
   _i18.Future<List<_i22.Room>> getAllGroups() =>
       (super.noSuchMethod(Invocation.method(#getAllGroups, []),
@@ -279,162 +302,201 @@ class MockRoomRepo extends _i1.Mock implements _i23.RoomRepo {
       (super.noSuchMethod(Invocation.getter(#activityObject),
               returnValue: <String, _i9.BehaviorSubject<_i24.Activity>>{})
           as Map<String, _i9.BehaviorSubject<_i24.Activity>>);
+
   @override
   dynamic insertRoom(String? uid) =>
       super.noSuchMethod(Invocation.method(#insertRoom, [uid]));
+
   @override
   dynamic updateRoom(_i22.Room? room) =>
       super.noSuchMethod(Invocation.method(#updateRoom, [room]));
+
   @override
   _i18.Future<String> getSlangName(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getSlangName, [uid]),
           returnValue: Future<String>.value('')) as _i18.Future<String>);
+
   @override
   _i18.Future<bool> isVerified(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#isVerified, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   String? fastForwardName(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#fastForwardName, [uid]))
           as String?);
+
   @override
   _i18.Future<String> getName(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getName, [uid]),
           returnValue: Future<String>.value('')) as _i18.Future<String>);
+
   @override
   _i18.Future<String?>? getId(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getId, [uid]))
           as _i18.Future<String?>?);
+
   @override
   _i18.Future<bool> deleteRoom(_i3.Uid? roomUid) =>
       (super.noSuchMethod(Invocation.method(#deleteRoom, [roomUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<String?> getIdByUid(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getIdByUid, [uid]),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   void updateActivity(_i24.Activity? activity) =>
       super.noSuchMethod(Invocation.method(#updateActivity, [activity]),
           returnValueForMissingStub: null);
+
   @override
   void initActivity(String? roomId) =>
       super.noSuchMethod(Invocation.method(#initActivity, [roomId]),
           returnValueForMissingStub: null);
+
   @override
   dynamic updateRoomName(_i3.Uid? uid, String? name) =>
       super.noSuchMethod(Invocation.method(#updateRoomName, [uid, name]));
+
   @override
   _i18.Future<bool> isRoomHaveACustomNotification(String? uid) => (super
       .noSuchMethod(Invocation.method(#isRoomHaveACustomNotification, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   dynamic setRoomCustomNotification(String? uid, String? path) => super
       .noSuchMethod(Invocation.method(#setRoomCustomNotification, [uid, path]));
+
   @override
   _i18.Future<String?> getRoomCustomNotification(String? uid) =>
       (super.noSuchMethod(Invocation.method(#getRoomCustomNotification, [uid]),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<bool> isRoomMuted(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isRoomMuted, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<bool> watchIsRoomMuted(String? uid) =>
       (super.noSuchMethod(Invocation.method(#watchIsRoomMuted, [uid]),
           returnValue: Stream<bool>.empty()) as _i18.Stream<bool>);
+
   @override
   void mute(String? uid) => super.noSuchMethod(Invocation.method(#mute, [uid]),
       returnValueForMissingStub: null);
+
   @override
   void unmute(String? uid) =>
       super.noSuchMethod(Invocation.method(#unmute, [uid]),
           returnValueForMissingStub: null);
+
   @override
   _i18.Future<bool> isRoomBlocked(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isRoomBlocked, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<bool?> watchIsRoomBlocked(String? uid) =>
       (super.noSuchMethod(Invocation.method(#watchIsRoomBlocked, [uid]),
           returnValue: Stream<bool?>.empty()) as _i18.Stream<bool?>);
+
   @override
   _i18.Stream<List<_i22.Room>> watchAllRooms() =>
       (super.noSuchMethod(Invocation.method(#watchAllRooms, []),
               returnValue: Stream<List<_i22.Room>>.empty())
           as _i18.Stream<List<_i22.Room>>);
+
   @override
   _i18.Stream<_i22.Room> watchRoom(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#watchRoom, [roomUid]),
           returnValue: Stream<_i22.Room>.empty()) as _i18.Stream<_i22.Room>);
+
   @override
   _i18.Future<_i22.Room?> getRoom(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getRoom, [roomUid]),
           returnValue: Future<_i22.Room?>.value()) as _i18.Future<_i22.Room?>);
+
   @override
   _i18.Future<void> resetMention(String? roomUid) => (super.noSuchMethod(
       Invocation.method(#resetMention, [roomUid]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> createRoomIfNotExist(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#createRoomIfNotExist, [roomUid]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Stream<_i2.Seen> watchMySeen(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#watchMySeen, [roomUid]),
           returnValue: Stream<_i2.Seen>.empty()) as _i18.Stream<_i2.Seen>);
+
   @override
   _i18.Future<_i2.Seen> getMySeen(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getMySeen, [roomUid]),
               returnValue: Future<_i2.Seen>.value(_FakeSeen_0()))
           as _i18.Future<_i2.Seen>);
+
   @override
   _i18.Future<_i2.Seen?> getOthersSeen(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getOthersSeen, [roomUid]),
           returnValue: Future<_i2.Seen?>.value()) as _i18.Future<_i2.Seen?>);
+
   @override
   _i18.Future<void> saveMySeen(_i2.Seen? seen) => (super.noSuchMethod(
       Invocation.method(#saveMySeen, [seen]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   dynamic block(String? uid, {bool? block}) =>
       super.noSuchMethod(Invocation.method(#block, [uid], {#block: block}));
+
   @override
   _i18.Future<List<_i3.Uid>> getAllRooms() =>
       (super.noSuchMethod(Invocation.method(#getAllRooms, []),
               returnValue: Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i18.Future<List<_i3.Uid>>);
+
   @override
   _i18.Future<List<_i3.Uid>> searchInRoomAndContacts(String? text) =>
       (super.noSuchMethod(Invocation.method(#searchInRoomAndContacts, [text]),
               returnValue: Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i18.Future<List<_i3.Uid>>);
+
   @override
   _i18.Future<String> getUidById(String? id) =>
       (super.noSuchMethod(Invocation.method(#getUidById, [id]),
           returnValue: Future<String>.value('')) as _i18.Future<String>);
+
   @override
   _i18.Future<_i3.Uid> fetchUidById(String? username) =>
       (super.noSuchMethod(Invocation.method(#fetchUidById, [username]),
               returnValue: Future<_i3.Uid>.value(_FakeUid_1()))
           as _i18.Future<_i3.Uid>);
+
   @override
   void reportRoom(_i3.Uid? roomUid) =>
       super.noSuchMethod(Invocation.method(#reportRoom, [roomUid]),
           returnValueForMissingStub: null);
+
   @override
   _i18.Future<List<_i22.Room>> getAllGroups() =>
       (super.noSuchMethod(Invocation.method(#getAllGroups, []),
               returnValue: Future<List<_i22.Room>>.value(<_i22.Room>[]))
           as _i18.Future<List<_i22.Room>>);
+
   @override
   void updateRoomDraft(String? roomUid, String? draft) =>
       super.noSuchMethod(Invocation.method(#updateRoomDraft, [roomUid, draft]),
           returnValueForMissingStub: null);
+
   @override
   _i18.Future<bool> isDeletedRoom(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#isDeletedRoom, [roomUid]),
@@ -449,89 +511,110 @@ class MockAuthRepo extends _i1.Mock implements _i25.AuthRepo {
   _i3.Uid get currentUserUid =>
       (super.noSuchMethod(Invocation.getter(#currentUserUid),
           returnValue: _FakeUid_1()) as _i3.Uid);
+
   @override
   set currentUserUid(_i3.Uid? _currentUserUid) =>
       super.noSuchMethod(Invocation.setter(#currentUserUid, _currentUserUid),
           returnValueForMissingStub: null);
+
   @override
   set avatar(_i26.Avatar? _avatar) =>
       super.noSuchMethod(Invocation.setter(#avatar, _avatar),
           returnValueForMissingStub: null);
+
   @override
   _i18.Future<bool> isTestUser() =>
       (super.noSuchMethod(Invocation.method(#isTestUser, []),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<void> init() => (super.noSuchMethod(Invocation.method(#init, []),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<bool> getVerificationCode(_i27.PhoneNumber? p) =>
       (super.noSuchMethod(Invocation.method(#getVerificationCode, [p]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i4.Platform> getPlatformDetails() =>
       (super.noSuchMethod(Invocation.method(#getPlatformDetails, []),
               returnValue: Future<_i4.Platform>.value(_FakePlatform_2()))
           as _i18.Future<_i4.Platform>);
+
   @override
   dynamic getPlatForm(_i4.Platform? platform) =>
       super.noSuchMethod(Invocation.method(#getPlatForm, [platform]));
+
   @override
   _i18.Future<String> getDeviceName() =>
       (super.noSuchMethod(Invocation.method(#getDeviceName, []),
           returnValue: Future<String>.value('')) as _i18.Future<String>);
+
   @override
   _i18.Future<_i5.AccessTokenRes> sendVerificationCode(String? code) =>
       (super.noSuchMethod(Invocation.method(#sendVerificationCode, [code]),
               returnValue:
                   Future<_i5.AccessTokenRes>.value(_FakeAccessTokenRes_3()))
           as _i18.Future<_i5.AccessTokenRes>);
+
   @override
   _i18.Future<_i5.AccessTokenRes> checkQrCodeToken(String? token) =>
       (super.noSuchMethod(Invocation.method(#checkQrCodeToken, [token]),
               returnValue:
                   Future<_i5.AccessTokenRes>.value(_FakeAccessTokenRes_3()))
           as _i18.Future<_i5.AccessTokenRes>);
+
   @override
   _i18.Future<String> getAccessToken() =>
       (super.noSuchMethod(Invocation.method(#getAccessToken, []),
           returnValue: Future<String>.value('')) as _i18.Future<String>);
+
   @override
   bool isLocalLockEnabled() =>
       (super.noSuchMethod(Invocation.method(#isLocalLockEnabled, []),
           returnValue: false) as bool);
+
   @override
   bool localPasswordIsCorrect(String? pass) =>
       (super.noSuchMethod(Invocation.method(#localPasswordIsCorrect, [pass]),
           returnValue: false) as bool);
+
   @override
   String getLocalPassword() =>
       (super.noSuchMethod(Invocation.method(#getLocalPassword, []),
           returnValue: '') as String);
+
   @override
   void setLocalPassword(String? pass) =>
       super.noSuchMethod(Invocation.method(#setLocalPassword, [pass]),
           returnValueForMissingStub: null);
+
   @override
   bool isLoggedIn() => (super.noSuchMethod(Invocation.method(#isLoggedIn, []),
       returnValue: false) as bool);
+
   @override
   bool isCurrentUser(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isCurrentUser, [uid]),
           returnValue: false) as bool);
+
   @override
   bool isCurrentUserUid(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#isCurrentUserUid, [uid]),
           returnValue: false) as bool);
+
   @override
   bool isCurrentUserSender(_i19.Message? msg) =>
       (super.noSuchMethod(Invocation.method(#isCurrentUserSender, [msg]),
           returnValue: false) as bool);
+
   @override
   bool isCurrentSession(_i28.Session? session) =>
       (super.noSuchMethod(Invocation.method(#isCurrentSession, [session]),
           returnValue: false) as bool);
+
   @override
   _i18.Future<void> deleteTokens() => (super.noSuchMethod(
       Invocation.method(#deleteTokens, []),
@@ -558,12 +641,14 @@ class MockFileRepo extends _i1.Mock implements _i30.FileRepo {
       (super.noSuchMethod(Invocation.getter(#uploadFileStatusCode),
               returnValue: <String, _i9.BehaviorSubject<int?>>{})
           as Map<String, _i9.BehaviorSubject<int?>>);
+
   @override
   set uploadFileStatusCode(
           Map<String, _i9.BehaviorSubject<int?>>? _uploadFileStatusCode) =>
       super.noSuchMethod(
           Invocation.setter(#uploadFileStatusCode, _uploadFileStatusCode),
           returnValueForMissingStub: null);
+
   @override
   _i18.Future<void> cloneFileInLocalDirectory(
           _i31.File? file, String? uploadKey, String? name) =>
@@ -573,6 +658,7 @@ class MockFileRepo extends _i1.Mock implements _i30.FileRepo {
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Future<_i32.File?> uploadClonedFile(String? uploadKey, String? name,
           {Function? sendActivity}) =>
@@ -580,6 +666,7 @@ class MockFileRepo extends _i1.Mock implements _i30.FileRepo {
           Invocation.method(#uploadClonedFile, [uploadKey, name],
               {#sendActivity: sendActivity}),
           returnValue: Future<_i32.File?>.value()) as _i18.Future<_i32.File?>);
+
   @override
   _i18.Future<bool> isExist(String? uuid, String? filename,
           {_i33.ThumbnailSize? thumbnailSize}) =>
@@ -587,9 +674,11 @@ class MockFileRepo extends _i1.Mock implements _i30.FileRepo {
           Invocation.method(
               #isExist, [uuid, filename], {#thumbnailSize: thumbnailSize}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   dynamic saveDownloadedFile(String? url, String? filename) => super
       .noSuchMethod(Invocation.method(#saveDownloadedFile, [url, filename]));
+
   @override
   _i18.Future<String?> getFileIfExist(String? uuid, String? filename,
           {_i33.ThumbnailSize? thumbnailSize}) =>
@@ -597,6 +686,7 @@ class MockFileRepo extends _i1.Mock implements _i30.FileRepo {
           Invocation.method(#getFileIfExist, [uuid, filename],
               {#thumbnailSize: thumbnailSize}),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<String?> getFile(String? uuid, String? filename,
           {_i33.ThumbnailSize? thumbnailSize, bool? intiProgressBar = true}) =>
@@ -609,10 +699,12 @@ class MockFileRepo extends _i1.Mock implements _i30.FileRepo {
             #intiProgressBar: intiProgressBar
           }),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   void initUploadProgress(String? uploadId) =>
       super.noSuchMethod(Invocation.method(#initUploadProgress, [uploadId]),
           returnValueForMissingStub: null);
+
   @override
   void saveFileInDownloadDir(String? uuid, String? name, String? dir) =>
       super.noSuchMethod(
@@ -627,16 +719,19 @@ class MockLiveLocationRepo extends _i1.Mock implements _i34.LiveLocationRepo {
   @override
   dynamic saveLiveLocation(_i35.LiveLocation? liveLocation) =>
       super.noSuchMethod(Invocation.method(#saveLiveLocation, [liveLocation]));
+
   @override
   _i18.Future<_i35.LiveLocation?> getLiveLocation(String? uuid) =>
       (super.noSuchMethod(Invocation.method(#getLiveLocation, [uuid]),
               returnValue: Future<_i35.LiveLocation?>.value())
           as _i18.Future<_i35.LiveLocation?>);
+
   @override
   _i18.Stream<_i35.LiveLocation?> watchLiveLocation(String? uuid) =>
       (super.noSuchMethod(Invocation.method(#watchLiveLocation, [uuid]),
               returnValue: Stream<_i35.LiveLocation?>.empty())
           as _i18.Stream<_i35.LiveLocation?>);
+
   @override
   _i18.Future<void> updateLiveLocation(_i36.LiveLocation? liveLocation) =>
       (super.noSuchMethod(
@@ -644,6 +739,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i34.LiveLocationRepo {
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Future<_i6.CreateLiveLocationRes> createLiveLocation(
           _i3.Uid? roomUid, int? duration) =>
@@ -652,6 +748,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i34.LiveLocationRepo {
               returnValue: Future<_i6.CreateLiveLocationRes>.value(
                   _FakeCreateLiveLocationRes_4()))
           as _i18.Future<_i6.CreateLiveLocationRes>);
+
   @override
   void sendLiveLocationAsStream(
           String? uuid, int? duration, _i36.Location? location) =>
@@ -669,24 +766,29 @@ class MockSeenDao extends _i1.Mock implements _i37.SeenDao {
   _i18.Future<_i2.Seen?> getOthersSeen(String? uid) =>
       (super.noSuchMethod(Invocation.method(#getOthersSeen, [uid]),
           returnValue: Future<_i2.Seen?>.value()) as _i18.Future<_i2.Seen?>);
+
   @override
   _i18.Stream<_i2.Seen?> watchOthersSeen(String? uid) =>
       (super.noSuchMethod(Invocation.method(#watchOthersSeen, [uid]),
           returnValue: Stream<_i2.Seen?>.empty()) as _i18.Stream<_i2.Seen?>);
+
   @override
   _i18.Future<_i2.Seen> getMySeen(String? uid) =>
       (super.noSuchMethod(Invocation.method(#getMySeen, [uid]),
               returnValue: Future<_i2.Seen>.value(_FakeSeen_0()))
           as _i18.Future<_i2.Seen>);
+
   @override
   _i18.Stream<_i2.Seen> watchMySeen(String? uid) =>
       (super.noSuchMethod(Invocation.method(#watchMySeen, [uid]),
           returnValue: Stream<_i2.Seen>.empty()) as _i18.Stream<_i2.Seen>);
+
   @override
   _i18.Future<void> saveOthersSeen(_i2.Seen? seen) => (super.noSuchMethod(
       Invocation.method(#saveOthersSeen, [seen]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> saveMySeen(_i2.Seen? seen) => (super.noSuchMethod(
       Invocation.method(#saveMySeen, [seen]),
@@ -702,14 +804,17 @@ class MockMucServices extends _i1.Mock implements _i38.MucServices {
   _i7.GroupServiceClient get groupServices =>
       (super.noSuchMethod(Invocation.getter(#groupServices),
           returnValue: _FakeGroupServiceClient_5()) as _i7.GroupServiceClient);
+
   @override
   _i8.ChannelServiceClient get channelServices => (super.noSuchMethod(
       Invocation.getter(#channelServices),
       returnValue: _FakeChannelServiceClient_6()) as _i8.ChannelServiceClient);
+
   @override
   _i18.Future<_i3.Uid?> createNewGroup(String? groupName, String? info) =>
       (super.noSuchMethod(Invocation.method(#createNewGroup, [groupName, info]),
           returnValue: Future<_i3.Uid?>.value()) as _i18.Future<_i3.Uid?>);
+
   @override
   _i18.Future<bool> addGroupMembers(
           List<_i14.Member>? members, _i3.Uid? groupUid,
@@ -718,19 +823,23 @@ class MockMucServices extends _i1.Mock implements _i38.MucServices {
           Invocation.method(
               #addGroupMembers, [members, groupUid], {#retry: retry}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i7.GetGroupRes?> getGroup(_i3.Uid? groupUid) =>
       (super.noSuchMethod(Invocation.method(#getGroup, [groupUid]),
               returnValue: Future<_i7.GetGroupRes?>.value())
           as _i18.Future<_i7.GetGroupRes?>);
+
   @override
   _i18.Future<bool> removeGroup(_i3.Uid? groupUid) =>
       (super.noSuchMethod(Invocation.method(#removeGroup, [groupUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> changeGroupRole(_i14.Member? member, _i3.Uid? group) =>
       (super.noSuchMethod(Invocation.method(#changeGroupRole, [member, group]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i7.GetMembersRes> getGroupMembers(
           _i3.Uid? groupUid, int? limit, int? pointer) =>
@@ -739,33 +848,40 @@ class MockMucServices extends _i1.Mock implements _i38.MucServices {
               returnValue:
                   Future<_i7.GetMembersRes>.value(_FakeGetMembersRes_7()))
           as _i18.Future<_i7.GetMembersRes>);
+
   @override
   _i18.Future<bool> leaveGroup(_i3.Uid? groupUid) =>
       (super.noSuchMethod(Invocation.method(#leaveGroup, [groupUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> kickGroupMembers(
           List<_i14.Member>? members, _i3.Uid? groupUid) =>
       (super.noSuchMethod(
           Invocation.method(#kickGroupMembers, [members, groupUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> banGroupMember(_i14.Member? member, _i3.Uid? mucUid) =>
       (super.noSuchMethod(Invocation.method(#banGroupMember, [member, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> unbanGroupMember(_i14.Member? member, _i3.Uid? mucUid) =>
       (super.noSuchMethod(
           Invocation.method(#unbanGroupMember, [member, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> joinGroup(_i3.Uid? groupUid, String? token) =>
       (super.noSuchMethod(Invocation.method(#joinGroup, [groupUid, token]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> modifyGroup(_i7.GroupInfo? group, _i3.Uid? mucUid) =>
       (super.noSuchMethod(Invocation.method(#modifyGroup, [group, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i3.Uid?> createNewChannel(String? channelName,
           _i8.ChannelType? type, String? channelId, String? info,
@@ -774,26 +890,31 @@ class MockMucServices extends _i1.Mock implements _i38.MucServices {
           Invocation.method(#createNewChannel,
               [channelName, type, channelId, info], {#retry: retry}),
           returnValue: Future<_i3.Uid?>.value()) as _i18.Future<_i3.Uid?>);
+
   @override
   _i18.Future<bool> addChannelMembers(
           List<_i14.Member>? members, _i3.Uid? mucUid) =>
       (super.noSuchMethod(
           Invocation.method(#addChannelMembers, [members, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i8.GetChannelRes?> getChannel(_i3.Uid? channelUid) =>
       (super.noSuchMethod(Invocation.method(#getChannel, [channelUid]),
               returnValue: Future<_i8.GetChannelRes?>.value())
           as _i18.Future<_i8.GetChannelRes?>);
+
   @override
   _i18.Future<bool> removeChannel(_i3.Uid? channelUid) =>
       (super.noSuchMethod(Invocation.method(#removeChannel, [channelUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> changeCahnnelRole(_i14.Member? member, _i3.Uid? channel) =>
       (super.noSuchMethod(
           Invocation.method(#changeCahnnelRole, [member, channel]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i8.GetMembersRes?> getChannelMembers(
           _i3.Uid? channelUid, int? limit, int? pointer) =>
@@ -802,53 +923,63 @@ class MockMucServices extends _i1.Mock implements _i38.MucServices {
           returnValue:
               Future<_i8.GetMembersRes?>.value()) as _i18
           .Future<_i8.GetMembersRes?>);
+
   @override
   _i18.Future<bool> leaveChannel(_i3.Uid? channelUid) =>
       (super.noSuchMethod(Invocation.method(#leaveChannel, [channelUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> kickChannelMembers(
           List<_i14.Member>? members, _i3.Uid? channelUid) =>
       (super.noSuchMethod(
           Invocation.method(#kickChannelMembers, [members, channelUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> banChannelMember(
           _i14.Member? member, _i3.Uid? channelUid) =>
       (super.noSuchMethod(
           Invocation.method(#banChannelMember, [member, channelUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> unbanChannelMember(
           _i14.Member? member, _i3.Uid? channelUid) =>
       (super.noSuchMethod(
           Invocation.method(#unbanChannelMember, [member, channelUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> joinChannel(_i3.Uid? channelUid, String? token) =>
       (super.noSuchMethod(Invocation.method(#joinChannel, [channelUid, token]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> modifyChannel(
           _i8.ChannelInfo? channelInfo, _i3.Uid? mucUid) =>
       (super.noSuchMethod(
           Invocation.method(#modifyChannel, [channelInfo, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> pinMessage(_i19.Message? message) =>
       (super.noSuchMethod(Invocation.method(#pinMessage, [message]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<String?> getGroupJointToken({_i3.Uid? groupUid}) =>
       (super.noSuchMethod(
           Invocation.method(#getGroupJointToken, [], {#groupUid: groupUid}),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<String?> getChannelJointToken({_i3.Uid? channelUid}) =>
       (super.noSuchMethod(
           Invocation.method(
               #getChannelJointToken, [], {#channelUid: channelUid}),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<bool> unpinMessage(_i19.Message? message) =>
       (super.noSuchMethod(Invocation.method(#unpinMessage, [message]),
@@ -863,70 +994,87 @@ class MockCoreServices extends _i1.Mock implements _i39.CoreServices {
   bool get responseChecked => (super
           .noSuchMethod(Invocation.getter(#responseChecked), returnValue: false)
       as bool);
+
   @override
   set responseChecked(bool? _responseChecked) =>
       super.noSuchMethod(Invocation.setter(#responseChecked, _responseChecked),
           returnValueForMissingStub: null);
+
   @override
   int get backoffTime =>
       (super.noSuchMethod(Invocation.getter(#backoffTime), returnValue: 0)
           as int);
+
   @override
   set backoffTime(int? _backoffTime) =>
       super.noSuchMethod(Invocation.setter(#backoffTime, _backoffTime),
           returnValueForMissingStub: null);
+
   @override
   _i9.BehaviorSubject<_i39.ConnectionStatus> get connectionStatus =>
       (super.noSuchMethod(Invocation.getter(#connectionStatus),
               returnValue: _FakeBehaviorSubject_8<_i39.ConnectionStatus>())
           as _i9.BehaviorSubject<_i39.ConnectionStatus>);
+
   @override
   set connectionStatus(
           _i9.BehaviorSubject<_i39.ConnectionStatus>? _connectionStatus) =>
       super.noSuchMethod(
           Invocation.setter(#connectionStatus, _connectionStatus),
           returnValueForMissingStub: null);
+
   @override
   _i9.BehaviorSubject<_i40.CallEvents> get callEvents =>
       (super.noSuchMethod(Invocation.getter(#callEvents),
               returnValue: _FakeBehaviorSubject_8<_i40.CallEvents>())
           as _i9.BehaviorSubject<_i40.CallEvents>);
+
   @override
   _i9.BehaviorSubject<_i40.CallEvents> get groupCallEvents =>
       (super.noSuchMethod(Invocation.getter(#groupCallEvents),
               returnValue: _FakeBehaviorSubject_8<_i40.CallEvents>())
           as _i9.BehaviorSubject<_i40.CallEvents>);
+
   @override
   void closeConnection() =>
       super.noSuchMethod(Invocation.method(#closeConnection, []),
           returnValueForMissingStub: null);
+
   @override
   void gotResponse() => super.noSuchMethod(Invocation.method(#gotResponse, []),
       returnValueForMissingStub: null);
+
   @override
   dynamic sendMessage(_i41.MessageByClient? message) =>
       super.noSuchMethod(Invocation.method(#sendMessage, [message]));
+
   @override
   dynamic sendSeen(_i42.SeenByClient? seen) =>
       super.noSuchMethod(Invocation.method(#sendSeen, [seen]));
+
   @override
   dynamic sendCallAnswer(_i43.CallAnswerByClient? callAnswerByClient) => super
       .noSuchMethod(Invocation.method(#sendCallAnswer, [callAnswerByClient]));
+
   @override
   dynamic sendCallOffer(_i43.CallOfferByClient? callOfferByClient) => super
       .noSuchMethod(Invocation.method(#sendCallOffer, [callOfferByClient]));
+
   @override
   dynamic sendActivity(_i24.ActivityByClient? activity, String? id) =>
       super.noSuchMethod(Invocation.method(#sendActivity, [activity, id]));
+
   @override
   dynamic messageEdited(_i3.Uid? roomUid, int? id, int? time) => super
       .noSuchMethod(Invocation.method(#messageEdited, [roomUid, id, time]));
+
   @override
   _i18.Future<dynamic> showNotification(
           _i3.Uid? roomUid, _i41.Message? message) =>
       (super.noSuchMethod(
           Invocation.method(#showNotification, [roomUid, message]),
           returnValue: Future<dynamic>.value()) as _i18.Future<dynamic>);
+
   @override
   void updateLastActivityTime(
           _i44.LastActivityDao? lastActivityDao, _i3.Uid? userUid, int? time) =>
@@ -949,6 +1097,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#idIsAvailable, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.IdIsAvailableRes>())
           as _i10.ResponseFuture<_i45.IdIsAvailableRes>);
+
   @override
   _i10.ResponseFuture<_i45.SetIdRes> setId(_i45.SetIdReq? request,
           {_i10.CallOptions? options}) =>
@@ -956,6 +1105,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#setId, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.SetIdRes>())
           as _i10.ResponseFuture<_i45.SetIdRes>);
+
   @override
   _i10.ResponseFuture<_i45.BlockRes> block(_i45.BlockReq? request,
           {_i10.CallOptions? options}) =>
@@ -963,6 +1113,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#block, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.BlockRes>())
           as _i10.ResponseFuture<_i45.BlockRes>);
+
   @override
   _i10.ResponseFuture<_i45.UnblockRes> unblock(_i45.UnblockReq? request,
           {_i10.CallOptions? options}) =>
@@ -970,6 +1121,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#unblock, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.UnblockRes>())
           as _i10.ResponseFuture<_i45.UnblockRes>);
+
   @override
   _i10.ResponseFuture<_i45.ReportRes> report(_i45.ReportReq? request,
           {_i10.CallOptions? options}) =>
@@ -977,6 +1129,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#report, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.ReportRes>())
           as _i10.ResponseFuture<_i45.ReportRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetBlockedListRes> getBlockedList(
           _i45.GetBlockedListReq? request,
@@ -986,6 +1139,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.GetBlockedListRes>()) as _i10
           .ResponseFuture<_i45.GetBlockedListRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetIdByUidRes> getIdByUid(
           _i45.GetIdByUidReq? request,
@@ -994,6 +1148,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#getIdByUid, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.GetIdByUidRes>())
           as _i10.ResponseFuture<_i45.GetIdByUidRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetUidByIdRes> getUidById(
           _i45.GetUidByIdReq? request,
@@ -1002,6 +1157,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#getUidById, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.GetUidByIdRes>())
           as _i10.ResponseFuture<_i45.GetUidByIdRes>);
+
   @override
   _i10.ResponseFuture<_i45.SearchUidRes> searchUid(_i45.SearchUidReq? request,
           {_i10.CallOptions? options}) =>
@@ -1009,6 +1165,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#searchUid, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.SearchUidRes>())
           as _i10.ResponseFuture<_i45.SearchUidRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetLastActivityRes> getLastActivity(
           _i45.GetLastActivityReq? request,
@@ -1018,6 +1175,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.GetLastActivityRes>()) as _i10
           .ResponseFuture<_i45.GetLastActivityRes>);
+
   @override
   _i10.ResponseFuture<_i45.FetchMessagesRes> fetchMessages(
           _i45.FetchMessagesReq? request,
@@ -1026,6 +1184,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#fetchMessages, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.FetchMessagesRes>())
           as _i10.ResponseFuture<_i45.FetchMessagesRes>);
+
   @override
   _i10.ResponseFuture<_i45.CountIsHiddenMessagesRes> countIsHiddenMessages(
           _i45.CountIsHiddenMessagesReq? request,
@@ -1036,6 +1195,7 @@ class MockQueryServiceClient extends _i1.Mock
               returnValue:
                   _FakeResponseFuture_9<_i45.CountIsHiddenMessagesRes>())
           as _i10.ResponseFuture<_i45.CountIsHiddenMessagesRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetAllUserRoomMetaRes> getAllUserRoomMeta(
           _i45.GetAllUserRoomMetaReq? request,
@@ -1045,6 +1205,7 @@ class MockQueryServiceClient extends _i1.Mock
                   #getAllUserRoomMeta, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.GetAllUserRoomMetaRes>())
           as _i10.ResponseFuture<_i45.GetAllUserRoomMetaRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetUserRoomMetaRes> getUserRoomMeta(
           _i45.GetUserRoomMetaReq? request,
@@ -1054,6 +1215,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.GetUserRoomMetaRes>()) as _i10
           .ResponseFuture<_i45.GetUserRoomMetaRes>);
+
   @override
   _i10.ResponseFuture<_i45.GetMediaMetadataRes> getMediaMetadata(
           _i45.GetMediaMetadataReq? request,
@@ -1063,6 +1225,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.GetMediaMetadataRes>()) as _i10
           .ResponseFuture<_i45.GetMediaMetadataRes>);
+
   @override
   _i10.ResponseFuture<_i45.FetchMediasRes> fetchMedias(
           _i45.FetchMediasReq? request,
@@ -1071,6 +1234,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#fetchMedias, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.FetchMediasRes>())
           as _i10.ResponseFuture<_i45.FetchMediasRes>);
+
   @override
   _i10.ResponseFuture<_i45.FetchMentionListRes> fetchMentionList(
           _i45.FetchMentionListReq? request,
@@ -1080,6 +1244,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.FetchMentionListRes>()) as _i10
           .ResponseFuture<_i45.FetchMentionListRes>);
+
   @override
   _i10.ResponseFuture<_i45.FetchCurrentUserSeenDataRes>
       fetchCurrentUserSeenData(_i45.FetchCurrentUserSeenDataReq? request,
@@ -1090,6 +1255,7 @@ class MockQueryServiceClient extends _i1.Mock
                   returnValue:
                       _FakeResponseFuture_9<_i45.FetchCurrentUserSeenDataRes>())
               as _i10.ResponseFuture<_i45.FetchCurrentUserSeenDataRes>);
+
   @override
   _i10.ResponseFuture<
       _i45.FetchLastOtherUserSeenDataRes> fetchLastOtherUserSeenData(
@@ -1101,6 +1267,7 @@ class MockQueryServiceClient extends _i1.Mock
               returnValue:
                   _FakeResponseFuture_9<_i45.FetchLastOtherUserSeenDataRes>())
           as _i10.ResponseFuture<_i45.FetchLastOtherUserSeenDataRes>);
+
   @override
   _i10.ResponseFuture<_i45.FetchSeenCountOfChannelMessageRes>
       fetchSeenCountOfChannelMessage(
@@ -1112,6 +1279,7 @@ class MockQueryServiceClient extends _i1.Mock
                   returnValue: _FakeResponseFuture_9<
                       _i45.FetchSeenCountOfChannelMessageRes>())
               as _i10.ResponseFuture<_i45.FetchSeenCountOfChannelMessageRes>);
+
   @override
   _i10.ResponseFuture<_i45.FetchUserCallsRes> fetchUserCalls(
           _i45.FetchUserCallsReq? request,
@@ -1121,6 +1289,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.FetchUserCallsRes>()) as _i10
           .ResponseFuture<_i45.FetchUserCallsRes>);
+
   @override
   _i10.ResponseFuture<_i45.UpdateMessageRes> updateMessage(
           _i45.UpdateMessageReq? request,
@@ -1129,6 +1298,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#updateMessage, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.UpdateMessageRes>())
           as _i10.ResponseFuture<_i45.UpdateMessageRes>);
+
   @override
   _i10.ResponseFuture<_i45.DeleteMessageRes> deleteMessage(
           _i45.DeleteMessageReq? request,
@@ -1137,6 +1307,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#deleteMessage, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.DeleteMessageRes>())
           as _i10.ResponseFuture<_i45.DeleteMessageRes>);
+
   @override
   _i10.ResponseFuture<_i45.AddAvatarRes> addAvatar(_i45.AddAvatarReq? request,
           {_i10.CallOptions? options}) =>
@@ -1144,6 +1315,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#addAvatar, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.AddAvatarRes>())
           as _i10.ResponseFuture<_i45.AddAvatarRes>);
+
   @override
   _i10.ResponseFuture<_i45.RemoveAvatarRes> removeAvatar(
           _i45.RemoveAvatarReq? request,
@@ -1152,6 +1324,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#removeAvatar, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.RemoveAvatarRes>())
           as _i10.ResponseFuture<_i45.RemoveAvatarRes>);
+
   @override
   _i10.ResponseFuture<_i45.RemovePrivateRoomRes> removePrivateRoom(
           _i45.RemovePrivateRoomReq? request,
@@ -1161,6 +1334,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.RemovePrivateRoomRes>()) as _i10
           .ResponseFuture<_i45.RemovePrivateRoomRes>);
+
   @override
   _i10.ResponseFuture<_i45.SearchInMessagesRes> searchInMessages(
           _i45.SearchInMessagesReq? request,
@@ -1170,6 +1344,7 @@ class MockQueryServiceClient extends _i1.Mock
           returnValue:
               _FakeResponseFuture_9<_i45.SearchInMessagesRes>()) as _i10
           .ResponseFuture<_i45.SearchInMessagesRes>);
+
   @override
   _i10.ResponseFuture<_i45.SendGlitchRes> sendGlitch(
           _i45.SendGlitchReq? request,
@@ -1178,6 +1353,7 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#sendGlitch, [request], {#options: options}),
               returnValue: _FakeResponseFuture_9<_i45.SendGlitchRes>())
           as _i10.ResponseFuture<_i45.SendGlitchRes>);
+
   @override
   _i10.ClientCall<Q, R> $createCall<Q, R>(
           _i10.ClientMethod<Q, R>? method, _i18.Stream<Q>? requests,
@@ -1186,6 +1362,7 @@ class MockQueryServiceClient extends _i1.Mock
           Invocation.method(
               #$createCall, [method, requests], {#options: options}),
           returnValue: _FakeClientCall_10<Q, R>()) as _i10.ClientCall<Q, R>);
+
   @override
   _i10.ResponseFuture<R> $createUnaryCall<Q, R>(
           _i10.ClientMethod<Q, R>? method, Q? request,
@@ -1194,6 +1371,7 @@ class MockQueryServiceClient extends _i1.Mock
           Invocation.method(
               #$createUnaryCall, [method, request], {#options: options}),
           returnValue: _FakeResponseFuture_9<R>()) as _i10.ResponseFuture<R>);
+
   @override
   _i10.ResponseStream<R> $createStreamingCall<Q, R>(
           _i10.ClientMethod<Q, R>? method, _i18.Stream<Q>? requests,
@@ -1212,26 +1390,31 @@ class MockSharedDao extends _i1.Mock implements _i46.SharedDao {
   _i18.Future<String?> get(String? key) =>
       (super.noSuchMethod(Invocation.method(#get, [key]),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Stream<String?> getStream(String? key, {String? defaultValue}) =>
       (super.noSuchMethod(
           Invocation.method(#getStream, [key], {#defaultValue: defaultValue}),
           returnValue: Stream<String?>.empty()) as _i18.Stream<String?>);
+
   @override
   _i18.Future<void> put(String? key, String? value) => (super.noSuchMethod(
       Invocation.method(#put, [key, value]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> remove(String? key) => (super.noSuchMethod(
       Invocation.method(#remove, [key]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<bool> getBoolean(String? key, {bool? defaultValue = false}) =>
       (super.noSuchMethod(
           Invocation.method(#getBoolean, [key], {#defaultValue: defaultValue}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<bool> getBooleanStream(String? key,
           {bool? defaultValue = false}) =>
@@ -1239,6 +1422,7 @@ class MockSharedDao extends _i1.Mock implements _i46.SharedDao {
           Invocation.method(
               #getBooleanStream, [key], {#defaultValue: defaultValue}),
           returnValue: Stream<bool>.empty()) as _i18.Stream<bool>);
+
   @override
   _i18.Future<void> putBoolean(String? key, bool? value) => (super.noSuchMethod(
       Invocation.method(#putBoolean, [key, value]),
@@ -1257,13 +1441,16 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   dynamic getAvatarRequest(_i3.Uid? userUid) =>
       super.noSuchMethod(Invocation.method(#getAvatarRequest, [userUid]));
+
   @override
   _i18.Future<bool> needsUpdate(_i3.Uid? userUid) =>
       (super.noSuchMethod(Invocation.method(#needsUpdate, [userUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<List<_i26.Avatar?>> getAvatar(
           _i3.Uid? userUid, bool? forceToUpdate) =>
@@ -1271,6 +1458,7 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
               Invocation.method(#getAvatar, [userUid, forceToUpdate]),
               returnValue: Stream<List<_i26.Avatar?>>.empty())
           as _i18.Stream<List<_i26.Avatar?>>);
+
   @override
   _i18.Future<_i26.Avatar?> getLastAvatar(
           _i3.Uid? userUid, bool? forceToUpdate) =>
@@ -1278,19 +1466,23 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
               Invocation.method(#getLastAvatar, [userUid, forceToUpdate]),
               returnValue: Future<_i26.Avatar?>.value())
           as _i18.Future<_i26.Avatar?>);
+
   @override
   _i18.Future<void> setMucAvatar(_i3.Uid? uid, String? path) =>
       (super.noSuchMethod(Invocation.method(#setMucAvatar, [uid, path]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   String? fastForwardAvatarFilePath(_i3.Uid? userUid) => (super.noSuchMethod(
       Invocation.method(#fastForwardAvatarFilePath, [userUid])) as String?);
+
   @override
   String getAvatarCacheKey(_i3.Uid? userUid) =>
       (super.noSuchMethod(Invocation.method(#getAvatarCacheKey, [userUid]),
           returnValue: '') as String);
+
   @override
   _i18.Stream<String> getLastAvatarFilePathStream(
           _i3.Uid? userUid, bool? forceToUpdate) =>
@@ -1298,16 +1490,19 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
           Invocation.method(
               #getLastAvatarFilePathStream, [userUid, forceToUpdate]),
           returnValue: Stream<String>.empty()) as _i18.Stream<String>);
+
   @override
   _i18.Future<void> uploadAvatar(String? path, _i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#uploadAvatar, [path, uid]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Future<bool> addAvatarRequest(_i45.AddAvatarReq? addAvatarReq) =>
       (super.noSuchMethod(Invocation.method(#addAvatarRequest, [addAvatarReq]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<void> deleteAvatar(_i26.Avatar? avatar) => (super.noSuchMethod(
       Invocation.method(#deleteAvatar, [avatar]),
@@ -1323,15 +1518,18 @@ class MockBlockDao extends _i1.Mock implements _i48.BlockDao {
   _i18.Future<bool> isBlocked(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isBlocked, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<bool?> watchIsBlocked(String? uid) =>
       (super.noSuchMethod(Invocation.method(#watchIsBlocked, [uid]),
           returnValue: Stream<bool?>.empty()) as _i18.Stream<bool?>);
+
   @override
   _i18.Future<void> block(String? uid) => (super.noSuchMethod(
       Invocation.method(#block, [uid]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> unblock(String? uid) => (super.noSuchMethod(
       Invocation.method(#unblock, [uid]),
@@ -1347,22 +1545,27 @@ class MockI18N extends _i1.Mock implements _i49.I18N {
   bool get isPersian =>
       (super.noSuchMethod(Invocation.getter(#isPersian), returnValue: false)
           as bool);
+
   @override
   _i18.Stream<dynamic> get localeStream =>
       (super.noSuchMethod(Invocation.getter(#localeStream),
           returnValue: Stream<dynamic>.empty()) as _i18.Stream<dynamic>);
+
   @override
   _i11.Locale get locale => (super.noSuchMethod(Invocation.getter(#locale),
       returnValue: _FakeLocale_12()) as _i11.Locale);
+
   @override
   String get(String? key) =>
       (super.noSuchMethod(Invocation.method(#get, [key]), returnValue: '')
           as String);
+
   @override
   String verb(String? key, {dynamic isFirstPerson = false}) =>
       (super.noSuchMethod(
           Invocation.method(#verb, [key], {#isFirstPerson: isFirstPerson}),
           returnValue: '') as String);
+
   @override
   dynamic changeLanguage(_i50.Language? language) =>
       super.noSuchMethod(Invocation.method(#changeLanguage, [language]));
@@ -1376,15 +1579,18 @@ class MockMuteDao extends _i1.Mock implements _i51.MuteDao {
   _i18.Future<bool> isMuted(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isMuted, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<bool> watchIsMuted(String? uid) =>
       (super.noSuchMethod(Invocation.method(#watchIsMuted, [uid]),
           returnValue: Stream<bool>.empty()) as _i18.Stream<bool>);
+
   @override
   _i18.Future<void> mute(String? uid) => (super.noSuchMethod(
       Invocation.method(#mute, [uid]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<void> unmute(String? uid) => (super.noSuchMethod(
       Invocation.method(#unmute, [uid]),
@@ -1401,10 +1607,12 @@ class MockUidIdNameDao extends _i1.Mock implements _i52.UidIdNameDao {
       (super.noSuchMethod(Invocation.method(#getByUid, [uid]),
               returnValue: Future<_i53.UidIdName?>.value())
           as _i18.Future<_i53.UidIdName?>);
+
   @override
   _i18.Future<String?> getUidById(String? id) =>
       (super.noSuchMethod(Invocation.method(#getUidById, [id]),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<void> update(String? uid, {String? id, String? name}) =>
       (super.noSuchMethod(
@@ -1412,6 +1620,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i52.UidIdNameDao {
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Future<List<_i53.UidIdName>> search(String? text) => (super.noSuchMethod(
           Invocation.method(#search, [text]),
@@ -1427,58 +1636,70 @@ class MockContactRepo extends _i1.Mock implements _i54.ContactRepo {
   _i12.Lock get requestLock =>
       (super.noSuchMethod(Invocation.getter(#requestLock),
           returnValue: _FakeLock_13()) as _i12.Lock);
+
   @override
   set requestLock(_i12.Lock? _requestLock) =>
       super.noSuchMethod(Invocation.setter(#requestLock, _requestLock),
           returnValueForMissingStub: null);
+
   @override
   _i18.Future<dynamic> sendContacts(List<_i55.Contact>? contacts) =>
       (super.noSuchMethod(Invocation.method(#sendContacts, [contacts]),
           returnValue: Future<dynamic>.value()) as _i18.Future<dynamic>);
+
   @override
   _i18.Future<bool> sendNewContact(_i55.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#sendNewContact, [contact]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Stream<List<_i56.Contact>> watchAll() =>
       (super.noSuchMethod(Invocation.method(#watchAll, []),
               returnValue: Stream<List<_i56.Contact>>.empty())
           as _i18.Stream<List<_i56.Contact>>);
+
   @override
   _i18.Future<List<_i56.Contact>> getAll() =>
       (super.noSuchMethod(Invocation.method(#getAll, []),
               returnValue: Future<List<_i56.Contact>>.value(<_i56.Contact>[]))
           as _i18.Future<List<_i56.Contact>>);
+
   @override
   _i18.Future<void> getContacts() => (super.noSuchMethod(
       Invocation.method(#getContacts, []),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<String?> getUserIdByUid(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getUserIdByUid, [uid]),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<void> fetchMemberId(_i57.Member? member) => (super.noSuchMethod(
       Invocation.method(#fetchMemberId, [member]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<List<_i3.Uid>> searchUser(String? query) =>
       (super.noSuchMethod(Invocation.method(#searchUser, [query]),
               returnValue: Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i18.Future<List<_i3.Uid>>);
+
   @override
   _i18.Future<_i56.Contact?> getContact(_i3.Uid? userUid) =>
       (super.noSuchMethod(Invocation.method(#getContact, [userUid]),
               returnValue: Future<_i56.Contact?>.value())
           as _i18.Future<_i56.Contact?>);
+
   @override
   _i18.Future<bool> contactIsExist(
           String? countryCode, String? nationalNumber) =>
       (super.noSuchMethod(
           Invocation.method(#contactIsExist, [countryCode, nationalNumber]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<String?> getContactFromServer(_i3.Uid? contactUid) => (super
       .noSuchMethod(Invocation.method(#getContactFromServer, [contactUid]),
@@ -1493,23 +1714,28 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
   _i18.Future<bool> hasProfile({bool? retry = false}) =>
       (super.noSuchMethod(Invocation.method(#hasProfile, [], {#retry: retry}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> profileInfoIsSet() =>
       (super.noSuchMethod(Invocation.method(#profileInfoIsSet, []),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> fetchCurrentUserId({bool? retry = false}) => (super
       .noSuchMethod(Invocation.method(#fetchCurrentUserId, [], {#retry: retry}),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i13.Account> getAccount() =>
       (super.noSuchMethod(Invocation.method(#getAccount, []),
               returnValue: Future<_i13.Account>.value(_FakeAccount_14()))
           as _i18.Future<_i13.Account>);
+
   @override
   _i18.Future<bool> checkUserName(String? username) =>
       (super.noSuchMethod(Invocation.method(#checkUserName, [username]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> setAccountDetails(String? username, String? firstName,
           String? lastName, String? email) =>
@@ -1517,11 +1743,13 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
           Invocation.method(
               #setAccountDetails, [username, firstName, lastName, email]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<List<_i28.Session>> getSessions() =>
       (super.noSuchMethod(Invocation.method(#getSessions, []),
               returnValue: Future<List<_i28.Session>>.value(<_i28.Session>[]))
           as _i18.Future<List<_i28.Session>>);
+
   @override
   _i18.Future<void> checkUpdatePlatformSessionInformation() =>
       (super.noSuchMethod(
@@ -1529,31 +1757,38 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   dynamic shouldUpdateSessionPlatformInformation(String? previousVersion) =>
       super.noSuchMethod(Invocation.method(
           #shouldUpdateSessionPlatformInformation, [previousVersion]));
+
   @override
   _i18.Future<bool> verifyQrCodeToken(String? token) =>
       (super.noSuchMethod(Invocation.method(#verifyQrCodeToken, [token]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> revokeSession(String? session) =>
       (super.noSuchMethod(Invocation.method(#revokeSession, [session]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> revokeAllOtherSession() =>
       (super.noSuchMethod(Invocation.method(#revokeAllOtherSession, []),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<void> logOut() => (super.noSuchMethod(
       Invocation.method(#logOut, []),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
+
   @override
   _i18.Future<String> getName() =>
       (super.noSuchMethod(Invocation.method(#getName, []),
           returnValue: Future<String>.value('')) as _i18.Future<String>);
+
   @override
   _i18.Future<bool> shouldShowNewFeatureDialog() =>
       (super.noSuchMethod(Invocation.method(#shouldShowNewFeatureDialog, []),
@@ -1570,6 +1805,7 @@ class MockMucRepo extends _i1.Mock implements _i59.MucRepo {
       (super.noSuchMethod(
           Invocation.method(#createNewGroup, [memberUids, groupName, info]),
           returnValue: Future<_i3.Uid?>.value()) as _i18.Future<_i3.Uid?>);
+
   @override
   _i18.Future<_i3.Uid?> createNewChannel(
           String? channelId,
@@ -1581,135 +1817,169 @@ class MockMucRepo extends _i1.Mock implements _i59.MucRepo {
           Invocation.method(#createNewChannel,
               [channelId, memberUids, channelName, channelType, info]),
           returnValue: Future<_i3.Uid?>.value()) as _i18.Future<_i3.Uid?>);
+
   @override
   _i18.Future<bool> channelIdIsAvailable(String? id) =>
       (super.noSuchMethod(Invocation.method(#channelIdIsAvailable, [id]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   dynamic fetchGroupMembers(_i3.Uid? groupUid, int? len) => super
       .noSuchMethod(Invocation.method(#fetchGroupMembers, [groupUid, len]));
+
   @override
   _i18.Future<String?> getGroupJointToken({_i3.Uid? groupUid}) =>
       (super.noSuchMethod(
           Invocation.method(#getGroupJointToken, [], {#groupUid: groupUid}),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   _i18.Future<String?> getChannelJointToken({_i3.Uid? channelUid}) =>
       (super.noSuchMethod(
           Invocation.method(
               #getChannelJointToken, [], {#channelUid: channelUid}),
           returnValue: Future<String?>.value()) as _i18.Future<String?>);
+
   @override
   dynamic fetchChannelMembers(_i3.Uid? channelUid, int? len) => super
       .noSuchMethod(Invocation.method(#fetchChannelMembers, [channelUid, len]));
+
   @override
   _i18.Future<_i60.Muc?> fetchMucInfo(_i3.Uid? mucUid) =>
       (super.noSuchMethod(Invocation.method(#fetchMucInfo, [mucUid]),
           returnValue: Future<_i60.Muc?>.value()) as _i18.Future<_i60.Muc?>);
+
   @override
   _i18.Future<bool> isMucAdminOrOwner(String? memberUid, String? mucUid) =>
       (super.noSuchMethod(
           Invocation.method(#isMucAdminOrOwner, [memberUid, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> isMucOwner(dynamic userUid, dynamic mucUid) =>
       (super.noSuchMethod(Invocation.method(#isMucOwner, [userUid, mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   dynamic updateMuc(_i60.Muc? muc) =>
       super.noSuchMethod(Invocation.method(#updateMuc, [muc]));
+
   @override
   _i18.Future<List<_i57.Member>> searchMemberByNameOrId(String? mucUid) =>
       (super.noSuchMethod(Invocation.method(#searchMemberByNameOrId, [mucUid]),
               returnValue: Future<List<_i57.Member>>.value(<_i57.Member>[]))
           as _i18.Future<List<_i57.Member>>);
+
   @override
   _i18.Future<List<_i57.Member?>> getAllMembers(String? mucUid) =>
       (super.noSuchMethod(Invocation.method(#getAllMembers, [mucUid]),
               returnValue: Future<List<_i57.Member?>>.value(<_i57.Member?>[]))
           as _i18.Future<List<_i57.Member?>>);
+
   @override
   _i18.Stream<List<_i57.Member?>> watchAllMembers(String? mucUid) =>
       (super.noSuchMethod(Invocation.method(#watchAllMembers, [mucUid]),
               returnValue: Stream<List<_i57.Member?>>.empty())
           as _i18.Stream<List<_i57.Member?>>);
+
   @override
   _i18.Future<_i60.Muc?> getMuc(String? mucUid) =>
       (super.noSuchMethod(Invocation.method(#getMuc, [mucUid]),
           returnValue: Future<_i60.Muc?>.value()) as _i18.Future<_i60.Muc?>);
+
   @override
   _i18.Stream<_i60.Muc?> watchMuc(String? mucUid) =>
       (super.noSuchMethod(Invocation.method(#watchMuc, [mucUid]),
           returnValue: Stream<_i60.Muc?>.empty()) as _i18.Stream<_i60.Muc?>);
+
   @override
   _i18.Future<bool> removeMuc(_i3.Uid? mucUid) =>
       (super.noSuchMethod(Invocation.method(#removeMuc, [mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i8.GetChannelRes?> getChannelInfo(_i3.Uid? channelUid) =>
       (super.noSuchMethod(Invocation.method(#getChannelInfo, [channelUid]),
               returnValue: Future<_i8.GetChannelRes?>.value())
           as _i18.Future<_i8.GetChannelRes?>);
+
   @override
   dynamic changeGroupMemberRole(_i57.Member? groupMember) => super
       .noSuchMethod(Invocation.method(#changeGroupMemberRole, [groupMember]));
+
   @override
   dynamic changeChannelMemberRole(_i57.Member? channelMember) =>
       super.noSuchMethod(
           Invocation.method(#changeChannelMemberRole, [channelMember]));
+
   @override
   _i18.Future<bool> leaveMuc(_i3.Uid? mucUid) =>
       (super.noSuchMethod(Invocation.method(#leaveMuc, [mucUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   dynamic kickGroupMembers(List<_i57.Member>? groupMember) =>
       super.noSuchMethod(Invocation.method(#kickGroupMembers, [groupMember]));
+
   @override
   dynamic kickChannelMembers(List<_i57.Member>? channelMember) => super
       .noSuchMethod(Invocation.method(#kickChannelMembers, [channelMember]));
+
   @override
   dynamic banGroupMember(_i57.Member? groupMember) =>
       super.noSuchMethod(Invocation.method(#banGroupMember, [groupMember]));
+
   @override
   dynamic banChannelMember(_i57.Member? channelMember) =>
       super.noSuchMethod(Invocation.method(#banChannelMember, [channelMember]));
+
   @override
   dynamic unBanGroupMember(_i57.Member? groupMember) =>
       super.noSuchMethod(Invocation.method(#unBanGroupMember, [groupMember]));
+
   @override
   dynamic unBanChannelMember(_i57.Member? channelMember) => super
       .noSuchMethod(Invocation.method(#unBanChannelMember, [channelMember]));
+
   @override
   _i18.Future<_i60.Muc?> joinGroup(_i3.Uid? groupUid, String? token) =>
       (super.noSuchMethod(Invocation.method(#joinGroup, [groupUid, token]),
           returnValue: Future<_i60.Muc?>.value()) as _i18.Future<_i60.Muc?>);
+
   @override
   _i18.Future<_i60.Muc?> joinChannel(_i3.Uid? channelUid, String? token) =>
       (super.noSuchMethod(Invocation.method(#joinChannel, [channelUid, token]),
           returnValue: Future<_i60.Muc?>.value()) as _i18.Future<_i60.Muc?>);
+
   @override
   dynamic modifyGroup(String? mucId, String? name, String? info) =>
       super.noSuchMethod(Invocation.method(#modifyGroup, [mucId, name, info]));
+
   @override
   dynamic modifyChannel(
           String? mucUid, String? name, String? id, String? info) =>
       super.noSuchMethod(
           Invocation.method(#modifyChannel, [mucUid, name, id, info]));
+
   @override
   _i18.Future<bool> sendMembers(_i3.Uid? mucUid, List<_i3.Uid>? memberUids) =>
       (super.noSuchMethod(Invocation.method(#sendMembers, [mucUid, memberUids]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   dynamic insertUserInDb(_i3.Uid? mucUid, List<_i57.Member>? members) =>
       super.noSuchMethod(Invocation.method(#insertUserInDb, [mucUid, members]));
+
   @override
   _i14.Role getRole(_i61.MucRole? role) =>
       (super.noSuchMethod(Invocation.method(#getRole, [role]),
           returnValue: _FakeRole_15()) as _i14.Role);
+
   @override
   _i61.MucRole getLocalRole(_i14.Role? role) =>
       (super.noSuchMethod(Invocation.method(#getLocalRole, [role]),
           returnValue: _i61.MucRole.NONE) as _i61.MucRole);
+
   @override
   _i18.Future<List<_i53.UidIdName?>> getFilteredMember(String? roomUid,
           {String? query}) =>
@@ -1729,19 +1999,23 @@ class MockBotRepo extends _i1.Mock implements _i62.BotRepo {
       (super.noSuchMethod(Invocation.method(#fetchBotInfo, [botUid]),
               returnValue: Future<_i15.BotInfo>.value(_FakeBotInfo_16()))
           as _i18.Future<_i15.BotInfo>);
+
   @override
   _i18.Future<bool> addBotAvatar(_i63.Avatar? botAvatar) =>
       (super.noSuchMethod(Invocation.method(#addBotAvatar, [botAvatar]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<bool> removeBotAvatar(_i63.Avatar? botAvatar) =>
       (super.noSuchMethod(Invocation.method(#removeBotAvatar, [botAvatar]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<_i15.BotInfo?> getBotInfo(_i3.Uid? botUid) =>
       (super.noSuchMethod(Invocation.method(#getBotInfo, [botUid]),
               returnValue: Future<_i15.BotInfo?>.value())
           as _i18.Future<_i15.BotInfo?>);
+
   @override
   _i18.Future<List<_i3.Uid>> searchBotByName(String? name) =>
       (super.noSuchMethod(Invocation.method(#searchBotByName, [name]),
@@ -1753,17 +2027,19 @@ class MockBotRepo extends _i1.Mock implements _i62.BotRepo {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCustomNotificatonDao extends _i1.Mock
-    implements _i64.CustomNotificatonDao {
+    implements _i64.CustomNotificationDao {
   @override
   _i18.Future<bool> isHaveCustomNotif(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isHaveCustomNotif, [uid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
+
   @override
   _i18.Future<void> setCustomNotif(String? uid, String? fileName) =>
       (super.noSuchMethod(Invocation.method(#setCustomNotif, [uid, fileName]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
+
   @override
   _i18.Future<String?> getCustomNotif(String? uid) =>
       (super.noSuchMethod(Invocation.method(#getCustomNotif, [uid]),
@@ -1781,6 +2057,7 @@ class MockMediaDao extends _i1.Mock implements _i65.MediaDao {
               Invocation.method(#get, [roomId, type, limit, offset]),
               returnValue: Future<List<_i66.Media>>.value(<_i66.Media>[]))
           as _i18.Future<List<_i66.Media>>);
+
   @override
   _i18.Future<List<_i66.Media>> getByRoomIdAndType(
           String? roomUid, _i67.MediaType? type) =>
@@ -1788,18 +2065,22 @@ class MockMediaDao extends _i1.Mock implements _i65.MediaDao {
               Invocation.method(#getByRoomIdAndType, [roomUid, type]),
               returnValue: Future<List<_i66.Media>>.value(<_i66.Media>[]))
           as _i18.Future<List<_i66.Media>>);
+
   @override
   _i18.Future<dynamic> save(_i66.Media? media) =>
       (super.noSuchMethod(Invocation.method(#save, [media]),
           returnValue: Future<dynamic>.value()) as _i18.Future<dynamic>);
+
   @override
   _i18.Future<int?> getIndexOfMedia(String? roomUid, int? messageId) => (super
       .noSuchMethod(Invocation.method(#getIndexOfMedia, [roomUid, messageId]),
           returnValue: Future<int?>.value()) as _i18.Future<int?>);
+
   @override
   _i18.Future<dynamic> deleteMedia(String? roomId, int? messageId) =>
       (super.noSuchMethod(Invocation.method(#deleteMedia, [roomId, messageId]),
           returnValue: Future<dynamic>.value()) as _i18.Future<dynamic>);
+
   @override
   _i18.Future<dynamic> clear(String? roomId) =>
       (super.noSuchMethod(Invocation.method(#clear, [roomId]),
@@ -1814,16 +2095,19 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i68.MediaMetaDataDao {
   _i18.Future<dynamic> save(_i69.MediaMetaData? mediaMetaData) =>
       (super.noSuchMethod(Invocation.method(#save, [mediaMetaData]),
           returnValue: Future<dynamic>.value()) as _i18.Future<dynamic>);
+
   @override
   _i18.Stream<_i69.MediaMetaData?> get(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#get, [roomUid]),
               returnValue: Stream<_i69.MediaMetaData?>.empty())
           as _i18.Stream<_i69.MediaMetaData?>);
+
   @override
   _i18.Future<_i69.MediaMetaData?> getAsFuture(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getAsFuture, [roomUid]),
               returnValue: Future<_i69.MediaMetaData?>.value())
           as _i18.Future<_i69.MediaMetaData?>);
+
   @override
   _i18.Future<dynamic> clear(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#clear, [roomUid]),
