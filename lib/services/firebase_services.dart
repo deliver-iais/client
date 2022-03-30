@@ -15,6 +15,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/services/core_services.dart';
 
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
@@ -157,17 +158,15 @@ Future<MessageBrief?> _backgroundMessageHandler(
     }
 
     Uid roomUid = getRoomUid(_authRepo, msg);
-    try {
-      saveMessage(msg, roomUid, _messageDao, _authRepo, _accountRepo, _roomDao,
-          _seenDao, _mediaQueryRepo);
-    } catch (_) {}
 
     try {
-      if (!(await showNotifyForThisMessage(msg))) {
-        return null;
+      var message = await saveMessage(msg, roomUid, _messageDao, _authRepo,
+          _accountRepo, _roomDao, _seenDao, _mediaQueryRepo);
+      if (!message.json.isEmptyMessage() &&
+          await showNotifyForThisMessage(msg)) {
+        return await _notificationServices.showNotification(msg,
+            roomName: roomName);
       }
-      return await _notificationServices.showNotification(msg,
-          roomName: roomName);
     } catch (_) {}
   } else if (remoteMessage.data.containsKey("seen")) {
     pb_seen.Seen seen =
