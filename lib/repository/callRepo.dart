@@ -60,8 +60,7 @@ class CallRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   final _candidateNumber = 10;
-  final _candidateTimeLimit = 1000 ; // 1 sec
-
+  final _candidateTimeLimit = 1000; // 1 sec
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -73,6 +72,7 @@ class CallRepo {
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
+
   // ignore: unused_field
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
@@ -769,6 +769,9 @@ class CallRepo {
     _isVideo = isVideo;
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       _callService.setUserCallState = UserCallState.INUSERCALL;
+      if (isAndroid()) {
+        _callService.initProximitySensor();
+      }
       _roomUid = roomId;
       await initCall(false);
       callingStatus.add(CallStatus.CREATED);
@@ -813,6 +816,9 @@ class CallRepo {
     _dataChannel = await _createDataChannel();
     _offerSdp = await _createOffer();
     callingStatus.add(CallStatus.CONNECTING);
+    if(isAndroid()) {
+      _callService.initProximitySensor();
+    }
   }
 
   Future<void> declineCall() async {
@@ -967,8 +973,12 @@ class CallRepo {
 
   Future<void> _waitUntilCandidateConditionDone() async {
     final completer = Completer();
-    _logger.i("Time for w8:" + (DateTime.now().millisecondsSinceEpoch - _candidateStartTime).toString() );
-    if ((_candidate.length >= _candidateNumber) || (DateTime.now().millisecondsSinceEpoch - _candidateStartTime > _candidateTimeLimit)) {
+    _logger.i("Time for w8:" +
+        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime)
+            .toString());
+    if ((_candidate.length >= _candidateNumber) ||
+        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime >
+            _candidateTimeLimit)) {
       completer.complete();
     } else {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -1033,6 +1043,7 @@ class CallRepo {
     if (isAndroid()) {
       _receivePort?.close();
       await _stopForegroundTask();
+      await _callService.disposeProximitySensor();
     }
     if (timer != null) {
       _logger.i("timer canceled");
@@ -1232,6 +1243,7 @@ void startCallback() {
 class FirstTaskHandler extends TaskHandler {
   // ignore: prefer_typing_uninitialized_variables
   late final callStatus;
+
   // ignore: prefer_typing_uninitialized_variables
   late final sPort;
 
