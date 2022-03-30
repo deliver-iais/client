@@ -31,7 +31,8 @@ class ShareBoxGallery extends StatefulWidget {
       this.setAvatar,
       required this.pop,
       required this.roomUid,
-      this.replyMessageId = 0, this.resetRoomPageDetails})
+      this.replyMessageId = 0,
+      this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -342,44 +343,39 @@ Stack buildInputCaption(
       Align(
         alignment: Alignment.bottomLeft,
         child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.transparent,
-            ),
-          ),
-          child: Container(
-            color: Colors.white,
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: i18n.get("caption"),
-                hintStyle: const TextStyle(color: Colors.black),
-                suffixIcon: StreamBuilder<bool>(
-                  stream: insertCaption.stream,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!) {
-                      return IconButton(
-                        onPressed: () => send(),
-                        icon: const Icon(
-                          Icons.check_circle_outline,
-                          size: 35,
-                        ),
-                        color: Colors.lightBlue,
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+          height: 50,
+          color: theme.backgroundColor,
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: i18n.get("caption"),
+              border: InputBorder.none,
+              hintStyle: const TextStyle(fontSize: 16),
+              suffixIcon: StreamBuilder<bool>(
+                stream: insertCaption.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    return IconButton(
+                      onPressed: () => send(),
+                      icon: const Icon(
+                        Icons.check_circle_outline,
+                        size: 35,
+                      ),
+                      color: Colors.lightBlue,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
-              style: const TextStyle(color: Colors.black, fontSize: 17),
-              autocorrect: true,
-              textInputAction: TextInputAction.newline,
-              minLines: 1,
-              maxLines: 15,
-              controller: captionEditingController,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
             ),
+            style: const TextStyle(fontSize: 17),
+            autocorrect: true,
+            textInputAction: TextInputAction.newline,
+            minLines: 1,
+            maxLines: 15,
+            controller: captionEditingController,
           ),
         ),
       ),
@@ -391,7 +387,7 @@ Stack buildInputCaption(
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                boxShadow: [BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)],
+                //  boxShadow: [BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
@@ -424,30 +420,32 @@ Stack buildInputCaption(
             if (count > 0)
               Positioned(
                 child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        count.toString(),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                  width: 16.0,
-                  height: 18.0,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
-                    // color:theme.dialogBackgroundColor,
+                    color: theme.backgroundColor, // border color
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.lightBlue,
-                      width: 2,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2), // border width
+                    child: Container(
+                      decoration:  BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor, // inner circle color
+                      ),
+                      child: Center(
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 11),
+                        ),
+                      ), // inner content
                     ),
                   ),
                 ),
                 top: 35.0,
                 right: 0.0,
-                left: 25,
+                left: 35,
               ),
           ],
         ),

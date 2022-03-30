@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/page/paint_on_image.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
@@ -187,14 +189,24 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
       return StatefulBuilder(builder: (c, set) {
         return Scaffold(
             appBar: AppBar(
+              leadingWidth: 200,
+              leading: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  if (_selectedImage.isNotEmpty)
+                    Text(
+                      _selectedImage.length.toString(),
+                      style: const TextStyle(fontSize: 17),
+                    ),
+                ],
+              ),
               actions: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (_selectedImage.isNotEmpty)
-                      Text(
-                        _selectedImage.length.toString(),
-                        style: const TextStyle(fontSize: 25),
-                      ),
                     IconButton(
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
@@ -208,22 +220,59 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                         }));
                       },
                       icon: const Icon(
-                        Icons.crop,
+                        CupertinoIcons.crop_rotate,
                       ),
-                      iconSize: 35,
+                      iconSize: 30,
                     ),
                     IconButton(
-                      onPressed: () {
-                        set(() {
-                          onTap(imagePath);
-                        });
+                      onPressed: () async {
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
+                          return PaintOnImage(
+                              file: File(imagePath),
+                              onDone: (path) {
+                                if (path != null) {
+                                  set(() {
+                                    imagePath = path;
+                                  });
+                                }
+                              });
+                        }));
                       },
-                      icon: _selectedImage.contains(imagePath)
-                          ? const Icon(Icons.check_circle_outline)
-                          : const Icon(Icons.panorama_fish_eye),
-                      iconSize: 35,
-                    )
+                      icon: const Icon(
+                        CupertinoIcons.paintbrush,
+                      ),
+                      iconSize: 30,
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
+                          return PaintOnImage(
+                              file: File(imagePath),
+                              onDone: (path) {
+                                if (path != null) {
+                                  set(() {
+                                    imagePath = path;
+                                  });
+                                }
+                              });
+                        }));
+                      },
+                      icon: const Icon(
+                          CupertinoIcons.slider_horizontal_below_rectangle),
+                      iconSize: 30,
+                    ),
                   ],
+                ),
+                IconButton(
+                  onPressed: () {
+                    set(() {
+                      onTap(imagePath);
+                    });
+                  },
+                  icon: _selectedImage.contains(imagePath)
+                      ? const Icon(Icons.check_circle_outline)
+                      : const Icon(Icons.panorama_fish_eye),
+                  iconSize: 30,
                 )
               ],
             ),
@@ -239,7 +288,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                               imagePath,
                             ),
                           ).image,
-                          fit: BoxFit.fill),
+                          fit: BoxFit.fitWidth),
                     ),
                   ),
                 ),
