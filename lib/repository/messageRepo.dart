@@ -959,6 +959,7 @@ class MessageRepo {
               break;
           }
         }
+        //TODO after refactor fetchLastMessages i should place it on this functions
         // else if (_callService.getUserCallState != UserCallState.NOCALL
         //     && message.whichType() == message_pb.Message_Type.callEvent) {
         //   _logger.i("its fetch from message Repo");
