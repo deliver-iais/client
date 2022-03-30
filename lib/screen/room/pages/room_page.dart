@@ -62,8 +62,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../../services/call_service.dart';
-
 // ignore: constant_identifier_names
 const int PAGE_SIZE = 16;
 
@@ -96,7 +94,6 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
-  static final _callService = GetIt.I.get<CallService>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -682,7 +679,7 @@ class _RoomPageState extends State<RoomPage> {
                   _routingService.openCallScreen(room.uid.asUid(),
                       context: context);
                 },
-                icon: const Icon(Icons.call)),
+                icon: const Icon(CupertinoIcons.phone)),
         ],
         leading: GestureDetector(
           child: StreamBuilder<bool>(

@@ -14,8 +14,6 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math' as math;
 
-import '../../../services/call_service.dart';
-
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
   final bool isIncomingCall;
@@ -37,7 +35,6 @@ class CallDetailPage extends StatefulWidget {
 class _CallDetailPageState extends State<CallDetailPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _callService = GetIt.I.get<CallService>();
 
   @override
   Widget build(BuildContext context) {

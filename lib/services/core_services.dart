@@ -181,7 +181,8 @@ class CoreServices {
             break;
           case ServerPacket_Type.callOffer:
             var callEvents = CallEvents.callOffer(serverPacket.callOffer,
-                roomUid: getRoomUid(_authRepo, serverPacket.message), callId: serverPacket.callOffer.id);
+                roomUid: getRoomUid(_authRepo, serverPacket.message),
+                callId: serverPacket.callOffer.id);
             if (serverPacket.callOffer.callType ==
                     call_pb.CallEvent_CallType.GROUP_AUDIO ||
                 serverPacket.callOffer.callType ==
@@ -193,7 +194,8 @@ class CoreServices {
             break;
           case ServerPacket_Type.callAnswer:
             var callEvents = CallEvents.callAnswer(serverPacket.callAnswer,
-                roomUid: getRoomUid(_authRepo, serverPacket.message), callId: serverPacket.callAnswer.id);
+                roomUid: getRoomUid(_authRepo, serverPacket.message),
+                callId: serverPacket.callAnswer.id);
             if (serverPacket.callAnswer.callType ==
                     call_pb.CallEvent_CallType.GROUP_AUDIO ||
                 serverPacket.callAnswer.callType ==
@@ -471,8 +473,8 @@ class CoreServices {
       }
     } else if (message.whichType() == Message_Type.callEvent) {
       isCallEvent = true;
-      var callEvents =
-          CallEvents.callEvent(message.callEvent, roomUid: message.from, callId: message.callEvent.id);
+      var callEvents = CallEvents.callEvent(message.callEvent,
+          roomUid: message.from, callId: message.callEvent.id);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
         // its group Call
@@ -482,17 +484,18 @@ class CoreServices {
       }
     }
 
-    if(isCallEvent){
-      var callEvents =
-          CallEvents.callEvent(message.callEvent, roomUid: message.from, callId: message.callEvent.id);
+    if (isCallEvent) {
+      var callEvents = CallEvents.callEvent(message.callEvent,
+          roomUid: message.from, callId: message.callEvent.id);
       var newStatus = callEvents.callEvent!.newStatus;
-      if(newStatus == CallEvent_CallStatus.ENDED || newStatus == CallEvent_CallStatus.BUSY
-          || newStatus == CallEvent_CallStatus.DECLINED){
+      if (newStatus == CallEvent_CallStatus.ENDED ||
+          newStatus == CallEvent_CallStatus.BUSY ||
+          newStatus == CallEvent_CallStatus.DECLINED) {
         _logger.i("saveIncoming Event");
         saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
             _roomDao, _seenDao, _mediaQueryRepo);
       }
-    }else{
+    } else {
       saveMessage(message, roomUid, _messageDao, _authRepo, _accountRepo,
           _roomDao, _seenDao, _mediaQueryRepo);
     }
@@ -530,8 +533,9 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    if ((!_callService.isCallNotification && message.callEvent.newStatus == CallEvent_CallStatus.CREATED) ||
-      _routingServices.isInRoom(roomUid.asString())) {
+    if ((!_callService.isCallNotification &&
+            message.callEvent.newStatus == CallEvent_CallStatus.CREATED) ||
+        _routingServices.isInRoom(roomUid.asString())) {
       _notificationServices.showNotification(message);
       _callService.setCallNotification = true;
     }
