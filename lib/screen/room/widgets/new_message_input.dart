@@ -17,12 +17,14 @@ class NewMessageInput extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final Function? scrollToLastSentMessage;
   final FocusNode focusNode;
+  final Function handleScrollToMessage;
   final TextEditingController textController;
 
   NewMessageInput({
     Key? key,
     required this.currentRoomId,
     required this.focusNode,
+    required this.handleScrollToMessage,
     required this.textController,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
@@ -38,10 +40,10 @@ class NewMessageInput extends StatelessWidget {
         stream: _roomRepo.watchRoom(currentRoomId),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Room currentRoom = snapshot.data!;
             return InputMessage(
-              currentRoom: currentRoom,
+              currentRoom: snapshot.data!,
               replyMessageId: replyMessageId,
+              handleScrollToMessage: handleScrollToMessage,
               resetRoomPageDetails: resetRoomPageDetails,
               waitingForForward: waitingForForward!,
               editableMessage: editableMessage,

@@ -50,6 +50,7 @@ class InputMessage extends StatefulWidget {
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
+  final Function handleScrollToMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -59,6 +60,7 @@ class InputMessage extends StatefulWidget {
     required this.currentRoom,
     required this.scrollToLastSentMessage,
     required this.focusNode,
+    required this.handleScrollToMessage,
     required this.textController,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
@@ -596,6 +598,19 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   KeyEventResult handleKeyPress(event) {
+    if (event is RawKeyEvent &&
+        event is RawKeyUpEvent &&
+        event.physicalKey == PhysicalKeyboardKey.arrowUp) {
+      widget.handleScrollToMessage(-1);
+      return KeyEventResult.handled;
+    }
+    if (event is RawKeyEvent &&
+        event is RawKeyUpEvent &&
+        event.physicalKey == PhysicalKeyboardKey.arrowDown) {
+      widget.handleScrollToMessage(1);
+      return KeyEventResult.handled;
+    }
+
     if (event is RawKeyEvent) {
       if (!_uxService.sendByEnter &&
           event.isShiftPressed &&

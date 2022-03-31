@@ -7,8 +7,8 @@ class BoxInfo {
 
   static addBox(String key) async {
     try{
-      var box = await Hive.openBox<String>(_key());
-      box.put(key, key);
+      // var box = await Hive.openBox<String>(_key());
+      // box.put(key, key);
     }catch(_){
     //  _logger.e(e);
     }
