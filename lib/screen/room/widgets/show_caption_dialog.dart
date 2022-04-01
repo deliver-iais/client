@@ -37,7 +37,7 @@ class ShowCaptionDialog extends StatefulWidget {
       this.editableMessage,
       required this.resetRoomPageDetails,
       required this.replyMessageId,
-        this.caption})
+      this.caption})
       : super(key: key);
 
   @override
@@ -110,61 +110,31 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      (widget.editableMessage != null ||
-                                  widget.files!.length <= 1) &&
-                              (_type.contains("image") ||
-                                  _type.contains("jpg") ||
-                                  _type.contains("png") ||
-                                  _type.contains("jfif") ||
-                                  _type.contains("jpeg"))
-                          ? SizedBox(
-                              height: MediaQuery.of(context).size.height / 3,
-                              child: Stack(
-                                children: [
-                                  Center(
-                                      child: widget.files!.isNotEmpty
-                                          ? isWeb
-                                              ? Image.network(
-                                                  widget.files!.first.path)
-                                              : Image.file(File(
-                                                  widget.files!.first.path))
-                                          : _editedFile != null
-                                              ? Image.file(
-                                                  File(_editedFile!.path))
-                                              : FutureBuilder<String?>(
-                                                  future:
-                                                      _fileRepo.getFileIfExist(
-                                                          _editableFile.uuid,
-                                                          _editableFile.name),
-                                                  builder: (c, s) {
-                                                    if (s.hasData &&
-                                                        s.data != null) {
-                                                      return Image.file(
-                                                          File(s.data!));
-                                                    } else {
-                                                      return buildRow(0,
-                                                          showManage: false);
-                                                    }
-                                                  })),
-                                  Positioned(
-                                      right: 5,
-                                      top: 2,
-                                      child: Container(
-                                          color: Colors.black12,
-                                          child: buildManage(index: 0))),
-                                ],
-                              ))
+                      isSingleImage()
+                          ? singleImageUi(null)
                           : SizedBox(
                               height: widget.editableMessage != null
                                   ? 50
-                                  : widget.files!.length * 50.toDouble(),
-                              width: 300,
+                                  : widget.files!.length * 100.toDouble(),
+                              width: 350,
                               child: ListView.separated(
                                 shrinkWrap: true,
                                 itemCount: widget.editableMessage != null
                                     ? 1
                                     : widget.files!.length,
                                 itemBuilder: (c, index) {
+                                  if (widget.files![index].path
+                                          .contains("image") ||
+                                      widget.files![index].path
+                                          .contains("jpg") ||
+                                      widget.files![index].path
+                                          .contains("png") ||
+                                      widget.files![index].path
+                                          .contains("jfif") ||
+                                      widget.files![index].path
+                                          .contains("jpeg")) {
+                                    return singleImageUi(index);
+                                  }
                                   return Row(
                                     children: [
                                       ClipOval(
@@ -307,6 +277,51 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 ),
               )
             : const SizedBox.shrink();
+  }
+
+  bool isSingleImage() {
+    return ((widget.editableMessage != null || widget.files!.length <= 1) &&
+        (_type.contains("image") ||
+            _type.contains("jpg") ||
+            _type.contains("png") ||
+            _type.contains("jfif") ||
+            _type.contains("jpeg")));
+  }
+
+  Widget singleImageUi(int? index) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height / 3,
+      child: Stack(
+        children: [
+          Center(
+              child: widget.files!.isNotEmpty
+                  ? isWeb
+                      ? Image.network(index == null
+                          ? widget.files!.first.path
+                          : widget.files![index].path)
+                      : Image.file(File(index == null
+                          ? widget.files!.first.path
+                          : widget.files![index].path))
+                  : _editedFile != null
+                      ? Image.file(File(_editedFile!.path))
+                      : FutureBuilder<String?>(
+                          future: _fileRepo.getFileIfExist(
+                              _editableFile.uuid, _editableFile.name),
+                          builder: (c, s) {
+                            if (s.hasData && s.data != null) {
+                              return Image.file(File(s.data!));
+                            } else {
+                              return buildRow(0, showManage: false);
+                            }
+                          })),
+          Positioned(
+              right: 5,
+              top: 2,
+              child: Container(
+                  color: Colors.black12, child: buildManage(index: 0))),
+        ],
+      ),
+    );
   }
 
   void send() {
