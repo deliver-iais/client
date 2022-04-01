@@ -166,7 +166,7 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId != null &&
                 room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
-                isAndroid()) {
+                isAndroid) {
               _fireBaseServices.subscribeRoom(roomMetadata.roomUid.asString());
             }
             if (room != null &&

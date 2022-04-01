@@ -111,7 +111,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   const SizedBox(width: 10),
                   Text(_i18n.get("copy")),
                 ])),
-          if (widget.message.type == MessageType.FILE && !isDesktop())
+          if (widget.message.type == MessageType.FILE && !isDesktop)
             FutureBuilder(
                 future: _fileRepo.getFileIfExist(
                     widget.message.json.toFile().uuid,
@@ -140,7 +140,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     return const SizedBox.shrink();
                   }
                 }),
-          if (widget.message.type == MessageType.FILE && !isDesktop())
+          if (widget.message.type == MessageType.FILE && !isDesktop)
             StreamBuilder<bool>(
                 stream: _fileIsExist.stream,
                 builder: (c, s) {
@@ -222,7 +222,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   const SizedBox(width: 10),
                   Text(_i18n.get("edit")),
                 ])),
-          if (isDesktop() && widget.message.type == MessageType.FILE)
+          if (isDesktop && widget.message.type == MessageType.FILE)
             FutureBuilder<String?>(
                 future: _fileRepo.getFileIfExist(
                     widget.message.json.toFile().uuid,

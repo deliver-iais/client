@@ -296,7 +296,7 @@ class _RoomPageState extends State<RoomPage> {
 
     // Log page data
     _getScrollPosition();
-    if (!isDesktop()) {
+    if (!isDesktop) {
       _fireBaseServices.sendFireBaseToken();
     }
     _getLastShowMessageId();
@@ -663,7 +663,7 @@ class _RoomPageState extends State<RoomPage> {
       child: AppBar(
         actions: [
           //TODO after increase bandwidth we add videoCall
-          // if (room.uid.asUid().isUser() && !isLinux())
+          // if (room.uid.asUid().isUser() && !isLinux)
           //   IconButton(
           //       onPressed: () {
           //         _routingService.openCallScreen(room.uid.asUid(),
@@ -671,7 +671,7 @@ class _RoomPageState extends State<RoomPage> {
           //       },
           //       icon: const Icon(Icons.videocam)),
           if (room.uid.asUid().isUser() &&
-              !isLinux() &&
+              !isLinux &&
               accessToCallUidList.values
                   .contains(_authRepo.currentUserUid.asString()))
             IconButton(

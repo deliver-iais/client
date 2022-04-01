@@ -203,7 +203,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       _routingService.openDevices();
                     },
                   ),
-                  if (isDesktop())
+                  if (isDesktop)
                     SettingsTile.switchTile(
                       title: _i18n.get("send_by_shift_enter"),
                       leading: const Icon(CupertinoIcons.keyboard),

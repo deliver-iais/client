@@ -4,11 +4,11 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
@@ -50,7 +50,7 @@ class CircleAvatarWidget extends StatelessWidget {
       child: Hero(
         tag: contactUid.asString(),
         child: Container(
-          key: kIsWeb ? null : _globalKey,
+          key: isWeb ? null : _globalKey,
           width: radius * 2,
           height: radius * 2,
           clipBehavior: Clip.hardEdge,
@@ -87,7 +87,7 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget builder(
       BuildContext context, AsyncSnapshot<String?> snapshot, Color textColor) {
     if (snapshot.hasData) {
-      return kIsWeb
+      return isWeb
           ? Image.network(snapshot.data!, fit: BoxFit.fill)
           : Image.file(
               File(snapshot.data!),

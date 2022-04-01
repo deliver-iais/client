@@ -137,7 +137,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 style: theme.textTheme.headline6,
                 key: ValueKey(randomString(10))),
             actions: [
-              if (!isDesktop())
+              if (!isDesktop)
                 DescribedFeatureOverlay(
                   featureId: feature2,
                   tapTarget: const Icon(
@@ -405,7 +405,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             const SizedBox(
               height: 30,
             ),
-            isAndroid() && isCircleAvatarWidget
+            isAndroid && isCircleAvatarWidget
                 ? InkWell(
                     onTap: () {
                       FeatureDiscovery.dismissAll(context);

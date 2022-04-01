@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,7 +14,6 @@ import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -80,7 +80,7 @@ class FileRepo {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      if (kIsWeb) return fileInfo.path.isNotEmpty;
+      if (isWeb) return fileInfo.path.isNotEmpty;
       io.File file = io.File(fileInfo.path);
       return await file.exists();
     }
@@ -95,7 +95,7 @@ class FileRepo {
     FileInfo? fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
-      if (kIsWeb) {
+      if (isWeb) {
         return Uri.parse(fileInfo.path).toString();
       } else {
         io.File file = io.File(fileInfo.path);
@@ -112,12 +112,12 @@ class FileRepo {
     String? path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
-      return kIsWeb ? Uri.parse(path).toString() : path;
+      return isWeb ? Uri.parse(path).toString() : path;
     }
     var downloadedFileUri =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
     if (downloadedFileUri != null) {
-      if (kIsWeb) {
+      if (isWeb) {
         var res = await http.get(Uri.parse(downloadedFileUri));
         String bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
         await _saveFileInfo(uuid, bytes, filename,

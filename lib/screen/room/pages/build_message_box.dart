@@ -164,19 +164,19 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onTap: () {
             if (widget.selectMultiMessageSubject.stream.value) {
               widget.addForwardMessage();
-            } else if (!isDesktop()) {
+            } else if (!isDesktop) {
               FocusScope.of(context).unfocus();
               _showCustomMenu(context, msg);
             }
           },
-          onSecondaryTap: !isDesktop()
+          onSecondaryTap: !isDesktop
               ? null
               : () {
                   if (!widget.selectMultiMessageSubject.stream.value) {
                     _showCustomMenu(context, msg);
                   }
                 },
-          onDoubleTap: !isDesktop() ? null : widget.onReply,
+          onDoubleTap: !isDesktop ? null : widget.onReply,
           onLongPress: () {
             if (!widget.selectMultiMessageSubject.stream.value) {
               widget.selectMultiMessageSubject.add(true);
@@ -236,19 +236,19 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         onTap: () {
           if (widget.selectMultiMessageSubject.stream.value) {
             widget.addForwardMessage();
-          } else if (!isDesktop()) {
+          } else if (!isDesktop) {
             FocusScope.of(context).unfocus();
             _showCustomMenu(context, message);
           }
         },
-        onSecondaryTap: !isDesktop()
+        onSecondaryTap: !isDesktop
             ? null
             : () {
                 if (!widget.selectMultiMessageSubject.stream.value) {
                   _showCustomMenu(context, message);
                 }
               },
-        onDoubleTap: !isDesktop() ? null : widget.onReply,
+        onDoubleTap: !isDesktop ? null : widget.onReply,
         onLongPress: () {
           if (!widget.selectMultiMessageSubject.stream.value) {
             widget.selectMultiMessageSubject.add(true);
@@ -589,11 +589,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Future<void> onShowInFolder(path) async {
     var shell = Shell();
-    if (isWindows()) {
+    if (isWindows) {
       await shell.run('start "" "$path"');
-    } else if (isLinux()) {
+    } else if (isLinux) {
       await shell.run('nautilus $path');
-    } else if (isMacOS()) {
+    } else if (isMacOS) {
       await shell.run('open $path');
     }
   }

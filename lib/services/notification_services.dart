@@ -31,23 +31,15 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  notify(MessageBrief message);
+  notifyText(MessageBrief message);
+
+  notifyCall(MessageBrief message);
 
   cancel(int id, String roomId);
 
   cancelAll();
 
   cancelById(int id);
-}
-
-MessageBrief synthesize(MessageBrief mb) {
-  if (mb.text.isNotEmpty) {
-    return mb.copyWith(
-        text:
-            BoldTextParser.transformer(ItalicTextParser.transformer(mb.text)));
-  }
-
-  return mb;
 }
 
 class NotificationServices {
@@ -62,7 +54,17 @@ class NotificationServices {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
     if (!mb.ignoreNotification) {
-      _notifier.notify(synthesize(mb));
+      _notifier.notifyText(synthesize(mb));
+    }
+
+    return mb;
+  }
+
+  MessageBrief synthesize(MessageBrief mb) {
+    if (mb.text.isNotEmpty) {
+      return mb.copyWith(
+          text: BoldTextParser.transformer(
+              ItalicTextParser.transformer(mb.text)));
     }
 
     return mb;
@@ -89,7 +91,10 @@ class NotificationServices {
 
 class FakeNotifier implements Notifier {
   @override
-  notify(MessageBrief message) {}
+  notifyText(MessageBrief message) {}
+
+  @override
+  notifyCall(MessageBrief message) {}
 
   @override
   cancel(int id, String roomId) {}
@@ -103,7 +108,10 @@ class FakeNotifier implements Notifier {
 
 class IOSNotifier implements Notifier {
   @override
-  notify(MessageBrief message) {}
+  notifyText(MessageBrief message) {}
+
+  @override
+  notifyCall(MessageBrief message) {}
 
   @override
   cancel(int id, String roomId) {}
@@ -132,7 +140,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  notify(MessageBrief message) async {
+  notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
@@ -209,6 +217,9 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
+  notifyCall(MessageBrief message) {}
+
+  @override
   cancel(int id, String roomId) {
     // id=0 means remove all notify for this roomId
     if (toastByRoomId.containsKey(roomId)) {
@@ -242,10 +253,13 @@ class WebNotifier implements Notifier {
   cancelAll() {}
 
   @override
-  notify(MessageBrief message) {
+  notifyText(MessageBrief message) {
     js.context.callMethod("showNotification",
         [message.roomName, createNotificationTextFromMessageBrief(message)]);
   }
+
+  @override
+  notifyCall(MessageBrief message) {}
 }
 
 class LinuxNotifier implements Notifier {
@@ -274,7 +288,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  notify(MessageBrief message) async {
+  notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
     LinuxNotificationIcon icon = AssetsLinuxIcon(
@@ -298,6 +312,9 @@ class LinuxNotifier implements Notifier {
         notificationDetails: platformChannelSpecifics,
         payload: message.roomUid.asString());
   }
+
+  @override
+  notifyCall(MessageBrief message) {}
 
   @override
   cancel(int id, String roomId) async {
@@ -337,6 +354,7 @@ class AndroidNotifier implements Notifier {
   AndroidNotifier() {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
+
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     var notificationSetting =
@@ -397,7 +415,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  notify(MessageBrief message) async {
+  notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
     String? filePath;
     AndroidBitmap<Object>? largeIcon;
@@ -479,6 +497,9 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
+  notifyCall(MessageBrief message) {}
+
+  @override
   cancel(int id, String roomId) async {
     try {
       List<ActiveNotification>? activeNotification =
@@ -524,7 +545,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  notify(MessageBrief message) async {
+  notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
     List<MacOSNotificationAttachment> attachments = [];
@@ -547,6 +568,9 @@ class MacOSNotifier implements Notifier {
         notificationDetails: macOSPlatformChannelSpecifics,
         payload: message.roomUid.asString());
   }
+
+  @override
+  notifyCall(MessageBrief message) {}
 
   @override
   cancel(int id, String roomId) async {

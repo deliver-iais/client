@@ -50,8 +50,8 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = kIsWeb ? 16 : 4;
-const MAX_BACKOFF_TIME = kIsWeb ? 16 : 8;
+const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
+const MAX_BACKOFF_TIME = isWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
@@ -160,7 +160,7 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
-      _responseStream = kIsWeb
+      _responseStream = isWeb
           ? _grpcCoreService
               .establishServerSideStream(EstablishServerSideStreamReq())
           : _grpcCoreService.establishStream(_clientPacketStream.stream);
@@ -296,7 +296,7 @@ class CoreServices {
 
   _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
     try {
-      if (kIsWeb) {
+      if (isWeb) {
         await _grpcCoreService.sendClientPacket(packet);
       } else if (!_clientPacketStream.isClosed &&
           (forceToSend ||
@@ -372,7 +372,7 @@ class CoreServices {
         _notificationServices.playSoundOut();
       }
       if (msg.type == MessageType.FILE) {
-        _updateRoomMetaData(msg.roomUid, msg, _mediaQueryRepo);
+        _updateRoomMediaMetadata(msg.roomUid, msg, _mediaQueryRepo);
       }
     }
   }
@@ -497,7 +497,7 @@ class CoreServices {
     final msg = await saveMessage(message, roomUid, _messageDao, _authRepo,
         _accountRepo, _roomDao, _seenDao, _mediaQueryRepo);
 
-    if (!msg.json.isEmptyMessage() && await showNotifyForThisMessage(message)) {
+    if (!msg.json.isEmptyMessage() && await shouldNotifyForThisMessage(message)) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER) {
@@ -530,7 +530,7 @@ class CoreServices {
 
   Future showNotification(Uid roomUid, Message message) async {
     if (_routingServices.isInRoom(roomUid.asString()) &&
-        !isDesktop() &&
+        !isDesktop &&
         message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
       _notificationServices.playSoundIn();
     } else {
@@ -559,7 +559,7 @@ class CoreServices {
   }
 }
 
-Future<bool> showNotifyForThisMessage(Message message) async {
+Future<bool> shouldNotifyForThisMessage(Message message) async {
   final authRepo = GetIt.I.get<AuthRepo>();
   final uxService = GetIt.I.get<UxService>();
   final roomRepo = GetIt.I.get<RoomRepo>();
@@ -633,7 +633,7 @@ Future<message_model.Message> saveMessage(
         lastUpdateTime: msg.time),
   );
   if (message.whichType() == Message_Type.file) {
-    _updateRoomMetaData(roomUid.asString(), msg, mediaQueryRepo);
+    _updateRoomMediaMetadata(roomUid.asString(), msg, mediaQueryRepo);
   }
   fetchSeen(seenDao, roomUid.asString());
 
@@ -647,7 +647,8 @@ fetchSeen(SeenDao seenDao, String roomUid) async {
   }
 }
 
-Future<void> _updateRoomMetaData(String roomUid, message_model.Message message,
+// TODO: Maybe remove this later on, WHY just working with images ?!?!?!?!??!
+Future<void> _updateRoomMediaMetadata(String roomUid, message_model.Message message,
     MediaRepo mediaQueryRepo) async {
   try {
     var file = message.json.toFile();

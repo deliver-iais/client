@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/foundation.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -28,7 +28,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   _init() async {
-    _controller = kIsWeb
+    _controller = isWeb
         ? VideoPlayerController.network(widget.videoFilePath)
         : VideoPlayerController.file(File(widget.videoFilePath));
     await _controller.initialize();

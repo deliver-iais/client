@@ -1,6 +1,6 @@
 import 'package:deliver/models/file.dart' as model;
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:get_it/get_it.dart';
@@ -36,7 +36,7 @@ class DragDropWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return kIsWeb
+    return isWeb
         ? Stack(children: [
             SizedBox(
               height: height,

@@ -26,8 +26,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:deliver/web_classes/js.dart'
     if (dart.library.html) 'package:js/js.dart' as js;
@@ -64,7 +62,7 @@ class FireBaseServices {
   late FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
-    if (!isDesktop() || kIsWeb) {
+    if (!isDesktop || isWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
@@ -93,12 +91,12 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() async {
-    if (kIsWeb) {
+    if (isWeb) {
       _decodeMessageForCallFromJs =
           js.allowInterop(_decodeMessageForWebNotification);
     }
     //for web register in  firebase-messaging-sw.js in web folder;
-    if (isAndroid()) {
+    if (isAndroid) {
       try {
         FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
         _firebaseMessaging.setForegroundNotificationPresentationOptions(
@@ -163,7 +161,7 @@ Future<MessageBrief?> _backgroundMessageHandler(
       var message = await saveMessage(msg, roomUid, _messageDao, _authRepo,
           _accountRepo, _roomDao, _seenDao, _mediaQueryRepo);
       if (!message.json.isEmptyMessage() &&
-          await showNotifyForThisMessage(msg)) {
+          await shouldNotifyForThisMessage(msg)) {
         return await _notificationServices.showNotification(msg,
             roomName: roomName);
       }

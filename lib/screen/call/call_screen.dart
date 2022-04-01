@@ -281,7 +281,7 @@ class _CallScreenState extends State<CallScreen> {
   _hangUp() async {
     _logger.i("Call hang Up ...!");
     _audioService.stopPlayBeepSound();
-    // if (isDesktop()) {
+    // if (isDesktop) {
     //   _routingService.pop();
     // } else {
     //   Navigator.of(context).pop();

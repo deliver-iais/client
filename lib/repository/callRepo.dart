@@ -23,7 +23,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -233,7 +232,7 @@ class CallRepo {
     RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
 
     var camAudioTrack = _localStream!.getAudioTracks()[0];
-    if (!isWindows()) {
+    if (!isWindows) {
       camAudioTrack.enableSpeakerphone(false);
     }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
@@ -318,7 +317,7 @@ class CallRepo {
             _reconnectTry = false;
             timerDisconnected?.cancel();
           }
-          if (!kIsWeb) {
+          if (!isWeb) {
             _startCallTimerAndChangeStatus();
           }
           break;
@@ -466,7 +465,7 @@ class CallRepo {
   }
 
   void _startCallTimerAndChangeStatus() async {
-    if (isAndroid()) {
+    if (isAndroid) {
       await _initForegroundTask();
       await _startForegroundTask();
     }
@@ -550,7 +549,7 @@ class CallRepo {
   _getUserMedia() async {
     // Provide your own width, height and frame rate here
     Map<String, dynamic> mediaConstraints;
-    if (isWindows()) {
+    if (isWindows) {
       mediaConstraints = {
         'video': _isVideo
             ? {
@@ -882,7 +881,7 @@ class CallRepo {
     String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
-    if (isWindows()) {
+    if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
     if (isForce || (_isCaller && callDuration == 0)) {
@@ -1030,7 +1029,7 @@ class CallRepo {
 
   //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   _dispose() async {
-    if (isAndroid()) {
+    if (isAndroid) {
       _receivePort?.close();
       await _stopForegroundTask();
     }

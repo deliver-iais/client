@@ -43,8 +43,8 @@ class _LoginPageState extends State<LoginPage> {
   static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
-  var loginWithQrCode = isDesktop();
-  bool _acceptPrivacy = !isAndroid();
+  var loginWithQrCode = isDesktop;
+  bool _acceptPrivacy = !isAndroid;
   var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       controller.text = phoneNumber!.nationalNumber.toString();
     }
 
-    if (isDesktop()) {
+    if (isDesktop) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
         try {
           var res = await _authRepo.checkQrCodeToken(loginToken.value);
@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
           Timer.periodic(const Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
-    } else if (isAndroid() && !kDebugMode) {
+    } else if (isAndroid && !kDebugMode) {
       SmsAutoFill().hint.then((value) {
         if (value != null) {
           final PhoneNumber? p = getPhoneNumber(value);
@@ -276,8 +276,8 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 15,
                           ),
                         ),
-                        if (isDesktop()) const SizedBox(height: 40),
-                        if (isDesktop())
+                        if (isDesktop) const SizedBox(height: 40),
+                        if (isDesktop)
                           TextButton(
                               child: Text(
                                 "Login with QR Code",
@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage> {
                                   loginWithQrCode = true;
                                 });
                               }),
-                        if (isAndroid())
+                        if (isAndroid)
                           Row(
                             children: [
                               Checkbox(

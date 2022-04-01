@@ -441,7 +441,7 @@ class _ProfilePageState extends State<ProfilePage>
                     widget.roomUid.asString(),
                     forceToOpenRoom: true)),
           ),
-        if (isAndroid())
+        if (isAndroid)
           FutureBuilder<String?>(
               future: _roomRepo
                   .getRoomCustomNotification(widget.roomUid.asString()),
