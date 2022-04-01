@@ -115,7 +115,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           : SizedBox(
                               height: widget.editableMessage != null
                                   ? 50
-                                  : widget.files!.length * 100.toDouble(),
+                                  : widget.files!.length * 100.toDouble() >
+                                          MediaQuery.of(context).size.height -
+                                              300
+                                      ? MediaQuery.of(context).size.height - 300
+                                      : widget.files!.length * 100.toDouble(),
                               width: 350,
                               child: ListView.separated(
                                 shrinkWrap: true,
@@ -290,7 +294,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   Widget singleImageUi(int? index) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height / 3,
+      height: index == null ? MediaQuery.of(context).size.height / 3 : null,
       child: Stack(
         children: [
           Center(
