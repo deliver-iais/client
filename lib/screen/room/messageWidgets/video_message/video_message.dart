@@ -222,7 +222,7 @@ class _VideoMessageState extends State<VideoMessage> {
         child,
         videoDetails(videoLength, video.size.toInt()),
         video.caption.isEmpty
-            ? (!isDesktop) | (isDesktop & false)
+            ? !isDesktop
                 ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
                     widget.message,
