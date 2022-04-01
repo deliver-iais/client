@@ -1,4 +1,4 @@
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/_paint_over_image.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart';
 import 'package:flutter/material.dart';
 
 ///

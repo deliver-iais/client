@@ -1,40 +1,47 @@
 import 'dart:io';
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/_paint_over_image.dart';
+
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 final _imageKey = GlobalKey<ImagePainterState>();
 
-class PaintOnImage extends StatefulWidget {
+class PaintOnImagePage extends StatefulWidget {
   final File file;
   final Function onDone;
 
-  const PaintOnImage({Key? key, required this.file, required this.onDone})
+  const PaintOnImagePage({Key? key, required this.file, required this.onDone})
       : super(key: key);
 
   @override
-  State<PaintOnImage> createState() => _PaintOnImageState();
+  State<PaintOnImagePage> createState() => _PaintOnImagePageState();
 }
 
-class _PaintOnImageState extends State<PaintOnImage> {
+class _PaintOnImagePageState extends State<PaintOnImagePage> {
   final _fileServices = GetIt.I.get<FileService>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: ImagePainter.file(
-          widget.file,
-          key: _imageKey,
-          scalable: true,
-          initialStrokeWidth: 10,
-          onDone: () async {
+      appBar: AppBar(title: const Text("Paint on Image"), actions: [
+        IconButton(
+          icon: const Icon(Icons.done_rounded),
+          onPressed: () async {
             await saveImage(context);
           },
-          initialColor: Colors.blue,
-          initialPaintMode: PaintMode.freeStyle,
-        ),
+        )
+      ]),
+      body: ImagePainter.file(
+        widget.file,
+        key: _imageKey,
+        scalable: true,
+        initialStrokeWidth: 10,
+        onDone: () async {
+          await saveImage(context);
+        },
+        initialColor: Colors.blue,
+        initialPaintMode: PaintMode.freeStyle,
       ),
     );
   }

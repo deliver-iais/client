@@ -5,7 +5,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/crop_image.dart';
+import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';

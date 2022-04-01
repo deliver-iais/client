@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../shared/widgets/crop_image.dart';
+import '../../shared/widgets/edit_image/crop_image/crop_image.dart';
 
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;

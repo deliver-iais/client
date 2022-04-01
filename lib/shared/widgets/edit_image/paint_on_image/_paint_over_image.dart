@@ -3,10 +3,10 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/widgets/color_picker.dart';
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/widgets/_mode_widget.dart';
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/widgets/_range_slider.dart';
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/widgets/_text_dialog.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_mode_widget.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_range_slider.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_text_dialog.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/color_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';

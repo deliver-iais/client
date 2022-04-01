@@ -1,4 +1,4 @@
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/_image_painter.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_image_painter.dart';
 import 'package:flutter/material.dart';
 
 class SelectionItems extends StatelessWidget {
@@ -35,37 +35,23 @@ class SelectionItems extends StatelessWidget {
 
 List<ModeData> paintModes() => [
       const ModeData(
-          icon: Icons.zoom_out_map,
-          mode: PaintMode.none,
-          label: "noneZoom"),
+          icon: Icons.zoom_out_map, mode: PaintMode.none, label: "noneZoom"),
       const ModeData(
-          icon: Icons.horizontal_rule,
-          mode: PaintMode.line,
-          label: "line"),
+          icon: Icons.horizontal_rule, mode: PaintMode.line, label: "line"),
       const ModeData(
-          icon: Icons.crop_free,
-          mode: PaintMode.rect,
-          label: "rectangle"),
+          icon: Icons.crop_free, mode: PaintMode.rect, label: "rectangle"),
       const ModeData(
-          icon: Icons.edit,
-          mode: PaintMode.freeStyle,
-          label: "drawing"),
+          icon: Icons.edit, mode: PaintMode.freeStyle, label: "drawing"),
       const ModeData(
-          icon: Icons.lens_outlined,
-          mode: PaintMode.circle,
-          label: "circle"),
+          icon: Icons.lens_outlined, mode: PaintMode.circle, label: "circle"),
       const ModeData(
           icon: Icons.arrow_right_alt_outlined,
           mode: PaintMode.arrow,
           label: "arrow"),
       const ModeData(
-          icon: Icons.power_input,
-          mode: PaintMode.dashLine,
-          label: "dashLine"),
+          icon: Icons.power_input, mode: PaintMode.dashLine, label: "dashLine"),
       const ModeData(
-          icon: Icons.text_format,
-          mode: PaintMode.text,
-          label: "arrow"),
+          icon: Icons.text_format, mode: PaintMode.text, label: "arrow"),
     ];
 
 @immutable

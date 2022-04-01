@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/edit_image/paint_on_image/page/paint_on_image.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/crop_image.dart';
+import 'package:deliver/shared/widgets/edit_image/Chang_image_color/color_filter_page.dart';
+import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/page/paint_on_image_page.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -227,7 +228,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     IconButton(
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return PaintOnImage(
+                          return PaintOnImagePage(
                               file: File(imagePath),
                               onDone: (path) {
                                 if (path != null) {
@@ -246,8 +247,8 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                     IconButton(
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return PaintOnImage(
-                              file: File(imagePath),
+                          return ColorFilterPage(
+                              imagePath: imagePath,
                               onDone: (path) {
                                 if (path != null) {
                                   set(() {

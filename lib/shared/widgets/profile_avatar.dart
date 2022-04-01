@@ -9,7 +9,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/crop_image.dart';
+import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
