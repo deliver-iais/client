@@ -28,6 +28,7 @@ import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -167,8 +168,9 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId != null &&
                 room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
-                isAndroid()) {
-              _fireBaseServices.subscribeRoom(roomMetadata.roomUid.asString());
+                isAndroid) {
+              _fireBaseServices.sendGlitchReportForFirebaseNotification(
+                  roomMetadata.roomUid.asString());
             }
             if (room != null &&
                 room.lastMessage != null &&

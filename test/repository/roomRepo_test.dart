@@ -312,7 +312,7 @@ void main() {
     });
     group('isRoomHaveACustomNotification -', () {
       test('When called should get room have CustomNotification', () async {
-        final customNotificationDao = getAndRegisterCustomNotificatonDao();
+        final customNotificationDao = getAndRegisterCustomNotificationDao();
         expect(
             await RoomRepo().isRoomHaveACustomNotification(testUid.asString()),
             false);
@@ -321,7 +321,7 @@ void main() {
     });
     group('setRoomCustomNotification -', () {
       test('When called should set path to customNotificationDao ', () async {
-        final customNotificationDao = getAndRegisterCustomNotificatonDao();
+        final customNotificationDao = getAndRegisterCustomNotificationDao();
         RoomRepo().setRoomCustomNotification(testUid.asString(), "/test");
         verify(
             customNotificationDao.setCustomNotif(testUid.asString(), "/test"));
@@ -329,7 +329,7 @@ void main() {
     });
     group('getRoomCustomNotification -', () {
       test('When called should get path from customNotificationDao ', () async {
-        final customNotificationDao = getAndRegisterCustomNotificatonDao();
+        final customNotificationDao = getAndRegisterCustomNotificationDao();
         expect(await RoomRepo().getRoomCustomNotification(testUid.asString()),
             "/test");
         verify(customNotificationDao.getCustomNotif(testUid.asString()));

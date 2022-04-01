@@ -16,7 +16,6 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -56,8 +55,8 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   attachFile() async {
     String? path;
-    if (kIsWeb || isDesktop()) {
-      if (isLinux()) {
+    if (isWeb || isDesktop) {
+      if (isLinux) {
         final typeGroup =
             XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
         final file = await openFile(
@@ -70,7 +69,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         FilePickerResult? result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
-          path = kIsWeb
+          path = isWeb
               ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
               : result.files.first.path;
         }
@@ -209,7 +208,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     Center(
                                         child: CircleAvatar(
                                       radius: 60,
-                                      backgroundImage: kIsWeb
+                                      backgroundImage: isWeb
                                           ? Image.network(snapshot.data!).image
                                           : Image.file(File(snapshot.data!))
                                               .image,

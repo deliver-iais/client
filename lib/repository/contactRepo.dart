@@ -46,10 +46,10 @@ class ContactRepo {
     }
     requestLock.synchronized(() async {
       if (await _checkPermission.checkContactPermission() ||
-          isDesktop() ||
-          isIOS()) {
+          isDesktop ||
+          isIOS) {
         List<Contact> contacts = [];
-        if (!isDesktop()) {
+        if (!isDesktop) {
           Iterable<contacts_service_pb.Contact> phoneContacts =
               await contacts_service_pb.ContactsService.getContacts(
                   withThumbnails: false,

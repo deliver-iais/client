@@ -35,6 +35,7 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -54,6 +55,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
@@ -87,7 +89,7 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
-import 'box/dao/custom_notication_dao.dart';
+import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
@@ -96,6 +98,10 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
+  GetIt.I.registerSingleton<AnalyticsRepo>(AnalyticsRepo());
+  GetIt.I.registerSingleton<AnalyticsClientInterceptor>(
+      AnalyticsClientInterceptor());
+
   // Setup Logger
   GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
   GetIt.I.registerSingleton<Logger>(Logger(
@@ -128,7 +134,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(CallStatusAdapter());
   Hive.registerAdapter(CallTypeAdapter());
 
-  GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
+  GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -153,7 +159,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<CallService>(CallService());
   // Order is important, don't change it!
   GetIt.I.registerSingleton<AuthServiceClient>(AuthServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
   final authRepo = AuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(authRepo);
@@ -161,46 +167,51 @@ Future<void> setupDI() async {
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
+  final grpcClientInterceptors = [
+    GetIt.I.get<DeliverClientInterceptor>(),
+    GetIt.I.get<AnalyticsClientInterceptor>()
+  ];
+
   GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
-      kIsWeb ? webQueryClientChannel : QueryClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webQueryClientChannel : QueryClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
-      kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(
-      kIsWeb ? webBotClientChannel : BotClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webBotClientChannel : BotClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
-      kIsWeb ? webStickerClientChannel : StickerClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webStickerClientChannel : StickerClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
-      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
-      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
-      kIsWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
-      kIsWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
+      interceptors: grpcClientInterceptors));
 
   GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<LiveLocationServiceClient>(
       LiveLocationServiceClient(
-          kIsWeb
+          isWeb
               ? webLiveLocationClientChannel
               : LiveLocationServiceClientChannel,
-          interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+          interceptors: grpcClientInterceptors));
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
 
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -219,7 +230,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  if (isLinux() || isWindows()) {
+  if (isLinux || isWindows) {
     // DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
@@ -229,17 +240,17 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<AudioService>(AudioService());
   } catch (_) {}
 
-  if (kIsWeb) {
+  if (isWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
-  } else if (isMacOS()) {
+  } else if (isMacOS) {
     GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
-  } else if (isAndroid()) {
+  } else if (isAndroid) {
     GetIt.I.registerSingleton<Notifier>(AndroidNotifier());
-  } else if (isIOS()) {
+  } else if (isIOS) {
     GetIt.I.registerSingleton<Notifier>(IOSNotifier());
-  } else if (isLinux()) {
+  } else if (isLinux) {
     GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
-  } else if (isWindows()) {
+  } else if (isWindows) {
     GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
   } else {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
@@ -247,6 +258,9 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
 
+  GetIt.I.registerSingleton<CallService>(CallService());
+
+  GetIt.I.registerSingleton<DataStreamServices>(DataStreamServices());
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
 
@@ -265,7 +279,7 @@ void main() async {
 
   Logger().i("Application has been started.");
 
-  if (isDesktop() && !kIsWeb) {
+  if (isDesktop && !isWeb) {
     try {
       _setWindowSize();
 
@@ -276,7 +290,7 @@ void main() async {
   }
 
   // TODO add IOS and MacOS too
-  if (isAndroid()) {
+  if (isAndroid) {
     await setupFlutterNotification();
   }
 

@@ -14,7 +14,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -103,7 +102,7 @@ class _AllImagePageState extends State<AllImagePage> {
                   return Center(
                     child: Padding(
                         padding: const EdgeInsets.all(10),
-                        child: kIsWeb
+                        child: isWeb
                             ? Image.network(widget.filePath!)
                             : Image.file(File(widget.filePath!))),
                   );
@@ -122,7 +121,7 @@ class _AllImagePageState extends State<AllImagePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (isDesktop())
+            if (isDesktop)
               StreamBuilder<int>(
                   stream: _currentIndex.stream,
                   builder: (context, indexSnapShot) {
@@ -192,7 +191,7 @@ class _AllImagePageState extends State<AllImagePage> {
                                                               .json)["height"]
                                                           as int,
                                                       1),
-                                              child: kIsWeb
+                                              child: isWeb
                                                   ? Image.network(
                                                       filePath.data!)
                                                   : Image.file(
@@ -224,7 +223,7 @@ class _AllImagePageState extends State<AllImagePage> {
                     return const SizedBox.shrink();
                   }
                 }),
-            if (isDesktop())
+            if (isDesktop)
               StreamBuilder<int?>(
                   stream: _allImageCount.stream,
                   builder: (c, allImageCount) {

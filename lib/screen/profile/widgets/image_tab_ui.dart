@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:deliver/box/media_meta_data.dart';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/foundation.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
@@ -105,7 +105,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                         child: Container(
                             decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: kIsWeb
+                            image: isWeb
                                 ? Image.network(filePath.data!).image
                                 : Image.file(
                                     File(filePath.data!),

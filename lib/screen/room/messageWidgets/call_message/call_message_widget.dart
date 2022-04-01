@@ -92,8 +92,7 @@ class CallMessageWidget extends StatelessWidget {
               onTap: (_callService.getUserCallState == UserCallState.NOCALL)
                   ? () => _routingService.openCallScreen(
                       message.roomUid.asUid(),
-                      isVideoCall: _isVideo,
-                      context: context)
+                      isVideoCall: _isVideo)
                   : null,
               child: Align(
                 alignment: Alignment.centerRight,

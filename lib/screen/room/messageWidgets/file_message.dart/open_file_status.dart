@@ -1,8 +1,8 @@
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/cupertino.dart';
 import 'package:universal_html/html.dart' as html;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
@@ -40,7 +40,7 @@ class OpenFileStatus extends StatelessWidget {
             size: 27,
           ),
           onPressed: () async {
-            if (kIsWeb) {
+            if (isWeb) {
               var res = await http.get(Uri.parse(filePath));
               var blob = Blob([res.bodyBytes], file.type);
               var fileUrl = html.Url.createObjectUrl(blob);

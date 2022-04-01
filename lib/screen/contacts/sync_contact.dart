@@ -4,7 +4,6 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -16,7 +15,7 @@ class SyncContact {
   showSyncContactDialog(BuildContext context) async {
     bool isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
-    if (!isAlreadyContactAccessTipShowed && !isDesktop() && !kIsWeb) {
+    if (!isAlreadyContactAccessTipShowed && !isDesktop && !isWeb) {
       return showDialog(
           context: context,
           builder: (context) {

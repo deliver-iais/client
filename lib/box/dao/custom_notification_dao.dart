@@ -1,7 +1,7 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:hive/hive.dart';
 
-abstract class CustomNotificatonDao {
+abstract class CustomNotificationDao {
   Future<bool> isHaveCustomNotif(String uid);
 
   Future<void> setCustomNotif(String uid, String fileName);
@@ -9,7 +9,7 @@ abstract class CustomNotificatonDao {
   Future<String?> getCustomNotif(String uid);
 }
 
-class CustomNotificatonDaoImpl implements CustomNotificatonDao {
+class CustomNotificationDaoImpl implements CustomNotificationDao {
   static String _key() => "customnotification";
 
   static Future<Box<String>> _open() {
