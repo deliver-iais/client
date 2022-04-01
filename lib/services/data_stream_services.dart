@@ -8,6 +8,7 @@ import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -41,7 +42,6 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:fixnum/fixnum.dart';
 
 /// All services about streams of data from Core service or Firebase Streams
@@ -53,6 +53,7 @@ class DataStreamServices {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _routingServices = GetIt.I.get<RoutingService>();
+  final _callService = GetIt.I.get<CallService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
@@ -61,27 +62,6 @@ class DataStreamServices {
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
-
-  DataStreamServices() {
-    _callEvents.distinct().listen((event) {
-      callEvents.add(event);
-    });
-    _groupCallEvents.distinct().listen((event) {
-      groupCallEvents.add(event);
-    });
-  }
-
-  final BehaviorSubject<CallEvents> callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
 
   Future<void> handleIncomingMessage(Message message,
       {String? roomName}) async {
@@ -195,10 +175,10 @@ class DataStreamServices {
           roomUid: message.from, callId: message.callEvent.id);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        _groupCallEvents.add(callEvents);
+        _callService.groupCallEvents.add(callEvents);
       } else {
         // its group Call
-        _callEvents.add(callEvents);
+        _callService.callEvents.add(callEvents);
       }
     }
     final msg = await saveMessage(message, roomUid);
@@ -333,9 +313,9 @@ class DataStreamServices {
         callId: callOffer.id);
     if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callOffer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _groupCallEvents.add(callEvents);
+      _callService.groupCallEvents.add(callEvents);
     } else {
-      _callEvents.add(callEvents);
+      _callService.callEvents.add(callEvents);
     }
   }
 
@@ -345,9 +325,9 @@ class DataStreamServices {
         callId: callAnswer.id);
     if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callAnswer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _groupCallEvents.add(callEvents);
+      _callService.groupCallEvents.add(callEvents);
     } else {
-      _callEvents.add(callEvents);
+      _callService.callEvents.add(callEvents);
     }
   }
 

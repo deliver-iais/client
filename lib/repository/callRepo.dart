@@ -16,7 +16,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
-import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -54,7 +53,6 @@ class CallRepo {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
-  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _callService = GetIt.I.get<CallService>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
@@ -139,13 +137,14 @@ class CallRepo {
           var callEvent = event.callEvent;
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
-              if(_callId == callEvent.id) {
+              if (_callId == callEvent.id) {
                 timerResendCreate!.cancel();
                 callingStatus.add(CallStatus.IS_RINGING);
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
+              if (event.roomUid == _roomUid ||
+                  _callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 _callOwner = callEvent.memberOrCallOwnerPvp;
                 _callId = callEvent.id;
@@ -170,19 +169,19 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.BUSY:
-              if(_callId == callEvent.id) {
+              if (_callId == callEvent.id) {
                 timerResendCreate!.cancel();
                 receivedBusyCall();
               }
               break;
             case CallEvent_CallStatus.DECLINED:
-              if(_callId == callEvent.id) {
+              if (_callId == callEvent.id) {
                 timerResendCreate!.cancel();
                 receivedDeclinedCall();
               }
               break;
             case CallEvent_CallStatus.ENDED:
-              if(_callId == callEvent.id) {
+              if (_callId == callEvent.id) {
                 receivedEndCall(callEvent.callDuration.toInt(), false);
               }
               break;
@@ -285,7 +284,7 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
-          } else if(_isCaller){
+          } else if (_isCaller) {
             timerResendAnswer!.cancel();
           }
           break;
@@ -335,7 +334,7 @@ class CallRepo {
           if (_reconnectTry) {
             _reconnectTry = false;
             timerDisconnected?.cancel();
-          }else if(_isCaller){
+          } else if (_isCaller) {
             timerResendAnswer!.cancel();
           }
           if (!isWeb) {
@@ -720,7 +719,7 @@ class CallRepo {
   bool muteMicrophone() {
     if (_localStream != null) {
       bool enabled = _localStream!.getAudioTracks()[0].enabled;
-      if(_isConnected) {
+      if (_isConnected) {
         if (enabled) {
           _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
         } else {
@@ -759,7 +758,7 @@ class CallRepo {
   bool muteCamera() {
     if (_localStream != null) {
       bool enabled = _localStream!.getVideoTracks()[0].enabled;
-      if(_isConnected) {
+      if (_isConnected) {
         if (enabled) {
           _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
         } else {
@@ -923,11 +922,11 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      if(callingStatus.value == CallStatus.NO_ANSWER && !_isConnected){
+      if (callingStatus.value == CallStatus.NO_ANSWER && !_isConnected) {
         // it means call Not Answered
         _callDuration = -1;
       }
-      if(isForce){
+      if (isForce) {
         _logger.i("Call Force Ending ...");
         _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
             CallEvent_CallStatus.ENDED,
@@ -937,7 +936,7 @@ class CallRepo {
             endOfCallDuration,
             _callOwner!,
             _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
-      }else {
+      } else {
         _messageRepo.sendCallMessage(
             CallEvent_CallStatus.ENDED,
             _roomUid!,
@@ -953,7 +952,7 @@ class CallRepo {
   }
 
   endCall(bool isForce) async {
-    if(_callService.getUserCallState != CallStatus.NO_CALL) {
+    if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (isForce || _isCaller) {
         receivedEndCall(0, isForce);
       } else {
@@ -1046,7 +1045,7 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
-    timerResendOffer =  Timer(const Duration(seconds: 8), () {
+    timerResendOffer = Timer(const Duration(seconds: 8), () {
       _coreServices.sendCallOffer(callOfferByClient);
     });
   }
@@ -1069,7 +1068,7 @@ class CallRepo {
     if (_reconnectTry) {
       callingStatus.add(CallStatus.IN_CALL);
     }
-    timerResendAnswer =  Timer(const Duration(seconds: 8), () {
+    timerResendAnswer = Timer(const Duration(seconds: 8), () {
       _coreServices.sendCallAnswer(callAnswerByClient);
     });
     //Set Timer 30 sec for end call if Call doesn't Connected
