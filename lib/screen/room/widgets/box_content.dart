@@ -27,7 +27,6 @@ import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
@@ -105,7 +104,7 @@ class _BoxContentState extends State<BoxContent> {
                 ],
               ),
             ),
-            isDesktop() | kIsWeb
+            isDesktop | isWeb
                 ? MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(

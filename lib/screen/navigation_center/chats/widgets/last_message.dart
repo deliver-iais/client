@@ -73,25 +73,23 @@ class LastMessage extends StatelessWidget {
                     textDirection: TextDirection.ltr,
                     softWrap: false,
                     text: TextSpan(children: [
-                      if (mb!.senderIsAUserOrBot! && showSender)
+                      if (mb!.senderIsAUserOrBot && showSender)
                         TextSpan(
-                            text: mb.sender!.trim() +
+                            text: mb.sender.trim() +
                                 (showSenderInSeparatedLine ? "\n" : ": "),
                             style: theme.primaryTextTheme.caption
                                 ?.copyWith(color: primaryColor)),
-                      if (mb.typeDetails != null && mb.typeDetails!.isNotEmpty)
+                      if (mb.typeDetails.isNotEmpty)
                         TextSpan(
                             text: mb.typeDetails,
                             style: theme.primaryTextTheme.caption
                                 ?.copyWith(color: primaryColor)),
-                      if (mb.typeDetails != null &&
-                          mb.typeDetails!.isNotEmpty &&
-                          mb.text!.isNotEmpty)
+                      if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
                         TextSpan(
                             text: ", ",
                             style: theme.primaryTextTheme.caption
                                 ?.copyWith(color: primaryColor)),
-                      if (mb.text!.isNotEmpty)
+                      if (mb.text.isNotEmpty)
                         TextSpan(
                             children: buildText(mb, context),
                             style: theme.textTheme.caption
@@ -129,7 +127,7 @@ class LastMessage extends StatelessWidget {
 
   List<TextSpan> buildText(MessageBrief mb, BuildContext context) =>
       extractBlocks(
-              mb.text!
+              mb.text
                   .split("\n")
                   .map((e) => e.trim())
                   .where((e) => e.trim().isNotEmpty)

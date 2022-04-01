@@ -5,6 +5,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -16,28 +17,29 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 
 class MessageBrief {
-  final Uid? roomUid;
-  final String? sender;
-  final String? roomName;
-  final MessageType? type;
-  final String? typeDetails;
-  final String? text;
-  final bool? senderIsAUserOrBot;
+  final Uid roomUid;
+  final String sender;
+  final String roomName;
+  final MessageType type;
+  final String typeDetails;
+  final String text;
+  final bool senderIsAUserOrBot;
   final int? id;
 
   // Should not notify user
-  final bool? ignoreNotification;
+  final bool ignoreNotification;
 
-  MessageBrief(
-      {this.roomUid,
-      this.sender,
-      this.roomName,
-      this.senderIsAUserOrBot,
-      this.type,
-      this.typeDetails,
-      this.text,
-      this.id,
-      this.ignoreNotification});
+  MessageBrief({
+    required this.sender,
+    required this.roomName,
+    required this.type,
+    required this.typeDetails,
+    required this.roomUid,
+    required this.senderIsAUserOrBot,
+    required this.text,
+    required this.ignoreNotification,
+    this.id,
+  });
 
   MessageBrief copyWith(
       {Uid? roomUid,
@@ -65,10 +67,10 @@ class MessageBrief {
 Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
     AuthRepo authRepo, message_pb.Message msg) async {
   Uid roomUid = getRoomUid(authRepo, msg);
-  String? roomName = await roomRepo.getSlangName(roomUid);
-  String? sender = await roomRepo.getSlangName(msg.from);
+  String roomName = await roomRepo.getSlangName(roomUid);
+  String sender = await roomRepo.getSlangName(msg.from);
   MessageType type = getMessageType(msg.whichType());
-  String? typeDetails = "";
+  String typeDetails = "";
   String text = "";
   bool ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
 
@@ -131,11 +133,12 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
     case message_pb.Message_Type.persistEvent:
       typeDetails = await getPersistentEventText(
           i18n, roomRepo, authRepo, msg.persistEvent, msg.to.isChannel());
-      if (typeDetails == null) {
+      if (typeDetails.trim().isEmpty) {
         ignoreNotification = true;
       }
       break;
     case message_pb.Message_Type.callEvent:
+      ignoreNotification = true;
       typeDetails = i18n.get("call");
       break;
     default:
@@ -159,7 +162,7 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
   );
 }
 
-Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
+Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
     AuthRepo authRepo, PersistentEvent pe, bool isChannel) async {
   switch (pe.whichType()) {
     case PersistentEvent_Type.mucSpecificPersistentEvent:
@@ -262,9 +265,9 @@ Future<String?> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
       }
 
     default:
-      return null;
+      return "";
   }
-  return null;
+  return "";
 }
 
 message_pb.Message extractProtocolBufferMessage(Message message) {
@@ -383,6 +386,7 @@ String messageBodyToJson(message_pb.Message message) {
 
     case MessageType.FORM:
       return message.form.writeToJson();
+
     case MessageType.PERSISTENT_EVENT:
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.adminSpecificPersistentEvent:
@@ -391,8 +395,6 @@ String messageBodyToJson(message_pb.Message message) {
           return message.persistEvent.writeToJson();
 
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-          return EMPTY_MESSAGE;
-
         case PersistentEvent_Type.notSet:
           return EMPTY_MESSAGE;
       }
@@ -411,12 +413,22 @@ String messageBodyToJson(message_pb.Message message) {
 
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       return message.sharePrivateDataAcceptance.writeToJson();
+
     case MessageType.CALL:
-      return message.callEvent.writeToJson();
-    case MessageType.NOT_SET:
-      return EMPTY_MESSAGE;
+      switch (message.callEvent.newStatus) {
+        case CallEvent_CallStatus.BUSY:
+        case CallEvent_CallStatus.DECLINED:
+        case CallEvent_CallStatus.ENDED:
+          return message.callEvent.writeToJson();
+        default:
+          return EMPTY_MESSAGE;
+      }
+
     case MessageType.Table:
       return message.table.writeToJson();
+
+    case MessageType.NOT_SET:
+      return EMPTY_MESSAGE;
   }
 }
 

@@ -76,7 +76,7 @@ class UxService {
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
-  final _sendByEnter = BehaviorSubject.seeded(isDesktop());
+  final _sendByEnter = BehaviorSubject.seeded(isDesktop);
 
   UxService() {
     _sharedDao
@@ -98,7 +98,7 @@ class UxService {
         .listen((isDisabled) => _isAllNotificationDisabled.add(isDisabled));
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop())
+        .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop)
         .distinct()
         .listen((sbn) => _sendByEnter.add(sbn));
     _sharedDao.get(SHARED_DAO_THEME).then((event) {
@@ -139,7 +139,7 @@ class UxService {
 
   int get themeIndex => _themeIndex.value;
 
-  bool get sendByEnter => isDesktop() ? _sendByEnter.value : false;
+  bool get sendByEnter => isDesktop ? _sendByEnter.value : false;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 

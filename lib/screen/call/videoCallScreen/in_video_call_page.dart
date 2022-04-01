@@ -96,7 +96,7 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                         onDraggableCanceled:
                             (Velocity velocity, Offset offset) {
                           setState(() {
-                            if (isDesktop()) {
+                            if (isDesktop) {
                               position = const Offset(20, 40);
                             } else {
                               if (offset.dx > x / 2 && offset.dy > y / 2) {

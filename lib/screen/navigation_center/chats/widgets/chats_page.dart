@@ -140,7 +140,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                             },
                             onTapDown: storePosition,
                             onSecondaryTapDown: storePosition,
-                            onSecondaryTap: !isDesktop()
+                            onSecondaryTap: !isDesktop
                                 ? null
                                 : () {
                                     _showCustomMenu(

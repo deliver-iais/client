@@ -37,7 +37,7 @@ class _IntroPageState extends State<IntroPage> {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       FeatureDiscovery.discoverFeatures(
         context,
-        isAndroid() || isIOS()
+        isAndroid || isIOS
             ? const <String>{
                 feature1,
                 feature2,

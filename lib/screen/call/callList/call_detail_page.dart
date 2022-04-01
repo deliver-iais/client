@@ -96,8 +96,8 @@ class _CallDetailPageState extends State<CallDetailPage> {
                           _routingService.openRoom(widget.caller.asString()),
                       icon: const Icon(CupertinoIcons.chat_bubble)),
                   IconButton(
-                      onPressed: () => _routingService
-                          .openCallScreen(widget.caller, context: context),
+                      onPressed: () =>
+                          _routingService.openCallScreen(widget.caller),
                       icon: const Icon(CupertinoIcons.phone)),
                 ],
               ),

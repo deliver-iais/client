@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
-import 'package:deliver/box/dao/custom_notication_dao.dart';
+import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -19,16 +19,19 @@ import 'package:deliver/box/seen.dart' as seen_box;
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -64,6 +67,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
 }
 
 @GenerateMocks([], customMocks: [
+  MockSpec<AnalyticsRepo>(returnNullOnMissingStub: true),
   MockSpec<Logger>(returnNullOnMissingStub: true),
   MockSpec<MessageDao>(returnNullOnMissingStub: true),
   MockSpec<RoomDao>(returnNullOnMissingStub: true),
@@ -74,6 +78,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<LiveLocationRepo>(returnNullOnMissingStub: true),
   MockSpec<SeenDao>(returnNullOnMissingStub: true),
   MockSpec<MucServices>(returnNullOnMissingStub: true),
+  MockSpec<DataStreamServices>(returnNullOnMissingStub: true),
   MockSpec<CoreServices>(returnNullOnMissingStub: true),
   MockSpec<QueryServiceClient>(returnNullOnMissingStub: true),
   MockSpec<SharedDao>(returnNullOnMissingStub: true),
@@ -86,8 +91,9 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<AccountRepo>(returnNullOnMissingStub: true),
   MockSpec<MucRepo>(returnNullOnMissingStub: true),
   MockSpec<BotRepo>(returnNullOnMissingStub: true),
-  MockSpec<CustomNotificatonDao>(returnNullOnMissingStub: true),
+  MockSpec<CustomNotificationDao>(returnNullOnMissingStub: true),
   MockSpec<MediaDao>(returnNullOnMissingStub: true),
+  MockSpec<MediaRepo>(returnNullOnMissingStub: true),
   MockSpec<MediaMetaDataDao>(returnNullOnMissingStub: true),
 ])
 MockCoreServices getAndRegisterCoreServices(
@@ -100,6 +106,27 @@ MockCoreServices getAndRegisterCoreServices(
   _connectionStatus.add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
+  return service;
+}
+
+MockDataStreamServices getAndRegisterDataStreamServices() {
+  _removeRegistrationIfExists<DataStreamServices>();
+  final service = MockDataStreamServices();
+  GetIt.I.registerSingleton<DataStreamServices>(service);
+  return service;
+}
+
+MockMediaRepo getAndRegisterMediaRepo() {
+  _removeRegistrationIfExists<MediaRepo>();
+  final service = MockMediaRepo();
+  GetIt.I.registerSingleton<MediaRepo>(service);
+  return service;
+}
+
+MockAnalyticsRepo getAndRegisterAnalyserRepo() {
+  _removeRegistrationIfExists<AnalyticsRepo>();
+  final service = MockAnalyticsRepo();
+  GetIt.I.registerSingleton<AnalyticsRepo>(service);
   return service;
 }
 
@@ -186,10 +213,10 @@ MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
   return service;
 }
 
-MockCustomNotificatonDao getAndRegisterCustomNotificatonDao() {
-  _removeRegistrationIfExists<CustomNotificatonDao>();
-  final service = MockCustomNotificatonDao();
-  GetIt.I.registerSingleton<CustomNotificatonDao>(service);
+MockCustomNotificationDao getAndRegisterCustomNotificationDao() {
+  _removeRegistrationIfExists<CustomNotificationDao>();
+  final service = MockCustomNotificationDao();
+  GetIt.I.registerSingleton<CustomNotificationDao>(service);
   when(service.isHaveCustomNotif(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value(false));
   when(service.getCustomNotif(testUid.asString()))
@@ -561,8 +588,11 @@ MockFireBaseServices getAndRegisterFireBaseServices() {
 }
 
 void registerServices() {
-  getAndRegisterCoreServices();
+  getAndRegisterAnalyserRepo();
+  getAndRegisterMediaRepo();
   getAndRegisterLogger();
+  getAndRegisterDataStreamServices();
+  getAndRegisterCoreServices();
   getAndRegisterMessageDao();
   getAndRegisterRoomDao();
   getAndRegisterRoomRepo();
@@ -584,11 +614,13 @@ void registerServices() {
   getAndRegisterMucRepo();
   getAndRegisterBotRepo();
   getAndRegisterMediaDao();
-  getAndRegisterCustomNotificatonDao();
+  getAndRegisterCustomNotificationDao();
   getAndRegisterMediaMetaDataDao();
 }
 
 void unregisterServices() {
+  GetIt.I.unregister<AnalyticsRepo>();
+  GetIt.I.unregister<DataStreamServices>();
   GetIt.I.unregister<CoreServices>();
   GetIt.I.unregister<Logger>();
   GetIt.I.unregister<MessageDao>();
@@ -609,7 +641,7 @@ void unregisterServices() {
   GetIt.I.unregister<AccountRepo>();
   GetIt.I.unregister<MucRepo>();
   GetIt.I.unregister<BotRepo>();
-  GetIt.I.unregister<CustomNotificatonDao>();
+  GetIt.I.unregister<CustomNotificationDao>();
   GetIt.I.unregister<MediaDao>();
   GetIt.I.unregister<MediaMetaDataDao>();
 }

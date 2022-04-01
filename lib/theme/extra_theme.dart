@@ -10,6 +10,8 @@ class ExtraThemeData {
   final Material3ColorScheme colorScheme;
   final List<CustomColorScheme> customColorsSchemeList;
   final CustomColorScheme primaryColorsScheme;
+  final CustomColorScheme secondaryColorsScheme;
+  final CustomColorScheme tertiaryColorsScheme;
 
   Color lowlight() => colorScheme.onPrimary;
 
@@ -39,7 +41,17 @@ class ExtraThemeData {
             colorScheme.primary,
             colorScheme.onPrimary,
             colorScheme.primaryContainer,
-            colorScheme.onPrimaryContainer);
+            colorScheme.onPrimaryContainer),
+        secondaryColorsScheme = CustomColorScheme(
+            colorScheme.secondary,
+            colorScheme.onSecondary,
+            colorScheme.secondaryContainer,
+            colorScheme.onSecondaryContainer),
+        tertiaryColorsScheme = CustomColorScheme(
+            colorScheme.tertiary,
+            colorScheme.onTertiary,
+            colorScheme.tertiaryContainer,
+            colorScheme.onTertiaryContainer);
 }
 
 class ExtraTheme extends InheritedWidget {
