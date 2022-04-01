@@ -25,7 +25,6 @@ class ScrollMessageList extends StatefulWidget {
 
 class _ScrollMessageListState extends State<ScrollMessageList> {
   double _barOffset = 0.0;
-  int _index = 0;
   bool _startScroll = false;
 
   double height = 165;
@@ -59,8 +58,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
       if (details.delta.dy < 0) {
         k = k - height;
       }
-      _index = max((((k) / h) * widget.itemCount).ceil(), 1);
-
+      int _index = max((((k) / h) * widget.itemCount).ceil(), 1);
       _bottom.add(_barOffset);
       widget.controller.jumpTo(index: _index, alignment: 0.5);
     }
@@ -82,6 +80,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Positioned(
                       right: 2.0,
+                      top: 55,
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: max(
