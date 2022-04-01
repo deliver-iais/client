@@ -14,6 +14,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/mediaQueryRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -1080,11 +1081,9 @@ class _RoomPageState extends State<RoomPage> {
         _replyMessageId.add(id);
         _currentScrollIndex = id;
       }
-      if (_replyMessageId != -1) {
+      if (_replyMessageId.value != -1) {
         Timer(const Duration(seconds: 3), () {
-          setState(() {
-            _replyMessageId = -1;
-          });
+          _replyMessageId.add(-1);
         });
       }
     }
