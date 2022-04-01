@@ -80,7 +80,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (isDesktop())
+              if (isDesktop)
                 StreamBuilder<int>(
                     stream: _currentIndex.stream,
                     builder: (context, indexSnapShot) {
@@ -125,7 +125,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                   if (filePath.hasData &&
                                       filePath.data != null) {
                                     _fileCache.set(index, filePath.data!);
-                                    if (isDesktop()) {
+                                    if (isDesktop) {
                                       OpenFile.open(filePath.data!);
                                       _routingServices.pop();
                                       return const SizedBox.shrink();
@@ -155,7 +155,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                   ),
                 ),
               ),
-              if (isDesktop())
+              if (isDesktop)
                 StreamBuilder<int>(
                     stream: _currentIndex.stream,
                     builder: (context, indexSnapShot) {

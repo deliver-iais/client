@@ -7,7 +7,6 @@ import 'dart:io' as io;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -38,8 +37,8 @@ class FileService {
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() ||
-        isDesktop() ||
-        isIOS()) {
+        isDesktop ||
+        isIOS) {
       final directory = await getApplicationDocumentsDirectory();
       if (!await io.Directory('${directory.path}/Deliver').exists()) {
         await io.Directory('${directory.path}/Deliver').create(recursive: true);
@@ -71,7 +70,7 @@ class FileService {
   }
 
   FileService() {
-    if (!kIsWeb) {
+    if (!isWeb) {
       (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =
@@ -109,7 +108,7 @@ class FileService {
       },
           options: Options(responseType: ResponseType.bytes),
           cancelToken: cancelToken);
-      if (kIsWeb) {
+      if (isWeb) {
         var blob = html.Blob(
             <Object>[res.data], "application/${filename.split(".").last}");
         var url = html.Url.createObjectUrlFromBlob(blob);
@@ -150,7 +149,7 @@ class FileService {
   }
 
   saveFileInDownloadFolder(String path, String name, String directory) async {
-    if (kIsWeb) {
+    if (isWeb) {
       saveDownloadedFile(path, name);
     } else {
       var downloadDir =
@@ -171,7 +170,7 @@ class FileService {
       options: Options(responseType: ResponseType.bytes),
       cancelToken: cancelToken,
     );
-    if (kIsWeb) {
+    if (isWeb) {
       var blob = html.Blob(
           <Object>[res.data], "application/${filename.split(".").last}");
       var url = html.Url.createObjectUrlFromBlob(blob);
@@ -237,12 +236,12 @@ class FileService {
   uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
     try {
-      if (!kIsWeb) {
+      if (!isWeb) {
         try {
           final mediaType =
               MediaType.parse(mime(filePath) ?? filePath).toString();
           if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
-            if (isAndroid() || isIOS()) {
+            if (isAndroid || isIOS) {
               filePath = await compressImageInMobile(File(filePath));
             } else {
               filePath = await compressImageInDesktop(File(filePath));
@@ -255,7 +254,7 @@ class FileService {
       CancelToken cancelToken = CancelToken();
       cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
-      if (kIsWeb) {
+      if (isWeb) {
         http.Response r = await http.get(
           Uri.parse(filePath),
         );

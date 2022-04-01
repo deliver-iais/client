@@ -6,7 +6,7 @@ import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -170,10 +170,9 @@ class AccountRepo {
       }
 
       if (shouldUpdateSessionPlatformInformation(pv)) {
-        Platform platform = Platform()..clientVersion = VERSION;
-        platform = await _authRepo.getPlatForm(platform);
         _sessionServicesClient.updateSessionPlatformInformation(
-            UpdateSessionPlatformInformationReq()..platform = platform);
+            UpdateSessionPlatformInformationReq()
+              ..platform = await getPlatformPB());
       }
       // Update version in DB
     } else {
@@ -200,7 +199,7 @@ class AccountRepo {
   Future<bool> verifyQrCodeToken(String token) async {
     try {
       await _sessionServicesClient.verifyQrCodeToken(VerifyQrCodeTokenReq()
-        ..platform = await _authRepo.getPlatformDetails()
+        ..platform = await getPlatformPB()
         ..token = token);
       return true;
     } catch (e) {

@@ -8,6 +8,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/swipe_to_reply.dart';
@@ -92,7 +93,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _logger = GetIt.I.get<Logger>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  CallEvent_CallStatus? _callEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +101,22 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget _buildMessageBox(
       BuildContext context, Message msg, Message? msgBefore) {
+    if (msg.json.isEmptyMessage()) {
+      return const SizedBox.shrink();
+    }
+
+    bool isFirstMsgOfOnePerson = isFirstMessageOfOneDirection(msgBefore, msg);
+
+    if (msg.type == MessageType.PERSISTENT_EVENT) {
+      return _createPersistentEventMessageWidget(context, msg);
+    } else if (msg.type == MessageType.CALL) {
+      return _createCallMessageWidget(context, msg);
+    } else {
+      return _createSidedMessageWidget(context, msg, isFirstMsgOfOnePerson);
+    }
+  }
+
+  bool isFirstMessageOfOneDirection(Message? msgBefore, Message msg) {
     var isFirstMessageInGroupedMessages = true;
 
     if (msgBefore?.from == msg.from &&
@@ -114,121 +130,125 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         }
       }
     }
+    return isFirstMessageInGroupedMessages;
+  }
 
-    if (msg.type == MessageType.CALL) {
-      _callEvent = msg.json.toCallEvent().newStatus;
-      if (_callEvent != CallEvent_CallStatus.BUSY &&
-          _callEvent != CallEvent_CallStatus.DECLINED &&
-          _callEvent != CallEvent_CallStatus.ENDED) {
-        return const SizedBox.shrink();
-      }
-    }
+  Widget _createCallMessageWidget(BuildContext context, Message msg) {
+    var colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 6, top: 4),
+          decoration: BoxDecoration(
+              color: colorsScheme.primaryContainer,
+              borderRadius: secondaryBorder),
+          child: CallMessageWidget(
+            message: widget.message,
+            colorScheme: colorsScheme,
+          ),
+        )
+      ],
+    );
+  }
 
-    return msg.type != MessageType.PERSISTENT_EVENT
-        ? _createWidget(context, msg, isFirstMessageInGroupedMessages)
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  if (widget.selectMultiMessageSubject.stream.value) {
-                    widget.addForwardMessage();
-                  } else if (!isDesktop()) {
-                    FocusScope.of(context).unfocus();
+  Widget _createPersistentEventMessageWidget(
+      BuildContext context, Message msg) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            if (widget.selectMultiMessageSubject.stream.value) {
+              widget.addForwardMessage();
+            } else if (!isDesktop) {
+              FocusScope.of(context).unfocus();
+              _showCustomMenu(context, msg);
+            }
+          },
+          onSecondaryTap: !isDesktop
+              ? null
+              : () {
+                  if (!widget.selectMultiMessageSubject.stream.value) {
                     _showCustomMenu(context, msg);
                   }
                 },
-                onSecondaryTap: !isDesktop()
-                    ? null
-                    : () {
-                        if (!widget.selectMultiMessageSubject.stream.value) {
-                          _showCustomMenu(context, msg);
-                        }
-                      },
-                onDoubleTap: !isDesktop() ? null : widget.onReply,
-                onLongPress: () {
-                  if (!widget.selectMultiMessageSubject.stream.value) {
-                    widget.selectMultiMessageSubject.add(true);
-                  }
-                  widget.addForwardMessage();
-                },
-                onTapDown: storePosition,
-                onSecondaryTapDown: storePosition,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: msg.json == EMPTY_MESSAGE ? 0.0 : 4.0),
-                  child: PersistentEventMessage(
-                    message: msg,
-                    maxWidth: maxWidthOfMessage(context),
-                    onPinMessageClick: (int id) {
-                      widget.changeReplyMessageId(id);
-                      widget.itemScrollController.scrollTo(
-                          alignment: .5,
-                          curve: Curves.easeOut,
-                          opacityAnimationWeights: [20, 20, 60],
-                          index: id,
-                          duration: const Duration(milliseconds: 1000));
-                      Timer(const Duration(seconds: 1), () {
-                        widget.changeReplyMessageId(-1);
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ],
-          );
+          onDoubleTap: !isDesktop ? null : widget.onReply,
+          onLongPress: () {
+            if (!widget.selectMultiMessageSubject.stream.value) {
+              widget.selectMultiMessageSubject.add(true);
+            }
+            widget.addForwardMessage();
+          },
+          onTapDown: storePosition,
+          onSecondaryTapDown: storePosition,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: msg.json == EMPTY_MESSAGE ? 0.0 : 4.0),
+            child: PersistentEventMessage(
+              message: msg,
+              maxWidth: maxWidthOfMessage(context),
+              onPinMessageClick: (int id) {
+                widget.changeReplyMessageId(id);
+                widget.itemScrollController.scrollTo(
+                    alignment: .5,
+                    curve: Curves.easeOut,
+                    opacityAnimationWeights: [20, 20, 60],
+                    index: id,
+                    duration: const Duration(milliseconds: 1000));
+                Timer(const Duration(seconds: 1), () {
+                  widget.changeReplyMessageId(-1);
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
-  Widget _createWidget(BuildContext context, Message message,
+  Widget _createSidedMessageWidget(BuildContext context, Message message,
       bool isFirstMessageInGroupedMessages) {
-    if (message.json.isEmptyMessage()) {
-      return const SizedBox.shrink();
-    }
     Widget messageWidget;
-    if (message.type == MessageType.CALL &&
-        (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
-            message.json.toCallEvent().newStatus ==
-                CallEvent_CallStatus.DECLINED)) {
-      if (_authRepo.isCurrentUser(message.to)) {
-        messageWidget =
-            showSentMessage(message, isFirstMessageInGroupedMessages);
-      } else {
-        messageWidget =
-            showReceivedMessage(message, isFirstMessageInGroupedMessages);
-      }
-    } else if (_authRepo.isCurrentUser(message.from)) {
+
+    if (_authRepo.isCurrentUser(message.from)) {
       messageWidget = showSentMessage(message, isFirstMessageInGroupedMessages);
     } else {
       messageWidget =
           showReceivedMessage(message, isFirstMessageInGroupedMessages);
     }
-    var dismissibleWidget = Swipe(
-        onSwipeLeft: widget.onReply,
-        child: Container(
-            width: double.infinity,
-            color: Colors.transparent,
-            child: messageWidget));
+
+    // Wrap in Swipe widget if needed
+    if (widget.message.roomUid.asUid().isChannel()) {
+      messageWidget = Swipe(
+          onSwipeLeft: widget.onReply,
+          child: Container(
+              width: double.infinity,
+              color: Colors.transparent,
+              child: messageWidget));
+    }
 
     return GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
           if (widget.selectMultiMessageSubject.stream.value) {
             widget.addForwardMessage();
-          } else if (!isDesktop()) {
+          } else if (!isDesktop) {
             FocusScope.of(context).unfocus();
             _showCustomMenu(context, message);
           }
         },
-        onSecondaryTap: !isDesktop()
+        onSecondaryTap: !isDesktop
             ? null
             : () {
                 if (!widget.selectMultiMessageSubject.stream.value) {
                   _showCustomMenu(context, message);
                 }
               },
-        onDoubleTap: !isDesktop() ? null : widget.onReply,
+        onDoubleTap: !isDesktop ? null : widget.onReply,
         onLongPress: () {
           if (!widget.selectMultiMessageSubject.stream.value) {
             widget.selectMultiMessageSubject.add(true);
@@ -237,9 +257,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         },
         onTapDown: storePosition,
         onSecondaryTapDown: storePosition,
-        child: widget.message.roomUid.asUid().isChannel()
-            ? messageWidget
-            : dismissibleWidget);
+        child: messageWidget);
   }
 
   Widget showSentMessage(
@@ -571,11 +589,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Future<void> onShowInFolder(path) async {
     var shell = Shell();
-    if (isWindows()) {
+    if (isWindows) {
       await shell.run('start "" "$path"');
-    } else if (isLinux()) {
+    } else if (isLinux) {
       await shell.run('nautilus $path');
-    } else if (isMacOS()) {
+    } else if (isMacOS) {
       await shell.run('open $path');
     }
   }

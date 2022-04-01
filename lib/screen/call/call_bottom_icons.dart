@@ -96,7 +96,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       // FloatingActionButton(
                       //   heroTag: 55,
                       //   backgroundColor: _screenShareIcon,
-                      //   child: (isAndroid())
+                      //   child: (isAndroid)
                       //       ? const Icon(Icons.mobile_screen_share)
                       //       : const Icon(Icons.screen_share_outlined),
                       //   onPressed: () => _shareScreen(),

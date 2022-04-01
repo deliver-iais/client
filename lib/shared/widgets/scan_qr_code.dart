@@ -48,7 +48,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   void reassemble() {
     try{
       super.reassemble();
-      if (isAndroid()) {
+      if (isAndroid) {
         controller.pauseCamera();
       }
       controller.resumeCamera();
