@@ -23,12 +23,6 @@ import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 
-BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationVideoCall =
-    BehaviorSubject.seeded({"": true});
-
-BehaviorSubject<Map<String, bool>> modifyRoutingByNotificationAudioCall =
-    BehaviorSubject.seeded({"": true});
-
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
 
@@ -44,7 +38,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _botRepo = GetIt.I.get<BotRepo>();
-  final _callRepo = GetIt.I.get<CallRepo>();
+  static final _callRepo = GetIt.I.get<CallRepo>();
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
@@ -56,18 +50,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
-    modifyRoutingByNotificationVideoCall.stream.listen((event) {
-      if (event.keys.elementAt(0).isNotEmpty) {
-        _routingService.openCallScreen(event.keys.elementAt(0).asUid(),
-            isCallAccepted: true, isVideoCall: true, context: context);
-      }
-    });
-    modifyRoutingByNotificationAudioCall.stream.listen((event) {
-      if (event.keys.elementAt(0).isNotEmpty) {
-        _routingService.openCallScreen(event.keys.elementAt(0).asUid(),
-            isCallAccepted: true, context: context);
-      }
-    });
+    // TODO: why here?!?!?!?, just do it in Call page!?!?!
     _callRepo.fetchUserCallList(
         _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
     super.initState();

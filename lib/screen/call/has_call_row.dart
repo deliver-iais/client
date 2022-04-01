@@ -30,12 +30,10 @@ class _HasCallRowState extends State<HasCallRow> {
                       !callRepo.isCaller) {
                     _routingService.openCallScreen(callRepo.roomUid!,
                         isIncomingCall: true,
-                        context: context,
                         isVideoCall: callRepo.isVideo);
                   } else {
                     _routingService.openCallScreen(callRepo.roomUid!,
                         isCallInitialized: true,
-                        context: context,
                         isVideoCall: callRepo.isVideo);
                   }
                 },

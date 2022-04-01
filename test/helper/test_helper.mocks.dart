@@ -319,8 +319,9 @@ class MockRoomRepo extends _i1.Mock implements _i25.RoomRepo {
   dynamic updateRoom(_i24.Room? room) =>
       super.noSuchMethod(Invocation.method(#updateRoom, [room]));
   @override
-  _i19.Future<String> getSlangName(_i3.Uid? uid) =>
-      (super.noSuchMethod(Invocation.method(#getSlangName, [uid]),
+  _i19.Future<String> getSlangName(_i3.Uid? uid, {String? unknownName}) =>
+      (super.noSuchMethod(
+          Invocation.method(#getSlangName, [uid], {#unknownName: unknownName}),
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
   _i19.Future<bool> isVerified(_i3.Uid? uid) =>
@@ -331,8 +332,9 @@ class MockRoomRepo extends _i1.Mock implements _i25.RoomRepo {
       (super.noSuchMethod(Invocation.method(#fastForwardName, [uid]))
           as String?);
   @override
-  _i19.Future<String> getName(_i3.Uid? uid) =>
-      (super.noSuchMethod(Invocation.method(#getName, [uid]),
+  _i19.Future<String> getName(_i3.Uid? uid, {String? unknownName}) =>
+      (super.noSuchMethod(
+          Invocation.method(#getName, [uid], {#unknownName: unknownName}),
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
   _i19.Future<String?>? getId(_i3.Uid? uid) =>
@@ -932,10 +934,6 @@ class MockDataStreamServices extends _i1.Mock
   _i19.Future<bool> shouldNotifyForThisMessage(_i43.Message? message) => (super
       .noSuchMethod(Invocation.method(#shouldNotifyForThisMessage, [message]),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
-  @override
-  bool isHiddenMessage(_i27.AuthRepo? authRepo, _i43.Message? message) => (super
-      .noSuchMethod(Invocation.method(#isHiddenMessage, [authRepo, message]),
-          returnValue: false) as bool);
   @override
   _i19.Future<_i9.Message> saveMessage(
           _i43.Message? message, _i3.Uid? roomUid) =>

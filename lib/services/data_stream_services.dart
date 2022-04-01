@@ -211,7 +211,7 @@ class DataStreamServices {
           message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
         _notificationServices.playSoundIn();
       } else {
-        _notificationServices.showNotification(message, roomName: roomName);
+        _notificationServices.showTextNotification(message, roomName: roomName);
       }
     }
     if (message.from.category == Categories.USER) {
@@ -356,12 +356,17 @@ class DataStreamServices {
 
     final roomUid = getRoomUid(authRepo, message);
 
-    if (uxService.isAllNotificationDisabled ||
+    if (message.shouldBeQuiet) {
+      return false;
+    } else if (uxService.isAllNotificationDisabled ||
         await roomRepo.isRoomMuted(roomUid.asString())) {
       // If Notification is Off
       return false;
     } else if (authRepo.isCurrentUser(message.from.asString())) {
       // If Message is from Current User
+      return false;
+    } else if (message.whichType() == Message_Type.callEvent) {
+      // CallEvent message should be handled in CallRepo instead of here.
       return false;
     } else if (message.whichType() == Message_Type.persistEvent &&
         message.persistEvent.whichType() ==
@@ -372,27 +377,6 @@ class DataStreamServices {
     }
 
     return true;
-  }
-
-  bool isHiddenMessage(AuthRepo authRepo, Message message) {
-    if (!authRepo.isCurrentUser(message.from.asString())) {}
-
-    bool showNotify = true;
-    showNotify = !authRepo.isCurrentUser(message.from.asString());
-    if (message.whichType() == Message_Type.persistEvent) {
-      // ignore: missing_enum_constant_in_switch
-      switch (message.persistEvent.whichType()) {
-        case PersistentEvent_Type.mucSpecificPersistentEvent:
-          showNotify = !authRepo.isCurrentUser(message
-              .persistEvent.mucSpecificPersistentEvent.issuer
-              .asString());
-          return showNotify;
-        case PersistentEvent_Type.messageManipulationPersistentEvent:
-          showNotify = false;
-          return showNotify;
-      }
-    }
-    return showNotify;
   }
 
   Future<message_model.Message> saveMessage(

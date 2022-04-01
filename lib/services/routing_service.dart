@@ -124,13 +124,12 @@ class RoutingService {
   }
 
   void openCallScreen(Uid roomUid,
-      {BuildContext? context,
-      bool isIncomingCall = false,
+      {bool isIncomingCall = false,
       bool isCallInitialized = false,
       bool isCallAccepted = false,
       isVideoCall = false}) {
     _push(CallScreen(
-      key: const ValueKey("/callScreen"),
+      key: const ValueKey("/call-screen"),
       roomUid: roomUid,
       isCallAccepted: isCallAccepted,
       isCallInitialized: isCallInitialized,

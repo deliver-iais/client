@@ -676,8 +676,7 @@ class _RoomPageState extends State<RoomPage> {
                   .contains(_authRepo.currentUserUid.asString()))
             IconButton(
                 onPressed: () {
-                  _routingService.openCallScreen(room.uid.asUid(),
-                      context: context);
+                  _routingService.openCallScreen(room.uid.asUid());
                 },
                 icon: const Icon(CupertinoIcons.phone)),
         ],

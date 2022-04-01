@@ -60,7 +60,7 @@ class RoomRepo {
 
   updateRoom(Room room) => _roomDao.updateRoom(room);
 
-  Future<String> getSlangName(Uid uid) async {
+  Future<String> getSlangName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (_authRepo.isCurrentUserUid(uid)) {
       return _i18n.get("you");
@@ -82,7 +82,7 @@ class RoomRepo {
     return null;
   }
 
-  Future<String> getName(Uid uid) async {
+  Future<String> getName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -164,7 +164,7 @@ class RoomRepo {
       _uidIdNameDao.update(uid.asString(), id: username);
     }
 
-    return username ?? "Unknown";
+    return (username ?? unknownName) ?? "Unknown";
   }
 
   Future<String?>? getId(Uid uid) async {
