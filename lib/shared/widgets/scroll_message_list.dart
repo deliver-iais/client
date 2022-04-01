@@ -46,6 +46,9 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
     double h = ((((widget.itemCount - pos.first.index) / widget.itemCount) *
         MediaQuery.of(context).size.height));
     _barOffset = h;
+    if (widget.itemCount<40 && widget.itemCount - pos.first.index < 30) {
+      h = 0.0;
+    }
     _bottom.add(h);
   }
 
@@ -67,7 +70,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
 
   @override
   Widget build(BuildContext context) {
-    return isDesktop || kIsWeb
+    return (isDesktop || kIsWeb) && widget.itemCount>40
         ? Stack(children: <Widget>[
             ScrollConfiguration(
               behavior:
@@ -106,7 +109,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
 
   Widget _buildScroll() {
     return Container(
-      height: min(60, widget.itemCount.toDouble()),
+      height: 60,
       width: 8,
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
