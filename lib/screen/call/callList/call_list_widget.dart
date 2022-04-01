@@ -2,8 +2,8 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -26,6 +26,7 @@ class CallListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -57,12 +58,20 @@ class CallListWidget extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
+                      callEvent.callEvent.callType == CallType.VIDEO
+                          ? Icons.videocam_rounded
+                          : Icons.call,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
                       isIncomingCall ? Icons.call_made : Icons.call_received,
                       color: callEvent.callEvent.callDuration == 0
                           ? Colors.red
                           : Colors.green,
                       size: 14,
                     ),
+                    const SizedBox(width: 4),
                     Text(
                       " " +
                           monthName +
@@ -73,10 +82,7 @@ class CallListWidget extends StatelessWidget {
                           ":" +
                           time.minute.toString(),
                       style: TextStyle(
-                        color: ExtraTheme.of(context)
-                            .colorScheme
-                            .primary
-                            .withAlpha(130),
+                        color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 12,
                         height: 1.2,
                       ),
@@ -86,16 +92,7 @@ class CallListWidget extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            onPressed: null,
-            icon: Icon(
-              callEvent.callEvent.callType == CallType.VIDEO
-                  ? Icons.videocam_rounded
-                  : Icons.call,
-              color: Colors.blueAccent,
-              size: 21,
-            ),
-          ),
+          ExpandableIcon(),
         ],
       ),
     );

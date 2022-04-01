@@ -14,7 +14,7 @@ import 'package:deliver/main.dart';
 import 'package:deliver/repository/accountRepo.dart';
 
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
 
@@ -192,7 +192,7 @@ Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async {
   var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   var _seenDao = GetIt.I.get<SeenDao>();
 
   if (remoteMessage.data.containsKey('body')) {

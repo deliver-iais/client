@@ -4,7 +4,7 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/shared/constants.dart';
@@ -36,7 +36,7 @@ class MusicAndAudioUi extends StatefulWidget {
 }
 
 class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
-  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
 

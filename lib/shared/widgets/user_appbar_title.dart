@@ -50,7 +50,7 @@ class UserAppbarTitle extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.fade,
                       softWrap: false,
-                      style:theme.textTheme.subtitle1,
+                      style: theme.textTheme.subtitle1,
                     ),
                   )
                 : Expanded(
@@ -65,19 +65,18 @@ class UserAppbarTitle extends StatelessWidget {
                               RoomName(
                                   uid: userUid,
                                   name: (snapshot.data)!.trim(),
-                                  style:theme.textTheme.subtitle1),
+                                  style: theme.textTheme.subtitle1),
                               TitleStatus(
                                 currentRoomUid: userUid,
-                                style:theme.textTheme.caption!,
-                                normalConditionWidget: userUid.category ==
-                                        Categories.SYSTEM
-                                    ? Text("Notification Service",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.fade,
-                                        softWrap: false,
-                                        style:
-                                           theme.textTheme.caption)
-                                    : const SizedBox(key: ValueKey("10")),
+                                style: theme.textTheme.caption!,
+                                normalConditionWidget:
+                                    userUid.category == Categories.SYSTEM
+                                        ? Text("Notification Service",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.fade,
+                                            softWrap: false,
+                                            style: theme.textTheme.caption)
+                                        : const SizedBox(),
                               )
                             ],
                           );
@@ -89,19 +88,19 @@ class UserAppbarTitle extends StatelessWidget {
                                     width: 200,
                                     height: 20,
                                     decoration: BoxDecoration(
-                                        color:theme.brightness ==
-                                                Brightness.light
-                                            ? Colors.grey[200]
-                                            : Colors.grey[800])),
+                                        color:
+                                            theme.brightness == Brightness.light
+                                                ? Colors.grey[200]
+                                                : Colors.grey[800])),
                                 const SizedBox(height: 6),
                                 Container(
                                     width: 100,
                                     height: 11,
                                     decoration: BoxDecoration(
-                                        color:theme.brightness ==
-                                                Brightness.light
-                                            ? Colors.grey[200]
-                                            : Colors.grey[800])),
+                                        color:
+                                            theme.brightness == Brightness.light
+                                                ? Colors.grey[200]
+                                                : Colors.grey[800])),
                               ]);
                         }
                       },

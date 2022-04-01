@@ -138,7 +138,7 @@
   "sending_file_activity": "sending file ...",
   "record_audio_activity": "record audio...",
   "online": "online",
-  "channel_id_not_empty": "channel Id  should not be empty",
+  "channel_id_not_empty": "channel Id should not be empty",
   "channel_id_length": " length less 5",
   "inter_muc_name": "inter name",
   "close": "Close",
@@ -292,5 +292,7 @@
   "forwarded_medias": "Forwarded medias",
   "photo_saved": "photo saved to gallery",
   "file_saved": "file saved to downloads",
-  "music_saved": "Music saved"
+  "music_saved": "Music saved",
+  "file_size_error": "File size is more than 100 MB The selected file size must be less than 100 MB",
+  "auto_night_mode": "Auto-Night Mode"
 }

@@ -43,7 +43,7 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/repository/mediaQueryRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
@@ -214,7 +214,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
   GetIt.I.registerSingleton<MucRepo>(MucRepo());
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
-  GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+  GetIt.I.registerSingleton<MediaRepo>(MediaRepo());
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
@@ -311,7 +311,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: MergeStream([
-        _uxService.themeStream,
+        _uxService.themeIndexStream,
+        _uxService.themeIsDarkStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {
@@ -321,7 +322,7 @@ class MyApp extends StatelessWidget {
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
                 _rawKeyboardService.escapeHandling(event);
-                _rawKeyboardService.searchHandling(event: event);
+                _rawKeyboardService.searchHandling(event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
@@ -329,7 +330,7 @@ class MyApp extends StatelessWidget {
               child: WithForegroundTask(
                   child: MaterialApp(
                 debugShowCheckedModeBanner: false,
-                title: 'Deliver',
+                title: APPLICATION_NAME,
                 locale: _i18n.locale,
                 theme: _uxService.theme,
                 navigatorKey: _routingService.mainNavigatorState,

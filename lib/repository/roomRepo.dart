@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
@@ -133,13 +134,6 @@ class RoomRepo {
       }
     }
 
-    if (uidIdName != null && uidIdName.id != null && uidIdName.id!.isNotEmpty) {
-      // Set in cache
-      roomNameCache.set(uid.asString(), uidIdName.id!);
-
-      return uidIdName.id!;
-    }
-
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
@@ -196,7 +190,7 @@ class RoomRepo {
           uid: roomUid.asString(),
           deleted: true,
           firstMessageId: room!.lastMessageId ?? 0,
-          lastUpdateTime: DateTime.now().millisecondsSinceEpoch));
+          lastUpdateTime: clock.now().millisecondsSinceEpoch));
       return true;
     } catch (e) {
       _logger.e(e);
@@ -289,7 +283,7 @@ class RoomRepo {
 
   Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
-  void block(String uid, {bool? block}) async {
+  block(String uid, {bool? block}) async {
     if (block!) {
       await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
       _blockDao.block(uid);
@@ -367,7 +361,7 @@ class RoomRepo {
 
   void updateRoomDraft(String roomUid, String draft) {
     _roomDao
-        .updateRoom(Room(uid: roomUid).copyWith(uid: roomUid, draft: draft));
+        .updateRoom(Room(uid: roomUid).copyWith(draft: draft));
   }
 
   Future<bool> isDeletedRoom(String roomUid) async {

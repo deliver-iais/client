@@ -18,13 +18,12 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:fixnum/fixnum.dart';
+import '../constants/constants.dart';
 import '../helper/test_helper.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
@@ -34,33 +33,6 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-
-Position testPosition = Position(
-    altitude: 0,
-    accuracy: 0,
-    heading: 0,
-    latitude: 0,
-    longitude: 0,
-    speed: 0,
-    speedAccuracy: 0,
-    timestamp: DateTime(2000));
-Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
-Message testMessage = Message(
-    to: testUid.asString(),
-    from: testUid.asString(),
-    packetId: testUid.asString(),
-    roomUid: testUid.asString(),
-    time: 0,
-    json: '');
-PendingMessage testPendingMessage = PendingMessage(
-    roomUid: testUid.asString(),
-    packetId: "946672200000000",
-    msg: testMessage.copyWith(
-      time: 946672200000,
-      packetId: "946672200000000",
-    ),
-    failed: false,
-    status: SendingStatus.PENDING);
 
 void main() {
   group('MessageRepoTest -', () {
@@ -338,7 +310,7 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 2,
         );
@@ -353,7 +325,7 @@ void main() {
               testUid,
               0,
               0,
-              Room(uid: testUid.asString()),
+              testRoom,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
             ),
@@ -368,7 +340,7 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 2,
@@ -389,13 +361,13 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 2,
         );
         verify(logger.wtf(testUid));
-        verify(logger.wtf(Room(uid: testUid.asString())));
+        verify(logger.wtf(testRoom));
       });
 
       test('When called should getMessage from messageDao if msg be null ',
@@ -405,7 +377,7 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 0,
@@ -415,7 +387,7 @@ void main() {
               testUid,
               0,
               0,
-              Room(uid: testUid.asString()),
+              testRoom,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 0,
             ),
@@ -451,7 +423,7 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 2,
@@ -469,7 +441,7 @@ void main() {
               testUid,
               0,
               0,
-              Room(uid: testUid.asString()),
+              testRoom,
               lastUpdateTime: 0,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
@@ -493,7 +465,7 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 2,
@@ -511,7 +483,7 @@ void main() {
               testUid,
               0,
               0,
-              Room(uid: testUid.asString()),
+              testRoom,
               lastUpdateTime: 0,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
@@ -528,7 +500,7 @@ void main() {
           testUid,
           0,
           0,
-          Room(uid: testUid.asString()),
+          testRoom,
           lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
           limit: 2,
@@ -547,7 +519,7 @@ void main() {
               testUid,
               0,
               0,
-              Room(uid: testUid.asString()),
+              testRoom,
               lastUpdateTime: 0,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
               limit: 2,
@@ -621,8 +593,7 @@ void main() {
         await MessageRepo().fetchOtherSeen(testUid);
         verify(queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid));
-        verify(
-            seenDo.saveOthersSeen(Seen(uid: testUid.asString(), messageId: 0)));
+        verify(seenDo.saveOthersSeen(testSeen));
       });
     });
     group('fetchCurrentUserLastSeen -', () {
@@ -1172,8 +1143,8 @@ void main() {
                     assignee: testUid)),
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: true)));
+            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+        verify(roomDao.updateRoom(any));
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
@@ -1255,8 +1226,7 @@ void main() {
             fetchMessagesLimit: 1,
             fetchMessagesHasOptions: false,
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
-        final roomDao =
-            getAndRegisterRoomDao(rooms: [Room(uid: testUid.asString())]);
+        final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
         await MessageRepo().getEditedMsg(testUid, 0);
         verify(roomDao.getRoom(testUid.asString()));
       });
@@ -1265,11 +1235,9 @@ void main() {
             fetchMessagesLimit: 1,
             fetchMessagesHasOptions: false,
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
-        final roomDao =
-            getAndRegisterRoomDao(rooms: [Room(uid: testUid.asString())]);
+        final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
         await MessageRepo().getEditedMsg(testUid, 0);
-        verify(roomDao.updateRoom(
-            Room(uid: testUid.asString()).copyWith(lastUpdatedMessageId: 0)));
+        verify(roomDao.updateRoom(testRoom.copyWith(lastUpdatedMessageId: 0)));
       });
       test('When called if lastMessageId==id should updateRoom', () async {
         getAndRegisterQueryServiceClient(
@@ -1799,7 +1767,7 @@ void main() {
         await MessageRepo().fetchBlockedRoom();
         verify(queryServiceClient.getBlockedList(GetBlockedListReq()));
       });
-      test('When called should getBlockedList and block theme', () async {
+      test('When called should getBlockedList and block them', () async {
         final blockDao = getAndRegisterBlockDao();
         await MessageRepo().fetchBlockedRoom();
         verify(blockDao.block(testUid.asString()));

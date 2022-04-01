@@ -133,6 +133,19 @@ class _CallScreenState extends State<CallScreen> {
                       roomUid: widget.roomUid,
                       callStatus: "disConnected",
                       hangUp: _hangUp);
+            case CallStatus.CONNECTING:
+              _audioService.stopPlayBeepSound();
+              return widget.isVideoCall
+                  ? InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                  roomUid: widget.roomUid,
+                  callStatus: "Connecting",
+                  hangUp: _hangUp);
             case CallStatus.RECONNECTING:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall

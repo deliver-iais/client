@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:deliver/shared/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 
@@ -125,7 +126,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
                 scale: showRightIcon ? 1 : 0,
                 duration: ANIMATION_DURATION,
                 child: Icon(
-                  Icons.reply,
+                  CupertinoIcons.reply,
                   color: Theme.of(context).iconTheme.color,
                 ),
               ),
