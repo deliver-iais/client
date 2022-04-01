@@ -16,6 +16,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -49,9 +50,10 @@ enum CallStatus {
 }
 
 class CallRepo {
-  final messageRepo = GetIt.I.get<MessageRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
+  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _callService = GetIt.I.get<CallService>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
@@ -59,8 +61,7 @@ class CallRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   final _candidateNumber = 10;
-  final _candidateTimeLimit = 1000 ; // 1 sec
-
+  final _candidateTimeLimit = 1000; // 1 sec
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -72,6 +73,7 @@ class CallRepo {
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
+
   // ignore: unused_field
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
@@ -119,7 +121,7 @@ class CallRepo {
   ReceivePort? _receivePort;
 
   CallRepo() {
-    _coreServices.callEvents.listen((event) async {
+    _dataStreamServices.callEvents.listen((event) async {
       switch (event.callType) {
         case CallTypes.Answer:
           if (!_reconnectTry) {
@@ -149,7 +151,7 @@ class CallRepo {
                 _incomingCall(event.roomUid!);
               } else {
                 var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-                messageRepo.sendCallMessage(
+                _messageRepo.sendCallMessage(
                     CallEvent_CallStatus.BUSY,
                     event.roomUid!,
                     callEvent.id,
@@ -754,7 +756,7 @@ class CallRepo {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-    messageRepo.sendCallMessage(
+    _messageRepo.sendCallMessage(
         CallEvent_CallStatus.IS_RINGING,
         _roomUid!,
         _callId,
@@ -789,7 +791,7 @@ class CallRepo {
   _sendStartCallEvent() {
     _callIdGenerator();
     var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-    messageRepo.sendCallMessage(
+    _messageRepo.sendCallMessage(
         CallEvent_CallStatus.CREATED,
         _roomUid!,
         _callId,
@@ -818,7 +820,7 @@ class CallRepo {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-    messageRepo.sendCallMessage(
+    _messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
         _callId,
@@ -888,7 +890,7 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      messageRepo.sendCallMessage(
+      _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
           _callId,
@@ -966,8 +968,12 @@ class CallRepo {
 
   Future<void> _waitUntilCandidateConditionDone() async {
     final completer = Completer();
-    _logger.i("Time for w8:" + (DateTime.now().millisecondsSinceEpoch - _candidateStartTime).toString() );
-    if ((_candidate.length >= _candidateNumber) || (DateTime.now().millisecondsSinceEpoch - _candidateStartTime > _candidateTimeLimit)) {
+    _logger.i("Time for w8:" +
+        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime)
+            .toString());
+    if ((_candidate.length >= _candidateNumber) ||
+        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime >
+            _candidateTimeLimit)) {
       completer.complete();
     } else {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -1231,6 +1237,7 @@ void startCallback() {
 class FirstTaskHandler extends TaskHandler {
   // ignore: prefer_typing_uninitialized_variables
   late final callStatus;
+
   // ignore: prefer_typing_uninitialized_variables
   late final sPort;
 

@@ -1,28 +1,18 @@
 import 'dart:convert';
 
-import 'package:deliver/box/dao/message_dao.dart';
-import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/dao/seen_dao.dart';
 
 import 'package:deliver/box/dao/shared_dao.dart';
-import 'package:deliver/box/seen.dart';
 
 import 'package:deliver/main.dart';
-import 'package:deliver/repository/accountRepo.dart';
 
-import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
-import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/data_stream_services.dart';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -32,7 +22,6 @@ import 'package:deliver/web_classes/js.dart'
 
 import 'package:logger/logger.dart';
 
-import 'notification_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 @js.JS('decodeMessageForCallFromJs')
@@ -49,12 +38,10 @@ class FireBaseServices {
       dynamic notification) async {
     Map<String, String> res = {};
 
-    var mb = await _backgroundMessageHandler(notification);
+    await _backgroundRemoteMessageHandler(notification);
 
-    if (mb != null) {
-      res['title'] = mb.roomName;
-      res['body'] = createNotificationTextFromMessageBrief(mb);
-    }
+    res['title'] = APPLICATION_NAME;
+    res['body'] = "New message arrived";
 
     return res;
   }
@@ -91,26 +78,27 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() async {
-    if (isWeb) {
-      _decodeMessageForCallFromJs =
-          js.allowInterop(_decodeMessageForWebNotification);
-    }
-    //for web register in  firebase-messaging-sw.js in web folder;
-    if (isAndroid) {
-      try {
-        FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+    try {
+      if (isWeb) {
+        // For web register in  firebase-messaging-sw.js in web folder.
+        // in here we just set decoder function interop.
+        _decodeMessageForCallFromJs =
+            js.allowInterop(_decodeMessageForWebNotification);
+      } else if (isAndroid) {
+        FirebaseMessaging.onBackgroundMessage(_backgroundRemoteMessageHandler);
         _firebaseMessaging.setForegroundNotificationPresentationOptions(
           alert: true,
           badge: true,
           sound: true,
         );
-      } catch (e) {
-        _logger.e(e);
       }
+      // Other platform not supported for now
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
-  void subscribeRoom(String roomUid) async {
+  void sendGlitchReportForFirebaseNotification(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
         await _queryServicesClient.sendGlitch(SendGlitchReq()
@@ -131,55 +119,35 @@ message_pb.Message _decodeMessage(String notificationBody) {
   return m;
 }
 
-Future<MessageBrief?> _backgroundMessageHandler(
+Future<void> _backgroundRemoteMessageHandler(
     RemoteMessage remoteMessage) async {
-  try {
-    await setupDI();
-  } catch (e) {
-    Logger().e(e);
-  }
-
-  var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _authRepo = GetIt.I.get<AuthRepo>();
-  var _messageDao = GetIt.I.get<MessageDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  var _seenDao = GetIt.I.get<SeenDao>();
-
   if (remoteMessage.data.containsKey('body')) {
-    message_pb.Message msg = _decodeMessage(remoteMessage.data["body"]);
-
-    String? roomName = remoteMessage.data['title'];
-    if ((roomName ?? "").trim().isEmpty) {
-      roomName = null;
-    }
-
-    Uid roomUid = getRoomUid(_authRepo, msg);
-
     try {
-      var message = await saveMessage(msg, roomUid, _messageDao, _authRepo,
-          _accountRepo, _roomDao, _seenDao, _mediaQueryRepo);
-      if (!message.json.isEmptyMessage() &&
-          await shouldNotifyForThisMessage(msg)) {
-        return await _notificationServices.showNotification(msg,
-            roomName: roomName);
+      await setupDI();
+
+      message_pb.Message msg = _decodeMessage(remoteMessage.data["body"]);
+
+      String? roomName = remoteMessage.data['title'];
+      if ((roomName ?? "").trim().isEmpty) {
+        roomName = null;
       }
-    } catch (_) {}
+
+      return await GetIt.I
+          .get<DataStreamServices>()
+          .handleIncomingMessage(msg, roomName: roomName);
+    } catch (e) {
+      Logger().e(e);
+    }
   } else if (remoteMessage.data.containsKey("seen")) {
-    pb_seen.Seen seen =
-        pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
-    if (_authRepo.isCurrentUser(seen.from.asString())) {
-      _notificationServices.cancelRoomNotifications(seen.to.asString());
-      _notificationServices.cancelNotificationById(0);
-      _seenDao.saveMySeen(
-        Seen(uid: seen.to.asString(), messageId: seen.id.toInt()),
-      );
+    try {
+      await setupDI();
+
+      pb_seen.Seen seen =
+          pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
+
+      return await GetIt.I.get<DataStreamServices>().handleSeen(seen);
+    } catch (e) {
+      Logger().e(e);
     }
   }
-
-  return null;
 }
-
-Future<void> backgroundMessageHandler(RemoteMessage remoteMessage) async =>
-    _backgroundMessageHandler(remoteMessage);

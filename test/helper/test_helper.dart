@@ -31,6 +31,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -77,6 +78,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   MockSpec<LiveLocationRepo>(returnNullOnMissingStub: true),
   MockSpec<SeenDao>(returnNullOnMissingStub: true),
   MockSpec<MucServices>(returnNullOnMissingStub: true),
+  MockSpec<DataStreamServices>(returnNullOnMissingStub: true),
   MockSpec<CoreServices>(returnNullOnMissingStub: true),
   MockSpec<QueryServiceClient>(returnNullOnMissingStub: true),
   MockSpec<SharedDao>(returnNullOnMissingStub: true),
@@ -104,6 +106,13 @@ MockCoreServices getAndRegisterCoreServices(
   _connectionStatus.add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
+  return service;
+}
+
+MockDataStreamServices getAndRegisterDataStreamServices() {
+  _removeRegistrationIfExists<DataStreamServices>();
+  final service = MockDataStreamServices();
+  GetIt.I.registerSingleton<DataStreamServices>(service);
   return service;
 }
 
@@ -582,6 +591,7 @@ void registerServices() {
   getAndRegisterAnalyserRepo();
   getAndRegisterMediaRepo();
   getAndRegisterLogger();
+  getAndRegisterDataStreamServices();
   getAndRegisterCoreServices();
   getAndRegisterMessageDao();
   getAndRegisterRoomDao();
@@ -610,6 +620,7 @@ void registerServices() {
 
 void unregisterServices() {
   GetIt.I.unregister<AnalyticsRepo>();
+  GetIt.I.unregister<DataStreamServices>();
   GetIt.I.unregister<CoreServices>();
   GetIt.I.unregister<Logger>();
   GetIt.I.unregister<MessageDao>();

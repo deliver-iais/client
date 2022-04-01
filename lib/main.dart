@@ -55,6 +55,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
@@ -258,6 +259,7 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<CallService>(CallService());
 
+  GetIt.I.registerSingleton<DataStreamServices>(DataStreamServices());
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
 
