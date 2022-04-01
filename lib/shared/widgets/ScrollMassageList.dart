@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -66,9 +67,8 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
 
   @override
   Widget build(BuildContext context) {
-    return !isDesktop()
-        ? widget.child
-        : Stack(children: <Widget>[
+    return isDesktop || kIsWeb
+        ? Stack(children: <Widget>[
             ScrollConfiguration(
               behavior:
                   ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -100,7 +100,8 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
                   }
                   return const SizedBox.shrink();
                 }),
-          ]);
+          ])
+        : widget.child;
   }
 
   Widget _buildScroll() {
