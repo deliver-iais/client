@@ -112,7 +112,7 @@ class _RoomPageState extends State<RoomPage> {
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
 
   final _scrollEvent = BehaviorSubject.seeded(false);
-  final _isScrolling = BehaviorSubject.seeded(true);
+  final _isScrolling = BehaviorSubject.seeded(false);
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];

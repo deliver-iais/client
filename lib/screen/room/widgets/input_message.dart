@@ -629,14 +629,12 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   KeyEventResult handleKeyPress(RawKeyEvent event) {
-    if (event is RawKeyEvent &&
-        event is RawKeyUpEvent &&
+    if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.arrowUp) {
       widget.handleScrollToMessage(-1);
       return KeyEventResult.handled;
     }
-    if (event is RawKeyEvent &&
-        event is RawKeyUpEvent &&
+    if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.arrowDown) {
       widget.handleScrollToMessage(1);
       return KeyEventResult.handled;
