@@ -43,7 +43,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
     List<ItemPosition> pos =
         widget.itemPositionsListener.itemPositions.value.toList();
     pos.sort((a, b) => (b.index) - (a.index));
-    double h = ((((widget.itemCount - pos.first.index) / widget.itemCount) *
+    double h = ((((widget.itemCount - (pos.first.index+1)) / widget.itemCount) *
         MediaQuery.of(context).size.height));
     _barOffset = h;
     if (widget.itemCount<40 && widget.itemCount - pos.first.index < 30) {
@@ -70,7 +70,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
 
   @override
   Widget build(BuildContext context) {
-    return (isDesktop || kIsWeb) && widget.itemCount>40
+    return (isDesktop || kIsWeb) && widget.itemCount > 40
         ? Stack(children: <Widget>[
             ScrollConfiguration(
               behavior:
