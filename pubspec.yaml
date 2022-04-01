@@ -151,7 +151,7 @@ dependencies:
   meta: 1.7.0
   flutter_dropzone: 3.0.3
   universal_html: 2.0.8
-  js: 0.6.4
+  js: 0.6.3
   platform_detect: 2.0.0
   flutter_keyboard_visibility: 5.1.1
   feature_discovery: 0.14.1
