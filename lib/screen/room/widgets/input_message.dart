@@ -718,7 +718,7 @@ class _InputMessageWidget extends State<InputMessage> {
     var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
         query: _mentionData);
     if (value.isNotEmpty) {
-      onMentionSelected(value[mentionSelectedIndex]!.id!);
+      onMentionSelected(value[mentionSelectedIndex]!.id);
     } else {
       sendMessage();
     }

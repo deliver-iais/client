@@ -862,7 +862,7 @@ class _RoomPageState extends State<RoomPage> {
                     return const UnreadMessageBar();
                   }),
             FutureBuilder<int?>(
-              future: _timeAt(index)!,
+              future: _timeAt(index),
               builder: (context, snapshot) =>
                   snapshot.hasData && snapshot.data != null
                       ? ChatTime(currentMessageTime: date(snapshot.data!))
@@ -902,7 +902,7 @@ class _RoomPageState extends State<RoomPage> {
         _itemCount - index <= pendingMessages.length;
   }
 
-  Future<int?>? _timeAt(int index) async {
+  Future<int?> _timeAt(int index) async {
     if (index < 0) return null;
 
     final msg = await _messageAtIndex(index + 1);

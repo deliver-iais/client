@@ -95,7 +95,7 @@ class _ImageUiState extends State<ImageUi> {
                                   return AllImagePage(
                                     const Key("/all_image_page"),
                                     roomUid: widget.message.roomUid,
-                                    filePath: s.data!,
+                                    filePath: s.data,
                                     messageId: widget.message.id!,
                                   );
                                 },

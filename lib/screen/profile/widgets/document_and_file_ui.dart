@@ -71,7 +71,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                       onTap: () => widget.addSelectedMedia(mediaSnapshot.data),
                       child: Container(
                         color:
-                            widget.selectedMedia.contains(mediaSnapshot.data!)
+                            widget.selectedMedia.contains(mediaSnapshot.data)
                                 ? theme.hoverColor.withOpacity(0.4)
                                 : theme.backgroundColor,
                         child: FutureBuilder<String?>(
@@ -85,7 +85,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                     ListTile(
                                       title: GestureDetector(
                                         onTap: () {
-                                          OpenFile.open(filePath.data!);
+                                          OpenFile.open(filePath.data);
                                         },
                                         child: Row(children: <Widget>[
                                           Padding(
@@ -112,7 +112,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   ),
                                                   onPressed: () {
                                                     OpenFile.open(
-                                                        filePath.data!);
+                                                        filePath.data);
                                                   },
                                                 ),
                                               )),

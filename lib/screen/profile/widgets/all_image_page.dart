@@ -176,7 +176,7 @@ class _AllImagePageState extends State<AllImagePage> {
                                           if (filePath.hasData &&
                                               filePath.data != null) {
                                             _fileCache.set(
-                                                index, filePath.data!);
+                                                index, filePath.data);
                                             return InteractiveViewer(
                                                 child: AspectRatio(
                                               aspectRatio: max(

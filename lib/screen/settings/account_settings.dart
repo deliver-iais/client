@@ -188,7 +188,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox.shrink();
               }
-              _account = snapshot.data!;
+              _account = snapshot.data;
               if (snapshot.data!.userName != null) {
                 _lastUserName = snapshot.data!.userName!;
               }

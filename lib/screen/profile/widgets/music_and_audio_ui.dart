@@ -57,7 +57,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                     onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                     onTap: () => widget.addSelectedMedia(snapShot.data!),
                     child: Container(
-                      color: widget.selectedMedia.contains(snapShot.data!)
+                      color: widget.selectedMedia.contains(snapShot.data)
                           ? theme.hoverColor.withOpacity(0.4)
                           : theme.backgroundColor,
                       child: FutureBuilder<String?>(

@@ -68,7 +68,7 @@ class _NewContactState extends State<NewContact> {
                             (value.isNotEmpty && value[0] == '0')
                         ? _i18n.get("invalid_mobile_number")
                         : null,
-                    style: theme.textTheme.bodyText1!,
+                    style: theme.textTheme.bodyText1,
                     onChanged: (ph) {
                       _phoneNumber = ph;
                     },

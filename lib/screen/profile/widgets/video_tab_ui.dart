@@ -108,7 +108,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                   return GestureDetector(
                     onTap: () {
                       if (isDesktop) {
-                        OpenFile.open(snapshot.data!);
+                        OpenFile.open(snapshot.data);
                       } else {
                         _routingService.openShowAllVideos(
                             uid: widget.roomUid,

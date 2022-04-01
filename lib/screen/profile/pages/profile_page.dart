@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -452,7 +451,7 @@ class _ProfilePageState extends State<ProfilePage>
                       child: SettingsTile(
                         title: _i18n.get("custom_notifications"),
                         leading: const Icon(Icons.music_note_sharp),
-                        subtitle: snapshot.data!,
+                        subtitle: snapshot.data,
                         subtitleTextStyle:
                             TextStyle(color: theme.primaryColor, fontSize: 16),
                         onPressed: (_) async {
@@ -704,8 +703,8 @@ class _ProfilePageState extends State<ProfilePage>
   createInviteLink() async {
     Muc? muc = await _mucRepo.getMuc(widget.roomUid.asString());
     if (muc != null && muc.token != null) {
-      String? token = muc.token!;
-      if (token.isEmpty || token.isEmpty) {
+      String? token = muc.token;
+      if (token!.isEmpty || token.isEmpty) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
         } else {
@@ -908,7 +907,7 @@ class _ProfilePageState extends State<ProfilePage>
                     if (muc.hasData && muc.data != null) {
                       mucInfo = muc.data!.info!;
                       return TextFormField(
-                        initialValue: muc.data!.info!,
+                        initialValue: muc.data!.info,
                         minLines: muc.data!.info!.isNotEmpty
                             ? muc.data!.info!.split("\n").length
                             : 1,

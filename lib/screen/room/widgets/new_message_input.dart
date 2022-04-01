@@ -45,7 +45,7 @@ class NewMessageInput extends StatelessWidget {
               resetRoomPageDetails: resetRoomPageDetails,
               waitingForForward: waitingForForward!,
               editableMessage: editableMessage,
-              sendForwardMessage: sendForwardMessage!,
+              sendForwardMessage: sendForwardMessage,
               scrollToLastSentMessage: scrollToLastSentMessage!,
               focusNode: focusNode,
               textController: textController,

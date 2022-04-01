@@ -210,7 +210,7 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
           searchTerm: widget.pattern,
-          onUsernameClick: widget.onUsernameClick!,
+          onUsernameClick: widget.onUsernameClick,
           isBotMessage: widget.message.from.asUid().category == Categories.BOT,
           onBotCommandClick: widget.onBotCommandClick,
         );

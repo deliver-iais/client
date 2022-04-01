@@ -124,9 +124,9 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                 builder: (c, filePath) {
                                   if (filePath.hasData &&
                                       filePath.data != null) {
-                                    _fileCache.set(index, filePath.data!);
+                                    _fileCache.set(index, filePath.data);
                                     if (isDesktop) {
-                                      OpenFile.open(filePath.data!);
+                                      OpenFile.open(filePath.data);
                                       _routingServices.pop();
                                       return const SizedBox.shrink();
                                     } else {

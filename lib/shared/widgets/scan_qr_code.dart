@@ -46,15 +46,13 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   void reassemble() {
-    try{
+    try {
       super.reassemble();
       if (isAndroid) {
         controller.pauseCamera();
       }
       controller.resumeCamera();
-    }catch(_){
-    }
-
+    } catch (_) {}
   }
 
   @override
@@ -126,10 +124,10 @@ class _ScanQrCode extends State<ScanQrCode> {
     if (segments.first == "ac") {
       handleAddContact(
           context: context,
-          countryCode: uri.queryParameters["cc"]!,
-          nationalNumber: uri.queryParameters["nn"]!,
-          firstName: uri.queryParameters["fn"]!,
-          lastName: uri.queryParameters["ln"]!);
+          countryCode: uri.queryParameters["cc"],
+          nationalNumber: uri.queryParameters["nn"],
+          firstName: uri.queryParameters["fn"],
+          lastName: uri.queryParameters["ln"]);
     } else if (segments.first == SPDA) {
       handleSendPrivateDateAcceptance(context, uri.queryParameters["type"]!,
           uri.queryParameters["botId"]!, uri.queryParameters["token"]!);
@@ -204,8 +202,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               ),
               Text(
                 buildName(firstName, lastName),
-                style: TextStyle(
-                    color:theme.primaryColor, fontSize: 20),
+                style: TextStyle(color: theme.primaryColor, fontSize: 20),
               ),
               Text(
                 buildPhoneNumber(countryCode, nationalNumber),
