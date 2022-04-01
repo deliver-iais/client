@@ -242,7 +242,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   circleButton(() async {
                                     if (await _checkPermissionsService
                                             .checkLocationPermission() ||
-                                        isIOS()) {
+                                        isIOS) {
                                       if (!await Geolocator
                                           .isLocationServiceEnabled()) {
                                         const AndroidIntent intent =

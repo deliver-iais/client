@@ -6,7 +6,7 @@ import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -25,13 +25,12 @@ class AccountRepo {
   final _dbManager = GetIt.I.get<DBManager>();
 
   Future<bool> hasProfile({bool retry = false}) async {
-    if (await _sharedDao.get(SHARED_DAO_USERNAME) != null) {
+    if (await _sharedDao.get(SHARED_DAO_FIRST_NAME) != null) {
       return true;
     }
     try {
       var result =
           await _profileServiceClient.getUserProfile(GetUserProfileReq());
-
       _savePhoneNumber(result.profile.phoneNumber.countryCode,
           result.profile.phoneNumber.nationalNumber.toInt());
 
@@ -40,9 +39,9 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
-        return await hasUsername();
+        return true;
       } else {
-        return await hasUsername();
+        return false;
       }
     } catch (e) {
       _logger.e(e);
@@ -54,8 +53,21 @@ class AccountRepo {
     }
   }
 
-  Future<bool> hasUsername() async {
+  Future<bool> profileInfoIsSet() async {
+    bool isSet = await hasProfile(retry: true);
+    if (!isSet) {
+      return false;
+    } else {
+      return fetchCurrentUserId();
+    }
+  }
+
+  Future<bool> fetchCurrentUserId({bool retry = false}) async {
     try {
+      var res = await _sharedDao.get(SHARED_DAO_USERNAME);
+      if (res != null) {
+        return true;
+      }
       var getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
       if (getIdRequest.id.isNotEmpty) {
@@ -66,7 +78,11 @@ class AccountRepo {
       }
     } catch (e) {
       _logger.e(e);
-      return false;
+      if (retry) {
+        return fetchCurrentUserId();
+      } else {
+        return false;
+      }
     }
   }
 
@@ -136,14 +152,6 @@ class AccountRepo {
     _sharedDao.put(SHARED_DAO_EMAIL, email!);
   }
 
-  Future<void> fetchProfile() async {
-    if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
-      await hasUsername();
-    } else if (null == await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
-      await hasProfile(retry: true);
-    }
-  }
-
   Future<List<Session>> getSessions() async {
     var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
     return res.sessions;
@@ -162,10 +170,9 @@ class AccountRepo {
       }
 
       if (shouldUpdateSessionPlatformInformation(pv)) {
-        Platform platform = Platform()..clientVersion = VERSION;
-        platform = await _authRepo.getPlatForm(platform);
         _sessionServicesClient.updateSessionPlatformInformation(
-            UpdateSessionPlatformInformationReq()..platform = platform);
+            UpdateSessionPlatformInformationReq()
+              ..platform = await getPlatformPB());
       }
       // Update version in DB
     } else {
@@ -192,7 +199,7 @@ class AccountRepo {
   Future<bool> verifyQrCodeToken(String token) async {
     try {
       await _sessionServicesClient.verifyQrCodeToken(VerifyQrCodeTokenReq()
-        ..platform = await _authRepo.getPlatformDetails()
+        ..platform = await getPlatformPB()
         ..token = token);
       return true;
     } catch (e) {

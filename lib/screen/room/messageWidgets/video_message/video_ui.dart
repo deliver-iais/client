@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:video_player/video_player.dart';
@@ -44,7 +43,7 @@ class _VideoUiState extends State<VideoUi> {
   }
 
   _init() async {
-    _videoPlayerController = kIsWeb
+    _videoPlayerController = isWeb
         ? VideoPlayerController.network(widget.videoFilePath)
         : VideoPlayerController.file(File(widget.videoFilePath));
     await _videoPlayerController.initialize();
@@ -57,7 +56,7 @@ class _VideoUiState extends State<VideoUi> {
       children: [
         GestureDetector(
           onTap: () {
-            if (isDesktop()) {
+            if (isDesktop) {
               OpenFile.open(widget.videoFilePath);
             } else {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -94,7 +93,7 @@ class _VideoUiState extends State<VideoUi> {
               icon: Icon(Icons.play_arrow, color: widget.foreground),
               iconSize: 42,
               onPressed: () {
-                if (isDesktop()) {
+                if (isDesktop) {
                   OpenFile.open(widget.videoFilePath);
                 } else {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {

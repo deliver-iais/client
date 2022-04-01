@@ -5,6 +5,7 @@ import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -15,7 +16,6 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -55,8 +55,8 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   attachFile() async {
     String? path;
-    if (kIsWeb || isDesktop()) {
-      if (isLinux()) {
+    if (isWeb || isDesktop) {
+      if (isLinux) {
         final typeGroup =
             XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
         final file = await openFile(
@@ -69,7 +69,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         FilePickerResult? result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
-          path = kIsWeb
+          path = isWeb
               ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
               : result.files.first.path;
         }
@@ -208,7 +208,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     Center(
                                         child: CircleAvatar(
                                       radius: 60,
-                                      backgroundImage: kIsWeb
+                                      backgroundImage: isWeb
                                           ? Image.network(snapshot.data!).image
                                           : Image.file(File(snapshot.data!))
                                               .image,
@@ -458,7 +458,13 @@ class _AccountSettingsState extends State<AccountSettings> {
               _lastName.isNotEmpty ? _lastName : _account!.lastName,
               _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
-            _routingService.pop();
+            if (widget.forceToSetUsernameAndName) {
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
+                return const HomePage();
+              }),(r)=>false);
+            } else {
+              _routingService.pop();
+            }
           }
         }
       }

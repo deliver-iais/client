@@ -1,23 +1,21 @@
 // ignore_for_file: file_names
 
-import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/foundation.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as platform_pb;
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
-    as platform_pb;
+
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:device_info/device_info.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -26,17 +24,13 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 
 import 'package:synchronized/synchronized.dart';
-import 'package:deliver/web_classes/platform_detect.dart'
-    if (dart.library.html) 'package:platform_detect/platform_detect.dart'
-    as platform_detect;
 
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _authServiceClient = GetIt.I.get<AuthServiceClient>();
-  static final _routingServices = GetIt.I.get<RoutingService>();
   static final requestLock = Lock();
-  static final _deviceInfo = DeviceInfoPlugin();
+
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -77,7 +71,7 @@ class AuthRepo {
   }
 
   Future<bool> getVerificationCode(PhoneNumber p) async {
-    platform_pb.Platform platform = await getPlatformDetails();
+    platform_pb.Platform platform = await getPlatformPB();
 
     try {
       _tmpPhoneNumber = p;
@@ -92,72 +86,8 @@ class AuthRepo {
     }
   }
 
-  Future<platform_pb.Platform> getPlatformDetails() async {
-    platform_pb.Platform platform = platform_pb.Platform()
-      ..clientVersion = VERSION;
-    return await getPlatForm(platform);
-  }
-
-  getPlatForm(platform_pb.Platform platform) async {
-    if (kIsWeb) {
-      platform
-        ..platformType = platform_pb.PlatformsType.WEB
-        ..osVersion = platform_detect.browser.version.major.toString();
-    } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
-      platform
-        ..platformType = platform_pb.PlatformsType.ANDROID
-        ..osVersion = androidInfo.version.release;
-    } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
-
-      platform
-        ..platformType = platform_pb.PlatformsType.IOS
-        ..osVersion = iosInfo.systemVersion;
-    } else if (Platform.isLinux) {
-      platform
-        ..platformType = platform_pb.PlatformsType.LINUX
-        ..osVersion = Platform.operatingSystemVersion;
-    } else if (Platform.isMacOS) {
-      platform
-        ..platformType = platform_pb.PlatformsType.MAC_OS
-        ..osVersion = Platform.operatingSystemVersion;
-    } else if (Platform.isWindows) {
-      platform
-        ..platformType = platform_pb.PlatformsType.WINDOWS
-        ..osVersion = Platform.operatingSystemVersion;
-    } else {
-      platform
-        ..platformType = platform_pb.PlatformsType.ANDROID
-        ..osVersion = Platform.operatingSystemVersion;
-    }
-    return platform;
-  }
-
-  Future<String> getDeviceName() async {
-    String device;
-    if (kIsWeb) {
-      device = platform_detect.browser.name;
-    } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
-      device = androidInfo.model;
-    } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
-      device = iosInfo.model;
-    } else if (Platform.isLinux) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (Platform.isMacOS) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (Platform.isWindows) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    }
-    return device;
-  }
-
   Future<AccessTokenRes> sendVerificationCode(String code) async {
-    platform_pb.Platform platform = await getPlatformDetails();
+    platform_pb.Platform platform = await getPlatformPB();
 
     String device = await getDeviceName();
 
@@ -177,7 +107,7 @@ class AuthRepo {
   }
 
   Future<AccessTokenRes> checkQrCodeToken(String token) async {
-    platform_pb.Platform platform = await getPlatformDetails();
+    platform_pb.Platform platform = await getPlatformPB();
 
     String device = await getDeviceName();
 
@@ -201,11 +131,11 @@ class AuthRepo {
       try {
         return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
           ..refreshToken = refreshToken
-          ..platform = await getPlatformDetails());
+          ..platform = await getPlatformPB());
       } on GrpcError catch (e) {
         _logger.e(e);
         if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
-          _routingServices.logout();
+          GetIt.I.get<RoutingService>().logout();
         }
       } catch (e) {
         _logger.e(e);

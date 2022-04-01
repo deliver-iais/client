@@ -3,6 +3,7 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
@@ -22,7 +23,7 @@ import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
-import 'package:deliver/screen/settings/pages/log_settings.dart';
+import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
@@ -52,7 +53,7 @@ const _languageSettings =
 const _securitySettings =
     SecuritySettingsPage(key: ValueKey("/security-settings"));
 
-const _logSettings = LogSettingsPage(key: ValueKey("/log-settings"));
+const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
@@ -65,6 +66,7 @@ const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 const _calls = CallListPage(key: ValueKey("/calls"));
 
 class RoutingService {
+  final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
 
@@ -86,7 +88,7 @@ class RoutingService {
 
   void openSecuritySettings() => _push(_securitySettings);
 
-  void openLogSettings() => _push(_logSettings);
+  void openDeveloperPage() => _push(_developerPage);
 
   void openDevices() => _push(_devices);
 
@@ -122,13 +124,12 @@ class RoutingService {
   }
 
   void openCallScreen(Uid roomUid,
-      {BuildContext? context,
-      bool isIncomingCall = false,
+      {bool isIncomingCall = false,
       bool isCallInitialized = false,
       bool isCallAccepted = false,
       isVideoCall = false}) {
     _push(CallScreen(
-      key: const ValueKey("/callScreen"),
+      key: const ValueKey("/call-screen"),
       roomUid: roomUid,
       isCallAccepted: isCallAccepted,
       isCallInitialized: isCallInitialized,
@@ -225,6 +226,8 @@ class RoutingService {
   void _push(Widget widget, {bool popAllBeforePush = false}) {
     final path = (widget.key as ValueKey).value;
 
+    _analyticsRepo.incPVF(path);
+
     if (popAllBeforePush) {
       _homeNavigatorState.currentState?.pushAndRemoveUntil(
           CupertinoPageRoute(
@@ -285,7 +288,7 @@ class RoutingService {
     final dbManager = GetIt.I.get<DBManager>();
     if (authRepo.isLoggedIn()) {
       await accountRepo.logOut();
-      if (!isDesktop()) fireBaseServices.deleteToken();
+      if (!isDesktop) fireBaseServices.deleteToken();
       coreServices.closeConnection();
       await authRepo.deleteTokens();
       dbManager.deleteDB();

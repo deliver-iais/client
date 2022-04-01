@@ -3,6 +3,8 @@ import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormInputTextFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
@@ -25,6 +27,9 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _textEditingController = TextEditingController();
+  DateTime? _selectedDate;
+  Jalali? _selectedDateJalali;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +62,14 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   TextFormField buildTextFormField(TextInputType keyboardType,
       {int? maxLength}) {
     return TextFormField(
+      focusNode: keyboardType == TextInputType.datetime
+          ? AlwaysDisabledFocusNode()
+          : null,
+      onTap: () {
+        if (keyboardType == TextInputType.datetime) {
+          _selectDate(context);
+        }
+      },
       minLines: 1,
       maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
       inputFormatters: [
@@ -64,12 +77,53 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           FilteringTextInputFormatter.digitsOnly
       ],
       validator: validateFormTextField,
+      controller: _textEditingController,
       onChanged: (str) {
         widget.setResult(str);
       },
       keyboardType: keyboardType,
       decoration: buildInputDecoration(),
     );
+  }
+
+  _selectDate(BuildContext context) async {
+    if (widget.formField.dateField.isHijriShamsi) {
+      Jalali? picked = await showPersianDatePicker(
+        context: context,
+        initialDate: _selectedDateJalali ?? Jalali.now(),
+        firstDate: Jalali(1300, 1, 1),
+        lastDate: Jalali(1450, 12, 29),
+      );
+      if (picked != null) {
+        widget.setResult(picked.toDateTime().microsecondsSinceEpoch.toString());
+        _selectedDateJalali = picked;
+        var label = picked.formatFullDate();
+        _textEditingController
+          ..text = label
+          ..selection = TextSelection.fromPosition(TextPosition(
+              offset: _textEditingController.text.length,
+              affinity: TextAffinity.upstream));
+      }
+    } else {
+      DateTime? newSelectedDate = await showDatePicker(
+          context: context,
+          initialDate: _selectedDate ?? DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2070),
+          builder: (BuildContext context, Widget? child) {
+            return child!;
+          });
+
+      if (newSelectedDate != null) {
+        widget.setResult(newSelectedDate.microsecondsSinceEpoch.toString());
+        _selectedDate = newSelectedDate;
+        _textEditingController
+          ..text = DateFormat.yMMMd().format(_selectedDate!)
+          ..selection = TextSelection.fromPosition(TextPosition(
+              offset: _textEditingController.text.length,
+              affinity: TextAffinity.upstream));
+      }
+    }
   }
 
   InputDecoration buildInputDecoration() {
@@ -116,4 +170,9 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
   bool _isNumeric(String str) {
     return double.tryParse(str) != null;
   }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
 }

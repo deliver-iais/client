@@ -33,7 +33,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -127,7 +126,7 @@ class _InputMessageWidget extends State<InputMessage> {
   var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
   void showButtonSheet() {
-    if (kIsWeb || isDesktop()) {
+    if (isWeb || isDesktop) {
       _attachFileInWindowsMode();
     } else {
       FocusScope.of(context).unfocus();
@@ -287,7 +286,7 @@ class _InputMessageWidget extends State<InputMessage> {
                         if (sh.hasData &&
                             !sh.data! &&
                             !widget.waitingForForward &&
-                            !isDesktop()) {
+                            !isDesktop) {
                           return RecordAudioAnimation(
                             rightPadding: x,
                             size: size,
@@ -337,13 +336,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                         valueListenable: _textDir,
                                         builder: (context, value, child) =>
                                             TextField(
-                                          selectionControls: isDesktop()
+                                          selectionControls: isDesktop
                                               ? selectionControls
                                               : null,
                                           focusNode: widget.focusNode,
                                           autofocus:
                                               widget.replyMessageId > 0 ||
-                                                  isDesktop(),
+                                                  isDesktop,
                                           controller: widget.textController,
                                           decoration: InputDecoration(
                                             contentPadding:
@@ -465,7 +464,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             if (sm.hasData &&
                                 !sm.data! &&
                                 !widget.waitingForForward &&
-                                !isDesktop()) {
+                                !isDesktop) {
                               return GestureDetector(
                                   onTapDown: (_) async {
                                     recordAudioPermission =
@@ -589,7 +588,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       offset:
                                           widget.textController.text.length));
                             }
-                            if (isDesktop()) {
+                            if (isDesktop) {
                               widget.focusNode.requestFocus();
                             }
                           },
@@ -617,7 +616,7 @@ class _InputMessageWidget extends State<InputMessage> {
         offset: widget.textController.text.length - block_2.length));
     _mentionQuery.add("-");
     isMentionSelected = true;
-    if (isDesktop()) {
+    if (isDesktop) {
       widget.focusNode.requestFocus();
     }
   }
@@ -819,7 +818,7 @@ class _InputMessageWidget extends State<InputMessage> {
   _attachFileInWindowsMode() async {
     try {
       List<File> res = [];
-      if (isLinux()) {
+      if (isLinux) {
         final result = await openFiles();
         for (var file in result) {
           res.add(File(file.path, file.name,
@@ -830,7 +829,7 @@ class _InputMessageWidget extends State<InputMessage> {
             await FilePicker.platform.pickFiles(allowMultiple: true);
         for (var file in result!.files) {
           res.add(File(
-              kIsWeb
+              isWeb
                   ? Uri.dataFromBytes(file.bytes!.toList()).toString()
                   : file.path!,
               file.name,
@@ -863,7 +862,7 @@ class _InputMessageWidget extends State<InputMessage> {
             resetRoomPageDetails: widget.resetRoomPageDetails,
             replyMessageId: widget.replyMessageId,
             files: files,
-            type: kIsWeb
+            type: isWeb
                 ? files.first.extension
                 : files.first.path.split(".").last,
             currentRoom: currentRoom.uid.asUid(),

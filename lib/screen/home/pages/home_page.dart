@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -56,18 +55,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       });
     };
     _coreServices.initStreamConnection();
-    if (isAndroid() || isIOS()) {
+    if (isAndroid || isIOS) {
       _notificationServices.cancelAllNotifications();
     }
-
-    checkIfUsernameIsSet();
-    if (isAndroid()) {
+    if (isAndroid) {
       checkShareFile(context);
     }
-    if (isAndroid() || isIOS()) {
+    if (isAndroid || isIOS) {
       initUniLinks(context);
     }
-    if (kIsWeb) {
+    if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
     checkIfVersionChange();
@@ -121,13 +118,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ));
   }
 
-  void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.hasProfile(retry: true)) {
-      _routingService.openAccountSettings(forceToSetUsernameAndName: true);
-    } else {
-      await _accountRepo.fetchProfile();
-    }
-  }
 
   void checkIfVersionChange() async {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {

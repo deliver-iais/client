@@ -6,7 +6,7 @@ import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
-import 'package:deliver/box/dao/custom_notication_dao.dart';
+import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
@@ -50,7 +50,7 @@ class RoomRepo {
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  final _customNotifDao = GetIt.I.get<CustomNotificatonDao>();
+  final _customNotificationDao = GetIt.I.get<CustomNotificationDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
 
@@ -60,7 +60,7 @@ class RoomRepo {
 
   updateRoom(Room room) => _roomDao.updateRoom(room);
 
-  Future<String> getSlangName(Uid uid) async {
+  Future<String> getSlangName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (_authRepo.isCurrentUserUid(uid)) {
       return _i18n.get("you");
@@ -82,7 +82,7 @@ class RoomRepo {
     return null;
   }
 
-  Future<String> getName(Uid uid) async {
+  Future<String> getName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -164,7 +164,7 @@ class RoomRepo {
       _uidIdNameDao.update(uid.asString(), id: username);
     }
 
-    return username ?? "Unknown";
+    return (username ?? unknownName) ?? "Unknown";
   }
 
   Future<String?>? getId(Uid uid) async {
@@ -242,13 +242,13 @@ class RoomRepo {
       roomNameCache.set(uid.asString(), name);
 
   Future<bool> isRoomHaveACustomNotification(String uid) =>
-      _customNotifDao.isHaveCustomNotif(uid);
+      _customNotificationDao.isHaveCustomNotif(uid);
 
   setRoomCustomNotification(String uid, String path) =>
-      _customNotifDao.setCustomNotif(uid, path);
+      _customNotificationDao.setCustomNotif(uid, path);
 
   Future<String?> getRoomCustomNotification(String uid) =>
-      _customNotifDao.getCustomNotif(uid);
+      _customNotificationDao.getCustomNotif(uid);
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
 
@@ -360,8 +360,7 @@ class RoomRepo {
   }
 
   void updateRoomDraft(String roomUid, String draft) {
-    _roomDao
-        .updateRoom(Room(uid: roomUid).copyWith(draft: draft));
+    _roomDao.updateRoom(Room(uid: roomUid).copyWith(draft: draft));
   }
 
   Future<bool> isDeletedRoom(String roomUid) async {

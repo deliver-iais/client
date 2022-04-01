@@ -13,7 +13,6 @@ import 'package:deliver/shared/widgets/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -49,7 +48,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           if (s.hasData && s.data != null && s.data!.isNotEmpty) {
             return CircleAvatar(
               radius: 40,
-              backgroundImage: kIsWeb
+              backgroundImage: isWeb
                   ? Image
                   .network(s.data!)
                   .image
@@ -121,8 +120,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   selectAvatar() async {
-    if (kIsWeb || isDesktop()) {
-      if (isLinux()) {
+    if (isWeb || isDesktop) {
+      if (isLinux) {
         final typeGroup =
         XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
@@ -137,7 +136,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(kIsWeb
+          _setAvatar(isWeb
               ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
               : result.files.first.path!);
         }

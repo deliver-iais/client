@@ -7,7 +7,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -58,7 +57,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                   appBar: buildAppBar(snapshot.data!.length),
                   body: Row(
                     children: [
-                      if (isDesktop())
+                      if (isDesktop)
                         StreamBuilder<int>(
                             stream: _swipePositionSubject.stream,
                             builder: (context, indexSnapShot) {
@@ -93,7 +92,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                                       filePath.data != null) {
                                     return InteractiveViewer(
                                       child: Center(
-                                        child: kIsWeb
+                                        child: isWeb
                                             ? Image.network(filePath.data!)
                                             : Image.file(File(filePath.data!)),
                                       ),
@@ -111,7 +110,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                             scale: 0.9,
                             loop: false),
                       ),
-                      if (isDesktop())
+                      if (isDesktop)
                         StreamBuilder<int>(
                             stream: _swipePositionSubject.stream,
                             builder: (context, indexSnapShot) {

@@ -14,7 +14,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -124,7 +123,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 children: [
                                   Center(
                                       child: widget.files!.isNotEmpty
-                                          ? kIsWeb
+                                          ? isWeb
                                               ? Image.network(
                                                   widget.files!.first.path)
                                               : Image.file(File(
@@ -253,7 +252,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 if (res != null) {
                                   for (var element in res.files) {
                                     widget.files!.add(model.File(
-                                        kIsWeb
+                                        isWeb
                                             ? Uri.dataFromBytes(
                                                     element.bytes!.toList())
                                                 .toString()
@@ -369,7 +368,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
               if (result != null && result.files.isNotEmpty) {
                 if (widget.editableMessage != null) {
                   _editedFile = model.File(
-                      kIsWeb
+                      isWeb
                           ? Uri.dataFromBytes(
                               result.files.first.bytes!.toList(),
                             ).toString()
@@ -380,7 +379,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   _type = _editedFile!.extension.toString();
                 } else {
                   widget.files![index] = model.File(
-                      kIsWeb
+                      isWeb
                           ? Uri.dataFromBytes(
                               result.files.first.bytes!.toList(),
                             ).toString()
@@ -438,7 +437,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     if (_isFileFormatAccept && _isFileSizeAccept) {
       return result;
     } else {
-      if (isDesktop()) {
+      if (isDesktop) {
         ToastDisplay.showToast(
             toastText: !_isFileFormatAccept
                 ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
