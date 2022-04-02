@@ -21,10 +21,10 @@ class LiveLocationMessageWidget extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const LiveLocationMessageWidget(
-    this.message,
-    this.isSeen,
-    this.isSender, {
+    this.message, {
     Key? key,
+    required this.isSender,
+    required this.isSeen,
     required this.colorScheme,
   }) : super(key: key);
 
@@ -111,8 +111,8 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
         ),
         TimeAndSeenStatus(
           widget.message,
-          widget.isSender,
-          widget.isSeen,
+          isSender: widget.isSender,
+          isSeen: widget.isSeen,
           needsPadding: true,
           backgroundColor: widget.colorScheme.primaryContainer,
           foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),

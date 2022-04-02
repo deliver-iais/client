@@ -89,8 +89,8 @@ class TextUI extends StatelessWidget {
           ),
           TimeAndSeenStatus(
             message,
-            isSender,
-            isSeen,
+            isSender: isSender,
+            isSeen: isSeen,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             needsPositioned: false,

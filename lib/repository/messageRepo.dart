@@ -899,7 +899,7 @@ class MessageRepo {
                   }
                   break;
                 case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-                  _avatarRepo.fetchAvatar(message.from, true);
+                  _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
                   break;
                 case MucSpecificPersistentEvent_Issue.JOINED_USER:
                   // TODO: Handle this case.

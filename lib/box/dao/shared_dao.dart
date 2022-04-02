@@ -14,6 +14,7 @@ abstract class SharedDao {
 
   Stream<bool> getBooleanStream(String key, {bool defaultValue = false});
 
+  // ignore: avoid_positional_boolean_parameters
   Future<void> putBoolean(String key, bool value);
 }
 

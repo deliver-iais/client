@@ -51,7 +51,9 @@ class BotButtonsWidget extends StatelessWidget {
               ),
             Padding(
               padding: const EdgeInsets.only(right: 6.0, left: 6.0),
-              child: TimeAndSeenStatus(message, isSender, isSeen,
+              child: TimeAndSeenStatus(message,
+                  isSender: isSender,
+                  isSeen: isSeen,
                   needsPositioned: false,
                   backgroundColor: colorScheme.primaryContainer,
                   foregroundColor: colorScheme.onPrimaryContainerLowlight()),

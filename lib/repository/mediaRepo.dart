@@ -34,7 +34,7 @@ class MediaRepo {
     try {
       final mediaResponse = await _queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
-      updateMediaMetaData(uid, mediaResponse);
+      updateMediaMetaData(uid, mediaResponse, updateAllMedia: true);
     } catch (e) {
       _logger.e(e);
     }
@@ -49,12 +49,12 @@ class MediaRepo {
 
   Future updateMediaMetaData(
       Uid roomUid, query_pb.GetMediaMetadataRes mediaResponse,
-      {bool updateAllMedia = true}) async {
+      {bool updateAllMedia = false}) async {
     final oldMetaMediaData =
         await _mediaMetaDataDao.getAsFuture(roomUid.asString());
     if (oldMetaMediaData != null) {
-      checkNeedFetchMedia(
-          roomUid.asString(), oldMetaMediaData, mediaResponse, updateAllMedia);
+      checkNeedFetchMedia(roomUid.asString(), oldMetaMediaData, mediaResponse,
+          updateOtherMedia: updateAllMedia);
     } else {
       //get all image  for build  first tab
       fetchLastMedia(
@@ -91,7 +91,8 @@ class MediaRepo {
   }
 
   Future checkNeedFetchMedia(String roomUid, MediaMetaData oldMediaMetaData,
-      GetMediaMetadataRes getMediaMetadataRes, bool updateOtherMedia) async {
+      GetMediaMetadataRes getMediaMetadataRes,
+      {bool updateOtherMedia = false}) async {
     if (oldMediaMetaData.imagesCount !=
         getMediaMetadataRes.allImagesCount.toInt()) {
       await fetchLastMedia(

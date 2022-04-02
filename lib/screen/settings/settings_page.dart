@@ -65,9 +65,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                final lastAvatar =
-                                    await _avatarRepo.getLastAvatar(
-                                        _authRepo.currentUserUid, false);
+                                final lastAvatar = await _avatarRepo
+                                    .getLastAvatar(_authRepo.currentUserUid);
                                 if (lastAvatar?.createdOn != null &&
                                     lastAvatar!.createdOn > 0) {
                                   _routingService.openShowAllAvatars(

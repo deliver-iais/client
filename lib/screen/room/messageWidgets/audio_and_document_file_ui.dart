@@ -70,8 +70,9 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                   ],
                 ),
                 if (file.caption.isEmpty)
-                  TimeAndSeenStatus(
-                      widget.message, widget.isSender, widget.isSeen,
+                  TimeAndSeenStatus(widget.message,
+                      isSender: widget.isSender,
+                      isSeen: widget.isSeen,
                       foregroundColor:
                           widget.colorScheme.onPrimaryContainerLowlight(),
                       backgroundColor: widget.colorScheme.primaryContainer,

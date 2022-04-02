@@ -130,7 +130,8 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
       break;
     case message_pb.Message_Type.persistEvent:
       typeDetails = await getPersistentEventText(
-          i18n, roomRepo, authRepo, msg.persistEvent, msg.to.isChannel());
+          i18n, roomRepo, authRepo, msg.persistEvent,
+          isChannel: msg.to.isChannel());
       if (typeDetails.trim().isEmpty) {
         ignoreNotification = true;
       }
@@ -165,8 +166,9 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
   );
 }
 
-Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
-    AuthRepo authRepo, PersistentEvent pe, bool isChannel) async {
+Future<String> getPersistentEventText(
+    I18N i18n, RoomRepo roomRepo, AuthRepo authRepo, PersistentEvent pe,
+    {bool isChannel = false}) async {
   switch (pe.whichType()) {
     case PersistentEvent_Type.mucSpecificPersistentEvent:
       final String? issuer =

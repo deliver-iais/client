@@ -163,7 +163,9 @@ class ShareUidMessageWidget extends StatelessWidget {
               }
             },
           ),
-          TimeAndSeenStatus(message, isSender, isSeen,
+          TimeAndSeenStatus(message,
+              isSender: isSender,
+              isSeen: isSeen,
               needsPositioned: false,
               backgroundColor: colorScheme.primaryContainer,
               foregroundColor: colorScheme.onPrimaryContainerLowlight()),

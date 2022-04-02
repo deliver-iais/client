@@ -158,8 +158,7 @@ class WindowsNotifier implements Notifier {
       toastByRoomId[message.roomUid.node] = {};
     }
     try {
-      final lastAvatar =
-          await _avatarRepo.getLastAvatar(message.roomUid, false);
+      final lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid);
       if (lastAvatar != null && lastAvatar.fileId != null) {
         final file = await _fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
@@ -203,8 +202,7 @@ class WindowsNotifier implements Notifier {
       toastByRoomId[roomUid.asUid().node] = {};
     }
     try {
-      final lastAvatar =
-          await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
+      final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
       if (lastAvatar != null && lastAvatar.fileId != null) {
         final file = await _fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
@@ -318,7 +316,7 @@ class LinuxNotifier implements Notifier {
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
-    final la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
     if (la != null && la.fileId != null) {
       final path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
@@ -438,7 +436,7 @@ class AndroidNotifier implements Notifier {
     var selectedNotificationSound = "that_was_quick";
     final selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
-    final la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid);
     if (la != null && la.fileId != null && la.fileName != null) {
       final path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
@@ -547,7 +545,7 @@ class MacOSNotifier implements Notifier {
 
     final attachments = <MacOSNotificationAttachment>[];
 
-    final la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
     if (la != null) {
       final path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,

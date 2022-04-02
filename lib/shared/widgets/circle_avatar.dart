@@ -77,7 +77,7 @@ class CircleAvatarWidget extends StatelessWidget {
       return StreamBuilder<String?>(
           key: _streamKey,
           initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid, false),
+          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid),
           builder: (context, snapshot) =>
               builder(context, snapshot, textColor));
     }

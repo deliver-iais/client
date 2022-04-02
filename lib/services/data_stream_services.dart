@@ -121,7 +121,7 @@ class DataStreamServices {
               ));
               break;
             case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-              _avatarRepo.fetchAvatar(message.from, true);
+              _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
               break;
             case MucSpecificPersistentEvent_Issue.MUC_CREATED:
               // TODO: Handle this case.

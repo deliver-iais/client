@@ -284,7 +284,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       },
                                       validator: validateUsername,
                                       decoration: buildInputDecoration(
-                                          _i18n.get("username"), true)),
+                                          _i18n.get("username"),
+                                          isOptional: true)),
                                 ),
                                 const SizedBox(
                                   height: 5,
@@ -332,7 +333,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   },
                                   validator: validateFirstName,
                                   decoration: buildInputDecoration(
-                                      _i18n.get("firstName"), true),
+                                      _i18n.get("firstName"),
+                                      isOptional: true),
                                 ),
                                 const SizedBox(
                                   height: 20,
@@ -347,7 +349,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       });
                                     },
                                     decoration: buildInputDecoration(
-                                        _i18n.get("lastName"), false)),
+                                        _i18n.get("lastName"))),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -362,7 +364,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     },
                                     validator: validateEmail,
                                     decoration: buildInputDecoration(
-                                        _i18n.get("email"), false)),
+                                        _i18n.get("email"))),
                               ],
                             )),
                         const SizedBox(height: 8),
@@ -387,7 +389,8 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  InputDecoration buildInputDecoration(String label, bool isOptional) {
+  InputDecoration buildInputDecoration(String label,
+      {bool isOptional = false}) {
     return InputDecoration(
         suffixIcon: isOptional
             ? const Padding(

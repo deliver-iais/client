@@ -184,8 +184,8 @@ class _ImageUiState extends State<ImageUi> {
                         if (widget.image.caption.isEmpty)
                           TimeAndSeenStatus(
                             widget.message,
-                            widget.isSender,
-                            widget.isSeen,
+                            isSender: widget.isSender,
+                            isSeen: widget.isSeen,
                             needsPadding: true,
                             backgroundColor:
                                 widget.colorScheme.onPrimaryContainerLowlight(),
@@ -222,8 +222,8 @@ class _ImageUiState extends State<ImageUi> {
                         if (widget.image.caption.isEmpty)
                           TimeAndSeenStatus(
                             widget.message,
-                            widget.isSender,
-                            widget.isSeen,
+                            isSender: widget.isSender,
+                            isSeen: widget.isSeen,
                             needsPadding: true,
                             backgroundColor:
                                 widget.colorScheme.onPrimaryContainerLowlight(),

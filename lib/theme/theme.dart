@@ -39,10 +39,10 @@ class ThemeScheme {
       : _dark = Material3ColorScheme.darkOfCorePalette(palette),
         _light = Material3ColorScheme.lightOfCorePalette(palette);
 
-  ThemeData theme(bool isDark) =>
+  ThemeData theme({bool isDark = false}) =>
       isDark ? getThemeData(_dark) : getThemeData(_light);
 
-  ExtraThemeData extraTheme(bool isDark) => isDark
+  ExtraThemeData extraTheme({bool isDark = false}) => isDark
       ? getExtraThemeData(_dark, _customHctColors)
       : getExtraThemeData(_light, _customHctColors);
 }

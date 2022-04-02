@@ -1377,9 +1377,11 @@ class MockSharedDao extends _i1.Mock implements _i46.SharedDao {
 /// See the documentation for Mockito's code generation for more information.
 class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
   @override
-  _i18.Future<void> fetchAvatar(_i3.Uid? userUid, bool? forceToUpdate) =>
+  _i18.Future<void> fetchAvatar(_i3.Uid? userUid,
+          {bool? forceToUpdate = false}) =>
       (super.noSuchMethod(
-              Invocation.method(#fetchAvatar, [userUid, forceToUpdate]),
+              Invocation.method(
+                  #fetchAvatar, [userUid], {#forceToUpdate: forceToUpdate}),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i18.Future<void>);
@@ -1393,17 +1395,19 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
       (super.noSuchMethod(Invocation.method(#needsUpdate, [userUid]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
   @override
-  _i18.Stream<List<_i27.Avatar?>> getAvatar(
-          _i3.Uid? userUid, bool? forceToUpdate) =>
+  _i18.Stream<List<_i27.Avatar?>> getAvatar(_i3.Uid? userUid,
+          {bool? forceToUpdate = false}) =>
       (super.noSuchMethod(
-              Invocation.method(#getAvatar, [userUid, forceToUpdate]),
+              Invocation.method(
+                  #getAvatar, [userUid], {#forceToUpdate: forceToUpdate}),
               returnValue: Stream<List<_i27.Avatar?>>.empty())
           as _i18.Stream<List<_i27.Avatar?>>);
   @override
-  _i18.Future<_i27.Avatar?> getLastAvatar(
-          _i3.Uid? userUid, bool? forceToUpdate) =>
+  _i18.Future<_i27.Avatar?> getLastAvatar(_i3.Uid? userUid,
+          {bool? forceToUpdate = false}) =>
       (super.noSuchMethod(
-              Invocation.method(#getLastAvatar, [userUid, forceToUpdate]),
+              Invocation.method(
+                  #getLastAvatar, [userUid], {#forceToUpdate: forceToUpdate}),
               returnValue: Future<_i27.Avatar?>.value())
           as _i18.Future<_i27.Avatar?>);
   @override
@@ -1420,11 +1424,11 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
       (super.noSuchMethod(Invocation.method(#getAvatarCacheKey, [userUid]),
           returnValue: '') as String);
   @override
-  _i18.Stream<String> getLastAvatarFilePathStream(
-          _i3.Uid? userUid, bool? forceToUpdate) =>
+  _i18.Stream<String> getLastAvatarFilePathStream(_i3.Uid? userUid,
+          {bool? forceToUpdate = false}) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #getLastAvatarFilePathStream, [userUid, forceToUpdate]),
+          Invocation.method(#getLastAvatarFilePathStream, [userUid],
+              {#forceToUpdate: forceToUpdate}),
           returnValue: Stream<String>.empty()) as _i18.Stream<String>);
   @override
   _i18.Future<void> uploadAvatar(String? path, _i3.Uid? uid) =>
@@ -2013,7 +2017,7 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
   @override
   _i18.Future<dynamic> updateMediaMetaData(
           _i3.Uid? roomUid, _i16.GetMediaMetadataRes? mediaResponse,
-          {bool? updateAllMedia = true}) =>
+          {bool? updateAllMedia = false}) =>
       (super.noSuchMethod(
           Invocation.method(#updateMediaMetaData, [roomUid, mediaResponse],
               {#updateAllMedia: updateAllMedia}),
@@ -2023,14 +2027,12 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
           String? roomUid,
           _i69.MediaMetaData? oldMediaMetaData,
           _i16.GetMediaMetadataRes? getMediaMetadataRes,
-          bool? updateOtherMedia) =>
+          {bool? updateOtherMedia = false}) =>
       (super.noSuchMethod(
-          Invocation.method(#checkNeedFetchMedia, [
-            roomUid,
-            oldMediaMetaData,
-            getMediaMetadataRes,
-            updateOtherMedia
-          ]),
+          Invocation.method(
+              #checkNeedFetchMedia,
+              [roomUid, oldMediaMetaData, getMediaMetadataRes],
+              {#updateOtherMedia: updateOtherMedia}),
           returnValue: Future<dynamic>.value()) as _i18.Future<dynamic>);
   @override
   _i18.Future<dynamic> fetchLastMedia(String? roomUid, int? imagesCount,

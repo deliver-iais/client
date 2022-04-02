@@ -78,8 +78,7 @@ void main() {
       test(
           'When called should check if coreServices.connectionStatus is Connecting updatingStatus should be TitleStatusConditions.Connecting',
           () async {
-        getAndRegisterCoreServices(
-            );
+        getAndRegisterCoreServices();
         final messageRepo = await getAndRegisterMessageRepo();
         expect(
             messageRepo.updatingStatus.value, TitleStatusConditions.Connecting);
@@ -155,8 +154,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType be Active and room last message id and last update be greater than roomMetadata should stop getting room',
           () async {
-        getAndRegisterQueryServiceClient(
-            lastMessageId: 0, lastUpdate: 0);
+        getAndRegisterQueryServiceClient(lastMessageId: 0, lastUpdate: 0);
         final roomDao = getAndRegisterRoomDao(rooms: [
           Room(
               uid: testUid.asString(),
@@ -584,9 +582,8 @@ void main() {
       });
     });
     group('fetchCurrentUserLastSeen -', () {
-      final roomMetadata = RoomMetadata(
-          roomUid: testUid,
-          presenceType: PresenceType.ACTIVE);
+      final roomMetadata =
+          RoomMetadata(roomUid: testUid, presenceType: PresenceType.ACTIVE);
 
       test('When called should fetch CurrentUser SeenData', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
@@ -1142,7 +1139,8 @@ void main() {
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         await MessageRepo()
             .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(avatarRepo.fetchAvatar(testMessage.from.asUid(), true));
+        verify(avatarRepo.fetchAvatar(testMessage.from.asUid(),
+            forceToUpdate: true));
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
@@ -1473,8 +1471,7 @@ void main() {
     });
     group('pinMessage -', () {
       test('When called should pinMessage', () async {
-        final mucServices =
-            getAndRegisterMucServices();
+        final mucServices = getAndRegisterMucServices();
         await MessageRepo().pinMessage(testMessage);
         verify(mucServices.pinMessage(testMessage));
         expect(await MessageRepo().pinMessage(testMessage), true);
@@ -1489,8 +1486,7 @@ void main() {
     });
     group('unpinMessage -', () {
       test('When called should unpinMessage', () async {
-        final mucServices =
-            getAndRegisterMucServices();
+        final mucServices = getAndRegisterMucServices();
         await MessageRepo().unpinMessage(testMessage);
         verify(mucServices.unpinMessage(testMessage));
         expect(await MessageRepo().unpinMessage(testMessage), true);

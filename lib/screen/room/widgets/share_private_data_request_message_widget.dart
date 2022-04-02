@@ -53,7 +53,9 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                                 ? _i18n.get("get_access_name")
                                 : _i18n.get("get_access_username"),
                     textAlign: TextAlign.center))),
-        TimeAndSeenStatus(message, isSender, isSeen,
+        TimeAndSeenStatus(message,
+            isSender: isSender,
+            isSeen: isSeen,
             needsPadding: true,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight())

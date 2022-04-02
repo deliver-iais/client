@@ -224,8 +224,8 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.STICKER:
         return StickerMessageWidget(
           widget.message,
-          widget.isSender,
-          widget.isSeen,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
 
@@ -240,8 +240,8 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.LIVE_LOCATION:
         return LiveLocationMessageWidget(
           widget.message,
-          widget.isSender,
-          widget.isSeen,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
 

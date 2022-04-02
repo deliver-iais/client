@@ -226,14 +226,16 @@ class _VideoMessageState extends State<VideoMessage> {
                 ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
                     widget.message,
-                    widget.isSender,
-                    widget.isSeen,
+                    isSender: widget.isSender,
+                    isSeen: widget.isSeen,
                     needsPadding: true,
                     foregroundColor: widget.colorScheme.onPrimaryContainer,
                   )
             : Container(),
         if (video.caption.isEmpty)
-          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+          TimeAndSeenStatus(widget.message,
+              isSender: widget.isSender,
+              isSeen: widget.isSeen,
               needsPadding: true,
               backgroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
               foregroundColor: widget.colorScheme.primaryContainer)

@@ -213,10 +213,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     Widget messageWidget;
 
     if (_authRepo.isCurrentUser(message.from)) {
-      messageWidget = showSentMessage(message, isFirstMessageInGroupedMessages);
+      messageWidget = showSentMessage(message,
+          isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
     } else {
-      messageWidget =
-          showReceivedMessage(message, isFirstMessageInGroupedMessages);
+      messageWidget = showReceivedMessage(message,
+          isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
     }
 
     // Wrap in Swipe widget if needed
@@ -258,8 +259,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         child: messageWidget);
   }
 
-  Widget showSentMessage(
-      Message message, bool isFirstMessageInGroupedMessages) {
+  Widget showSentMessage(Message message,
+      {bool isFirstMessageInGroupedMessages = false}) {
     final messageWidget = SentMessageBox(
         message: message,
         onArrowIconClick: () => _showCustomMenu(context, message),
@@ -312,8 +313,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: TextStyle(
-                fontSize: 13, color: colorScheme.primary),
+            style: TextStyle(fontSize: 13, color: colorScheme.primary),
           ),
         ),
         onTap: () {
@@ -323,8 +323,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  Widget showReceivedMessage(
-      Message message, bool isFirstMessageInGroupedMessages) {
+  Widget showReceivedMessage(Message message,
+      {bool isFirstMessageInGroupedMessages = false}) {
     final CustomColorScheme colorScheme;
     if (message.type == MessageType.CALL &&
         (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||

@@ -127,10 +127,10 @@ class UxService {
       _themeIsDark.stream.distinct().map((event) => event);
 
   ThemeData get theme =>
-      getThemeScheme(_themeIndex.value).theme(_themeIsDark.value);
+      getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
 
   ExtraThemeData get extraTheme =>
-      getThemeScheme(_themeIndex.value).extraTheme(_themeIsDark.value);
+      getThemeScheme(_themeIndex.value).extraTheme(isDark: _themeIsDark.value);
 
   bool get themeIsDark => _themeIsDark.value;
 

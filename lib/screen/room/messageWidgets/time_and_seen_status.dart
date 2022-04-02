@@ -18,8 +18,10 @@ class TimeAndSeenStatus extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
 
-  const TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
+  const TimeAndSeenStatus(this.message,
       {Key? key,
+      required this.isSender,
+      required this.isSeen,
       this.needsPositioned = true,
       this.needsPadding = false,
       this.backgroundColor,

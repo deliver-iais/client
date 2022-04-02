@@ -43,7 +43,7 @@ class AvatarRepo {
           storage: InMemoryStorage(50),
           onEvict: (key, subject) => subject?.close());
 
-  Future<void> fetchAvatar(Uid userUid, bool forceToUpdate) async {
+  Future<void> fetchAvatar(Uid userUid, {bool forceToUpdate = false}) async {
     if (forceToUpdate || await needsUpdate(userUid)) {
       getAvatarRequest(userUid);
     }
@@ -114,15 +114,17 @@ class AvatarRepo {
     }
   }
 
-  Stream<List<Avatar?>> getAvatar(Uid userUid, bool forceToUpdate) async* {
-    await fetchAvatar(userUid, forceToUpdate);
+  Stream<List<Avatar?>> getAvatar(Uid userUid,
+      {bool forceToUpdate = false}) async* {
+    await fetchAvatar(userUid, forceToUpdate: forceToUpdate);
 
     yield* _avatarDao.watchAvatars(userUid.asString());
   }
 
   // TODO, change function signature
-  Future<Avatar?> getLastAvatar(Uid userUid, bool forceToUpdate) async {
-    await fetchAvatar(userUid, forceToUpdate);
+  Future<Avatar?> getLastAvatar(Uid userUid,
+      {bool forceToUpdate = false}) async {
+    await fetchAvatar(userUid, forceToUpdate: forceToUpdate);
     final key = getAvatarCacheKey(userUid);
 
     var ac = _avatarCache.get(key);
@@ -153,9 +155,9 @@ class AvatarRepo {
   String getAvatarCacheKey(Uid userUid) =>
       "${userUid.category}-${userUid.node}";
 
-  Stream<String> getLastAvatarFilePathStream(
-      Uid userUid, bool forceToUpdate) async* {
-    await fetchAvatar(userUid, forceToUpdate);
+  Stream<String> getLastAvatarFilePathStream(Uid userUid,
+      {bool forceToUpdate = false}) async* {
+    await fetchAvatar(userUid, forceToUpdate: forceToUpdate);
     final key = getAvatarCacheKey(userUid);
 
     final cachedAvatar = _avatarCacheBehaviorSubjects.get(key);

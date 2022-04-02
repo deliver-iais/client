@@ -40,7 +40,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
     return Scaffold(
         body: Stack(children: [
       FutureBuilder<Avatar?>(
-          future: _avatarRepo.getLastAvatar(widget.roomUid, false),
+          future: _avatarRepo.getLastAvatar(widget.roomUid),
           builder: (context, snapshot) {
             if (snapshot.hasData &&
                 snapshot.data != null &&

@@ -9,8 +9,11 @@ class StickerMessageWidget extends StatefulWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  const StickerMessageWidget(this.message, this.isSender, this.isSeen,
-      {Key? key, required this.colorScheme})
+  const StickerMessageWidget(this.message,
+      {Key? key,
+      required this.colorScheme,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override

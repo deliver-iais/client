@@ -73,8 +73,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         showSavedMessageLogoIfNeeded: true,
                       ),
                       onTap: () async {
-                        final lastAvatar = await _avatarRepo.getLastAvatar(
-                            widget.roomUid, false);
+                        final lastAvatar =
+                            await _avatarRepo.getLastAvatar(widget.roomUid);
                         if (lastAvatar?.createdOn != null &&
                             lastAvatar!.createdOn > 0) {
                           _routingService.openShowAllAvatars(

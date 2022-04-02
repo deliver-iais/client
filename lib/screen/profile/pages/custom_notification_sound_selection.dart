@@ -82,8 +82,8 @@ class _CustomNotificationSoundSelectionState
                 selectedFlag[index] = selectedFlag[index] ?? false;
                 final isSelected = selectedFlag[index]!;
                 return ListTile(
-                  onLongPress: () => onLongPress(isSelected, index),
-                  onTap: () => onTap(isSelected, index),
+                  onLongPress: () => onLongPress(index, isSelected: isSelected),
+                  onTap: () => onTap(index, isSelected: isSelected),
                   title: Text(data),
                   trailing: _buildSelectIcon(isSelected, data),
                 );
@@ -98,7 +98,7 @@ class _CustomNotificationSoundSelectionState
     );
   }
 
-  void onTap(bool isSelected, int index) {
+  void onTap(int index, {bool isSelected = false}) {
     setState(() {
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
@@ -107,7 +107,7 @@ class _CustomNotificationSoundSelectionState
     widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
   }
 
-  void onLongPress(bool isSelected, int index) {
+  void onLongPress(int index, {bool isSelected = false}) {
     setState(() {
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;

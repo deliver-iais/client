@@ -97,8 +97,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 widget.isChannel
                                     ? _i18n.get("enter_channel_name")
                                     : _i18n.get("enter_group_name"),
-                                true,
-                                context)),
+                                context,
+                                isOptional: true)),
                       ),
                     ),
                   ],
@@ -122,7 +122,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 });
                               },
                               decoration: buildInputDecoration(
-                                  _i18n.get("enter_channel_id"), true, context),
+                                  _i18n.get("enter_channel_id"), context,
+                                  isOptional: true),
                             ),
                           )),
                         ],
@@ -164,7 +165,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               widget.isChannel
                                   ? _i18n.get("enter_channel_desc")
                                   : _i18n.get("enter_group_desc"),
-                              false,
                               context)),
                     )),
                   ],
@@ -294,8 +294,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     );
   }
 
-  InputDecoration buildInputDecoration(
-      String label, bool isOptional, BuildContext context) {
+  InputDecoration buildInputDecoration(String label, BuildContext context,
+      {bool isOptional = false}) {
     return InputDecoration(
         disabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),

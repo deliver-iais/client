@@ -95,8 +95,9 @@ class PersistentEventMessage extends StatelessWidget {
                       padding: const EdgeInsets.only(
                           top: 5, left: 8.0, right: 8.0, bottom: 4.0),
                       child: FutureBuilder<List<Widget>?>(
-                        future: getPersistentMessage(persistentEventMessage,
-                            message.roomUid.isChannel(), context),
+                        future: getPersistentMessage(
+                            persistentEventMessage, context,
+                            isChannel: message.roomUid.isChannel()),
                         builder: (c, s) {
                           if (s.hasData && s.data != null) {
                             return Directionality(
@@ -150,9 +151,8 @@ class PersistentEventMessage extends StatelessWidget {
   }
 
   Future<List<Widget>?> getPersistentMessage(
-      PersistentEvent persistentEventMessage,
-      bool isChannel,
-      BuildContext context) async {
+      PersistentEvent persistentEventMessage, BuildContext context,
+      {bool isChannel = false}) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         final issuer = await _roomRepo.getSlangName(
@@ -217,7 +217,8 @@ class PersistentEventMessage extends StatelessWidget {
         }
 
         final issueWidget = Text(
-          getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
+          getMucSpecificPersistentEventIssue(persistentEventMessage,
+              isChannel: isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
           style: const TextStyle(fontSize: 14, height: 1),
@@ -249,7 +250,8 @@ class PersistentEventMessage extends StatelessWidget {
   }
 
   String getMucSpecificPersistentEventIssue(
-      PersistentEvent persistentEventMessage, bool isChannel) {
+      PersistentEvent persistentEventMessage,
+      {bool isChannel = false}) {
     switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
       case MucSpecificPersistentEvent_Issue.ADD_USER:
         return _i18n.verb("added",

@@ -42,7 +42,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
 
-  void _showCustomMenu(BuildContext context, Room room, bool canPin) {
+  void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
       OperationOnRoomEntry(
         room: room,
@@ -53,7 +53,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       // ignore: missing_enum_constant_in_switch
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
-          onPin(room, canPin);
+          onPin(room, canBePinned: canBePinned);
           break;
         case OperationOnRoom.UN_PIN_ROOM:
           onUnPin(room);
@@ -66,8 +66,8 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     _roomDao.updateRoom(Room(uid: room.uid));
   }
 
-  void onPin(Room room, bool canPin) {
-    if (canPin) {
+  void onPin(Room room, {bool canBePinned = false}) {
+    if (canBePinned) {
       _roomDao.updateRoom(Room(uid: room.uid, pinned: true));
     } else {
       showDialog(
@@ -135,7 +135,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                             },
                             onLongPress: () {
                               //ToDo new design for android
-                              _showCustomMenu(context, room, canPin(rooms));
+                              _showCustomMenu(context, room, canBePinned(rooms));
                             },
                             onTapDown: storePosition,
                             onSecondaryTapDown: storePosition,
@@ -143,7 +143,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                 ? null
                                 : () {
                                     _showCustomMenu(
-                                        context, room, canPin(rooms));
+                                        context, room, canBePinned(rooms));
                                   },
                           );
                         }),
@@ -157,7 +157,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         });
   }
 
-  bool canPin(List<Room> rooms) {
+  bool canBePinned(List<Room> rooms) {
     return rooms.where((element) => element.pinned).toList().length < 5
         ? true
         : false;

@@ -49,7 +49,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
       tag: widget.heroTag!,
       child: StreamBuilder<List<Avatar?>>(
           key: _streamKey,
-          stream: _avatarRepo.getAvatar(widget.userUid, false),
+          stream: _avatarRepo.getAvatar(widget.userUid),
           builder: (cont, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               _avatars = snapshot.data!;

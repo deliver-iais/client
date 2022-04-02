@@ -69,14 +69,14 @@ class _CallScreenState extends State<CallScreen> {
     //True means its VideoCall and false means AudioCall
 
     if (widget.isCallAccepted || widget.isIncomingCall) {
-      await callRepo.initCall(true);
+      await callRepo.initCall(isOffer: true);
       if (widget.isCallAccepted) {
         callRepo.acceptCall(widget.roomUid);
       }
     } else if (widget.isVideoCall) {
-      await callRepo.startCall(widget.roomUid, true);
+      await callRepo.startCall(widget.roomUid, isVideo: true);
     } else {
-      await callRepo.startCall(widget.roomUid, false);
+      await callRepo.startCall(widget.roomUid);
     }
   }
 
@@ -283,6 +283,6 @@ class _CallScreenState extends State<CallScreen> {
     // } else {
     //   Navigator.of(context).pop();
     // }
-    callRepo.endCall(false);
+    callRepo.endCall();
   }
 }

@@ -78,8 +78,8 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     )),
                 TimeAndSeenStatus(
                   widget.message,
-                  widget.isSender,
-                  widget.isSeen,
+                  isSender: widget.isSender,
+                  isSeen: widget.isSeen,
                   needsPadding: true,
                   needsPositioned: false,
                   foregroundColor: widget.colorScheme.onPrimaryContainer,
