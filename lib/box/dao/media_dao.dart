@@ -20,7 +20,7 @@ abstract class MediaDao {
 
 class MediaDaoImpl implements MediaDao {
   @override
-  get(String roomId, MediaType type, int limit, int offset) async {
+  Future<List<Media>> get(String roomId, MediaType type, int limit, int offset) async {
     var box = await _open(roomId);
     List<Media> res = [];
     var medias = box.values

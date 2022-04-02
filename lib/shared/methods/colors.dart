@@ -24,7 +24,7 @@ Color lighten(Color c, [int percent = 10]) {
 }
 
 Color changeColor(Color color,
-        {double saturation = 0.5, double lightness = 0.5, alpha = 1.0}) =>
+        {double saturation = 0.5, double lightness = 0.5, double alpha = 1.0}) =>
     HSLColor.fromColor(color)
         .withSaturation(saturation)
         .withLightness(lightness)

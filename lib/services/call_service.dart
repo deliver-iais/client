@@ -39,11 +39,11 @@ class CallService {
     });
   }
 
-  addCallEvent(CallEvents event){
+  void addCallEvent(CallEvents event){
     _callEvents.add(event);
   }
 
-  addGroupCallEvent(CallEvents event){
+  void addGroupCallEvent(CallEvents event){
     _groupCallEvents.add(event);
   }
 

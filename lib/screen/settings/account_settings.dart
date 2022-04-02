@@ -53,7 +53,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
-  attachFile() async {
+  Future<void> attachFile() async {
     String? path;
     if (isWeb || isDesktop) {
       if (isLinux) {
@@ -388,7 +388,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  InputDecoration buildInputDecoration(label, bool isOptional) {
+  InputDecoration buildInputDecoration(String label, bool isOptional) {
     return InputDecoration(
         suffixIcon: isOptional
             ? const Padding(
@@ -446,7 +446,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     return null;
   }
 
-  checkAndSend() async {
+  Future<void> checkAndSend() async {
     bool checkUserName = _usernameFormKey.currentState?.validate() ?? false;
     if (checkUserName) {
       bool isValidated = _formKey.currentState?.validate() ?? false;

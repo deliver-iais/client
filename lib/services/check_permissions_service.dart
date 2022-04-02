@@ -2,7 +2,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CheckPermissionsService {
-  var requestLock = Lock();
+  final requestLock = Lock();
 }
 
 extension PermissionsExtension on CheckPermissionsService {

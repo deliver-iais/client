@@ -180,19 +180,19 @@ class AccountRepo {
     }
   }
 
-  shouldRemoveDB(String? previousVersion) {
+  bool shouldRemoveDB(String? previousVersion) {
     return previousVersion != VERSION;
   }
 
-  shouldMigrateDB(String? previousVersion) {
+  bool shouldMigrateDB(String? previousVersion) {
     return false;
   }
 
-  shouldUpdateSessionPlatformInformation(String previousVersion) {
+  bool shouldUpdateSessionPlatformInformation(String previousVersion) {
     return previousVersion != VERSION;
   }
 
-  shouldShowNewFeaturesDialog(String? previousVersion) {
+  bool shouldShowNewFeaturesDialog(String? previousVersion) {
     return previousVersion != VERSION;
   }
 

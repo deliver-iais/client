@@ -69,7 +69,7 @@ class SentMessageBox extends StatelessWidget {
             isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
   }
 
-  doNotNeedsWrapper() {
+  bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
         AnimatedEmoji.isAnimatedEmoji(message);
   }

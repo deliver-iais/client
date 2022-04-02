@@ -32,7 +32,7 @@ class MediaRepo {
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
 
-  fetchMediaMetaData(Uid uid, {bool updateAllMedia = true}) async {
+  Future<void> fetchMediaMetaData(Uid uid, {bool updateAllMedia = true}) async {
     try {
       var mediaResponse = await _queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
@@ -42,7 +42,7 @@ class MediaRepo {
     }
   }
 
-  saveMediaMetaData(MediaMetaData metaData) {
+  void saveMediaMetaData(MediaMetaData metaData) {
     _mediaMetaDataDao.save(metaData);
   }
 
@@ -302,7 +302,7 @@ class MediaRepo {
     return completer.future;
   }
 
-  saveMediaFromMessage(Message message) {
+  void saveMediaFromMessage(Message message) {
     _mediaDao.save(Media(
         createdOn: message.time,
         json: buildJsonFromFile(message.json.toFile()),

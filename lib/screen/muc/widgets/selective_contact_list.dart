@@ -58,7 +58,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
     super.initState();
   }
 
-  getMembers() async {
+  Future<void> getMembers() async {
     var res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
     for (var element in res) {
       members.add(element!.memberUid);

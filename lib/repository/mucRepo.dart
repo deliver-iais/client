@@ -73,7 +73,7 @@ class MucRepo {
     return result.isAvailable;
   }
 
-  fetchGroupMembers(Uid groupUid, int len) async {
+  Future<void> fetchGroupMembers(Uid groupUid, int len) async {
     try {
       int i = 0;
       int membersSize = 0;
@@ -113,7 +113,7 @@ class MucRepo {
     return _mucServices.getChannelJointToken(channelUid: channelUid);
   }
 
-  fetchChannelMembers(Uid channelUid, int len) async {
+  Future<void> fetchChannelMembers(Uid channelUid, int len) async {
     try {
       int i = 0;
       int membersSize = 0;
@@ -220,7 +220,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> isMucOwner(userUid, mucUid) async {
+  Future<bool> isMucOwner(String userUid, String mucUid) async {
     var member = await _mucDao.getMember(userUid, mucUid);
     if (member != null) {
       if (member.role == MucRole.OWNER) {
@@ -230,9 +230,7 @@ class MucRepo {
     return false;
   }
 
-  updateMuc(Muc muc) async {
-    _mucDao.update(muc);
-  }
+  Future<void> updateMuc(Muc muc) => _mucDao.update(muc);
 
   Future<List<Member>> searchMemberByNameOrId(String mucUid) async {
     return [];
@@ -284,7 +282,7 @@ class MucRepo {
     return _mucServices.getChannel(channelUid);
   }
 
-  changeGroupMemberRole(Member groupMember) async {
+  Future<void> changeGroupMemberRole(Member groupMember) async {
     muc_pb.Member member = muc_pb.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role!);
@@ -295,7 +293,7 @@ class MucRepo {
     }
   }
 
-  changeChannelMemberRole(Member channelMember) async {
+  Future<void> changeChannelMemberRole(Member channelMember) async {
     muc_pb.Member member = muc_pb.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role!);
@@ -336,41 +334,48 @@ class MucRepo {
     return false;
   }
 
-  kickGroupMembers(List<Member> groupMember) async {
-    List<muc_pb.Member> members = [];
-    for (Member member in groupMember) {
-      members.add(muc_pb.Member()
-        ..uid = member.memberUid.asUid()
-        ..role = getRole(member.role!));
+  Future<bool> kickGroupMembers(List<Member> groupMembers) async {
+    if (groupMembers.isEmpty) {
+      return false;
     }
+
+    List<muc_pb.Member> members = groupMembers
+        .map((m) => muc_pb.Member()
+          ..uid = m.memberUid.asUid()
+          ..role = getRole(m.role!))
+        .toList();
 
     bool result = await _mucServices.kickGroupMembers(
-        members, groupMember[0].mucUid.asUid());
+        members, groupMembers[0].mucUid.asUid());
 
     if (result) {
-      for (Member member in groupMember) {
+      for (Member member in groupMembers) {
         _mucDao.deleteMember(member);
       }
+      return true;
     }
+    return false;
   }
 
-  kickChannelMembers(List<Member> channelMember) async {
-    List<muc_pb.Member> members = [];
-    for (Member member in channelMember) {
-      members.add(muc_pb.Member()
-        ..uid = member.memberUid.asUid()
-        ..role = getRole(member.role!));
-    }
+  Future<bool> kickChannelMembers(List<Member> channelMembers) async {
+    List<muc_pb.Member> members = channelMembers
+        .map((m) => muc_pb.Member()
+          ..uid = m.memberUid.asUid()
+          ..role = getRole(m.role!))
+        .toList();
     var result = await _mucServices.kickChannelMembers(
-        members, channelMember[0].mucUid.asUid());
+        members, channelMembers[0].mucUid.asUid());
     if (result) {
-      for (Member member in channelMember) {
+      for (Member member in channelMembers) {
         _mucDao.deleteMember(member);
       }
+      return true;
     }
+
+    return false;
   }
 
-  banGroupMember(Member groupMember) async {
+  Future<void> banGroupMember(Member groupMember) async {
     muc_pb.Member member = muc_pb.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role!);
@@ -383,7 +388,7 @@ class MucRepo {
     }
   }
 
-  banChannelMember(Member channelMember) async {
+  Future<void> banChannelMember(Member channelMember) async {
     muc_pb.Member member = muc_pb.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role!);
@@ -396,15 +401,15 @@ class MucRepo {
     }
   }
 
-  unBanGroupMember(Member groupMember) async {
+  Future<void> unBanGroupMember(Member groupMember) async {
     muc_pb.Member member = muc_pb.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role!);
     await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
-    //todo change databse
+    //todo change database
   }
 
-  unBanChannelMember(Member channelMember) async {
+  Future<void> unBanChannelMember(Member channelMember) async {
     muc_pb.Member member = muc_pb.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role!);
@@ -428,7 +433,7 @@ class MucRepo {
     return null;
   }
 
-  modifyGroup(String mucId, String name, String info) async {
+  Future<void> modifyGroup(String mucId, String name, String info) async {
     var isSet = await _mucServices.modifyGroup(
         group_pb.GroupInfo()
           ..name = name
@@ -439,7 +444,8 @@ class MucRepo {
     }
   }
 
-  modifyChannel(String mucUid, String name, String id, String info) async {
+  Future<void> modifyChannel(
+      String mucUid, String name, String id, String info) async {
     ChannelInfo channelInfo;
     channelInfo = id.isEmpty
         ? (ChannelInfo()
@@ -501,7 +507,7 @@ class MucRepo {
     }
   }
 
-  insertUserInDb(Uid mucUid, List<Member> members) async {
+  Future<void> insertUserInDb(Uid mucUid, List<Member> members) async {
     if (members.isNotEmpty) {
       await _mucDao.deleteAllMembers(mucUid.asString());
     }

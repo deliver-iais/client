@@ -1214,7 +1214,7 @@ void main() {
             fetchMessagesLimit: 1,
             fetchMessagesHasOptions: false,
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
-        await MessageRepo().getEditedMsg(testUid, 0);
+        await MessageRepo().fetchEditedMsg(testUid, 0);
         verify(queryServiceClient.fetchMessages(FetchMessagesReq()
           ..roomUid = testUid
           ..pointer = Int64(0)
@@ -1227,7 +1227,7 @@ void main() {
             fetchMessagesHasOptions: false,
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
-        await MessageRepo().getEditedMsg(testUid, 0);
+        await MessageRepo().fetchEditedMsg(testUid, 0);
         verify(roomDao.getRoom(testUid.asString()));
       });
       test('When called should updateRoom', () async {
@@ -1236,7 +1236,7 @@ void main() {
             fetchMessagesHasOptions: false,
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
-        await MessageRepo().getEditedMsg(testUid, 0);
+        await MessageRepo().fetchEditedMsg(testUid, 0);
         verify(roomDao.updateRoom(testRoom.copyWith(lastUpdatedMessageId: 0)));
       });
       test('When called if lastMessageId==id should updateRoom', () async {
@@ -1246,7 +1246,7 @@ void main() {
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         final roomDao = getAndRegisterRoomDao(
             rooms: [Room(uid: testUid.asString(), lastMessageId: 0)]);
-        await MessageRepo().getEditedMsg(testUid, 0);
+        await MessageRepo().fetchEditedMsg(testUid, 0);
         verify(roomDao.updateRoom(
             Room(uid: testUid.asString(), lastMessageId: 0).copyWith(
           lastMessage: testMessage.copyWith(
@@ -1265,7 +1265,7 @@ void main() {
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         final roomDao = getAndRegisterRoomDao(
             rooms: [Room(uid: testUid.asString(), lastMessageId: 5)]);
-        await MessageRepo().getEditedMsg(testUid, 0);
+        await MessageRepo().fetchEditedMsg(testUid, 0);
         verifyNever(roomDao.updateRoom(
             Room(uid: testUid.asString(), lastMessageId: 5).copyWith(
           lastMessage: testMessage.copyWith(

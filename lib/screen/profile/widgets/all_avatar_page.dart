@@ -138,7 +138,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
     );
   }
 
-  PreferredSizeWidget buildAppBar(totalLength) {
+  PreferredSizeWidget buildAppBar(int totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),
       title: Align(

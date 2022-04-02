@@ -130,7 +130,7 @@ class MessageRepo {
 
   final _completerMap = <String, Completer<List<Message?>>>{};
 
-  updateNewMuc(Uid roomUid, int lastMessageId) async {
+  Future<void> updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
@@ -473,7 +473,7 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  sendCallMessage(
+  Future<void> sendCallMessage(
       call_pb.CallEvent_CallStatus newStatus,
       Uid room,
       String callId,
@@ -495,7 +495,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendCallMessageWithMemberOrCallOwnerPvp(
+  Future<void> sendCallMessageWithMemberOrCallOwnerPvp(
       call_pb.CallEvent_CallStatus newStatus,
       Uid room,
       String callId,
@@ -519,7 +519,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendLocationMessage(Position locationData, Uid room,
+  Future<void> sendLocationMessage(Position locationData, Uid room,
       {String? forwardedFrom, int replyId = 0}) async {
     String json = (location_pb.Location()
           ..longitude = locationData.longitude
@@ -534,7 +534,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  sendMultipleFilesMessages(Uid room, List<model.File> files,
+  Future<void> sendMultipleFilesMessages(Uid room, List<model.File> files,
       {String? caption, int replyToId = 0}) async {
     for (var file in files) {
       if (files.last.path == file.path) {
@@ -546,7 +546,7 @@ class MessageRepo {
     }
   }
 
-  sendFileMessage(Uid room, model.File file,
+  Future<void> sendFileMessage(Uid room, model.File file,
       {String? caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
     var tempDimension = Size.zero;
@@ -601,7 +601,7 @@ class MessageRepo {
     }
   }
 
-  sendStickerMessage(
+  Future<void> sendStickerMessage(
       {required Uid room,
       required Sticker sticker,
       int? replyId,
@@ -717,7 +717,7 @@ class MessageRepo {
   }
 
   @visibleForTesting
-  sendPendingMessages() async {
+  Future<void> sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
         await _messageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
@@ -753,7 +753,7 @@ class MessageRepo {
     _messageDao.savePendingMessage(pm);
   }
 
-  sendSeen(int messageId, Uid to) async {
+  Future<void> sendSeen(int messageId, Uid to) async {
     var seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) return;
     _coreServices.sendSeen(seen_pb.SeenByClient()
@@ -770,7 +770,8 @@ class MessageRepo {
         lastUpdateTime: pm.msg.time));
   }
 
-  sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
+  Future<void> sendForwardedMessage(
+      Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
       Message msg = _createMessage(room, forwardedFrom: forwardedMessage.from)
           .copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
@@ -781,7 +782,7 @@ class MessageRepo {
     }
   }
 
-  sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
+  void sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
     for (Media media in forwardedMedias) {
       var json = jsonDecode(media.json);
       file_pb.File file = file_pb.File()
@@ -928,7 +929,7 @@ class MessageRepo {
               switch (message
                   .persistEvent.messageManipulationPersistentEvent.action) {
                 case MessageManipulationPersistentEvent_Action.EDITED:
-                  getEditedMsg(
+                  fetchEditedMsg(
                       roomUid,
                       message.persistEvent.messageManipulationPersistentEvent
                           .messageId
@@ -982,7 +983,7 @@ class MessageRepo {
     return msgList;
   }
 
-  getEditedMsg(
+  Future<void> fetchEditedMsg(
     Uid roomUid,
     int id,
   ) async {
@@ -1078,7 +1079,7 @@ class MessageRepo {
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
       _messageDao.getPendingMessages(roomUid);
 
-  resendMessage(Message msg) async {
+  Future<void> resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);
     _saveAndSend(pm!);
   }
@@ -1105,7 +1106,8 @@ class MessageRepo {
     }
   }
 
-  sendLiveLocationMessage(Uid roomUid, int duration, Position position,
+  Future<void> sendLiveLocationMessage(
+      Uid roomUid, int duration, Position position,
       {int replyId = 0, String? forwardedFrom}) async {
     var res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     location_pb.Location location = location_pb.Location(
@@ -1138,7 +1140,7 @@ class MessageRepo {
     }
   }
 
-  deleteMessage(List<Message> messages) async {
+  Future<void> deleteMessage(List<Message> messages) async {
     try {
       for (var msg in messages) {
         if (msg.type == MessageType.FILE && msg.id != null) {
@@ -1170,8 +1172,8 @@ class MessageRepo {
     }
   }
 
-  editTextMessage(Uid roomUid, Message editableMessage, String text,
-      roomLastMessageId) async {
+  Future<void> editTextMessage(Uid roomUid, Message editableMessage,
+      String text, int? roomLastMessageId) async {
     try {
       var updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
@@ -1194,7 +1196,7 @@ class MessageRepo {
     }
   }
 
-  editFileMessage(Uid roomUid, Message editableMessage,
+  Future<void> editFileMessage(Uid roomUid, Message editableMessage,
       {String? caption, model.File? file}) async {
     file_pb.File? updatedFile;
     if (file != null) {
@@ -1236,7 +1238,7 @@ class MessageRepo {
         uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
   }
 
-  fetchBlockedRoom() async {
+  Future<void> fetchBlockedRoom() async {
     try {
       GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());

@@ -35,7 +35,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  onDeleteRoom(String selected) async {
+  Future<void> onDeleteRoom(String selected) async {
     String? roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
         context: context,

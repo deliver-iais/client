@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 
 class ToastDisplay {
-  static showToast(
+  static void showToast(
       {IconData? toastIcon,
       Color? toastColor,
       bool isSaveToast = false,

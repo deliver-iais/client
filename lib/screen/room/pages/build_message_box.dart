@@ -282,7 +282,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  onBotCommandClick(String command) {
+  void onBotCommandClick(String command) {
     _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
   }
 
@@ -455,7 +455,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  onCopy() {
+  void onCopy() {
     if (widget.message.type == MessageType.TEXT) {
       Clipboard.setData(ClipboardData(text: widget.message.json.toText().text));
     } else {
@@ -466,12 +466,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         toastText: _i18n.get("copied"), toastContext: context);
   }
 
-  onForward() {
+  void onForward() {
     _routingServices
         .openSelectForwardMessage(forwardedMessages: [widget.message]);
   }
 
-  onEditMessage() {
+  void onEditMessage() {
     switch (widget.message.type) {
       case MessageType.TEXT:
         widget.onEdit();
@@ -526,11 +526,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  onResend() {
+  void onResend() {
     _messageRepo.resendMessage(widget.message);
   }
 
-  onShare() async {
+  Future<void> onShare() async {
     try {
       String? result = await _fileRepo.getFileIfExist(
           widget.message.json.toFile().uuid, widget.message.json.toFile().name);
@@ -543,7 +543,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  onSaveTOGallery(BuildContext context) {
+  void onSaveTOGallery(BuildContext context) {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
     ToastDisplay.showToast(
@@ -552,7 +552,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         isSaveToast: true);
   }
 
-  onSaveTODownloads() {
+  void onSaveTODownloads() {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
     ToastDisplay.showToast(
@@ -561,7 +561,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         isSaveToast: true);
   }
 
-  onSaveToMusic() {
+  void onSaveToMusic() {
     var file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
     ToastDisplay.showToast(
@@ -570,7 +570,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         isSaveToast: true);
   }
 
-  onDeleteMessage() {
+  void onDeleteMessage() {
     showDeleteMsgDialog(
       [widget.message],
       context,
@@ -578,16 +578,16 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  onDeletePendingMessage() {
+  void onDeletePendingMessage() {
     _messageRepo.deletePendingMessage(widget.message.packetId);
   }
 
-  onReportMessage() {
+  void onReportMessage() {
     ToastDisplay.showToast(
         toastText: _i18n.get("report_message"), toastContext: context);
   }
 
-  Future<void> onShowInFolder(path) async {
+  Future<void> onShowInFolder(String path) async {
     var shell = Shell();
     if (isWindows) {
       await shell.run('start "" "$path"');
@@ -616,7 +616,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  onUsernameClick(String username) async {
+  Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
       String roomId = "4:${username.substring(1)}";
       _routingServices.openRoom(roomId);

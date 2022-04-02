@@ -53,7 +53,7 @@ class CoreServices {
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   //TODO test
-  initStreamConnection() async {
+  Future<void> initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
@@ -71,7 +71,7 @@ class CoreServices {
   }
 
   @visibleForTesting
-  startCheckerTimer() async {
+  Future<void> startCheckerTimer() async {
     sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
@@ -100,7 +100,7 @@ class CoreServices {
   }
 
   @visibleForTesting
-  startStream() async {
+  Future<void> startStream() async {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
@@ -153,7 +153,7 @@ class CoreServices {
     }
   }
 
-  sendMessage(MessageByClient message) async {
+  Future<void> sendMessage(MessageByClient message) async {
     try {
       ClientPacket clientPacket = ClientPacket()
         ..message = message
@@ -178,7 +178,7 @@ class CoreServices {
     }
   }
 
-  sendPing() {
+  void sendPing() {
     var ping = Ping()..lastPongTime = Int64(_lastPongTime);
     var clientPacket = ClientPacket()
       ..ping = ping
@@ -186,28 +186,28 @@ class CoreServices {
     _sendPacket(clientPacket, forceToSend: true);
   }
 
-  sendSeen(seen_pb.SeenByClient seen) {
+  void sendSeen(seen_pb.SeenByClient seen) {
     ClientPacket clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
     _sendPacket(clientPacket);
   }
 
-  sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
+  void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
     ClientPacket clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
       ..id = callAnswerByClient.id.toString();
     _sendPacket(clientPacket);
   }
 
-  sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
+  void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     ClientPacket clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id.toString();
     _sendPacket(clientPacket);
   }
 
-  sendActivity(ActivityByClient activity, String id) {
+  void sendActivity(ActivityByClient activity, String id) {
     if (!_authRepo.isCurrentUser(activity.to.toString())) {
       ClientPacket clientPacket = ClientPacket()
         ..activity = activity

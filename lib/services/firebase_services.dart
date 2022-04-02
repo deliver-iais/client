@@ -48,7 +48,7 @@ class FireBaseServices {
 
   late FirebaseMessaging _firebaseMessaging;
 
-  sendFireBaseToken() async {
+  Future<void> sendFireBaseToken() async {
     if (!isDesktop || isWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
@@ -57,7 +57,7 @@ class FireBaseServices {
     }
   }
 
-  deleteToken() {
+  void deleteToken() {
     _firebaseMessaging.deleteToken();
   }
 

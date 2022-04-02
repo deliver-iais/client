@@ -56,9 +56,9 @@ class RoomRepo {
 
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
-  insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
+  Future<void> insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
 
-  updateRoom(Room room) => _roomDao.updateRoom(room);
+  Future<void> updateRoom(Room room) => _roomDao.updateRoom(room);
 
   Future<String> getSlangName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
@@ -238,13 +238,13 @@ class RoomRepo {
     }
   }
 
-  updateRoomName(Uid uid, String name) =>
+  void updateRoomName(Uid uid, String name) =>
       roomNameCache.set(uid.asString(), name);
 
   Future<bool> isRoomHaveACustomNotification(String uid) =>
       _customNotificationDao.isHaveCustomNotif(uid);
 
-  setRoomCustomNotification(String uid, String path) =>
+  Future<void> setRoomCustomNotification(String uid, String path) =>
       _customNotificationDao.setCustomNotif(uid, path);
 
   Future<String?> getRoomCustomNotification(String uid) =>
@@ -283,7 +283,7 @@ class RoomRepo {
 
   Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
-  block(String uid, {bool? block}) async {
+  Future<void> block(String uid, {bool? block}) async {
     if (block!) {
       await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
       _blockDao.block(uid);
@@ -293,7 +293,7 @@ class RoomRepo {
     }
   }
 
-  fetchBlockedRoom() async {
+  Future<void> fetchBlockedRoom() async {
     var result = await _queryServiceClient.getBlockedList(GetBlockedListReq());
     for (var uid in result.uidList) {
       _blockDao.block(uid.asString());

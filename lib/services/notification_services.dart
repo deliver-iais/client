@@ -26,25 +26,25 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static onCallAccept(String roomUid) {
+  static void onCallAccept(String roomUid) {
     GetIt.I
         .get<RoutingService>()
         .openCallScreen(roomUid.asUid(), isCallAccepted: true);
   }
 
-  static onCallReject() {
+  static void onCallReject() {
     GetIt.I.get<CallRepo>().declineCall();
   }
 
-  notifyText(MessageBrief message);
+  Future<void> notifyText(MessageBrief message);
 
-  notifyIncomingCall(String roomUid, String roomName);
+  Future<void> notifyIncomingCall(String roomUid, String roomName);
 
-  cancel(int id, String roomUid);
+  Future<void> cancel(int id, String roomUid);
 
-  cancelAll();
+  Future<void> cancelAll();
 
-  cancelById(int id);
+  Future<void> cancelById(int id);
 }
 
 class NotificationServices {
@@ -101,36 +101,36 @@ class NotificationServices {
 
 class FakeNotifier implements Notifier {
   @override
-  notifyText(MessageBrief message) {}
+  Future<void> notifyText(MessageBrief message) async {}
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
-  cancel(int id, String roomUid) {}
+  Future<void> cancel(int id, String roomUid) async {}
 
   @override
-  cancelAll() {}
+  Future<void> cancelAll() async {}
 
   @override
-  cancelById(int id) {}
+  Future<void> cancelById(int id) async {}
 }
 
 class IOSNotifier implements Notifier {
   @override
-  notifyText(MessageBrief message) {}
+  Future<void> notifyText(MessageBrief message) async {}
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
-  cancel(int id, String roomUid) {}
+  Future<void> cancel(int id, String roomUid) async {}
 
   @override
-  cancelAll() {}
+  Future<void> cancelAll() async {}
 
   @override
-  cancelById(int id) {}
+  Future<void> cancelById(int id) async {}
 }
 
 //init on Home_Page init because can't load Deliver Icon and should be init inside initState() function
@@ -154,7 +154,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageBrief message) async {
     Toast? toast;
     if (!toastByRoomId.containsKey(message.roomUid.node)) {
       toastByRoomId[message.roomUid.node] = {};
@@ -198,7 +198,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) async {
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
     List<String> actions = ['Accept', 'Decline'];
     Toast? toast;
     if (!toastByRoomId.containsKey(roomUid.asUid().node)) {
@@ -251,7 +251,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancel(int id, String roomUid) {
+  Future<void> cancel(int id, String roomUid) async {
     if (toastByRoomId.containsKey(roomUid)) {
       var roomIdToast = toastByRoomId[roomUid];
       for (var element in roomIdToast!.keys.toList()) {
@@ -262,30 +262,30 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  cancelAll() {}
+  Future<void> cancelAll() async {}
 
   @override
-  cancelById(int id) {}
+  Future<void> cancelById(int id) async {}
 }
 
 class WebNotifier implements Notifier {
   @override
-  cancel(int id, String roomUid) {}
+  Future<void> cancel(int id, String roomUid) async {}
 
   @override
-  cancelById(int id) {}
+  Future<void> cancelById(int id) async {}
 
   @override
-  cancelAll() {}
+  Future<void> cancelAll() async {}
 
   @override
-  notifyText(MessageBrief message) {
+  Future<void> notifyText(MessageBrief message) async {
     js.context.callMethod("showNotification",
         [message.roomName, createNotificationTextFromMessageBrief(message)]);
   }
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 }
 
 class LinuxNotifier implements Notifier {
@@ -297,7 +297,7 @@ class LinuxNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
   @override
-  cancelById(int id) {}
+  Future<void> cancelById(int id) async {}
 
   LinuxNotifier() {
     var notificationSetting =
@@ -314,7 +314,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
     LinuxNotificationIcon icon = AssetsLinuxIcon(
@@ -340,10 +340,10 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
-  cancel(int id, String roomUid) async {
+  Future<void> cancel(int id, String roomUid) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {
@@ -352,7 +352,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  cancelAll() async {
+  Future<void> cancelAll() async {
     try {
       await _flutterLocalNotificationsPlugin.cancelAll();
     } catch (e) {
@@ -391,7 +391,7 @@ class AndroidNotifier implements Notifier {
     androidDidNotificationLaunchApp();
   }
 
-  androidDidNotificationLaunchApp() async {
+  Future<void> androidDidNotificationLaunchApp() async {
     final notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails();
     if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
@@ -399,14 +399,14 @@ class AndroidNotifier implements Notifier {
     }
   }
 
-  Future<dynamic> androidOnSelectNotification(room) async {
+  Future<void> androidOnSelectNotification(String? room) async {
     if (room != null && room.isNotEmpty) {
       _routingService.openRoom(room);
     }
     return;
   }
 
-  Future<dynamic> onCallRejected(
+  Future<void> onCallRejected(
     String sessionId,
     int callType,
     int callerId,
@@ -417,7 +417,7 @@ class AndroidNotifier implements Notifier {
     Notifier.onCallReject();
   }
 
-  Future<dynamic> onCallAccepted(
+  Future<void> onCallAccepted(
     String sessionId,
     int callType,
     int callerId,
@@ -429,12 +429,12 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  cancelById(int id) {
+  Future<void> cancelById(int id) async {
     _flutterLocalNotificationsPlugin.cancel(id);
   }
 
   @override
-  notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
     AndroidBitmap<Object>? largeIcon;
     String selectedNotificationSound = "that_was_quick";
@@ -492,7 +492,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) async {
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
     ConnectycubeFlutterCallKit.showCallNotification(
         sessionId: "123456789",
         callerId: 123456789,
@@ -505,7 +505,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  cancel(int id, String roomUid) async {
+  Future<void> cancel(int id, String roomUid) async {
     try {
       List<ActiveNotification>? activeNotification =
           await _flutterLocalNotificationsPlugin.getActiveNotifications();
@@ -520,7 +520,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  cancelAll() async {
+  Future<void> cancelAll() async {
     try {
       await _flutterLocalNotificationsPlugin.cancelAll();
     } catch (e) {
@@ -550,7 +550,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
     List<MacOSNotificationAttachment> attachments = [];
@@ -575,10 +575,10 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  notifyIncomingCall(String roomUid, String roomName) {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
-  cancel(int id, String roomUid) async {
+  Future<void> cancel(int id, String roomUid) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {
@@ -587,7 +587,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  cancelAll() async {
+  Future<void> cancelAll() async {
     try {
       await _flutterLocalNotificationsPlugin.cancelAll();
     } catch (e) {
@@ -596,7 +596,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  cancelById(int id) {}
+  Future<void> cancelById(int id) async {}
 }
 
 String createNotificationTextFromMessageBrief(MessageBrief mb) {

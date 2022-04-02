@@ -1,13 +1,13 @@
 // ignore_for_file: file_names
 
-
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as platform_pb;
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
+    as platform_pb;
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -31,7 +31,6 @@ class AuthRepo {
   static final _authServiceClient = GetIt.I.get<AuthServiceClient>();
   static final requestLock = Lock();
 
-
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
     ..node = "";
@@ -41,9 +40,9 @@ class AuthRepo {
   late PhoneNumber _tmpPhoneNumber;
   var _localPassword = "";
 
-  get refreshToken => _refreshToken;
+  String? get refreshToken => _refreshToken;
 
-  get accessToken => _accessToken;
+  String? get accessToken => _accessToken;
 
   Future<bool> isTestUser() async {
     if (currentUserUid.node.isNotEmpty) {
@@ -64,7 +63,7 @@ class AuthRepo {
     } catch (_) {}
   }
 
-  setCurrentUserUid() async {
+  Future<void> setCurrentUserUid() async {
     init();
     String? res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
     if (res != null) currentUserUid = (res).asUid();
@@ -223,7 +222,7 @@ class AuthRepo {
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }
 
-  saveTestUserInfo() {
+  void saveTestUserInfo() {
     currentUserUid = TEST_USER_UID;
     _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
   }

@@ -175,10 +175,9 @@ class DataStreamServices {
           roomUid: message.from, callId: message.callEvent.id);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        _callService.groupCallEvents.add(callEvents);
+        _callService.addGroupCallEvent(callEvents);
       } else {
-        // its group Call
-        _callService.callEvents.add(callEvents);
+        _callService.addCallEvent(callEvents);
       }
     }
     final msg = await saveMessage(message, roomUid);
@@ -252,13 +251,13 @@ class DataStreamServices {
     }
   }
 
-  handleActivity(Activity activity) {
+  void handleActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
     _updateLastActivityTime(
         _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
   }
 
-  handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+  void handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
@@ -313,9 +312,9 @@ class DataStreamServices {
         callId: callOffer.id);
     if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callOffer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _callService.groupCallEvents.add(callEvents);
+      _callService.addGroupCallEvent(callEvents);
     } else {
-      _callService.callEvents.add(callEvents);
+      _callService.addCallEvent(callEvents);
     }
   }
 
@@ -325,9 +324,9 @@ class DataStreamServices {
         callId: callAnswer.id);
     if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callAnswer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _callService.groupCallEvents.add(callEvents);
+      _callService.addGroupCallEvent(callEvents);
     } else {
-      _callService.callEvents.add(callEvents);
+      _callService.addCallEvent(callEvents);
     }
   }
 
@@ -390,7 +389,7 @@ class DataStreamServices {
     return msg;
   }
 
-  fetchSeen(String roomUid) async {
+  Future<void> fetchSeen(String roomUid) async {
     var res = await _seenDao.getMySeen(roomUid);
     if (res.messageId == -1) {
       _seenDao.saveMySeen(Seen(uid: roomUid, messageId: 0));

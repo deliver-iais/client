@@ -1,6 +1,7 @@
 // ignore_for_file: no_logic_in_create_state
 
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/language.dart';
 import 'package:flutter/material.dart';
 
 import 'slide_object.dart';
@@ -474,7 +475,7 @@ class IntroSliderState extends State<IntroSlider>
   void setupButtonDefaultValues() {
     // Skip button
     onSkipPress ??= () {
-      if (!isAnimating(tabController.animation!.value)) {
+      if (!isAnimating()) {
         tabController.animateTo(slides.length - 1);
       }
     };
@@ -517,7 +518,7 @@ class IntroSliderState extends State<IntroSlider>
     );
   }
 
-  void goToTab(index) {
+  void goToTab(int index) {
     if (index < tabController.length) {
       tabController.animateTo(index);
     }
@@ -530,13 +531,13 @@ class IntroSliderState extends State<IntroSlider>
   }
 
   // Checking if tab is animating
-  bool isAnimating(value) {
+  bool isAnimating() {
     return tabController.animation!.value -
             tabController.animation!.value.truncate() !=
         0;
   }
 
-  bool isRTLLanguage(language) {
+  bool isRTLLanguage(Language language) {
     return false;
 //    return rtlLanguages.contains(language);
   }
@@ -592,7 +593,7 @@ class IntroSliderState extends State<IntroSlider>
     } else {
       return TextButton(
         onPressed: () {
-          if (!isAnimating(tabController.animation!.value)) {
+          if (!isAnimating()) {
             tabController.animateTo(tabController.index - 1);
           }
         },
@@ -604,7 +605,7 @@ class IntroSliderState extends State<IntroSlider>
   Widget buildNextButton() {
     return TextButton(
       onPressed: () {
-        if (!isAnimating(tabController.animation!.value)) {
+        if (!isAnimating()) {
           tabController.animateTo(tabController.index + 1);
         }
       },

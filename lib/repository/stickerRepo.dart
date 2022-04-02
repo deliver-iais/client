@@ -61,7 +61,7 @@ class StickerRepo {
     return null;
   }
 
-  getTrendPacks() {
+  void getTrendPacks() {
     _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
   }
 

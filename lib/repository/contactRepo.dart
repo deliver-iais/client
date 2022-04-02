@@ -34,17 +34,17 @@ class ContactRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _contactServices = GetIt.I.get<ContactServiceClient>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
-  var requestLock = Lock();
+  final _requestLock = Lock();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
   final Map<PhoneNumber, String> _contactsDisplayName = {};
 
-  syncContacts() async {
-    if (requestLock.locked) {
+  Future<void> syncContacts() async {
+    if (_requestLock.locked) {
       return;
     }
-    requestLock.synchronized(() async {
+    _requestLock.synchronized(() async {
       if (await _checkPermission.checkContactPermission() ||
           isDesktop ||
           isIOS) {

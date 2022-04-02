@@ -52,7 +52,7 @@ class AvatarRepo {
     }
   }
 
-  getAvatarRequest(Uid userUid) async {
+  Future<void> getAvatarRequest(Uid userUid) async {
     try {
       var getAvatarReq = GetAvatarReq();
       getAvatarReq.uidList.add(userUid);

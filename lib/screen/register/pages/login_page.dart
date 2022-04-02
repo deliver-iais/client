@@ -43,9 +43,9 @@ class _LoginPageState extends State<LoginPage> {
   static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
-  var loginWithQrCode = isDesktop;
+  bool loginWithQrCode = isDesktop;
   bool _acceptPrivacy = !isAndroid;
-  var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
+  final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
   PhoneNumber? phoneNumber;
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  checkAndGoNext({bool doNotCheckValidator = false}) async {
+  Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
     if (phoneNumber != null &&
         phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
       _logger.e("login as test user ");

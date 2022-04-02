@@ -127,7 +127,7 @@ class RoutingService {
       {bool isIncomingCall = false,
       bool isCallInitialized = false,
       bool isCallAccepted = false,
-      isVideoCall = false}) {
+      bool isVideoCall = false}) {
     _push(CallScreen(
       key: const ValueKey("/call-screen"),
       roomUid: roomUid,
@@ -280,7 +280,7 @@ class RoutingService {
     );
   }
 
-  logout() async {
+  Future<void> logout() async {
     final coreServices = GetIt.I.get<CoreServices>();
     final authRepo = GetIt.I.get<AuthRepo>();
     final accountRepo = GetIt.I.get<AccountRepo>();

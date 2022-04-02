@@ -76,7 +76,7 @@ class _ChatItemState extends State<ChatItem> {
             : buildLastMessageWidget(widget.room.lastMessage!);
   }
 
-  buildLastMessageWidget(Message lastMessage) {
+  Widget buildLastMessageWidget(Message lastMessage) {
     final theme = Theme.of(context);
     final activeHoverColor =
         Color.lerp(theme.focusColor, theme.dividerColor, 0.1);

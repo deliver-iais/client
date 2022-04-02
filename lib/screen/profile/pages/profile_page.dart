@@ -700,7 +700,7 @@ class _ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  createInviteLink() async {
+  Future<void> createInviteLink() async {
     Muc? muc = await _mucRepo.getMuc(widget.roomUid.asString());
     if (muc != null && muc.token != null) {
       String? token = muc.token;
@@ -782,7 +782,7 @@ class _ProfilePageState extends State<ProfilePage>
         });
   }
 
-  generateInviteLink(String token) {
+  String generateInviteLink(String token) {
     return "https://$APPLICATION_DOMAIN/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
   }
 
@@ -1021,7 +1021,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  onSelected(String selected) {
+  void onSelected(String selected) {
     switch (selected) {
       case "delete_room":
         showDialog(

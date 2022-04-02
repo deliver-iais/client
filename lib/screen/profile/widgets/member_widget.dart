@@ -151,7 +151,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
     }
   }
 
-  onSelected(String key, Member member) async {
+  Future<void> onSelected(String key, Member member) async {
     switch (key) {
       case CHANGE_ROLE:
         Member m;
@@ -194,7 +194,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
     }
   }
 
-  obtainMyRole(List<Member?> members) {
+  void obtainMyRole(List<Member?> members) {
     for (Member? member in members) {
       if (member != null && _authRepo.isCurrentUser(member.memberUid)) {
         _myRoleInThisRoom = member.role!;

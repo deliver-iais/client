@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
   }
 
-  checkAddToHomeInWeb(BuildContext context) async {
+  Future<void> checkAddToHomeInWeb(BuildContext context) async {
     Timer(const Duration(seconds: 3), () {
       try {
         // final bool isDeferredNotNull =
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  checkShareFile(BuildContext context) {
+  void checkShareFile(BuildContext context) {
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
       if (value.isNotEmpty) {
         List<String> paths = [];

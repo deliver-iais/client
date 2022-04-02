@@ -14,7 +14,7 @@ class LiveLocationRepo {
   final _liveLocationDao = GetIt.I.get<LiveLocationDao>();
   final _liveLocationClient = GetIt.I.get<LiveLocationServiceClient>();
 
-  saveLiveLocation(LiveLocation liveLocation) {
+  void saveLiveLocation(LiveLocation liveLocation) {
     _liveLocationDao.saveLiveLocation(liveLocation);
   }
 

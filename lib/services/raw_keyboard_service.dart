@@ -96,7 +96,7 @@ class RawKeyboardService {
     scrollUpInBotCommands();
   }
 
-  sendBotCommandsByEnter(Function sendBotCommentByEnter) {
+  void sendBotCommandsByEnter(Function sendBotCommentByEnter) {
     sendBotCommentByEnter();
   }
 
@@ -116,7 +116,7 @@ class RawKeyboardService {
     }
   }
 
-  navigateInMentions(String mentionData, Function scrollDownInMention,
+  void navigateInMentions(String mentionData, Function scrollDownInMention,
       RawKeyEvent event, int mentionSelectedIndex, Function scrollUpInMention) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
@@ -130,7 +130,7 @@ class RawKeyboardService {
     }
   }
 
-  navigateInBotCommand(
+  void navigateInBotCommand(
       RawKeyEvent event,
       Function scrollDownInBotCommands,
       Function scrollUpInBotCommands,

@@ -124,7 +124,7 @@ class FileService {
     }
   }
 
-  saveDownloadedFile(String url, String filename) async {
+  Future<void> saveDownloadedFile(String url, String filename) async {
     html.AnchorElement(href: url)
       ..download = url
       ..setAttribute("download", filename)
@@ -148,7 +148,7 @@ class FileService {
     }
   }
 
-  saveFileInDownloadFolder(String path, String name, String directory) async {
+  Future<void> saveFileInDownloadFolder(String path, String name, String directory) async {
     if (isWeb) {
       saveDownloadedFile(path, name);
     } else {
@@ -233,7 +233,7 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, String filename,
+  Future<Response<dynamic>?> uploadFile(String filePath, String filename,
       {String? uploadKey, Function? sendActivity}) async {
     try {
       if (!isWeb) {

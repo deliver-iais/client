@@ -28,7 +28,7 @@ class AnimatedEmoji extends StatefulWidget {
       required this.colorScheme})
       : super(key: key);
 
-  static isAnimatedEmoji(Message message) {
+  static bool isAnimatedEmoji(Message message) {
     if (message.type != MessageType.TEXT) return false;
     final content = message.json.toText().text;
 

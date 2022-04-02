@@ -203,7 +203,7 @@ class CallRepo {
   /*
   * initial Variable for Render Call Between 2 Client
   * */
-  initCall(bool isOffer) async {
+  Future<void> initCall(bool isOffer) async {
     await _createPeerConnection(isOffer).then((pc) {
       _peerConnection = pc;
     });
@@ -632,7 +632,7 @@ class CallRepo {
 
   //https://github.com/flutter-webrtc/flutter-webrtc/issues/831 issue for Android
   //https://github.com/flutter-webrtc/flutter-webrtc/issues/799 issue for Windows
-  shareScreen() async {
+  Future<void> shareScreen() async {
     if (!_isSharing) {
       _localStreamShare = await _getUserDisplay();
       var screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
@@ -746,7 +746,7 @@ class CallRepo {
     return false;
   }
 
-  switchCamera() {
+  void switchCamera() {
     if (_localStream != null) {
       Helper.switchCamera(_localStream!.getVideoTracks()[0]);
     }
@@ -784,7 +784,7 @@ class CallRepo {
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO);
   }
 
-  startCall(Uid roomId, bool isVideo) async {
+  Future<void> startCall(Uid roomId, bool isVideo) async {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       //can't call another ppl or received any call notification
       _callService.setCallNotification = true;
@@ -951,7 +951,7 @@ class CallRepo {
     await _dispose();
   }
 
-  endCall(bool isForce) async {
+  Future<void> endCall(bool isForce) async {
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (isForce || _isCaller) {
         receivedEndCall(0, isForce);
@@ -1142,7 +1142,7 @@ class CallRepo {
     });
   }
 
-  initRenderer() async {
+  Future<void> initRenderer() async {
     if (!_isInitRenderer) {
       await _localRenderer.initialize();
       await _remoteRenderer.initialize();
@@ -1151,7 +1151,7 @@ class CallRepo {
     }
   }
 
-  disposeRenderer() async {
+  Future<void> disposeRenderer() async {
     _logger.i("Dispose!");
     if (_isInitRenderer) {
       await _localRenderer.dispose();
@@ -1163,7 +1163,7 @@ class CallRepo {
     }
   }
 
-  startCallTimer() {
+  void startCallTimer() {
     if (timer != null && timer!.isActive) {
       timer!.cancel();
     }
@@ -1291,7 +1291,7 @@ void startCallback() {
 
 class FirstTaskHandler extends TaskHandler {
   // ignore: prefer_typing_uninitialized_variables
-  late final sPort;
+  late final SendPort? sPort;
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {

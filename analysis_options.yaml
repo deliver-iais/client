@@ -22,6 +22,12 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    provide_deprecation_message: true
+    #require_trailing_commas: true
+    sized_box_shrink_expand: true
+    type_annotate_public_apis: true
+    type_init_formals: true
+    #unawaited_futures: true
     unnecessary_await_in_return: true
     unnecessary_brace_in_string_interps: true
     unnecessary_const: true

@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  tryInitAccountRepo() async {
+  Future<void> tryInitAccountRepo() async {
     try {
       await _accountRepo.checkUpdatePlatformSessionInformation();
       _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {

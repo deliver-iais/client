@@ -307,7 +307,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   InputDecoration buildInputDecoration(
-      label, bool isOptional, BuildContext context) {
+      String label, bool isOptional, BuildContext context) {
     return InputDecoration(
         disabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),

@@ -26,7 +26,7 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       io.File file, String uploadKey, String name) async {
-     _saveFileInfo(uploadKey, file.path, name, "real");
+    _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
   Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
@@ -87,7 +87,7 @@ class FileRepo {
     return false;
   }
 
-  saveDownloadedFile(String url, String filename) =>
+  Future<void> saveDownloadedFile(String url, String filename) =>
       _fileService.saveDownloadedFile(url, filename);
 
   Future<String?> getFileIfExist(String uuid, String filename,

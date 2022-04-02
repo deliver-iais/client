@@ -30,7 +30,7 @@ abstract class AudioPlayerModule {
 
   Stream<Duration?>? get audioCurrentPosition;
 
-  play(String path);
+  void play(String path);
 
   void seek(Duration duration) {}
 
@@ -180,7 +180,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
       });
 
   @override
-  play(String path) {
+  void play(String path) {
     _audioPlayer.play(path, isLocal: false);
   }
 
@@ -265,7 +265,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  play(String path) {
+  void play(String path) {
     // _audioPlayer.open(Media.file(File(path)));
     // _audioPlayer.play();
   }

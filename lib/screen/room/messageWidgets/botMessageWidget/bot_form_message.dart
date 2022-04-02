@@ -281,7 +281,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  void setResult(int index, value) {
+  void setResult(int index, dynamic value) {
     formResultMap[form.fields[index].id] = value;
   }
 }

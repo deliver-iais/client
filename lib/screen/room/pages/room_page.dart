@@ -483,14 +483,14 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  onDelete() async {
+  Future<void> onDelete() async {
     await _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid());
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
   }
 
-  onUnPin(Message message) async {
+  Future<void> onUnPin(Message message) async {
     var res = await _messageRepo.unpinMessage(message);
     if (res) {
       _pinMessages.remove(message);
@@ -499,7 +499,7 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  onPin(Message message) async {
+  Future<void> onPin(Message message) async {
     var isPin = await _messageRepo.pinMessage(message);
     if (isPin) {
       _pinMessages.add(message);
@@ -517,7 +517,7 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  onReply(Message message) {
+  void onReply(Message message) {
     _repliedMessage.add(message);
     _waitingForForwardedMessage.add(false);
     FocusScope.of(context).requestFocus(_inputMessageFocusNode);
@@ -1134,7 +1134,7 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  scrollToLast() {
+  void scrollToLast() {
     _itemScrollController.scrollTo(
         alignment: 0,
         curve: Curves.easeOut,
@@ -1143,7 +1143,7 @@ class _RoomPageState extends State<RoomPage> {
         duration: const Duration(milliseconds: 1000));
   }
 
-  onUsernameClick(String username) async {
+  Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
       String roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
@@ -1179,7 +1179,7 @@ class _RoomPageState extends State<RoomPage> {
         });
   }
 
-  openRoomSearchBox() {
+  void openRoomSearchBox() {
     _searchMode.add(true);
   }
 }

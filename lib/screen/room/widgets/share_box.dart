@@ -69,7 +69,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
-  var currentPage = Page.gallery;
+  Page currentPage = Page.gallery;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   I18N i18n = GetIt.I.get<I18N>();
@@ -387,9 +387,9 @@ class _ShareBoxState extends State<ShareBox> {
         });
   }
 
-  isSelected() => finalSelected.values.isNotEmpty;
+  bool isSelected() => finalSelected.values.isNotEmpty;
 
-  liveLocation(I18N i18n, BuildContext context, Position position) {
+  void liveLocation(I18N i18n, BuildContext context, Position position) {
     BehaviorSubject<String> time = BehaviorSubject.seeded("10");
     showDialog(
         context: context,
@@ -503,7 +503,7 @@ class _ShareBoxState extends State<ShareBox> {
   }
 }
 
-showCaptionDialog(
+Future<void> showCaptionDialog(
     {String? type,
     List<model.File>? files,
     required Uid roomUid,

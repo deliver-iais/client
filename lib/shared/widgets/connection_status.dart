@@ -50,7 +50,7 @@ class ConnectionStatus extends StatelessWidget {
         });
   }
 
-  title(TitleStatusConditions statusConditions) {
+  String title(TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
         return _i18n.get("disconnected").capitalCase;

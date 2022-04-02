@@ -115,13 +115,13 @@ class _InputMessageWidget extends State<InputMessage> {
   int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  var record = Record();
+  final record = Record();
 
   final ValueNotifier<TextDirection> _textDir =
       ValueNotifier(TextDirection.ltr);
 
-  var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
-  var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  final botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  final idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -601,7 +601,7 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onMentionSelected(s) {
+  void onMentionSelected(String? s) {
     int start = widget.textController.selection.baseOffset;
 
     String block_1 = widget.textController.text.substring(0, start);
@@ -609,7 +609,7 @@ class _InputMessageWidget extends State<InputMessage> {
     block_1 = block_1.substring(0, indexOf + 1);
     String block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
-    widget.textController.text = block_1 + s + " " + block_2;
+    widget.textController.text = block_1 + (s ?? "") + " " + block_2;
     widget.textController.selection = TextSelection.fromPosition(TextPosition(
         offset: widget.textController.text.length - block_2.length));
     _mentionQuery.add("-");
@@ -619,7 +619,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  onCommandClick(String command) {
+  void onCommandClick(String command) {
     widget.textController.text = "/" + command;
     widget.textController.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.textController.text.length));
@@ -691,7 +691,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  scrollUpInBotCommand() {
+  void scrollUpInBotCommand() {
     int length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
@@ -706,7 +706,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  sendBotCommandByEnter() async {
+  Future<void> sendBotCommandByEnter() async {
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
           if (value != null)
             onCommandClick(
@@ -714,7 +714,7 @@ class _InputMessageWidget extends State<InputMessage> {
         });
   }
 
-  sendMentionByEnter() async {
+  Future<void> sendMentionByEnter() async {
     var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
         query: _mentionData);
     if (value.isNotEmpty) {
@@ -724,7 +724,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  scrollDownInBotCommand() {
+  void scrollDownInBotCommand() {
     int length = 0;
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
           if (value != null)
@@ -738,7 +738,7 @@ class _InputMessageWidget extends State<InputMessage> {
         });
   }
 
-  scrollUpInMentions() {
+  void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
           .getFilteredMember(currentRoom.uid, query: _mentionData)
@@ -799,7 +799,7 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
+  double opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
     try {
@@ -837,7 +837,7 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  showCaptionDialog(
+  Future<void> showCaptionDialog(
       {IconData? icons, String? type, required List<File> files}) async {
     if (files.isEmpty) return;
 
@@ -856,7 +856,7 @@ class _InputMessageWidget extends State<InputMessage> {
         });
   }
 
-  scrollDownInMentions() {
+  void scrollDownInMentions() {
     _mucRepo
         .getFilteredMember(currentRoom.uid, query: _mentionData)
         .then((value) => {

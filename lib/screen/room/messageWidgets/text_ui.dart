@@ -77,9 +77,7 @@ class TextUI extends StatelessWidget {
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
           RichText(
-            text: TextSpan(
-                children: spans,
-                style: theme.textTheme.bodyText2),
+            text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
@@ -253,7 +251,9 @@ class Block {
 }
 
 List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
-        {Function? onTap, TextStyle? style, Function transformer = same}) =>
+        {Function? onTap,
+        TextStyle? style,
+        String Function(String) transformer = same}) =>
     flatten(blocks.map<Iterable<Block>>((b) {
       if (b.locked) {
         return [b];
@@ -265,7 +265,7 @@ List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
 
 List<Block> parseText(
     String text, RegExp regex, Function? onTap, TextStyle style, String type,
-    {Function transformer = same}) {
+    {String Function(String) transformer = same}) {
   var start = 0;
 
   Iterable<RegExpMatch> matches = regex.allMatches(text);
@@ -275,7 +275,7 @@ List<Block> parseText(
   for (var match in matches) {
     result.add(Block(text: transformer(text.substring(start, match.start))));
     result.add(Block(
-        text: transformer(match[0]),
+        text: transformer(match[0] as String),
         onTap: onTap,
         style: style,
         type: type,
@@ -288,7 +288,7 @@ List<Block> parseText(
   return result;
 }
 
-same(m) => m;
+String same(String m) => m;
 
 Iterable<T> flatten<T>(Iterable<Iterable<T>> items) sync* {
   for (var i in items) {

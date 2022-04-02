@@ -119,7 +119,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     _newAvatarPath.add("");
   }
 
-  selectAvatar() async {
+  Future<void> selectAvatar() async {
     if (isWeb || isDesktop) {
       if (isLinux) {
         final typeGroup =
