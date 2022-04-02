@@ -128,12 +128,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         child: Row(children: [
                           const Icon(CupertinoIcons.down_arrow),
                           const SizedBox(width: 8),
-                          f.type.contains("image")
-                              ? Text(_i18n.get("save_to_gallery"))
-                              : f.type.contains("audio") ||
-                                      f.type.contains("mp3")
-                                  ? Text(_i18n.get("save_in_music"))
-                                  : Text(_i18n.get("save_to_downloads")),
+                          if (f.type.contains("image"))
+                            Text(_i18n.get("save_to_gallery"))
+                          else if (f.type.contains("audio") ||
+                              f.type.contains("mp3"))
+                            Text(_i18n.get("save_in_music"))
+                          else
+                            Text(_i18n.get("save_to_downloads")),
                         ]));
                   } else {
                     return const SizedBox.shrink();

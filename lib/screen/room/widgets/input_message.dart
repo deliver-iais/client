@@ -296,166 +296,159 @@ class _InputMessageWidget extends State<InputMessage> {
                       }),
                   Row(
                     children: <Widget>[
-                      !startAudioRecorder
-                          ? Expanded(
-                              child: Row(
-                                children: <Widget>[
-                                  StreamBuilder<bool>(
-                                      stream: _backSubject.stream,
-                                      builder: (context, snapshot) {
-                                        return IconButton(
-                                          iconSize:
-                                              _backSubject.value ? 24 : 28,
-                                          icon: Icon(
-                                            _backSubject.value
-                                                ? CupertinoIcons
-                                                    .keyboard_chevron_compact_down
-                                                : CupertinoIcons.smiley,
-                                          ),
-                                          onPressed: () {
-                                            if (_backSubject.value) {
-                                              _backSubject.add(false);
-                                              widget.focusNode.requestFocus();
-                                            } else if (!_backSubject.value) {
-                                              FocusScope.of(context).unfocus();
-                                              Timer(
-                                                  const Duration(
-                                                      milliseconds: 200), () {
-                                                _backSubject.add(true);
-                                              });
-                                            }
-                                          },
-                                        );
-                                      }),
-                                  Flexible(
-                                    child: RawKeyboardListener(
-                                      focusNode: keyboardRawFocusNode,
-                                      child:
-                                          ValueListenableBuilder<TextDirection>(
-                                        valueListenable: _textDir,
-                                        builder: (context, value, child) =>
-                                            TextField(
-                                          selectionControls: isDesktop
-                                              ? selectionControls
-                                              : null,
-                                          focusNode: widget.focusNode,
-                                          autofocus:
-                                              widget.replyMessageId > 0 ||
-                                                  isDesktop,
-                                          controller: widget.textController,
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 14,
-                                                    vertical: 12),
-                                            border: InputBorder.none,
-                                            counterText: "",
-                                            hintText: i18n.get("message"),
-                                          ),
-                                          textInputAction:
-                                              TextInputAction.newline,
-                                          minLines: 1,
-                                          maxLines: 15,
-                                          maxLength:
-                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                                          inputFormatters: [
-                                            MaxLinesTextInputFormatter(
-                                                INPUT_MESSAGE_TEXT_FIELD_MAX_LINE)
-                                            //max line of text field
-                                          ],
-                                          textDirection: value,
-                                          style: theme.textTheme.subtitle1,
-                                          onTap: () => _backSubject.add(false),
-                                          onChanged: (str) {
-                                            if (str.trim().length < 2) {
-                                              final dir = getDirection(str);
-                                              if (dir != value) {
-                                                _textDir.value = dir;
-                                              }
-                                            }
-                                            if (str.isNotEmpty) {
-                                              isTypingActivitySubject
-                                                  .add(ActivityType.TYPING);
-                                            } else {
-                                              noActivitySubject.add(
-                                                  ActivityType.NO_ACTIVITY);
-                                            }
-                                          },
-                                        ),
+                      if (!startAudioRecorder)
+                        Expanded(
+                          child: Row(
+                            children: <Widget>[
+                              StreamBuilder<bool>(
+                                  stream: _backSubject.stream,
+                                  builder: (context, snapshot) {
+                                    return IconButton(
+                                      iconSize: _backSubject.value ? 24 : 28,
+                                      icon: Icon(
+                                        _backSubject.value
+                                            ? CupertinoIcons
+                                                .keyboard_chevron_compact_down
+                                            : CupertinoIcons.smiley,
                                       ),
+                                      onPressed: () {
+                                        if (_backSubject.value) {
+                                          _backSubject.add(false);
+                                          widget.focusNode.requestFocus();
+                                        } else if (!_backSubject.value) {
+                                          FocusScope.of(context).unfocus();
+                                          Timer(
+                                              const Duration(milliseconds: 200),
+                                              () {
+                                            _backSubject.add(true);
+                                          });
+                                        }
+                                      },
+                                    );
+                                  }),
+                              Flexible(
+                                child: RawKeyboardListener(
+                                  focusNode: keyboardRawFocusNode,
+                                  child: ValueListenableBuilder<TextDirection>(
+                                    valueListenable: _textDir,
+                                    builder: (context, value, child) =>
+                                        TextField(
+                                      selectionControls:
+                                          isDesktop ? selectionControls : null,
+                                      focusNode: widget.focusNode,
+                                      autofocus: widget.replyMessageId > 0 ||
+                                          isDesktop,
+                                      controller: widget.textController,
+                                      decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 14, vertical: 12),
+                                        border: InputBorder.none,
+                                        counterText: "",
+                                        hintText: i18n.get("message"),
+                                      ),
+                                      textInputAction: TextInputAction.newline,
+                                      minLines: 1,
+                                      maxLines: 15,
+                                      maxLength:
+                                          INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                                      inputFormatters: [
+                                        MaxLinesTextInputFormatter(
+                                            INPUT_MESSAGE_TEXT_FIELD_MAX_LINE)
+                                        //max line of text field
+                                      ],
+                                      textDirection: value,
+                                      style: theme.textTheme.subtitle1,
+                                      onTap: () => _backSubject.add(false),
+                                      onChanged: (str) {
+                                        if (str.trim().length < 2) {
+                                          final dir = getDirection(str);
+                                          if (dir != value) {
+                                            _textDir.value = dir;
+                                          }
+                                        }
+                                        if (str.isNotEmpty) {
+                                          isTypingActivitySubject
+                                              .add(ActivityType.TYPING);
+                                        } else {
+                                          noActivitySubject
+                                              .add(ActivityType.NO_ACTIVITY);
+                                        }
+                                      },
                                     ),
                                   ),
-                                  if (currentRoom.uid.asUid().category ==
-                                      Categories.BOT)
-                                    StreamBuilder<bool>(
-                                        stream: _showSendIcon.stream,
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData &&
-                                              !snapshot.data!) {
-                                            return IconButton(
-                                              iconSize: 28,
-                                              icon: const Icon(
-                                                CupertinoIcons.slash_circle,
-                                              ),
-                                              onPressed: () => _botCommandQuery
-                                                  .add(_botCommandQuery.value ==
-                                                          "-"
-                                                      ? ""
-                                                      : "-"),
-                                            );
-                                          } else {
-                                            return const SizedBox.shrink();
-                                          }
-                                        }),
-                                  StreamBuilder<bool>(
-                                      stream: _showSendIcon.stream,
-                                      builder: (c, sh) {
-                                        if (sh.hasData &&
-                                            !sh.data! &&
-                                            !widget.waitingForForward) {
-                                          return IconButton(
-                                              icon: const Icon(
-                                                CupertinoIcons.paperclip,
-                                              ),
-                                              onPressed: () {
-                                                _backSubject.add(false);
-                                                showButtonSheet();
-                                              });
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      }),
-                                  StreamBuilder<bool>(
-                                      stream: _showSendIcon.stream,
-                                      builder: (c, sh) {
-                                        if ((sh.hasData && sh.data!) ||
-                                            widget.waitingForForward) {
-                                          return IconButton(
-                                            icon: const Icon(
-                                              CupertinoIcons.paperplane_fill,
-                                              color: Colors.blue,
-                                            ),
-                                            onPressed: widget.textController
-                                                        .text.isEmpty &&
-                                                    !widget.waitingForForward
-                                                ? () async {}
-                                                : () {
-                                                    sendMessage();
-                                                  },
-                                          );
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      })
-                                ],
+                                ),
                               ),
-                            )
-                          : RecordAudioSlideWidget(
-                              opacity: opacity(),
-                              time: time,
-                              running: startAudioRecorder,
-                              streamTime: recordSubject,
-                            ),
+                              if (currentRoom.uid.asUid().category ==
+                                  Categories.BOT)
+                                StreamBuilder<bool>(
+                                    stream: _showSendIcon.stream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData && !snapshot.data!) {
+                                        return IconButton(
+                                          iconSize: 28,
+                                          icon: const Icon(
+                                            CupertinoIcons.slash_circle,
+                                          ),
+                                          onPressed: () => _botCommandQuery.add(
+                                              _botCommandQuery.value == "-"
+                                                  ? ""
+                                                  : "-"),
+                                        );
+                                      } else {
+                                        return const SizedBox.shrink();
+                                      }
+                                    }),
+                              StreamBuilder<bool>(
+                                  stream: _showSendIcon.stream,
+                                  builder: (c, sh) {
+                                    if (sh.hasData &&
+                                        !sh.data! &&
+                                        !widget.waitingForForward) {
+                                      return IconButton(
+                                          icon: const Icon(
+                                            CupertinoIcons.paperclip,
+                                          ),
+                                          onPressed: () {
+                                            _backSubject.add(false);
+                                            showButtonSheet();
+                                          });
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  }),
+                              StreamBuilder<bool>(
+                                  stream: _showSendIcon.stream,
+                                  builder: (c, sh) {
+                                    if ((sh.hasData && sh.data!) ||
+                                        widget.waitingForForward) {
+                                      return IconButton(
+                                        icon: const Icon(
+                                          CupertinoIcons.paperplane_fill,
+                                          color: Colors.blue,
+                                        ),
+                                        onPressed: widget.textController.text
+                                                    .isEmpty &&
+                                                !widget.waitingForForward
+                                            ? () async {}
+                                            : () {
+                                                sendMessage();
+                                              },
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  })
+                            ],
+                          ),
+                        )
+                      else
+                        RecordAudioSlideWidget(
+                          opacity: opacity(),
+                          time: time,
+                          running: startAudioRecorder,
+                          streamTime: recordSubject,
+                        ),
                       StreamBuilder<bool>(
                           stream: _showSendIcon.stream,
                           builder: (c, sm) {

@@ -383,27 +383,26 @@ class _NavigationCenterState extends State<NavigationCenter> {
             const SizedBox(
               height: 30,
             ),
-            isAndroid && isCircleAvatarWidget
-                ? InkWell(
-                    onTap: () {
-                      FeatureDiscovery.dismissAll(context);
-                      _routingService.openContacts();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'sync contacts',
-                          style: theme.textTheme.button!
-                              .copyWith(color: Colors.lightGreenAccent),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.lightGreenAccent,
-                        )
-                      ],
-                    ))
-                : const SizedBox.shrink(),
+            if (isAndroid && isCircleAvatarWidget)
+              InkWell(
+                  onTap: () {
+                    FeatureDiscovery.dismissAll(context);
+                    _routingService.openContacts();
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'sync contacts',
+                        style: theme.textTheme.button!
+                            .copyWith(color: Colors.lightGreenAccent),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.lightGreenAccent,
+                      )
+                    ],
+                  )),
           ],
         ),
       ],

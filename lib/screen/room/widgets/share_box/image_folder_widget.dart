@@ -56,14 +56,13 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          widget.setAvatar == null && _selectedImage.isNotEmpty
-              ? IconButton(
-                  onPressed: () {
-                    _selectedImage.clear();
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.clear))
-              : const SizedBox.shrink()
+          if (widget.setAvatar == null && _selectedImage.isNotEmpty)
+            IconButton(
+                onPressed: () {
+                  _selectedImage.clear();
+                  setState(() {});
+                },
+                icon: const Icon(Icons.clear))
         ],
         title: widget.setAvatar == null
             ? Text(

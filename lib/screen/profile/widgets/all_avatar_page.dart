@@ -152,24 +152,23 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
             },
           )),
       actions: [
-        widget.hasPermissionToDeletePic
-            ? PopupMenuButton(
-                icon: const Icon(
-                  Icons.more_vert,
-                  size: 20,
-                ),
-                itemBuilder: (cc) => [
-                      PopupMenuItem(
-                        child: const Text("delete"),
-                        onTap: () async {
-                          await _avatarRepo.deleteAvatar(
-                              _avatars[_swipePositionSubject.value]!);
-                          _avatars.clear();
-                          setState(() {});
-                        },
-                      ),
-                    ])
-            : const SizedBox.shrink()
+        if (widget.hasPermissionToDeletePic)
+          PopupMenuButton(
+              icon: const Icon(
+                Icons.more_vert,
+                size: 20,
+              ),
+              itemBuilder: (cc) => [
+                    PopupMenuItem(
+                      child: const Text("delete"),
+                      onTap: () async {
+                        await _avatarRepo.deleteAvatar(
+                            _avatars[_swipePositionSubject.value]!);
+                        _avatars.clear();
+                        setState(() {});
+                      },
+                    ),
+                  ])
       ],
     );
   }

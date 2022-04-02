@@ -287,35 +287,32 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 const SizedBox(
                                   height: 5,
                                 ),
-                                _newUsername.isEmpty
-                                    ? Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              _i18n.get("username_helper"),
-                                              textAlign: TextAlign.justify,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.blueAccent),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : const SizedBox.shrink(),
-                                !usernameIsAvailable
-                                    ? Row(
-                                        children: [
-                                          Text(
-                                            _i18n.get("username_already_exist"),
-                                            style: const TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.red),
-                                          ),
-                                        ],
-                                      )
-                                    : const SizedBox.shrink(),
+                                if (_newUsername.isEmpty)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _i18n.get("username_helper"),
+                                          textAlign: TextAlign.justify,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.blueAccent),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (usernameIsAvailable)
+                                  Row(
+                                    children: [
+                                      Text(
+                                        _i18n.get("username_already_exist"),
+                                        style: const TextStyle(
+                                            fontSize: 10, color: Colors.red),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(
                                   height: 20,
                                 ),

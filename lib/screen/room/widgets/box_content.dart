@@ -101,30 +101,29 @@ class _BoxContentState extends State<BoxContent> {
                 ],
               ),
             ),
-            isDesktop | isWeb
-                ? MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTapDown: (tapDownDetails) {
-                        widget.storePosition(tapDownDetails);
-                      },
-                      onTap: () => widget.onArrowIconClick(),
-                      child: AnimatedOpacity(
-                        opacity: !hideArrowDopIcon ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(
-                          margin: const EdgeInsets.all(2),
-                          child: const BlurContainer(
-                              padding: EdgeInsets.all(3),
-                              child: Icon(
-                                CupertinoIcons.chevron_down,
-                                size: 16,
-                              )),
-                        ),
-                      ),
+            if (isDesktop | isWeb)
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTapDown: (tapDownDetails) {
+                    widget.storePosition(tapDownDetails);
+                  },
+                  onTap: () => widget.onArrowIconClick(),
+                  child: AnimatedOpacity(
+                    opacity: !hideArrowDopIcon ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      margin: const EdgeInsets.all(2),
+                      child: const BlurContainer(
+                          padding: EdgeInsets.all(3),
+                          child: Icon(
+                            CupertinoIcons.chevron_down,
+                            size: 16,
+                          )),
                     ),
-                  )
-                : const SizedBox.shrink(),
+                  ),
+                ),
+              ),
           ],
         ));
   }
