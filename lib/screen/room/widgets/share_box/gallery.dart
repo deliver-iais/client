@@ -338,7 +338,7 @@ Stack buildInputCaption(
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                boxShadow: [BoxShadow(blurRadius: 20.0)],
+                //boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
@@ -351,7 +351,7 @@ Stack buildInputCaption(
                         child: Material(
                           color: theme.primaryColor, // button color
                           child: InkWell(
-                              splashColor: Colors.red, // inkwell color
+                              splashColor:  theme.primaryColor, // inkwell color
                               child: const SizedBox(
                                   width: 60,
                                   height: 60,

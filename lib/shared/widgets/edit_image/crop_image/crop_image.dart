@@ -59,6 +59,8 @@ class _CropImageState extends State<CropImage> {
                     widget.imagePath.split(".").last);
                 outPutFile.writeAsBytesSync(image.bytes);
                 widget.crop(outPutFile.path);
+
+                if (!mounted) return;
                 Navigator.pop(context);
               }
             },
@@ -118,26 +120,6 @@ class _CropImageState extends State<CropImage> {
                           icon: const Icon(CupertinoIcons.rotate_right),
                           onPressed: () => controller
                               .addTransition(CropImageData(angle: pi / 4))),
-                      IconButton(
-                        icon: const Icon(CupertinoIcons.crop),
-                        onPressed: () async {
-                          _startCrop.add(true);
-                          final image = await controller.onCropImage();
-                          if (image != null) {
-                            setState(() {
-                              memoryImage = image;
-                            });
-                            final outPutFile = await _fileServices.localFile(
-                                "_crop-${DateTime.now().millisecondsSinceEpoch}",
-                                widget.imagePath.split(".").last);
-                            outPutFile.writeAsBytesSync(image.bytes);
-                            widget.crop(outPutFile.path);
-
-                            if (!mounted) return;
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
                     ],
                   );
                 } else {
