@@ -8,6 +8,7 @@ import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/shared/constants.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
@@ -207,14 +208,17 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
           StreamBuilder<CameraController>(
               stream: _cameraController.stream,
               builder: (context, snapshot) {
-                return CameraPreview(
-                  snapshot.data ?? _controller,
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: CameraPreview(
+                    snapshot.data ?? _controller,
+                  ),
                 );
               }),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 20, right: 15),
+              padding: const EdgeInsets.only(bottom: 30, right: 15),
               child: IconButton(
                 onPressed: () async {
                   final file = await _controller.takePicture();
@@ -227,8 +231,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                   }
                 },
                 icon: const Icon(
-                  Icons.photo_camera,
-                  color: Colors.black45,
+                  CupertinoIcons.camera_fill,
+                  color: Colors.white,
                   size: 55,
                 ),
               ),
@@ -249,8 +253,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     await _controller.initialize();
                     _cameraController.add(_controller);
                   },
-                  icon: const Icon(Icons.flip_camera_ios_outlined),
-                  color: Colors.black38,
+                  icon: const Icon(
+                    CupertinoIcons.switch_camera,
+                    color: Colors.white70,
+                  ),
                   iconSize: 40,
                 ),
               ),
@@ -351,7 +357,7 @@ Stack buildInputCaption(
                         child: Material(
                           color: theme.primaryColor, // button color
                           child: InkWell(
-                              splashColor:  theme.primaryColor, // inkwell color
+                              splashColor: theme.primaryColor, // inkwell color
                               child: const SizedBox(
                                   width: 60,
                                   height: 60,
