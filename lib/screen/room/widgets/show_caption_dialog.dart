@@ -303,7 +303,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     ? _editedFile != null
                         ? _editedFile!.path = path
                         : _editedFile =
-                            model.File(path, path.toString().split(".").last)
+                            model.File(path, path.split(".").last)
                     : index == null
                         ? widget.files!.first.path = path
                         : widget.files![index].path = path;

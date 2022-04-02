@@ -13,11 +13,11 @@ import 'package:rxdart/rxdart.dart';
 class OpenImagePage extends StatefulWidget {
   final String imagePath;
   final List<String>? selectedImage;
-  final Function? onTap;
-  final Function onEditEnd;
-  final Function? send;
+  final Function(String)? onTap;
+  final Function(String) onEditEnd;
+  final Function()? send;
   final bool forceToShowCaptionTextField;
-  final Function? pop;
+  final Function()? pop;
   final TextEditingController? textEditingController;
   final BehaviorSubject<bool>? insertCaption;
 
