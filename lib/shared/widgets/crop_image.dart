@@ -11,7 +11,7 @@ import 'package:rxdart/rxdart.dart';
 
 class CropImage extends StatefulWidget {
   final String imagePath;
- final Function crop;
+  final Function crop;
 
   const CropImage(this.imagePath, this.crop, {Key? key}) : super(key: key);
 
@@ -110,6 +110,8 @@ class _CropImageState extends State<CropImage> {
                                 widget.imagePath.split(".").last);
                             outPutFile.writeAsBytesSync(image.bytes);
                             widget.crop(outPutFile.path);
+
+                            if (!mounted) return;
                             Navigator.pop(context);
                           }
                         },

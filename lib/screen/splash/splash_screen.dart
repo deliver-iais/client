@@ -87,6 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
     final hasProfile = await _accountRepo.profileInfoIsSet();
+    if (!mounted) return;
     if (hasProfile) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
         return const HomePage();
