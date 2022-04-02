@@ -37,7 +37,7 @@ class FileService {
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() || isDesktop || isIOS) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await io.Directory('${directory.path}/Deliver').exists()) {
+      if (!io.Directory('${directory.path}/Deliver').existsSync()) {
         await io.Directory('${directory.path}/Deliver').create(recursive: true);
       }
       return directory.path + "/Deliver";

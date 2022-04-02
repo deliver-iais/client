@@ -22,6 +22,23 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    avoid_slow_async_io: true
+    avoid_type_to_string: true
+    avoid_types_as_parameter_names: true
+    #TODO
+    #cancel_subscriptions: true
+    #close_sinks: true
+    control_flow_in_finally: true
+    #TODO
+    #diagnostic_describe_all_properties: true
+    empty_statements: true
+    hash_and_equals: true
+    invariant_booleans: true
+    literal_only_boolean_expressions: true
+    prefer_void_to_null: true
+    test_types_in_equals: true
+    unrelated_type_equality_checks: true
+    #unsafe_html: true
     #use_build_context_synchronously: true
     use_key_in_widget_constructors: true
     valid_regexps: true
@@ -59,6 +76,7 @@ linter:
     empty_catches: true
     empty_constructor_bodies: true
     exhaustive_cases: true
+    #TODO
     #flutter_style_todos: true
     join_return_with_assignment: true
     missing_whitespace_between_adjacent_strings: true
@@ -75,6 +93,7 @@ linter:
     prefer_constructors_over_static_methods: true
     prefer_contains: true
     prefer_equal_for_default_values: true
+    #TODO
     #prefer_expression_function_bodies: true
     prefer_final_fields: true
     prefer_final_in_for_each: true
@@ -82,6 +101,7 @@ linter:
     prefer_for_elements_to_map_fromIterable: true
     prefer_function_declarations_over_variables: true
     prefer_generic_function_type_aliases: true
+    #TODO
     #prefer_if_elements_to_conditional_expressions: true
     prefer_if_null_operators: true
     prefer_initializing_formals: true
@@ -94,10 +114,12 @@ linter:
     prefer_spread_collections: true
     prefer_typing_uninitialized_variables: true
     provide_deprecation_message: true
+    #TODO
     #require_trailing_commas: true
     sized_box_shrink_expand: true
     type_annotate_public_apis: true
     type_init_formals: true
+    #TODO
     #unawaited_futures: true
     unnecessary_await_in_return: true
     unnecessary_brace_in_string_interps: true
@@ -117,8 +139,8 @@ linter:
     avoid_print: false  # Uncomment to disable the `avoid_print` rule
     secure_pubspec_urls: true
     sort_pub_dependencies: true
+    #TODO
     #depend_on_referenced_packages: true
-    #prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

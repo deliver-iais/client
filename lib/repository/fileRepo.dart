@@ -81,7 +81,7 @@ class FileRepo {
     if (fileInfo != null) {
       if (isWeb) return fileInfo.path.isNotEmpty;
       final file = io.File(fileInfo.path);
-      return file.exists();
+      return file.existsSync();
     }
     return false;
   }
@@ -98,7 +98,7 @@ class FileRepo {
         return Uri.parse(fileInfo.path).toString();
       } else {
         final file = io.File(fileInfo.path);
-        if (await file.exists()) {
+        if (file.existsSync()) {
           return file.path;
         }
       }
@@ -180,7 +180,8 @@ class FileRepo {
     _fileService.initProgressBar(uploadId);
   }
 
-  Future<void> saveFileInDownloadDir(String uuid, String name, String dir) async {
+  Future<void> saveFileInDownloadDir(
+      String uuid, String name, String dir) async {
     final path = await getFileIfExist(uuid, name);
     _fileService.saveFileInDownloadFolder(path!, name, dir);
   }
