@@ -1,3 +1,5 @@
+// ignore_for_file: cascade_invocations
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Image;
@@ -26,14 +28,13 @@ class DrawImage extends CustomPainter {
   final Color? backgroundColor;
 
   ///Constructor for the canvas
-  DrawImage(
-      {this.image,
-      this.update,
-      this.points,
-      this.isDragging = false,
-      this.isSignature = false,
-      this.backgroundColor,
-      this.paintHistory});
+  DrawImage({this.image,
+    this.update,
+    this.points,
+    this.isDragging = false,
+    this.isSignature = false,
+    this.backgroundColor,
+    this.paintHistory});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -58,7 +59,7 @@ class DrawImage extends CustomPainter {
     }
 
     ///paints all the previoud paintInfo history recorded on [PaintHistory]
-    for (var item in paintHistory!) {
+    for (final item in paintHistory!) {
       final _offset = item.offset;
       final _painter = item.painter;
       switch (item.mode) {
@@ -93,10 +94,12 @@ class DrawImage extends CustomPainter {
               final _path = Path()
                 ..moveTo(_offset[i]!.dx, _offset[i]!.dy)
                 ..lineTo(_offset[i + 1]!.dx, _offset[i + 1]!.dy);
-              canvas.drawPath(_path, _painter!..strokeCap = StrokeCap.round);
+              canvas.drawPath(_path, _painter!
+                ..strokeCap = StrokeCap.round);
             } else if (_offset[i] != null && _offset[i + 1] == null) {
               canvas.drawPoints(PointMode.points, [_offset[i]!],
-                  _painter!..strokeCap = StrokeCap.round);
+                  _painter!
+                    ..strokeCap = StrokeCap.round);
             }
           }
           break;
@@ -113,15 +116,19 @@ class DrawImage extends CustomPainter {
             textAlign: TextAlign.center,
             textDirection: TextDirection.ltr,
           );
-          textPainter.layout(minWidth: 0, maxWidth: size.width);
+          textPainter.layout(maxWidth: size.width);
           final textOffset = _offset!.isEmpty
               ? Offset(size.width / 2 - textPainter.width / 2,
-                  size.height / 2 - textPainter.height / 2)
+              size.height / 2 - textPainter.height / 2)
               : Offset(_offset[0]!.dx - textPainter.width / 2,
-                  _offset[0]!.dy - textPainter.height / 2);
+              _offset[0]!.dy - textPainter.height / 2);
           textPainter.paint(canvas, textOffset);
           break;
-        default:
+
+        case PaintMode.none:
+          break;
+        case null:
+          break;
       }
     }
 
@@ -158,14 +165,20 @@ class DrawImage extends CustomPainter {
               canvas.drawLine(
                   Offset(points![i]!.dx, points![i]!.dy),
                   Offset(points![i + 1]!.dx, points![i + 1]!.dy),
-                  _painter!..strokeCap = StrokeCap.round);
+                  _painter!
+                    ..strokeCap = StrokeCap.round);
             } else if (points![i] != null && points![i + 1] == null) {
               canvas.drawPoints(PointMode.points,
                   [Offset(points![i]!.dx, points![i]!.dy)], _painter!);
             }
           }
           break;
-        default:
+        case PaintMode.none:
+          break;
+        case PaintMode.text:
+          break;
+        case null:
+          break;
       }
     }
 
@@ -181,9 +194,9 @@ class DrawImage extends CustomPainter {
       ..style = PaintingStyle.stroke;
     canvas.drawLine(start, end, painter);
     final _pathOffset = painter.strokeWidth / 15;
-    var path = Path()
-      ..lineTo(-15 * _pathOffset, 10 * _pathOffset)
-      ..lineTo(-15 * _pathOffset, -10 * _pathOffset)
+    final path = Path()
+      ..lineTo(-15 * _pathOffset, 10 * _pathOffset)..lineTo(
+          -15 * _pathOffset, -10 * _pathOffset)
       ..close();
     canvas.save();
     canvas.translate(end.dx, end.dy);
@@ -213,9 +226,9 @@ class DrawImage extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(DrawImage oldInfo) {
-    return (oldInfo.update != update ||
-        oldInfo.paintHistory!.length == paintHistory!.length);
+  bool shouldRepaint(DrawImage oldDelegate) {
+    return (oldDelegate.update != update ||
+        oldDelegate.paintHistory!.length == paintHistory!.length);
   }
 }
 
@@ -283,17 +296,17 @@ class UpdatePoints {
   final PaintMode? mode;
 
   ///Constructor for ongoing painthistory.
-  UpdatePoints({this.start, this.end, this.painter, this.mode});
+  const UpdatePoints({this.start, this.end, this.painter, this.mode});
 
   @override
-  bool operator ==(Object o) {
-    if (identical(this, o)) return true;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
 
-    return o is UpdatePoints &&
-        o.start == start &&
-        o.end == end &&
-        o.painter == painter &&
-        o.mode == mode;
+    return other is UpdatePoints &&
+        other.start == start &&
+        other.end == end &&
+        other.painter == painter &&
+        other.mode == mode;
   }
 
   @override

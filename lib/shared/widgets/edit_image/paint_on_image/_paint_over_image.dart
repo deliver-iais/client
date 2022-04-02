@@ -325,7 +325,8 @@ class ImagePainterState extends State<ImagePainter> {
   late final ValueNotifier<Controller> _controller;
   late final ValueNotifier<bool> _isLoaded;
   late final TextEditingController _textController;
-  Offset? _start, _end;
+  Offset? _start;
+  Offset? _end;
   int _strokeMultiplier = 1;
 
   @override
@@ -399,9 +400,10 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///Dynamically sets stroke multiplier on the basis of widget size.
   ///Implemented to avoid thin stroke on high res images.
-  _setStrokeMultiplier() {
+  void _setStrokeMultiplier() {
     if ((_image!.height + _image!.width) > 1000) {
       _strokeMultiplier = (_image!.height + _image!.width) ~/ 1000;
+      return;
     }
   }
 
@@ -418,7 +420,7 @@ class ImagePainterState extends State<ImagePainter> {
   ///Completer function to convert network image to [ui.Image] before drawing on custompainter.
   Future<ui.Image> _loadNetworkImage(String path) async {
     final completer = Completer<ImageInfo>();
-    var img = NetworkImage(path);
+    final img = NetworkImage(path);
     img.resolve(const ImageConfiguration()).addListener(
         ImageStreamListener((info, _) => completer.complete(info)));
     final imageInfo = await completer.future;
@@ -567,7 +569,7 @@ class ImagePainterState extends State<ImagePainter> {
     );
   }
 
-  _scaleStartGesture(ScaleStartDetails onStart) {
+  void _scaleStartGesture(ScaleStartDetails onStart) {
     if (!widget.isSignature) {
       setState(() {
         _start = onStart.focalPoint;

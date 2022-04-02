@@ -29,11 +29,11 @@ class ColorFilterGenerator {
       ];
     }
 
-    var cosVal = cos(value);
-    var sinVal = sin(value);
-    var lumR = 0.213;
-    var lumG = 0.715;
-    var lumB = 0.072;
+    final cosVal = cos(value);
+    final sinVal = sin(value);
+    const lumR = 0.213;
+    const lumG = 0.715;
+    const lumB = 0.072;
 
     return List<double>.from(<double>[
       (lumR + (cosVal * (1 - lumR))) + (sinVal * (-lumR)),
@@ -143,11 +143,11 @@ class ColorFilterGenerator {
       ];
     }
 
-    var x =
+    final x =
         ((1 + ((value > 0) ? ((3 * value) / 100) : (value / 100)))).toDouble();
-    var lumR = 0.3086;
-    var lumG = 0.6094;
-    var lumB = 0.082;
+    const lumR = 0.3086;
+    const lumG = 0.6094;
+    const lumB = 0.082;
 
     return List<double>.from(<double>[
       (lumR * (1 - x)) + x,

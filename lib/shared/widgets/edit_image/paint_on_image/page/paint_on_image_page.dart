@@ -9,7 +9,7 @@ final _imageKey = GlobalKey<ImagePainterState>();
 
 class PaintOnImagePage extends StatefulWidget {
   final File file;
-  final Function onDone;
+  final Function(String) onDone;
 
   const PaintOnImagePage({Key? key, required this.file, required this.onDone})
       : super(key: key);
@@ -36,11 +36,10 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
         widget.file,
         key: _imageKey,
         scalable: true,
-        initialStrokeWidth: 10,
         onDone: () async {
           await saveImage(context);
         },
-        initialColor: Colors.blue,
+        initialColor: Colors.red,
         initialPaintMode: PaintMode.freeStyle,
       ),
     );

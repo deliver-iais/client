@@ -55,14 +55,15 @@ class _ColorPickerState extends State<ColorPicker> {
 
   @override
   initState() {
-    super.initState();
+
     _currentColor = _calculateSelectedColor(
-        _colorSliderPosition); //center the shader selector
+        _colorSliderPosition);
+    super.initState(); //center the shader selector
   }
 
   Color get currentColor => _currentColor;
 
-  _colorChangeHandler(double position) {
+  void _colorChangeHandler(double position) {
     //handle out of bounds positions
     if (position > widget.width) {
       position = widget.width;
@@ -78,27 +79,27 @@ class _ColorPickerState extends State<ColorPicker> {
 
   Color _calculateSelectedColor(double position) {
     //determine color
-    double positionInColorArray =
+    final positionInColorArray =
         (position / widget.width * (_colors.length - 1));
 
-    int index = positionInColorArray.truncate();
+    final index = positionInColorArray.truncate();
 
-    double remainder = positionInColorArray - index;
+    final remainder = positionInColorArray - index;
     if (remainder == 0.0) {
       _currentColor = _colors[index];
     } else {
       //calculate new color
-      int redValue = _colors[index].red == _colors[index + 1].red
+      final redValue = _colors[index].red == _colors[index + 1].red
           ? _colors[index].red
           : (_colors[index].red +
                   (_colors[index + 1].red - _colors[index].red) * remainder)
               .round();
-      int greenValue = _colors[index].green == _colors[index + 1].green
+      final greenValue = _colors[index].green == _colors[index + 1].green
           ? _colors[index].green
           : (_colors[index].green +
                   (_colors[index + 1].green - _colors[index].green) * remainder)
               .round();
-      int blueValue = _colors[index].blue == _colors[index + 1].blue
+      final blueValue = _colors[index].blue == _colors[index + 1].blue
           ? _colors[index].blue
           : (_colors[index].blue +
                   (_colors[index + 1].blue - _colors[index].blue) * remainder)
@@ -115,17 +116,17 @@ class _ColorPickerState extends State<ColorPicker> {
         Center(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onHorizontalDragStart: (DragStartDetails details) {
+            onHorizontalDragStart: (details) {
               _colorChangeHandler(details.localPosition.dx);
               widget.valueController.value =
                   widget.controller.copyWith(color: _currentColor);
             },
-            onHorizontalDragUpdate: (DragUpdateDetails details) {
+            onHorizontalDragUpdate: (details) {
               _colorChangeHandler(details.localPosition.dx);
               widget.valueController.value =
                   widget.controller.copyWith(color: _currentColor);
             },
-            onTapDown: (TapDownDetails details) {
+            onTapDown: (details) {
               _colorChangeHandler(details.localPosition.dx);
               widget.valueController.value =
                   widget.controller.copyWith(color: _currentColor);
