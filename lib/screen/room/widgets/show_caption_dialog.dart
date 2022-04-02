@@ -15,7 +15,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -170,8 +169,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     ],
                                   );
                                 },
-                                separatorBuilder:
-                                    (context, index) {
+                                separatorBuilder: (context, index) {
                                   return const SizedBox(
                                     height: 6,
                                   );
@@ -291,21 +289,37 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   Widget imageUi(int? index) {
     //if index==null isSingleImage
     return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (c) {
-          return OpenImagePage(
-            onEditEnd: (path) {
-              index == null
-                  ? widget.files!.first.path = path
-                  : widget.files![index].path = path;
-              Navigator.pop(context);
-              setState(() {});
-            },
-            imagePath: index == null
-                ? widget.files!.first.path
-                : widget.files![index].path,
-          );
-        }));
+      onTap: () async {
+        String? path = "";
+        if (widget.files!.isEmpty && _editedFile == null) {
+          path = await _fileRepo.getFileIfExist(
+              _editableFile.uuid, _editableFile.name);
+        }
+        if (widget.files!.isNotEmpty || _editedFile != null || path != null) {
+          Navigator.push(context, MaterialPageRoute(builder: (c) {
+            return OpenImagePage(
+              onEditEnd: (path) {
+                widget.files!.isEmpty
+                    ? _editedFile != null
+                        ? _editedFile!.path = path
+                        : _editedFile =
+                            model.File(path, path.toString().split(".").last)
+                    : index == null
+                        ? widget.files!.first.path = path
+                        : widget.files![index].path = path;
+                Navigator.pop(context);
+                setState(() {});
+              },
+              imagePath: widget.files!.isEmpty
+                  ? _editedFile != null
+                      ? _editedFile!.path
+                      : path!
+                  : index == null
+                      ? widget.files!.first.path
+                      : widget.files![index].path,
+            );
+          }));
+        }
       },
       child: SizedBox(
         height: index == null ? MediaQuery.of(context).size.height / 3 : null,
