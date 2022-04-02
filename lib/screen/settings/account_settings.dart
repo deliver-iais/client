@@ -25,7 +25,7 @@ import '../../shared/widgets/crop_image.dart';
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
 
-  const AccountSettings({Key? key, this.forceToSetUsernameAndName = true})
+  const AccountSettings({Key? key, this.forceToSetUsernameAndName = false})
       : super(key: key);
 
   @override
@@ -88,7 +88,6 @@ class _AccountSettingsState extends State<AccountSettings> {
             return DraggableScrollableSheet(
               initialChildSize: 0.3,
               minChildSize: 0.2,
-              maxChildSize: 1,
               expand: false,
               builder: (context, scrollController) {
                 return Container(

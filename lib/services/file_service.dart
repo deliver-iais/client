@@ -193,7 +193,6 @@ class FileService {
           filePath: file.path, rawBytes: bytes); // set the input image file
       const config = Configuration(
         outputType: ImageOutputType.jpg,
-        useJpgPngNativeCompressor: false,
         quality: 30,
       );
 
@@ -217,7 +216,6 @@ class FileService {
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
-        format: CompressFormat.jpeg,
         quality: 60,
       );
       if (result != null) {

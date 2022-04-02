@@ -89,7 +89,6 @@ class _VerificationPageState extends State<VerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        primary: true,
         backgroundColor: theme.backgroundColor,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,

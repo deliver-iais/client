@@ -21,7 +21,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   const TimeAndSeenStatus(this.message, this.isSender, this.isSeen,
       {Key? key,
       this.needsPositioned = true,
-      this.needsPadding = true,
+      this.needsPadding = false,
       this.backgroundColor,
       this.foregroundColor})
       : super(key: key);
@@ -46,7 +46,7 @@ class TimeAndSeenStatus extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(4),
         padding: needsPadding
-            ? const EdgeInsets.only(top: 0, bottom: 2, right: 4, left: 4)
+            ? const EdgeInsets.only(bottom: 2, right: 4, left: 4)
             : null,
         decoration:
             BoxDecoration(color: backgroundColor, borderRadius: tertiaryBorder),

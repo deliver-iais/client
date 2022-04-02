@@ -352,7 +352,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                             counterText: "",
                                             hintText: i18n.get("message"),
                                           ),
-                                          autocorrect: true,
                                           textInputAction:
                                               TextInputAction.newline,
                                           minLines: 1,
@@ -503,8 +502,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                       // Start recording
                                       await record.start(
                                         path: path,
-                                        encoder: AudioEncoder.AAC, // by default
-                                        bitRate: 128000, // by default
                                         samplingRate: 16000, // by default
                                       );
                                       setState(() {

@@ -569,7 +569,6 @@ class _ProfilePageState extends State<ProfilePage>
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.add_link_outlined),
                   const SizedBox(width: 8),
@@ -592,7 +591,6 @@ class _ProfilePageState extends State<ProfilePage>
         if (!_isMucOwner)
           PopupMenuItem<String>(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Icon(widget.roomUid.isMuc()
                       ? Icons.arrow_back_outlined
@@ -611,7 +609,6 @@ class _ProfilePageState extends State<ProfilePage>
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.delete),
                   const SizedBox(width: 8),
@@ -732,7 +729,6 @@ class _ProfilePageState extends State<ProfilePage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(widget.roomUid, 25),
                         const SizedBox(width: 5),
@@ -1128,9 +1124,6 @@ class _ProfilePageState extends State<ProfilePage>
                                                 return SizedBox(
                                                     height: 50,
                                                     child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
                                                       children: [
                                                         CircleAvatarWidget(
                                                             snapshot.data![i]

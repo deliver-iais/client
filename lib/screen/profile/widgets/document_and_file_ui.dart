@@ -102,7 +102,6 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   padding:
                                                       const EdgeInsets.fromLTRB(
                                                           1, 0, 0, 0),
-                                                  alignment: Alignment.center,
                                                   icon: Icon(
                                                     Icons
                                                         .insert_drive_file_sharp,

@@ -63,7 +63,6 @@ void showQrCode(BuildContext context, String url) {
               color: Colors.white,
               child: QrImage(
                 data: url,
-                version: QrVersions.auto,
                 padding: EdgeInsets.zero,
                 foregroundColor: Colors.black,
               ),

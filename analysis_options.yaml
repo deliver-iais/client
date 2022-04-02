@@ -22,6 +22,13 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    avoid_redundant_argument_values: true
+    avoid_renaming_method_parameters: true
+    avoid_returning_null: true
+    avoid_returning_null_for_void: true
+    avoid_returning_this: true
+    avoid_shadowing_type_parameters: true
+    avoid_single_cascade_in_expression_statements: true
     avoid_types_on_closure_parameters: true
     avoid_unused_constructor_parameters: true
     avoid_void_async: true

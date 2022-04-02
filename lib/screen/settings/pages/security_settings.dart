@@ -84,7 +84,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   Widget disablePassword() {
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
-        titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+        titlePadding: EdgeInsets.zero,
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
         content: TextField(
           onChanged: (p) => setState2(() => _currentPass = p),
@@ -125,7 +125,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     final checkCurrentPassword = _authRepo.isLocalLockEnabled();
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
-        titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+        titlePadding: EdgeInsets.zero,
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
         content: Column(
           mainAxisSize: MainAxisSize.min,

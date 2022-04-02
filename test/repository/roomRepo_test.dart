@@ -47,12 +47,12 @@ void main() {
       });
       test('When called if category is user and node be empty should return ""',
           () async {
-        getAndRegisterAuthRepo(isCurrentUser: false);
+        getAndRegisterAuthRepo();
         expect(await RoomRepo().getSlangName(emptyUid), "");
       });
       test('When called if isSameEntity  be false should  return getName',
           () async {
-        getAndRegisterAuthRepo(isCurrentUser: false);
+        getAndRegisterAuthRepo();
         getAndRegisterBotRepo(
             botInfo:
                 BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
@@ -220,7 +220,6 @@ void main() {
           verify(roomDao.updateRoom(Room(
               uid: testUid.asString(),
               deleted: true,
-              firstMessageId: 0,
               lastUpdateTime: clock.now().millisecondsSinceEpoch)));
           expect(deleted, true);
         });
@@ -235,7 +234,6 @@ void main() {
           verifyNever(roomDao.updateRoom(Room(
               uid: testUid.asString(),
               deleted: true,
-              firstMessageId: 0,
               lastUpdateTime: clock.now().millisecondsSinceEpoch)));
           expect(deleted, false);
         });

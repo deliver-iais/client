@@ -28,7 +28,6 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
             return Slider(
                 value:
                     min(duration.data!.inMilliseconds / 1000, widget.duration),
-                min: 0.0,
                 max: widget.duration,
                 onChanged: (value) {
                   setState(() {

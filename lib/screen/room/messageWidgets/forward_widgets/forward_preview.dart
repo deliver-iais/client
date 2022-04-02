@@ -33,7 +33,6 @@ class ForwardPreview extends StatelessWidget {
           right: 3,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               CupertinoIcons.arrow_turn_up_right,
@@ -51,7 +50,6 @@ class ForwardPreview extends StatelessWidget {
             const Spacer(),
             IconButton(
               padding: const EdgeInsets.all(0),
-              alignment: Alignment.center,
               icon: const Icon(CupertinoIcons.xmark, size: 20),
               onPressed: onClick,
             ),

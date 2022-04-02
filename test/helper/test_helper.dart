@@ -413,10 +413,8 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   final roomMetadata = RoomMetadata(
       roomUid: testUid,
       lastMessageId: lastMessageId != null ? Int64(lastMessageId) : null,
-      firstMessageId: null,
       lastCurrentUserSentMessageId:
           lastUpdate != null ? Int64(lastUpdate) : null,
-      lastUpdate: null,
       presenceType: presenceType);
   final Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
   when(service.getAllUserRoomMeta(GetAllUserRoomMetaReq()
@@ -454,7 +452,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   when(service.fetchMessages(
           FetchMessagesReq()
             ..roomUid = testUid
-            ..pointer = Int64(0)
+            ..pointer = Int64()
             ..type = fetchMessagesType
             ..limit = fetchMessagesLimit,
           options: fetchMessagesHasOptions
@@ -464,7 +462,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
           MockResponseFuture<FetchMessagesRes>(FetchMessagesRes(messages: {
             message_pb.Message(
                 packetId: "",
-                time: Int64(0),
+                time: Int64(),
                 id: Int64(fetchMessagesId),
                 to: testUid,
                 from: testUid,
@@ -473,7 +471,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
                     : null,
                 persistEvent: fetchMessagesPersistEvent,
                 edited: false,
-                replyToId: Int64(0),
+                replyToId: Int64(),
                 forwardFrom: testUid,
                 encrypted: false)
           })));
@@ -484,7 +482,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
           FetchMentionListRes(
               idList: mentionIdList != null ? [Int64(mentionIdList)] : [])));
   when(service.deleteMessage(DeleteMessageReq()
-        ..messageId = Int64(0)
+        ..messageId = Int64()
         ..roomUid = testUid))
       .thenAnswer((realInvocation) =>
           MockResponseFuture<DeleteMessageRes>(DeleteMessageRes()));

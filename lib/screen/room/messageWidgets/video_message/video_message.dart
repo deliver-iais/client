@@ -228,11 +228,13 @@ class _VideoMessageState extends State<VideoMessage> {
                     widget.message,
                     widget.isSender,
                     widget.isSeen,
+                    needsPadding: true,
                     foregroundColor: widget.colorScheme.onPrimaryContainer,
                   )
             : Container(),
         if (video.caption.isEmpty)
           TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+              needsPadding: true,
               backgroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
               foregroundColor: widget.colorScheme.primaryContainer)
       ],

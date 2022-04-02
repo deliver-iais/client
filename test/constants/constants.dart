@@ -33,7 +33,6 @@ PendingMessage testPendingMessage = PendingMessage(
       time: 946672200000,
       packetId: "946672200000000",
     ),
-    failed: false,
     status: SendingStatus.PENDING);
 Activity testActivity = Activity(
     to: testUid,

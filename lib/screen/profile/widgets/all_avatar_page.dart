@@ -77,7 +77,6 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                             }),
                       Expanded(
                         child: Swiper(
-                            scrollDirection: Axis.horizontal,
                             controller: _swiperController,
                             onIndexChanged: (index) =>
                                 _swipePositionSubject.add(index),
@@ -106,7 +105,6 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                                 },
                               );
                             },
-                            viewportFraction: 1.0,
                             scale: 0.9,
                             loop: false),
                       ),

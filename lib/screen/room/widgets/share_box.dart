@@ -96,8 +96,6 @@ class _ShareBoxState extends State<ShareBox> {
             return DraggableScrollableSheet(
               initialChildSize: initialSize.data!,
               minChildSize: initialSize.data!,
-              maxChildSize: 1,
-              expand: true,
               builder: (co, scrollController) {
                 return Container(
                   color: Colors.white,

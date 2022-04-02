@@ -45,8 +45,6 @@ class LocationMessageWidget extends StatelessWidget {
               MarkerLayerOptions(
                 markers: [
                   Marker(
-                    width: 30.0,
-                    height: 30.0,
                     point: LatLng(location.latitude, location.longitude),
                     builder: (ctx) =>
                         CircleAvatarWidget(message.from.asUid(), 20),
@@ -57,6 +55,7 @@ class LocationMessageWidget extends StatelessWidget {
           ),
         ),
         TimeAndSeenStatus(message, isSender, isSeen,
+            needsPadding: true,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight()),
       ],

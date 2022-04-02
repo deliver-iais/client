@@ -50,7 +50,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatarWidget(_authRepo.currentUserUid, 24,
-                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+                isHeroEnabled: false),
             const SizedBox(width: 26),
             Transform(
               alignment: Alignment.center,
@@ -58,8 +58,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
               child: Lottie.asset("assets/animations/arrow.json", height: 100),
             ),
             const SizedBox(width: 26),
-            CircleAvatarWidget(widget.caller, 24,
-                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+            CircleAvatarWidget(widget.caller, 24, isHeroEnabled: false),
           ],
         ),
         Container(

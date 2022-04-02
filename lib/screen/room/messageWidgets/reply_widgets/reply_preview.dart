@@ -23,7 +23,6 @@ class ReplyPreview extends StatelessWidget {
           right: 3,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               CupertinoIcons.reply,
@@ -41,7 +40,6 @@ class ReplyPreview extends StatelessWidget {
             ),
             IconButton(
               padding: const EdgeInsets.all(0),
-              alignment: Alignment.center,
               icon: const Icon(CupertinoIcons.xmark, size: 20),
               onPressed: resetRoomPageDetails,
             ),

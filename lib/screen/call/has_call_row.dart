@@ -29,12 +29,10 @@ class _HasCallRowState extends State<HasCallRow> {
                   if (snapshot.data == CallStatus.CREATED &&
                       !callRepo.isCaller) {
                     _routingService.openCallScreen(callRepo.roomUid!,
-                        isIncomingCall: true,
-                        isVideoCall: callRepo.isVideo);
+                        isIncomingCall: true, isVideoCall: callRepo.isVideo);
                   } else {
                     _routingService.openCallScreen(callRepo.roomUid!,
-                        isCallInitialized: true,
-                        isVideoCall: callRepo.isVideo);
+                        isCallInitialized: true, isVideoCall: callRepo.isVideo);
                   }
                 },
                 child: callRepo.roomUid != null
@@ -42,8 +40,6 @@ class _HasCallRowState extends State<HasCallRow> {
                         margin: const EdgeInsets.only(bottom: 4),
                         decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                           colors: [
                             Color.fromARGB(255, 23, 218, 255),
                             Color.fromARGB(255, 1, 99, 246),

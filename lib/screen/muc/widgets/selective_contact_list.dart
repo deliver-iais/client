@@ -169,7 +169,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                     child: widget.mucUid != null
                         ? IconButton(
                             icon: const Icon(Icons.check),
-                            alignment: Alignment.center,
                             padding: const EdgeInsets.all(0),
                             onPressed: () async {
                               final users = <Uid>[];
@@ -197,7 +196,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               Icons.arrow_forward,
                               color: Colors.white,
                             ),
-                            alignment: Alignment.center,
                             padding: const EdgeInsets.all(0),
                             onPressed: () {
                               _routingService.openGroupInfoDeterminationPage(

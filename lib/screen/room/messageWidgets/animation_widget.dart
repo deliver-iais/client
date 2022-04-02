@@ -138,6 +138,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
           ),
           child: TimeAndSeenStatus(widget.message, isSender, widget.isSeen,
               needsPositioned: false,
+              needsPadding: true,
               foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
         ),
       ],

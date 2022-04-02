@@ -91,7 +91,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
       final picked = await showPersianDatePicker(
         context: context,
         initialDate: _selectedDateJalali ?? Jalali.now(),
-        firstDate: Jalali(1300, 1, 1),
+        firstDate: Jalali(1300),
         lastDate: Jalali(1450, 12, 29),
       );
       if (picked != null) {

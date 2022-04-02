@@ -118,13 +118,11 @@ class PinMessageAppBar extends StatelessWidget {
                                   LastMessage(
                                       message: mes,
                                       lastMessageId: mes.id!,
-                                      hasMentioned: false,
                                       showSeenStatus: false,
                                       primaryColor:
                                           theme.colorScheme.inversePrimary,
                                       naturalColor:
-                                          theme.colorScheme.onInverseSurface,
-                                      showSender: false),
+                                          theme.colorScheme.onInverseSurface),
                               ],
                             ),
                           ),

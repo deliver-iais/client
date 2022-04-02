@@ -264,7 +264,7 @@ class RoomRepo {
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 
   Future<void> resetMention(String roomUid) =>
-      _roomDao.updateRoom(Room(uid: roomUid, mentioned: false));
+      _roomDao.updateRoom(Room(uid: roomUid));
 
   Future<void> createRoomIfNotExist(String roomUid) =>
       _roomDao.updateRoom(Room(uid: roomUid));

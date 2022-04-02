@@ -94,7 +94,6 @@ class TextUI extends StatelessWidget {
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             needsPositioned: false,
-            needsPadding: false,
           )
         ],
       ),
@@ -150,9 +149,7 @@ class UrlParser implements Parser {
         } else {
           await launch(uri);
         }
-      },
-          style:
-              TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+      }, style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class IdParser implements Parser {
@@ -162,10 +159,10 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, regex, "id",
-      onTap: (id) => onUsernameClick(id),
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "id",
+          onTap: (id) => onUsernameClick(id),
+          style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class BoldTextParser implements Parser {
@@ -179,7 +176,7 @@ class BoldTextParser implements Parser {
         regex,
         "bold",
         transformer: BoldTextParser.transformer,
-        style: const TextStyle(inherit: true, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontWeight: FontWeight.w800),
       );
 }
 
@@ -192,7 +189,7 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "italic",
           transformer: ItalicTextParser.transformer,
-          style: const TextStyle(inherit: true, fontStyle: FontStyle.italic));
+          style: const TextStyle(fontStyle: FontStyle.italic));
 }
 
 class EmojiParser implements Parser {
@@ -218,10 +215,10 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, regex, "bot",
-      onTap: (id) => onBotCommandClick(id),
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "bot",
+          onTap: (id) => onBotCommandClick(id),
+          style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class SearchTermParser implements Parser {
@@ -230,9 +227,9 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, RegExp(searchTerm), "search",
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, RegExp(searchTerm), "search",
+          style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class Block {

@@ -84,8 +84,6 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
               MarkerLayerOptions(
                 markers: [
                   Marker(
-                    width: 30.0,
-                    height: 30.0,
                     point: LatLng(location.latitude, location.longitude),
                     builder: (ctx) =>
                         CircleAvatarWidget(widget.message.from.asUid(), 20),
@@ -105,7 +103,6 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             ),
             CircularPercentIndicator(
               radius: 40.0,
-              lineWidth: 5.0,
               percent: 1.0,
               center: Text(Duration(milliseconds: duration).toString()),
               progressColor: Colors.blueAccent,
@@ -116,6 +113,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
           widget.message,
           widget.isSender,
           widget.isSeen,
+          needsPadding: true,
           backgroundColor: widget.colorScheme.primaryContainer,
           foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
         ),

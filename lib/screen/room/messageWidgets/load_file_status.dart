@@ -153,7 +153,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                               snapshot.data != null &&
                               snapshot.data!) {
                             return CircularProgressIndicator(
-                              strokeWidth: 4,
                               color: widget.foreground,
                             );
                           } else {
@@ -189,13 +188,11 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                           snapshot.data != null &&
                           snapshot.data!) {
                         return CircularProgressIndicator(
-                          strokeWidth: 4,
                           color: widget.foreground,
                         );
                       } else {
                         return IconButton(
                           padding: const EdgeInsets.all(0),
-                          alignment: Alignment.center,
                           icon: Icon(
                             Icons.arrow_downward,
                             color: widget.foreground,

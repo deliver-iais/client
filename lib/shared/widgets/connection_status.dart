@@ -22,7 +22,7 @@ class ConnectionStatus extends StatelessWidget {
             width: double.infinity,
             height: snapshot.data == TitleStatusConditions.Normal ? 0 : 38,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: theme.colorScheme.secondaryContainer,
               borderRadius: tertiaryBorder,

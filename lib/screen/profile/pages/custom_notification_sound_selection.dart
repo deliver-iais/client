@@ -127,7 +127,6 @@ class _CustomNotificationSoundSelectionState
                   if (isSelected && snapshot.data == PlayerState.PLAYING)
                     const TGS.asset(
                       'assets/animations/audio_wave.tgs',
-                      autoPlay: true,
                       width: 40,
                       height: 60,
                     ),

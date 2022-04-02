@@ -274,12 +274,12 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
         labelStyle:
             theme.chipTheme.labelStyle?.copyWith(color: colorScheme.onSurface),
         shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
-        side: BorderSide(width: 1.0, color: colorScheme.outline),
+        side: BorderSide(color: colorScheme.outline),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-        side: BorderSide(width: 1.0, color: colorScheme.outline),
+        side: BorderSide(color: colorScheme.outline),
       )),
       elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -295,8 +295,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           shape: RoundedRectangleBorder(borderRadius: mainBorder)),
       tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
-            borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
-            insets: EdgeInsets.zero),
+            borderSide: BorderSide(width: 2.0, color: colorScheme.primary)),
         labelColor: colorScheme.primary,
       ));
 }

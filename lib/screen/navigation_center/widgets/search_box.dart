@@ -44,11 +44,8 @@ class _SearchBoxState extends State<SearchBox> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: TextField(
         style: const TextStyle(fontSize: 16, height: 1.2),
-        textAlign: TextAlign.start,
         focusNode: _focusNode,
         controller: widget.controller,
-        autofocus: false,
-        maxLines: 1,
         onChanged: (str) {
           if (str.isNotEmpty) {
             _hasText.add(true);

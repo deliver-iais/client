@@ -82,8 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Expanded(
                             child: FutureBuilder<Account?>(
                               future: _accountRepo.getAccount(),
-                              builder: (context,
-                                  snapshot) {
+                              builder: (context, snapshot) {
                                 if (snapshot.data != null) {
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -304,7 +303,7 @@ class _SettingsPageState extends State<SettingsPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+            titlePadding: EdgeInsets.zero,
             actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             // backgroundColor: Colors.white,
             content: Text(i18n.get("sure_exit_app")),

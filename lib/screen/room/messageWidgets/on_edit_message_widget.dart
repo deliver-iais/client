@@ -22,7 +22,6 @@ class OnEditMessageWidget extends StatelessWidget {
           right: 3,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               Icons.edit,
@@ -40,7 +39,6 @@ class OnEditMessageWidget extends StatelessWidget {
             ),
             IconButton(
               padding: const EdgeInsets.all(0),
-              alignment: Alignment.center,
               icon: const Icon(Icons.close, size: 18),
               onPressed: resetRoomPageDetails,
             ),

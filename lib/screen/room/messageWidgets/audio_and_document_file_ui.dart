@@ -35,7 +35,6 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, top: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: file.name.isPersian()
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
@@ -76,6 +75,7 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                       foregroundColor:
                           widget.colorScheme.onPrimaryContainerLowlight(),
                       backgroundColor: widget.colorScheme.primaryContainer,
+                      needsPadding: true,
                       needsPositioned: false)
               ],
             ),

@@ -31,7 +31,7 @@ class LastMessage extends StatelessWidget {
     required this.message,
     required this.lastMessageId,
     this.hasMentioned = false,
-    this.showSender = true,
+    this.showSender = false,
     this.showSeenStatus = true,
     this.showSenderInSeparatedLine = false,
     this.expandContent = true,

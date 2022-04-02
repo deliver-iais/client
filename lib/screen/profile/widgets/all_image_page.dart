@@ -119,7 +119,6 @@ class _AllImagePageState extends State<AllImagePage> {
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (isDesktop)
               StreamBuilder<int>(
@@ -152,7 +151,6 @@ class _AllImagePageState extends State<AllImagePage> {
                           itemCount: all.data!,
                           controller: _swiperController,
                           index: initIndex,
-                          viewportFraction: 1.0,
                           scale: 0.9,
                           loop: false,
                           onIndexChanged: (index) => _currentIndex.add(index),

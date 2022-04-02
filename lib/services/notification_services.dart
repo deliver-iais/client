@@ -461,7 +461,6 @@ class AndroidNotifier implements Notifier {
         channelDescription: channel.description,
         styleInformation: inboxStyleInformation,
         groupKey: channel.groupId,
-        playSound: true,
         sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
         setAsGroupSummary: true);
     _flutterLocalNotificationsPlugin.show(
@@ -475,7 +474,6 @@ class AndroidNotifier implements Notifier {
       groupKey: channel.groupId,
       largeIcon: largeIcon,
       styleInformation: const BigTextStyleInformation(''),
-      playSound: true,
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
     _flutterLocalNotificationsPlugin.show(
@@ -494,8 +492,7 @@ class AndroidNotifier implements Notifier {
         callType: 1,
         callerName: roomName,
         userInfo: {"uid": roomUid},
-        opponentsIds: {1},
-        path: null);
+        opponentsIds: {1});
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
 

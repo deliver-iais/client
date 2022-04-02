@@ -443,8 +443,7 @@ class _RoomPageState extends State<RoomPage> {
       }
       final page = (id / PAGE_SIZE).floor();
       final messages = await _messageRepo.getPage(
-          page, widget.roomId, id, room.lastMessageId!,
-          pageSize: PAGE_SIZE);
+          page, widget.roomId, id, room.lastMessageId!);
       for (var i = 0; i < messages.length; i = i + 1) {
         _messageCache.set(messages[i]!.id!, messages[i]!);
       }
@@ -827,9 +826,7 @@ class _RoomPageState extends State<RoomPage> {
       key: _scrollablePositionedListKey,
       initialAlignment: initialAlignment,
       physics: _scrollPhysics,
-      reverse: false,
       addSemanticIndexes: false,
-      shrinkWrap: false,
       minCacheExtent: 0,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
@@ -1136,7 +1133,6 @@ class _RoomPageState extends State<RoomPage> {
 
   void scrollToLast() {
     _itemScrollController.scrollTo(
-        alignment: 0,
         curve: Curves.easeOut,
         opacityAnimationWeights: [20, 20, 60],
         index: _itemCount - 1,

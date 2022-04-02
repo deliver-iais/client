@@ -174,7 +174,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     color: theme.backgroundColor,
                     borderRadius: secondaryBorder),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Lottie.asset(
                       "assets/animations/touch.zip",
@@ -215,6 +214,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
             backgroundColor: widget.colorScheme.primaryContainer,
             needsPositioned: false,
+            needsPadding: true,
             foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
       ],
     );

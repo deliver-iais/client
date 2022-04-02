@@ -90,8 +90,7 @@ class UxService {
         .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
-            defaultValue: false)
+        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED)
         .distinct()
         .listen((isDisabled) => _isAllNotificationDisabled.add(isDisabled));
 

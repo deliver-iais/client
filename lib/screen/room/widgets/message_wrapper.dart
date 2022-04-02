@@ -93,7 +93,6 @@ class OPainter extends CustomPainter {
       ..arcToPoint(
         Offset(x, y),
         radius: Radius.circular(y * 2),
-        clockwise: true,
       )
       ..lineTo(x, 0);
 

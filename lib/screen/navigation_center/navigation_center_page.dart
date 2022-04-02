@@ -202,7 +202,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
             itemBuilder: (context) => [
                   PopupMenuItem<String>(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(CupertinoIcons.group),
                         const SizedBox(width: 8),
@@ -213,7 +212,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   ),
                   PopupMenuItem<String>(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(CupertinoIcons.news),
                         const SizedBox(width: 8),
@@ -257,13 +255,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
               if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
                   children: [
                     const TGS.asset(
                       'assets/animations/not-found.tgs',
                       width: 180,
                       height: 150,
-                      repeat: true,
                     ),
                     Text(_i18n.get("not_found"),
                         textAlign: TextAlign.center,
@@ -334,7 +330,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatarWidget(uid, 24),
             const SizedBox(

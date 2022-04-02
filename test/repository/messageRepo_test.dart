@@ -79,7 +79,7 @@ void main() {
           'When called should check if coreServices.connectionStatus is Connecting updatingStatus should be TitleStatusConditions.Connecting',
           () async {
         getAndRegisterCoreServices(
-            connectionStatus: ConnectionStatus.Connecting);
+            );
         final messageRepo = await getAndRegisterMessageRepo();
         expect(
             messageRepo.updatingStatus.value, TitleStatusConditions.Connecting);
@@ -156,7 +156,7 @@ void main() {
           'When called if roomMetadata.presenceType be Active and room last message id and last update be greater than roomMetadata should stop getting room',
           () async {
         getAndRegisterQueryServiceClient(
-            presenceType: PresenceType.ACTIVE, lastMessageId: 0, lastUpdate: 0);
+            lastMessageId: 0, lastUpdate: 0);
         final roomDao = getAndRegisterRoomDao(rooms: [
           Room(
               uid: testUid.asString(),
@@ -171,7 +171,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType be Active and rooms deleted being true should update the room',
           () async {
-        getAndRegisterQueryServiceClient(presenceType: PresenceType.ACTIVE);
+        getAndRegisterQueryServiceClient();
         final roomDao = getAndRegisterRoomDao(rooms: [
           Room(
             uid: testUid.asString(),
@@ -183,7 +183,6 @@ void main() {
             uid: testUid.asString(),
             deleted: false,
             lastMessageId: 0,
-            firstMessageId: 0,
             lastUpdateTime: 0)));
       });
 
@@ -197,7 +196,6 @@ void main() {
             uid: testUid.asString(),
             deleted: true,
             lastMessageId: 0,
-            firstMessageId: 0,
             lastUpdateTime: 0)));
       });
     });
@@ -246,7 +244,7 @@ void main() {
       test(
           'When called should fetch all room from roomDao and if last message id not be null and isCurrentUser be false should get user room meta',
           () async {
-        final authRepo = getAndRegisterAuthRepo(isCurrentUser: false);
+        final authRepo = getAndRegisterAuthRepo();
         getAndRegisterRoomDao(rooms: [
           Room(
               uid: testUid.asString(), lastMessage: testMessage.copyWith(id: 0))
@@ -348,7 +346,6 @@ void main() {
         );
         verify(roomDao.updateRoom(Room(
           uid: testUid.asString(),
-          firstMessageId: 0,
           lastUpdateTime: 0,
           lastMessageId: 0,
         )));
@@ -373,7 +370,7 @@ void main() {
 
       test('When called should getMessage from messageDao if msg be null ',
           () async {
-        getAndRegisterMessageDao(getError: false);
+        getAndRegisterMessageDao();
         await MessageRepo().fetchLastMessages(
           testUid,
           0,
@@ -399,12 +396,8 @@ void main() {
                 id: 0,
                 json: DELETED_ROOM_MESSAGE,
                 forwardedFrom: testUid.asString(),
-                type: MessageType.NOT_SET,
                 to: testUid.asString(),
-                from: testUid.asString(),
-                edited: false,
-                replyToId: 0,
-                encrypted: false));
+                from: testUid.asString()));
       });
 
       test(
@@ -432,7 +425,6 @@ void main() {
         verify(roomDao.updateRoom(
           Room(
               uid: testUid.asString(),
-              firstMessageId: 0,
               lastUpdateTime: 0,
               lastMessageId: 0,
               lastMessage: message),
@@ -474,7 +466,6 @@ void main() {
         verify(roomDao.updateRoom(
           Room(
               uid: testUid.asString(),
-              firstMessageId: 0,
               lastUpdateTime: 0,
               lastMessageId: 0,
               lastMessage: message),
@@ -509,7 +500,6 @@ void main() {
         verify(roomDao.updateRoom(
           Room(
               uid: testUid.asString(),
-              firstMessageId: 0,
               lastUpdateTime: 0,
               lastMessageId: 0,
               lastMessage:
@@ -537,12 +527,8 @@ void main() {
           id: 0,
           json: DELETED_ROOM_MESSAGE,
           forwardedFrom: testUid.asString(),
-          type: MessageType.NOT_SET,
           to: testUid.asString(),
-          from: testUid.asString(),
-          edited: false,
-          replyToId: 0,
-          encrypted: false);
+          from: testUid.asString());
       test('When called should fetchMessages from queryServiceClient',
           () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
@@ -551,7 +537,7 @@ void main() {
         verify(queryServiceClient.fetchMessages(
             FetchMessagesReq()
               ..roomUid = testUid
-              ..pointer = Int64(0)
+              ..pointer = Int64()
               ..type = FetchMessagesReq_Type.BACKWARD_FETCH
               ..limit = 0,
             options: CallOptions(timeout: const Duration(seconds: 3))));
@@ -600,10 +586,6 @@ void main() {
     group('fetchCurrentUserLastSeen -', () {
       final roomMetadata = RoomMetadata(
           roomUid: testUid,
-          lastMessageId: null,
-          firstMessageId: null,
-          lastCurrentUserSentMessageId: null,
-          lastUpdate: null,
           presenceType: PresenceType.ACTIVE);
 
       test('When called should fetch CurrentUser SeenData', () async {
@@ -1093,7 +1075,7 @@ void main() {
             .getMessages(testUid.asString(), 0, 16, Completer(), 0);
         verify(queryServiceClient.fetchMessages(FetchMessagesReq()
           ..roomUid = testUid
-          ..pointer = Int64(0)
+          ..pointer = Int64()
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = 16));
       });
@@ -1104,7 +1086,6 @@ void main() {
         getAndRegisterQueryServiceClient(
             fetchMessagesLimit: 16,
             fetchMessagesHasOptions: false,
-            fetchMessagesId: 0,
             fetchMessagesPersistEvent: PersistentEvent(
                 mucSpecificPersistentEvent: MucSpecificPersistentEvent(
                     issue: MucSpecificPersistentEvent_Issue.DELETED)),
@@ -1121,7 +1102,6 @@ void main() {
         getAndRegisterQueryServiceClient(
             fetchMessagesLimit: 16,
             fetchMessagesHasOptions: false,
-            fetchMessagesId: 0,
             fetchMessagesPersistEvent: PersistentEvent(
                 mucSpecificPersistentEvent: MucSpecificPersistentEvent(
                     issue: MucSpecificPersistentEvent_Issue.ADD_USER)),
@@ -1138,7 +1118,6 @@ void main() {
         getAndRegisterQueryServiceClient(
             fetchMessagesLimit: 16,
             fetchMessagesHasOptions: false,
-            fetchMessagesId: 0,
             fetchMessagesPersistEvent: PersistentEvent(
                 mucSpecificPersistentEvent: MucSpecificPersistentEvent(
                     issue: MucSpecificPersistentEvent_Issue.KICK_USER,
@@ -1156,7 +1135,6 @@ void main() {
         getAndRegisterQueryServiceClient(
             fetchMessagesLimit: 16,
             fetchMessagesHasOptions: false,
-            fetchMessagesId: 0,
             fetchMessagesPersistEvent: PersistentEvent(
                 mucSpecificPersistentEvent: MucSpecificPersistentEvent(
                     issue: MucSpecificPersistentEvent_Issue.AVATAR_CHANGED,
@@ -1174,11 +1152,10 @@ void main() {
         getAndRegisterQueryServiceClient(
             fetchMessagesLimit: 16,
             fetchMessagesHasOptions: false,
-            fetchMessagesId: 0,
             fetchMessagesPersistEvent: PersistentEvent(
                 messageManipulationPersistentEvent:
                     MessageManipulationPersistentEvent(
-                        messageId: Int64(0),
+                        messageId: Int64(),
                         action:
                             MessageManipulationPersistentEvent_Action.DELETED)),
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
@@ -1195,7 +1172,6 @@ void main() {
         getAndRegisterQueryServiceClient(
             fetchMessagesLimit: 16,
             fetchMessagesHasOptions: false,
-            fetchMessagesId: 0,
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         await MessageRepo()
             .getMessages(testUid.asString(), 0, 16, Completer(), 0);
@@ -1219,7 +1195,7 @@ void main() {
         await MessageRepo().fetchEditedMsg(testUid, 0);
         verify(queryServiceClient.fetchMessages(FetchMessagesReq()
           ..roomUid = testUid
-          ..pointer = Int64(0)
+          ..pointer = Int64()
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = 1));
       });
@@ -1498,7 +1474,7 @@ void main() {
     group('pinMessage -', () {
       test('When called should pinMessage', () async {
         final mucServices =
-            getAndRegisterMucServices(pinMessageGetError: false);
+            getAndRegisterMucServices();
         await MessageRepo().pinMessage(testMessage);
         verify(mucServices.pinMessage(testMessage));
         expect(await MessageRepo().pinMessage(testMessage), true);
@@ -1514,7 +1490,7 @@ void main() {
     group('unpinMessage -', () {
       test('When called should unpinMessage', () async {
         final mucServices =
-            getAndRegisterMucServices(pinMessageGetError: false);
+            getAndRegisterMucServices();
         await MessageRepo().unpinMessage(testMessage);
         verify(mucServices.unpinMessage(testMessage));
         expect(await MessageRepo().unpinMessage(testMessage), true);
@@ -1536,7 +1512,7 @@ void main() {
             ..from = testUid
             ..uuid = testUid.asString()
             ..to = testUid
-            ..time = Int64(0))
+            ..time = Int64())
           .writeToJson();
       final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
@@ -1594,7 +1570,7 @@ void main() {
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(queryServiceClient.deleteMessage(DeleteMessageReq()
-          ..messageId = Int64(0)
+          ..messageId = Int64()
           ..roomUid = testUid));
       });
       test(
@@ -1665,7 +1641,7 @@ void main() {
           ..text = message_pb.Text(text: "test");
         verify(queryServiceClient.updateMessage(UpdateMessageReq()
           ..message = updatedMessage
-          ..messageId = Int64(0)));
+          ..messageId = Int64()));
       });
       test('When called should saveMessage', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -1746,7 +1722,7 @@ void main() {
               file: model.File("test", "test"));
           verify(queryServiceClient.updateMessage(UpdateMessageReq()
             ..message = updatedMessage
-            ..messageId = Int64(0)));
+            ..messageId = Int64()));
         });
       });
       test('When called should update room', () async {

@@ -186,6 +186,7 @@ class _ImageUiState extends State<ImageUi> {
                             widget.message,
                             widget.isSender,
                             widget.isSeen,
+                            needsPadding: true,
                             backgroundColor:
                                 widget.colorScheme.onPrimaryContainerLowlight(),
                             foregroundColor:

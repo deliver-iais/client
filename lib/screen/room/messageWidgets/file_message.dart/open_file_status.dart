@@ -32,7 +32,6 @@ class OpenFileStatus extends StatelessWidget {
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
-          alignment: Alignment.center,
           icon: Icon(
             CupertinoIcons.folder_open,
             color: foregroundColor,

@@ -51,8 +51,6 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                     child: Container(
                       color: selected ? Colors.black12 : Colors.white,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           IconButton(
                             icon: Icon(

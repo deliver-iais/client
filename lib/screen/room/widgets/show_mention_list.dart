@@ -41,7 +41,6 @@ class ShowMentionList extends StatelessWidget {
                         child: ListView.separated(
                           itemCount: members.data!.length,
                           shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
                           itemBuilder: (c, i) {
                             var _mucMemberMentionColor = Colors.transparent;
                             if (mentionSelectedIndex == i &&

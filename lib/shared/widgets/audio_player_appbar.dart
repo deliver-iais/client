@@ -29,7 +29,6 @@ class AudioPlayerAppBar extends StatelessWidget {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   StreamBuilder<AudioPlayerState>(
                       stream: audioPlayerService.audioCurrentState(),
@@ -59,7 +58,6 @@ class AudioPlayerAppBar extends StatelessWidget {
                                       ? Marquee(
                                           text: audioPlayerService.audioName,
                                           style: const TextStyle(fontSize: 16),
-                                          scrollAxis: Axis.horizontal,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           blankSpace: constraints.maxWidth / 2,

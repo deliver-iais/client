@@ -35,14 +35,13 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
     return Container(
         child: widget.selected == "delete_room"
             ? AlertDialog(
-                titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+                titlePadding: EdgeInsets.zero,
                 actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
                 backgroundColor: Colors.white,
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(widget.roomUid, 25),
                         const SizedBox(width: 5),
@@ -105,14 +104,13 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                 ],
               )
             : AlertDialog(
-                titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+                titlePadding: EdgeInsets.zero,
                 actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
                 backgroundColor: Colors.white,
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(widget.roomUid, 25),
                         const SizedBox(width: 5),

@@ -96,7 +96,6 @@ class SettingsTile extends StatelessWidget {
         trailing: trailing,
         iosChevron: iosChevron,
         iosChevronPadding: iosChevronPadding,
-        hasDetails: false,
         leading: leading,
         onPress: onTapFunction(context) as void Function()?,
         labelTextStyle: titleTextStyle,

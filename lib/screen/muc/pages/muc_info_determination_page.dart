@@ -75,18 +75,15 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         child: Stack(
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Flexible(
                       child: Form(
                         key: mucNameKey,
                         child: TextFormField(
                             minLines: 1,
-                            maxLines: 1,
                             autofocus: autofocus,
                             validator: checkMucNameIsSet,
                             textInputAction: TextInputAction.send,
@@ -109,14 +106,12 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                 const SizedBox(height: 10),
                 widget.isChannel
                     ? Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Flexible(
                               child: Form(
                             key: _channelIdKey,
                             child: TextFormField(
                               minLines: 1,
-                              maxLines: 1,
                               autofocus: autofocus,
                               textInputAction: TextInputAction.send,
                               controller: idController,
@@ -150,7 +145,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   height: 10,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Flexible(
                         child: Form(
@@ -218,7 +212,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           color: theme.colorScheme.primary,
                         ),
                         child: IconButton(
-                          alignment: Alignment.center,
                           padding: const EdgeInsets.all(0),
                           icon: Icon(Icons.check,
                               color: theme.colorScheme.onPrimary),
@@ -287,7 +280,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   color: theme.primaryColor,
                 ),
                 child: IconButton(
-                  alignment: Alignment.center,
                   padding: const EdgeInsets.all(0),
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () async {

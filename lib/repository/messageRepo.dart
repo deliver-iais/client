@@ -534,7 +534,7 @@ class MessageRepo {
         await sendFileMessage(room, file,
             caption: caption, replyToId: replyToId);
       } else {
-        await sendFileMessage(room, file, caption: "", replyToId: replyToId);
+        await sendFileMessage(room, file, replyToId: replyToId);
       }
     }
   }
@@ -1027,7 +1027,8 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  Future<void> sendShareUidMessage(Uid room, message_pb.ShareUid shareUid) async {
+  Future<void> sendShareUidMessage(
+      Uid room, message_pb.ShareUid shareUid) async {
     final json = shareUid.writeToJson();
 
     final msg =

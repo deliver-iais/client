@@ -178,7 +178,7 @@ class _DevicesPageState extends State<DevicesPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+            titlePadding: EdgeInsets.zero,
             actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
             content: Row(

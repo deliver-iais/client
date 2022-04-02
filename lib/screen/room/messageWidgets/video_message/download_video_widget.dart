@@ -106,7 +106,6 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                               snapshot.data != null &&
                               snapshot.data!) {
                             return CircularProgressIndicator(
-                              strokeWidth: 4,
                               color: widget.background,
                             );
                           } else {
@@ -140,9 +139,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                 stream: _startDownload.stream,
                 builder: (context, start) {
                   if (start.hasData && start.data != null && start.data!) {
-                    return const CircularProgressIndicator(
-                      strokeWidth: 4,
-                    );
+                    return const CircularProgressIndicator();
                   } else {
                     return MouseRegion(
                       cursor: SystemMouseCursors.click,

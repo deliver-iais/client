@@ -57,13 +57,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     width: 20.0,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation(Colors.blue),
-                      strokeWidth: 4.0,
                     )),
               ),
             );
           } else {
             return Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Center(
                   child: MouseRegion(
@@ -130,7 +128,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       } else {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
-          allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
           _setAvatar(isWeb
@@ -148,7 +145,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             return DraggableScrollableSheet(
               initialChildSize: 0.3,
               minChildSize: 0.2,
-              maxChildSize: 1,
               expand: false,
               builder: (context, scrollController) {
                 return Container(

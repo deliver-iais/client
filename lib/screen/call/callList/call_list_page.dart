@@ -57,13 +57,11 @@ class _CallListPageState extends State<CallListPage> {
                         'assets/animations/not-found.tgs',
                         width: 180,
                         height: 150,
-                        repeat: true,
                       );
                     }
                     return Scrollbar(
                         child: ListView.separated(
-                            separatorBuilder:
-                                (context, index) {
+                            separatorBuilder: (context, index) {
                               return const Divider();
                             },
                             itemCount: calls.length,
@@ -73,8 +71,7 @@ class _CallListPageState extends State<CallListPage> {
                               final Uid caller;
                               final String monthName;
                               time = DateTime.fromMillisecondsSinceEpoch(
-                                  calls[index].callEvent.endOfCallTime,
-                                  isUtc: false);
+                                  calls[index].callEvent.endOfCallTime);
                               monthName = DateFormat('MMMM').format(time);
                               isIncomingCall = calls[index]
                                           .callEvent

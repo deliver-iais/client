@@ -140,9 +140,6 @@ class _IntroPageState extends State<IntroPage> {
               ),
               Slide(
                 widgetTitle: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -190,9 +187,6 @@ class _IntroPageState extends State<IntroPage> {
               padding: const EdgeInsets.only(top: paddingTop),
               child: FlareActor(
                 "assets/images/a.flr",
-                alignment: Alignment.center,
-                fit: BoxFit.contain,
-                antialias: true,
                 controller: introAnimationController,
               ),
             ),

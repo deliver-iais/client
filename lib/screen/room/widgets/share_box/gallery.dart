@@ -374,7 +374,6 @@ Stack buildInputCaption(
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
               ),
               style: const TextStyle(color: Colors.black, fontSize: 17),
-              autocorrect: true,
               textInputAction: TextInputAction.newline,
               minLines: 1,
               maxLines: 15,
@@ -391,7 +390,7 @@ Stack buildInputCaption(
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                boxShadow: [BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)],
+                boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(

@@ -137,7 +137,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           margin: const EdgeInsets.only(bottom: 6, top: 4),
@@ -157,7 +156,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       BuildContext context, Message msg) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -315,7 +313,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             overflow: TextOverflow.ellipsis,
             softWrap: false,
             style: TextStyle(
-                inherit: true, fontSize: 13, color: colorScheme.primary),
+                fontSize: 13, color: colorScheme.primary),
           ),
         ),
         onTap: () {
@@ -360,7 +358,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return Padding(
       padding: EdgeInsets.only(top: isFirstMessageInGroupedMessages ? 12.0 : 0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (isFirstMessageInGroupedMessages &&

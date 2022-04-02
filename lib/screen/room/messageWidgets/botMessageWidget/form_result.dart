@@ -80,6 +80,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   widget.message,
                   widget.isSender,
                   widget.isSeen,
+                  needsPadding: true,
                   needsPositioned: false,
                   foregroundColor: widget.colorScheme.onPrimaryContainer,
                 ),

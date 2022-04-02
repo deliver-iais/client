@@ -660,12 +660,8 @@ class CallRepo {
           const NotificationButton(id: 'endCall', text: 'End Call'),
         ],
       ),
-      iosNotificationOptions: const IOSNotificationOptions(
-        showNotification: true,
-        playSound: false,
-      ),
+      iosNotificationOptions: const IOSNotificationOptions(),
       foregroundTaskOptions: const ForegroundTaskOptions(
-        interval: 5000,
         autoRunOnBoot: true,
         allowWifiLock: true,
       ),

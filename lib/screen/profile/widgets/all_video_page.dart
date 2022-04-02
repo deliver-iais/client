@@ -78,7 +78,6 @@ class _AllVideoPageState extends State<AllVideoPage> {
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (isDesktop)
                 StreamBuilder<int>(
@@ -104,7 +103,6 @@ class _AllVideoPageState extends State<AllVideoPage> {
                     itemCount: widget.videoCount,
                     controller: _swiperController,
                     index: widget.initIndex,
-                    viewportFraction: 1.0,
                     scale: 0.9,
                     loop: false,
                     onIndexChanged: (index) => _currentIndex.add(index),
