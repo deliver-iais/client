@@ -18,7 +18,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 @js.JS('decodeMessageForCallFromJs')
-external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
+external set _decodeMessageForCallFromJs(Function f);
 
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
@@ -28,7 +28,7 @@ class FireBaseServices {
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
-      dynamic notification) async {
+      notification) async {
     final res = <String, String>{};
 
     await _backgroundRemoteMessageHandler(notification);

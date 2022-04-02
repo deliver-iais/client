@@ -140,9 +140,9 @@ const double MIN_WIDTH = 200;
 const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
 
 //FEATURE DISCOVERY ID
-const String feature1 = 'feature1',
-    feature2 = 'feature2',
-    feature3 = 'feature3';
+const feature1 = 'feature1';
+const feature2 = 'feature2';
+const feature3 = 'feature3';
 
 const mainBorder = BorderRadius.all(Radius.circular(28));
 

@@ -29,9 +29,7 @@ class CallMessageWidget extends StatelessWidget {
       : _callEvent = message.json.toCallEvent().newStatus,
         _callDuration = message.json.toCallDuration(),
         _isVideo =
-            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO
-                ? true
-                : false,
+            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO,
         super(key: key);
 
   @override

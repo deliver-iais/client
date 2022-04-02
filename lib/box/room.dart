@@ -89,7 +89,7 @@ class Room {
               lastUpdatedMessageId ?? this.lastUpdatedMessageId);
 
   @override
-  bool operator ==(dynamic other) => identical(this, other) ||
+  bool operator ==(Object other) => identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Room &&
             const DeepCollectionEquality().equals(other.uid, uid) &&

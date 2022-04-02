@@ -135,7 +135,8 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                             },
                             onLongPress: () {
                               //ToDo new design for android
-                              _showCustomMenu(context, room, canBePinned(rooms));
+                              _showCustomMenu(
+                                  context, room, canBePinned(rooms));
                             },
                             onTapDown: storePosition,
                             onSecondaryTapDown: storePosition,
@@ -158,9 +159,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   bool canBePinned(List<Room> rooms) {
-    return rooms.where((element) => element.pinned).toList().length < 5
-        ? true
-        : false;
+    return rooms.where((element) => element.pinned).toList().length < 5;
   }
 
   void rearrangeChatItem(List<Room> rooms) {

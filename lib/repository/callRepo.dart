@@ -237,7 +237,7 @@ class CallRepo {
     _sdpConstraints = {
       "mandatory": {
         "OfferToReceiveAudio": true,
-        "OfferToReceiveVideo": _isVideo ? true : false,
+        "OfferToReceiveVideo": _isVideo,
         "IceRestart": true,
       },
       "optional": [],

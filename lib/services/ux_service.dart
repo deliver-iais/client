@@ -136,7 +136,7 @@ class UxService {
 
   int get themeIndex => _themeIndex.value;
 
-  bool get sendByEnter => isDesktop ? _sendByEnter.value : false;
+  bool get sendByEnter => isDesktop && _sendByEnter.value;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 

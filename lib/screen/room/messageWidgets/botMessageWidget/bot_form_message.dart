@@ -64,7 +64,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               formFieldsKey[form.fields[index].id] = key;
             },
             setResult: (value) {
-              setResult(index, value);
+              _setResult(index, value);
             },
           ));
           break;
@@ -72,7 +72,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
           _widgets.add(CheckBoxFormField(
             formField: form.fields[index],
             selected: (value) {
-              setResult(index, value);
+              _setResult(index, value);
             },
           ));
 
@@ -85,7 +85,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               formFieldsKey[form.fields[index].id] = key;
             },
             selected: (value) {
-              setResult(index, value);
+              _setResult(index, value);
             },
           ));
           break;
@@ -283,7 +283,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  void setResult(int index, dynamic value) {
+  void _setResult(int index, value) {
     formResultMap[form.fields[index].id] = value;
   }
 }
