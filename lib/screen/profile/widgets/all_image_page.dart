@@ -54,11 +54,11 @@ class _AllImagePageState extends State<AllImagePage> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid, MediaType.IMAGE, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }
@@ -72,8 +72,8 @@ class _AllImagePageState extends State<AllImagePage> {
     super.initState();
   }
 
-  _getMediaMetaDataCount() async {
-    var res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
+  Future<void> _getMediaMetaDataCount() async {
+    final res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
     if (res != null) {
       _allImageCount.add(res.imagesCount);
     }
@@ -119,7 +119,6 @@ class _AllImagePageState extends State<AllImagePage> {
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (isDesktop)
               StreamBuilder<int>(
@@ -152,7 +151,6 @@ class _AllImagePageState extends State<AllImagePage> {
                           itemCount: all.data!,
                           controller: _swiperController,
                           index: initIndex,
-                          viewportFraction: 1.0,
                           scale: 0.9,
                           loop: false,
                           onIndexChanged: (index) => _currentIndex.add(index),
@@ -160,37 +158,27 @@ class _AllImagePageState extends State<AllImagePage> {
                             return FutureBuilder<Media?>(
                               future: _getMedia(index),
                               builder: (c, mediaSnapShot) {
-                                if (mediaSnapShot.hasData &&
-                                    mediaSnapShot.data != null) {
+                                if (mediaSnapShot.hasData) {
+                                  final json =
+                                      jsonDecode(mediaSnapShot.data!.json)
+                                          as Map;
                                   return Hero(
-                                    tag: jsonDecode(
-                                        mediaSnapShot.data!.json)["uuid"],
+                                    tag: json['uuid'],
                                     child: FutureBuilder<String?>(
                                         initialData: _fileCache.get(index),
                                         future: _fileRepo.getFile(
-                                            jsonDecode(mediaSnapShot
-                                                .data!.json)["uuid"],
-                                            jsonDecode(mediaSnapShot
-                                                .data!.json)["name"]),
+                                            json['uuid'], json['name']),
                                         builder: (c, filePath) {
                                           if (filePath.hasData &&
                                               filePath.data != null) {
                                             _fileCache.set(
-                                                index, filePath.data!);
+                                                index, filePath.data);
+
                                             return InteractiveViewer(
                                                 child: AspectRatio(
                                               aspectRatio: max(
-                                                      jsonDecode(mediaSnapShot
-                                                              .data!
-                                                              .json)["width"]
-                                                          as int,
-                                                      1) /
-                                                  max(
-                                                      jsonDecode(mediaSnapShot
-                                                              .data!
-                                                              .json)["height"]
-                                                          as int,
-                                                      1),
+                                                      json["width"] as int, 1) /
+                                                  max(json["height"] as int, 1),
                                               child: isWeb
                                                   ? Image.network(
                                                       filePath.data!)
@@ -264,9 +252,9 @@ class _AllImagePageState extends State<AllImagePage> {
                     future: _getMedia(index.data!),
                     builder: (c, mediaSnapShot) {
                       if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-                        if ((jsonDecode(mediaSnapShot.data!.json)["caption"])
-                            .toString()
-                            .isNotEmpty) {
+                        final json =
+                            jsonDecode(mediaSnapShot.data!.json) as Map;
+                        if (json["caption"].toString().isNotEmpty) {
                           return Align(
                               alignment: Alignment.bottomCenter,
                               child: Padding(
@@ -277,8 +265,7 @@ class _AllImagePageState extends State<AllImagePage> {
                                       color: theme.hoverColor.withAlpha(100),
                                       borderRadius: BorderRadius.circular(5)),
                                   child: Text(
-                                    jsonDecode(
-                                        mediaSnapShot.data!.json)["caption"],
+                                    json["caption"],
                                     style: theme.textTheme.bodyText2!.copyWith(
                                         height: 1, color: Colors.white),
                                   ),

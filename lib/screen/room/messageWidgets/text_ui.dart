@@ -5,14 +5,15 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;
@@ -21,32 +22,34 @@ class TextUI extends StatelessWidget {
   final bool isSender;
   final bool isSeen;
   final String? searchTerm;
-  final Function? onUsernameClick;
+  final void Function(String) onUsernameClick;
+  final void Function(String) onBotCommandClick;
   final bool isBotMessage;
-  final Function? onBotCommandClick;
+  final bool isGroupMessage;
   final CustomColorScheme colorScheme;
 
-  const TextUI(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      this.minWidth = 0,
-      this.isSender = false,
-      this.isSeen = false,
-      this.searchTerm,
-      this.onUsernameClick,
-      this.isBotMessage = false,
-      required this.colorScheme,
-      this.onBotCommandClick})
-      : super(key: key);
+  TextUI({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.colorScheme,
+    required this.onBotCommandClick,
+    required this.onUsernameClick,
+    this.minWidth = 0,
+    this.isSender = false,
+    this.isSeen = false,
+    this.searchTerm,
+  })  : isBotMessage = message.roomUid.asUid().isBot(),
+        isGroupMessage = message.roomUid.asUid().isGroup(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    String text = extractText(message);
-    List<Block> blocks = extractBlocks(text, context);
-    List<TextSpan> spans = blocks.map<TextSpan>((b) {
+    final text = extractText(message);
+    final blocks = extractBlocks(text, context);
+    final spans = blocks.map<TextSpan>((b) {
       return TextSpan(
           text: b.text,
           style: b.style,
@@ -61,7 +64,7 @@ class TextUI extends StatelessWidget {
       link = "";
     }
 
-    double linkPreviewMaxWidth = min(
+    final double linkPreviewMaxWidth = min(
         blocks
                 .map((b) => b.text.length)
                 .reduce((value, element) => value < element ? element : value) *
@@ -77,9 +80,7 @@ class TextUI extends StatelessWidget {
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
           RichText(
-            text: TextSpan(
-                children: spans,
-                style: theme.textTheme.bodyText2),
+            text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
@@ -91,12 +92,11 @@ class TextUI extends StatelessWidget {
           ),
           TimeAndSeenStatus(
             message,
-            isSender,
-            isSeen,
+            isSender: isSender,
+            isSeen: isSeen,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             needsPositioned: false,
-            needsPadding: false,
           )
         ],
       ),
@@ -114,14 +114,14 @@ class TextUI extends StatelessWidget {
   }
 
   List<Block> extractBlocks(String text, BuildContext context) {
-    List<Block> blocks = [Block(text: text)];
-    List<Parser> parsers = [
+    var blocks = <Block>[Block(text: text)];
+    final parsers = <Parser>[
       EmojiParser(),
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
       UrlParser(),
-      if (onUsernameClick != null) IdParser(onUsernameClick!),
-      if (isBotMessage) BotCommandParser(onBotCommandClick!),
+      if (isGroupMessage) IdParser(onUsernameClick),
+      if (isBotMessage) BotCommandParser(onBotCommandClick),
       BoldTextParser(),
       ItalicTextParser()
     ];
@@ -145,29 +145,27 @@ class UrlParser implements Parser {
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "url", onTap: (uri) async {
-        if (uri.toString().contains("$APPLICATION_DOMAIN/$JOIN".toString()) ||
-            uri.toString().contains("$APPLICATION_DOMAIN/$SPDA".toString()) ||
-            uri.toString().contains("$APPLICATION_DOMAIN/$TEXT".toString())) {
+        if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+            uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+            uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
           handleJoinUri(context, uri);
         } else {
           await launch(uri);
         }
-      },
-          style:
-              TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+      }, style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class IdParser implements Parser {
-  final Function onUsernameClick;
+  final void Function(String) onUsernameClick;
   final RegExp regex = RegExp(r"[@][a-zA-Z]([a-zA-Z0-9_]){4,19}");
 
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, regex, "id",
-      onTap: (id) => onUsernameClick(id),
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "id",
+          onTap: (id) => onUsernameClick(id),
+          style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class BoldTextParser implements Parser {
@@ -181,7 +179,7 @@ class BoldTextParser implements Parser {
         regex,
         "bold",
         transformer: BoldTextParser.transformer,
-        style: const TextStyle(inherit: true, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontWeight: FontWeight.w800),
       );
 }
 
@@ -194,7 +192,7 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "italic",
           transformer: ItalicTextParser.transformer,
-          style: const TextStyle(inherit: true, fontStyle: FontStyle.italic));
+          style: const TextStyle(fontStyle: FontStyle.italic));
 }
 
 class EmojiParser implements Parser {
@@ -214,16 +212,16 @@ class EmojiParser implements Parser {
 }
 
 class BotCommandParser implements Parser {
-  final Function onBotCommandClick;
+  final void Function(String) onBotCommandClick;
   final RegExp regex = RegExp(r"[/]([a-zA-Z0-9_-]){5,40}");
 
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, regex, "bot",
-      onTap: (id) => onBotCommandClick(id),
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, regex, "bot",
+          onTap: (id) => onBotCommandClick(id),
+          style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class SearchTermParser implements Parser {
@@ -232,15 +230,15 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-      blocks, RegExp(searchTerm), "search",
-      style: TextStyle(inherit: true, color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) =>
+      parseBlocks(blocks, RegExp(searchTerm), "search",
+          style: TextStyle(color: Theme.of(context).primaryColor));
 }
 
 class Block {
   final String text;
   final bool locked;
-  final Function? onTap;
+  final void Function(String)? onTap;
   final TextStyle? style;
   final String? type;
 
@@ -253,7 +251,9 @@ class Block {
 }
 
 List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
-        {Function? onTap, TextStyle? style, Function transformer = same}) =>
+        {void Function(String)? onTap,
+        TextStyle? style,
+        String Function(String) transformer = same}) =>
     flatten(blocks.map<Iterable<Block>>((b) {
       if (b.locked) {
         return [b];
@@ -263,23 +263,24 @@ List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
       }
     })).toList();
 
-List<Block> parseText(
-    String text, RegExp regex, Function? onTap, TextStyle style, String type,
-    {Function transformer = same}) {
+List<Block> parseText(String text, RegExp regex, void Function(String)? onTap,
+    TextStyle style, String type,
+    {String Function(String) transformer = same}) {
   var start = 0;
 
-  Iterable<RegExpMatch> matches = regex.allMatches(text);
+  final matches = regex.allMatches(text);
 
-  var result = <Block>[];
+  final result = <Block>[];
 
-  for (var match in matches) {
-    result.add(Block(text: transformer(text.substring(start, match.start))));
-    result.add(Block(
-        text: transformer(match[0]),
-        onTap: onTap,
-        style: style,
-        type: type,
-        locked: true));
+  for (final match in matches) {
+    result
+      ..add(Block(text: transformer(text.substring(start, match.start))))
+      ..add(Block(
+          text: transformer(match[0]!),
+          onTap: onTap,
+          style: style,
+          type: type,
+          locked: true));
     start = match.end;
   }
 
@@ -288,10 +289,10 @@ List<Block> parseText(
   return result;
 }
 
-same(m) => m;
+String same(String m) => m;
 
 Iterable<T> flatten<T>(Iterable<Iterable<T>> items) sync* {
-  for (var i in items) {
+  for (final i in items) {
     yield* i;
   }
 }

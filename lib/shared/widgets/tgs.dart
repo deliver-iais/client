@@ -46,13 +46,13 @@ class _TGSState extends State<TGS> {
   late Future<LottieComposition?> _composition;
 
   Future<LottieComposition> _loadAssetsComposition() async {
-    var assetData = await rootBundle.load(widget.assetsPath!);
+    final assetData = await rootBundle.load(widget.assetsPath!);
 
     var bytes = assetData.buffer.asUint8List();
 
     bytes = GZipCodec().decode(bytes) as Uint8List;
 
-    return await LottieComposition.fromBytes(bytes);
+    return LottieComposition.fromBytes(bytes);
   }
 
   Future<LottieComposition?> _loadFileComposition() async {
@@ -60,8 +60,7 @@ class _TGSState extends State<TGS> {
 
     bytes = GZipCodec().decode(bytes) as Uint8List;
 
-    var res = await  LottieComposition.fromBytes(bytes);
-    return res;
+    return LottieComposition.fromBytes(bytes);
   }
 
   @override
@@ -85,7 +84,7 @@ class _TGSState extends State<TGS> {
     return FutureBuilder<LottieComposition?>(
         future: _composition,
         builder: (context, snapshot) {
-          var composition = snapshot.data;
+          final composition = snapshot.data;
 
           if (composition != null) {
             if (widget.controller != null) {

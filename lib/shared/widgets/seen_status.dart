@@ -18,11 +18,11 @@ class SeenStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final SeenDao seenDao = GetIt.I.get<SeenDao>();
-    final MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
+    final seenDao = GetIt.I.get<SeenDao>();
+    final messageRepo = GetIt.I.get<MessageRepo>();
     final color = iconColor ?? theme.primaryColor;
     const size = 16.0;
-    Widget pendingMessage = Container(
+    final Widget pendingMessage = Container(
         child: Lottie.asset(
       'assets/animations/clock.json',
       width: 18,

@@ -35,10 +35,10 @@ class I18N {
   }
 
   Future<void> _loadLanguageResource(Language language) async {
-    String jsonValues =
+    final jsonValues =
         await rootBundle.loadString('lib/lang/${language.languageCode}.json');
 
-    Map<String, dynamic> mappedJson = json.decode(jsonValues);
+    final Map<String, dynamic> mappedJson = json.decode(jsonValues);
 
     _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
@@ -50,15 +50,17 @@ class I18N {
   Locale get locale => _language.value.locale;
 
   String get(String key) {
-    return _values!= null && _values!.isNotEmpty? _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : ""):key.replaceAll("_"," ");
+    return _values != null && _values!.isNotEmpty
+        ? _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "")
+        : key.replaceAll("_", " ");
   }
 
-  String verb(String key, {isFirstPerson = false}) {
+  String verb(String key, {bool isFirstPerson = false}) {
     return get(key) +
         (isFirstPerson ? (_values!["_first_person_verb_extra_"] ?? "") : "");
   }
 
-  changeLanguage(Language language) {
+  void changeLanguage(Language language) {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
   }
 

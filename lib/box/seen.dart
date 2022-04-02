@@ -26,15 +26,13 @@ class Seen {
           hiddenMessageCount: newHiddenMessageCount ?? hiddenMessageCount);
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
+  bool operator ==(Object other) => identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Seen &&
             const DeepCollectionEquality().equals(other.uid, uid) &&
             const DeepCollectionEquality().equals(other.messageId, messageId) &&
             const DeepCollectionEquality()
                 .equals(other.hiddenMessageCount, hiddenMessageCount));
-  }
 
   @override
   int get hashCode => Object.hash(

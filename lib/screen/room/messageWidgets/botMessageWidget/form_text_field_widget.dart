@@ -8,8 +8,8 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormInputTextFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
-  final Function setResult;
-  final Function setFormKey;
+  final void Function(String) setResult;
+  final void Function(GlobalKey<FormState>) setFormKey;
 
   const FormInputTextFieldWidget(
       {Key? key,
@@ -86,18 +86,18 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
     );
   }
 
-  _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     if (widget.formField.dateField.isHijriShamsi) {
-      Jalali? picked = await showPersianDatePicker(
+      final picked = await showPersianDatePicker(
         context: context,
         initialDate: _selectedDateJalali ?? Jalali.now(),
-        firstDate: Jalali(1300, 1, 1),
+        firstDate: Jalali(1300),
         lastDate: Jalali(1450, 12, 29),
       );
       if (picked != null) {
         widget.setResult(picked.toDateTime().microsecondsSinceEpoch.toString());
         _selectedDateJalali = picked;
-        var label = picked.formatFullDate();
+        final label = picked.formatFullDate();
         _textEditingController
           ..text = label
           ..selection = TextSelection.fromPosition(TextPosition(
@@ -105,12 +105,12 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
               affinity: TextAffinity.upstream));
       }
     } else {
-      DateTime? newSelectedDate = await showDatePicker(
+      final newSelectedDate = await showDatePicker(
           context: context,
           initialDate: _selectedDate ?? DateTime.now(),
           firstDate: DateTime(1900),
           lastDate: DateTime(2070),
-          builder: (BuildContext context, Widget? child) {
+          builder: (context, child) {
             return child!;
           });
 
@@ -150,12 +150,14 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
         return _i18n.get("enter_numeric_value");
       }
     }
-    int max = widget.formField.whichType() == form_pb.Form_Field_Type.textField
-        ? widget.formField.textField.max
-        : widget.formField.textField.max;
-    int min = widget.formField.whichType() == form_pb.Form_Field_Type.textField
-        ? widget.formField.textField.min
-        : widget.formField.textField.min;
+    final max =
+        widget.formField.whichType() == form_pb.Form_Field_Type.textField
+            ? widget.formField.textField.max
+            : widget.formField.textField.max;
+    final min =
+        widget.formField.whichType() == form_pb.Form_Field_Type.textField
+            ? widget.formField.textField.min
+            : widget.formField.textField.min;
     if (value.isEmpty && widget.formField.isOptional) {
       return null;
     } else if (max > 0 && value.length > max) {

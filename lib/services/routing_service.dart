@@ -13,17 +13,17 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
-import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
+import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/widgets/all_image_page.dart';
 import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
+import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
-import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
@@ -33,10 +33,10 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -127,7 +127,7 @@ class RoutingService {
       {bool isIncomingCall = false,
       bool isCallInitialized = false,
       bool isCallAccepted = false,
-      isVideoCall = false}) {
+      bool isVideoCall = false}) {
     _push(CallScreen(
       key: const ValueKey("/call-screen"),
       roomUid: roomUid,
@@ -224,7 +224,7 @@ class RoutingService {
   }
 
   void _push(Widget widget, {bool popAllBeforePush = false}) {
-    final path = (widget.key as ValueKey).value;
+    final path = (widget.key! as ValueKey).value;
 
     _analyticsRepo.incPVF(path);
 
@@ -280,7 +280,7 @@ class RoutingService {
     );
   }
 
-  logout() async {
+  Future<void> logout() async {
     final coreServices = GetIt.I.get<CoreServices>();
     final authRepo = GetIt.I.get<AuthRepo>();
     final accountRepo = GetIt.I.get<AccountRepo>();
@@ -299,10 +299,10 @@ class RoutingService {
     popAll();
   }
 
-  Widget backButtonLeading({Function? back}) {
+  Widget backButtonLeading({void Function()? back}) {
     return BackButton(
       onPressed: () {
-        if (back != null) back();
+        back?.call();
         pop();
       },
     );

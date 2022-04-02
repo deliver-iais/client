@@ -6,8 +6,8 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
-  final Function(String) onChange;
-  final Function? onCancel;
+  final void Function(String) onChange;
+  final void Function()? onCancel;
   late final TextEditingController controller;
 
   SearchBox(
@@ -44,11 +44,8 @@ class _SearchBoxState extends State<SearchBox> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: TextField(
         style: const TextStyle(fontSize: 16, height: 1.2),
-        textAlign: TextAlign.start,
         focusNode: _focusNode,
         controller: widget.controller,
-        autofocus: false,
-        maxLines: 1,
         onChanged: (str) {
           if (str.isNotEmpty) {
             _hasText.add(true);
@@ -83,7 +80,7 @@ class _SearchBoxState extends State<SearchBox> {
                     _hasText.add(false);
                     widget.controller.clear();
                     _focusNode.unfocus();
-                    widget.onCancel!();
+                    widget.onCancel?.call();
                   },
                 );
               } else {

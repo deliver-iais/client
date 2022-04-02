@@ -3,13 +3,12 @@
 import 'dart:core';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:grpc/grpc.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
+import 'package:grpc/grpc.dart';
 
 // ignore: non_constant_identifier_names
 final QueryClientChannel = ClientChannel("query.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -20,7 +19,6 @@ final webQueryClientChannel = GrpcWebClientChannel.xhr(
 
 // ignore: non_constant_identifier_names
 final BotClientChannel = ClientChannel("ms-bot.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -40,7 +38,6 @@ final webStickerClientChannel = GrpcWebClientChannel.xhr(
 
 // ignore: non_constant_identifier_names
 final MucServicesClientChannel = ClientChannel("query.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -51,7 +48,6 @@ final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
 
 // ignore: non_constant_identifier_names
 final CoreServicesClientChannel = ClientChannel("core.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -68,7 +64,6 @@ const FileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 // ignore: non_constant_identifier_names
 final ProfileServicesClientChannel = ClientChannel(
     "ms-profile.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -80,7 +75,6 @@ final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
 // ignore: non_constant_identifier_names
 final AvatarServicesClientChannel = ClientChannel(
     "ms-avatar.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -92,7 +86,6 @@ final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
 // ignore: non_constant_identifier_names
 final FirebaseServicesClientChannel = ClientChannel(
     "ms-firebase.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),
@@ -107,7 +100,6 @@ final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
 // ignore: non_constant_identifier_names
 final LiveLocationServiceClientChannel = ClientChannel(
     "ms-livelocation.$APPLICATION_DOMAIN",
-    port: 443,
     options: ChannelOptions(
         credentials:
             ChannelCredentials.secure(onBadCertificate: (c, d) => true),

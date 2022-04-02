@@ -35,14 +35,13 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
     return Container(
         child: widget.selected == "delete_room"
             ? AlertDialog(
-                titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+                titlePadding: EdgeInsets.zero,
                 actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
                 backgroundColor: Colors.white,
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(widget.roomUid, 25),
                         const SizedBox(width: 5),
@@ -105,14 +104,13 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                 ],
               )
             : AlertDialog(
-                titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+                titlePadding: EdgeInsets.zero,
                 actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
                 backgroundColor: Colors.white,
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(widget.roomUid, 25),
                         const SizedBox(width: 5),
@@ -174,24 +172,24 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
               ));
   }
 
-  _leftMuc() async {
-    var result = await _mucRepo.leaveMuc(widget.roomUid);
+  Future<void> _leftMuc() async {
+    final result = await _mucRepo.leaveMuc(widget.roomUid);
     if (result) _navigateHomePage();
   }
 
-  _deleteRoom() async {
-    var res = await _roomRepo.deleteRoom(widget.roomUid);
+  Future<void> _deleteRoom() async {
+    final res = await _roomRepo.deleteRoom(widget.roomUid);
     if (res) _navigateHomePage();
   }
 
-  _deleteMuc() async {
-    var result = await _mucRepo.removeMuc(widget.roomUid);
+  Future<void> _deleteMuc() async {
+    final result = await _mucRepo.removeMuc(widget.roomUid);
     if (result) {
       _navigateHomePage();
     }
   }
 
-  _navigateHomePage() {
+  void _navigateHomePage() {
     if (_routingService.isInRoom(widget.roomUid.asString())) {
       _routingService.popAll();
     }

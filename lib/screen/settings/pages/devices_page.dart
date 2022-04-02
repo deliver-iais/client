@@ -3,12 +3,12 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/methods/time.dart';
 
 class DevicesPage extends StatefulWidget {
   const DevicesPage({Key? key}) : super(key: key);
@@ -39,13 +39,13 @@ class _DevicesPageState extends State<DevicesPage> {
         future: _accountRepo.getSessions(),
         builder: (c, sessionData) {
           if (sessionData.hasData && sessionData.data != null) {
-            Session currentSession = sessionData.data!.firstWhere(
+            final currentSession = sessionData.data!.firstWhere(
                 (s) => s.sessionId == _authRepo.currentUserUid.sessionId,
                 orElse: () => Session()
                   ..node = _authRepo.currentUserUid.node
                   ..sessionId = _authRepo.currentUserUid.sessionId);
 
-            List<Session> otherSessions = sessionData.data!
+            final otherSessions = sessionData.data!
                 .where((s) => s.sessionId != _authRepo.currentUserUid.sessionId)
                 .toList();
 
@@ -173,12 +173,12 @@ class _DevicesPageState extends State<DevicesPage> {
     );
   }
 
-  _showTerminateSession(List<Session> sessions, BuildContext context) {
+  void _showTerminateSession(List<Session> sessions, BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+            titlePadding: EdgeInsets.zero,
             actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
             content: Row(
@@ -205,26 +205,30 @@ class _DevicesPageState extends State<DevicesPage> {
                     style: TextButton.styleFrom(primary: Colors.red),
                     onPressed: () async {
                       if (sessions.length > 1) {
-                        var res = await _accountRepo.revokeAllOtherSession();
+                        final res = await _accountRepo.revokeAllOtherSession();
                         Navigator.pop(context);
                         if (res) {
                           setState(() {});
-                        }else{
-                          ToastDisplay.showToast(toastContext: context, toastText:_i18n.get("error_occurred"));
+                        } else {
+                          ToastDisplay.showToast(
+                              toastContext: context,
+                              toastText: _i18n.get("error_occurred"));
                         }
                       } else {
-                        var res = await _accountRepo
-                            .revokeSession(sessions.first.sessionId.toString());
+                        final res = await _accountRepo
+                            .revokeSession(sessions.first.sessionId);
                         Navigator.pop(context);
                         if (res) {
                           setState(() {});
-                        }else{
-                          ToastDisplay.showToast(toastContext: context, toastText:_i18n.get("error_occurred"));
+                        } else {
+                          ToastDisplay.showToast(
+                              toastContext: context,
+                              toastText: _i18n.get("error_occurred"));
                         }
                       }
-                      List<String> sessionIds = [];
-                      for (var element in sessions) {
-                        sessionIds.add(element.sessionId.toString());
+                      final sessionIds = <String>[];
+                      for (final element in sessions) {
+                        sessionIds.add(element.sessionId);
                       }
                     },
                   ),

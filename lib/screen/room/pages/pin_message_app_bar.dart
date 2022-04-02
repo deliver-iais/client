@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,10 +12,12 @@ import 'package:rxdart/rxdart.dart';
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final List<Message> pinMessages;
-  final Function() onTap;
-  final Function()? onNext;
-  final Function? onPrev;
-  final Function onCancel;
+  final void Function() onTap;
+  // TODO: why not using this
+  final void Function()? onNext;
+  // TODO: why not using this
+  final void Function()? onPrev;
+  final void Function() onCancel;
 
   final i18n = GetIt.I.get<I18N>();
 
@@ -37,7 +39,7 @@ class PinMessageAppBar extends StatelessWidget {
         builder: (c, id) {
           if (id.hasData && id.data! > 0) {
             Message? mes;
-            for (var m in pinMessages) {
+            for (final m in pinMessages) {
               if (m.id == id.data) {
                 mes = m;
               }
@@ -118,13 +120,11 @@ class PinMessageAppBar extends StatelessWidget {
                                   LastMessage(
                                       message: mes,
                                       lastMessageId: mes.id!,
-                                      hasMentioned: false,
                                       showSeenStatus: false,
                                       primaryColor:
                                           theme.colorScheme.inversePrimary,
                                       naturalColor:
-                                          theme.colorScheme.onInverseSurface,
-                                      showSender: false),
+                                          theme.colorScheme.onInverseSurface),
                               ],
                             ),
                           ),

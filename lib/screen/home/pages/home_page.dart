@@ -1,21 +1,22 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:deliver/services/ux_service.dart';
+
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
+import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
+    as js;
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
-import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
-    as js;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,7 +35,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
-      String? initialLink = await getInitialLink();
+      final initialLink = await getInitialLink();
       if (initialLink != null && initialLink.isNotEmpty) {
         await handleJoinUri(context, initialLink);
       }
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
   }
 
-  checkAddToHomeInWeb(BuildContext context) async {
+  Future<void> checkAddToHomeInWeb(BuildContext context) async {
     Timer(const Duration(seconds: 3), () {
       try {
         // final bool isDeferredNotNull =
@@ -90,11 +91,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  checkShareFile(BuildContext context) {
-    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+  void checkShareFile(BuildContext context) {
+    ReceiveSharingIntent.getInitialMedia().then((value) {
       if (value.isNotEmpty) {
-        List<String> paths = [];
-        for (var path in value) {
+        final paths = <String>[];
+        for (final path in value) {
           paths.add(path.path);
         }
         _routingService.openShareFile(path: paths);
@@ -118,8 +119,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ));
   }
 
-
-  void checkIfVersionChange() async {
+  Future<void> checkIfVersionChange() async {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {
       showDialog(builder: (context) => NewFeatureDialog(), context: context);
     }

@@ -12,6 +12,7 @@ class CallEvents {
   final call_pb.CallOffer? callOffer;
   final CallTypes callType;
   final Uid? roomUid;
+  final String callId;
 
   static CallEvents none = const CallEvents._none();
 
@@ -20,19 +21,20 @@ class CallEvents {
         callOffer = null,
         callAnswer = null,
         roomUid = null,
+        callId = "-1",
         callType = CallTypes.None;
 
-  const CallEvents.callAnswer(this.callAnswer, {required this.roomUid})
+  const CallEvents.callAnswer(this.callAnswer, {required this.roomUid, required this.callId})
       : callEvent = null,
         callOffer = null,
         callType = CallTypes.Answer;
 
-  const CallEvents.callEvent(this.callEvent, {required this.roomUid})
+  const CallEvents.callEvent(this.callEvent, {required this.roomUid, required this.callId})
       : callAnswer = null,
         callOffer = null,
         callType = CallTypes.Event;
 
-  const CallEvents.callOffer(this.callOffer, {required this.roomUid})
+  const CallEvents.callOffer(this.callOffer, {required this.roomUid, required this.callId})
       : callEvent = null,
         callAnswer = null,
         callType = CallTypes.Offer;

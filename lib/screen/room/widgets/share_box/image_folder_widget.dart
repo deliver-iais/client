@@ -17,18 +17,16 @@ import 'package:rxdart/rxdart.dart';
 class ImageFolderWidget extends StatefulWidget {
   final StorageFile storageFile;
   final Uid roomUid;
-  final Function pop;
-  final bool selectAvatar;
-  final Function? setAvatar;
+  final void Function() pop;
+  final void Function(String)? setAvatar;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function()? resetRoomPageDetails;
 
   const ImageFolderWidget(
     this.storageFile,
     this.roomUid,
     this.pop, {
     Key? key,
-    this.selectAvatar = false,
     this.setAvatar,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
@@ -59,7 +57,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          !widget.selectAvatar && _selectedImage.isNotEmpty
+          widget.setAvatar == null && _selectedImage.isNotEmpty
               ? IconButton(
                   onPressed: () {
                     _selectedImage.clear();
@@ -68,7 +66,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   icon: const Icon(Icons.clear))
               : const SizedBox.shrink()
         ],
-        title: !widget.selectAvatar
+        title: widget.setAvatar == null
             ? Text(
                 _selectedImage.isNotEmpty
                     ? "selected: ${_selectedImage.length}"
@@ -85,10 +83,10 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3),
             itemBuilder: (c, index) {
-              String imagePath = widget.storageFile.files[index];
+              final String imagePath = widget.storageFile.files[index];
               return GestureDetector(
                   onTap: () {
-                    if (widget.selectAvatar) {
+                    if (widget.setAvatar != null) {
                       widget.pop();
                       Navigator.pop(context);
                       widget.setAvatar!(imagePath);
@@ -127,7 +125,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                 ).image,
                                 fit: BoxFit.cover),
                           ),
-                          child: widget.selectAvatar
+                          child: widget.setAvatar != null
                               ? const SizedBox.shrink()
                               : Align(
                                   alignment: Alignment.bottomRight,
@@ -177,13 +175,11 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     _messageRepo.sendMultipleFilesMessages(widget.roomUid,
         _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
         replyToId: widget.replyMessageId, caption: _textEditingController.text);
-    if (widget.resetRoomPageDetails != null) {
-      widget.resetRoomPageDetails!();
-    }
+    widget.resetRoomPageDetails?.call();
   }
 
   void onTap(String imagePath) {
-    if (widget.selectAvatar) {
+    if (widget.setAvatar != null) {
       widget.setAvatar!(imagePath);
     } else {
       if (_selectedImage.contains(imagePath)) {

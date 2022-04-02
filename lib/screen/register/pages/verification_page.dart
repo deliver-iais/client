@@ -2,19 +2,16 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-
-
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({Key? key}) : super(key: key);
@@ -36,14 +33,14 @@ class _VerificationPageState extends State<VerificationPage> {
   // TODO ???
   final I18N _i18n = GetIt.I.get<I18N>();
 
-  _sendVerificationCode() {
+  void _sendVerificationCode() {
     if ((_verificationCode!.length) < 5) {
       setState(() => _showError = true);
       return;
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = _authRepo.sendVerificationCode(_verificationCode!);
+    final result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();
@@ -65,7 +62,7 @@ class _VerificationPageState extends State<VerificationPage> {
     });
   }
 
-  _navigationToHome() async {
+  Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
     if (await _accountRepo.hasProfile(retry: true)) {
       _accountRepo.fetchCurrentUserId(retry: true);
@@ -79,7 +76,7 @@ class _VerificationPageState extends State<VerificationPage> {
     }
   }
 
-  _setErrorAndResetCode() {
+  void _setErrorAndResetCode() {
     setState(() {
       _showError = true;
       _verificationCode = "";
@@ -92,7 +89,6 @@ class _VerificationPageState extends State<VerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        primary: true,
         backgroundColor: theme.backgroundColor,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,

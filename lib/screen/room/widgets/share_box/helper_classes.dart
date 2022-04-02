@@ -19,7 +19,7 @@ class StorageFile {
 }
 
 List<StorageFile> _storageFiles(String json) {
-  return jsonDecode(json)
+  return (jsonDecode(json) as List)
       .map<StorageFile>((json) => StorageFile.fromJson(json))
       .toList();
 }
@@ -36,11 +36,11 @@ class AudioItem extends FileBasic {
   AudioItem({required String path, required this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
-    var storageFiles = await StoragePath.audioPath;
-    List<dynamic> paths = json.decode(storageFiles);
+    final storageFiles = await StoragePath.audioPath;
+    final List<dynamic> paths = json.decode(storageFiles);
 
-    List<File> files = [];
-    for (var path in paths) {
+    final files = <File>[];
+    for (final path in paths) {
       try {
         files.add(File(path.toString()));
       } catch (e) {
@@ -64,10 +64,10 @@ class FileItem extends FileBasic {
 
   static Future<List<String>> getFiles() async {
     try {
-      var storageFiles = await StoragePath.filePath;
-      List<dynamic> filesPath = json.decode(storageFiles);
-      List<String> result = [];
-      for (var path in filesPath) {
+      final storageFiles = await StoragePath.filePath;
+      final List<dynamic> filesPath = json.decode(storageFiles);
+      final result = <String>[];
+      for (final path in filesPath) {
         result.add(path.toString());
       }
       return result;

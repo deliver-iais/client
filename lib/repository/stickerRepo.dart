@@ -13,35 +13,9 @@ class StickerRepo {
     //   getTrendPacks();
   }
 
-  Future<StickerPacket?> getStickerPackByUUID(String uuid) async {
-    return null;
-    // Sticker sticker = await _stickerDao.getSticker(uuid);
-    // if (sticker != null) {
-    //   List<Sticker> stickers = await _stickerDao.gatStickerPack(sticker.packId);
-    //   if (stickers == null && (stickers != null && stickers.length < 2)) {
-    //     var result = await _stickerServices.getStickerPackByUUID(
-    //         proto.GetStickerPackByUUIDReq()..uuid = uuid);
-    //     if (result.info_ != null) {
-    //       List<Sticker> newStickers;
-    //       for (var stickerFile in result.pack.stickers) {
-    //         newStickers.add(Sticker(
-    //             uuid: stickerFile.file.uuid,
-    //             packId: result.pack.id,
-    //             name: stickerFile.file.name,
-    //             packName: result.pack.name));
-    //       }
-    //       return StickerPacket(stickers: newStickers, isExit: false);
-    //     }
-    //   }
-    //   return StickerPacket(stickers: stickers, isExit: true);
-    // }
-  }
+  Future<StickerPacket?> getStickerPackByUUID(String uuid) async => null;
 
-  Future<Sticker?> getSticker(String uuid) async {
-    return null;
-    // var sticker = await _stickerDao.getSticker(uuid);
-    // return sticker;
-  }
+  Future<Sticker?> getSticker(String uuid) async => null;
 
   void saveStickers(List<Sticker> stickers) {
     //  _stickerDao.saveStikers(stickers);
@@ -56,21 +30,16 @@ class StickerRepo {
   //   return _stickerIdDao.getNotDownloadStickerPackId();
   // }
 
-  Future<Sticker?> getFirstStickerFromPack(String packId) async {
-    // List<Sticker> stickers = await _stickerDao.getStickerByPacKId(packId);
-    return null;
-  }
+  Future<Sticker?> getFirstStickerFromPack(String packId) async => null;
 
-  getTrendPacks() {
+  void getTrendPacks() {
     _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
   }
 
-  Stream<List<Sticker>>? getAllSticker() {
-    return null;
-  }
+  Stream<List<Sticker>>? getAllSticker() => null;
 
   Future<proto.StickerPack> downloadStickerPackByPackId(String packId) async {
-    var result = await _stickerServices
+    final result = await _stickerServices
         .getStickerPackByID(proto.GetStickerPackByIDReq()..id = packId);
     return result.pack;
   }
@@ -89,9 +58,5 @@ class StickerRepo {
   //       packISDownloaded: true));
   // }
 
-  Future<List<Sticker>?> getStickerPackByPackId(String packId) async {
-    return null;
-    // List<Sticker> stickers = await _stickerDao.gatStickerPack(packId);
-    // return stickers;
-  }
+  Future<List<Sticker>?> getStickerPackByPackId(String packId) async => null;
 }

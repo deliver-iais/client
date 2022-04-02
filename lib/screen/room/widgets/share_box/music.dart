@@ -8,9 +8,9 @@ import 'helper_classes.dart';
 
 class ShareBoxMusic extends StatefulWidget {
   final ScrollController scrollController;
-  final Function onClick;
+  final void Function(int, String) onClick;
   final Map<int, bool> selectedAudio;
-  final Function playMusic;
+  final void Function(int, String) playMusic;
   final Map<int, IconData> icons;
 
   const ShareBoxMusic(
@@ -45,14 +45,12 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                 controller: widget.scrollController,
                 itemCount: audios.data!.length,
                 itemBuilder: (ctx, index) {
-                  var fileItem = audios.data![index];
-                  var selected = widget.selectedAudio[index] ?? false;
+                  final fileItem = audios.data![index];
+                  final selected = widget.selectedAudio[index] ?? false;
                   return GestureDetector(
                     child: Container(
                       color: selected ? Colors.black12 : Colors.white,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           IconButton(
                             icon: Icon(

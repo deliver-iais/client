@@ -35,8 +35,8 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  onDeleteRoom(String selected) async {
-    String? roomName = await _roomRepo.getName(widget.room.uid.asUid());
+  Future<void> onDeleteRoom(String selected) async {
+    final roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
         context: context,
         builder: (context) {
@@ -83,7 +83,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 ])),
           StreamBuilder<bool>(
             stream: _roomRepo.watchIsRoomMuted(widget.room.uid),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (snapshot.data!) {
                   return PopupMenuItem(

@@ -101,8 +101,7 @@ class Message {
       );
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
+  bool operator ==(Object other) => identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Message &&
             const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
@@ -118,7 +117,6 @@ class Message {
             const DeepCollectionEquality().equals(other.encrypted, encrypted) &&
             const DeepCollectionEquality().equals(other.type, type) &&
             const DeepCollectionEquality().equals(other.json, json));
-  }
 
   @override
   int get hashCode => Object.hash(

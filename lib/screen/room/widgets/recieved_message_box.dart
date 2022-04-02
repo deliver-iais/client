@@ -10,11 +10,11 @@ import 'message_wrapper.dart';
 
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
-  final Function scrollToMessage;
-  final Function onUsernameClick;
+  final void Function(int) scrollToMessage;
+  final void Function(String) onUsernameClick;
   final String? pattern;
-  final Function onBotCommandClick;
-  final Function onArrowIconClick;
+  final void Function(String) onBotCommandClick;
+  final void Function() onArrowIconClick;
   final CustomColorScheme colorScheme;
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
@@ -60,7 +60,7 @@ class ReceivedMessageBox extends StatelessWidget {
             isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
   }
 
-  doNotNeedsWrapper() {
+  bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
         AnimatedEmoji.isAnimatedEmoji(message);
   }

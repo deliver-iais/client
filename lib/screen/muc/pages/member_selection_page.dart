@@ -36,8 +36,7 @@ class MemberSelectionPage extends StatelessWidget {
               mucUid != null
                   ? FutureBuilder<String?>(
                       future: _roomRepo.getName(mucUid!),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<String?> snapshot) {
+                      builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           return Text(snapshot.data!);
                         } else {
@@ -54,7 +53,7 @@ class MemberSelectionPage extends StatelessWidget {
                     if (!snapshot.hasData) {
                       return const SizedBox.shrink();
                     }
-                    int members = snapshot.data!;
+                    final members = snapshot.data!;
                     return Text(
                       members >= 1
                           ? '$members ${_i18n.get("of_max_member")}'

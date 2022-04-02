@@ -11,7 +11,7 @@ import '../call_bottom_icons.dart';
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final RTCVideoRenderer remoteRenderer;
-  final Function hangUp;
+  final void Function() hangUp;
   final Uid roomUid;
 
   const InVideoCallPage(
@@ -28,7 +28,8 @@ class InVideoCallPage extends StatefulWidget {
 
 class _InVideoCallPageState extends State<InVideoCallPage> {
   final callRepo = GetIt.I.get<CallRepo>();
-  final double width = 100.0, height = 150.0;
+  final width = 100.0;
+  final height = 150.0;
   Offset position = const Offset(10, 30);
 
   @override
@@ -38,8 +39,8 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    var x = MediaQuery.of(context).size.width;
-    var y = MediaQuery.of(context).size.height;
+    final x = MediaQuery.of(context).size.width;
+    final y = MediaQuery.of(context).size.height;
     return Stack(
       children: <Widget>[
         StreamBuilder<bool>(
@@ -93,8 +94,7 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                           width: width,
                           height: height,
                         ),
-                        onDraggableCanceled:
-                            (Velocity velocity, Offset offset) {
+                        onDraggableCanceled: (velocity, offset) {
                           setState(() {
                             if (isDesktop) {
                               position = const Offset(20, 40);

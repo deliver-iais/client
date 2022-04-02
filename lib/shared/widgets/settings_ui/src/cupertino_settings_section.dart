@@ -25,7 +25,7 @@ class CupertinoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final List<Widget> columnChildren = [];
+    final columnChildren = <Widget>[];
     if (header != null) {
       columnChildren.add(DefaultTextStyle(
         style: const TextStyle(
@@ -44,18 +44,19 @@ class CupertinoSection extends StatelessWidget {
       ));
     }
 
-    List<Widget> itemsWithDividers = [];
-    for (int i = 0; i < items.length; i++) {
+    final itemsWithDividers = <Widget>[];
+    for (var i = 0; i < items.length; i++) {
       final leftPadding = ((items[i] is SettingsTile) &&
               (items[i] as SettingsTile).leading == null)
           ? 15.0
           : 54.0;
       if (i < items.length - 1) {
-        itemsWithDividers.add(items[i]);
-        itemsWithDividers.add(Divider(
-          height: 0.2,
-          indent: leftPadding,
-        ));
+        itemsWithDividers
+          ..add(items[i])
+          ..add(Divider(
+            height: 0.2,
+            indent: leftPadding,
+          ));
       } else {
         itemsWithDividers.add(items[i]);
       }

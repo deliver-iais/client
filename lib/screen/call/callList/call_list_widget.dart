@@ -32,8 +32,7 @@ class CallListWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          CircleAvatarWidget(caller, 23,
-              isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+          CircleAvatarWidget(caller, 23, isHeroEnabled: false),
           const SizedBox(
             width: 15,
           ),

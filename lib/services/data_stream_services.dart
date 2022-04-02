@@ -1,48 +1,47 @@
 import 'dart:async';
 
+import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/muc_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/seen_dao.dart';
+import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/media_meta_data.dart';
+import 'package:deliver/box/member.dart';
+import 'package:deliver/box/message.dart' as message_model;
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
-import 'package:deliver/box/dao/last_activity_dao.dart';
-import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message.dart' as message_model;
-import 'package:deliver/box/dao/message_dao.dart';
-import 'package:deliver/box/dao/muc_dao.dart';
-import 'package:deliver/box/dao/seen_dao.dart';
-import 'package:deliver/box/last_activity.dart';
-import 'package:deliver/box/member.dart';
-import 'package:deliver/box/room.dart';
-import 'package:deliver/box/seen.dart';
-import 'package:deliver/repository/accountRepo.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:fixnum/fixnum.dart';
 
 /// All services about streams of data from Core service or Firebase Streams
 class DataStreamServices {
@@ -53,6 +52,7 @@ class DataStreamServices {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _routingServices = GetIt.I.get<RoutingService>();
+  final _callService = GetIt.I.get<CallService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
@@ -62,30 +62,9 @@ class DataStreamServices {
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
 
-  DataStreamServices() {
-    _callEvents.distinct().listen((event) {
-      callEvents.add(event);
-    });
-    _groupCallEvents.distinct().listen((event) {
-      groupCallEvents.add(event);
-    });
-  }
-
-  final BehaviorSubject<CallEvents> callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
   Future<void> handleIncomingMessage(Message message,
       {String? roomName}) async {
-    Uid roomUid = getRoomUid(_authRepo, message);
+    final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
@@ -98,8 +77,8 @@ class DataStreamServices {
               return;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
-                Muc? muc = await _mucDao.get(roomUid.asString());
-                var pinMessages = muc!.pinMessagesIdList;
+                final muc = await _mucDao.get(roomUid.asString());
+                final pinMessages = muc!.pinMessagesIdList;
                 pinMessages!.add(message
                     .persistEvent.mucSpecificPersistentEvent.messageId
                     .toInt());
@@ -142,7 +121,7 @@ class DataStreamServices {
               ));
               break;
             case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-              _avatarRepo.fetchAvatar(message.from, true);
+              _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
               break;
             case MucSpecificPersistentEvent_Issue.MUC_CREATED:
               // TODO: Handle this case.
@@ -164,7 +143,7 @@ class DataStreamServices {
                   message.time.toInt());
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              var mes = await _messageDao.getMessage(
+              final mes = await _messageDao.getMessage(
                   roomUid.asString(),
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
@@ -191,14 +170,13 @@ class DataStreamServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-      var callEvents =
-          CallEvents.callEvent(message.callEvent, roomUid: message.from);
+      final callEvents = CallEvents.callEvent(message.callEvent,
+          roomUid: message.from, callId: message.callEvent.id);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        _groupCallEvents.add(callEvents);
+        _callService.addGroupCallEvent(callEvents);
       } else {
-        // its group Call
-        _callEvents.add(callEvents);
+        _callService.addCallEvent(callEvents);
       }
     }
     final msg = await saveMessage(message, roomUid);
@@ -220,15 +198,15 @@ class DataStreamServices {
     }
   }
 
-  _messageEdited(Uid roomUid, int id, int time) async {
-    var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
+  Future<void> _messageEdited(Uid roomUid, int id, int time) async {
+    final res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
       ..pointer = Int64(id)
       ..type = FetchMessagesReq_Type.FORWARD_FETCH);
-    var msg = await saveMessageInMessagesDB(
+    final msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
-    var room = await _roomDao.getRoom(roomUid.asString());
+    final room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
       _roomDao.updateRoom(room.copyWith(
           lastUpdateTime: time,
@@ -272,23 +250,23 @@ class DataStreamServices {
     }
   }
 
-  handleActivity(Activity activity) {
+  void handleActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
     _updateLastActivityTime(
         _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
   }
 
-  handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+  Future<void> handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
-    var packetId = messageDeliveryAck.packetId;
-    var id = messageDeliveryAck.id.toInt();
-    var time = messageDeliveryAck.time.toInt();
+    final packetId = messageDeliveryAck.packetId;
+    final id = messageDeliveryAck.id.toInt();
+    final time = messageDeliveryAck.time.toInt();
 
-    var pm = await _messageDao.getPendingMessage(packetId);
+    final pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
-      var msg = pm.msg.copyWith(id: id, time: time);
+      final msg = pm.msg.copyWith(id: id, time: time);
       try {
         _messageDao.deletePendingMessage(packetId);
       } catch (e) {
@@ -317,7 +295,7 @@ class DataStreamServices {
 
   void handleRoomPresenceTypeChange(
       RoomPresenceTypeChanged roomPresenceTypeChanged) {
-    PresenceType type = roomPresenceTypeChanged.presenceType;
+    final type = roomPresenceTypeChanged.presenceType;
     _roomDao.updateRoom(Room(
         uid: roomPresenceTypeChanged.uid.asString(),
         deleted: type == PresenceType.BANNED ||
@@ -328,24 +306,26 @@ class DataStreamServices {
   }
 
   void handleCallOffer(call_pb.CallOffer callOffer) {
-    var callEvents = CallEvents.callOffer(callOffer,
-        roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to));
+    final callEvents = CallEvents.callOffer(callOffer,
+        roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
+        callId: callOffer.id);
     if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callOffer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _groupCallEvents.add(callEvents);
+      _callService.addGroupCallEvent(callEvents);
     } else {
-      _callEvents.add(callEvents);
+      _callService.addCallEvent(callEvents);
     }
   }
 
   void handleCallAnswer(call_pb.CallAnswer callAnswer) {
-    var callEvents = CallEvents.callAnswer(callAnswer,
-        roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to));
+    final callEvents = CallEvents.callAnswer(callAnswer,
+        roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
+        callId: callAnswer.id);
     if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callAnswer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _groupCallEvents.add(callEvents);
+      _callService.addGroupCallEvent(callEvents);
     } else {
-      _callEvents.add(callEvents);
+      _callService.addCallEvent(callEvents);
     }
   }
 
@@ -381,9 +361,9 @@ class DataStreamServices {
 
   Future<message_model.Message> saveMessage(
       Message message, Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
+    final msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
 
-    bool isMention = false;
+    var isMention = false;
     if (roomUid.category == Categories.GROUP) {
       // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
       if (message.text.text
@@ -408,8 +388,8 @@ class DataStreamServices {
     return msg;
   }
 
-  fetchSeen(String roomUid) async {
-    var res = await _seenDao.getMySeen(roomUid);
+  Future<void> fetchSeen(String roomUid) async {
+    final res = await _seenDao.getMySeen(roomUid);
     if (res.messageId == -1) {
       _seenDao.saveMySeen(Seen(uid: roomUid, messageId: 0));
     }
@@ -419,14 +399,14 @@ class DataStreamServices {
   Future<void> _updateRoomMediaMetadata(
       String roomUid, message_model.Message message) async {
     try {
-      var file = message.json.toFile();
+      final file = message.json.toFile();
       if (file.type.contains("image") ||
           file.type.contains("jpg") ||
           file.type.contains("png")) {
-        var mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
+        final mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
         if (mediaMetaData != null) {
           _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
-              lastUpdateTime: message.time.toInt(),
+              lastUpdateTime: message.time,
               imagesCount: mediaMetaData.imagesCount + 1));
         } else {
           _mediaQueryRepo.saveMediaMetaData(MediaMetaData(
@@ -438,7 +418,7 @@ class DataStreamServices {
               documentsCount: 0,
               filesCount: 0,
               linkCount: 0,
-              lastUpdateTime: message.time.toInt()));
+              lastUpdateTime: message.time));
         }
         _mediaQueryRepo.saveMediaFromMessage(message);
       }

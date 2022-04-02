@@ -42,7 +42,7 @@ class _VideoUiState extends State<VideoUi> {
     super.dispose();
   }
 
-  _init() async {
+  Future<void> _init() async {
     _videoPlayerController = isWeb
         ? VideoPlayerController.network(widget.videoFilePath)
         : VideoPlayerController.file(File(widget.videoFilePath));

@@ -78,7 +78,7 @@ class Toast {
     this.image,
     this.actions,
   }) {
-    List<String> data = [
+    final data = <String>[
       type.index.toString(),
       title,
       subtitle ?? '',

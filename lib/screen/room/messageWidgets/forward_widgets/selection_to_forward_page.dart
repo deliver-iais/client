@@ -1,12 +1,11 @@
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_appbar.dart';
-import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +29,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
   final _routingService = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
   void dispose() {
@@ -40,8 +40,6 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var _roomRepo = GetIt.I.get<RoomRepo>();
-
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: PreferredSize(
@@ -85,18 +83,18 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
     );
   }
 
-  _send(Uid uid) {
+  void _send(Uid uid) {
     _routingService.openRoom(uid.asString(),
         forwardedMessages: widget.forwardedMessages ?? [],
         popAllBeforePush: true,
-        forwardedMedia: widget.medias??[],
+        forwardedMedia: widget.medias ?? [],
         shareUid: widget.shareUid);
   }
 
   ListView buildListView(List<Uid> uids) {
     return ListView.builder(
       itemCount: uids.length,
-      itemBuilder: (BuildContext ctx, int index) {
+      itemBuilder: (ctx, index) {
         return ChatItemToForward(
           uid: uids[index],
           send: _send,

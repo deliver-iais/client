@@ -10,12 +10,12 @@ import 'package:get_it/get_it.dart';
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
-  final bool? waitingForForward;
+  final void Function() resetRoomPageDetails;
+  final bool waitingForForward;
   final Message? editableMessage;
-  final Function? sendForwardMessage;
+  final void Function()? sendForwardMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final Function? scrollToLastSentMessage;
+  final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
 
@@ -24,12 +24,13 @@ class NewMessageInput extends StatelessWidget {
     required this.currentRoomId,
     required this.focusNode,
     required this.textController,
+    required this.scrollToLastSentMessage,
+    required this.resetRoomPageDetails,
+    required this.waitingForForward,
     this.replyMessageId = 0,
-    this.resetRoomPageDetails,
-    this.waitingForForward,
     this.editableMessage,
     this.sendForwardMessage,
-    this.scrollToLastSentMessage,
+
   }) : super(key: key);
 
   @override
@@ -38,15 +39,15 @@ class NewMessageInput extends StatelessWidget {
         stream: _roomRepo.watchRoom(currentRoomId),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Room currentRoom = snapshot.data!;
+            final currentRoom = snapshot.data!;
             return InputMessage(
               currentRoom: currentRoom,
               replyMessageId: replyMessageId,
               resetRoomPageDetails: resetRoomPageDetails,
-              waitingForForward: waitingForForward!,
+              waitingForForward: waitingForForward,
               editableMessage: editableMessage,
-              sendForwardMessage: sendForwardMessage!,
-              scrollToLastSentMessage: scrollToLastSentMessage!,
+              sendForwardMessage: sendForwardMessage,
+              scrollToLastSentMessage: scrollToLastSentMessage,
               focusNode: focusNode,
               textController: textController,
             );

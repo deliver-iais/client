@@ -17,7 +17,7 @@ class ExtraThemeData {
 
   Color highlight() => colorScheme.primary;
 
-  Color surfaceElevation(int number, {isSender = false}) => elevation(
+  Color surfaceElevation(int number, {bool isSender = false}) => elevation(
       colorScheme.surface,
       isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer,
       number);
@@ -31,7 +31,7 @@ class ExtraThemeData {
       hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
     }
     final finalHash = hash.abs() % (100);
-    var r = Random(finalHash);
+    final r = Random(finalHash);
     return customColorsSchemeList[r.nextInt(customColorsSchemeList.length)];
   }
 

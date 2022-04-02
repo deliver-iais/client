@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -12,7 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:math' as math;
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
@@ -49,7 +50,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatarWidget(_authRepo.currentUserUid, 24,
-                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+                isHeroEnabled: false),
             const SizedBox(width: 26),
             Transform(
               alignment: Alignment.center,
@@ -57,8 +58,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
               child: Lottie.asset("assets/animations/arrow.json", height: 100),
             ),
             const SizedBox(width: 26),
-            CircleAvatarWidget(widget.caller, 24,
-                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+            CircleAvatarWidget(widget.caller, 24, isHeroEnabled: false),
           ],
         ),
         Container(

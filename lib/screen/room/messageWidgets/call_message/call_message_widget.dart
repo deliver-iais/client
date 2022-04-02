@@ -3,6 +3,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -20,6 +21,7 @@ class CallMessageWidget extends StatelessWidget {
   final int _callDuration;
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  static final _callService = GetIt.I.get<CallService>();
   final bool _isVideo;
 
   CallMessageWidget(
@@ -27,14 +29,13 @@ class CallMessageWidget extends StatelessWidget {
       : _callEvent = message.json.toCallEvent().newStatus,
         _callDuration = message.json.toCallDuration(),
         _isVideo =
-            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO
-                ? true
-                : false,
+            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    bool isIncomingCall = _callEvent == CallEvent_CallStatus.DECLINED
+    final isIncomingCall = (_callEvent == CallEvent_CallStatus.DECLINED ||
+            _callEvent == CallEvent_CallStatus.BUSY)
         ? _authRepo.isCurrentUser(message.to)
         : _authRepo.isCurrentUser(message.from);
     return Container(
@@ -87,10 +88,11 @@ class CallMessageWidget extends StatelessWidget {
               ],
             ),
             InkWell(
-              onTap: () {
-                _routingService.openCallScreen(message.roomUid.asUid(),
-                    isVideoCall: _isVideo);
-              },
+              onTap: (_callService.getUserCallState == UserCallState.NOCALL)
+                  ? () => _routingService.openCallScreen(
+                      message.roomUid.asUid(),
+                      isVideoCall: _isVideo)
+                  : null,
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Icon(

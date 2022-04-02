@@ -202,7 +202,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
             itemBuilder: (context) => [
                   PopupMenuItem<String>(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(CupertinoIcons.group),
                         const SizedBox(width: 8),
@@ -213,7 +212,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   ),
                   PopupMenuItem<String>(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(CupertinoIcons.news),
                         const SizedBox(width: 8),
@@ -229,7 +227,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  selectChatMenu(String key) {
+  void selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
@@ -245,7 +243,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Expanded(
         child: FutureBuilder<List<List<Uid>>>(
             future: searchUidList(query),
-            builder: (BuildContext c, AsyncSnapshot<List<List<Uid>>> snaps) {
+            builder: (c, snaps) {
               if (!snaps.hasData || snaps.data!.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -257,13 +255,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
               if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
                   children: [
                     const TGS.asset(
                       'assets/animations/not-found.tgs',
                       width: 180,
                       height: 150,
-                      repeat: true,
                     ),
                     Text(_i18n.get("not_found"),
                         textAlign: TextAlign.center,
@@ -334,15 +330,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatarWidget(uid, 24),
             const SizedBox(
               width: 20,
             ),
-            FutureBuilder(
+            FutureBuilder<String>(
                 future: _roomRepo.getName(uid),
-                builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                builder: (c, snaps) {
                   return Text(
                     snaps.data ?? "",
                     style: theme.textTheme.subtitle1,

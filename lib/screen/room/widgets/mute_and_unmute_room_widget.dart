@@ -2,9 +2,9 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class MuteAndUnMuteRoomWidget extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -35,7 +35,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                   child: GestureDetector(
                 child: StreamBuilder<bool>(
                   stream: _roomRepo.watchIsRoomMuted(roomId),
-                  builder: (BuildContext context, AsyncSnapshot<bool> isMuted) {
+                  builder: (context, isMuted) {
                     if (isMuted.data != null) {
                       if (isMuted.data!) {
                         return GestureDetector(

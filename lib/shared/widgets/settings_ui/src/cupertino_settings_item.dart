@@ -71,8 +71,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     /// The width of iPad. This is used to make circular borders on iPad and web
     // final isLargeScreen = MediaQuery.of(context).size.width >= 768;
 
-    final ThemeData theme = Theme.of(context);
-    final ListTileThemeData tileTheme = ListTileTheme.of(context);
+    final theme = Theme.of(context);
+    final tileTheme = ListTileTheme.of(context);
 
     final iconThemeData = IconThemeData(
       color: widget.enabled
@@ -88,7 +88,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       );
     }
 
-    List<Widget> rowChildren = [];
+    final rowChildren = <Widget>[];
     if (leadingIcon != null) {
       rowChildren.add(
         Padding(
@@ -156,11 +156,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             child: CupertinoSwitch(
               value: widget.switchValue!,
               activeColor: theme.primaryColor,
-              onChanged: !widget.enabled
-                  ? null
-                  : (bool value) {
-                      widget.onToggle!(value);
-                    },
+              onChanged:
+                  !widget.enabled ? null : (value) => widget.onToggle!(value),
             ),
           ),
         );
@@ -190,7 +187,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
           );
         }
 
-        final List<Widget> endRowChildren = [];
+        final endRowChildren = <Widget>[];
         if (widget.trailing != null) {
           endRowChildren.add(
             Padding(
@@ -240,9 +237,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
               });
             }
 
-            if (widget.onPress != null) {
-              widget.onPress!();
-            }
+            widget.onPress?.call();
 
             Future.delayed(const Duration(milliseconds: 100), () {
               if (mounted) {

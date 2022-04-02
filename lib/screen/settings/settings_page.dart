@@ -1,32 +1,28 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/account.dart';
-
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-
 import 'package:deliver/services/routing_service.dart';
-
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -69,9 +65,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                var lastAvatar =
-                                    await _avatarRepo.getLastAvatar(
-                                        _authRepo.currentUserUid, false);
+                                final lastAvatar = await _avatarRepo
+                                    .getLastAvatar(_authRepo.currentUserUid);
                                 if (lastAvatar?.createdOn != null &&
                                     lastAvatar!.createdOn > 0) {
                                   _routingService.openShowAllAvatars(
@@ -86,8 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Expanded(
                             child: FutureBuilder<Account?>(
                               future: _accountRepo.getAccount(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<Account?> snapshot) {
+                              builder: (context, snapshot) {
                                 if (snapshot.data != null) {
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -136,8 +130,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("qr_share"),
                     leading: const Icon(CupertinoIcons.qrcode),
-                    onPressed: (BuildContext context) async {
-                      var account = await _accountRepo.getAccount();
+                    onPressed: (context) async {
+                      final account = await _accountRepo.getAccount();
                       showQrCode(
                           context,
                           buildShareUserUrl(
@@ -150,7 +144,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("saved_message"),
                     leading: const Icon(CupertinoIcons.bookmark),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
                     },
@@ -158,14 +152,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("contacts"),
                     leading: const Icon(CupertinoIcons.person_2),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService.openContacts();
                     },
                   ),
                   SettingsTile(
                     title: _i18n.get("calls"),
                     leading: const Icon(CupertinoIcons.phone),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService.openCallsList();
                     },
                   )
@@ -185,14 +179,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("language"),
                     subtitle: I18N.of(context)!.locale.language().name,
                     leading: const Icon(CupertinoIcons.textformat_abc),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService.openLanguageSettings();
                     },
                   ),
                   SettingsTile(
                     title: _i18n.get("security"),
                     leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
-                    onPressed: (BuildContext context) =>
+                    onPressed: (context) =>
                         _routingService.openSecuritySettings(),
                     trailing: const SizedBox.shrink(),
                   ),
@@ -208,7 +202,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: _i18n.get("send_by_shift_enter"),
                       leading: const Icon(CupertinoIcons.keyboard),
                       switchValue: !_uxService.sendByEnter,
-                      onToggle: (bool value) {
+                      onToggle: (value) {
                         setState(() => _uxService.toggleSendByEnter());
                       },
                     )
@@ -262,7 +256,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           LogLevelHelper.levelToString(
                               GetIt.I.get<DeliverLogFilter>().level!),
                       leading: const Icon(Icons.bug_report_rounded),
-                      onPressed: (BuildContext context) {
+                      onPressed: (context) {
                         _routingService.openDeveloperPage();
                       },
                     )
@@ -292,7 +286,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("logout"),
                     leading: const Icon(CupertinoIcons.square_arrow_left),
-                    onPressed: (BuildContext context) =>
+                    onPressed: (context) =>
                         openLogoutAlertDialog(context, _i18n),
                     trailing: const SizedBox.shrink(),
                   ),
@@ -308,7 +302,7 @@ class _SettingsPageState extends State<SettingsPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+            titlePadding: EdgeInsets.zero,
             actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             // backgroundColor: Colors.white,
             content: Text(i18n.get("sure_exit_app")),
@@ -330,7 +324,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget color(Color color, int index) {
-    bool isSelected = _uxService.themeIndex == index;
+    final isSelected = _uxService.themeIndex == index;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -362,8 +356,6 @@ class _SettingsPageState extends State<SettingsPage> {
 class NormalSettingsTitle extends SettingsTile {
   final Widget child;
 
-  @override
-  // ignore: overridden_fields
   final VoidCallback? onTap;
 
   const NormalSettingsTitle({Key? key, this.onTap, required this.child})

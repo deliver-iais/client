@@ -1,14 +1,16 @@
 import 'dart:io';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -17,8 +19,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class ShowCaptionDialog extends StatefulWidget {
   final String? type;
@@ -27,7 +27,7 @@ class ShowCaptionDialog extends StatefulWidget {
   final Message? editableMessage;
   final bool showSelectedImage;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function()? resetRoomPageDetails;
   final String? caption;
 
   const ShowCaptionDialog(
@@ -69,11 +69,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     _isFileSizeAccept = widget.editableMessage != null;
     if (widget.editableMessage == null) {
       _type = widget.type!;
-      for (var element in widget.files!) {
+      for (final element in widget.files!) {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
             element.extension ?? element.name.split(".").last);
-        int size = element.size ?? 0;
+        final size = element.size ?? 0;
         _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
@@ -171,7 +171,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                   );
                                 },
                                 separatorBuilder:
-                                    (BuildContext context, int index) {
+                                    (context, index) {
                                   return const SizedBox(
                                     height: 6,
                                   );
@@ -210,10 +210,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           if (widget.editableMessage == null)
                             GestureDetector(
                               onTap: () async {
-                                FilePickerResult? res =
-                                    await getFile(allowMultiple: true);
+                                final res = await getFile(allowMultiple: true);
                                 if (res != null) {
-                                  for (var element in res.files) {
+                                  for (final element in res.files) {
                                     widget.files!.add(model.File(
                                         isWeb
                                             ? Uri.dataFromBytes(
@@ -352,9 +351,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
-            replyToId: widget.replyMessageId,
-            caption: _editingController.text.toString());
-    if (widget.resetRoomPageDetails != null) widget.resetRoomPageDetails!();
+            replyToId: widget.replyMessageId, caption: _editingController.text);
+    widget.resetRoomPageDetails?.call();
   }
 
   Row buildRow(int index, {bool showManage = true}) {
@@ -398,7 +396,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         IconButton(
             onPressed: () async {
-              FilePickerResult? result = await getFile(allowMultiple: false);
+              final result = await getFile(allowMultiple: false);
 
               if (result != null && result.files.isNotEmpty) {
                 if (widget.editableMessage != null) {
@@ -453,10 +451,10 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   Future<FilePickerResult?> getFile({required bool allowMultiple}) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.platform.pickFiles(
       allowMultiple: allowMultiple,
     );
-    for (var element in result!.files) {
+    for (final element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
       _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;

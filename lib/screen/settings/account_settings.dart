@@ -24,7 +24,7 @@ import 'package:rxdart/rxdart.dart';
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
 
-  const AccountSettings({Key? key, this.forceToSetUsernameAndName = true})
+  const AccountSettings({Key? key, this.forceToSetUsernameAndName = false})
       : super(key: key);
 
   @override
@@ -52,7 +52,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
-  attachFile() async {
+  Future<void> attachFile() async {
     String? path;
     if (isWeb || isDesktop) {
       if (isLinux) {
@@ -65,7 +65,7 @@ class _AccountSettingsState extends State<AccountSettings> {
           path = file.path;
         }
       } else {
-        FilePickerResult? result = await FilePicker.platform
+        final result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
           path = isWeb
@@ -87,7 +87,6 @@ class _AccountSettingsState extends State<AccountSettings> {
             return DraggableScrollableSheet(
               initialChildSize: 0.3,
               minChildSize: 0.2,
-              maxChildSize: 1,
               expand: false,
               builder: (context, scrollController) {
                 return Container(
@@ -98,10 +97,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                         child: ShareBoxGallery(
                           pop: () => Navigator.pop(context),
                           scrollController: scrollController,
-                          setAvatar: (String filePath) async {
+                          setAvatar: (filePath) async {
                             cropAvatar(filePath);
                           },
-                          selectAvatar: true,
                           roomUid: _authRepo.currentUserUid,
                         ),
                       ),
@@ -112,13 +110,11 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-  void cropAvatar(String imagePath) async {
+  Future<void> cropAvatar(String imagePath) async {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return OpenImagePage(
         onEditEnd: (path) {
-          if (path != null) {
-            imagePath = path;
-          }
+          imagePath = path;
           Navigator.pop(context);
           setAvatar(imagePath);
         },
@@ -143,7 +139,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         _usernameFormKey.currentState?.validate();
         if (_userNameCorrect) {
           if (_lastUserName != username) {
-            bool validUsername = await _accountRepo.checkUserName(username);
+            final validUsername = await _accountRepo.checkUserName(username);
             setState(() {
               usernameIsAvailable = validUsername;
             });
@@ -187,11 +183,11 @@ class _AccountSettingsState extends State<AccountSettings> {
         body: FluidContainerWidget(
           child: FutureBuilder<Account>(
             future: _accountRepo.getAccount(),
-            builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
+            builder: (c, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox.shrink();
               }
-              _account = snapshot.data!;
+              _account = snapshot.data;
               if (snapshot.data!.userName != null) {
                 _lastUserName = snapshot.data!.userName!;
               }
@@ -288,7 +284,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       },
                                       validator: validateUsername,
                                       decoration: buildInputDecoration(
-                                          _i18n.get("username"), true)),
+                                          _i18n.get("username"),
+                                          isOptional: true)),
                                 ),
                                 const SizedBox(
                                   height: 5,
@@ -336,7 +333,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   },
                                   validator: validateFirstName,
                                   decoration: buildInputDecoration(
-                                      _i18n.get("firstName"), true),
+                                      _i18n.get("firstName"),
+                                      isOptional: true),
                                 ),
                                 const SizedBox(
                                   height: 20,
@@ -351,7 +349,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       });
                                     },
                                     decoration: buildInputDecoration(
-                                        _i18n.get("lastName"), false)),
+                                        _i18n.get("lastName"))),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -366,7 +364,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     },
                                     validator: validateEmail,
                                     decoration: buildInputDecoration(
-                                        _i18n.get("email"), false)),
+                                        _i18n.get("email"))),
                               ],
                             )),
                         const SizedBox(height: 8),
@@ -391,7 +389,8 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  InputDecoration buildInputDecoration(label, bool isOptional) {
+  InputDecoration buildInputDecoration(String label,
+      {bool isOptional = false}) {
     return InputDecoration(
         suffixIcon: isOptional
             ? const Padding(
@@ -415,8 +414,8 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   String? validateUsername(String? value) {
-    Pattern? pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp? regex = RegExp(pattern.toString());
+    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       setState(() {
         _userNameCorrect = false;
@@ -438,9 +437,9 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   String? validateEmail(String? value) {
-    Pattern pattern =
+    const Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = RegExp(pattern.toString());
+    final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       return null;
     } else if (!regex.hasMatch(value)) {
@@ -449,13 +448,13 @@ class _AccountSettingsState extends State<AccountSettings> {
     return null;
   }
 
-  checkAndSend() async {
-    bool checkUserName = _usernameFormKey.currentState?.validate() ?? false;
+  Future<void> checkAndSend() async {
+    final checkUserName = _usernameFormKey.currentState?.validate() ?? false;
     if (checkUserName) {
-      bool isValidated = _formKey.currentState?.validate() ?? false;
+      final isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
         if (usernameIsAvailable) {
-          bool setPrivateInfo = await _accountRepo.setAccountDetails(
+          final setPrivateInfo = await _accountRepo.setAccountDetails(
               _username.isNotEmpty ? _username : _account!.userName,
               _firstName.isNotEmpty ? _firstName : _account!.firstName,
               _lastName.isNotEmpty ? _lastName : _account!.lastName,

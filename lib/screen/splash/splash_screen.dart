@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  tryInitAccountRepo() async {
+  Future<void> tryInitAccountRepo() async {
     try {
       await _accountRepo.checkUpdatePlatformSessionInformation();
       _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {
@@ -84,9 +84,10 @@ class _SplashScreenState extends State<SplashScreen>
     }));
   }
 
-  void _navigateToHomePage() async {
+  Future<void> _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
-    bool hasProfile = await _accountRepo.profileInfoIsSet();
+    final hasProfile = await _accountRepo.profileInfoIsSet();
+    if (!mounted) return;
     if (hasProfile) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
         return const HomePage();
@@ -139,7 +140,7 @@ class _SplashScreenState extends State<SplashScreen>
                   autocorrect: false,
                   controller: _textEditingController,
                   focusNode: _focusNode,
-                  onChanged: (String pass) =>
+                  onChanged: (pass) =>
                       {if (pass.isEmpty || pass.length == 1) setState(() {})},
                   onSubmitted: (pass) {
                     checkPassword(pass);

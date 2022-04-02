@@ -43,9 +43,9 @@ class _LoginPageState extends State<LoginPage> {
   static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
-  var loginWithQrCode = isDesktop;
+  bool loginWithQrCode = isDesktop;
   bool _acceptPrivacy = !isAndroid;
-  var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
+  final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
   PhoneNumber? phoneNumber;
@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     if (isDesktop) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
         try {
-          var res = await _authRepo.checkQrCodeToken(loginToken.value);
+          final res = await _authRepo.checkQrCodeToken(loginToken.value);
           if (res.status == AccessTokenRes_Status.OK) {
             _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     } else if (isAndroid && !kDebugMode) {
       SmsAutoFill().hint.then((value) {
         if (value != null) {
-          final PhoneNumber? p = getPhoneNumber(value);
+          final p = getPhoneNumber(value);
           if (p != null) {
             phoneNumber = p;
             controller.text = p.nationalNumber.toString();
@@ -93,14 +93,14 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  _navigationToHome() async {
+  Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
       return const HomePage();
     }), (r) => false);
   }
 
-  _loginASTestUser() {
+  void _loginASTestUser() {
     _authRepo.saveTestUserInfo();
     _navigationToHome();
   }
@@ -113,17 +113,17 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  checkAndGoNext({bool doNotCheckValidator = false}) async {
+  Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
     if (phoneNumber != null &&
         phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
       _logger.e("login as test user ");
       _loginASTestUser();
     } else {
-      var isValidated = _formKey.currentState?.validate() ?? false;
+      final isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
         _isLoading.add(true);
         try {
-          var isSent = await _authRepo.getVerificationCode(phoneNumber!);
+          final isSent = await _authRepo.getVerificationCode(phoneNumber!);
           if (isSent) {
             Navigator.push(context, MaterialPageRoute(builder: (c) {
               return const VerificationPage();
@@ -189,8 +189,6 @@ class _LoginPageState extends State<LoginPage> {
                     child: QrImage(
                       data:
                           "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
-                      version: QrVersions.auto,
-                      // embeddedImage: FileImage(File("")),
                       padding: EdgeInsets.zero,
                       foregroundColor: Colors.black,
                     ),

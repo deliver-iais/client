@@ -25,19 +25,18 @@ final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
 final isDesktop = isLinux || isWindows || isMacOS;
 
 Future<platform_pb.Platform> getPlatformPB() async {
-  platform_pb.Platform platform = platform_pb.Platform()
-    ..clientVersion = VERSION;
+  final platform = platform_pb.Platform()..clientVersion = VERSION;
   if (isWeb) {
     platform
       ..platformType = platform_pb.PlatformsType.WEB
       ..osVersion = platform_detector.browser.version.major.toString();
   } else if (isAndroid) {
-    AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
     platform
       ..platformType = platform_pb.PlatformsType.ANDROID
       ..osVersion = androidInfo.version.release;
   } else if (isIOS) {
-    IosDeviceInfo iosInfo = await DeviceInfoPlugin().iosInfo;
+    final iosInfo = await DeviceInfoPlugin().iosInfo;
 
     platform
       ..platformType = platform_pb.PlatformsType.IOS

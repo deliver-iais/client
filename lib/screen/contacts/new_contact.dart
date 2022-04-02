@@ -68,7 +68,7 @@ class _NewContactState extends State<NewContact> {
                             (value.isNotEmpty && value[0] == '0')
                         ? _i18n.get("invalid_mobile_number")
                         : null,
-                    style: theme.textTheme.bodyText1!,
+                    style: theme.textTheme.bodyText1,
                     onChanged: (ph) {
                       _phoneNumber = ph;
                     },
@@ -84,12 +84,13 @@ class _NewContactState extends State<NewContact> {
                       child: Text(_i18n.get("save")),
                       onPressed: () async {
                         if (_phoneNumber != null) {
-                          var res = await _contactRepo.sendNewContact(Contact()
-                            ..phoneNumber = _phoneNumber!
-                            ..firstName = _firstName
-                            ..lastName = _lastName);
-                          showResult(res);
-                          if (res) _routingServices.pop();
+                          final contactAdded =
+                              await _contactRepo.sendNewContact(Contact()
+                                ..phoneNumber = _phoneNumber!
+                                ..firstName = _firstName
+                                ..lastName = _lastName);
+                          showResult(contactAdded: contactAdded);
+                          if (contactAdded) _routingServices.pop();
                         }
                       },
                     ),
@@ -103,8 +104,8 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  Future<void> showResult(bool added) async {
-    if (added) {
+  Future<void> showResult({bool contactAdded = false}) async {
+    if (contactAdded) {
       ToastDisplay.showToast(
           toastText: _i18n.get("contactAdd"), toastContext: context);
     } else {

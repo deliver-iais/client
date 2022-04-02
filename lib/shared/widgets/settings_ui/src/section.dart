@@ -30,7 +30,6 @@ class Section extends AbstractSection {
       header: (title != null || subtitle != null)
           ? Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (title != null)

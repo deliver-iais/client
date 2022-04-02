@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart';
 const HEIGHT = 52.0;
 
 class ShowMentionList extends StatelessWidget {
-  final Function onSelected;
+  final void Function(String) onSelected;
   final String roomUid;
   final String query;
   final int mentionSelectedIndex;
@@ -41,9 +41,8 @@ class ShowMentionList extends StatelessWidget {
                         child: ListView.separated(
                           itemCount: members.data!.length,
                           shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
                           itemBuilder: (c, i) {
-                            Color _mucMemberMentionColor = Colors.transparent;
+                            var _mucMemberMentionColor = Colors.transparent;
                             if (mentionSelectedIndex == i &&
                                 mentionSelectedIndex != -1) {
                               _mucMemberMentionColor =
@@ -55,7 +54,7 @@ class ShowMentionList extends StatelessWidget {
                                   members.data![i]!, onSelected),
                             );
                           },
-                          separatorBuilder: (BuildContext context, int index) =>
+                          separatorBuilder: (context, index) =>
                               const Divider(),
                         )))),
           ]);

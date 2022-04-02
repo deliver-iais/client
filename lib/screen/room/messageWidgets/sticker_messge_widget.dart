@@ -1,10 +1,7 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 class StickerMessageWidget extends StatefulWidget {
   final Message message;
@@ -12,8 +9,11 @@ class StickerMessageWidget extends StatefulWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  const StickerMessageWidget(this.message, this.isSender, this.isSeen,
-      {Key? key, required this.colorScheme})
+  const StickerMessageWidget(this.message,
+      {Key? key,
+      required this.colorScheme,
+      required this.isSender,
+      required this.isSeen})
       : super(key: key);
 
   @override
@@ -21,8 +21,8 @@ class StickerMessageWidget extends StatefulWidget {
 }
 
 class _StickerMessageWidgetState extends State<StickerMessageWidget> {
-  var fileRepo = GetIt.I.get<FileRepo>();
-  I18N i18n = GetIt.I.get<I18N>();
+  // final _fileRepo = GetIt.I.get<FileRepo>();
+  // final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

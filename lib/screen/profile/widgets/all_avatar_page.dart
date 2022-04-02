@@ -49,7 +49,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
       tag: widget.heroTag!,
       child: StreamBuilder<List<Avatar?>>(
           key: _streamKey,
-          stream: _avatarRepo.getAvatar(widget.userUid, false),
+          stream: _avatarRepo.getAvatar(widget.userUid),
           builder: (cont, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               _avatars = snapshot.data!;
@@ -77,7 +77,6 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                             }),
                       Expanded(
                         child: Swiper(
-                            scrollDirection: Axis.horizontal,
                             controller: _swiperController,
                             onIndexChanged: (index) =>
                                 _swipePositionSubject.add(index),
@@ -106,7 +105,6 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                                 },
                               );
                             },
-                            viewportFraction: 1.0,
                             scale: 0.9,
                             loop: false),
                       ),
@@ -138,7 +136,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
     );
   }
 
-  PreferredSizeWidget buildAppBar(totalLength) {
+  PreferredSizeWidget buildAppBar(int totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),
       title: Align(
