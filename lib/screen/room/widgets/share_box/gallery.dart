@@ -4,8 +4,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +41,6 @@ class ShareBoxGallery extends StatefulWidget {
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final TextEditingController _captionEditingController =
       TextEditingController();
@@ -131,7 +130,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 child: CameraPreview(
                                   _controller,
                                   child: const Icon(Icons.photo_camera,
-                                      size: 50, color: Colors.black26),
+                                      size: 50, color: Colors.white),
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -268,64 +267,21 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   void openImage(XFile file, Function pop) {
     String imagePath = file.path;
     Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return StatefulBuilder(builder: (con, set) {
-        return Scaffold(
-            appBar: AppBar(
-              actions: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return CropImage(imagePath, (path) {
-                            if (path != null) {
-                              set(() {
-                                imagePath = path;
-                              });
-                            }
-                          });
-                        }));
-                      },
-                      icon: const Icon(
-                        Icons.crop,
-                      ),
-                      iconSize: 30,
-                    ),
-                  ],
-                )
-              ],
-            ),
-            body: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: Image.file(
-                          File(
-                            imagePath,
-                          ),
-                        ).image,
-                        fit: BoxFit.fill),
-                  ),
-                ),
-                buildInputCaption(
-                    context: con,
-                    i18n: _i18n,
-                    count: 0,
-                    insertCaption: _insertCaption,
-                    captionEditingController: _captionEditingController,
-                    send: () {
-                      pop();
-                      Navigator.of(context).pop();
-                      _messageRepo.sendFileMessage(
-                          widget.roomUid,
-                          model.File(imagePath, file.name,
-                              extension: file.mimeType),
-                          caption: _captionEditingController.text);
-                    })
-              ],
-            ));
-      });
+      return OpenImagePage(
+          forceToShowCaptionTextField: true,
+          pop: pop,
+          send: () {
+            _messageRepo.sendFileMessage(widget.roomUid,
+                model.File(imagePath, file.name, extension: file.mimeType),
+                caption: _captionEditingController.text);
+          },
+          insertCaption: _insertCaption,
+          textEditingController: _captionEditingController,
+          onEditEnd: (path) {
+            imagePath = path;
+            Navigator.pop(context);
+          },
+          imagePath: imagePath);
     }));
   }
 }
@@ -429,7 +385,7 @@ Stack buildInputCaption(
                   child: Padding(
                     padding: const EdgeInsets.all(2), // border width
                     child: Container(
-                      decoration:  BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: theme.primaryColor, // inner circle color
                       ),

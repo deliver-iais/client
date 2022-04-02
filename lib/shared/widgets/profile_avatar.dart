@@ -4,12 +4,12 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
@@ -49,12 +49,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             return CircleAvatar(
               radius: 40,
               backgroundImage: isWeb
-                  ? Image
-                  .network(s.data!)
-                  .image
-                  : Image
-                  .file(File(s.data!))
-                  .image,
+                  ? Image.network(s.data!).image
+                  : Image.file(File(s.data!)).image,
               child: const Center(
                 child: SizedBox(
                     height: 20.0,
@@ -123,12 +119,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     if (isWeb || isDesktop) {
       if (isLinux) {
         final typeGroup =
-        XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
         if (file != null && file.path.isNotEmpty) {
-          _setAvatar(file.path);
+          cropAvatar(file.path);
         }
       } else {
         FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -136,7 +132,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(isWeb
+          cropAvatar(isWeb
               ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
               : result.files.first.path!);
         }
@@ -178,12 +174,16 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   void cropAvatar(String imagePath) async {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return CropImage(imagePath, (path) {
-        if (path != null) {
-          imagePath = path;
-        }
-        _setAvatar(imagePath);
-      });
+      return OpenImagePage(
+        onEditEnd: (path) {
+          if (path != null) {
+            imagePath = path;
+          }
+          Navigator.pop(context);
+          _setAvatar(imagePath);
+        },
+        imagePath: imagePath,
+      );
     }));
   }
 }

@@ -5,10 +5,8 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/edit_image/Chang_image_color/color_filter_page.dart';
-import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
-import 'package:deliver/shared/widgets/edit_image/paint_on_image/page/paint_on_image_page.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +93,19 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                       Navigator.pop(context);
                       widget.setAvatar!(imagePath);
                     } else {
-                      openImage(imagePath, index);
+                      Navigator.push(context, MaterialPageRoute(builder: (c) {
+                        return OpenImagePage(
+                            imagePath: imagePath,
+                            onEditEnd: (path) {
+                              imagePath = path;
+                            },
+                            insertCaption: _insertCaption,
+                            onTap: onTap,
+                            selectedImage: _selectedImage,
+                            send: _send,
+                            pop: widget.pop,
+                            textEditingController: _textEditingController);
+                      }));
                     }
                   },
                   child: AnimatedPadding(
@@ -183,132 +193,5 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
       }
       setState(() {});
     }
-  }
-
-  void openImage(String imagePath, int index) {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return StatefulBuilder(builder: (c, set) {
-        return Scaffold(
-            appBar: AppBar(
-              leadingWidth: 200,
-              leading: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  if (_selectedImage.isNotEmpty)
-                    Text(
-                      _selectedImage.length.toString(),
-                      style: const TextStyle(fontSize: 17),
-                    ),
-                ],
-              ),
-              actions: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return CropImage(imagePath, (path) {
-                            if (path != null) {
-                              set(() {
-                                imagePath = path;
-                              });
-                            }
-                          });
-                        }));
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.crop_rotate,
-                      ),
-                      iconSize: 30,
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return PaintOnImagePage(
-                              file: File(imagePath),
-                              onDone: (path) {
-                                if (path != null) {
-                                  set(() {
-                                    imagePath = path;
-                                  });
-                                }
-                              });
-                        }));
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.paintbrush,
-                      ),
-                      iconSize: 30,
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return ColorFilterPage(
-                              imagePath: imagePath,
-                              onDone: (path) {
-                                if (path != null) {
-                                  set(() {
-                                    imagePath = path;
-                                  });
-                                }
-                              });
-                        }));
-                      },
-                      icon: const Icon(
-                          CupertinoIcons.slider_horizontal_below_rectangle),
-                      iconSize: 30,
-                    ),
-                  ],
-                ),
-                IconButton(
-                  onPressed: () {
-                    set(() {
-                      onTap(imagePath);
-                    });
-                  },
-                  icon: _selectedImage.contains(imagePath)
-                      ? const Icon(Icons.check_circle_outline)
-                      : const Icon(Icons.panorama_fish_eye),
-                  iconSize: 30,
-                )
-              ],
-            ),
-            body: Stack(
-              children: [
-                Hero(
-                  tag: imagePath,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: Image.file(
-                            File(
-                              imagePath,
-                            ),
-                          ).image,
-                          fit: BoxFit.fitWidth),
-                    ),
-                  ),
-                ),
-                if (_selectedImage.isNotEmpty &&
-                    _selectedImage.contains(imagePath))
-                  buildInputCaption(
-                      i18n: _i18n,
-                      insertCaption: _insertCaption,
-                      context: context,
-                      captionEditingController: _textEditingController,
-                      count: _selectedImage.length,
-                      send: () {
-                        widget.pop();
-                        Navigator.pop(context);
-                        _send();
-                      })
-              ],
-            ));
-      });
-    }));
   }
 }

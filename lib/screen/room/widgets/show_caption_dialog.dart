@@ -5,6 +5,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -12,6 +13,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -105,13 +107,12 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 widget.editableMessage != null
             ? SingleChildScrollView(
                 child: AlertDialog(
-                  backgroundColor: Colors.white,
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
                       isSingleImage()
-                          ? singleImageUi(null)
+                          ? imageUi(null)
                           : SizedBox(
                               height: widget.editableMessage != null
                                   ? 50
@@ -127,17 +128,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                     ? 1
                                     : widget.files!.length,
                                 itemBuilder: (c, index) {
-                                  if (widget.files![index].path
-                                          .contains("image") ||
-                                      widget.files![index].path
-                                          .contains("jpg") ||
-                                      widget.files![index].path
-                                          .contains("png") ||
-                                      widget.files![index].path
-                                          .contains("jfif") ||
-                                      widget.files![index].path
-                                          .contains("jpeg")) {
-                                    return singleImageUi(index);
+                                  if (isImageFile(index)) {
+                                    return imageUi(index);
                                   }
                                   return Row(
                                     children: [
@@ -170,8 +162,6 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                                       .name
                                               : widget.files![index].name,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.black),
                                         ),
                                       ),
                                       Align(
@@ -204,8 +194,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             minLines: 1,
                             maxLines: 5,
                             autofocus: true,
-                            style: const TextStyle(
-                                fontSize: 15, color: Colors.black),
+                            style: const TextStyle(fontSize: 15),
                             decoration: InputDecoration(
                               labelText: _i18n.get("caption"),
                             )),
@@ -283,6 +272,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             : const SizedBox.shrink();
   }
 
+  bool isImageFile(int index) {
+    return widget.files![index].path.contains("image") ||
+        widget.files![index].path.contains("jpg") ||
+        widget.files![index].path.contains("png") ||
+        widget.files![index].path.contains("jfif") ||
+        widget.files![index].path.contains("jpeg");
+  }
+
   bool isSingleImage() {
     return ((widget.editableMessage != null || widget.files!.length <= 1) &&
         (_type.contains("image") ||
@@ -292,38 +289,57 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             _type.contains("jpeg")));
   }
 
-  Widget singleImageUi(int? index) {
-    return SizedBox(
-      height: index == null ? MediaQuery.of(context).size.height / 3 : null,
-      child: Stack(
-        children: [
-          Center(
-              child: widget.files!.isNotEmpty
-                  ? isWeb
-                      ? Image.network(index == null
-                          ? widget.files!.first.path
-                          : widget.files![index].path)
-                      : Image.file(File(index == null
-                          ? widget.files!.first.path
-                          : widget.files![index].path))
-                  : _editedFile != null
-                      ? Image.file(File(_editedFile!.path))
-                      : FutureBuilder<String?>(
-                          future: _fileRepo.getFileIfExist(
-                              _editableFile.uuid, _editableFile.name),
-                          builder: (c, s) {
-                            if (s.hasData && s.data != null) {
-                              return Image.file(File(s.data!));
-                            } else {
-                              return buildRow(0, showManage: false);
-                            }
-                          })),
-          Positioned(
-              right: 5,
-              top: 2,
-              child: Container(
-                  color: Colors.black12, child: buildManage(index: 0))),
-        ],
+  Widget imageUi(int? index) {
+    //if index==null isSingleImage
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (c) {
+          return OpenImagePage(
+            onEditEnd: (path) {
+              index == null
+                  ? widget.files!.first.path = path
+                  : widget.files![index].path = path;
+              Navigator.pop(context);
+              setState(() {});
+            },
+            imagePath: index == null
+                ? widget.files!.first.path
+                : widget.files![index].path,
+          );
+        }));
+      },
+      child: SizedBox(
+        height: index == null ? MediaQuery.of(context).size.height / 3 : null,
+        child: Stack(
+          children: [
+            Center(
+                child: widget.files!.isNotEmpty
+                    ? isWeb
+                        ? Image.network(index == null
+                            ? widget.files!.first.path
+                            : widget.files![index].path)
+                        : Image.file(File(index == null
+                            ? widget.files!.first.path
+                            : widget.files![index].path))
+                    : _editedFile != null
+                        ? Image.file(File(_editedFile!.path))
+                        : FutureBuilder<String?>(
+                            future: _fileRepo.getFileIfExist(
+                                _editableFile.uuid, _editableFile.name),
+                            builder: (c, s) {
+                              if (s.hasData && s.data != null) {
+                                return Image.file(File(s.data!));
+                              } else {
+                                return buildRow(0, showManage: false);
+                              }
+                            })),
+            Positioned(
+                right: 5,
+                top: 2,
+                child: Container(
+                    color: Colors.black12, child: buildManage(index: 0))),
+          ],
+        ),
       ),
     );
   }

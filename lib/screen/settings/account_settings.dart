@@ -7,6 +7,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -19,8 +20,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../shared/widgets/edit_image/crop_image/crop_image.dart';
 
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
@@ -76,7 +75,7 @@ class _AccountSettingsState extends State<AccountSettings> {
       }
 
       if (path != null) {
-        setAvatar(path);
+        cropAvatar(path);
       }
     } else {
       showModalBottomSheet(
@@ -115,12 +114,16 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   void cropAvatar(String imagePath) async {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return CropImage(imagePath, (path) {
-        if (path != null) {
-          imagePath = path;
-        }
-        setAvatar(imagePath);
-      });
+      return OpenImagePage(
+        onEditEnd: (path) {
+          if (path != null) {
+            imagePath = path;
+          }
+          Navigator.pop(context);
+          setAvatar(imagePath);
+        },
+        imagePath: imagePath,
+      );
     }));
   }
 
@@ -459,9 +462,10 @@ class _AccountSettingsState extends State<AccountSettings> {
               _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
+              Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (c) {
                 return const HomePage();
-              }),(r)=>false);
+              }), (r) => false);
             } else {
               _routingService.pop();
             }
